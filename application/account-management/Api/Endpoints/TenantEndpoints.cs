@@ -22,6 +22,10 @@ public sealed class TenantEndpoints : IEndpoints
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
 
+        group.MapGet("/", async Task<ApiResult<GetTenantsForUserResponse>> (IMediator mediator)
+            => await mediator.Send(new GetTenantsForUserQuery())
+        ).Produces<GetTenantsForUserResponse>();
+
         group.MapPost("/current/update-logo", async Task<ApiResult> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateTenantLogoCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery();

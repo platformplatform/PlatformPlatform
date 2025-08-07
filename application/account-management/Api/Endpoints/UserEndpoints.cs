@@ -42,6 +42,10 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        group.MapPost("/decline-invitation", async Task<ApiResult> (DeclineInvitationCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         // The following endpoints are for the current user only
         group.MapGet("/me", async Task<ApiResult<CurrentUserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)

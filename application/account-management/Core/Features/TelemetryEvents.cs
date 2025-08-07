@@ -57,6 +57,9 @@ public sealed class TenantLogoRemoved
 public sealed class TenantLogoUpdated(string contentType, long size)
     : TelemetryEvent(("content_type", contentType), ("size", size));
 
+public sealed class TenantSwitched(TenantId fromTenantId, TenantId toTenantId, UserId userId)
+    : TelemetryEvent(("from_tenant_id", fromTenantId), ("to_tenant_id", toTenantId), ("user_id", userId));
+
 public sealed class TenantUpdated
     : TelemetryEvent;
 
@@ -80,6 +83,9 @@ public sealed class UsersBulkDeleted(int count)
 
 public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMinutes)
     : TelemetryEvent(("user_id", userId), ("invite_accepted_time_in_minutes", inviteAcceptedTimeInMinutes));
+
+public sealed class UserInviteDeclined(UserId userId, int inviteExistedTimeInMinutes)
+    : TelemetryEvent(("user_id", userId), ("invite_existed_time_in_minutes", inviteExistedTimeInMinutes));
 
 public sealed class UserInvited(UserId userId)
     : TelemetryEvent(("user_id", userId));

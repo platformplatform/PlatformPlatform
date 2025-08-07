@@ -141,7 +141,7 @@ test.describe("@smoke", () => {
       // Open profile menu and verify user info
       await page.getByRole("button", { name: "User profile menu" }).click();
       await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
-      await expect(page.getByText("CEO & Founder")).toBeVisible();
+      await expect(page.getByText(user.email)).toBeVisible();
 
       // Open and close edit dialog
       await page.getByRole("menuitem", { name: "Edit profile" }).click();

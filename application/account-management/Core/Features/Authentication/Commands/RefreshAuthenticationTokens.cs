@@ -31,39 +31,39 @@ public sealed class RefreshAuthenticationTokensHandler(
         if (!UserId.TryParse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
             logger.LogWarning("No valid 'sub' claim found in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         if (!RefreshTokenId.TryParse(httpContext.User.FindFirstValue("rtid"), out var refreshTokenId))
         {
             logger.LogWarning("No valid 'rtid' claim found in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         if (!int.TryParse(httpContext.User.FindFirstValue("rtv"), out var refreshTokenVersion))
         {
             logger.LogWarning("No valid 'rtv' claim found in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         var jwtId = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Jti);
         if (jwtId is null)
         {
             logger.LogWarning("No 'jti' claim found in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         var expiresClaim = httpContext.User.FindFirstValue(JwtRegisteredClaimNames.Exp);
         if (expiresClaim is null)
         {
             logger.LogWarning("No 'exp' claim found in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         if (!long.TryParse(expiresClaim, out var expiresUnixSeconds))
         {
             logger.LogWarning("Invalid 'exp' claim format in refresh token");
-            return Result.Unauthorized("Invalid refresh token");
+            return Result.Unauthorized("Invalid refresh token.");
         }
 
         var refreshTokenExpires = DateTimeOffset.FromUnixTimeSeconds(expiresUnixSeconds);
@@ -72,7 +72,7 @@ public sealed class RefreshAuthenticationTokensHandler(
         if (user is null)
         {
             logger.LogWarning("No user found with user id {UserId} found", userId);
-            return Result.Unauthorized($"No user found with user id {userId} found.");
+            return Result.Unauthorized($"No user found with user id '{userId}' found.");
         }
 
         // TODO: Check if the refreshTokenId exists in the database and if the jwtId and refreshTokenVersion are valid

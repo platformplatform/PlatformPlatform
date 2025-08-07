@@ -17,8 +17,17 @@ msgstr ""
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
 
+msgid "A different user logged in from another browser tab."
+msgstr "En anden bruger loggede ind fra en anden browsertab."
+
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
+
+msgid "Accept invitation"
+msgstr "Accepter invitation"
+
+msgid "Accepting..."
+msgstr "Accepterer..."
 
 msgid "Account"
 msgstr "Konto"
@@ -34,6 +43,9 @@ msgstr "Kontonavn opdateret succesfuldt"
 
 msgid "Account settings"
 msgstr "Kontoindstillinger"
+
+msgid "Account switched"
+msgstr "Konto skiftet"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -66,6 +78,9 @@ msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
 msgid "An error occurred while processing your request. {0}"
 msgstr "Der opstod en fejl under behandlingen af din anmodning. {0}"
 
+msgid "An unexpected state occurred. Please reload the page."
+msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
+
 msgid "Any role"
 msgstr "Enhver rolle"
 
@@ -78,6 +93,12 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
+
+msgid "Authentication is shared across all tabs."
+msgstr "Autentificering deles på tværs af alle faner."
+
+msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti samtidigt, brug venligst forskellige browsere."
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -155,6 +176,12 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Decline"
+msgstr "Afslå"
+
+msgid "Declining..."
+msgstr "Afslår..."
+
 msgid "Delete"
 msgstr "Slet"
 
@@ -173,6 +200,9 @@ msgstr "Slet brugere"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
+
+msgid "Different user logged in"
+msgstr "En anden bruger loggede ind"
 
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
@@ -240,6 +270,9 @@ msgstr "Hjem"
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
 
+msgid "Invitation pending"
+msgstr "Invitation afventer"
+
 msgid "Invite user"
 msgstr "Inviter bruger"
 
@@ -260,6 +293,9 @@ msgstr "Log ind"
 
 msgid "Log out"
 msgstr "Log ud"
+
+msgid "Logged out"
+msgstr "Logget ud"
 
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
@@ -354,6 +390,9 @@ msgstr "Profil opdateret succesfuldt"
 msgid "Region"
 msgstr "Region"
 
+msgid "Reload"
+msgstr "Genindlæs"
+
 msgid "Remove logo"
 msgstr "Fjern logo"
 
@@ -382,6 +421,9 @@ msgstr "Søg"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Vælg en ny rolle for <0>{0}</0>"
 
+msgid "Select Account"
+msgstr "Vælg konto"
+
 msgid "Select dates"
 msgstr "Vælg datoer"
 
@@ -405,6 +447,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 
 msgid "Success"
 msgstr "Succes"
+
+msgid "Switching account..."
+msgstr "Skifter konto..."
 
 msgid "System"
 msgstr "System"
@@ -432,6 +477,12 @@ msgstr "Totalt antal brugere"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Unknown state"
+msgstr "Ukendt tilstand"
+
+msgid "Unnamed account"
+msgstr "Unavngivet konto"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
@@ -511,6 +562,22 @@ msgstr "Velkommen hjem"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
+
+msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
+msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+#. placeholder {0}: tenant.tenantName
+msgid "You have been invited to join <0>{0}</0>."
+msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You were logged out from another browser tab."
+msgstr "Du blev logget ud fra en anden browsertab."
+
+msgid "Your account was switched in another browser tab."
+msgstr "Din konto blev skiftet i en anden browsertab."
+
+msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+msgstr "Din konto blev skiftet til <0>{newTenantName}</0> i en anden browsertab."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."

@@ -5,6 +5,7 @@ import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { type UserLoggedInMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
@@ -90,7 +91,7 @@ function useCountdown(expireAt: Date) {
 
 export function CompleteLoginForm() {
   const initialState = getLoginState();
-  const { email = "", emailConfirmationId = "" } = initialState;
+  const { email = "", emailConfirmationId = "", loginId } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -112,6 +113,16 @@ export function CompleteLoginForm() {
     }
   }, [isExpired, showRequestLink, hasRequestedNewCode]);
 
+  // Get preferred tenant from localStorage
+  const getPreferredTenantId = useCallback(() => {
+    try {
+      const stored = localStorage.getItem(`preferred-tenant-${email}`);
+      return stored || null;
+    } catch {
+      return null;
+    }
+  }, [email]);
+
   const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
 
   const resendLoginCodeMutation = api.useMutation(
@@ -121,10 +132,20 @@ export function CompleteLoginForm() {
 
   useEffect(() => {
     if (completeLoginMutation.isSuccess) {
+      // Broadcast login event to other tabs
+      // Since the API returns 204 No Content, we don't have the user ID yet
+      const message: Omit<UserLoggedInMessage, "timestamp"> = {
+        type: "USER_LOGGED_IN",
+        userId: "", // We don't have the user ID at this point
+        tenantId: getPreferredTenantId() || "",
+        email: email || ""
+      };
+      authSyncService.broadcast(message);
+
       clearLoginState();
       window.location.href = returnPath ?? loggedInPath;
     }
-  }, [completeLoginMutation.isSuccess, returnPath]);
+  }, [completeLoginMutation.isSuccess, returnPath, email, getPreferredTenantId]);
 
   useEffect(() => {
     if (completeLoginMutation.isError) {
@@ -172,17 +193,30 @@ export function CompleteLoginForm() {
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
+  if (!loginId) {
+    return null;
+  }
+
   return (
     <div className="w-full max-w-sm space-y-3">
       <Form
         onSubmit={(event) => {
+          event.preventDefault();
           const formData = new FormData(event.currentTarget);
           const oneTimePassword = formData.get("oneTimePassword") as string;
           if (oneTimePassword.length === 6) {
             setLastSubmittedCode(oneTimePassword);
           }
-          const handler = mutationSubmitter(completeLoginMutation, { path: { id: getLoginState().loginId ?? "" } });
-          return handler(event);
+
+          completeLoginMutation.mutate({
+            params: {
+              path: { id: loginId }
+            },
+            body: {
+              oneTimePassword,
+              preferredTenantId: getPreferredTenantId() || null
+            }
+          });
         }}
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"

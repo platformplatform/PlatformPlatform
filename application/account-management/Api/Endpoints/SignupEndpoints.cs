@@ -18,11 +18,11 @@ public sealed class SignupEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<StartSignupResponse>().AllowAnonymous();
 
-        group.MapPost("{emailConfirmationId}/complete", async Task<ApiResult> (EmailConfirmationId emailConfirmationId, CompleteSignupCommand command, IMediator mediator)
+        group.MapPost("/{emailConfirmationId}/complete", async Task<ApiResult> (EmailConfirmationId emailConfirmationId, CompleteSignupCommand command, IMediator mediator)
             => await mediator.Send(command with { EmailConfirmationId = emailConfirmationId })
         ).AllowAnonymous();
 
-        group.MapPost("{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+        group.MapPost("/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
             => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
         ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
     }

@@ -152,6 +152,38 @@
         }
       }
     },
+    "/api/account-management/authentication/switch-tenant": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationSwitchTenant",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchTenantCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
@@ -362,6 +394,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/tenants": {
+      "get": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "GetApiAccountManagementTenants",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTenantsForUserResponse"
                 }
               }
             }
@@ -754,6 +816,38 @@
         }
       }
     },
+    "/api/account-management/users/decline-invitation": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountManagementUsersDeclineInvitation",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclineInvitationCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/users/me": {
       "get": {
         "tags": [
@@ -1043,16 +1137,14 @@
         "properties": {
           "oneTimePassword": {
             "type": "string"
-          }
-        }
-      },
-      "ResendEmailConfirmationCodeResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
+          },
+          "preferredTenantId": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TenantId"
+              }
+            ]
           }
         }
       },
@@ -1079,6 +1171,25 @@
           "value": {
             "type": "integer",
             "format": "int64"
+          }
+        }
+      },
+      "ResendEmailConfirmationCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "SwitchTenantCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
           }
         }
       },
@@ -1167,6 +1278,68 @@
           }
         }
       },
+      "GetTenantsForUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantInfo"
+            }
+          }
+        }
+      },
+      "TenantInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "tenantName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isNew": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "UsersResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -1230,33 +1403,6 @@
             "type": "boolean"
           },
           "avatarUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UserId": {
-        "type": "string",
-        "format": "usr_{string}"
-      },
-      "StronglyTypedUlidOfUserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndUserId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
             "type": "string",
             "nullable": true
           }
@@ -1363,6 +1509,15 @@
         "properties": {
           "email": {
             "type": "string"
+          }
+        }
+      },
+      "DeclineInvitationCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
           }
         }
       },

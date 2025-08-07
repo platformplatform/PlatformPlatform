@@ -23,12 +23,19 @@ export { MenuTrigger, SubmenuTrigger } from "react-aria-components";
 
 interface MenuProps<T> extends AriaMenuProps<T> {
   placement?: PopoverProps["placement"];
+  popoverClassName?: string;
+  style?: React.CSSProperties;
 }
 
 export function Menu<T extends object>(props: Readonly<MenuProps<T>>) {
+  const { placement, popoverClassName, style, ...menuProps } = props;
   return (
-    <Popover placement={props.placement} className="min-w-[150px] bg-input-background p-px">
-      <AriaMenu {...props} className="max-h-[inherit] overflow-auto rounded-t-sm p-1 outline outline-0" />
+    <Popover
+      placement={placement}
+      className={popoverClassName || "min-w-[150px] bg-input-background p-px"}
+      style={style}
+    >
+      <AriaMenu {...menuProps} className="max-h-[inherit] overflow-auto rounded-t-sm p-1 outline outline-0" />
     </Popover>
   );
 }

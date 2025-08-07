@@ -115,6 +115,13 @@ function showServerErrorToast(error: ServerError) {
     return;
   }
 
+  // Check if this is an anti-forgery error
+  if (error.status === 400 && error.problemDetails?.title?.toLowerCase().includes("antiforgery")) {
+    // Don't show toast for anti-forgery errors - the auth sync modal will handle it
+    // The useAuthSync hook will detect the authentication state mismatch
+    return;
+  }
+
   let message: { title: string; detail: string };
 
   if (error.problemDetails) {
@@ -142,6 +149,10 @@ function showServerErrorToast(error: ServerError) {
  */
 export function showErrorToast(error: HttpError): void {
   if (error.kind === "timeout") {
+    // Don't show toasts for auth sync blocks - modal will handle it
+    if (error.message?.includes("pending authentication")) {
+      return;
+    }
     showTimeoutToast();
   } else if (error.kind === "server") {
     showServerErrorToast(error);
@@ -220,9 +231,15 @@ export async function normalizeError(errorOrResponse: unknown): Promise<Error | 
 
   // Handle network timeout errors and AbortController errors
   if (
-    errorOrResponse instanceof DOMException &&
+    errorOrResponse instanceof Error &&
     (errorOrResponse.name === "TimeoutError" || errorOrResponse.name === "AbortError")
   ) {
+    // Don't show timeout errors for auth sync blocks
+    if (errorOrResponse.message?.includes("pending authentication sync")) {
+      const authBlockedError = new Error("Request blocked due to pending authentication") as TimeoutError;
+      authBlockedError.kind = "timeout";
+      return authBlockedError;
+    }
     return createTimeoutError();
   }
 
@@ -273,6 +290,11 @@ export function setupGlobalErrorHandlers() {
       return;
     }
 
+    // Don't show errors for auth sync blocks
+    if (event.reason instanceof Error && event.reason.message?.includes("pending authentication sync")) {
+      return;
+    }
+
     processedErrors.add(event.reason);
 
     // Check if it's an HttpError or regular Error
@@ -293,6 +315,11 @@ export function setupGlobalErrorHandlers() {
       return false;
     }
     if (processedErrors.has(event.error)) {
+      return false;
+    }
+
+    // Don't show errors for auth sync blocks
+    if (event.error instanceof Error && event.error.message?.includes("pending authentication sync")) {
       return false;
     }
 

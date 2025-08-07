@@ -26,4 +26,18 @@ public class BlobStorageClient(BlobServiceClient blobServiceClient)
         var generateSasUri = blobContainerClient.GenerateSasUri(BlobContainerSasPermissions.Read, dateTimeOffset);
         return generateSasUri.Query;
     }
+
+    public async Task<(Stream Stream, string ContentType)?> DownloadAsync(string containerName, string blobName, CancellationToken cancellationToken)
+    {
+        var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+        var blobClient = blobContainerClient.GetBlobClient(blobName);
+
+        if (!await blobClient.ExistsAsync(cancellationToken))
+        {
+            return null;
+        }
+
+        var response = await blobClient.DownloadStreamingAsync(cancellationToken: cancellationToken);
+        return (response.Value.Content, response.Value.Details.ContentType);
+    }
 }

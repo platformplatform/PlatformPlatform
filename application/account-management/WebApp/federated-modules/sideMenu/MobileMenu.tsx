@@ -1,3 +1,4 @@
+import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
@@ -11,6 +12,7 @@ import { LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
 import { useContext } from "react";
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import { SupportDialog } from "../common/SupportDialog";
+import TenantSelector from "../common/TenantSelector";
 import ThemeModeSelector from "../common/ThemeModeSelector";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
@@ -155,8 +157,13 @@ function MobileMenuHeader({ onEditProfile }: { onEditProfile: () => void }) {
 // Complete mobile menu including header and navigation
 export function MobileMenu({
   currentSystem,
-  onEditProfile
-}: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"]; onEditProfile: () => void }>) {
+  onEditProfile,
+  onShowInvitationDialog
+}: Readonly<{
+  currentSystem: FederatedSideMenuProps["currentSystem"];
+  onEditProfile: () => void;
+  onShowInvitationDialog?: (tenant: components["schemas"]["TenantInfo"]) => void;
+}>) {
   return (
     <div
       className="flex h-full flex-col overflow-hidden"
@@ -168,6 +175,11 @@ export function MobileMenu({
 
         {/* Divider */}
         <div className="mx-3 my-5 border-border border-b" />
+
+        {/* Tenant Selector */}
+        <div className="-mx-3">
+          <TenantSelector variant="mobile-menu" onShowInvitationDialog={onShowInvitationDialog} />
+        </div>
 
         {/* Navigation Section for Mobile */}
         <div className="flex flex-col gap-3">

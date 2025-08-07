@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MEDIA_QUERIES,
   SIDE_MENU_COLLAPSED_WIDTH,
@@ -25,38 +25,27 @@ export function useSideMenuLayout(): {
   const [isSmallScreen, setIsSmallScreen] = useState(() => window.matchMedia(MEDIA_QUERIES.sm).matches);
   const [isLargeScreen, setIsLargeScreen] = useState(() => window.matchMedia(MEDIA_QUERIES.xl).matches);
 
-  // Track menu state
-  const [isCollapsed, setIsCollapsed] = useState(() => {
-    // Synchronous check to prevent flicker
-    const isSmallScreenSync = window.matchMedia(MEDIA_QUERIES.sm).matches;
-    const isLargeScreenSync = window.matchMedia(MEDIA_QUERIES.xl).matches;
-
+  // Helper to get initial collapsed state
+  const getInitialCollapsed = (isSmall: boolean, isLarge: boolean) => {
     // Force collapsed on medium screens
-    if (isSmallScreenSync && !isLargeScreenSync) {
+    if (isSmall && !isLarge) {
       return true;
     }
-
     // Check localStorage for large screens
-    const stored = localStorage.getItem("side-menu-collapsed");
-    return stored === "true";
-  });
+    return localStorage.getItem("side-menu-collapsed") === "true";
+  };
 
+  // Track menu state
+  const [isCollapsed, setIsCollapsed] = useState(() => getInitialCollapsed(isSmallScreen, isLargeScreen));
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [customMenuWidth, setCustomMenuWidth] = useState(() => {
-    try {
-      const stored = localStorage.getItem("side-menu-size");
-      if (stored) {
-        const width = Number.parseInt(stored, 10);
-        if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH) {
-          return width;
-        }
-      }
-    } catch {}
-    return SIDE_MENU_DEFAULT_WIDTH;
+    const stored = localStorage.getItem("side-menu-size");
+    const width = stored ? Number.parseInt(stored, 10) : Number.NaN;
+    return width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH ? width : SIDE_MENU_DEFAULT_WIDTH;
   });
 
-  // Listen for screen size changes
+  // Listen for screen size changes and menu events
   useEffect(() => {
     const smQuery = window.matchMedia(MEDIA_QUERIES.sm);
     const xlQuery = window.matchMedia(MEDIA_QUERIES.xl);
@@ -71,43 +60,35 @@ export function useSideMenuLayout(): {
       }
     };
 
+    // Custom event handlers
+    const handleMenuToggle = (event: Event) => {
+      setIsCollapsed((event as CustomEvent).detail.isCollapsed);
+    };
+    const handleOverlayToggle = (event: Event) => {
+      setIsOverlayExpanded((event as CustomEvent).detail.isExpanded);
+    };
+    const handleMobileMenuToggle = (event: Event) => {
+      setIsMobileMenuOpen((event as CustomEvent).detail.isOpen);
+    };
+    const handleMenuResize = (event: Event) => {
+      setCustomMenuWidth((event as CustomEvent).detail.width);
+    };
+
+    // Add all listeners
     smQuery.addEventListener("change", handleSmChange);
     xlQuery.addEventListener("change", handleXlChange);
+    window.addEventListener("side-menu-toggle", handleMenuToggle);
+    window.addEventListener("side-menu-overlay-toggle", handleOverlayToggle);
+    window.addEventListener("mobile-menu-toggle", handleMobileMenuToggle);
+    window.addEventListener("side-menu-resize", handleMenuResize);
 
     return () => {
       smQuery.removeEventListener("change", handleSmChange);
       xlQuery.removeEventListener("change", handleXlChange);
-    };
-  }, []);
-
-  // Listen for menu state changes via custom events
-  useEffect(() => {
-    const handleMenuToggle = (event: CustomEvent) => {
-      setIsCollapsed(event.detail.isCollapsed);
-    };
-
-    const handleOverlayToggle = (event: CustomEvent) => {
-      setIsOverlayExpanded(event.detail.isExpanded);
-    };
-
-    const handleMobileMenuToggle = (event: CustomEvent) => {
-      setIsMobileMenuOpen(event.detail.isOpen);
-    };
-
-    const handleMenuResize = (event: CustomEvent) => {
-      setCustomMenuWidth(event.detail.width);
-    };
-
-    window.addEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-    window.addEventListener("side-menu-overlay-toggle", handleOverlayToggle as EventListener);
-    window.addEventListener("mobile-menu-toggle", handleMobileMenuToggle as EventListener);
-    window.addEventListener("side-menu-resize", handleMenuResize as EventListener);
-
-    return () => {
-      window.removeEventListener("side-menu-toggle", handleMenuToggle as EventListener);
-      window.removeEventListener("side-menu-overlay-toggle", handleOverlayToggle as EventListener);
-      window.removeEventListener("mobile-menu-toggle", handleMobileMenuToggle as EventListener);
-      window.removeEventListener("side-menu-resize", handleMenuResize as EventListener);
+      window.removeEventListener("side-menu-toggle", handleMenuToggle);
+      window.removeEventListener("side-menu-overlay-toggle", handleOverlayToggle);
+      window.removeEventListener("mobile-menu-toggle", handleMobileMenuToggle);
+      window.removeEventListener("side-menu-resize", handleMenuResize);
     };
   }, []);
 
@@ -121,32 +102,21 @@ export function useSideMenuLayout(): {
   // Calculate layout styles
   const className = "flex flex-col flex-1 min-h-0";
 
-  const style = useMemo((): React.CSSProperties => {
-    // Mobile: full width
-    if (!isSmallScreen) {
-      return {};
-    }
+  // Calculate layout styles (simple enough not to need memoization)
+  const style: React.CSSProperties = !isSmallScreen
+    ? {} // Mobile: full width
+    : isSmallScreen && !isLargeScreen
+      ? { marginLeft: `${SIDE_MENU_COLLAPSED_WIDTH}px` } // Medium screens (overlay mode)
+      : { marginLeft: isCollapsed ? `${SIDE_MENU_COLLAPSED_WIDTH}px` : `${customMenuWidth}px` }; // Large screens
 
-    // Medium screens (overlay mode): always use collapsed width
-    if (isSmallScreen && !isLargeScreen) {
-      return {
-        marginLeft: `${SIDE_MENU_COLLAPSED_WIDTH}px`
-      };
-    }
-
-    // Large screens: adjust based on menu state
-    return {
-      marginLeft: isCollapsed ? `${SIDE_MENU_COLLAPSED_WIDTH}px` : `${customMenuWidth}px`
-    };
-  }, [isSmallScreen, isLargeScreen, isCollapsed, customMenuWidth]);
-
-  // Determine if in overlay mode
+  // Derive overlay state
   const isOverlayMode = isSmallScreen && !isLargeScreen;
+  const isOverlayOpen = isOverlayMode && isOverlayExpanded;
 
   return {
     className,
     style,
-    isOverlayOpen: isOverlayMode && isOverlayExpanded,
+    isOverlayOpen,
     isMobileMenuOpen,
     isCollapsed: isLargeScreen ? isCollapsed : true, // For XL screens, return actual state; for others, consider "collapsed" for space calculation
     isLargeScreen

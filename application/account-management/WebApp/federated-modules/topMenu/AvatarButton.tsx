@@ -1,6 +1,7 @@
 import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
@@ -40,6 +41,12 @@ export default function AvatarButton() {
       setHasAutoOpenedModal(false); // Reset for clean state
     },
     onSuccess: () => {
+      // Broadcast logout event to other tabs
+      authSyncService.broadcast({
+        type: "USER_LOGGED_OUT",
+        userId: userInfo?.id || ""
+      });
+
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     },
     meta: {
@@ -63,7 +70,7 @@ export default function AvatarButton() {
               <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
               <div className="my-1 flex flex-col">
                 <h4>{userInfo.fullName}</h4>
-                <p className="subtitle">{userInfo.title || userInfo.email}</p>
+                <p className="subtitle">{userInfo.email}</p>
               </div>
             </div>
           </MenuHeader>

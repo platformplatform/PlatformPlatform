@@ -13,6 +13,7 @@ import { createAuthenticationMiddleware } from "@repo/infrastructure/auth/Authen
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
+import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 
@@ -24,6 +25,15 @@ import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
 function createHttpMiddleware() {
   return {
     onRequest: ({ request }: { request: Request }) => {
+      // Don't make API calls if there's a pending auth sync
+      if (getHasPendingAuthSync()) {
+        const abortController = new AbortController();
+        const error = new Error("Request blocked due to pending authentication sync");
+        error.name = "AbortError";
+        abortController.abort(error);
+        return new Request(request, { signal: abortController.signal });
+      }
+
       // Only add the token for non-GET requests
       if (request.method !== "GET") {
         request.headers.set("x-xsrf-token", getAntiforgeryToken());
@@ -32,7 +42,9 @@ function createHttpMiddleware() {
       // Handle request timeout with AbortController
       const abortController = new AbortController();
       setTimeout(() => {
-        abortController.abort(new DOMException("The operation timed out", "TimeoutError"));
+        const error = new Error("The operation timed out");
+        error.name = "TimeoutError";
+        abortController.abort(error);
       }, DEFAULT_TIMEOUT);
 
       // Create a new request with the timeout signal

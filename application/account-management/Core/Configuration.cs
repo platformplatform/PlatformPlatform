@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Tenants;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Configuration;
@@ -28,8 +27,6 @@ public static class Configuration
                 client.Timeout = TimeSpan.FromSeconds(5);
             }
         );
-
-        TenantMapsterConfig.Configure();
 
         return services
             .AddSharedServices<AccountManagementDbContext>(Assembly)

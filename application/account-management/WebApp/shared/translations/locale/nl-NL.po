@@ -17,8 +17,17 @@ msgstr ""
 msgid "{0} users deleted successfully"
 msgstr "{0} gebruikers succesvol verwijderd"
 
+msgid "A different user logged in from another browser tab."
+msgstr "Een andere gebruiker heeft ingelogd vanuit een ander browsertabblad."
+
 msgid "A new verification code has been sent to your email."
 msgstr "Een nieuwe verificatiecode is naar je e-mail verzonden."
+
+msgid "Accept invitation"
+msgstr "Uitnodiging accepteren"
+
+msgid "Accepting..."
+msgstr "Accepteren..."
 
 msgid "Account"
 msgstr "Account"
@@ -34,6 +43,9 @@ msgstr "Accountnaam succesvol bijgewerkt"
 
 msgid "Account settings"
 msgstr "Accountinstellingen"
+
+msgid "Account switched"
+msgstr "Account gewisseld"
 
 msgid "Active"
 msgstr "Actief"
@@ -66,6 +78,9 @@ msgstr "Een e-mail met inloginstructies zal naar de gebruiker worden gestuurd."
 msgid "An error occurred while processing your request. {0}"
 msgstr "Er is een fout opgetreden bij het verwerken van uw verzoek. {0}"
 
+msgid "An unexpected state occurred. Please reload the page."
+msgstr "Er is een onverwachte fout opgetreden. Herlaad de pagina."
+
 msgid "Any role"
 msgstr "Elke rol"
 
@@ -78,6 +93,12 @@ msgstr "Weet je zeker dat je <0>{0} gebruikers</0> wilt verwijderen?"
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
+
+msgid "Authentication is shared across all tabs."
+msgstr "Authenticatie wordt gedeeld over alle tabbladen."
+
+msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+msgstr "Authenticatie wordt gedeeld over alle tabbladen. Gebruik verschillende browsers om meerdere accounts tegelijk te gebruiken."
 
 msgid "Back Office"
 msgstr "Backoffice"
@@ -155,6 +176,12 @@ msgstr "Donker"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Decline"
+msgstr "Weigeren"
+
+msgid "Declining..."
+msgstr "Weigeren..."
+
 msgid "Delete"
 msgstr "Verwijderen"
 
@@ -173,6 +200,9 @@ msgstr "Gebruikers verwijderen"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Verwijder je account en alle gegevens. Deze actie is onomkeerbaar—ga zorgvuldig te werk."
+
+msgid "Different user logged in"
+msgstr "Andere gebruiker ingelogd"
 
 msgid "Do you already have an account?"
 msgstr "Heb je al een account?"
@@ -240,6 +270,9 @@ msgstr "Home"
 msgid "Image must be smaller than 1 MB."
 msgstr "Afbeelding moet kleiner zijn dan 1 MB."
 
+msgid "Invitation pending"
+msgstr "Uitnodiging in behandeling"
+
 msgid "Invite user"
 msgstr "Gebruiker uitnodigen"
 
@@ -260,6 +293,9 @@ msgstr "Inloggen"
 
 msgid "Log out"
 msgstr "Uitloggen"
+
+msgid "Logged out"
+msgstr "Uitgelogd"
 
 msgid "Login verification code"
 msgstr "Verificatiecode voor inloggen"
@@ -354,6 +390,9 @@ msgstr "Profiel succesvol bijgewerkt"
 msgid "Region"
 msgstr "Regio"
 
+msgid "Reload"
+msgstr "Herladen"
+
 msgid "Remove logo"
 msgstr "Logo verwijderen"
 
@@ -382,6 +421,9 @@ msgstr "Zoeken"
 msgid "Select a new role for <0>{0}</0>"
 msgstr "Selecteer een nieuwe rol voor <0>{0}</0>"
 
+msgid "Select Account"
+msgstr "Selecteer account"
+
 msgid "Select dates"
 msgstr "Selecteer datums"
 
@@ -405,6 +447,9 @@ msgstr "Verificatiecode voor aanmelding"
 
 msgid "Success"
 msgstr "Succes"
+
+msgid "Switching account..."
+msgstr "Account wisselen..."
 
 msgid "System"
 msgstr "Systeem"
@@ -432,6 +477,12 @@ msgstr "Totale gebruikers"
 
 msgid "Try again"
 msgstr "Probeer opnieuw"
+
+msgid "Unknown state"
+msgstr "Onbekende status"
+
+msgid "Unnamed account"
+msgstr "Naamloos account"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Werk hier je profielfoto en persoonlijke gegevens bij."
@@ -511,6 +562,22 @@ msgstr "Welkom home"
 #. placeholder {0}: userInfo.firstName
 msgid "Welcome home, {0}"
 msgstr "Welkom home, {0}"
+
+msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
+msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam, titel en avatar) van je huidige account gekopieerd naar het nieuwe account."
+
+#. placeholder {0}: tenant.tenantName
+msgid "You have been invited to join <0>{0}</0>."
+msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
+
+msgid "You were logged out from another browser tab."
+msgstr "Je bent uitgelogd vanuit een ander browsertabblad."
+
+msgid "Your account was switched in another browser tab."
+msgstr "Je account is gewisseld in een ander browsertabblad."
+
+msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+msgstr "Je account is gewisseld naar <0>{newTenantName}</0> in een ander browsertabblad."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Je team moet weten wie hen uitnodigt. Voeg een accountnaam toe om te beginnen."
