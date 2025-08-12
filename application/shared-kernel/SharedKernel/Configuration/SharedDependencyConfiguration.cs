@@ -3,6 +3,7 @@ using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
 using FluentValidation;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,7 @@ public static class SharedDependencyConfiguration
             return services
                 .AddServiceDiscovery()
                 .AddSingleton(GetTokenSigningService())
+                .AddCrossServiceDataProtection()
                 .AddSingleton(Settings.Current)
                 .AddAuthentication()
                 .AddDefaultJsonSerializerOptions()
@@ -72,6 +74,20 @@ public static class SharedDependencyConfiguration
                 .AddMediatRPipelineBehaviors()
                 .RegisterMediatRRequest(assemblies)
                 .RegisterRepositories(assemblies);
+        }
+
+        private IServiceCollection AddCrossServiceDataProtection()
+        {
+            // Configure shared data protection to ensure encrypted data can be shared across all self-contained systems
+            var dataProtection = services.AddDataProtection();
+
+            if (!SharedInfrastructureConfiguration.IsRunningInAzure)
+            {
+                // Set a common application name for all self-contained systems for local development (handled automatically by Azure Container Apps Environment)
+                dataProtection.SetApplicationName("PlatformPlatform");
+            }
+
+            return services;
         }
 
         private IServiceCollection AddAuthentication()
