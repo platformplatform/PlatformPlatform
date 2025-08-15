@@ -66,9 +66,14 @@ public static class ModelBuilderExtensions
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (!property.ClrType.IsEnum) continue;
+                    // Get the enum type (handling both nullable and non-nullable enums)
+                    var enumType = property.ClrType.IsEnum
+                        ? property.ClrType
+                        : Nullable.GetUnderlyingType(property.ClrType);
 
-                    var converterType = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
+                    if (enumType?.IsEnum != true) continue;
+
+                    var converterType = typeof(EnumToStringConverter<>).MakeGenericType(enumType);
                     var converterInstance = (ValueConverter)Activator.CreateInstance(converterType)!;
                     property.SetValueConverter(converterInstance);
                 }

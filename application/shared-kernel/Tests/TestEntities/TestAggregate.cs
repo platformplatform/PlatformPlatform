@@ -3,10 +3,21 @@ using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
+public enum TestStatus
+{
+    Pending,
+    Active,
+    Completed
+}
+
 public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator.NewId())
 {
     // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
     public string Name { get; set; } = name;
+
+    public TestStatus Status { get; set; } = TestStatus.Pending;
+
+    public TestStatus? NullableStatus { get; set; }
 
     public static TestAggregate Create(string name)
     {
