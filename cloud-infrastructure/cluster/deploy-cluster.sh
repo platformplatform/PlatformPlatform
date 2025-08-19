@@ -35,23 +35,34 @@ if [[ "$DOMAIN_NAME" == "-" ]]; then
   DOMAIN_NAME=""
 fi
 
-CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
-ENVIRONMENT_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
-RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$CLUSTER_LOCATION_ACRONYM"
-IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
+export UNIQUE_PREFIX
+export ENVIRONMENT
+export LOCATION=$CLUSTER_LOCATION
+export DOMAIN_NAME
+export SQL_ADMIN_OBJECT_ID
 
-APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NAME)
-ACTIVE_ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
-ACTIVE_BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
+export CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
+export ENVIRONMENT_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
+export RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$CLUSTER_LOCATION_ACRONYM"
+export IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
+
+export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NAME)
+export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
+export BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 
 az extension add --name application-insights --allow-preview true
-APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $UNIQUE_PREFIX-$ENVIRONMENT --query connectionString --output tsv)
+export APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $UNIQUE_PREFIX-$ENVIRONMENT --query connectionString --output tsv)
 
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
-DEPLOYMENT_COMMAND="az deployment sub create"
-DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Build the .bicepparam file to generate parameters.json
+bicep build-params ./main-cluster.bicepparam --outfile ./main-cluster.parameters.json
+
+DEPLOYMENT_COMMAND="az deployment sub create"
+DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p ./main-cluster.parameters.json"
+
 . ../deploy.sh
 
 # When initially creating the Azure Container App with SSL and a custom domain, we need to run the deployment three times (see https://github.com/microsoft/azure-container-apps/tree/main/docs/templates/bicep/managedCertificates):
@@ -86,8 +97,12 @@ then
   # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
   if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
     echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
-    IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" $RESOURCE_GROUP_NAME)
-    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p resourceGroupName=$RESOURCE_GROUP_NAME environmentResourceGroupName=$ENVIRONMENT_RESOURCE_GROUP_NAME environment=$ENVIRONMENT containerRegistryName=$CONTAINER_REGISTRY_NAME domainName=$DOMAIN_NAME isDomainConfigured=$IS_DOMAIN_CONFIGURED sqlAdminObjectId=$SQL_ADMIN_OBJECT_ID appGatewayVersion=$APP_GATEWAY_VERSION accountManagementVersion=$ACTIVE_ACCOUNT_MANAGEMENT_VERSION backOfficeVersion=$ACTIVE_BACK_OFFICE_VERSION applicationInsightsConnectionString=$APPLICATIONINSIGHTS_CONNECTION_STRING"
+    export IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" $RESOURCE_GROUP_NAME)
+    
+    # Rebuild parameters with updated IS_DOMAIN_CONFIGURED
+    bicep build-params ./main-cluster.bicepparam --outfile ./main-cluster.parameters.json
+    
+    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p ./main-cluster.parameters.json"
     . ../deploy.sh
 
     cleaned_output=$(echo "$output" | sed '/^WARNING/d' | sed '/^\/home\/runner\/work\//d')

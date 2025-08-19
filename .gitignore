@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Bicep generated parameter files
+cloud-infrastructure/cluster/main-cluster.parameters.json
+
 # User-specific files
 *.rsuser
 *.suo
