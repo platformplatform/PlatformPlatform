@@ -49,12 +49,11 @@ public static class SharedValidations
         // Additional 5 characters are added to allow for spaces, dashes, parentheses, etc.
         private const int PhoneMaxLength = 20;
 
-        public Phone(string phoneName = nameof(Phone))
+        public Phone()
         {
             const string errorMessage = "Phone must be in a valid format and no longer than 20 characters.";
             RuleFor(phone => phone)
                 .MaximumLength(PhoneMaxLength)
-                .WithName(phoneName)
                 .WithMessage(errorMessage)
                 .Matches(@"^\+?(\d[\d-. ]+)?(\([\d-. ]+\))?[\d-. ]+\d$")
                 .WithMessage(errorMessage)
