@@ -28,6 +28,13 @@ public static class ModelBuilderExtensions
                 .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
         }
 
+        public void MapStronglyTypedString<TId>(Expression<Func<T, TId>> expression) where TId : StronglyTypedString<TId>
+        {
+            builder
+                .Property(expression)
+                .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+        }
+
         public void MapStronglyTypedId<TId, TValue>(Expression<Func<T, TId>> expression)
             where TValue : IComparable<TValue>
             where TId : StronglyTypedId<TValue, TId>

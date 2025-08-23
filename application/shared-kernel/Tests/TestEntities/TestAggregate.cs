@@ -10,6 +10,9 @@ public enum TestStatus
     Completed
 }
 
+[IdPrefix("ext")]
+public sealed record ExternalId(string Value) : StronglyTypedString<ExternalId>(Value);
+
 public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator.NewId())
 {
     // ReSharper disable once EntityFramework.ModelValidation.UnlimitedStringLength
@@ -18,6 +21,8 @@ public sealed class TestAggregate(string name) : AggregateRoot<long>(IdGenerator
     public TestStatus Status { get; set; } = TestStatus.Pending;
 
     public TestStatus? NullableStatus { get; set; }
+
+    public ExternalId ExternalId { get; set; } = ExternalId.NewId("ext_default");
 
     public static TestAggregate Create(string name)
     {
