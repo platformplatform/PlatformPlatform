@@ -1,11 +1,13 @@
 ---
-description: Workflow for creating small product increments based on a product requirement description (PRD)
+description: Workflow for plan technical tasks for a product increment based on a prd
 globs: 
 alwaysApply: false
 ---
 # Plan Product Increment Workflow
 
-The user will provide a link to a product requirement description (PRD) or a link to a backlog item in [PRODUCT_MANAGEMENT_TOOL], and ask you to create technical tasks for one product increment.
+PRD file and product increment number: $ARGUMENTS
+
+Read the PRD file provided in the arguments above and focus on the specific product increment number mentioned. Your job is to create technical tasks for that specific product increment.
 
 The goal is to create a `./task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL]. The date prefix should match the PRD's directory date.
 
@@ -127,8 +129,8 @@ Follow the steps below to create and publish tasks.
 
 Using these examples, to understand how to write tasks and subtasks for product increments:
 
-- [Backend for team management](mdc:.cursor/rules/workflows/samples/1-backend-sample.md)
-- [Frontend for team management](mdc:.cursor/rules/workflows/samples/2-frontend-sample.md)
+- [Backend for team management](mdc:.cursor/rules/workflows/samples/1-backend-sample.mdc)
+- [Frontend for team management](mdc:.cursor/rules/workflows/samples/2-frontend-sample.mdc)
 
 ## ✅ DO:
 

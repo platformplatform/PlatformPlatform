@@ -1,11 +1,13 @@
 ---
-description: Workflow for code review of branches, uncommitted changes, or files
+description: Workflow for review code changes for quality, patterns, and rule adherence
 auto_execution_mode: 1
 ---
 
 # Review Code Workflow
 
-Follow this workflow to review files *one by one*.
+Review scope: $ARGUMENTS
+
+Focus your review on the branch, file path, or scope provided in the arguments above. If no scope is provided, review the current uncommitted changes. Follow this workflow to review files *one by one*.
 
 ## Workflow
 

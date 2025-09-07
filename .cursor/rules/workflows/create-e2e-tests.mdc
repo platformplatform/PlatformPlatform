@@ -1,11 +1,13 @@
 ---
-description: Workflow for creating end-to-end tests
+description: Workflow for create comprehensive end-to-end tests for features
 globs: 
 alwaysApply: false
 ---
 # E2E Testing Workflow
 
-This workflow guides you through the process of creating comprehensive end-to-end tests for specific features like login and signup. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+Feature or product increment: $ARGUMENTS
+
+If a product increment file is provided in the arguments above, read it to understand what features need testing. This workflow guides you through the process of creating comprehensive end-to-end tests for those features. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## Workflow
 
@@ -23,8 +25,8 @@ This workflow guides you through the process of creating comprehensive end-to-en
    - Note any edge cases or potential issues discovered during exploration.
 
 3. Review existing test examples:
-   - Read [End-to-End Tests](/.cursor/rules/end-to-end-tests/e2e-tests.mdc) for detailed information.
-   - Examine [signup.spec.ts](/application/account-management/WebApp/tests/e2e/signup.spec.ts) and [login.spec.ts](/application/account-management/WebApp/tests/e2e/login.spec.ts) for inspiration.
+   - Read [End-to-End Tests](mdc:.cursor/rules/end-to-end-tests/e2e-tests.mdc) for detailed information.
+   - Examine [signup.spec.ts](mdc:application/account-management/WebApp/tests/e2e/signup.spec.ts) and [login.spec.ts](mdc:application/account-management/WebApp/tests/e2e/login.spec.ts) for inspiration.
    - Note the structure, assertions, test organization, and the "Act & Assert:" comment format.
 
 4. Plan comprehensive test scenarios:
@@ -59,6 +61,6 @@ This workflow guides you through the process of creating comprehensive end-to-en
 ## Key principles
 
 - Comprehensive coverage: Test all critical paths and important edge cases.
-- Follow conventions: Adhere to the established patterns in [End-to-End Tests](/.cursor/rules/end-to-end-tests/e2e-tests.mdc).
+- Follow conventions: Adhere to the established patterns in [End-to-End Tests](mdc:.cursor/rules/end-to-end-tests/e2e-tests.mdc).
 - Clear organization: Properly categorize tests and use descriptive names.
 - Realistic user journeys: Test scenarios that reflect actual user behavior.

@@ -1,11 +1,13 @@
 ---
-description: Workflow for writing pull request titles and descriptions
+description: Workflow for create pull request with proper title and description
 globs: 
 alwaysApply: false
 ---
 # Prepare Pull Request Workflow
 
-Use this workflow to create pull request titles and descriptions:
+Pull request context: $ARGUMENTS
+
+Use the branch name or feature description provided in the arguments above (if any) as context for the pull request. This workflow will help you create pull request titles and descriptions:
 
 ## Workflow
 
@@ -27,7 +29,7 @@ Use this workflow to create pull request titles and descriptions:
    - DO NOT end the pull request description summarizing the benefits of the changes.
      - Adding a such a summary at the end is the most common reason pull request descriptions are not accepted.
 
-4. Always use the official pull request template [.github/PULL_REQUEST_TEMPLATE.md](mdc:.github/PULL_REQUEST_TEMPLATE.md) which includes:
+4. Always use the official pull request template [.github/PULL_REQUEST_TEMPLATE.mdc](mdc:.github/PULL_REQUEST_TEMPLATE.mdc) which includes:
    - **Summary & Motivation**: Start with the most important change, use bullet points for multiple changes, and mention minor fixes last.
    - **Checklist**: Do not change the checklist from .github/PULL_REQUEST_TEMPLATE.md, and do not [x] the list, as this should be a manual task.
 
@@ -105,7 +107,7 @@ Add data protection key sharing between self-contained systems to fix antiforger
 +     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(".platformplatform", "dataprotection-keys")));
 ```
 
-### Checklist # ✅ DO: Correctly add the check points from PULL_REQUEST_TEMPLATE.md without setting the [x]
+### Checklist # ✅ DO: Correctly add the check points from PULL_REQUEST_TEMPLATE.mdc without setting the [x]
 
 - [ ] I have added tests, or done manual regression tests
 - [ ] I have updated the documentation, if necessary
