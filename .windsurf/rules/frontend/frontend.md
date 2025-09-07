@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: *.tsx
 description: Core rules for frontend TypeScript and React development
+globs: *.tsx
 ---
 
 # Frontend

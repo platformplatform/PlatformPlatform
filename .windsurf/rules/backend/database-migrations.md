@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: **/Database/Migrations/*.cs
 description: Rules for creating database migrations
+globs: **/Database/Migrations/*.cs
 ---
 
 # Database Migrations

@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: cloud-infrastructure/**
 description: Rules for cloud infrastructure and deployment
+globs: cloud-infrastructure/**
 ---
 
 # Infrastructure Rules

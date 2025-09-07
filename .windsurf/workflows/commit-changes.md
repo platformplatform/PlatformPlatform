@@ -1,5 +1,6 @@
 ---
 description: Workflow for writing effective git commit messages
+auto_execution_mode: 1
 ---
 
 # Commit Changes Workflow

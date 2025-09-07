@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: *Dialog.tsx,*Modal.tsx
 description: Rules for modal dialogs using React Aria Components
+globs: *Dialog.tsx,*Modal.tsx
 ---
 
 # Modal Dialog

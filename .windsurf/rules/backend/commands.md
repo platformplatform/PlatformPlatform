@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: **/Commands/*.cs
 description: Rules for implementing CQRS commands, validation, handlers, and structure
+globs: **/Commands/*.cs
 ---
 
 # CQRS Commands

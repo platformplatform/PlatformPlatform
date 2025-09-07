@@ -1,5 +1,6 @@
 ---
 description: Workflow for creating end-to-end tests
+auto_execution_mode: 1
 ---
 
 # E2E Testing Workflow

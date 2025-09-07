@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: **/Domain/*.cs
 description: Rules for creating DDD aggregates, entities, value objects, and Entity Framework configuration
+globs: **/Domain/*.cs
 ---
 
 # Domain Modeling

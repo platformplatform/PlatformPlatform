@@ -3,7 +3,6 @@ trigger: always_on
 description: You have access to several tools and MCP servers
 ---
 
-
 # MCP Servers
 
 * BrowserMCP: Use this to troubleshoot frontend issues. The base URL is https://localhost:9000. The website is already running, so never start it manually.
