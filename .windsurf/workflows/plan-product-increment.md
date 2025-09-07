@@ -1,5 +1,6 @@
 ---
 description: Workflow for creating small product increments based on a product requirement description (PRD)
+auto_execution_mode: 1
 ---
 
 # Plan Product Increment Workflow

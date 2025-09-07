@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: *Repository.cs
 description: Rules for DDD repositories, including tenant scoping, interface conventions, and use of Entity Framework
+globs: *Repository.cs
 ---
 
 # DDD Repositories

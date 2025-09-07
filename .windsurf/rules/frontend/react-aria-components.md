@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: *.tsx
 description: Rules for using React Aria Components
+globs: *.tsx
 ---
 
 # React Aria Components

@@ -1,5 +1,6 @@
 ---
 description: Workflow for code review of branches, uncommitted changes, or files
+auto_execution_mode: 1
 ---
 
 # Review Code Workflow

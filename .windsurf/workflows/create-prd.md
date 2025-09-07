@@ -1,5 +1,6 @@
 ---
 description: Workflow for creating a product requirement description (PRD)
+auto_execution_mode: 1
 ---
 
 # Create PRD Workflow

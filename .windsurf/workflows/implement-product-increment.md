@@ -1,5 +1,6 @@
 ---
 description: Workflow for implementing tasks for a product increment
+auto_execution_mode: 1
 ---
 
 # Implement Product Increment Workflow

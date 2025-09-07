@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: **/Tests/*.cs
 description: Rules for writing backend API tests
+globs: **/Tests/*.cs
 ---
 
 # Writing API Tests

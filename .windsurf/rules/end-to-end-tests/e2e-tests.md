@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: */tests/e2e/**
 description: Rules for end-to-end tests
+globs: */tests/e2e/**
 ---
 
 # End-to-End Tests

@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: developer-cli/Commands/*.cs
 description: Rules for implementing Developer CLI commands
+globs: developer-cli/Commands/*.cs
 ---
 
 # Developer CLI Rules
@@ -144,4 +144,3 @@ Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51'. The system c
 ```
 
 Just retry the command and it should work.
-

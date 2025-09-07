@@ -1,7 +1,7 @@
 ---
 trigger: glob
-globs: **/Integrations/**/*.cs
 description: Rules for creating external integration services
+globs: **/Integrations/**/*.cs
 ---
 
 # External Integrations
