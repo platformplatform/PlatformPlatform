@@ -17,27 +17,7 @@ Follow the steps below to create the PRD.
 
 1. Ensure `task-manager` git repository exists
 
-   Before creating a PRD, run this script to ensure the `task-manager` directory exists, as a separate git repository.
-
-   **For Unix/Mac:**
-   ```bash
-   [ -d ".git" ] || { echo "Error: Must run from repository root"; exit 1; }
-   [ -d "task-manager" ] || (
-     mkdir -p .git/info && echo "/task-manager/" >> .git/info/exclude &&
-     mkdir task-manager && cd task-manager && git init -b main
-   )
-   ```
-
-   **For Windows:**
-   ```cmd
-   if not exist .git (echo Error: Must run from repository root & exit /b 1)
-   if not exist task-manager (
-     mkdir .git\info 2>nul && echo /task-manager/ >> .git\info\exclude &&
-     mkdir task-manager && cd task-manager && git init -b main
-   )
-   ```
-
-  > **Note:** Adding `task-manager` to `.git/info/exclude` keeps it visible to editors while excluded from repository.
+   Run `[CLI_ALIAS] init-task-manager` to initialize the task-manager directory as a git submodule that's ignored by the main repository.
 
 2. Research and understand the feature
 
