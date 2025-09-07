@@ -63,7 +63,7 @@ update Azure location codes to use country-specific identifiers
 feat: enable auto-configuration for data protection in Azure Container Apps
 ```
 
-### Example 2 - Commit Workflow
+### Example 2 - Commit workflow
 
 ```bash
 # ✅ DO: Review changes before committing

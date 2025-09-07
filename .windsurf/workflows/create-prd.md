@@ -6,7 +6,7 @@ description: Workflow for creating a product requirement description (PRD)
 
 The user will provide a description of a new feature. Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
 
-The output will be a `./task-manager/[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature.
+The output will be a `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature. Use a tool to get today's date in yyyy-MM-dd format for the directory name.
 
 When approved, create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured) with the PRD as the description.
 
@@ -30,7 +30,7 @@ Follow the steps below to create the PRD.
 
 3. Create the PRD description
 
-   Based on your research, create a `./task-manager/[prd-title]/prd.md` file containing the high-level PRD description. The `[prd-title]` should be a short, relevant title in kebab-case.
+   Based on your research, create a `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` file containing the high-level PRD description. Use a tool to get today's date in yyyy-MM-dd format. The `[prd-title]` should be a short, relevant title in kebab-case.
 
    When writing the PRD description:
    - Use sentence case for level-1 headers.
@@ -41,20 +41,47 @@ Follow the steps below to create the PRD.
 
 4. Save and get approval of the PRD description
 
-   Save the PRD description to `./task-manager/[prd-title]/prd.md` for user review. Present it to the user and iterate until approved before breaking down into product increments.
+   Save the PRD description to `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` for user review. Present it to the user and iterate until approved before breaking down into product increments.
 
 5. Create product increments overview
 
-   A product increment is a small, independent, deployable unit of work that will typically equal a pull request. E.g., with CRUD for one new aggregate with domain model, commands, queries, database migration, and tests. Or a frontend to call CRUD operations. Often a PRD would require multiple product increments for multiple Aggregates, UI, etc. 
+   ### Understanding product increments:
+   
+   A product increment is a collection of related tasks that together form a deployable feature set. One or more product increments can be combined into a single pull request.
+   
+   **Each product increment contains multiple tasks, where:**
+   - Each task = one commit = one vertical slice
+   - All tasks in an increment work together to deliver a coherent feature
+   - The increment is only complete when ALL its tasks are done
+   
+   **Example structure:**
+   ```
+   Product increment 1: Backend for team management
+   - Task 1: Create team (aggregate, command, endpoint, migration, tests) 
+   - Task 2: Get single team (query, endpoint, tests)
+   - Task 3: Get all teams (query, endpoint, tests)
+   - Task 4: Update team (command, endpoint, tests)
+   - Task 5: Delete team (command, endpoint, tests)
+   
+   Product increment 2: Frontend for team management
+   - Task 1: Teams page with navigation
+   - Task 2: Team table with data fetching
+   - Task 3: Create team dialog
+   - Task 4: Team details side pane
+   - Task 5: Edit and delete functionality
+   ```
 
-   To break down a PRD into product increments you must:
+   ### Guidelines for breaking down PRDs:
 
-   - Research the codebase before defining product increments.
-   - Make sure that each product increment implements a small but fully deployable and testable unit of work.
-   - For larger features, implement small backend and frontend increments, instead of multiple backend increments followed by a frontend increment at the end.
-   - Write a paragraph or two about what each product increment delivers and the features it contains.
+   - Research the codebase before defining product increments
+   - Each product increment should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
+   - Keep product increments small enough to review effectively
+   - Multiple related product increments can be combined in one pull request
+   - For larger features, create separate backend and frontend product increments
+   - Avoid mixing backend and frontend in the same product increment
+   - Write a clear paragraph describing what each product increment delivers
 
-   Update `./task-manager/[prd-title]/prd.md` to include a "## Product increments" section at the end.
+   Update `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` to include a "## Product increments" section at the end.
 
 6. Create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured)
 
@@ -73,8 +100,9 @@ Use this [Product requirement description example](/.windsurf/workflows/samples/
 - Keep the PRD high level without code snippets.
 - Save the PRD for review before approval.
 - Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create the backlog item after final PRD approval, with the full PRD description.
-- Define product increments that are small, deployable pull requests.
-- Create product increments that are small and can be independently deployed.
+- Define product increments that are small, deployable feature sets
+- Create product increments that can be independently deployed
+- Multiple related product increments can be combined in one pull request
 
 ❌ DON'T:
 - Add details other than description to product increments.
@@ -89,7 +117,7 @@ Use this [Product requirement description example](/.windsurf/workflows/samples/
 - Delete the PRD file unless the backlog item was created successfully.
 - Update the backlog item description differently from the approved PRD.
 - Save questions in the PRD file. Always ask clarifying questions in chat.
-- Create product increments that e.g. split tests, implementation, and migrations across separate product increments.
+- Create product increments that split tests, implementation, and migrations across separate product increments
 
 **SERIOUSLY:**  
 Do the research. Read code and rule files. Ask questions. No shortcuts.
