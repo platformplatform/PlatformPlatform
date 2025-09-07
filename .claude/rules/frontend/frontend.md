@@ -1,12 +1,32 @@
 ---
 trigger: glob
 description: Core rules for frontend TypeScript and React development
-globs: *.tsx
+globs: *.tsx,*.ts
 ---
 
 # Frontend
 
-Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, and build/format steps.
+Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
+
+## Architecture Overview
+
+1. **SPA served by .NET Backend**:
+   - SPAs are served via `SinglePageAppFallbackExtensions.cs` from the backend
+   - UserInfo is injected into HTML meta tags and available via `import.meta.user_info_env`
+   - Authentication is server-side with HTTP-only cookies
+   - YARP reverse proxy handles routing between SPAs and APIs
+
+2. **Module Federation for Micro-frontends**:
+   - Each self-contained system has its own WebApp
+   - Common UI exposed via federation in `federated-modules/`
+   - Shared components in `application/shared-webapp/`
+   - Never import directly between self-contained systems
+
+3. **API Integration**:
+   - API client auto-generated from OpenAPI spec
+   - Located in `shared/lib/api/client.ts`
+   - NEVER make direct fetch calls
+   - Server state lives in Tanstack Query only
 
 ## Implementation
 
@@ -27,8 +47,13 @@ Carefully follow these instructions for frontend TypeScript and React developmen
 2. Use the following React patterns and libraries:
    - Use React Aria Components from `@repo/ui/components/ComponentName`.
    - Use `onPress` instead of `onClick` for event handlers.
-   - Use `<Trans>...</Trans>` or t-string literals (t`...`) for translations.
-   - Use TanStack Query for API interactions, and don't use `fetch` directly.
+   - Use `onAction` for menu items and list actions.
+   - Use `<Trans>...</Trans>` for JSX translations, `t` macro for strings.
+   - Use TanStack Query for API interactions via `api.useQuery()` and `api.useMutation()`.
+   - NEVER use `fetch` directly - always use the generated API client.
+   - Use Suspense boundaries with error boundaries at route level.
+   - Colocate state with components - don't lift state unnecessarily.
+   - Use `useCallback` and `useMemo` only for proven performance issues.
    - Throw errors sparingly and ensure error messages include a period.
 
 3. Always follow these steps when implementing changes:
