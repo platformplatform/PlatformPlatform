@@ -1,11 +1,13 @@
 ---
-description: Workflow for writing pull request titles and descriptions
+description: Workflow for create pull request with proper title and description
 auto_execution_mode: 1
 ---
 
 # Prepare Pull Request Workflow
 
-Use this workflow to create pull request titles and descriptions:
+Pull request context: $ARGUMENTS
+
+Use the branch name or feature description provided in the arguments above (if any) as context for the pull request. This workflow will help you create pull request titles and descriptions:
 
 ## Workflow
 

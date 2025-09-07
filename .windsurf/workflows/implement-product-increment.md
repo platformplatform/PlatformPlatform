@@ -1,5 +1,5 @@
 ---
-description: Workflow for implementing tasks for a product increment
+description: Workflow for implement tasks defined in a product increment with mandatory code review
 auto_execution_mode: 1
 ---
 

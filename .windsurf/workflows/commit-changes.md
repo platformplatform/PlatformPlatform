@@ -1,11 +1,13 @@
 ---
-description: Workflow for writing effective git commit messages
+description: Workflow for commit changes with proper validation and message format
 auto_execution_mode: 1
 ---
 
 # Commit Changes Workflow
 
-Use this workflow to commit changes to the repository.
+Changes description: $ARGUMENTS
+
+Use the description provided in the arguments above (if any) to understand what changes were made. This workflow will help you commit changes to the repository with proper validation and message format.
 
 ## Workflow
 
