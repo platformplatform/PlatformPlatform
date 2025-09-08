@@ -5,357 +5,198 @@ alwaysApply: false
 ---
 # Implement Product Increment Workflow
 
-Product increment file: $ARGUMENTS
+PRD and/or Product Increment file(s): $ARGUMENTS
 
-## ⚠️ CRITICAL: Rules are MANDATORY - The #1 Success Factor
+If you only get the PRD search for *.mdc files in the same directory as the PRD and implement them.
 
-**THE MOST IMPORTANT THING**: Before implementing ANYTHING, you MUST thoroughly study ALL relevant rules. Rules are not guidelines or suggestions - they are ABSOLUTE REQUIREMENTS. Every single line of code must comply with the rules. The code reviewer will reject ANY deviation, no matter how minor. Success depends on following rules PRECISELY.
-
-Read the product increment file provided in the arguments above. Your job is to implement the tasks defined in that specific product increment. If no product increment is provided in the arguments, inspect all product increments to find the first product increment that has not been fully completed.
-
-The product increment contains tasks with several subtasks that must be implemented one by one. After a task and all its subtasks are implemented, you must build and test the code, request code review from the appropriate sub-agent, and only after approval change the task status from [Planned] to [Completed]. Each task should result in a separate commit.
-
-## CRITICAL: Understanding vertical slices
+## Critical: This workflow is MANDATORY - Follow every step exactly
 
 **EACH TASK = ONE COMMIT = ONE VERTICAL SLICE**
 
-A vertical slice means the task contains everything needed to deliver a working feature:
-- Backend: Database migration + domain model + command/query + API endpoint + API tests
-- Frontend: Component + API integration + state management + user interactions
-- E2E: Complete test scenario with all assertions (separate product increment)
+You MUST complete tasks sequentially. Each task must be implemented, reviewed to ZERO issues, validated, and committed before moving to the next task. You cannot move to the next Product Increment until ALL tasks in the current one are [Completed].
 
 **The code must compile, run, and be independently testable after EACH task.**
 
-## Workflow
+## Critical: Always use [CLI_ALIAS] - NO EXCEPTIONS
 
-Follow these steps which describe in detail how you must implement the tasks in the provided product increment.
+**MANDATORY**: Use `[CLI_ALIAS] build`, `[CLI_ALIAS] test`, `[CLI_ALIAS] format`, `[CLI_ALIAS] inspect`, `[CLI_ALIAS] e2e`
+**FORBIDDEN**: `dotnet`, `npm`, `npx` commands - NEVER fall back to these even if [CLI_ALIAS] appears to fail
+**CLI TOOL WORKS**: It's globally available and has system knowledge - trust it completely
 
-## Before implementing the first task
+## Mandatory workflow - Use todo list to force compliance
 
-### 1. Read the PRD to understand what we are building
+**FIRST ACTION: Create high-level todo list with ALL Product Increments you need to implement**
 
-- Read the entire PRD to understand the feature's purpose, scope, and business value
-- Understand how this feature fits into the larger system
-- Note any specific requirements or constraints mentioned
-
-### 2. Read all product increment plans
-
-- Read ALL product increment files to understand the complete implementation strategy
-- Understand how the increments build upon each other
-- Identify dependencies between increments
-- Get a mental model of the entire feature before starting implementation
-
-## For each task
-
-### 1. Study the relevant rules FIRST - CRITICAL FOR SUCCESS
-
-**THIS IS THE MOST IMPORTANT STEP - NEVER SKIP OR SHORTCUT**
-
-Before doing ANYTHING else, thoroughly study ALL relevant rules for this task:
-
-- **For backend tasks**: Review ALL files in [Backend Rules](mdc:.cursor/rules/backend/) 
-  - Start with backend.mdc for general patterns
-  - Then specific rules for your task type (commands.md, queries.md, api-endpoints.md, etc.)
-- **For frontend tasks**: Review ALL files in [Frontend Rules](mdc:.cursor/rules/frontend/)
-  - Start with frontend.mdc for core patterns
-  - Then specific rules (react-aria-components.md, tanstack-query-api-integration.md, etc.)
-- **For E2E test tasks**: Review [E2E Testing Rules](mdc:.cursor/rules/end-to-end-tests/)
-- **For CLI tasks**: Review [Developer CLI Rules](mdc:.cursor/rules/developer-cli/)
-
-**Why this is CRITICAL:**
-- Rules encode years of best practices and hard-won knowledge
-- Following rules prevents costly mistakes and rework
-- Rules ensure consistency across the entire codebase
-- Code reviewers will reject ANY deviation from rules
-- Patterns in existing code may be outdated - rules are the source of truth
-
-**Take time to internalize the rules. Success depends on following them precisely.**
-
-### 2. Research codebase and validate approach
-
-**Think ultrahard at this step.**
-
-- Research the existing codebase to understand what needs to be made in this task
-- Study similar features and their implementation patterns
-- Validate that the suggested subtasks are still the correct way to implement
-- **IMPORTANT**: If existing code conflicts with rules, follow the rules, not the code
-- If the approach needs adjustment, update the task before starting implementation
-- Identify exactly where new code should be placed
-
-### 3. Implement subtasks one by one
-
-For **each subtask**:
-
-- **RE-READ the specific rule for THIS subtask (MANDATORY)**:
-  - Even though you studied rules in step 1, RE-READ the specific rule for this exact subtask
-  - For backend subtasks: Re-read the EXACT rule file (e.g., if creating a command, re-read commands.md)
-  - For frontend subtasks: Re-read the EXACT rule file (e.g., if using React Aria, re-read react-aria-components.md)
-  - For E2E test subtasks: Re-read [E2E Testing Rules](mdc:.cursor/rules/end-to-end-tests/e2e-tests.mdc)
-  - For CLI subtasks: Re-read [Developer CLI Rules](mdc:.cursor/rules/developer-cli/)
-  - **This is NOT optional - rules MUST be followed precisely**
-
-- **Look at similar code (but rules take precedence)**:
-  - Find other places in the code doing something similar
-  - Use existing code as reference for patterns
-  - **CRITICAL**: If code contradicts rules, ALWAYS follow rules, not the code
-  - Existing code may be legacy or incorrect - rules are the authority
-
-- **Implement the subtask following rules EXACTLY**:
-  - Write detailed, clean, production-quality code
-  - Follow rules PRECISELY - no shortcuts, no "close enough"
-  - Every line must comply with the rules
-  - Ensure the subtask is thoroughly completed before proceeding to the next
-
-### 4. Validate implementation before code review
-
-After completing **all subtasks** in a **backend** task:
-
-- Write new tests to ensure new code coverage, including all edge cases
-- Run `[CLI_ALIAS] build && [CLI_ALIAS] test` to verify the code compiles and all tests pass
-- Fix any build or test failures before proceeding
-
-After completing **all subtasks** in a **frontend** task:
-
-- Run `[CLI_ALIAS] check --frontend` to verify TypeScript compilation and linting
-- Fix any TypeScript or linting errors before proceeding
-
-**Do not skip or shortcut these validation steps.**
-
-### 5. Code review by sub-agent
-
-**CRITICAL: This step is mandatory before marking any task as completed. NO EXCEPTIONS.**
-
-After validating the implementation:
-
-- For **backend tasks**: Launch the `backend-code-reviewer` agent
-- For **frontend tasks**: Launch the `frontend-code-reviewer` agent
-- For **e2e test tasks**: Launch the `e2e-test-reviewer` agent
-
-**The reviewer will SPECIFICALLY check that ALL rules are followed perfectly.**
-
-When launching the review agent, provide:
-1. Link to the Product Increment file (e.g., `@.task-manager/yyyy-MM-dd-feature/1-product-increment.md`)
-2. The task number just completed (e.g., "task 3")
-3. Summary of changes made
-4. If this is a follow-up review, link to previous review (e.g., `@.task-manager/yyyy-MM-dd-feature/1-product-increment/3-review.md`)
-
-Example initial review:
+Example for teams feature with 5 Product Increments:
 ```
-"Review task 3 implementation from @.task-manager/2025-01-15-team-management/1-backend.md. 
-Changes: Created Team aggregate with TeamId, added TeamRepository, configured EF mappings, 
-created database migration, implemented CreateTeam command with validation, added POST endpoint, 
-wrote comprehensive API tests."
+### Product Increment 1: Backend team management
+### Product Increment 2: Frontend team management  
+### Product Increment 3: Backend team membership
+### Product Increment 4: Frontend team membership
+### Product Increment 5: End-to-end testing
 ```
 
-Example follow-up review:
+**WHEN STARTING A PRODUCT INCREMENT: Add all tasks as subtasks**
+
+Example when starting Product Increment 1:
 ```
-"Follow-up review for task 3 from @.task-manager/2025-01-15-team-management/1-backend.md.
-Previous review: @.task-manager/2025-01-15-team-management/1-backend/3-review.mdc
-Fixed: Corrected property ordering, removed defensive coding, fixed line wrapping, 
-changed to primary constructor, used TimeProvider.System.GetUtcNow()"
+### Product Increment 1: Backend team management [in_progress]
+## 1. Create team aggregate with database migration and CreateTeam command
+## 2. Create GetTeam query for retrieving single team
+## 3. Create GetTeams query for listing all teams  
+## 4. Create UpdateTeam command for modifying team details
+## 5. Create DeleteTeam command for removing teams
+### Product Increment 2: Frontend team management
+### Product Increment 3: Backend team membership
+### Product Increment 4: Frontend team membership
+### Product Increment 5: End-to-end testing
 ```
 
-The review agent will:
-- Write findings to `.task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title]/[task-#]-review.md`
-- Document all issues found with line numbers and specific corrections needed
-- Provide a summary with counts of critical, major, and minor issues
+**WHEN STARTING A TASK: Add all workflow steps as sub-sub items**
 
-**Review standards - ZERO TOLERANCE:**
-- ALL issues must be fixed, no matter how minor
-- This includes spacing, line breaks, naming conventions, property ordering
-- There is no such thing as "too critical" - perfection is the standard
-- Reviews will continue indefinitely until ZERO issues remain
+Example when starting Backend Task 2 (assume Task 1 is completed):
+```
+### Product Increment 1: Backend team management [in_progress]
+## 1. Create team aggregate with database migration and CreateTeam command [completed]
+## 2. Create GetTeam query for retrieving single team [in_progress]
+- Study ALL rules for this task type                                                      (STEP 2)
+- Research existing patterns for this task type                                           (STEP 3)
+- 2.1 Create TeamDetails response model                                                   (STEP 4)
+- 2.2 Create GetTeam query                                                                (STEP 4)
+- 2.3 Create GET endpoint /api/teams/{id}                                                 (STEP 4)
+- 2.4 Create integration tests                                                            (STEP 4)
+- Validate implementation builds: Run [CLI_ALIAS] build && [CLI_ALIAS] test               (STEP 5)
+- MANDATORY CODE REVIEW: Call backend-code-reviewer agent                                 (STEP 6)
+- Run validation commands: [CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend  (STEP 7)
+- Commit the task                                                                         (STEP 8)
+- Update Product Increment status                                                         (STEP 9)
+## 3. Create GetTeams query for listing all teams
+## 4. Create UpdateTeam command for modifying team details  
+## 5. Create DeleteTeam command for removing teams
+### Product Increment 2: Frontend team management
+### Product Increment 3: Backend team membership
+### Product Increment 4: Frontend team membership
+### Product Increment 5: End-to-end testing
+```
 
-**If the review finds issues:**
-1. Fix ALL issues identified by the review agent (including minor ones)
-2. Re-validate the implementation (rebuild, retest, reformat)
-3. Request a follow-up review, referencing the previous review file
-4. The reviewer will see it's a follow-up and can check what was fixed
-5. Repeat until the review agent approves with ZERO issues
+**UPDATE TODO LIST CONTINUOUSLY**: Mark items [completed], [in_progress], [pending] as you work through them.
 
-**Only after review approval:**
-- Proceed to final validation
+## Mandatory workflow - Every step must be in your todo list
 
-### 6. Final validation and commit
+**YOU MUST USE TodoWrite tool at each major step to track progress and prevent skipping steps**
 
-**After review approval, before committing**:
+### For each task, your todo list MUST include all these items (match step numbers):
 
-For **backend** tasks:
-- Run `[CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend`
-- Fix any formatting or inspection issues found
-- If only trivial fixes were needed (formatting, simple inspection issues), proceed to commit
-- If any non-trivial issues were fixed, re-run validation commands
+**Backend Task Example:**
+```
+## [Task Number]. [Task Title] [in_progress]
+- Update status in Product Increment markdown file to [In Progress]                       (STEP 1)
+- Study ALL rules for this task type                                                      (STEP 2)
+- Research existing patterns for this task type                                           (STEP 3)
+- [List all subtasks from Product Increment plan]                                         (STEP 4)
+- Validate implementation builds: Run [CLI_ALIAS] build && [CLI_ALIAS] test               (STEP 5)
+- MANDATORY CODE REVIEW: Call backend-code-reviewer agent                                 (STEP 6)
+- Run validation commands: [CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend  (STEP 7)
+- Commit the task                                                                         (STEP 8)
+- Update Product Increment status                                                         (STEP 9)
+```
 
-For **frontend** tasks:
-- Run `[CLI_ALIAS] format --frontend`
-- Fix any formatting issues found
-- Proceed to commit
+**Frontend Task Example:**
+```
+## [Task Number]. [Task Title] [in_progress]
+- Update status in Product Increment markdown file to [In Progress]                       (STEP 1)
+- Study ALL rules for this task type                                                      (STEP 2)
+- Research existing patterns for this task type                                           (STEP 3)
+- [List all subtasks from Product Increment plan]                                         (STEP 4)
+- Validate implementation builds: Run [CLI_ALIAS] check --frontend                        (STEP 5)
+- MANDATORY CODE REVIEW: Call frontend-code-reviewer agent                                (STEP 6)
+- Run final validation commands: [CLI_ALIAS] format --frontend && [CLI_ALIAS] e2e         (STEP 7)
+- Commit the task                                                                         (STEP 8)
+- Update Product Increment status                                                         (STEP 9)
+```
 
-For **E2E test** tasks:
-- Run `[CLI_ALIAS] e2e` to verify tests pass
-- If any issues are found and fixed (especially if using conditional logic or await statements), request another review
-- Only proceed to commit after tests pass
+**E2E Task Example:**
+```
+## [Task Number]. [Task Title] [in_progress]
+- Update status in Product Increment markdown file to [In Progress]                       (STEP 1)
+- Study ALL rules for this task type                                                      (STEP 2)
+- Research existing patterns for this task type                                           (STEP 3)
+- [List all subtasks from Product Increment plan]                                         (STEP 4)
+- Validate implementation builds: Run [CLI_ALIAS] e2e                                     (STEP 5)
+- MANDATORY CODE REVIEW: Call e2e-test-reviewer agent                                     (STEP 6)
+- Run final validation commands: [CLI_ALIAS] e2e                                          (STEP 7)
+- Commit the task                                                                         (STEP 8)
+- Update Product Increment status                                                         (STEP 9)
+```
 
-**Commit the code**:
-- Commit the implemented code according to [Commit Changes Workflow](mdc:.cursor/rules/workflows/commit-changes.mdc)
-- The commit message should describe the complete vertical slice implemented
-- Each task should result in a separate commit
+### Mandatory steps for every task:
 
-### 7. Reflect and adjust plans when needed
+**Step 1. Update todo list and mark task in progress**: 
+   - Add all workflow steps for current task (use template above)
+   - IMPORTANT: Mark task as [In progress] in the Product Increment .mdc file
 
-**After implementation, reflect on what was learned:**
+**Step 2. Study all rules for this task type**: 
+   - **Backend**: Read ALL files in /.cursor/rules/backend/
+   - **Frontend**: Read ALL files in /.cursor/rules/frontend/  
+   - **E2E**: Read ALL files in /.cursor/rules/end-to-end-tests/
+   - Mark "Study ALL rules for this task type" [completed] in todo
 
-- **Update the current task** in the product increment file to reflect any changes made while implementing
-- **Update future tasks** if you discovered:
-  - A future task was actually needed as part of this task (mark it as completed)
-  - New tasks need to be added based on discoveries during implementation
-  - Existing future tasks need to be modified or removed
-  - Dependencies have changed
+**Step 3. Research existing patterns for this task type**: 
+   - Study similar implementations in codebase
+   - Validate approach matches established patterns
+   - Mark "Research existing patterns for this task type" [completed] in todo  
 
-- **If significant changes were made**:
-  - Update the product increment files to reflect the new reality
-  - If scope changed significantly, update the PRD
-  - Communicate changes to the user with clear explanations
+**Step 4. Implement all subtasks**: 
+   - Complete each subtask listed in Product Increment plan
+   - Mark each individual subtask [completed] in todo as you finish it
 
-This reflection ensures plans stay accurate and implementable.
+**Step 5. Validate implementation builds - ZERO TOLERANCE gate**: 
+   - **Mandatory gate**: Commands MUST achieve 100% success with zero errors/warnings
+   - **Backend tasks**: Run `[CLI_ALIAS] build && [CLI_ALIAS] test` - all MUST pass
+   - **Frontend tasks**: Run `[CLI_ALIAS] check --frontend` - all MUST pass  
+   - **E2E tasks**: Run `[CLI_ALIAS] e2e` - all MUST pass
+   - **Gate rule**: You CANNOT proceed to Step 6 until every single build/test passes
+   - **No exceptions**: If failures occur, troubleshoot and fix until 100% success
+   - **Completion criteria**: Mark completed ONLY when commands show zero failures
 
-### 8. Mark the current task as [Completed]
+**Step 6. Mandatory code review - iterative until ZERO findings**:
+   - **Backend tasks**: Call `backend-code-reviewer` agent
+   - **Frontend tasks**: Call `frontend-code-reviewer` agent
+   - **E2E tasks**: Call `e2e-test-reviewer` agent
+   - Agent creates: task-manager/feature/#-product-increment/#-review.mdc with findings
+   - **ZERO TOLERANCE rule**: You MUST fix ALL findings - no exceptions, no "minor" issues
+   - **Before follow-up reviews**: Re-run ALL Step 5 validation builds to ensure fixes didn't break anything
+   - **Iterative process**: Call reviewer agent repeatedly until zero findings remain
+   - **Validation requirement**: Mark fixed items with [x] in review.mdc
+   - **Disagreement protocol**: If you disagree with a finding, document reasoning in review.mdc
+   - **Gate rule**: You CANNOT proceed to Step 7 until review.mdc shows [x] on ALL findings and agent agrees
 
-- Change the task header from [Planned] to [Completed] in the product increment file
-- This indicates the task has been implemented, reviewed, and committed
+**Step 7. Final validation commands - quality gate**:
+   - **Backend tasks**: Run `[CLI_ALIAS] check --backend && [CLI_ALIAS] check --frontend`
+   - **Frontend tasks**: Run `[CLI_ALIAS] check --frontend && [CLI_ALIAS] e2e`
+   - **E2E tasks**: Run `[CLI_ALIAS] e2e`
+   - **E2E failure recovery**: If relevant run `[CLI_ALIAS] watch --detach` to restart servers and run database migrations
+   - **Quality gate rule**: If ANY findings are discovered, fix them and return to Step 5 for build validation and then Step 6 for mandatory code review
+   - **Gate rule**: You CANNOT proceed to Step 8 until all commands pass with zero issues
 
-### 9. Repeat process for next task
+**Step 8. Commit the task**: 
+   - Run git add and git commit with descriptive message. Always use single line commit messages in imparative form with uppercase first letter and no period at the end. 
 
-- Return to step 1 (Research codebase) for the next task
-- Continue until all tasks in the product increment are completed
-- Tasks must be completed sequentially, not in parallel
+**Step 9. Update product increment status**: 
+   - Change task from [Planned] to [Completed] in product incrment markdown file
+   - Mark "Commit the task" [completed] in todo
+   - If last task in Product Increment mark "Update Product Increment status" [completed] in todo
 
-## Example implementation flow with follow-up review
+**CRITICAL**: You cannot start the next task until current task todo items are ALL [completed]
 
-Using the provided `1-backend-sample.md` example:
+## Critical failure prevention
 
-### **Task 1: Create Team aggregate, command, endpoint, migration, and tests [Planned]**
+**Most common agent failures and how to prevent them:**
 
-1. **Research codebase**: Study existing aggregates, commands, API patterns, validate approach
-2. **Implement subtasks** (studying rules for each subtask):
-   - 1.1 Create Team aggregate with TeamId, properties, Create method, ITenantScoped
-   - 1.2 Create TeamRepository inheriting from ICrudRepository
-   - 1.3 Configure strongly typed IDs via TeamConfiguration
-   - 1.4 Create database migration with unique index
-   - 1.5 Create CreateTeam command with validation, guards, event tracking
-   - 1.6 Create POST /api/account-management/teams endpoint
-   - 1.7 Create comprehensive API tests
-3. **Validate**: Run `[CLI_ALIAS] build && [CLI_ALIAS] test`
-4. **Initial Code Review**: 
-   ```
-   Launch backend-code-reviewer agent:
-   "Review task 1 implementation from @.task-manager/2025-01-15-team-management/1-backend.md.
-   Changes: Created Team aggregate with TeamId strongly typed ID, TeamRepository with 
-   ICrudRepository, EF configuration, database migration with unique index, CreateTeam 
-   command with Owner permission guard and uniqueness check, POST endpoint, and API tests."
-   ```
-5. **Review finds issues**: Review written to `1-review.md` with 15 issues found
-6. **Fix all issues**: Address every single issue, including minor spacing problems
-7. **Follow-up review**:
-   ```
-   Launch backend-code-reviewer agent:
-   "Follow-up review for task 1 from @.task-manager/2025-01-15-team-management/1-backend.md.
-   Previous review: @.task-manager/2025-01-15-team-management/1-backend/1-review.mdc
-   Fixed: All 15 issues including property ordering, line spacing, primary constructors, 
-   removed defensive coding, fixed DateTime usage, corrected naming conventions"
-   ```
-8. **Review finds 3 more issues**: Same file updated with new findings
-9. **Fix remaining issues**: Address the 3 remaining issues
-10. **Final follow-up review**: Request review again until ZERO issues
-11. **Final validation**: Run `[CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend`
-12. **Commit**: Create commit with message like "Add team creation with aggregate, command, API endpoint and tests"
-13. **Reflect**: Update task description if needed, adjust future tasks if discoveries were made
-14. **Mark completed**: Change task status to [Completed]
+- **Skipping code review**: Agents implement code but forget to call review agents. This is FORBIDDEN.
+- **Moving between increments**: Agents jump to next Product Increment before finishing current one. This is FORBIDDEN.
+- **Ignoring build failures**: Agents continue despite compilation errors. This is FORBIDDEN.
+- **Not updating status**: Agents forget to mark tasks [Completed] in .mdc files. This is FORBIDDEN.
+- **Using wrong tools**: Agents fall back to `dotnet`, `npm`, `npx` instead of `[CLI_ALIAS]`. This is FORBIDDEN.
 
-### **Task 2: Create GetTeam query [Planned]**
-- Repeat entire process for next task
-- This is a smaller task since the foundation is already in place
-
-## Review process details
-
-The review agents will check for:
-- Adherence to ALL rule files
-- Consistent patterns with existing code
-- Proper use of language features (primary constructors, sealed classes, etc.)
-- Correct ordering of properties and parameters
-- Appropriate error handling patterns
-- No defensive coding
-- Minimal and meaningful comments
-- Proper line wrapping and formatting
-- Correct spacing and line breaks
-- Naming conventions (no acronyms, clear names)
-- Security and performance considerations
-- Use of TimeProvider.System.GetUtcNow() instead of DateTime.UtcNow()
-- Proper async/await usage
-- No XML comments
-- Logging without periods, exceptions with periods
-
-Review findings are documented with:
-- Exact line numbers
-- Specific issues
-- Suggested corrections
-- Severity classification (critical/major/minor)
-- ALL issues must be fixed regardless of severity
-
-## Important notes
-
-### Sequential execution
-Tasks must be completed one at a time, sequentially. Parallel implementation is not allowed as it leads to conflicts and compilation errors.
-
-### E2E tests as separate product increment
-E2E tests should always be a separate product increment, created after the feature is complete and stable. E2E tests require special attention to ensure they are deterministic, use proper Playwright assertions, and never use hardcoded waits or conditional logic.
-
-### Scope limitations
-This workflow is for implementing new features through product increments. It is not for:
-- Bug fixes
-- Hotfixes
-- Small changes
-- Emergency repairs
-
-### Documentation
-README updates should be considered when creating product increment plans. Documentation updates are part of the pull request process.
-
-## ✅ DO:
-- Read the PRD and ALL product increments before starting implementation
-- **ALWAYS study ALL relevant rules FIRST before starting any task**
-- Think ultrahard when researching codebase for each task
-- **Re-read specific rule files for EACH subtask (not just once per task)**
-- **Follow rules EXACTLY - they override any conflicting code patterns**
-- Look at similar code for reference but rules take precedence
-- Implement subtasks sequentially for each vertical slice
-- Always validate code (build, test) before requesting code review
-- ALWAYS request code review from sub-agents before marking tasks complete
-- Fix ALL issues from code reviews, no matter how minor
-- Continue review cycles until ZERO issues remain
-- Always run formatting and inspection after review approval
-- Commit code immediately after final validation passes
-- Reflect and update plans AFTER implementation to capture learnings
-- Mark tasks as [Completed] only after commit
-- Ensure each commit is a deployable and tested unit of work
-- Update PRD and product increments when plans need adjustment
-
-## ❌ DON'T:
-- Skip reading the PRD and all product increments before starting
-- **EVER skip studying rules first - this is the #1 cause of failure**
-- Skip researching the codebase and validating approach for each task
-- **Review rules only once for the entire task (must re-read per subtask)**
-- **Follow code patterns that contradict rules - rules are absolute**
-- Implement multiple tasks or subtasks simultaneously
-- Proceed to the next task before getting code review approval with ZERO issues
-- Mark a task as [Completed] before committing
-- Ignore minor issues like spacing or naming conventions
-- Skip writing and running comprehensive tests, including edge cases
-- Skip the pre-review validation commands
-- Proceed without running formatting and inspection after review
-- Forget to reflect and update plans after implementation
-- Continue without following explicit rules defined in [Rules](mdc:.cursor/rules)
-- Split a vertical slice into multiple commits (database, backend, API, tests separately)
-- Work on tasks in parallel
-- Use this workflow for bug fixes or small changes
-
-**This process ensures a rigorous, thoroughly reviewed, and user-confirmed workflow for high-quality and reliable implementation with ZERO tolerance for imperfection.**
+**Solution**: Follow the 9-step workflow exactly. No exceptions. No shortcuts. Always use [CLI_ALIAS].
