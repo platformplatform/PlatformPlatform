@@ -1,0 +1,48 @@
+---
+---
+
+# Frontend for team management
+
+**Purpose:**
+
+This increment implements the Teams page UI with the ability to:
+- List, create, edit, and delete teams using the API from the first increment
+- Display teams in a table with team data
+- Create new teams via modal dialog
+- View and edit team details in a side pane
+- Implement appropriate loading and empty states
+- Apply permission-based UI controls
+- Add Teams menu item to the Organization section of navigation
+
+**NOT included:**
+- Backend implementation (previous increment)
+- Team membership management (separate increment)
+- Advanced filtering/sorting
+- Pagination and search functionality
+
+**Dependencies:**
+- Backend for team management increment must be completed first
+
+**IMPORTANT:**
+Do not modify any backend code or implement team membership functionality in this increment.
+
+## CRITICAL: Frontend vertical slice requirements
+
+**EACH TASK = ONE COMMIT = ONE COMPLETE UI FEATURE**
+
+A vertical slice in frontend means:
+- Component + API integration + UI state + user interaction = ONE task/commit
+- The UI must be functional and testable after EACH task
+- Never split component creation, API calls, and state management into separate tasks
+
+**Example of WRONG approach (multiple commits):**
+- Task 1: Create table component structure ❌
+- Task 2: Add API data fetching ❌
+- Task 3: Connect data to table ❌
+- Task 4: Add loading states ❌
+- Task 5: Add error handling ❌
+
+**Example of RIGHT approach (vertical slice):**
+- Task 1: Create teams table with data fetching and loading states ✅
+  (Complete working table in ONE commit)
+
