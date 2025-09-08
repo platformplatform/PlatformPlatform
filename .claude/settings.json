@@ -1,12 +1,12 @@
 {
   "hooks": {
-    "PostToolUse": [
+    "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -q \"Error: Shell command failed\"; then echo \"🔧 HOOK GUIDANCE: The command failed but this may be due to output display limitations. If you were trying to use '[CLI_ALIAS]' commands, try adding '; echo 'Command completed'' or '|| echo Exit code: \\$?' to see the actual output. DO NOT fall back to dotnet, npm, or npx commands.\"; fi"
+            "command": "sh -c 'input=$(cat); cmd=$(echo \"$input\" | sed -n \"s/.*\\\"command\\\":\\\"\\([^\\\"]*\\)\\\".*/\\1/p\"); case \"$cmd\" in *\"dotnet build\"*|*\"dotnet test\"*|*\"dotnet format\"*|*\"npm run format\"*|*\"npm test\"*|*\"npm run build\"*|*\"npx playwright test\"*) echo \"❌ BLOCKED: Use pp CLI instead.\" >&2; echo \"Command: $cmd\" >&2; echo \"\" >&2; echo \"Use these instead:\" >&2; echo \"• dotnet build → pp build\" >&2; echo \"• dotnet test → pp test\" >&2; echo \"• dotnet format → pp format\" >&2; echo \"• npm run format → pp format\" >&2; echo \"• npm test → pp test\" >&2; echo \"• npm run build → pp build\" >&2; echo \"• npx playwright test → pp e2e\" >&2; echo \"\" >&2; echo \"Refer to .claude/rules/tools.md for details.\" >&2; exit 2 ;; *) exit 0 ;; esac'"
           }
         ]
       }
