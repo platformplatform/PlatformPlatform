@@ -67,9 +67,8 @@ Example when starting Backend Task 2 (assume Task 1 is completed):
 - 2.4 Create integration tests                                                            (STEP 4)
 - Validate implementation builds: Run [CLI_ALIAS] build && [CLI_ALIAS] test               (STEP 5)
 - MANDATORY CODE REVIEW: Call backend-code-reviewer agent                                 (STEP 6)
-- Run validation commands: [CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend  (STEP 7)
-- Commit the task                                                                         (STEP 8)
-- Update Product Increment status                                                         (STEP 9)
+- MANDATORY QUALITY GATES: Call quality-gate-committer agent with task description and review file (STEP 7)
+- Update Product Increment status                                                         (STEP 8)
 ## 3. Create GetTeams query for listing all teams
 ## 4. Create UpdateTeam command for modifying team details  
 ## 5. Create DeleteTeam command for removing teams
@@ -96,9 +95,8 @@ Example when starting Backend Task 2 (assume Task 1 is completed):
 - [List all subtasks from Product Increment plan]                                         (STEP 4)
 - Validate implementation builds: Run [CLI_ALIAS] build && [CLI_ALIAS] test               (STEP 5)
 - MANDATORY CODE REVIEW: Call backend-code-reviewer agent                                 (STEP 6)
-- Run validation commands: [CLI_ALIAS] format --backend && [CLI_ALIAS] inspect --backend  (STEP 7)
-- Commit the task                                                                         (STEP 8)
-- Update Product Increment status                                                         (STEP 9)
+- MANDATORY QUALITY GATES: Call quality-gate-committer agent with task description and review file (STEP 7)
+- Update Product Increment status                                                         (STEP 8)
 ```
 
 **Frontend Task Example:**
@@ -110,9 +108,8 @@ Example when starting Backend Task 2 (assume Task 1 is completed):
 - [List all subtasks from Product Increment plan]                                         (STEP 4)
 - Validate implementation builds: Run [CLI_ALIAS] check --frontend                        (STEP 5)
 - MANDATORY CODE REVIEW: Call frontend-code-reviewer agent                                (STEP 6)
-- Run final validation commands: [CLI_ALIAS] format --frontend && [CLI_ALIAS] e2e         (STEP 7)
-- Commit the task                                                                         (STEP 8)
-- Update Product Increment status                                                         (STEP 9)
+- MANDATORY QUALITY GATES: Call quality-gate-committer agent with task description and review file (STEP 7)
+- Update Product Increment status                                                         (STEP 8)
 ```
 
 **E2E Task Example:**
@@ -124,9 +121,8 @@ Example when starting Backend Task 2 (assume Task 1 is completed):
 - [List all subtasks from Product Increment plan]                                         (STEP 4)
 - Validate implementation builds: Run [CLI_ALIAS] e2e                                     (STEP 5)
 - MANDATORY CODE REVIEW: Call e2e-test-reviewer agent                                     (STEP 6)
-- Run final validation commands: [CLI_ALIAS] e2e                                          (STEP 7)
-- Commit the task                                                                         (STEP 8)
-- Update Product Increment status                                                         (STEP 9)
+- MANDATORY QUALITY GATES: Call quality-gate-committer agent with task description and review file (STEP 7)
+- Update Product Increment status                                                         (STEP 8)
 ```
 
 ### Mandatory steps for every task:
@@ -171,23 +167,34 @@ Example when starting Backend Task 2 (assume Task 1 is completed):
    - **Disagreement protocol**: If you disagree with a finding, document reasoning in review.md
    - **Gate rule**: You CANNOT proceed to Step 7 until review.md shows [x] on ALL findings and agent agrees
 
-**Step 7. Final validation commands - quality gate**:
-   - **Backend tasks**: Run `[CLI_ALIAS] check --backend && [CLI_ALIAS] check --frontend`
-   - **Frontend tasks**: Run `[CLI_ALIAS] check --frontend && [CLI_ALIAS] e2e`
-   - **E2E tasks**: Run `[CLI_ALIAS] e2e`
-   - **E2E failure recovery**: If relevant run `[CLI_ALIAS] watch --detach` to restart servers and run database migrations
-   - **Quality gate rule**: If ANY findings are discovered, fix them and return to Step 5 for build validation and then Step 6 for mandatory code review
-   - **Gate rule**: You CANNOT proceed to Step 8 until all commands pass with zero issues
+**Step 7. Final quality gates and commit via quality-gate-committer agent - MANDATORY**:
+   - **PREREQUISITES CHECK**: Before calling the agent, you MUST verify:
+     - ALL review findings in task-manager/feature/#-product-increment/#-review.md are marked [x]
+     - ALL build/test commands from Step 5 pass with zero failures
+     - If either prerequisite fails, DO NOT call the agent - fix issues first
+   - **Call quality-gate-committer agent**: 
+     - Provide task description for commit message
+     - Provide path to review file: task-manager/feature/#-product-increment/#-review.md
+     - Agent will validate review completion, run quality gates, and commit if all pass
+   - **HARD GATE**: The agent will REJECT commits if:
+     - Any review finding is not marked [x]
+     - Any quality gate fails (build, test, lint, format)
+     - No exceptions - fix all issues before retrying
+   - **Success criteria**: Agent commits code and returns commit message
+   - **Failure handling**: If agent fails, return to Step 5 to fix issues, then Step 6 for re-review
 
-**Step 8. Commit the task**: 
-   - Run git add and git commit with descriptive message. Always use single line commit messages in imparative form with uppercase first letter and no period at the end. 
-
-**Step 9. Update product increment status**: 
-   - Change task from [Planned] to [Completed] in product incrment markdown file
-   - Mark "Commit the task" [completed] in todo
+**Step 8. Update product increment status**: 
+   - Change task from [Planned] to [Completed] in product increment markdown file
+   - Mark all workflow steps [completed] in todo
    - If last task in Product Increment mark "Update Product Increment status" [completed] in todo
 
 **CRITICAL**: You cannot start the next task until current task todo items are ALL [completed]
+
+**IMPORTANT**: The new Step 7 (quality-gate-committer agent) will NEVER commit code that has:
+- Failing tests or build errors
+- Unaddressed review findings (not marked [x])
+- Quality gate failures
+This prevents the AI from ignoring test failures or review comments - a HARD ENFORCEMENT mechanism.
 
 ## Critical failure prevention
 
