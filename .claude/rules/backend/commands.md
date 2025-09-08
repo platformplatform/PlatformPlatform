@@ -63,9 +63,7 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
     public CreateUserValidator()
     {
         // ✅ DO: Use the same message for better user experience and easier localization
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Name must be between 1 and 50 characters.")
-            .MaximumLength(50).WithMessage("Name must be between 1 and 50 characters.");
+        RuleFor(x => x.Name).Length(1, 50).WithMessage("Name must be between 1 and 50 characters.");
     }
 }
 
@@ -99,7 +97,7 @@ public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserValidator()
     {
-        // ❌ DON'T: Use different validation messages for the same property
+        // ❌ DON'T: Use different validation messages for the same property and redundant validation rules
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Name must not be empty.")
             .MaximumLength(50).WithMessage("Name must not be more than 50 characters.");

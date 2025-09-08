@@ -1,6 +1,6 @@
 ---
-description: Workflow for implementing tasks for a product increment
-auto_execution_mode: 1
+description: Implement tasks defined in a product increment with mandatory code review
+argument-hint: Path to product increment .md file to implement (e.g., task-manager/2025-01-15-feature/1-backend.md)
 ---
 
 # Implement Product Increment Workflow

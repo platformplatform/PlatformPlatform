@@ -1,11 +1,13 @@
 ---
-description: Workflow for creating small product increments based on a product requirement description (PRD)
-auto_execution_mode: 1
+description: Plan technical tasks for a product increment based on a PRD
+argument-hint: Path to PRD file and increment number (e.g., "task-manager/2025-01-15-feature/prd.md increment 1")
 ---
 
 # Plan Product Increment Workflow
 
-The user will provide a link to a product requirement description (PRD) or a link to a backlog item in [PRODUCT_MANAGEMENT_TOOL], and ask you to create technical tasks for one product increment.
+PRD file and product increment number: $ARGUMENTS
+
+Read the PRD file provided in the arguments above and focus on the specific product increment number mentioned. Your job is to create technical tasks for that specific product increment.
 
 The goal is to create a `./task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL]. The date prefix should match the PRD's directory date.
 

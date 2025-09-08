@@ -1,6 +1,3 @@
----
----
-
 # Backend for team management
 
 **Purpose:**
