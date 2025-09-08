@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_OUTPUT\" | grep -q \"Error: Shell command failed\"; then echo \"🔧 HOOK GUIDANCE: The command failed but this may be due to output display limitations. If you were trying to use '[CLI_ALIAS]' commands, try adding '; echo 'Command completed'' or '|| echo Exit code: \\$?' to see the actual output. DO NOT fall back to dotnet, npm, or npx commands.\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
