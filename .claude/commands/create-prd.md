@@ -1,11 +1,13 @@
 ---
-description: Workflow for creating a product requirement description (PRD)
-auto_execution_mode: 1
+description: Create a product requirement description (PRD) for a new feature
+argument-hint: Brief description of the feature to implement (optional)
 ---
 
 # Create PRD Workflow
 
-The user will provide a description of a new feature. Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
+Feature to design: $ARGUMENTS
+
+Start by researching the feature described in the arguments above (if provided). Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
 
 The output will be a `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature. Use a tool to get today's date in yyyy-MM-dd format for the directory name.
 

@@ -1,11 +1,13 @@
 ---
-description: Workflow for creating end-to-end tests
-auto_execution_mode: 1
+description: Create comprehensive end-to-end tests for features
+argument-hint: Feature name or path to product increment plan (optional)
 ---
 
 # E2E Testing Workflow
 
-This workflow guides you through the process of creating comprehensive end-to-end tests for specific features like login and signup. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+Feature or product increment: $ARGUMENTS
+
+If a product increment file is provided in the arguments above, read it to understand what features need testing. This workflow guides you through the process of creating comprehensive end-to-end tests for those features. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## Workflow
 

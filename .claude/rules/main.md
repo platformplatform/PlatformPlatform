@@ -20,7 +20,7 @@ Always follow these rule files very carefully, as they have been crafted to ensu
    - When changing code, do not add comments about what you changed.
 6. After each change, make sure you follow the rules in [Backend Rules](/.windsurf/rules/backend/backend.md) or [Frontend Rules](/.windsurf/rules/frontend/frontend.md) on how to correctly use the [CLI_ALIAS] CLI tool for building, testing, and formatting the code.
    - Failure to use the [CLI_ALIAS] CLI tool after each change is the second most common reason for making unacceptable changes.
-   - Always use the [CLI_ALIAS] CLI commands as described in [Tools](/.windsurf/rules/tools.md) for building, testing, formatting, and inspecting code.
+   - Always use the [CLI_ALIAS] CLI commands as described in [Tools](/.claude/rules/tools.md) for building, testing, formatting, and inspecting code.
 
 ## Rules for implementing changes
 

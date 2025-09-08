@@ -1,6 +1,3 @@
----
----
-
 # Teams management PRD
 
 A brief high-level introduction: The Teams management feature enables tenants to organize users into named groups with clear membership roles and permissions, allowing for better collaboration and access control within the organization.
