@@ -123,6 +123,7 @@ module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-serve
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
     dianosticStorageAccountSubscriptionId: subscription().subscriptionId
   }
+  dependsOn: [microsoftSqlServer]
 }
 
 var isCustomDomainSet = domainName != ''
