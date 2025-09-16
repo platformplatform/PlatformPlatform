@@ -412,3 +412,5 @@ playwright-report/
 
 # PlatformPlatform agent workspace
 .workspace
+.claude/agent-workspaces/
+
