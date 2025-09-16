@@ -131,9 +131,15 @@ public class AgentCommand : Command
             Console.Write($"{bgColor}\x1b[2J\x1b[H");
         }
 
+        // Start keep-alive service for this agent
+        var keepAliveService = StartKeepAliveService(normalizedFeatureName, normalizedAgentName);
+
         claudeProcess.Start();
 
         await claudeProcess.WaitForExitAsync();
+
+        // Stop keep-alive service when Claude exits
+        keepAliveService?.Kill();
 
         // If Claude exited quickly, it might have failed to continue - try starting fresh
         if (claudeProcess.ExitCode != 0)
@@ -243,6 +249,44 @@ public class AgentCommand : Command
         catch (Exception ex)
         {
             AnsiConsole.MarkupLine($"[dim]Cleanup warning: {ex.Message}[/]");
+        }
+    }
+
+    private static Process? StartKeepAliveService(string featureName, string agentName)
+    {
+        try
+        {
+            var allAgents = new[] { "backend", "frontend", "backend-reviewer", "frontend-reviewer" };
+            var otherAgents = allAgents.Where(a => a != agentName).ToArray();
+
+            if (otherAgents.Length == 0) return null;
+
+            var keepAliveScript = $"""
+while true; do
+    sleep 1800  # 30 minutes
+
+    # Send keep-alive to all other agents
+{string.Join("\n", otherAgents.Select(agent => $"    echo '---\n# Keep-alive from {agentName} - $(date)\nStand by\n---' > \"$(git rev-parse --show-toplevel)/.claude/agent-workspaces/{featureName}/{agent}/message-queue/keepalive_$(date +\"%Y%m%d_%H%M%S\").md\""))}
+done
+""";
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{keepAliveScript}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+
+            process.Start();
+            return process;
+        }
+        catch
+        {
+            return null;
         }
     }
 

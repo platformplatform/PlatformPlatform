@@ -26,6 +26,8 @@ When the CLI returns file paths, you MUST process ALL files and DELETE them:
 
 CRITICAL: You MUST delete ALL files after processing or you'll keep seeing the same files repeatedly.
 
+Keep-alive messages (keepalive_*.md) should be silently deleted - just run `rm` on them without processing.
+
 Example:
 - CLI returns: `message-queue/request_0001_from_coordinator.md`
 - Read: `cat message-queue/request_0001_from_coordinator.md`
