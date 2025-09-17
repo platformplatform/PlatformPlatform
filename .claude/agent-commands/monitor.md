@@ -20,15 +20,33 @@ When the CLI returns file paths, you MUST handle ALL files:
 
 For EACH file path:
 1. If filename contains "keepalive_": DELETE immediately with `rm [filepath]` (no processing needed)
-2. If filename contains "request_": Read, process task, create response, move to sender, delete original
+2. If filename contains "thread_": Read, append your findings, move back to sender
 3. If filename contains "response_": Read, process information, delete file
 4. Run /monitor again to continue monitoring
 
-CRITICAL: ALWAYS delete ALL files or you'll see them repeatedly.
+Example thread processing:
+- CLI returns: `thread_0001_fix_warnings.md`
+- Read: `cat thread_0001_fix_warnings.md`
+- Process the original request
+- Append your findings:
+  ```bash
+  echo "
 
-Example:
-- `keepalive_20250917_015305.md` → `rm keepalive_20250917_015305.md` (silent deletion)
-- `request_0001_from_coordinator.md` → Read, process, respond, delete
+**$(basename "$PWD")** - $(date)
+Task completed: [your detailed findings and results]
+Fixed 3 warnings in UserService.cs and ApiController.cs
+All tests now passing
+
+---
+Status: Completed by $(basename "$PWD")" >> thread_0001_fix_warnings.md
+
+# IMPORTANT: Clear your todo list before sending thread back
+TodoWrite '[]'
+  ```
+- Move back: `mv thread_0001_fix_warnings.md ../coordinator/message-queue/`
+- Restart: `/monitor`
+
+The thread file grows with each agent's contributions, providing full context.
 
 Example:
 - CLI returns: `message-queue/request_0001_from_coordinator.md`
