@@ -24,27 +24,38 @@ For EACH file path:
 3. If filename contains "response_": Read, process information, delete file
 4. Run /monitor again to continue monitoring
 
-Example thread processing:
-- CLI returns: `thread_0001_fix_warnings.md`
-- Read: `cat thread_0001_fix_warnings.md`
-- Process the original request
-- Append your findings:
+Task processing template - YOU MUST follow this exact format:
+- CLI returns: `task_0001_fix_warnings.md`
+- Read: `cat task_0001_fix_warnings.md` (see full context)
+- Process the task
+- Increment task number and append your structured response:
   ```bash
+  # Clear your todo list first
+  TodoWrite '[]'
+
+  # Append structured response
   echo "
 
-**$(basename "$PWD")** - $(date)
-Task completed: [your detailed findings and results]
-Fixed 3 warnings in UserService.cs and ApiController.cs
-All tests now passing
+**$(basename \"$PWD\")** - $(date)
 
----
-Status: Completed by $(basename "$PWD")" >> thread_0001_fix_warnings.md
+## Summary
+[Concise summary of what you accomplished]
 
-# IMPORTANT: Clear your todo list before sending thread back
-TodoWrite '[]'
+## Problems
+[Any issues found or remaining problems]
+
+## Next Action
+[What should happen next - which agent should work on this]
+
+" >> task_0001_fix_warnings.md
+
+  # Update task number and move to next agent or back to coordinator
+  NEW_TASK_ID=$(printf "%04d" $(($(echo "task_0001_fix_warnings.md" | grep -o '[0-9]*') + 1)))
+  mv task_0001_fix_warnings.md "../coordinator/message-queue/task_${NEW_TASK_ID}_fix_warnings.md"
   ```
-- Move back: `mv thread_0001_fix_warnings.md ../coordinator/message-queue/`
 - Restart: `/monitor`
+
+CRITICAL: Always clear todos, use structured template, increment number, specify next action.
 
 The thread file grows with each agent's contributions, providing full context.
 
