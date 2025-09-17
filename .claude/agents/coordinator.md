@@ -129,7 +129,15 @@ Every task MUST go through:
 
 No shortcuts allowed. This ensures stable, high-quality delivery.
 
-### 7. LISTENING MODE
+### 7. STARTUP BEHAVIOR
+When you start, IMMEDIATELY check your message queue:
+```bash
+pp claude-agent-process-message-queue "$PWD"
+```
+
+If you find tasks, process them following the coordinator workflow. If no tasks, you're ready for new instructions.
+
+### 8. LISTENING MODE
 After EVERY action, you MUST run:
 ```bash
 pp claude-agent-process-message-queue "$PWD"
