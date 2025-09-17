@@ -16,17 +16,19 @@ pp claude-agent-process-message-queue "$PWD"
 echo "🔄 Check complete - run /monitor again to continue"
 ```
 
-When the CLI returns file paths, you MUST process ALL files and DELETE them:
-1. Read EVERY file with `cat [filepath]`
-2. Process all tasks/responses as this agent
-3. For requests: Create responses and move to sender
-4. For responses: Process the information
-5. DELETE ALL processed files with `rm [filepath]`
-6. Run /monitor again to continue monitoring
+When the CLI returns file paths, you MUST handle ALL files:
 
-CRITICAL: You MUST delete ALL files after processing or you'll keep seeing the same files repeatedly.
+For EACH file path:
+1. If filename contains "keepalive_": DELETE immediately with `rm [filepath]` (no processing needed)
+2. If filename contains "request_": Read, process task, create response, move to sender, delete original
+3. If filename contains "response_": Read, process information, delete file
+4. Run /monitor again to continue monitoring
 
-Keep-alive messages (keepalive_*.md) should be silently deleted - just run `rm` on them without processing.
+CRITICAL: ALWAYS delete ALL files or you'll see them repeatedly.
+
+Example:
+- `keepalive_20250917_015305.md` → `rm keepalive_20250917_015305.md` (silent deletion)
+- `request_0001_from_coordinator.md` → Read, process, respond, delete
 
 Example:
 - CLI returns: `message-queue/request_0001_from_coordinator.md`

@@ -78,6 +78,12 @@ public class AgentCommand : Command
         // Create agent priming file with role-specific rules
         await CreateAgentPrimingAsync(agentWorkspace, normalizedAgentName, agentRole, rulesPath, agentProfilePath);
 
+        // Copy coordinator-specific files
+        if (normalizedAgentName == "coordinator")
+        {
+            await CopyCoordinatorFilesAsync(agentWorkspace);
+        }
+
         // Create message queue directory for this agent
         var messageQueueDir = Path.Combine(agentWorkspace, "message-queue");
         Directory.CreateDirectory(messageQueueDir);
@@ -94,8 +100,10 @@ public class AgentCommand : Command
 
         AnsiConsole.MarkupLine($"[dim]Agent workspace created: {agentWorkspace}[/]");
 
-        // Start Claude with auto-monitor command (skip --continue to avoid messages)
-        var claudeArgs = new List<string> { "/monitor" };
+        // Start Claude with auto-monitor command (except for coordinator)
+        var claudeArgs = normalizedAgentName == "coordinator"
+            ? new List<string> { "--continue" }
+            : new List<string> { "--continue", "/monitor" };
         if (bypassPermissions)
             claudeArgs.Add("--permission-mode bypassPermissions");
 
@@ -131,20 +139,23 @@ public class AgentCommand : Command
             Console.Write($"{bgColor}\x1b[2J\x1b[H");
         }
 
-        // Start keep-alive service for this agent
-        var keepAliveService = StartKeepAliveService(normalizedFeatureName, normalizedAgentName);
+        // Start keep-alive background worker
+        var cts = new CancellationTokenSource();
+        var keepAliveTask = Task.Run(() => KeepAliveWorker(agentWorkspace, cts.Token));
 
         claudeProcess.Start();
 
         await claudeProcess.WaitForExitAsync();
 
-        // Stop keep-alive service when Claude exits
-        keepAliveService?.Kill();
+        // Stop keep-alive when Claude exits
+        cts.Cancel();
 
         // If Claude exited quickly, it might have failed to continue - try starting fresh
         if (claudeProcess.ExitCode != 0)
         {
-            var freshArgs = new List<string> { "/monitor" };
+            var freshArgs = normalizedAgentName == "coordinator"
+                ? new List<string>()
+                : new List<string> { "/monitor" };
             if (bypassPermissions)
                 freshArgs.Add("--permission-mode bypassPermissions");
 
@@ -236,7 +247,7 @@ public class AgentCommand : Command
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "pkill",
-                    Arguments = $"-f \"claude-agent-process-message-queue.*{featureName}/{agentName}\"",
+                    Arguments = $"-f \"claude-agent-process-message-queue.*{featureName}/{agentName}$\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     CreateNoWindow = true
@@ -252,41 +263,57 @@ public class AgentCommand : Command
         }
     }
 
-    private static Process? StartKeepAliveService(string featureName, string agentName)
+    private static async Task KeepAliveWorker(string agentWorkspace, CancellationToken cancellationToken)
     {
+        var messageQueue = Path.Combine(agentWorkspace, "message-queue");
+
         try
         {
-            var allAgents = new[] { "backend", "frontend", "backend-reviewer", "frontend-reviewer" };
-            var otherAgents = allAgents.Where(a => a != agentName).ToArray();
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromMinutes(30), cancellationToken);
 
-            if (otherAgents.Length == 0) return null;
+                if (cancellationToken.IsCancellationRequested) break;
 
-            var keepAliveScript = $"""
-while true; do
-    sleep 1800  # 30 minutes
+                // Create keep-alive message in own queue
+                Directory.CreateDirectory(messageQueue);
 
-    # Send keep-alive to all other agents
-{string.Join("\n", otherAgents.Select(agent => $"    echo '---\n# Keep-alive from {agentName} - $(date)\nStand by\n---' > \"$(git rev-parse --show-toplevel)/.claude/agent-workspaces/{featureName}/{agent}/message-queue/keepalive_$(date +\"%Y%m%d_%H%M%S\").md\""))}
-done
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var keepAliveFile = Path.Combine(messageQueue, $"keepalive_{timestamp}.md");
+
+                var content = $"""
+---
+# Keep-alive - {DateTime.Now}
+Stand by
+---
 """;
 
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{keepAliveScript}\"",
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            process.Start();
-            return process;
+                await File.WriteAllTextAsync(keepAliveFile, content, cancellationToken);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Expected when cancelled
         }
         catch
         {
-            return null;
+            // Ignore errors
+        }
+    }
+
+    private static async Task CopyCoordinatorFilesAsync(string agentWorkspace)
+    {
+        var agentClaudeDir = Path.Combine(agentWorkspace, ".claude");
+        var agentsTargetDir = Path.Combine(agentClaudeDir, "agents");
+        Directory.CreateDirectory(agentsTargetDir);
+
+        // Copy quality-gate-committer.md specifically for coordinator
+        var qualityGateFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents", "quality-gate-committer.md");
+        var targetFile = Path.Combine(agentsTargetDir, "quality-gate-committer.md");
+
+        if (File.Exists(qualityGateFile))
+        {
+            await File.WriteAllTextAsync(targetFile, await File.ReadAllTextAsync(qualityGateFile));
         }
     }
 
