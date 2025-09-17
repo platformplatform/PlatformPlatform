@@ -44,13 +44,11 @@ public class ProcessMessageQueueCommand : Command
                 }
 
                 Directory.CreateDirectory(messageQueueDir);
-                var requestFiles = Directory.GetFiles(messageQueueDir, "request_*.md");
-                var responseFiles = Directory.GetFiles(messageQueueDir, "response_*.md");
-                var keepAliveFiles = Directory.GetFiles(messageQueueDir, "keepalive_*.md");
+                var allFiles = Directory.GetFiles(messageQueueDir, "*.md");
 
-                if (requestFiles.Length > 0 || responseFiles.Length > 0 || keepAliveFiles.Length > 0)
+                if (allFiles.Length > 0)
                 {
-                    await ProcessAllFilesAsync(requestFiles.Concat(responseFiles).Concat(keepAliveFiles).ToArray(), featureName, agentName);
+                    await ProcessAllFilesAsync(allFiles, featureName, agentName);
 
                     // Exit immediately after showing files so Claude can process them
                     AnsiConsole.MarkupLine("[yellow]🔄 Exiting so Claude can process files...[/]");

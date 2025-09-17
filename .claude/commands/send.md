@@ -28,16 +28,26 @@ MSG_ID=$(printf "%04d" $COUNTER)
 RECIPIENT_DIR="$(git rev-parse --show-toplevel)/.claude/agent-workspaces/$FEATURE/$RECIPIENT"
 mkdir -p "$RECIPIENT_DIR/message-queue"
 
-cat > "$RECIPIENT_DIR/message-queue/request_${MSG_ID}_from_${SENDER}.md" <<EOF
+cat > "$RECIPIENT_DIR/message-queue/thread_${MSG_ID}_$(echo "$MESSAGE" | tr ' ' '_' | cut -c1-20).md" <<EOF
 ---
-# Request $MSG_ID from $SENDER - $(date)
+# Thread $MSG_ID: $MESSAGE
+Started by: $SENDER
+Created: $(date)
+
+## Original Request
 $MESSAGE
 
-Status: Pending
+## Thread History
+
+**$SENDER** - $(date)
+Initial request: $MESSAGE
+
 ---
+Status: Pending - Assigned to $RECIPIENT
 EOF
 
 echo "✅ Message $MSG_ID sent to $RECIPIENT"
+echo -e "\033[31m🎯 ACTIVE AGENT: $RECIPIENT is now working on this task\033[0m"
 echo "⏳ Waiting for reply $MSG_ID..."
 ```
 
