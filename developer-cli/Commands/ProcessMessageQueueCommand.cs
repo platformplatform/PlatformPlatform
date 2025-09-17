@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.Diagnostics;
-using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
@@ -44,19 +43,27 @@ public class ProcessMessageQueueCommand : Command
                 }
 
                 Directory.CreateDirectory(messageQueueDir);
-                var allFiles = Directory.GetFiles(messageQueueDir, "*.md")
-                    .Where(f => !Path.GetFileName(f).StartsWith("keepalive_"))
-                    .ToArray();
+                var allFiles = Directory.GetFiles(messageQueueDir, "*.md");
 
-                if (allFiles.Length > 1)
+                // Auto-delete keep-alive messages
+                var keepAliveFiles = allFiles.Where(f => Path.GetFileName(f).StartsWith("keepalive_")).ToArray();
+                foreach (var keepAliveFile in keepAliveFiles)
                 {
-                    AnsiConsole.MarkupLine($"[red]⚠️ MULTIPLE TASKS DETECTED: {allFiles.Length} files found[/]");
+                    File.Delete(keepAliveFile);
+                }
+
+                // Get remaining task files
+                var taskFiles = allFiles.Where(f => !Path.GetFileName(f).StartsWith("keepalive_")).ToArray();
+
+                if (taskFiles.Length > 1)
+                {
+                    AnsiConsole.MarkupLine($"[red]⚠️ MULTIPLE TASKS DETECTED: {taskFiles.Length} files found[/]");
                     AnsiConsole.MarkupLine("[red]SINGLE-TASK RULE VIOLATED[/]");
                 }
 
-                if (allFiles.Length > 0)
+                if (taskFiles.Length > 0)
                 {
-                    await ProcessAllFilesAsync(allFiles, featureName, agentName);
+                    await ProcessAllFilesAsync(taskFiles, featureName, agentName);
 
                     // Exit immediately after showing files so Claude can process them
                     AnsiConsole.MarkupLine("[yellow]🔄 Exiting so Claude can process files...[/]");
@@ -82,8 +89,7 @@ public class ProcessMessageQueueCommand : Command
         {
             Console.WriteLine(file);
         }
+
         return Task.CompletedTask;
     }
-
-
 }

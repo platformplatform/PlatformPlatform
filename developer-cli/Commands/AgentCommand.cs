@@ -54,6 +54,7 @@ public class AgentCommand : Command
                 AnsiConsole.MarkupLine($"  [green]{name}[/] - {role}");
                 AnsiConsole.MarkupLine($"    [dim]{desc}[/]");
             }
+
             return;
         }
 
@@ -91,21 +92,25 @@ public class AgentCommand : Command
         // Create agent configuration file
         var configPath = Path.Combine(agentWorkspace, "config.json");
         await File.WriteAllTextAsync(configPath, JsonSerializer.Serialize(new
-        {
-            name = normalizedAgentName,
-            role = agentRole,
-            workspace = agentWorkspace,
-            feature = normalizedFeatureName
-        }, new JsonSerializerOptions { WriteIndented = true }));
+                {
+                    name = normalizedAgentName,
+                    role = agentRole,
+                    workspace = agentWorkspace,
+                    feature = normalizedFeatureName
+                }, new JsonSerializerOptions { WriteIndented = true }
+            )
+        );
 
         AnsiConsole.MarkupLine($"[dim]Agent workspace created: {agentWorkspace}[/]");
 
-        // Start Claude with auto-monitor command (except for coordinator)
+        // Start Claude with auto-monitor command (coordinator gets startup check)
         var claudeArgs = normalizedAgentName == "coordinator"
-            ? new List<string> { "--continue" }
+            ? new List<string> { "--continue", "Check message queue and follow coordinator workflow" }
             : new List<string> { "--continue", "/monitor" };
         if (bypassPermissions)
+        {
             claudeArgs.Add("--permission-mode bypassPermissions");
+        }
 
         var claudeProcess = new Process
         {
@@ -126,14 +131,14 @@ public class AgentCommand : Command
         {
             var bgColor = normalizedAgentName switch
             {
-                "backend" => "\x1b[48;5;17m",          // Very dark blue
+                "backend" => "\x1b[48;5;17m", // Very dark blue
                 "backend-reviewer" => "\x1b[48;5;18m", // Dark blue (lighter than backend)
-                "frontend" => "\x1b[48;5;22m",         // Very dark green
-                "frontend-reviewer" => "\x1b[48;5;28m",// Dark green (lighter than frontend)
-                "coordinator" => "\x1b[48;5;55m",      // Dark purple
-                "security" => "\x1b[48;5;52m",         // Dark red
-                "devops" => "\x1b[48;5;240m",          // Dark gray
-                _ => "\x1b[48;5;0m"                     // Black (default)
+                "frontend" => "\x1b[48;5;22m", // Very dark green
+                "frontend-reviewer" => "\x1b[48;5;28m", // Dark green (lighter than frontend)
+                "coordinator" => "\x1b[48;5;55m", // Dark purple
+                "security" => "\x1b[48;5;52m", // Dark red
+                "devops" => "\x1b[48;5;240m", // Dark gray
+                _ => "\x1b[48;5;0m" // Black (default)
             };
 
             Console.Write($"{bgColor}\x1b[2J\x1b[H");
@@ -157,7 +162,9 @@ public class AgentCommand : Command
                 ? new List<string>()
                 : new List<string> { "/monitor" };
             if (bypassPermissions)
+            {
                 freshArgs.Add("--permission-mode bypassPermissions");
+            }
 
             var freshProcess = new Process
             {
@@ -217,15 +224,19 @@ public class AgentCommand : Command
 
             var processes = Process.GetProcesses()
                 .Where(p =>
-                {
-                    try
                     {
-                        return p.ProcessName.Contains("pp") &&
-                               p.StartInfo.Arguments.Contains("claude-agent-process-message-queue") &&
-                               p.StartInfo.Arguments.Contains(workspacePath);
+                        try
+                        {
+                            return p.ProcessName.Contains("pp") &&
+                                   p.StartInfo.Arguments.Contains("claude-agent-process-message-queue") &&
+                                   p.StartInfo.Arguments.Contains(workspacePath);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
                     }
-                    catch { return false; }
-                })
+                )
                 .ToList();
 
             foreach (var process in processes)
@@ -275,18 +286,18 @@ public class AgentCommand : Command
 
                 if (cancellationToken.IsCancellationRequested) break;
 
-                // Create keep-alive message in own queue
+                // Create keep-alive message in own queue to prevent timeout
                 Directory.CreateDirectory(messageQueue);
 
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
                 var keepAliveFile = Path.Combine(messageQueue, $"keepalive_{timestamp}.md");
 
                 var content = $"""
----
-# Keep-alive - {DateTime.Now}
-Stand by
----
-""";
+                               ---
+                               # Keep-alive - {DateTime.Now}
+                               Stand by
+                               ---
+                               """;
 
                 await File.WriteAllTextAsync(keepAliveFile, content, cancellationToken);
             }
@@ -320,44 +331,44 @@ Stand by
     private static async Task CreateAgentPrimingAsync(string agentWorkspace, string agentName, string agentRole, string rulesPath, string agentProfilePath)
     {
         var primingContent = $"""
-# Agent: {agentName}
-Role: {agentRole}
+                              # Agent: {agentName}
+                              Role: {agentRole}
 
-You are an autonomous agent in a multi-agent system. You MUST continuously monitor for messages and process them.
+                              You are an autonomous agent in a multi-agent system. You MUST continuously monitor for messages and process them.
 
-""";
+                              """;
 
         // Add role-specific rules reference
         if (!string.IsNullOrEmpty(rulesPath))
         {
             primingContent += $"""
-## Your Rules
-You MUST follow ALL rules in the `.claude/rules/{rulesPath}/` directory.
-These rules are critical for your role as {agentRole}.
+                               ## Your Rules
+                               You MUST follow ALL rules in the `.claude/rules/{rulesPath}/` directory.
+                               These rules are critical for your role as {agentRole}.
 
-""";
+                               """;
         }
 
         // Add agent profile reference
         if (!string.IsNullOrEmpty(agentProfilePath))
         {
             primingContent += $"""
-## Your Profile
-You MUST follow the guidelines in `.claude/agents/{agentProfilePath}`.
-This defines your specific responsibilities and standards.
+                               ## Your Profile
+                               You MUST follow the guidelines in `.claude/agents/{agentProfilePath}`.
+                               This defines your specific responsibilities and standards.
 
-""";
+                               """;
         }
 
         primingContent += """
-## Your Workflow
-1. Run `/monitor` to start autonomous operation
-2. Process incoming requests with full context awareness
-3. Apply your role-specific expertise and rules
-4. Send detailed responses based on your specialization
+                          ## Your Workflow
+                          1. Run `/monitor` to start autonomous operation
+                          2. Process incoming requests with full context awareness
+                          3. Apply your role-specific expertise and rules
+                          4. Send detailed responses based on your specialization
 
-You are monitoring continuously for messages. Stay in character as this specific agent.
-""";
+                          You are monitoring continuously for messages. Stay in character as this specific agent.
+                          """;
 
         await File.WriteAllTextAsync(Path.Combine(agentWorkspace, "AGENT_PROFILE.md"), primingContent);
     }
@@ -369,8 +380,9 @@ You are monitoring continuously for messages. Stay in character as this specific
         // ALWAYS refresh - delete existing .claude directory and recreate
         if (Directory.Exists(agentClaudeDir))
         {
-            Directory.Delete(agentClaudeDir, recursive: true);
+            Directory.Delete(agentClaudeDir, true);
         }
+
         Directory.CreateDirectory(agentClaudeDir);
 
         // Copy global commands from .claude/commands/ to agent workspace
@@ -387,7 +399,7 @@ You are monitoring continuously for messages. Stay in character as this specific
 
         if (Directory.Exists(agentCommandsSource))
         {
-            await CopyDirectoryAsync(agentCommandsSource, agentCommandsTarget, overwrite: true);
+            await CopyDirectoryAsync(agentCommandsSource, agentCommandsTarget, true);
         }
 
         // Copy rules if they exist
@@ -429,7 +441,6 @@ You are monitoring continuously for messages. Stay in character as this specific
         {
             File.Copy(settingsSource, settingsTarget, true);
         }
-
     }
 
     private static async Task CopyDirectoryAsync(string sourceDir, string targetDir, bool overwrite = false)
