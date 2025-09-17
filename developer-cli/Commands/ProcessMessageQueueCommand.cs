@@ -44,7 +44,15 @@ public class ProcessMessageQueueCommand : Command
                 }
 
                 Directory.CreateDirectory(messageQueueDir);
-                var allFiles = Directory.GetFiles(messageQueueDir, "*.md");
+                var allFiles = Directory.GetFiles(messageQueueDir, "*.md")
+                    .Where(f => !Path.GetFileName(f).StartsWith("keepalive_"))
+                    .ToArray();
+
+                if (allFiles.Length > 1)
+                {
+                    AnsiConsole.MarkupLine($"[red]⚠️ MULTIPLE TASKS DETECTED: {allFiles.Length} files found[/]");
+                    AnsiConsole.MarkupLine("[red]SINGLE-TASK RULE VIOLATED[/]");
+                }
 
                 if (allFiles.Length > 0)
                 {
