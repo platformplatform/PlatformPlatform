@@ -52,7 +52,7 @@ public static class WorkerTools
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Agent type (backend, frontend, backend-reviewer, frontend-reviewer)")]
+        [Description("Agent type (backend-reviewer, frontend-reviewer, coordinator, quality-gate-committer)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,
@@ -61,17 +61,18 @@ public static class WorkerTools
     {
         try
         {
-            var validAgentTypes = new[] { "backend", "frontend", "backend-reviewer", "frontend-reviewer" };
+            var validAgentTypes = new[] { "backend-reviewer", "frontend-reviewer", "coordinator", "quality-gate-committer" };
             if (!validAgentTypes.Contains(agentType))
             {
                 return $"Error: Invalid agent type. Valid types: {string.Join(", ", validAgentTypes)}";
             }
 
             var branchName = GetCurrentGitBranch();
-            var workspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
-            Directory.CreateDirectory(workspaceDir);
+            var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
+            var messagesDirectory = Path.Combine(branchWorkspaceDir, "messages");
+            Directory.CreateDirectory(messagesDirectory);
 
-            var counterFile = Path.Combine(workspaceDir, ".task-counter");
+            var counterFile = Path.Combine(messagesDirectory, ".task-counter");
             var counter = 1;
             if (File.Exists(counterFile))
             {
@@ -86,12 +87,15 @@ public static class WorkerTools
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
             var requestFileName = $"{counter:D4}.{agentType}.request.{shortTitle}.md";
-            var requestFilePath = Path.Combine(workspaceDir, requestFileName);
+            var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
 
             await File.WriteAllTextAsync(requestFilePath, markdownContent);
 
-            var agentWorkspaceDir = Path.Combine(workspaceDir, agentType);
+            var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
             Directory.CreateDirectory(agentWorkspaceDir);
+
+            // Copy and customize CLAUDE.md for Worker priming
+            await SetupWorkerPrimingAsync(agentWorkspaceDir, agentType);
 
             var claudeArgs = new List<string>
             {
@@ -115,7 +119,7 @@ public static class WorkerTools
             process.Start();
 
             // Monitor for response file creation with FileSystemWatcher
-            return await WaitForWorkerCompletionAsync(workspaceDir, counter, agentType, process.Id, taskTitle, requestFileName);
+            return await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
         }
         catch (Exception ex)
         {
@@ -202,7 +206,71 @@ public static class WorkerTools
         }
     }
 
-    private static async Task<string> WaitForWorkerCompletionAsync(string workspaceDir, int counter, string agentType, int processId, string taskTitle, string requestFileName)
+    private static async Task SetupWorkerPrimingAsync(string agentWorkspaceDir, string agentType)
+    {
+        try
+        {
+            // Copy root repository CLAUDE.md to Worker workspace
+            var rootClaudeMd = Path.Combine(Configuration.SourceCodeFolder, "CLAUDE.md");
+            var workerClaudeMd = Path.Combine(agentWorkspaceDir, "CLAUDE.md");
+
+            if (File.Exists(rootClaudeMd))
+            {
+                var rootContent = await File.ReadAllTextAsync(rootClaudeMd);
+
+                // Read Worker-specific profile
+                var workerProfilePath = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agents", $"{agentType}.md");
+                var workerProfile = "";
+
+                if (File.Exists(workerProfilePath))
+                {
+                    workerProfile = await File.ReadAllTextAsync(workerProfilePath);
+                }
+
+                // Insert Worker profile after the frontmatter section (after closing ---)
+                var lines = rootContent.Split('\n');
+                var frontmatterEnd = -1;
+                var inFrontmatter = false;
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].Trim() == "---")
+                    {
+                        if (!inFrontmatter)
+                        {
+                            inFrontmatter = true; // Start of frontmatter
+                        }
+                        else
+                        {
+                            frontmatterEnd = i; // End of frontmatter
+                            break;
+                        }
+                    }
+                }
+
+                // Combine content with Worker profile
+                string combinedContent;
+                if (frontmatterEnd >= 0)
+                {
+                    var beforeProfile = string.Join('\n', lines.Take(frontmatterEnd + 1));
+                    var afterProfile = string.Join('\n', lines.Skip(frontmatterEnd + 1));
+                    combinedContent = $"{beforeProfile}\n\n{workerProfile}\n\n{afterProfile}";
+                }
+                else
+                {
+                    combinedContent = $"{rootContent}\n\n{workerProfile}";
+                }
+
+                await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
+            }
+        }
+        catch (Exception)
+        {
+            // Silent fallback - Worker will use default behavior if priming fails
+        }
+    }
+
+    private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
         try
         {
@@ -211,7 +279,7 @@ public static class WorkerTools
             string? responseFilePath = null;
 
             // Create FileSystemWatcher to monitor for response file creation
-            using var fileSystemWatcher = new FileSystemWatcher(workspaceDir, responsePattern);
+            using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
             fileSystemWatcher.Created += (_, e) =>
             {
                 responseDetected = true;
