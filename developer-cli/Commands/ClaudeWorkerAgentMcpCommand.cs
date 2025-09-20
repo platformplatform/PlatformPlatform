@@ -12,6 +12,9 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class ClaudeWorkerAgentMcpCommand : Command
 {
+    private static readonly Dictionary<int, WorkerSession> _activeWorkerSessions = new();
+    private static readonly object _workerSessionLock = new();
+
     public ClaudeWorkerAgentMcpCommand() : base("claude-worker-agent-mcp", "Start MCP server for agent communication")
     {
         this.SetHandler(ExecuteAsync);
@@ -44,15 +47,83 @@ public class ClaudeWorkerAgentMcpCommand : Command
             AnsiConsole.MarkupLine($"[red]MCP server error: {ex.Message}[/]");
         }
     }
+
+    public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
+    {
+        lock (_workerSessionLock)
+        {
+            _activeWorkerSessions[processId] = new WorkerSession
+            {
+                ProcessId = processId,
+                AgentType = agentType,
+                TaskTitle = taskTitle,
+                RequestFileName = requestFileName,
+                StartTime = DateTime.Now,
+                Process = process
+            };
+        }
+    }
+
+    public static void RemoveWorkerSession(int processId)
+    {
+        lock (_workerSessionLock)
+        {
+            _activeWorkerSessions.Remove(processId);
+        }
+    }
+
+    public static string GetActiveWorkersList()
+    {
+        lock (_workerSessionLock)
+        {
+            if (!_activeWorkerSessions.Any())
+            {
+                return "No active workers currently";
+            }
+
+            var workerList = _activeWorkerSessions.Values.Select(w =>
+                $"PID: {w.ProcessId}, Agent: {w.AgentType}, Task: {w.TaskTitle}, Started: {w.StartTime:HH:mm:ss}, Duration: {DateTime.Now - w.StartTime:mm\\:ss}"
+            ).ToList();
+
+            return $"Active workers ({_activeWorkerSessions.Count}):\n{string.Join("\n", workerList)}";
+        }
+    }
+
+    public static string TerminateWorker(int processId)
+    {
+        lock (_workerSessionLock)
+        {
+            if (_activeWorkerSessions.TryGetValue(processId, out var session))
+            {
+                session.Process.Kill();
+                _activeWorkerSessions.Remove(processId);
+                return $"Terminated worker PID: '{processId}' (Agent: {session.AgentType}, Task: {session.TaskTitle})";
+            }
+            else
+            {
+                // Fallback to direct process kill if not in our tracking
+                try
+                {
+                    var process = Process.GetProcessById(processId);
+                    process.Kill();
+                    return $"Terminated untracked worker PID: '{processId}'";
+                }
+                catch (Exception ex)
+                {
+                    return $"Error terminating worker: {ex.Message}";
+                }
+            }
+        }
+    }
 }
 
 [McpServerToolType]
-public static class WorkerTools
+public static class WorkerMcpTools
 {
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Agent type (backend-reviewer, frontend-reviewer, coordinator, quality-gate-committer)")]
+        [Description("Worker type (backend-engineer-worker, frontend-engineer-worker, backend-reviewer-worker, frontend-reviewer-worker, coordinator-worker, quality-gate-committer-worker, e2e-test-reviewer-worker)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,
@@ -61,7 +132,12 @@ public static class WorkerTools
     {
         try
         {
-            var validAgentTypes = new[] { "backend-reviewer", "frontend-reviewer", "coordinator", "quality-gate-committer" };
+            var validAgentTypes = new[]
+            {
+                "backend-engineer-worker", "frontend-engineer-worker",
+                "backend-reviewer-worker", "frontend-reviewer-worker",
+                "coordinator-worker", "quality-gate-committer-worker", "e2e-test-reviewer-worker"
+            };
             if (!validAgentTypes.Contains(agentType))
             {
                 throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", validAgentTypes)}");
@@ -118,8 +194,16 @@ public static class WorkerTools
 
             process.Start();
 
+            // Track active Worker session
+            ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
+
             // Monitor for response file creation with FileSystemWatcher
-            return await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
+            var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
+
+            // Remove from active sessions when complete
+            ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(process.Id);
+
+            return result;
         }
         catch (Exception ex)
         {
@@ -145,36 +229,14 @@ public static class WorkerTools
     [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
     public static string ListActiveWorkers()
     {
-        try
-        {
-            var processes = Process.GetProcesses()
-                .Where(p => p.ProcessName.Contains("claude") && !p.HasExited)
-                .ToList();
-
-            return processes.Any()
-                ? $"Active workers:\n{string.Join("\n", processes.Select(p => $"PID: {p.Id}, Process: {p.ProcessName}"))}"
-                : "No active workers currently";
-        }
-        catch (Exception ex)
-        {
-            return $"Error listing workers: {ex.Message}";
-        }
+        return ClaudeWorkerAgentMcpCommand.GetActiveWorkersList();
     }
 
     [McpServerTool]
     [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
     public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
     {
-        try
-        {
-            var process = Process.GetProcessById(processId);
-            process.Kill();
-            return $"Terminated worker PID: '{processId}'";
-        }
-        catch (Exception ex)
-        {
-            return $"Error terminating worker: {ex.Message}";
-        }
+        return ClaudeWorkerAgentMcpCommand.TerminateWorker(processId);
     }
 
     private static string GetCurrentGitBranch()
@@ -232,7 +294,7 @@ public static class WorkerTools
                 var frontmatterEnd = -1;
                 var inFrontmatter = false;
 
-                for (int i = 0; i < lines.Length; i++)
+                for (var i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].Trim() == "---")
                     {
@@ -333,4 +395,19 @@ public static class WorkerTools
             return $"Error monitoring worker completion: {ex.Message}";
         }
     }
+}
+
+public class WorkerSession
+{
+    public int ProcessId { get; set; }
+
+    public string AgentType { get; set; } = "";
+
+    public string TaskTitle { get; set; } = "";
+
+    public string RequestFileName { get; set; } = "";
+
+    public DateTime StartTime { get; set; }
+
+    public Process Process { get; set; } = null!;
 }
