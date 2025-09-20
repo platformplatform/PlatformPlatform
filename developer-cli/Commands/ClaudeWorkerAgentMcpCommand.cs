@@ -27,10 +27,11 @@ public class ClaudeWorkerAgentMcpCommand : Command
             // Use the official SDK hosting pattern from GitHub repo
             var builder = Host.CreateApplicationBuilder();
             builder.Logging.AddConsole(consoleLogOptions =>
-            {
-                // Configure all logs to go to stderr
-                consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
-            });
+                {
+                    // Configure all logs to go to stderr
+                    consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
+                }
+            );
             builder.Services
                 .AddMcpServer()
                 .WithStdioServerTransport()
@@ -48,11 +49,15 @@ public class ClaudeWorkerAgentMcpCommand : Command
 [McpServerToolType]
 public static class WorkerTools
 {
-    [McpServerTool, Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
-    public static string StartWorker(
-        [Description("Agent type (backend, frontend, backend-reviewer, frontend-reviewer)")] string agentType,
-        [Description("Short title for the task")] string taskTitle,
-        [Description("Task content in markdown format")] string markdownContent)
+    [McpServerTool]
+    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
+    public static async Task<string> StartWorker(
+        [Description("Agent type (backend, frontend, backend-reviewer, frontend-reviewer)")]
+        string agentType,
+        [Description("Short title for the task")]
+        string taskTitle,
+        [Description("Task content in markdown format")]
+        string markdownContent)
     {
         try
         {
@@ -70,19 +75,20 @@ public static class WorkerTools
             var counter = 1;
             if (File.Exists(counterFile))
             {
-                if (int.TryParse(File.ReadAllText(counterFile), out var currentCounter))
+                if (int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
                 {
                     counter = currentCounter + 1;
                 }
             }
-            File.WriteAllText(counterFile, counter.ToString());
+
+            await File.WriteAllTextAsync(counterFile, counter.ToString());
 
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
             var requestFileName = $"{counter:D4}.{agentType}.request.{shortTitle}.md";
             var requestFilePath = Path.Combine(workspaceDir, requestFileName);
 
-            File.WriteAllText(requestFilePath, markdownContent);
+            await File.WriteAllTextAsync(requestFilePath, markdownContent);
 
             var agentWorkspaceDir = Path.Combine(workspaceDir, agentType);
             Directory.CreateDirectory(agentWorkspaceDir);
@@ -108,7 +114,8 @@ public static class WorkerTools
 
             process.Start();
 
-            return $"Started {agentType} worker (PID: {process.Id}) for task: {taskTitle}. Request file: {requestFileName}";
+            // Monitor for response file creation with FileSystemWatcher
+            return await WaitForWorkerCompletionAsync(workspaceDir, counter, agentType, process.Id, taskTitle, requestFileName);
         }
         catch (Exception ex)
         {
@@ -116,12 +123,13 @@ public static class WorkerTools
         }
     }
 
-    [McpServerTool, Description("View the details of a development task that was assigned to an agent. Use this to check what work was requested.")]
+    [McpServerTool]
+    [Description("View the details of a development task that was assigned to an agent. Use this to check what work was requested.")]
     public static string ReadTaskFile([Description("Path to task file to read")] string filePath)
     {
         try
         {
-            return File.Exists(filePath) ? File.ReadAllText(filePath) : $"File not found: {filePath}";
+            return File.Exists(filePath) ? File.ReadAllText(filePath) : $"File not found: '{filePath}'";
         }
         catch (Exception ex)
         {
@@ -129,7 +137,8 @@ public static class WorkerTools
         }
     }
 
-    [McpServerTool, Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
+    [McpServerTool]
+    [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
     public static string ListActiveWorkers()
     {
         try
@@ -148,14 +157,15 @@ public static class WorkerTools
         }
     }
 
-    [McpServerTool, Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
+    [McpServerTool]
+    [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
     public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
     {
         try
         {
             var process = Process.GetProcessById(processId);
             process.Kill();
-            return $"Terminated worker PID: {processId}";
+            return $"Terminated worker PID: '{processId}'";
         }
         catch (Exception ex)
         {
@@ -189,6 +199,70 @@ public static class WorkerTools
         catch
         {
             return "main";
+        }
+    }
+
+    private static async Task<string> WaitForWorkerCompletionAsync(string workspaceDir, int counter, string agentType, int processId, string taskTitle, string requestFileName)
+    {
+        try
+        {
+            var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
+            var responseDetected = false;
+            string? responseFilePath = null;
+
+            // Create FileSystemWatcher to monitor for response file creation
+            using var fileSystemWatcher = new FileSystemWatcher(workspaceDir, responsePattern);
+            fileSystemWatcher.Created += (_, e) =>
+            {
+                responseDetected = true;
+                responseFilePath = e.FullPath;
+            };
+
+            fileSystemWatcher.EnableRaisingEvents = true;
+
+            // Wait for response file with timeout (max 2 hours)
+            var timeout = TimeSpan.FromHours(2);
+            var startTime = DateTime.Now;
+
+            while (!responseDetected && DateTime.Now - startTime < timeout)
+            {
+                // Check if process is still running
+                try
+                {
+                    var process = Process.GetProcessById(processId);
+                    if (process.HasExited)
+                    {
+                        return $"Worker process '{processId}' exited unexpectedly (Exit code: {process.ExitCode})";
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    return $"Worker process '{processId}' terminated unexpectedly";
+                }
+
+                await Task.Delay(1000); // Check every second
+            }
+
+            if (!responseDetected)
+            {
+                return $"Timeout: Worker '{processId}' did not complete task '{taskTitle}' within 2 hours";
+            }
+
+            // Implement 5-second grace period after response file creation
+            await Task.Delay(5000);
+
+            // Read response file contents
+            if (responseFilePath != null && File.Exists(responseFilePath))
+            {
+                var responseContent = await File.ReadAllTextAsync(responseFilePath);
+                return $"Worker '{processId}' completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {Path.GetFileName(responseFilePath)}\n\nResponse content:\n{responseContent}";
+            }
+
+            return $"Error: Response file '{responseFilePath}' was created but cannot be read";
+        }
+        catch (Exception ex)
+        {
+            return $"Error monitoring worker completion: {ex.Message}";
         }
     }
 }
