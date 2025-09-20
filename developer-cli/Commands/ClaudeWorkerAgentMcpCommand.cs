@@ -64,7 +64,7 @@ public static class WorkerTools
             var validAgentTypes = new[] { "backend-reviewer", "frontend-reviewer", "coordinator", "quality-gate-committer" };
             if (!validAgentTypes.Contains(agentType))
             {
-                return $"Error: Invalid agent type. Valid types: {string.Join(", ", validAgentTypes)}";
+                throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", validAgentTypes)}");
             }
 
             var branchName = GetCurrentGitBranch();
