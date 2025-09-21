@@ -112,10 +112,16 @@ public class ClaudeWorkerAgentMcpCommand : Command
 [McpServerToolType]
 public static class WorkerMcpTools
 {
+    private static readonly string[] ValidAgentTypes =
+    {
+        "backend-engineer-worker", "frontend-engineer-worker",
+        "backend-reviewer-worker", "frontend-reviewer-worker", "e2e-test-reviewer-worker"
+    };
+
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Worker type (backend-engineer-worker, frontend-engineer-worker, backend-reviewer-worker, frontend-reviewer-worker, coordinator-worker, quality-gate-committer-worker, e2e-test-reviewer-worker)")]
+        [Description("Worker type (backend-engineer-worker, frontend-engineer-worker, backend-reviewer-worker, frontend-reviewer-worker, e2e-test-reviewer-worker)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,
@@ -125,15 +131,9 @@ public static class WorkerMcpTools
         Mutex? workspaceMutex = null;
         try
         {
-            var validAgentTypes = new[]
+            if (!ValidAgentTypes.Contains(agentType))
             {
-                "backend-engineer-worker", "frontend-engineer-worker",
-                "backend-reviewer-worker", "frontend-reviewer-worker",
-                "coordinator-worker", "quality-gate-committer-worker", "e2e-test-reviewer-worker"
-            };
-            if (!validAgentTypes.Contains(agentType))
-            {
-                throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", validAgentTypes)}");
+                throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", ValidAgentTypes)}");
             }
 
             var branchName = GetCurrentGitBranch();
