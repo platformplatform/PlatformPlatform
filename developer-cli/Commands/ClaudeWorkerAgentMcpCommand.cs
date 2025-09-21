@@ -122,6 +122,7 @@ public static class WorkerMcpTools
         [Description("Task content in markdown format")]
         string markdownContent)
     {
+        Mutex? workspaceMutex = null;
         try
         {
             var validAgentTypes = new[]
@@ -136,6 +137,17 @@ public static class WorkerMcpTools
             }
 
             var branchName = GetCurrentGitBranch();
+
+            // Acquire workspace lock to ensure only one Worker of this agent type runs per branch
+            var mutexName = $"{agentType}-{branchName}";
+            workspaceMutex = new Mutex(false, mutexName);
+
+            if (!workspaceMutex.WaitOne(TimeSpan.FromSeconds(5)))
+            {
+                workspaceMutex.Dispose();
+                throw new InvalidOperationException($"Another {agentType} is already active in branch '{branchName}'. Only one {agentType} can work per branch to maintain consistent context and memory.");
+            }
+
             var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
             var messagesDirectory = Path.Combine(branchWorkspaceDir, "messages");
             Directory.CreateDirectory(messagesDirectory);
@@ -186,16 +198,35 @@ public static class WorkerMcpTools
             // Track active Worker session
             ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
 
-            // Monitor for response file creation with FileSystemWatcher
-            var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
-
-            // Remove from active sessions when complete
-            ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(process.Id);
-
-            return result;
+            try
+            {
+                // Monitor for response file creation with FileSystemWatcher
+                return await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
+            }
+            finally
+            {
+                // Remove from active sessions and release workspace lock
+                ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(process.Id);
+                workspaceMutex.ReleaseMutex();
+                workspaceMutex.Dispose();
+            }
         }
         catch (Exception ex)
         {
+            // Clean up mutex if Worker startup fails
+            if (workspaceMutex is not null)
+            {
+                try
+                {
+                    workspaceMutex.ReleaseMutex();
+                    workspaceMutex.Dispose();
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
+            }
+
             return $"Error starting worker: {ex.Message}";
         }
     }
@@ -430,7 +461,6 @@ public static class WorkerMcpTools
         ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(oldProcessId);
         ClaudeWorkerAgentMcpCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
-
 
     private static void LogWorkerActivity(string message, string messagesDirectory)
     {
