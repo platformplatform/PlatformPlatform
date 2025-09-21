@@ -130,7 +130,16 @@ public static class WorkerMcpTools
         string markdownContent)
     {
         var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
-        File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
+
+        try
+        {
+            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
+        }
+        catch (Exception logEx)
+        {
+            Console.Error.WriteLine($"[DEBUG LOG ERROR] {logEx.Message}");
+        }
+
         Console.Error.WriteLine($"[MCP DEBUG] StartWorker called: agentType={agentType}, taskTitle={taskTitle}");
 
         Mutex? workspaceMutex = null;
@@ -174,17 +183,20 @@ public static class WorkerMcpTools
             await File.WriteAllTextAsync(requestFilePath, markdownContent);
 
             var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
+            var isNewWorkspace = !Directory.Exists(agentWorkspaceDir);
             Directory.CreateDirectory(agentWorkspaceDir);
 
             // Copy and customize CLAUDE.md for Worker priming
             await SetupWorkerPrimingAsync(agentWorkspaceDir, agentType);
 
-            var claudeArgs = new List<string>
+            var claudeArgs = new[]
             {
                 "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
-                "--append-system-prompt", $"You are a {agentType} Worker. IMMEDIATELY read and process the task file: {requestFilePath}. Start by reading this file with the Read tool."
+                "--permission-mode", "bypassPermissions",
+                "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFilePath}",
+                $"Read {requestFilePath}"
             };
 
             var process = new Process
@@ -192,21 +204,42 @@ public static class WorkerMcpTools
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "claude",
-                    Arguments = string.Join(" ", claudeArgs),
+                    Arguments = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                     WorkingDirectory = agentWorkspaceDir,
                     UseShellExecute = false
                 }
             };
 
-            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n");
-            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Claude args: {string.Join(" ", claudeArgs)}\n");
+            // CRITICAL: Remove CLAUDECODE to prevent forced print mode
+            process.StartInfo.Environment.Remove("CLAUDECODE");
+
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n"); } catch { }
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n"); } catch { }
+
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n"); } catch { }
+            var quotedArgs = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n"); } catch { }
             Console.Error.WriteLine($"[MCP DEBUG] Starting Claude Code worker process in: {agentWorkspaceDir}");
             Console.Error.WriteLine($"[MCP DEBUG] Claude args: {string.Join(" ", claudeArgs)}");
 
             process.Start();
 
-            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n"); } catch { }
             Console.Error.WriteLine($"[MCP DEBUG] Worker process started with PID: {process.Id}");
+
+            // Log what Claude Code actually receives as input
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n"); } catch { }
+
+            // Check if process exits immediately
+            await Task.Delay(3000);
+            if (process.HasExited)
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
+            }
+            else
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process {process.Id} is running\n");
+            }
 
             // Track active Worker session
             ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
@@ -215,8 +248,11 @@ public static class WorkerMcpTools
 
             try
             {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting worker monitoring for PID: {process.Id}\n");
                 // Monitor for response file creation with FileSystemWatcher
-                return await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
+                var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker monitoring completed with result: {result.Substring(0, Math.Min(100, result.Length))}...\n");
+                return result;
             }
             finally
             {
@@ -228,20 +264,11 @@ public static class WorkerMcpTools
         }
         catch (Exception ex)
         {
-            // Clean up mutex if Worker startup fails
-            if (workspaceMutex is not null)
+            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n"); } catch { }
+            if (workspaceMutex != null)
             {
-                try
-                {
-                    workspaceMutex.ReleaseMutex();
-                    workspaceMutex.Dispose();
-                }
-                catch
-                {
-                    // Ignore cleanup errors
-                }
+                try { workspaceMutex.ReleaseMutex(); workspaceMutex.Dispose(); } catch { }
             }
-
             return $"Error starting worker: {ex.Message}";
         }
     }
@@ -358,6 +385,8 @@ public static class WorkerMcpTools
 
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
+        var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
+        File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
         var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
         var responseDetected = false;
         string? responseFilePath = null;
