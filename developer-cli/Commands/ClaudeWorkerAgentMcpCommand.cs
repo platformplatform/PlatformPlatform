@@ -396,10 +396,13 @@ public static class WorkerMcpTools
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
         fileSystemWatcher.Created += (_, e) =>
         {
+            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
             responseDetected = true;
             responseFilePath = e.FullPath;
         };
         fileSystemWatcher.EnableRaisingEvents = true;
+
+        File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {messagesDirectory} for pattern: {responsePattern}\n");
 
         var startTime = DateTime.Now;
         var lastHealthCheck = startTime;
