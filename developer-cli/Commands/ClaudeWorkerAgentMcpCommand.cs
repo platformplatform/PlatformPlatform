@@ -198,6 +198,8 @@ public static class WorkerMcpTools
             // Track active Worker session
             ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
 
+            LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]", messagesDirectory);
+
             try
             {
                 // Monitor for response file creation with FileSystemWatcher
@@ -401,10 +403,14 @@ public static class WorkerMcpTools
             return "Response file was detected but no longer exists";
         }
 
-        var responseContent = await File.ReadAllTextAsync(responseFilePath);
+        // Example: 0001.backend-engineer.response.Added-JWT-auth-and-4-tests.md
+        var responseFileName = Path.GetFileName(responseFilePath);
 
-        LogWorkerActivity($"Worker {agentType} completed task (restarts: {restartCount})", messagesDirectory);
-        return $"Worker completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {Path.GetFileName(responseFilePath)}\nRestarts: {restartCount}\n\nResponse content:\n{responseContent}";
+        var description = Path.GetFileNameWithoutExtension(responseFileName).Split('.').Last().Replace('-', ' ');
+        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{description}' -> [{responseFileName}]", messagesDirectory);
+
+        var responseContent = await File.ReadAllTextAsync(responseFilePath);
+        return $"Worker completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {responseFileName}\nRestarts: {restartCount}\n\nResponse content:\n{responseContent}";
     }
 
     private static bool ShouldPerformHealthCheck(DateTime lastHealthCheck)
@@ -463,6 +469,19 @@ public static class WorkerMcpTools
     }
 
     private static void LogWorkerActivity(string message, string messagesDirectory)
+    {
+        var logFile = Path.Combine(Path.GetDirectoryName(messagesDirectory)!, "workflow.log");
+        var logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}\n";
+
+        if (!Directory.Exists(Path.GetDirectoryName(logFile)))
+        {
+            return;
+        }
+
+        File.AppendAllText(logFile, logEntry);
+    }
+
+    private static void LogWorkflowEvent(string message, string messagesDirectory)
     {
         var logFile = Path.Combine(Path.GetDirectoryName(messagesDirectory)!, "workflow.log");
         var logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}\n";
