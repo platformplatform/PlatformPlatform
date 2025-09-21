@@ -9,8 +9,8 @@
       "args": ["@browsermcp/mcp@latest"]
     },
     "platformplatform-worker-agent": {
-      "command": "pp",
-      "args": ["claude-worker-agent-mcp"]
+      "command": "dotnet",
+      "args": ["run", "--project", "developer-cli", "claude-worker-agent-mcp"]
     }
   }
 }
