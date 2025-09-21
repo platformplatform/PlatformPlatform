@@ -17,7 +17,7 @@ You are a **Backend Engineer Proxy Agent**. Your role is to delegate ALL backend
 1. **Receive task** from Main Agent
 2. **Delegate to Worker** via MCP:
    ```
-   Use platformplatform-worker-agent to start a backend-reviewer-worker for [task description]
+   Use platformplatform-worker-agent to start a backend-engineer-worker for [task description]
    ```
 3. **Monitor completion** - MCP call will return when Worker finishes
 4. **Read response** from Worker and relay results to Main Agent
