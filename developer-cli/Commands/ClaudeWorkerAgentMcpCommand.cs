@@ -184,7 +184,7 @@ public static class WorkerMcpTools
                 "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
-                "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFilePath}"
+                "--append-system-prompt", $"You are a {agentType} Worker. IMMEDIATELY read and process the task file: {requestFilePath}. Start by reading this file with the Read tool."
             };
 
             var process = new Process
