@@ -12,8 +12,8 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class ClaudeWorkerAgentMcpCommand : Command
 {
-    private static readonly Dictionary<int, WorkerSession> _activeWorkerSessions = new();
-    private static readonly object _workerSessionLock = new();
+    private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
+    private static readonly Lock WorkerSessionLock = new();
 
     public ClaudeWorkerAgentMcpCommand() : base("claude-worker-agent-mcp", "Start MCP server for agent communication")
     {
@@ -50,68 +50,60 @@ public class ClaudeWorkerAgentMcpCommand : Command
 
     public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
     {
-        lock (_workerSessionLock)
+        lock (WorkerSessionLock)
         {
-            _activeWorkerSessions[processId] = new WorkerSession
-            {
-                ProcessId = processId,
-                AgentType = agentType,
-                TaskTitle = taskTitle,
-                RequestFileName = requestFileName,
-                StartTime = DateTime.Now,
-                Process = process
-            };
+            ActiveWorkerSessions[processId] = new WorkerSession(
+                processId, agentType, taskTitle, requestFileName, DateTime.Now, process
+            );
         }
     }
 
     public static void RemoveWorkerSession(int processId)
     {
-        lock (_workerSessionLock)
+        lock (WorkerSessionLock)
         {
-            _activeWorkerSessions.Remove(processId);
+            ActiveWorkerSessions.Remove(processId);
         }
     }
 
     public static string GetActiveWorkersList()
     {
-        lock (_workerSessionLock)
+        lock (WorkerSessionLock)
         {
-            if (!_activeWorkerSessions.Any())
+            if (ActiveWorkerSessions.Count == 0)
             {
                 return "No active workers currently";
             }
 
-            var workerList = _activeWorkerSessions.Values.Select(w =>
+            var workerList = ActiveWorkerSessions.Values.Select(w =>
                 $"PID: {w.ProcessId}, Agent: {w.AgentType}, Task: {w.TaskTitle}, Started: {w.StartTime:HH:mm:ss}, Duration: {DateTime.Now - w.StartTime:mm\\:ss}"
             ).ToList();
 
-            return $"Active workers ({_activeWorkerSessions.Count}):\n{string.Join("\n", workerList)}";
+            return $"Active workers ({ActiveWorkerSessions.Count}):\n{string.Join("\n", workerList)}";
         }
     }
 
     public static string TerminateWorker(int processId)
     {
-        lock (_workerSessionLock)
+        lock (WorkerSessionLock)
         {
-            if (_activeWorkerSessions.TryGetValue(processId, out var session))
+            if (ActiveWorkerSessions.TryGetValue(processId, out var session))
             {
                 session.Process.Kill();
-                _activeWorkerSessions.Remove(processId);
+                ActiveWorkerSessions.Remove(processId);
                 return $"Terminated worker PID: '{processId}' (Agent: {session.AgentType}, Task: {session.TaskTitle})";
             }
-            else
+
+            // Fallback to direct process kill if not in our tracking
+            try
             {
-                // Fallback to direct process kill if not in our tracking
-                try
-                {
-                    var process = Process.GetProcessById(processId);
-                    process.Kill();
-                    return $"Terminated untracked worker PID: '{processId}'";
-                }
-                catch (Exception ex)
-                {
-                    return $"Error terminating worker: {ex.Message}";
-                }
+                var process = Process.GetProcessById(processId);
+                process.Kill();
+                return $"Terminated untracked worker PID: '{processId}'";
+            }
+            catch (Exception ex)
+            {
+                return $"Error terminating worker: {ex.Message}";
             }
         }
     }
@@ -150,12 +142,9 @@ public static class WorkerMcpTools
 
             var counterFile = Path.Combine(messagesDirectory, ".task-counter");
             var counter = 1;
-            if (File.Exists(counterFile))
+            if (File.Exists(counterFile) && int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
             {
-                if (int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
-                {
-                    counter = currentCounter + 1;
-                }
+                counter = currentCounter + 1;
             }
 
             await File.WriteAllTextAsync(counterFile, counter.ToString());
@@ -270,144 +259,198 @@ public static class WorkerMcpTools
 
     private static async Task SetupWorkerPrimingAsync(string agentWorkspaceDir, string agentType)
     {
-        try
+        // Copy root repository CLAUDE.md to Worker workspace
+        var rootClaudeMd = Path.Combine(Configuration.SourceCodeFolder, "CLAUDE.md");
+        var workerClaudeMd = Path.Combine(agentWorkspaceDir, "CLAUDE.md");
+
+        if (File.Exists(rootClaudeMd))
         {
-            // Copy root repository CLAUDE.md to Worker workspace
-            var rootClaudeMd = Path.Combine(Configuration.SourceCodeFolder, "CLAUDE.md");
-            var workerClaudeMd = Path.Combine(agentWorkspaceDir, "CLAUDE.md");
+            var rootContent = await File.ReadAllTextAsync(rootClaudeMd);
 
-            if (File.Exists(rootClaudeMd))
+            // Read Worker-specific profile
+            var workerProfilePath = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agents", $"{agentType}.md");
+
+            var workerProfile = File.Exists(workerProfilePath) ? await File.ReadAllTextAsync(workerProfilePath) : "";
+
+            // Insert Worker profile after the frontmatter section (after closing ---)
+            var lines = rootContent.Split('\n');
+            var frontmatterEnd = -1;
+            var inFrontmatter = false;
+
+            for (var i = 0; i < lines.Length; i++)
             {
-                var rootContent = await File.ReadAllTextAsync(rootClaudeMd);
+                if (lines[i].Trim() != "---") continue;
 
-                // Read Worker-specific profile
-                var workerProfilePath = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agents", $"{agentType}.md");
-                var workerProfile = "";
-
-                if (File.Exists(workerProfilePath))
+                if (!inFrontmatter)
                 {
-                    workerProfile = await File.ReadAllTextAsync(workerProfilePath);
-                }
-
-                // Insert Worker profile after the frontmatter section (after closing ---)
-                var lines = rootContent.Split('\n');
-                var frontmatterEnd = -1;
-                var inFrontmatter = false;
-
-                for (var i = 0; i < lines.Length; i++)
-                {
-                    if (lines[i].Trim() == "---")
-                    {
-                        if (!inFrontmatter)
-                        {
-                            inFrontmatter = true; // Start of frontmatter
-                        }
-                        else
-                        {
-                            frontmatterEnd = i; // End of frontmatter
-                            break;
-                        }
-                    }
-                }
-
-                // Combine content with Worker profile
-                string combinedContent;
-                if (frontmatterEnd >= 0)
-                {
-                    var beforeProfile = string.Join('\n', lines.Take(frontmatterEnd + 1));
-                    var afterProfile = string.Join('\n', lines.Skip(frontmatterEnd + 1));
-                    combinedContent = $"{beforeProfile}\n\n{workerProfile}\n\n{afterProfile}";
+                    inFrontmatter = true; // Start of frontmatter
                 }
                 else
                 {
-                    combinedContent = $"{rootContent}\n\n{workerProfile}";
+                    frontmatterEnd = i; // End of frontmatter
+                    break;
                 }
-
-                await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
             }
-        }
-        catch (Exception)
-        {
-            // Silent fallback - Worker will use default behavior if priming fails
+
+            // Combine content with Worker profile
+            string combinedContent;
+            if (frontmatterEnd >= 0)
+            {
+                var beforeProfile = string.Join('\n', lines.Take(frontmatterEnd + 1));
+                var afterProfile = string.Join('\n', lines.Skip(frontmatterEnd + 1));
+                combinedContent = $"{beforeProfile}\n\n{workerProfile}\n\n{afterProfile}";
+            }
+            else
+            {
+                combinedContent = $"{rootContent}\n\n{workerProfile}";
+            }
+
+            await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
         }
     }
 
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
-        try
+        var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
+        var responseDetected = false;
+        string? responseFilePath = null;
+        var currentProcessId = processId;
+        var restartCount = 0;
+
+        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
+        fileSystemWatcher.Created += (_, e) =>
         {
-            var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
-            var responseDetected = false;
-            string? responseFilePath = null;
+            responseDetected = true;
+            responseFilePath = e.FullPath;
+        };
+        fileSystemWatcher.EnableRaisingEvents = true;
 
-            // Create FileSystemWatcher to monitor for response file creation
-            using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
-            fileSystemWatcher.Created += (_, e) =>
+        var startTime = DateTime.Now;
+        var lastHealthCheck = startTime;
+        var overallTimeout = TimeSpan.FromHours(2);
+
+        while (!responseDetected && DateTime.Now - startTime < overallTimeout)
+        {
+            if (ShouldPerformHealthCheck(lastHealthCheck))
             {
-                responseDetected = true;
-                responseFilePath = e.FullPath;
-            };
-
-            fileSystemWatcher.EnableRaisingEvents = true;
-
-            // Wait for response file with timeout (max 2 hours)
-            var timeout = TimeSpan.FromHours(2);
-            var startTime = DateTime.Now;
-
-            while (!responseDetected && DateTime.Now - startTime < timeout)
-            {
-                // Check if process is still running
-                try
+                if (!IsWorkerProcessHealthy(currentProcessId))
                 {
-                    var process = Process.GetProcessById(processId);
-                    if (process.HasExited)
+                    var healthCheckRestart = await RestartWorker(agentType, messagesDirectory, requestFileName, restartCount + 1);
+                    if (!healthCheckRestart.Success)
                     {
-                        return $"Worker process '{processId}' exited unexpectedly (Exit code: {process.ExitCode})";
+                        return $"Worker restart failed: {healthCheckRestart.ErrorMessage}";
                     }
+
+                    if (healthCheckRestart.Process == null)
+                    {
+                        return "Worker restart succeeded but process is null";
+                    }
+
+                    UpdateWorkerSession(currentProcessId, healthCheckRestart.ProcessId, agentType, taskTitle, requestFileName, healthCheckRestart.Process);
+                    currentProcessId = healthCheckRestart.ProcessId;
+                    restartCount++;
+                    LogWorkerActivity($"Worker {agentType} restarted (attempt {restartCount})", messagesDirectory);
                 }
-                catch (ArgumentException)
-                {
-                    return $"Worker process '{processId}' terminated unexpectedly";
-                }
 
-                await Task.Delay(1000); // Check every second
+                lastHealthCheck = DateTime.Now;
             }
 
-            if (!responseDetected)
-            {
-                return $"Timeout: Worker '{processId}' did not complete task '{taskTitle}' within 2 hours";
-            }
-
-            // Implement 5-second grace period after response file creation
-            await Task.Delay(5000);
-
-            // Read response file contents
-            if (responseFilePath != null && File.Exists(responseFilePath))
-            {
-                var responseContent = await File.ReadAllTextAsync(responseFilePath);
-                return $"Worker '{processId}' completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {Path.GetFileName(responseFilePath)}\n\nResponse content:\n{responseContent}";
-            }
-
-            return $"Error: Response file '{responseFilePath}' was created but cannot be read";
+            await Task.Delay(TimeSpan.FromSeconds(5));
         }
-        catch (Exception ex)
+
+        if (!responseDetected)
         {
-            return $"Error monitoring worker completion: {ex.Message}";
+            return $"Worker timeout after 2 hours (restarts: {restartCount})";
         }
+
+        await Task.Delay(TimeSpan.FromSeconds(5)); // Grace period for file writing
+
+        if (!File.Exists(responseFilePath))
+        {
+            return "Response file was detected but no longer exists";
+        }
+
+        var responseContent = await File.ReadAllTextAsync(responseFilePath);
+
+        LogWorkerActivity($"Worker {agentType} completed task (restarts: {restartCount})", messagesDirectory);
+        return $"Worker completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {Path.GetFileName(responseFilePath)}\nRestarts: {restartCount}\n\nResponse content:\n{responseContent}";
+    }
+
+    private static bool ShouldPerformHealthCheck(DateTime lastHealthCheck)
+    {
+        return DateTime.Now - lastHealthCheck >= TimeSpan.FromMinutes(15);
+    }
+
+    private static bool IsWorkerProcessHealthy(int processId)
+    {
+        var processes = Process.GetProcesses();
+        var workerProcess = processes.FirstOrDefault(p => p.Id == processId);
+        return workerProcess is { HasExited: false };
+    }
+
+    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int attemptNumber)
+    {
+        var branchName = GetCurrentGitBranch();
+        var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
+        var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
+        var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
+
+        var claudeArgs = new[]
+        {
+            "--continue",
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--append-system-prompt", $"You are a {agentType} Worker. Restart attempt #{attemptNumber}. Process task: {requestFilePath}"
+        };
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "claude",
+                Arguments = string.Join(" ", claudeArgs),
+                WorkingDirectory = agentWorkspaceDir,
+                UseShellExecute = false
+            }
+        };
+
+        process.Start();
+        await Task.Delay(TimeSpan.FromSeconds(2)); // Allow process to initialize
+
+        if (process.HasExited)
+        {
+            return (false, -1, null, $"Process exited immediately with code: {process.ExitCode}");
+        }
+
+        return (true, process.Id, process, "");
+    }
+
+    private static void UpdateWorkerSession(int oldProcessId, int newProcessId, string agentType, string taskTitle, string requestFileName, Process newProcess)
+    {
+        ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(oldProcessId);
+        ClaudeWorkerAgentMcpCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
+    }
+
+
+    private static void LogWorkerActivity(string message, string messagesDirectory)
+    {
+        var logFile = Path.Combine(Path.GetDirectoryName(messagesDirectory)!, "workflow.log");
+        var logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}\n";
+
+        if (!Directory.Exists(Path.GetDirectoryName(logFile)))
+        {
+            return;
+        }
+
+        File.AppendAllText(logFile, logEntry);
     }
 }
 
-public class WorkerSession
-{
-    public int ProcessId { get; set; }
-
-    public string AgentType { get; set; } = "";
-
-    public string TaskTitle { get; set; } = "";
-
-    public string RequestFileName { get; set; } = "";
-
-    public DateTime StartTime { get; set; }
-
-    public Process Process { get; set; } = null!;
-}
+public record WorkerSession(
+    int ProcessId,
+    string AgentType,
+    string TaskTitle,
+    string RequestFileName,
+    DateTime StartTime,
+    Process Process
+);
