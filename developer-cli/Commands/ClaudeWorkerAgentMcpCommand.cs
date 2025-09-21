@@ -26,6 +26,7 @@ public class ClaudeWorkerAgentMcpCommand : Command
         {
             AnsiConsole.MarkupLine("[green]Starting MCP claude-agent-worker-host server...[/]");
             AnsiConsole.MarkupLine("[dim]Listening on stdio for MCP communication[/]");
+            Console.Error.WriteLine("[MCP DEBUG] Server starting - tools should be available now");
 
             // Use the official SDK hosting pattern from GitHub repo
             var builder = Host.CreateApplicationBuilder();
@@ -128,6 +129,10 @@ public static class WorkerMcpTools
         [Description("Task content in markdown format")]
         string markdownContent)
     {
+        var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
+        File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
+        Console.Error.WriteLine($"[MCP DEBUG] StartWorker called: agentType={agentType}, taskTitle={taskTitle}");
+
         Mutex? workspaceMutex = null;
         try
         {
@@ -193,7 +198,15 @@ public static class WorkerMcpTools
                 }
             };
 
+            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n");
+            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Claude args: {string.Join(" ", claudeArgs)}\n");
+            Console.Error.WriteLine($"[MCP DEBUG] Starting Claude Code worker process in: {agentWorkspaceDir}");
+            Console.Error.WriteLine($"[MCP DEBUG] Claude args: {string.Join(" ", claudeArgs)}");
+
             process.Start();
+
+            File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
+            Console.Error.WriteLine($"[MCP DEBUG] Worker process started with PID: {process.Id}");
 
             // Track active Worker session
             ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
@@ -251,6 +264,7 @@ public static class WorkerMcpTools
     [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
     public static string ListActiveWorkers()
     {
+        Console.Error.WriteLine("[MCP DEBUG] ListActiveWorkers called");
         return ClaudeWorkerAgentMcpCommand.GetActiveWorkersList();
     }
 
