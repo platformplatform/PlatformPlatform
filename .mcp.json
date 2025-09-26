@@ -10,7 +10,7 @@
     },
     "platformplatform-worker-agent": {
       "command": "dotnet",
-      "args": ["run", "--project", "developer-cli", "claude-worker-agent-mcp"]
+      "args": ["run", "--project", "developer-cli", "claude-worker-agent", "--mcp"]
     }
   }
 }
