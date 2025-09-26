@@ -6,47 +6,168 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using PlatformPlatform.DeveloperCli.Installation;
+using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class ClaudeWorkerAgentMcpCommand : Command
+public class ClaudeWorkerAgentCommand : Command
 {
     private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
+    private static bool IsMcpMode;
+    private static string? SelectedAgentType;
 
-    public ClaudeWorkerAgentMcpCommand() : base("claude-worker-agent-mcp", "Start MCP server for agent communication")
+    public ClaudeWorkerAgentCommand() : base("claude-worker-agent", "Interactive Worker Host for agent development")
     {
-        this.SetHandler(ExecuteAsync);
+        var agentTypeArgument = new Argument<string?>("agent-type", () => null)
+        {
+            Description = "Agent type to run (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)"
+        };
+        agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
+
+        var mcpOption = new Option<bool>("--mcp", "Run as MCP server for automated workflows");
+
+        AddArgument(agentTypeArgument);
+        AddOption(mcpOption);
+
+        this.SetHandler(ExecuteAsync, agentTypeArgument, mcpOption);
     }
 
-    private async Task ExecuteAsync()
+    private async Task ExecuteAsync(string? agentType, bool mcp)
     {
         try
         {
-            AnsiConsole.MarkupLine("[green]Starting MCP claude-agent-worker-host server...[/]");
-            AnsiConsole.MarkupLine("[dim]Listening on stdio for MCP communication[/]");
-            Console.Error.WriteLine("[MCP DEBUG] Server starting - tools should be available now");
+            IsMcpMode = mcp;
+            SelectedAgentType = agentType;
 
-            // Use the official SDK hosting pattern from GitHub repo
-            var builder = Host.CreateApplicationBuilder();
-            builder.Logging.AddConsole(consoleLogOptions =>
-                {
-                    // Configure all logs to go to stderr
-                    consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
-                }
-            );
-            builder.Services
-                .AddMcpServer()
-                .WithStdioServerTransport()
-                .WithToolsFromAssembly();
+            if (mcp)
+            {
+                // MCP server mode for automated workflows
+                AnsiConsole.MarkupLine("[green]Starting MCP claude-agent-worker-host server...[/]");
+                AnsiConsole.MarkupLine("[dim]Listening on stdio for MCP communication[/]");
+                Console.Error.WriteLine("[MCP DEBUG] Server starting - tools should be available now");
 
-            await builder.Build().RunAsync();
+                // Use the official SDK hosting pattern from GitHub repo
+                var builder = Host.CreateApplicationBuilder();
+                builder.Logging.AddConsole(consoleLogOptions =>
+                    {
+                        // Configure all logs to go to stderr
+                        consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
+                    }
+                );
+                builder.Services
+                    .AddMcpServer()
+                    .WithStdioServerTransport()
+                    .WithToolsFromAssembly();
+
+                await builder.Build().RunAsync();
+            }
+            else
+            {
+                // Interactive mode (default)
+                await RunInteractiveMode(agentType);
+            }
         }
         catch (Exception ex)
         {
-            AnsiConsole.MarkupLine($"[red]MCP server error: {ex.Message}[/]");
+            AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
         }
+    }
+
+    private async Task RunInteractiveMode(string? agentType)
+    {
+        // If no agent type provided, prompt for selection
+        if (string.IsNullOrEmpty(agentType))
+        {
+            agentType = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select an [green]agent type[/] to run:")
+                    .AddChoices(
+                        "backend-engineer-worker",
+                        "frontend-engineer-worker",
+                        "backend-reviewer-worker",
+                        "frontend-reviewer-worker",
+                        "e2e-test-reviewer-worker"
+                    )
+            );
+        }
+        else
+        {
+            // Add -worker suffix if not present
+            if (!agentType.EndsWith("-worker"))
+            {
+                agentType += "-worker";
+            }
+        }
+
+        SelectedAgentType = agentType;
+
+        // Display FigletText banner for the agent
+        var displayName = GetAgentDisplayName(agentType);
+
+        // Set terminal title
+        SetTerminalTitle($"{displayName} - {GitHelper.GetCurrentBranch()}");
+
+        var figlet = new FigletText(displayName).Color(GetAgentColor(agentType));
+        AnsiConsole.Write(figlet);
+
+        var branch = GitHelper.GetCurrentBranch();
+        var color = GetAgentColor(agentType);
+
+        AnsiConsole.WriteLine(); // Extra line for spacing
+
+        // Create a clean waiting display without side borders
+        var rule = new Rule("[bold]WAITING FOR TASKS[/]")
+            .RuleStyle($"{color}")
+            .LeftJustified();
+        AnsiConsole.Write(rule);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"Branch: [{color} bold]{branch}[/]");
+        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
+        AnsiConsole.WriteLine();
+
+        var bottomRule = new Rule().RuleStyle($"{color} dim");
+        AnsiConsole.Write(bottomRule);
+        AnsiConsole.WriteLine();
+
+        // TODO: Implement interactive mode with file-based IPC
+        // For now, just wait
+        await Task.Delay(Timeout.Infinite);
+    }
+
+    private static string GetAgentDisplayName(string agentType)
+    {
+        return agentType switch
+        {
+            "backend-engineer-worker" => "Backend Engineer",
+            "frontend-engineer-worker" => "Frontend Engineer",
+            "backend-reviewer-worker" => "Backend Reviewer",
+            "frontend-reviewer-worker" => "Frontend Reviewer",
+            "e2e-test-reviewer-worker" => "E2E Test Reviewer",
+            _ => agentType
+        };
+    }
+
+    private static Color GetAgentColor(string agentType)
+    {
+        return agentType switch
+        {
+            "backend-engineer-worker" => Color.Green,
+            "frontend-engineer-worker" => Color.Blue,
+            "backend-reviewer-worker" => Color.Yellow,
+            "frontend-reviewer-worker" => Color.Orange1, // Changed from Aqua to Orange for better contrast
+            "e2e-test-reviewer-worker" => Color.Purple,
+            _ => Color.White
+        };
+    }
+
+    private static void SetTerminalTitle(string title)
+    {
+        // ANSI escape sequence to set terminal title
+        // Works in most modern terminals (iTerm2, Terminal.app, Windows Terminal, etc.)
+        Console.Write($"\x1b]0;{title}\x07");
     }
 
     public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
@@ -150,7 +271,7 @@ public static class WorkerMcpTools
                 throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", ValidAgentTypes)}");
             }
 
-            var branchName = GetCurrentGitBranch();
+            var branchName = GitHelper.GetCurrentBranch();
 
             // Acquire workspace lock to ensure only one Worker of this agent type runs per branch
             var mutexName = $"{agentType}-{branchName}";
@@ -213,22 +334,62 @@ public static class WorkerMcpTools
             // CRITICAL: Remove CLAUDECODE to prevent forced print mode
             process.StartInfo.Environment.Remove("CLAUDECODE");
 
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n"); } catch { }
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
+            }
+            catch
+            {
+            }
 
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n");
+            }
+            catch
+            {
+            }
+
             var quotedArgs = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
+            }
+            catch
+            {
+            }
+
             Console.Error.WriteLine($"[MCP DEBUG] Starting Claude Code worker process in: {agentWorkspaceDir}");
             Console.Error.WriteLine($"[MCP DEBUG] Claude args: {string.Join(" ", claudeArgs)}");
 
             process.Start();
 
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
+            }
+            catch
+            {
+            }
+
             Console.Error.WriteLine($"[MCP DEBUG] Worker process started with PID: {process.Id}");
 
             // Log what Claude Code actually receives as input
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
+            }
+            catch
+            {
+            }
 
             // Check if process exits immediately
             await Task.Delay(3000);
@@ -242,7 +403,7 @@ public static class WorkerMcpTools
             }
 
             // Track active Worker session
-            ClaudeWorkerAgentMcpCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
+            ClaudeWorkerAgentCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
 
             LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]", messagesDirectory);
 
@@ -257,18 +418,33 @@ public static class WorkerMcpTools
             finally
             {
                 // Remove from active sessions and release workspace lock
-                ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(process.Id);
+                ClaudeWorkerAgentCommand.RemoveWorkerSession(process.Id);
                 workspaceMutex.ReleaseMutex();
                 workspaceMutex.Dispose();
             }
         }
         catch (Exception ex)
         {
-            try { File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n"); } catch { }
+            try
+            {
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
+            }
+            catch
+            {
+            }
+
             if (workspaceMutex != null)
             {
-                try { workspaceMutex.ReleaseMutex(); workspaceMutex.Dispose(); } catch { }
+                try
+                {
+                    workspaceMutex.ReleaseMutex();
+                    workspaceMutex.Dispose();
+                }
+                catch
+                {
+                }
             }
+
             return $"Error starting worker: {ex.Message}";
         }
     }
@@ -292,43 +468,14 @@ public static class WorkerMcpTools
     public static string ListActiveWorkers()
     {
         Console.Error.WriteLine("[MCP DEBUG] ListActiveWorkers called");
-        return ClaudeWorkerAgentMcpCommand.GetActiveWorkersList();
+        return ClaudeWorkerAgentCommand.GetActiveWorkersList();
     }
 
     [McpServerTool]
     [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
     public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
     {
-        return ClaudeWorkerAgentMcpCommand.TerminateWorker(processId);
-    }
-
-    private static string GetCurrentGitBranch()
-    {
-        try
-        {
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "git",
-                    Arguments = "branch --show-current",
-                    WorkingDirectory = Configuration.SourceCodeFolder,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-
-            process.Start();
-            var branch = process.StandardOutput.ReadToEnd().Trim();
-            process.WaitForExit();
-
-            return string.IsNullOrEmpty(branch) ? "main" : branch;
-        }
-        catch
-        {
-            return "main";
-        }
+        return ClaudeWorkerAgentCommand.TerminateWorker(processId);
     }
 
     private static async Task SetupWorkerPrimingAsync(string agentWorkspaceDir, string agentType)
@@ -473,7 +620,7 @@ public static class WorkerMcpTools
 
     private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int attemptNumber)
     {
-        var branchName = GetCurrentGitBranch();
+        var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
         var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
         var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
@@ -510,8 +657,8 @@ public static class WorkerMcpTools
 
     private static void UpdateWorkerSession(int oldProcessId, int newProcessId, string agentType, string taskTitle, string requestFileName, Process newProcess)
     {
-        ClaudeWorkerAgentMcpCommand.RemoveWorkerSession(oldProcessId);
-        ClaudeWorkerAgentMcpCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
+        ClaudeWorkerAgentCommand.RemoveWorkerSession(oldProcessId);
+        ClaudeWorkerAgentCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
 
     private static void LogWorkerActivity(string message, string messagesDirectory)
