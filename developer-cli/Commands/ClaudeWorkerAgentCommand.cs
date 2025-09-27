@@ -28,14 +28,18 @@ public class ClaudeWorkerAgentCommand : Command
         agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
 
         var mcpOption = new Option<bool>("--mcp", "Run as MCP server for automated workflows");
+        var resumeOption = new Option<bool>("--resume", "Resume specific coordinator session from workspace (only for coordinator agent type)");
+        var continueOption = new Option<bool>("--continue", "Continue most recent conversation in main repo (only for coordinator agent type)");
 
         AddArgument(agentTypeArgument);
         AddOption(mcpOption);
+        AddOption(resumeOption);
+        AddOption(continueOption);
 
-        this.SetHandler(ExecuteAsync, agentTypeArgument, mcpOption);
+        this.SetHandler(ExecuteAsync, agentTypeArgument, mcpOption, resumeOption, continueOption);
     }
 
-    private async Task ExecuteAsync(string? agentType, bool mcp)
+    private async Task ExecuteAsync(string? agentType, bool mcp, bool resume, bool continueSession)
     {
         try
         {
@@ -67,7 +71,7 @@ public class ClaudeWorkerAgentCommand : Command
             else
             {
                 // Interactive mode (default)
-                await RunInteractiveMode(agentType);
+                await RunInteractiveMode(agentType, resume, continueSession);
             }
         }
         catch (Exception ex)
@@ -76,7 +80,7 @@ public class ClaudeWorkerAgentCommand : Command
         }
     }
 
-    private async Task RunInteractiveMode(string? agentType)
+    private async Task RunInteractiveMode(string? agentType, bool resume, bool continueSession)
     {
         // If no agent type provided, prompt for selection
         if (string.IsNullOrEmpty(agentType))
@@ -171,7 +175,7 @@ public class ClaudeWorkerAgentCommand : Command
             await Task.Delay(2000);
 
             // Launch coordinator directly
-            await LaunchCoordinatorAsync(agentType, branch);
+            await LaunchCoordinatorAsync(agentType, branch, resume, continueSession);
             return;
         }
 
@@ -197,20 +201,27 @@ public class ClaudeWorkerAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
-    private async Task LaunchCoordinatorAsync(string agentType, string branch)
+    private async Task LaunchCoordinatorAsync(string agentType, string branch, bool resume, bool continueSession)
     {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
-
-        // Try --continue first for coordinator
-        var coordinatorModeFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "coordinator-mode.md");
+        // Coordinator runs from source folder with full access to commands and agents
         var coordinatorArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "default",
-            $"Read {coordinatorModeFile}"
+            "/coordinator-mode"
         };
+
+        // Add session flags if specified
+        if (resume)
+        {
+            coordinatorArgs.Insert(0, "--resume");
+        }
+        else if (continueSession)
+        {
+            coordinatorArgs.Insert(0, "--continue");
+        }
+        // Default: Fresh session (no flags)
 
         var process = new Process
         {
@@ -218,7 +229,7 @@ public class ClaudeWorkerAgentCommand : Command
             {
                 FileName = "claude",
                 Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                WorkingDirectory = agentWorkspaceDirectory,
+                WorkingDirectory = Configuration.SourceCodeFolder,
                 UseShellExecute = false,
                 RedirectStandardInput = false,
                 RedirectStandardOutput = false,
@@ -229,39 +240,6 @@ public class ClaudeWorkerAgentCommand : Command
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
         process.Start();
         await process.WaitForExitAsync();
-
-        // If --continue failed, try fresh coordinator session
-        if (process.ExitCode != 0)
-        {
-            AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh coordinator session...[/]");
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            var freshArgs = new List<string>
-            {
-                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-                "--add-dir", Configuration.SourceCodeFolder,
-                "--permission-mode", "default",
-                $"Read {coordinatorModeFile}"
-            };
-
-            process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "claude",
-                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
-                    UseShellExecute = false,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = false
-                }
-            };
-
-            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-            process.Start();
-            await process.WaitForExitAsync();
-        }
 
         // Coordinator exited - clean up and show completion
         var agentColor = GetAgentColor(agentType);
@@ -359,7 +337,7 @@ public class ClaudeWorkerAgentCommand : Command
                 {
                     FileName = "claude",
                     Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
+                    WorkingDirectory = Configuration.SourceCodeFolder,
                     UseShellExecute = false,
                     RedirectStandardInput = false,
                     RedirectStandardOutput = false,
@@ -391,7 +369,7 @@ public class ClaudeWorkerAgentCommand : Command
                     {
                         FileName = "claude",
                         Arguments = string.Join(" ", freshCoordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                        WorkingDirectory = agentWorkspaceDirectory,
+                        WorkingDirectory = Configuration.SourceCodeFolder,
                         UseShellExecute = false,
                         RedirectStandardInput = false,
                         RedirectStandardOutput = false,
@@ -461,7 +439,7 @@ public class ClaudeWorkerAgentCommand : Command
                 {
                     FileName = "claude",
                     Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
+                    WorkingDirectory = Configuration.SourceCodeFolder,
                     UseShellExecute = false,
                     RedirectStandardInput = false,
                     RedirectStandardOutput = false,
@@ -830,7 +808,7 @@ public static class WorkerMcpTools
                 {
                     FileName = "claude",
                     Arguments = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
+                    WorkingDirectory = Configuration.SourceCodeFolder,
                     UseShellExecute = false
                 }
             };
