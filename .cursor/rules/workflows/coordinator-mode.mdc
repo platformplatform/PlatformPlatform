@@ -163,23 +163,23 @@ For each task:
    - E2E tasks → e2e-test-reviewer
 3. **EXACT message format** (ULTRA-CRITICAL - NO EXCEPTIONS):
    ```
-   Implement ONLY task [X] from [absolute-path-to-product-increment-file.md]
-
-   DO NOT implement other tasks. ONLY task [X].
+   Implement task [task-number] from [relative-path-to-product-increment-file.md]
    ```
 
    **EXAMPLES:**
-   - ✅ CORRECT: "Implement ONLY task 1 from /Users/thomasjespersen/Developer/PlatformPlatform/task-manager/2025-09-08-teams-feature/1-backend-team-management.md\n\nDO NOT implement other tasks. ONLY task 1."
-   - ❌ WRONG: "Implement backend team management with CRUD operations, database migration, etc..."
-   - ❌ WRONG: [Copying any content from the Product Increment file]
+   - ✅ CORRECT: "Implement task 1 from task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
+   - ✅ CORRECT: "Implement task 2 from task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
+   - ❌ WRONG: "Implement ONLY task 1..." (extra words)
+   - ❌ WRONG: "DO NOT implement other tasks..." (extra instructions)
+   - ❌ WRONG: [Any content from the Product Increment file]
 
    **ABSOLUTELY FORBIDDEN:**
-   - DO NOT copy task descriptions
-   - DO NOT copy requirements
-   - DO NOT copy implementation details
+   - DO NOT add "ONLY" or "DO NOT implement other tasks"
+   - DO NOT copy task titles, descriptions, or requirements
+   - DO NOT add implementation details
    - DO NOT copy multiple tasks
    - DO NOT summarize the Product Increment
-   - ONLY send the file path and task number
+   - SEND EXACTLY: "Implement task X from file-path" (NOTHING MORE)
 4. **Wait for engineer completion**
 5. **Delegate to reviewer** using exact template with file paths
 6. **Review loop until APPROVED**:

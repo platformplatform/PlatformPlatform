@@ -25,15 +25,27 @@ Format: Any other request (e.g., "Create a user dashboard component")
 **RULE FILES ARE AUTHORITATIVE** - Always read rules FIRST before any implementation.
 
 ### Step 1: Create Todo List and Study Rules (MANDATORY FIRST STEP)
-**BEFORE ANYTHING ELSE, YOU MUST:**
+🚨 **STOP! DO NOT READ THE CODEBASE YET!** 🚨
 
-1. **Create todo list IMMEDIATELY** using exact format below
-2. **Mark "Study ALL rules for this task type" as [in_progress]**
-3. **Read ALL files in `/.claude/rules/frontend/`** - This is MANDATORY
+**THE VERY FIRST THING YOU MUST DO:**
+
+1. **Use TodoWrite tool IMMEDIATELY** to create this exact todo list:
+   ```
+   Study ALL rules for this task type [pending]                     (STEP 1)
+   Research existing patterns for this task type [pending]          (STEP 2)
+   Ultrathink and research best practices [pending]                 (STEP 3)
+   [Your specific task] [pending]                                   (STEP 4)
+   Validate implementation builds [pending]                         (STEP 5)
+   Evaluate and update Product Increment plan [pending]             (STEP 6)
+   Create response file [pending]                                   (STEP 7)
+   ```
+
+2. **Mark "Study ALL rules for this task type" as [in_progress]** using TodoWrite
+3. **Read ALL files in `/.claude/rules/frontend/`** - NO EXCEPTIONS
 4. **Read `/.claude/rules/tools.md`** for CLI commands
-5. **Mark "Study ALL rules for this task type" as [completed]**
+5. **Mark "Study ALL rules for this task type" as [completed]** using TodoWrite
 
-**CRITICAL**: If you skip rule reading, your implementation WILL be wrong and rejected.
+🚨 **IF YOU SKIP THIS, YOUR WORK WILL BE REJECTED** 🚨
 
 ### Step 2: Research Existing Patterns
 1. Mark "Research existing patterns for this task type" as [in_progress]
