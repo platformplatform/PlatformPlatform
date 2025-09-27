@@ -88,6 +88,9 @@ public class InspectCommand : Command
         {
             AnsiConsole.MarkupLine("[yellow]Backend issues found. Opening result.json...[/]");
             ProcessHelper.StartProcess("code result.json", solutionFile.Directory!.FullName);
+
+            // Exit with error code to indicate inspection failures
+            Environment.Exit(1);
         }
     }
 
