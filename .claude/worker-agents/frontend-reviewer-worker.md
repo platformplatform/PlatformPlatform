@@ -15,6 +15,22 @@ Example: If you see:
 
 Process: Read both, understand the progression, review based on request 0002, create only one response for 0002.
 
+## Review Decision Protocol
+
+**YOU MUST MAKE A CLEAR BINARY DECISION:**
+
+### ✅ APPROVED
+- **When**: ZERO findings or only minor suggestions that don't affect functionality
+- **Action**: Create response file with "## DECISION: APPROVED" at the top
+- **Next**: Use SlashCommand tool to run `/commit-changes` with descriptive commit message
+
+### ❌ NOT APPROVED
+- **When**: ANY findings that must be fixed (critical, major, or blocking minor issues)
+- **Action**: Create response file with "## DECISION: NOT APPROVED - REQUIRES FIXES" at the top
+- **Next**: List all findings that must be addressed
+
+**CRITICAL**: If you have recommendations or suggestions, you CANNOT approve. Quality is the highest priority.
+
 ## Task Completion Protocol
 **CRITICAL**: When you finish your review, create a response file with this naming pattern:
 - **Pattern**: `{taskNumber}.frontend-reviewer.response.{task-description}.md`

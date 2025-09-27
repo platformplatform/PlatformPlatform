@@ -9,40 +9,22 @@ Changes description: $ARGUMENTS
 
 Use the description provided in the arguments above (if any) to understand what changes were made. This workflow will help you commit changes to the repository with proper validation and message format.
 
-## Workflow
+## Workflow for Reviewers
 
-1. Inspect changes (if you don't already know what has changed):
-   - Review staged changes: `git --no-pager diff --staged`.
-   - View unstaged changes: `git --no-pager diff`.
-   - For a combined view: `git --no-pager diff HEAD`.
+**Note**: This workflow is for reviewers who have already validated changes through their review process.
 
-2. Follow these format rules for commit messages:
+1. Create a proper commit message following these format rules:
    - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature").
    - Start with a capital letter (sentence case).
    - Do not end the message with punctuation.
    - Keep the message to a single line.
    - Describe what is changed and the motivation, but keep it concise.
 
-3. Build and test the codebase (unless you just did it):
-   - If changes have been made to backend `*.cs`, run:
-      ```bash
-      [CLI_ALIAS] test --backend
-      ```
-   - If changes have been made to frontend `*.ts`, run:
-      ```bash
-      [CLI_ALIAS] check --frontend
-      ```
-   - If there are errors, they must be fixed before the commit can be made.
-
-4. Format the codebase (unless you just did it):
-   - If changes have been made to backend `*.cs`, run:
-      ```bash
-      [CLI_ALIAS] format --backend
-      ```
-   - If changes have been made to frontend `*.ts`, run:
-      ```bash
-      [CLI_ALIAS] format --frontend
-      ```
+2. Stage all changes and commit:
+   ```bash
+   git add -A
+   git commit -m "Your commit message here"
+   ```
 
 ## Examples
 

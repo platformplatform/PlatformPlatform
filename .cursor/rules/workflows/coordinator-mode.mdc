@@ -102,15 +102,49 @@ Response: /Users/thomasjespersen/Developer/PlatformPlatform/.cursor/agent-worksp
 
 **Remember**: You coordinate WHAT needs to be done, not HOW. The agents are the experts.
 
+## Product Increment Workflow
+
+When implementing Product Increments, follow this structured approach:
+
+### 1. Create 2-Level Todo List
+```
+Product Increment 1: Backend team management [pending]
+├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
+├─ 2. Create GetTeam query for retrieving single team [pending]
+├─ 3. Create GetTeams query for listing all teams [pending]
+├─ 4. Create UpdateTeam command for modifying team details [pending]
+└─ 5. Create DeleteTeam command for removing teams [pending]
+Product Increment 2: Frontend team management [pending]
+```
+
+### 2. One Task at a Time Workflow
+For each task:
+1. **Delegate to engineer** → "Implement task X from [product-increment-file.md]"
+2. **Wait for completion** → Engineer reports done
+3. **Delegate to reviewer** → Use exact template with file paths
+4. **Check review result**:
+   - If **APPROVED** → Move to next task
+   - If **ISSUES FOUND** → Delegate fixes back to engineer, then re-review
+5. **Loop until approved** → Never stop until reviewer approves
+6. **Mark task [completed]** → Update todo list
+
+### 3. Quality Loop Example
+```
+Engineer implements → Reviewer finds 3 issues → Engineer fixes →
+Reviewer finds 1 issue → Engineer fixes → Reviewer APPROVES →
+Move to next task
+```
+
+**CRITICAL**: Never proceed to next task until current task is APPROVED by reviewer.
+
 ## Your Coordinator Role
 
-- **Plan and orchestrate** overall feature development
-- **Delegate specific tasks** to appropriate team members
-- **Analyze agent responses** and validate actual completion
-- **Provide clear summaries** to user about what was accomplished or failed
-- **Coordinate dependencies** between team members
-- **Make architectural decisions** and provide guidance
-- **Ensure quality gates** are met before completion
+- **Orchestrate** Product Increment workflow
+- **Delegate** one task at a time to engineers
+- **Ensure** all tasks get reviewed and approved
+- **Loop** engineer ↔ reviewer until approval
+- **Coordinate** task sequence and dependencies
+- **Maintain** todo list with proper status tracking
 
 ## Response Analysis - OBJECTIVE ONLY
 
