@@ -85,6 +85,7 @@ public class ClaudeWorkerAgentCommand : Command
                 new SelectionPrompt<string>()
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
+                        "coordinator-worker",
                         "backend-engineer-worker",
                         "frontend-engineer-worker",
                         "backend-reviewer-worker",
@@ -149,9 +150,6 @@ public class ClaudeWorkerAgentCommand : Command
         // Create PID file to register this agent
         var currentPid = Environment.ProcessId;
         await File.WriteAllTextAsync(pidFile, currentPid.ToString());
-
-        // Debug: Log PID file creation
-        AnsiConsole.MarkupLine($"[grey][[DEBUG]] Created PID file: {pidFile} with PID: {currentPid}[/]");
 
         // Ensure PID file is deleted on exit
         AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(pidFile);
@@ -266,6 +264,78 @@ public class ClaudeWorkerAgentCommand : Command
         var shortTitle = match.Groups[3].Value;
         var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
 
+        // Configure args based on agent type
+        var isCoordinator = agentType == "coordinator-worker";
+
+        if (isCoordinator)
+        {
+            // Coordinator launches directly with /coordinator-mode (no request file needed)
+            var coordinatorArgs = new List<string>
+            {
+                "--continue",
+                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+                "--add-dir", Configuration.SourceCodeFolder,
+                "--permission-mode", "default",
+                "/coordinator-mode"
+            };
+
+            var coordinatorProcess = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "claude",
+                    Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    WorkingDirectory = agentWorkspaceDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            coordinatorProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            coordinatorProcess.Start();
+            await coordinatorProcess.WaitForExitAsync();
+
+            // If --continue failed, try fresh coordinator session
+            if (coordinatorProcess.ExitCode != 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh coordinator session...[/]");
+                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                var freshCoordinatorArgs = new List<string>
+                {
+                    "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+                    "--add-dir", Configuration.SourceCodeFolder,
+                    "--permission-mode", "default",
+                    "/coordinator-mode"
+                };
+
+                coordinatorProcess = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = "claude",
+                        Arguments = string.Join(" ", freshCoordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                        WorkingDirectory = agentWorkspaceDirectory,
+                        UseShellExecute = false,
+                        RedirectStandardInput = false,
+                        RedirectStandardOutput = false,
+                        RedirectStandardError = false
+                    }
+                };
+
+                coordinatorProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+                coordinatorProcess.Start();
+            }
+
+            return coordinatorProcess;
+        }
+
+        // Regular worker configuration
+        var systemPrompt = $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.";
+        var finalPrompt = $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}";
+
         // Try --continue first, fallback to fresh session if no conversation found
         var continueArgs = new List<string>
         {
@@ -273,8 +343,8 @@ public class ClaudeWorkerAgentCommand : Command
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
-            "--append-system-prompt", $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.",
-            $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}"
+            "--append-system-prompt", systemPrompt,
+            finalPrompt
         };
 
         var process = new Process
@@ -307,8 +377,8 @@ public class ClaudeWorkerAgentCommand : Command
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "bypassPermissions",
-                "--append-system-prompt", $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.",
-                $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}"
+                "--append-system-prompt", systemPrompt,
+                finalPrompt
             };
 
             process = new Process
@@ -415,6 +485,7 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
+            "coordinator-worker" => "Coordinator",
             "backend-engineer-worker" => "Backend Engineer",
             "frontend-engineer-worker" => "Frontend Engineer",
             "backend-reviewer-worker" => "Backend Reviewer",
@@ -428,6 +499,7 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
+            "coordinator-worker" => Color.Red,
             "backend-engineer-worker" => Color.Green,
             "frontend-engineer-worker" => Color.Blue,
             "backend-reviewer-worker" => Color.Yellow,
@@ -510,7 +582,7 @@ public static class WorkerMcpTools
 {
     private static readonly string[] ValidAgentTypes =
     {
-        "backend-engineer-worker", "frontend-engineer-worker",
+        "coordinator-worker", "backend-engineer-worker", "frontend-engineer-worker",
         "backend-reviewer-worker", "frontend-reviewer-worker", "e2e-test-reviewer-worker"
     };
 
