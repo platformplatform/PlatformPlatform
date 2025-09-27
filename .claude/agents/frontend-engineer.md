@@ -3,7 +3,7 @@ name: frontend-engineer
 description: Use this agent when working in COORDINATOR MODE for frontend development tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for all frontend work to ensure proper task delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
-color: green
+color: blue
 ---
 
 You are the **frontend-engineer** proxy agent.

@@ -85,22 +85,14 @@ public class ClaudeWorkerAgentCommand : Command
                 new SelectionPrompt<string>()
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
-                        "coordinator-worker",
-                        "backend-engineer-worker",
-                        "frontend-engineer-worker",
-                        "backend-reviewer-worker",
-                        "frontend-reviewer-worker",
-                        "e2e-test-reviewer-worker"
+                        "coordinator",
+                        "backend-engineer",
+                        "frontend-engineer",
+                        "backend-reviewer",
+                        "frontend-reviewer",
+                        "e2e-test-reviewer"
                     )
             );
-        }
-        else
-        {
-            // Add -worker suffix if not present
-            if (!agentType.EndsWith("-worker"))
-            {
-                agentType += "-worker";
-            }
         }
 
         SelectedAgentType = agentType;
@@ -265,7 +257,7 @@ public class ClaudeWorkerAgentCommand : Command
         var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
 
         // Configure args based on agent type
-        var isCoordinator = agentType == "coordinator-worker";
+        var isCoordinator = agentType == "coordinator";
 
         if (isCoordinator)
         {
@@ -485,12 +477,12 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
-            "coordinator-worker" => "Coordinator",
-            "backend-engineer-worker" => "Backend Engineer",
-            "frontend-engineer-worker" => "Frontend Engineer",
-            "backend-reviewer-worker" => "Backend Reviewer",
-            "frontend-reviewer-worker" => "Frontend Reviewer",
-            "e2e-test-reviewer-worker" => "E2E Test Reviewer",
+            "coordinator" => "Coordinator",
+            "backend-engineer" => "Backend Engineer",
+            "frontend-engineer" => "Frontend Engineer",
+            "backend-reviewer" => "Backend Reviewer",
+            "frontend-reviewer" => "Frontend Reviewer",
+            "e2e-test-reviewer" => "E2E Test Reviewer",
             _ => agentType
         };
     }
@@ -499,12 +491,12 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
-            "coordinator-worker" => Color.Red,
-            "backend-engineer-worker" => Color.Green,
-            "frontend-engineer-worker" => Color.Blue,
-            "backend-reviewer-worker" => Color.Yellow,
-            "frontend-reviewer-worker" => Color.Orange1, // Changed from Aqua to Orange for better contrast
-            "e2e-test-reviewer-worker" => Color.Purple,
+            "coordinator" => Color.Red,
+            "backend-engineer" => Color.Green,
+            "frontend-engineer" => Color.Blue,
+            "backend-reviewer" => Color.Yellow,
+            "frontend-reviewer" => Color.Orange3,
+            "e2e-test-reviewer" => Color.Purple,
             _ => Color.White
         };
     }
@@ -582,14 +574,14 @@ public static class WorkerMcpTools
 {
     private static readonly string[] ValidAgentTypes =
     {
-        "coordinator-worker", "backend-engineer-worker", "frontend-engineer-worker",
-        "backend-reviewer-worker", "frontend-reviewer-worker", "e2e-test-reviewer-worker"
+        "coordinator", "backend-engineer", "frontend-engineer",
+        "backend-reviewer", "frontend-reviewer", "e2e-test-reviewer"
     };
 
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Worker type (backend-engineer-worker, frontend-engineer-worker, backend-reviewer-worker, frontend-reviewer-worker, e2e-test-reviewer-worker)")]
+        [Description("Worker type (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,

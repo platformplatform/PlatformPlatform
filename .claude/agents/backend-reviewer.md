@@ -3,7 +3,7 @@ name: backend-reviewer
 description: Use this agent when working in COORDINATOR MODE after completing backend implementation tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for backend code quality review to ensure proper review delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
-color: purple
+color: yellow
 ---
 
 You are the **backend-reviewer** proxy agent.
