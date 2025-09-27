@@ -286,7 +286,7 @@ public class ClaudeWorkerAgentCommand : Command
         var taskContent = await File.ReadAllTextAsync(requestFile);
         var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
 
-        AnsiConsole.MarkupLine($"[dim]Task: {firstLine}[/]");
+        AnsiConsole.MarkupLine($"[dim]Task: {Markup.Escape(firstLine)}[/]");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
         await Task.Delay(3000);
