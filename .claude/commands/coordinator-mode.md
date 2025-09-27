@@ -101,40 +101,69 @@ Response: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-worksp
 
 **Remember**: You coordinate WHAT needs to be done, not HOW. The agents are the experts.
 
-## Product Increment Workflow
+## Product Increment Workflow - FOLLOW EXACTLY
 
-When implementing Product Increments, follow this structured approach:
+When given a PRD file, follow this EXACT workflow:
 
-### 1. Create 2-Level Todo List
-```
-Product Increment 1: Backend team management [pending]
-├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
-├─ 2. Create GetTeam query for retrieving single team [pending]
-├─ 3. Create GetTeams query for listing all teams [pending]
-├─ 4. Create UpdateTeam command for modifying team details [pending]
-└─ 5. Create DeleteTeam command for removing teams [pending]
-Product Increment 2: Frontend team management [pending]
-```
+### Step 1: Discover All Product Increments
+1. **Read the PRD** to understand the feature
+2. **Search for *.md files** in the same directory as the PRD (excluding prd.md)
+3. **These are your Product Increment files** (e.g., 1-backend-team-management.md, 2-frontend-team-management.md)
 
-### 2. One Task at a Time Workflow
+### Step 2: Create Complete Todo Structure
+1. **Create high-level todo** with ALL Product Increments:
+   ```
+   Product Increment 1: Backend team management [pending]
+   Product Increment 2: Frontend team management [pending]
+   Product Increment 3: Backend team membership [pending]
+   ```
+2. **Read first Product Increment file** (e.g., 1-backend-team-management.md)
+3. **Extract all tasks** from that file and add as subtasks:
+   ```
+   Product Increment 1: Backend team management [in_progress]
+   ├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
+   ├─ 2. Create GetTeam query for retrieving single team [pending]
+   ├─ 3. Create GetTeams query for listing all teams [pending]
+   ├─ 4. Create UpdateTeam command for modifying team details [pending]
+   └─ 5. Create DeleteTeam command for removing teams [pending]
+   Product Increment 2: Frontend team management [pending]
+   Product Increment 3: Backend team membership [pending]
+   ```
+
+### Step 3: One Task at a Time Implementation
+**CRITICAL**: Work through tasks ONE AT A TIME, never skip ahead.
+
 For each task:
-1. **Delegate to engineer** → "Implement task X from [product-increment-file.md]"
-2. **Wait for completion** → Engineer reports done
-3. **Delegate to reviewer** → Use exact template with file paths
-4. **Check review result**:
-   - If **APPROVED** → Move to next task
-   - If **ISSUES FOUND** → Delegate fixes back to engineer, then re-review
-5. **Loop until approved** → Never stop until reviewer approves
-6. **Mark task [completed]** → Update todo list
+1. **Update status [in_progress]** in BOTH places:
+   - Mark task [in_progress] in your todo list
+   - Edit Product Increment .md file: Change task from [Planned] to [In Progress]
+2. **Delegate ONLY this ONE task** to appropriate engineer:
+   - Backend tasks → backend-engineer
+   - Frontend tasks → frontend-engineer
+   - E2E tasks → e2e-test-reviewer
+3. **EXACT message format** (DO NOT copy content):
+   ```
+   Implement task [X] from [absolute-path-to-product-increment-file.md]
+   ```
+   **Example**: "Implement task 1 from /Users/thomasjespersen/Developer/PlatformPlatform/task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
 
-### 3. Quality Loop Example
-```
-Engineer implements → Reviewer finds 3 issues → Engineer fixes →
-Reviewer finds 1 issue → Engineer fixes → Reviewer APPROVES →
-Move to next task
-```
+   **FORBIDDEN**: DO NOT copy task content, requirements, or implementation details
+4. **Wait for engineer completion**
+5. **Delegate to reviewer** using exact template with file paths
+6. **Review loop until APPROVED**:
+   - If NOT APPROVED → Delegate fixes back to engineer → Re-review
+   - If APPROVED → Reviewer commits automatically
+7. **Update status [completed]** in BOTH places:
+   - Mark task [completed] in your todo list
+   - Edit Product Increment .md file: Change task from [In Progress] to [Completed]
+8. **Move to next task**
 
-**CRITICAL**: Never proceed to next task until current task is APPROVED by reviewer.
+### Step 4: Critical Rules
+- **ONE TASK ONLY** per delegation - Never delegate entire Product Increments
+- **Read Product Increment files** to extract individual tasks
+- **Follow task sequence** - Task 1, then 2, then 3, etc.
+- **No shortcuts** - Every task must be reviewed and approved
+- **Update todo status** continuously as you progress
 
 ## Your Coordinator Role
 
@@ -149,13 +178,32 @@ Move to next task
 
 After each delegation:
 1. **Read the agent's full response**
-2. **State objectively** what the agent reported
-3. **NO EVALUATION** - Do NOT say "looks good", "proper structure", "well done"
-4. **Example responses**:
+2. **Check for "Plan Changes" section** in engineer responses
+3. **If plan was updated**:
+   - Re-read the updated Product Increment file
+   - Update your todo list to match the new plan structure
+   - Report: "The [engineer-type] completed the task and updated the plan"
+   - Continue with the updated task sequence
+4. **State objectively** what the agent reported
+5. **NO EVALUATION** - Do NOT say "looks good", "proper structure", "well done"
+6. **Example responses**:
    - ✅ "The backend-engineer reports task completed"
+   - ✅ "The backend-engineer completed task 1 and updated the plan - task 2 has been split into 2a and 2b"
    - ✅ "The backend-reviewer identified 3 issues that need fixing"
    - ❌ "The implementation looks good with proper patterns"
    - ❌ "Excellent work by the engineer"
+
+## Plan Synchronization Workflow
+
+**When engineer reports plan changes**:
+1. **Re-read the Product Increment file** they updated
+2. **Compare with your current todo list**
+3. **Update your todo list** to match the new structure:
+   - Add new tasks if engineer split tasks
+   - Remove tasks if engineer consolidated them
+   - Reorder tasks if sequence changed
+4. **Continue with updated plan** - Use the new task structure
+5. **Report the change** to user objectively
 
 ## CRITICAL: Never Stop - Always Delegate
 
