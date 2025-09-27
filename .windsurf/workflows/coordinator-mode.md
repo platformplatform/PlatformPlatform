@@ -1,5 +1,6 @@
 ---
-description: Activate coordinator mode for structured task delegation to specialized team members
+description: Workflow for activate coordinator mode for structured task delegation to specialized team members
+auto_execution_mode: 1
 ---
 
 # Coordinator Mode Activated

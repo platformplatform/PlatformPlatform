@@ -1,7 +1,8 @@
 ---
-description: Activate coordinator mode for structured task delegation to specialized team members
+description: Workflow for activate coordinator mode for structured task delegation to specialized team members
+globs: 
+alwaysApply: false
 ---
-
 # Coordinator Mode Activated
 
 You are now working in **Coordinator Mode** for structured Product Increment and PRD-based development.
@@ -94,8 +95,8 @@ To engineer: "Please update the welcome message on the /admin page to great the 
 
 To reviewer: "Review the work of the frontend-engineer
 
-Request: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.request.update-admin-welcome.md
-Response: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.response.update-admin-welcome.md"
+Request: /Users/thomasjespersen/Developer/PlatformPlatform/.cursor/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.request.update-admin-welcome.mdc
+Response: /Users/thomasjespersen/Developer/PlatformPlatform/.cursor/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.response.update-admin-welcome.md"
 
 **NEVER change the wording. NEVER add your interpretation.**
 

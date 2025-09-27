@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -102,39 +103,312 @@ public class ClaudeWorkerAgentCommand : Command
         }
 
         SelectedAgentType = agentType;
+        var branch = GitHelper.GetCurrentBranch();
+
+        // Create workspace and register agent
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+        Directory.CreateDirectory(agentWorkspaceDirectory);
+
+        // Check for stale PID file
+        var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
+        if (File.Exists(pidFile))
+        {
+            var existingPid = await File.ReadAllTextAsync(pidFile);
+            if (int.TryParse(existingPid, out var pid))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(pid);
+                    if (!existingProcess.HasExited)
+                    {
+                        AnsiConsole.MarkupLine($"[yellow]Warning: An interactive {agentType} appears to be already running (PID: {pid})[/]");
+                        AnsiConsole.MarkupLine("[yellow]This might be a stale PID file from a crashed session.[/]");
+
+                        var deleteChoice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("Delete the stale PID file and continue?")
+                                .AddChoices("Yes, delete and continue", "No, exit")
+                                .HighlightStyle(new Style(Color.Yellow))
+                        );
+
+                        if (deleteChoice == "No, exit")
+                        {
+                            return;
+                        }
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist, PID is stale
+                }
+            }
+
+            File.Delete(pidFile);
+        }
+
+        // Create PID file to register this agent
+        var currentPid = Environment.ProcessId;
+        await File.WriteAllTextAsync(pidFile, currentPid.ToString());
+
+        // Debug: Log PID file creation
+        AnsiConsole.MarkupLine($"[grey][[DEBUG]] Created PID file: {pidFile} with PID: {currentPid}[/]");
+
+        // Ensure PID file is deleted on exit
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(pidFile);
+        Console.CancelKeyPress += (_, e) =>
+        {
+            CleanupPidFile(pidFile);
+            e.Cancel = false;
+        };
 
         // Display FigletText banner for the agent
         var displayName = GetAgentDisplayName(agentType);
 
         // Set terminal title
-        SetTerminalTitle($"{displayName} - {GitHelper.GetCurrentBranch()}");
+        SetTerminalTitle($"{displayName} - {branch}");
 
-        var figlet = new FigletText(displayName).Color(GetAgentColor(agentType));
-        AnsiConsole.Write(figlet);
+        var agentBanner = new FigletText(displayName).Color(GetAgentColor(agentType));
+        AnsiConsole.Write(agentBanner);
 
-        var branch = GitHelper.GetCurrentBranch();
-        var color = GetAgentColor(agentType);
+        var agentColor = GetAgentColor(agentType);
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
         // Create a clean waiting display without side borders
         var rule = new Rule("[bold]WAITING FOR TASKS[/]")
-            .RuleStyle($"{color}")
+            .RuleStyle($"{agentColor}")
             .LeftJustified();
         AnsiConsole.Write(rule);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"Branch: [{color} bold]{branch}[/]");
+        AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
         AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
         AnsiConsole.WriteLine();
 
-        var bottomRule = new Rule().RuleStyle($"{color} dim");
+        var bottomRule = new Rule().RuleStyle($"{agentColor} dim");
         AnsiConsole.Write(bottomRule);
         AnsiConsole.WriteLine();
 
-        // TODO: Implement interactive mode with file-based IPC
-        // For now, just wait
-        await Task.Delay(Timeout.Infinite);
+        // Start watching for request files
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+        Directory.CreateDirectory(messagesDirectory);
+
+        await WatchForRequestsAsync(agentType, messagesDirectory, branch);
+    }
+
+    private static void CleanupPidFile(string pidFile)
+    {
+        if (File.Exists(pidFile))
+        {
+            File.Delete(pidFile);
+        }
+    }
+
+    private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
+    {
+        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory)
+        {
+            Filter = $"*.{agentType}.request.*.md",
+            EnableRaisingEvents = true
+        };
+
+        var completionSource = new TaskCompletionSource();
+
+        fileSystemWatcher.Created += async (sender, e) => { await HandleIncomingRequest(e.FullPath, agentType, branch); };
+
+        // Wait indefinitely (until Ctrl+C)
+        await completionSource.Task;
+    }
+
+    private async Task HandleIncomingRequest(string requestFile, string agentType, string branch)
+    {
+        var agentColor = GetAgentColor(agentType);
+
+        // Clear the waiting display
+        AnsiConsole.Clear();
+
+        // Show task received animation
+        AnsiConsole.MarkupLine($"[{agentColor} bold]▶ TASK RECEIVED[/]");
+        AnsiConsole.MarkupLine($"[dim]Request: {Path.GetFileName(requestFile)}[/]");
+
+        // Read task content
+        await Task.Delay(500); // Let file write complete
+        var taskContent = await File.ReadAllTextAsync(requestFile);
+        var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
+
+        AnsiConsole.MarkupLine($"[dim]Task: {firstLine}[/]");
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
+        await Task.Delay(3000);
+
+        // Launch Claude Code with the request
+        var claudeProcess = await LaunchClaudeCodeAsync(requestFile, agentType, branch);
+
+        // Wait for response file and then kill Claude
+        await WaitForResponseAndKillClaude(requestFile, agentType, branch, claudeProcess);
+
+        // Return to waiting display
+        RedrawWaitingDisplay(agentType, branch);
+    }
+
+    private async Task<Process> LaunchClaudeCodeAsync(string requestFile, string agentType, string branch)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+
+        // Prepare CLAUDE.md with priming
+        await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
+
+        // Extract request file name components for response file
+        var requestFileName = Path.GetFileName(requestFile);
+        var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
+        var counter = match.Groups[1].Value;
+        var shortTitle = match.Groups[3].Value;
+        var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
+
+        // Try --continue first, fallback to fresh session if no conversation found
+        var continueArgs = new List<string>
+        {
+            "--continue",
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--permission-mode", "bypassPermissions",
+            "--append-system-prompt", $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.",
+            $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}"
+        };
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "claude",
+                Arguments = string.Join(" ", continueArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                WorkingDirectory = agentWorkspaceDirectory,
+                UseShellExecute = false,
+                RedirectStandardInput = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false
+            }
+        };
+
+        process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+
+        process.Start();
+        await process.WaitForExitAsync();
+
+        // If --continue failed (no conversation found), try without --continue
+        if (process.ExitCode != 0)
+        {
+            AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh session...[/]");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            var freshArgs = new List<string>
+            {
+                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+                "--add-dir", Configuration.SourceCodeFolder,
+                "--permission-mode", "bypassPermissions",
+                "--append-system-prompt", $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.",
+                $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}"
+            };
+
+            process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "claude",
+                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    WorkingDirectory = agentWorkspaceDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            process.Start();
+        }
+
+        return process;
+    }
+
+    private async Task WaitForResponseAndKillClaude(string requestFile, string agentType, string branch, Process claudeProcess)
+    {
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+
+        // Extract request file name components for response file
+        var requestFileName = Path.GetFileName(requestFile);
+        var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
+        var counter = match.Groups[1].Value;
+        var shortTitle = match.Groups[3].Value;
+        var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
+        var responseFilePath = Path.Combine(messagesDirectory, responseFileName);
+
+        // Wait for response file to appear (not .tmp, the final renamed file)
+        var startTime = DateTime.Now;
+        var timeout = TimeSpan.FromMinutes(30);
+
+        while (!File.Exists(responseFilePath))
+        {
+            if (DateTime.Now - startTime > timeout)
+            {
+                // Timeout - kill Claude anyway
+                break;
+            }
+            await Task.Delay(500); // Check every 500ms
+        }
+
+        if (File.Exists(responseFilePath))
+        {
+            var agentColor = GetAgentColor(agentType);
+            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
+
+            // Give Claude 5 seconds to finish up
+            AnsiConsole.MarkupLine($"[grey]Giving Claude Code 5 seconds to finish...[/]");
+            await Task.Delay(5000);
+        }
+
+        // Kill the Claude Code process
+        if (claudeProcess != null && !claudeProcess.HasExited)
+        {
+            AnsiConsole.MarkupLine($"[grey]Terminating Claude Code session...[/]");
+            try
+            {
+                claudeProcess.Kill();
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            catch
+            {
+                // Process might have already exited
+            }
+        }
+    }
+
+    private void RedrawWaitingDisplay(string agentType, string branch)
+    {
+        AnsiConsole.Clear();
+
+        var displayName = GetAgentDisplayName(agentType);
+        var agentBanner = new FigletText(displayName).Color(GetAgentColor(agentType));
+        AnsiConsole.Write(agentBanner);
+
+        var agentColor = GetAgentColor(agentType);
+
+        AnsiConsole.WriteLine();
+
+        var rule = new Rule("[bold]WAITING FOR TASKS[/]")
+            .RuleStyle($"{agentColor}")
+            .LeftJustified();
+        AnsiConsole.Write(rule);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
+        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
+        AnsiConsole.WriteLine();
+
+        var bottomRule = new Rule().RuleStyle($"{agentColor} dim");
+        AnsiConsole.Write(bottomRule);
+        AnsiConsole.WriteLine();
     }
 
     private static string GetAgentDisplayName(string agentType)
@@ -261,7 +535,7 @@ public static class WorkerMcpTools
             Console.Error.WriteLine($"[DEBUG LOG ERROR] {logEx.Message}");
         }
 
-        Console.Error.WriteLine($"[MCP DEBUG] StartWorker called: agentType={agentType}, taskTitle={taskTitle}");
+        AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] StartWorker called: agentType={agentType}, taskTitle={taskTitle}[/]");
 
         Mutex? workspaceMutex = null;
         try
@@ -273,6 +547,91 @@ public static class WorkerMcpTools
 
             var branchName = GitHelper.GetCurrentBranch();
 
+            // Setup workspace paths
+            var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
+            var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDirectory, agentType);
+            var messagesDirectory = Path.Combine(branchWorkspaceDirectory, "messages");
+            var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
+
+            // Debug: Log the PID file path we're checking
+            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {pidFile}\n");
+            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(pidFile)}\n");
+
+            if (File.Exists(pidFile))
+            {
+                var pidContent = await File.ReadAllTextAsync(pidFile);
+                if (int.TryParse(pidContent, out var pid))
+                {
+                    try
+                    {
+                        var existingProcess = Process.GetProcessById(pid);
+                        if (!existingProcess.HasExited)
+                        {
+                            // Interactive agent is running, just create the request file
+                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Interactive {agentType} detected (PID: {pid}), delegating task[/]");
+
+                            Directory.CreateDirectory(messagesDirectory);
+
+                            var taskCounterFile = Path.Combine(messagesDirectory, ".task-counter");
+                            var taskCounter = 1;
+                            if (File.Exists(taskCounterFile) && int.TryParse(await File.ReadAllTextAsync(taskCounterFile), out var existingCounter))
+                            {
+                                taskCounter = existingCounter + 1;
+                            }
+
+                            await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
+
+                            var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
+                                .ToLowerInvariant().Replace(".", "").Replace(",", "");
+                            var taskRequestFileName = $"{taskCounter:D4}.{agentType}.request.{taskShortTitle}.md";
+                            var taskRequestFilePath = Path.Combine(messagesDirectory, taskRequestFileName);
+
+                            await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
+
+                            // Log task start
+                            LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
+
+                            // Wait for the response file to be created (atomic rename from .tmp)
+                            var responsePattern = $"{taskCounter:D4}.{agentType}.response.{taskShortTitle}.md";
+                            var responseFilePath = Path.Combine(messagesDirectory, responsePattern);
+
+                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {responsePattern}[/]");
+
+                            // Poll for response file with timeout (30 minutes max)
+                            var startTime = DateTime.Now;
+                            var timeout = TimeSpan.FromMinutes(30);
+
+                            // Wait for final renamed file (not .tmp)
+                            while (!File.Exists(responseFilePath))
+                            {
+                                if (DateTime.Now - startTime > timeout)
+                                {
+                                    throw new TimeoutException($"Interactive {agentType} did not complete task within 30 minutes");
+                                }
+
+                                await Task.Delay(500); // Check every 500ms
+                            }
+
+                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
+
+                            // Read response content immediately - file is complete via atomic rename
+                            var responseContent = await File.ReadAllTextAsync(responseFilePath);
+
+                            // Log task completion
+                            LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{responsePattern}]", messagesDirectory);
+
+                            AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Interactive agent completed task[/]");
+                            return responseContent;
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        File.Delete(pidFile);
+                    }
+                }
+            }
+
+            // No interactive agent, continue with normal Worker spawn
             // Acquire workspace lock to ensure only one Worker of this agent type runs per branch
             var mutexName = $"{agentType}-{branchName}";
             workspaceMutex = new Mutex(false, mutexName);
@@ -283,8 +642,7 @@ public static class WorkerMcpTools
                 throw new InvalidOperationException($"Another {agentType} is already active in branch '{branchName}'. Only one {agentType} can work per branch to maintain consistent context and memory.");
             }
 
-            var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
-            var messagesDirectory = Path.Combine(branchWorkspaceDir, "messages");
+            // Ensure messages directory exists
             Directory.CreateDirectory(messagesDirectory);
 
             var counterFile = Path.Combine(messagesDirectory, ".task-counter");
@@ -303,12 +661,12 @@ public static class WorkerMcpTools
 
             await File.WriteAllTextAsync(requestFilePath, markdownContent);
 
-            var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
-            var isNewWorkspace = !Directory.Exists(agentWorkspaceDir);
-            Directory.CreateDirectory(agentWorkspaceDir);
+            // Check if this is a new workspace
+            var isNewWorkspace = !Directory.Exists(agentWorkspaceDirectory);
+            Directory.CreateDirectory(agentWorkspaceDirectory);
 
             // Copy and customize CLAUDE.md for Worker priming
-            await SetupWorkerPrimingAsync(agentWorkspaceDir, agentType);
+            await SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
 
             var claudeArgs = new[]
             {
@@ -326,7 +684,7 @@ public static class WorkerMcpTools
                 {
                     FileName = "claude",
                     Arguments = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDir,
+                    WorkingDirectory = agentWorkspaceDirectory,
                     UseShellExecute = false
                 }
             };
@@ -352,7 +710,7 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDir}\n");
+                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
             }
             catch
             {
@@ -367,8 +725,8 @@ public static class WorkerMcpTools
             {
             }
 
-            Console.Error.WriteLine($"[MCP DEBUG] Starting Claude Code worker process in: {agentWorkspaceDir}");
-            Console.Error.WriteLine($"[MCP DEBUG] Claude args: {string.Join(" ", claudeArgs)}");
+            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Starting Claude Code worker process in: {agentWorkspaceDirectory}[/]");
+            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Claude args: {string.Join(" ", claudeArgs)}[/]");
 
             process.Start();
 
@@ -380,7 +738,7 @@ public static class WorkerMcpTools
             {
             }
 
-            Console.Error.WriteLine($"[MCP DEBUG] Worker process started with PID: {process.Id}");
+            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Worker process started with PID: {process.Id}[/]");
 
             // Log what Claude Code actually receives as input
             try
@@ -478,11 +836,11 @@ public static class WorkerMcpTools
         return ClaudeWorkerAgentCommand.TerminateWorker(processId);
     }
 
-    private static async Task SetupWorkerPrimingAsync(string agentWorkspaceDir, string agentType)
+    public static async Task SetupWorkerPrimingAsync(string agentWorkspaceDirectory, string agentType)
     {
         // Copy root repository CLAUDE.md to Worker workspace
         var rootClaudeMd = Path.Combine(Configuration.SourceCodeFolder, "CLAUDE.md");
-        var workerClaudeMd = Path.Combine(agentWorkspaceDir, "CLAUDE.md");
+        var workerClaudeMd = Path.Combine(agentWorkspaceDirectory, "CLAUDE.md");
 
         if (File.Exists(rootClaudeMd))
         {
@@ -622,7 +980,7 @@ public static class WorkerMcpTools
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
-        var agentWorkspaceDir = Path.Combine(branchWorkspaceDir, agentType);
+        var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
         var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
 
         var claudeArgs = new[]
@@ -639,7 +997,7 @@ public static class WorkerMcpTools
             {
                 FileName = "claude",
                 Arguments = string.Join(" ", claudeArgs),
-                WorkingDirectory = agentWorkspaceDir,
+                WorkingDirectory = agentWorkspaceDirectory,
                 UseShellExecute = false
             }
         };

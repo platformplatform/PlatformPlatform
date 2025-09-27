@@ -47,7 +47,7 @@ Note: Commands run through MediatR pipeline behaviors in this order: Validation 
 
 ```csharp
 // CreateUser.cs
-public sealed record CreateUserCommand(TenantId TenantId, string Email, string Name)
+public sealed record CreateUserCommand(string Email, string Name)
     : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes from API contract // ✅ DO: Add JsonIgnore for route parameters 
