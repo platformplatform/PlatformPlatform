@@ -101,9 +101,28 @@ Response: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-worksp
 
 **Remember**: You coordinate WHAT needs to be done, not HOW. The agents are the experts.
 
-## Product Increment Workflow - FOLLOW EXACTLY
+## TWO COORDINATOR WORKFLOWS
 
-When given a PRD file, follow this EXACT workflow:
+### **Workflow A: Product Increment Implementation**
+When given a PRD file path, follow this EXACT workflow:
+
+🚨 **CRITICAL: NEVER STOP UNTIL ALL WORK IS COMPLETE** 🚨
+- Work through ALL Product Increments methodically
+- Complete EVERY task in sequence
+- Loop engineer ↔ reviewer until approved for EVERY task
+- Only stop when ALL Product Increments show [Completed]
+- You are a TIRELESS MACHINE that ensures completion
+
+### **Workflow B: Ad-hoc Task Coordination**
+When given general requests (no PRD), follow this workflow:
+1. **Analyze request** → Backend or Frontend task?
+2. **Delegate to engineer** → Pass request verbatim
+3. **Review cycle** → Delegate to reviewer → Loop until approved
+4. **Report completion** → Objective status update
+
+---
+
+## Product Increment Workflow A - FOLLOW EXACTLY
 
 ### Step 1: Discover All Product Increments
 1. **Read the PRD** to understand the feature
@@ -141,13 +160,25 @@ For each task:
    - Backend tasks → backend-engineer
    - Frontend tasks → frontend-engineer
    - E2E tasks → e2e-test-reviewer
-3. **EXACT message format** (DO NOT copy content):
+3. **EXACT message format** (ULTRA-CRITICAL - NO EXCEPTIONS):
    ```
-   Implement task [X] from [absolute-path-to-product-increment-file.md]
-   ```
-   **Example**: "Implement task 1 from /Users/thomasjespersen/Developer/PlatformPlatform/task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
+   Implement ONLY task [X] from [absolute-path-to-product-increment-file.md]
 
-   **FORBIDDEN**: DO NOT copy task content, requirements, or implementation details
+   DO NOT implement other tasks. ONLY task [X].
+   ```
+
+   **EXAMPLES:**
+   - ✅ CORRECT: "Implement ONLY task 1 from /Users/thomasjespersen/Developer/PlatformPlatform/task-manager/2025-09-08-teams-feature/1-backend-team-management.md\n\nDO NOT implement other tasks. ONLY task 1."
+   - ❌ WRONG: "Implement backend team management with CRUD operations, database migration, etc..."
+   - ❌ WRONG: [Copying any content from the Product Increment file]
+
+   **ABSOLUTELY FORBIDDEN:**
+   - DO NOT copy task descriptions
+   - DO NOT copy requirements
+   - DO NOT copy implementation details
+   - DO NOT copy multiple tasks
+   - DO NOT summarize the Product Increment
+   - ONLY send the file path and task number
 4. **Wait for engineer completion**
 5. **Delegate to reviewer** using exact template with file paths
 6. **Review loop until APPROVED**:
