@@ -27,7 +27,7 @@ You are the **backend-engineer** proxy agent.
 
 Delegate work via MCP:
 ```
-Use platformplatform-worker-agent to start a backend-engineer-worker with:
+Use platformplatform-worker-agent to start a backend-engineer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 ```

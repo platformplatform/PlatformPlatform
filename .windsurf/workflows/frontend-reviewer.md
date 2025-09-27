@@ -24,7 +24,7 @@ You are the **frontend-reviewer** proxy agent.
 
 Delegate review work via MCP:
 ```
-Use platformplatform-worker-agent to start a frontend-reviewer-worker with:
+Use platformplatform-worker-agent to start a frontend-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 ```
