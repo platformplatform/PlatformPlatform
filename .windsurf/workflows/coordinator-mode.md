@@ -123,79 +123,42 @@ When given general requests (no PRD), follow this workflow:
 
 ---
 
-## Product Increment Workflow A - FOLLOW EXACTLY
+## Product Increment Workflow - STEP BY STEP
 
-### Step 1: Discover All Product Increments
-1. **Read the PRD** to understand the feature
-2. **Search for *.md files** in the same directory as the PRD (excluding prd.md)
-3. **These are your Product Increment files** (e.g., 1-backend-team-management.md, 2-frontend-team-management.md)
+**STEP 1**: Read PRD file, find all *.md files in same directory
+**STEP 2**: Use TodoWrite tool to create EXACT format:
+```
+Product Increment 1: Backend team management [pending]
+├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
+├─ 2. Create GetTeam query for retrieving single team [pending]
+├─ 3. Create GetTeams query for listing all teams [pending]
+├─ 4. Create UpdateTeam command for modifying team details [pending]
+├─ 5. Create DeleteTeam command for removing teams [pending]
+└─ 6. Run pp watch after backend implementation [pending]
+Product Increment 2: Frontend team management [pending]
+Product Increment 3: Backend team membership [pending]
+Product Increment 4: Frontend team membership [pending]
+Product Increment 5: End-to-end testing [pending]
+```
+COPY THIS EXACTLY - no variations allowed. Extract ## task titles from each Product Increment file.
+**STEP 3**: For first task only:
+   - Use TodoWrite tool: Mark "Product Increment 1" as [in_progress] in todo list
+   - Use TodoWrite tool: Mark first task as [in_progress] in todo list
+   - Use Edit tool on Product Increment file: change [Planned] to [In Progress]
+   - Use Task tool with subagent_type='backend-engineer'
+   - Message EXACTLY: "We are implementing PRD: [path-to-prd.md]. Please implement task \"[task-title]\" from [path-to-product-increment-file.md]."
+   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-backend-implementation.md."
+   - Include PRD path for context
+   - Copy ONLY the ## heading text (task number and title)
+   - DO NOT copy subtask details (1.1, 1.2, etc.)
+   - DO NOT copy requirements or implementation details
+**STEP 4**: Wait for engineer completion
+**STEP 5**: Use Task tool: backend-reviewer with file paths
+**STEP 6**: If NOT APPROVED → go back to STEP 3 with engineer
+**STEP 7**: If APPROVED → Use Edit tool: change [In Progress] to [Completed]
+**STEP 8**: Move to next task, repeat STEP 3-7
 
-### Step 2: Create Complete Todo Structure
-1. **Create high-level todo** with ALL Product Increments:
-   ```
-   Product Increment 1: Backend team management [pending]
-   Product Increment 2: Frontend team management [pending]
-   Product Increment 3: Backend team membership [pending]
-   ```
-2. **Read first Product Increment file** (e.g., 1-backend-team-management.md)
-3. **Extract all tasks** from that file and add as subtasks:
-   ```
-   Product Increment 1: Backend team management [in_progress]
-   ├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
-   ├─ 2. Create GetTeam query for retrieving single team [pending]
-   ├─ 3. Create GetTeams query for listing all teams [pending]
-   ├─ 4. Create UpdateTeam command for modifying team details [pending]
-   └─ 5. Create DeleteTeam command for removing teams [pending]
-   Product Increment 2: Frontend team management [pending]
-   Product Increment 3: Backend team membership [pending]
-   ```
-
-### Step 3: One Task at a Time Implementation
-**CRITICAL**: Work through tasks ONE AT A TIME, never skip ahead.
-
-For each task:
-1. **Update status [in_progress]** in BOTH places:
-   - Mark task [in_progress] in your todo list
-   - Edit Product Increment .md file: Change task from [Planned] to [In Progress]
-2. **Delegate ONLY this ONE task** to appropriate engineer:
-   - Backend tasks → backend-engineer
-   - Frontend tasks → frontend-engineer
-   - E2E tasks → e2e-test-reviewer
-3. **EXACT message format** (ULTRA-CRITICAL - NO EXCEPTIONS):
-   ```
-   Implement task [task-number] from [relative-path-to-product-increment-file.md]
-   ```
-
-   **EXAMPLES:**
-   - ✅ CORRECT: "Implement task 1 from task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
-   - ✅ CORRECT: "Implement task 2 from task-manager/2025-09-08-teams-feature/1-backend-team-management.md"
-   - ❌ WRONG: "Implement ONLY task 1..." (extra words)
-   - ❌ WRONG: "DO NOT implement other tasks..." (extra instructions)
-   - ❌ WRONG: [Any content from the Product Increment file]
-
-   **ABSOLUTELY FORBIDDEN:**
-   - DO NOT add "ONLY" or "DO NOT implement other tasks"
-   - DO NOT copy task titles, descriptions, or requirements
-   - DO NOT add implementation details
-   - DO NOT copy multiple tasks
-   - DO NOT summarize the Product Increment
-   - SEND EXACTLY: "Implement task X from file-path" (NOTHING MORE)
-4. **Wait for engineer completion**
-5. **Delegate to reviewer** using exact template with file paths
-6. **Review loop until APPROVED**:
-   - If NOT APPROVED → Delegate fixes back to engineer → Re-review
-   - If APPROVED → Reviewer commits automatically
-7. **Update status [completed]** in BOTH places:
-   - Mark task [completed] in your todo list
-   - Edit Product Increment .md file: Change task from [In Progress] to [Completed]
-8. **Move to next task**
-
-### Step 4: Critical Rules
-- **ONE TASK ONLY** per delegation - Never delegate entire Product Increments
-- **Read Product Increment files** to extract individual tasks
-- **Follow task sequence** - Task 1, then 2, then 3, etc.
-- **No shortcuts** - Every task must be reviewed and approved
-- **Update todo status** continuously as you progress
+**CRITICAL**: Use Edit tool to change status BEFORE each delegation
 
 ## Your Coordinator Role
 
