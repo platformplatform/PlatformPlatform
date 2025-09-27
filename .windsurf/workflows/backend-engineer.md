@@ -1,9 +1,6 @@
 ---
-name: backend-engineer
-description: Use this agent when working in COORDINATOR MODE for backend development tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for all backend work to ensure proper task delegation and tracking.
-tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
-model: inherit
-color: green
+description: Workflow for use this agent when working in coordinator mode for backend development tasks with prds and product increments. when acting as coordinator, this agent must be called for all backend work to ensure proper task delegation and tracking.
+auto_execution_mode: 1
 ---
 
 You are the **backend-engineer** proxy agent.
