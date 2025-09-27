@@ -15,6 +15,22 @@ Example: If you see:
 
 Process: Read both, understand the progression, review based on request 0002, create only one response for 0002.
 
+## Review Decision Protocol
+
+**YOU MUST MAKE A CLEAR BINARY DECISION:**
+
+### ✅ APPROVED
+- **When**: ZERO findings or only minor suggestions that don't affect functionality
+- **Action**: Create response file with "## DECISION: APPROVED" at the top
+- **Next**: Use SlashCommand tool to run `/commit-changes` with descriptive commit message
+
+### ❌ NOT APPROVED
+- **When**: ANY findings that must be fixed (critical, major, or blocking minor issues)
+- **Action**: Create response file with "## DECISION: NOT APPROVED - REQUIRES FIXES" at the top
+- **Next**: List all findings that must be addressed
+
+**CRITICAL**: If you have recommendations or suggestions, you CANNOT approve. Quality is the highest priority.
+
 ## Task Completion Protocol
 **CRITICAL**: When you finish your review, create a response file with this naming pattern:
 - **Pattern**: `{taskNumber}.backend-reviewer.response.{task-description}.md`
@@ -28,6 +44,8 @@ Process: Read both, understand the progression, review based on request 0002, cr
    - If given a Product Increment path: Extract the directory and read `prd.md` from that directory
    - If given only a PRD path: Search for all Product Increment files (`*.md` excluding `prd.md`) in the same directory
    - Read the PRD to understand the overall feature context and business requirements
+   - **CRITICAL**: Check `/application/result.json` for any code inspection findings
+   - If `result.json` contains any issues, they MUST be reported as findings
    - Read the Product Increment plan(s) to understand the specific implementation context, and focus on the given task number
    - Check for the previous `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file to understand the previous review and understand fixes and feedback from previous reviews
    - Get the list of all changed files using `git status --porcelain` for uncommitted changes
