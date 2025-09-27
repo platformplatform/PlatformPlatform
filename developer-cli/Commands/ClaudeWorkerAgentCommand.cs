@@ -164,6 +164,17 @@ public class ClaudeWorkerAgentCommand : Command
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
+        // Special handling for coordinator - launch directly into Claude Code
+        if (agentType == "coordinator")
+        {
+            AnsiConsole.MarkupLine($"[{agentColor}]Launching coordinator mode...[/]");
+            await Task.Delay(2000);
+
+            // Launch coordinator directly
+            await LaunchCoordinatorAsync(agentType, branch);
+            return;
+        }
+
         // Create a clean waiting display without side borders
         var rule = new Rule("[bold]WAITING FOR TASKS[/]")
             .RuleStyle($"{agentColor}")
@@ -184,6 +195,77 @@ public class ClaudeWorkerAgentCommand : Command
         Directory.CreateDirectory(messagesDirectory);
 
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
+    }
+
+    private async Task LaunchCoordinatorAsync(string agentType, string branch)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+
+        // Try --continue first for coordinator
+        var coordinatorModeFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "coordinator-mode.md");
+        var coordinatorArgs = new List<string>
+        {
+            "--continue",
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--permission-mode", "default",
+            $"Read {coordinatorModeFile}"
+        };
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "claude",
+                Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                WorkingDirectory = agentWorkspaceDirectory,
+                UseShellExecute = false,
+                RedirectStandardInput = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false
+            }
+        };
+
+        process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+        process.Start();
+        await process.WaitForExitAsync();
+
+        // If --continue failed, try fresh coordinator session
+        if (process.ExitCode != 0)
+        {
+            AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh coordinator session...[/]");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            var freshArgs = new List<string>
+            {
+                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+                "--add-dir", Configuration.SourceCodeFolder,
+                "--permission-mode", "default",
+                $"Read {coordinatorModeFile}"
+            };
+
+            process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "claude",
+                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    WorkingDirectory = agentWorkspaceDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            process.Start();
+            await process.WaitForExitAsync();
+        }
+
+        // Coordinator exited - clean up and show completion
+        var agentColor = GetAgentColor(agentType);
+        AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Coordinator session ended[/]");
     }
 
     private static void CleanupPidFile(string pidFile)
