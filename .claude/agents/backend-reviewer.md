@@ -27,6 +27,17 @@ You are the **backend-reviewer** proxy agent.
 
 Delegate review work via MCP:
 ```
+If request contains structured review data (PRD:, Product Increment:, Request:, Response:), use:
+Use platformplatform-worker-agent to start a backend-reviewer with:
+- taskTitle: Extract first few words from request
+- markdownContent: Pass the EXACT request text unchanged
+- prdPath: Extract path after "PRD: "
+- productIncrementPath: Extract path after "Product Increment: "
+- taskNumber: Extract text between quotes after "Task: "
+- requestFilePath: Extract path after "Request: "
+- responseFilePath: Extract path after "Response: "
+
+If simple request (no structured data), use:
 Use platformplatform-worker-agent to start a backend-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged

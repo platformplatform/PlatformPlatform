@@ -157,6 +157,9 @@ Product Increment [Z]: [Other increment name] [pending]
      - E2E tasks → Use Task tool: e2e-test-reviewer
    - Message:
          Review the work of the [engineer-type]
+         PRD: [path-to-prd.md]
+         Product Increment: [path-to-product-increment-file.md]
+         Task: "[task-title]"
          Request: [path to engineer's request file]
          Response: [path to engineer's response file]
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
