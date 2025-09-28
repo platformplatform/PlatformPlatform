@@ -450,10 +450,14 @@ public class ClaudeWorkerAgentCommand : Command
         process.Start();
         await process.WaitForExitAsync();
 
-        // If --continue failed (no conversation found), try without --continue
-        if (process.ExitCode != 0)
+        // Show appropriate message based on outcome
+        if (process.ExitCode == 0)
         {
-            AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh session...[/]");
+            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
             await Task.Delay(TimeSpan.FromSeconds(1));
 
             var freshArgs = new List<string>
