@@ -402,16 +402,44 @@ public class ClaudeWorkerAgentCommand : Command
         string finalPrompt;
         if (isProductIncrementTask)
         {
-            // Extract paths for slash command
-            var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
-            var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
-            var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
+            // Check if there's a context message in the task content
+            var contextMatch = Regex.Match(taskContent, @"Context:\s*([^\r\n]+(?:\r?\n(?![\w\s]*:)[^\r\n]+)*)");
+            var contextMessage = contextMatch.Success ? contextMatch.Groups[1].Value.Trim() : "";
 
-            var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
-            var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
-            var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
+            if (agentType.Contains("reviewer"))
+            {
+                // Extract paths for review slash command
+                var requestFileMatch = Regex.Match(taskContent, @"Request:\s*([^\r\n]+)");
+                var responseFileMatch = Regex.Match(taskContent, @"Response:\s*([^\r\n]+)");
+                var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
+                var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
+                var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
 
-            finalPrompt = $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\"";
+                var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
+                var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
+                var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
+                var requestFilePath = requestFileMatch.Success ? requestFileMatch.Groups[1].Value : "";
+                var responseFilePath = responseFileMatch.Success ? responseFileMatch.Groups[1].Value : "";
+
+                finalPrompt = !string.IsNullOrEmpty(contextMessage)
+                    ? $"/review-task {prdPath} {productIncrementPath} \"{taskTitle}\" {requestFilePath} {responseFilePath} \"{contextMessage}\""
+                    : $"/review-task {prdPath} {productIncrementPath} \"{taskTitle}\" {requestFilePath} {responseFilePath}";
+            }
+            else
+            {
+                // Extract paths for implementation slash command
+                var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
+                var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
+                var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
+
+                var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
+                var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
+                var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
+
+                finalPrompt = !string.IsNullOrEmpty(contextMessage)
+                    ? $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\" \"{contextMessage}\""
+                    : $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\"";
+            }
         }
         else
         {
@@ -683,7 +711,9 @@ public static class WorkerMcpTools
         [Description("Short title for the task")]
         string taskTitle,
         [Description("Task content in markdown format")]
-        string markdownContent)
+        string markdownContent,
+        [Description("Optional context message: what's changed since agent was last active, what files to read for updates")]
+        string? contextMessage = null)
     {
         var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
 
