@@ -558,10 +558,10 @@ public class ClaudeWorkerAgentCommand : Command
         process.Start();
 
         // Give --continue a moment to fail if no conversation exists
-        await Task.Delay(1000);
+        await Task.Delay(TimeSpan.FromSeconds(2));
 
-        // If --continue failed (no conversation found), try without --continue
-        if (process.HasExited && process.ExitCode != 0)
+        // If --continue failed (process exited), start fresh session
+        if (process.HasExited)
         {
             AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
             await Task.Delay(TimeSpan.FromSeconds(1));
