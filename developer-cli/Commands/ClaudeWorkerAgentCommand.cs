@@ -152,11 +152,17 @@ public class ClaudeWorkerAgentCommand : Command
         var currentPid = Environment.ProcessId;
         await File.WriteAllTextAsync(pidFile, currentPid.ToString());
 
-        // Ensure PID file is deleted on exit
-        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(pidFile);
+        // Ensure PID and session ID files are deleted on exit
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            CleanupPidFile(pidFile);
+            CleanupSessionIdFile(claudeSessionIdFile);
+        };
         Console.CancelKeyPress += (_, e) =>
         {
             CleanupPidFile(pidFile);
+            CleanupSessionIdFile(claudeSessionIdFile);
             e.Cancel = false;
         };
 
@@ -259,6 +265,14 @@ public class ClaudeWorkerAgentCommand : Command
         }
     }
 
+    private static void CleanupSessionIdFile(string claudeSessionIdFile)
+    {
+        if (File.Exists(claudeSessionIdFile))
+        {
+            File.Delete(claudeSessionIdFile);
+        }
+    }
+
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory)
@@ -340,13 +354,20 @@ public class ClaudeWorkerAgentCommand : Command
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
+        // Use same session ID for manual control
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
         var manualArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions"
         };
+
+        if (File.Exists(claudeSessionIdFile))
+        {
+            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            manualArgs.Insert(0, $"--resume {claudeSessionId.Trim()}");
+        }
 
         var process = new Process
         {
@@ -528,10 +549,10 @@ public class ClaudeWorkerAgentCommand : Command
 
         var systemPrompt = $"You are a {agentType} Worker. When done, create response file: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}";
 
-        // Try --continue first, fallback to fresh session if no conversation found
-        var continueArgs = new List<string>
+        // Deterministic session management with session IDs
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        var claudeArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
@@ -539,12 +560,28 @@ public class ClaudeWorkerAgentCommand : Command
             finalPrompt
         };
 
+        if (File.Exists(claudeSessionIdFile))
+        {
+            // Resume existing session
+            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            claudeArgs.Insert(0, $"--resume {claudeSessionId.Trim()}");
+            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
+        }
+        else
+        {
+            // Create new session
+            var newClaudeSessionId = Guid.NewGuid().ToString();
+            await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
+            claudeArgs.Insert(0, $"--session-id {newClaudeSessionId}");
+            AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
+        }
+
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "claude",
-                Arguments = string.Join(" ", continueArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                Arguments = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                 WorkingDirectory = agentWorkspaceDirectory,
                 UseShellExecute = false,
                 RedirectStandardInput = false,
@@ -554,49 +591,7 @@ public class ClaudeWorkerAgentCommand : Command
         };
 
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-
         process.Start();
-
-        // Give --continue a moment to fail if no conversation exists
-        await Task.Delay(TimeSpan.FromSeconds(2));
-
-        // If --continue failed (process exited), start fresh session
-        if (process.HasExited)
-        {
-            AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            var freshArgs = new List<string>
-            {
-                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-                "--add-dir", Configuration.SourceCodeFolder,
-                "--permission-mode", "bypassPermissions",
-                "--append-system-prompt", systemPrompt,
-                finalPrompt
-            };
-
-            process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "claude",
-                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
-                    UseShellExecute = false,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = false
-                }
-            };
-
-            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-            process.Start();
-            // Return the running fresh process for monitoring
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
-        }
 
         return process;
     }
@@ -989,15 +984,28 @@ public static class WorkerMcpTools
             // Copy and customize CLAUDE.md for Worker priming
             await SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
 
-            var claudeArgs = new[]
+            // Deterministic session management for automated workers
+            var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+            var claudeArgs = new List<string>
             {
-                "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "bypassPermissions",
                 "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFile}",
                 $"Read {requestFile}"
             };
+
+            if (File.Exists(claudeSessionIdFile))
+            {
+                var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+                claudeArgs.Insert(0, $"--resume {claudeSessionId.Trim()}");
+            }
+            else
+            {
+                var newClaudeSessionId = Guid.NewGuid().ToString();
+                await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
+                claudeArgs.Insert(0, $"--session-id {newClaudeSessionId}");
+            }
 
             var process = new Process
             {
@@ -1351,13 +1359,26 @@ public static class WorkerMcpTools
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
         var restartRequestFile = Path.Combine(messagesDirectory, requestFileName);
 
-        var claudeArgs = new[]
+        // Deterministic session management for restart
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        var claudeArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--append-system-prompt", $"You are a {agentType} Worker. Restart attempt #{attemptNumber}. Process task: {restartRequestFile}"
         };
+
+        if (File.Exists(claudeSessionIdFile))
+        {
+            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            claudeArgs.Insert(0, $"--resume {claudeSessionId.Trim()}");
+        }
+        else
+        {
+            var newClaudeSessionId = Guid.NewGuid().ToString();
+            await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
+            claudeArgs.Insert(0, $"--session-id {newClaudeSessionId}");
+        }
 
         var process = new Process
         {
