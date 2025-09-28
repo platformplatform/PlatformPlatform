@@ -79,8 +79,9 @@ Context update: $4
    - Update the plan if implementation insights suggest changes
    - Mark "Evaluate and update Product Increment plan" [completed] in todo
 
-**Step 7. Create response file**:
+**Step 7. Create response file and mark ready for review**:
    - Mark "Create response file" [in_progress] in todo
+   - Edit the Product Increment file: change [In Progress] to [Ready for Review]
    - Create response file using atomic rename: .tmp → .md to signal completion
    - Mark "Create response file" [completed] in todo
 

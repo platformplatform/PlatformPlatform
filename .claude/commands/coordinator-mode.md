@@ -161,10 +161,11 @@ Product Increment [Z]: [Other increment name] [pending]
          Response: [path to engineer's response file]
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
    - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
-**STEP 5**: The reviewer has approved and comitted the code mark task completed and move to next:
-   - Use Edit tool on Product Increment file: change [In Progress] to [Completed]
-   - Use TodoWrite tool: Mark task as [completed] in todo list
-   - Move to next task, repeat STEP 3-5
+**STEP 5**: After review decision:
+   - **If APPROVED**: Reviewer has changed status to [Completed] and committed - move to next task
+   - **If NOT APPROVED**: Reviewer has changed status to [Changes Required] - delegate fixes back to engineer
+   - Use TodoWrite tool: Update task status in todo list to match Product Increment file
+   - Move to next task only when status is [Completed], otherwise repeat engineer → reviewer loop
 
 **EVERY TASK MUST BE**: Engineer → Reviewer → Approved → Committed → Next Task
 
