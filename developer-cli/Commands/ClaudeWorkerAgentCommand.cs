@@ -257,6 +257,8 @@ public class ClaudeWorkerAgentCommand : Command
         }
     }
 
+    private CancellationTokenSource? _enterKeyListenerCts;
+
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory)
@@ -271,34 +273,66 @@ public class ClaudeWorkerAgentCommand : Command
         {
             try
             {
+                // Stop ENTER key listener during task processing to avoid keyboard interference
+                _enterKeyListenerCts?.Cancel();
+
                 await HandleIncomingRequest(e.FullPath, agentType, branch);
+
+                // Restart ENTER key listener after task processing
+                StartEnterKeyListener(agentType, branch);
             }
             catch (Exception ex)
             {
                 AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
                 RedrawWaitingDisplay(agentType, branch);
+                // Restart ENTER key listener after error
+                StartEnterKeyListener(agentType, branch);
             }
         };
 
-        // Listen for ENTER key for manual control
+        // Listen for ENTER key for manual control - restarts after each use
+        StartEnterKeyListener(agentType, branch);
+
+        // Wait indefinitely (until Ctrl+C)
+        await completionSource.Task;
+    }
+
+    private void StartEnterKeyListener(string agentType, string branch)
+    {
+        _enterKeyListenerCts = new CancellationTokenSource();
         _ = Task.Run(async () =>
+        {
+            while (!_enterKeyListenerCts.Token.IsCancellationRequested)
             {
-                while (true)
+                try
                 {
                     var key = Console.ReadKey(true);
                     if (key.Key == ConsoleKey.Enter)
                     {
                         AnsiConsole.Clear();
                         AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+
+                        // Launch manual session
                         await LaunchManualClaudeSession(agentType, branch);
+
+                        // Return to waiting display
                         RedrawWaitingDisplay(agentType, branch);
+
+                        // Restart the ENTER key listener for next use
+                        StartEnterKeyListener(agentType, branch);
+                        break; // Exit this instance of the listener
                     }
                 }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch
+                {
+                    break;
+                }
             }
-        );
-
-        // Wait indefinitely (until Ctrl+C)
-        await completionSource.Task;
+        });
     }
 
     private async Task LaunchManualClaudeSession(string agentType, string branch)
@@ -521,45 +555,8 @@ public class ClaudeWorkerAgentCommand : Command
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
 
         process.Start();
-        await process.WaitForExitAsync();
 
-        // Show appropriate message based on outcome
-        if (process.ExitCode == 0)
-        {
-            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            var freshArgs = new List<string>
-            {
-                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-                "--add-dir", Configuration.SourceCodeFolder,
-                "--permission-mode", "bypassPermissions",
-                "--append-system-prompt", systemPrompt,
-                finalPrompt
-            };
-
-            process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "claude",
-                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = agentWorkspaceDirectory,
-                    UseShellExecute = false,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = false
-                }
-            };
-
-            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-            process.Start();
-            await process.WaitForExitAsync();
-        }
+        // Don't wait for exit - return the running process for monitoring
 
         return process;
     }
@@ -577,6 +574,7 @@ public class ClaudeWorkerAgentCommand : Command
         var responseFilePath = Path.Combine(messagesDirectory, responseFileName);
 
         // Wait for response file to appear (not .tmp, the final renamed file)
+        AnsiConsole.MarkupLine($"[grey]Waiting for response file: {responseFilePath}[/]");
         var startTime = DateTime.Now;
         var timeout = TimeSpan.FromMinutes(30);
 
@@ -584,6 +582,7 @@ public class ClaudeWorkerAgentCommand : Command
         {
             if (DateTime.Now - startTime > timeout)
             {
+                AnsiConsole.MarkupLine($"[red]Timeout waiting for response file: {responseFilePath}[/]");
                 // Timeout - kill Claude anyway
                 break;
             }
@@ -1169,32 +1168,12 @@ public static class WorkerMcpTools
             await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
         }
 
-        // Create symlink to .claude directory for always-current commands, agents, and settings
+        // Create symlink to .claude directory for always-current commands, agents, and settings (only if doesn't exist)
         var workerClaudeDir = Path.Combine(agentWorkspaceDirectory, ".claude");
         var rootClaudeDir = Path.Combine(Configuration.SourceCodeFolder, ".claude");
 
-        // Remove existing .claude directory/symlink if it exists
-        if (Directory.Exists(workerClaudeDir) || File.Exists(workerClaudeDir))
-        {
-            try
-            {
-                if (File.GetAttributes(workerClaudeDir).HasFlag(FileAttributes.ReparsePoint))
-                {
-                    Directory.Delete(workerClaudeDir, false); // Delete symlink only
-                }
-                else
-                {
-                    Directory.Delete(workerClaudeDir, true); // Delete directory and contents
-                }
-            }
-            catch
-            {
-                // Continue if deletion fails
-            }
-        }
-
-        // Create symlink to main .claude directory
-        if (Directory.Exists(rootClaudeDir))
+        // Only create symlink if it doesn't exist
+        if (!Directory.Exists(workerClaudeDir) && !File.Exists(workerClaudeDir) && Directory.Exists(rootClaudeDir))
         {
             try
             {
