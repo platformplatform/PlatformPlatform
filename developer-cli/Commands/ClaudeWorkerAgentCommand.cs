@@ -19,6 +19,8 @@ public class ClaudeWorkerAgentCommand : Command
     private static bool IsMcpMode;
     private static string? SelectedAgentType;
 
+    private CancellationTokenSource? _enterKeyListenerCts;
+
     public ClaudeWorkerAgentCommand() : base("claude-worker-agent", "Interactive Worker Host for agent development")
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
@@ -257,8 +259,6 @@ public class ClaudeWorkerAgentCommand : Command
         }
     }
 
-    private CancellationTokenSource? _enterKeyListenerCts;
-
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory)
@@ -301,38 +301,39 @@ public class ClaudeWorkerAgentCommand : Command
     {
         _enterKeyListenerCts = new CancellationTokenSource();
         _ = Task.Run(async () =>
-        {
-            while (!_enterKeyListenerCts.Token.IsCancellationRequested)
             {
-                try
+                while (!_enterKeyListenerCts.Token.IsCancellationRequested)
                 {
-                    var key = Console.ReadKey(true);
-                    if (key.Key == ConsoleKey.Enter)
+                    try
                     {
-                        AnsiConsole.Clear();
-                        AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+                        var key = Console.ReadKey(true);
+                        if (key.Key == ConsoleKey.Enter)
+                        {
+                            AnsiConsole.Clear();
+                            AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
 
-                        // Launch manual session
-                        await LaunchManualClaudeSession(agentType, branch);
+                            // Launch manual session
+                            await LaunchManualClaudeSession(agentType, branch);
 
-                        // Return to waiting display
-                        RedrawWaitingDisplay(agentType, branch);
+                            // Return to waiting display
+                            RedrawWaitingDisplay(agentType, branch);
 
-                        // Restart the ENTER key listener for next use
-                        StartEnterKeyListener(agentType, branch);
-                        break; // Exit this instance of the listener
+                            // Restart the ENTER key listener for next use
+                            StartEnterKeyListener(agentType, branch);
+                            break; // Exit this instance of the listener
+                        }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                    catch
+                    {
+                        break;
                     }
                 }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch
-                {
-                    break;
-                }
             }
-        });
+        );
     }
 
     private async Task LaunchManualClaudeSession(string agentType, string branch)
@@ -556,7 +557,46 @@ public class ClaudeWorkerAgentCommand : Command
 
         process.Start();
 
-        // Don't wait for exit - return the running process for monitoring
+        // Give --continue a moment to fail if no conversation exists
+        await Task.Delay(1000);
+
+        // If --continue failed (no conversation found), try without --continue
+        if (process.HasExited && process.ExitCode != 0)
+        {
+            AnsiConsole.MarkupLine("[yellow]Starting new session...[/]");
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            var freshArgs = new List<string>
+            {
+                "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+                "--add-dir", Configuration.SourceCodeFolder,
+                "--permission-mode", "bypassPermissions",
+                "--append-system-prompt", systemPrompt,
+                finalPrompt
+            };
+
+            process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "claude",
+                    Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    WorkingDirectory = agentWorkspaceDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            process.Start();
+            // Return the running fresh process for monitoring
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
+        }
 
         return process;
     }
@@ -1190,7 +1230,7 @@ public static class WorkerMcpTools
                     Directory.CreateSymbolicLink(workerClaudeDir, relativePath);
                 }
 
-                AnsiConsole.MarkupLine($"[green]Symlink created successfully[/]");
+                AnsiConsole.MarkupLine("[green]Symlink created successfully[/]");
             }
             catch (Exception ex)
             {
