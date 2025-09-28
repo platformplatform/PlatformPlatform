@@ -41,12 +41,12 @@ Context update: $4
    - **If no context update**: Read PRD file ($1), all Product Increment files, and check messages directory
    - Mark "Understand context and catch up efficiently" [completed] in todo
 
-**Step 2. Study rules (skip if recently done)**:
-   - Mark "Study rules (skip if recently done)" [in_progress] in todo
+**Step 2. Study rules**:
+   - Mark "Study rules" [in_progress] in todo
    - **If context update says "rules already studied"**: Skip this step
    - **If first time or context update says "read rules"**: Read ALL files in appropriate rules directory
    - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
-   - Mark "Study rules (skip if recently done)" [completed] in todo
+   - Mark "Study rules" [completed] in todo
 
 **Step 3. Research existing patterns for this task type**:
    - Mark "Research existing patterns for this task type" [in_progress] in todo
@@ -68,8 +68,9 @@ Context update: $4
    - **Backend tasks**: Run `pp check` - all must pass with zero findings
    - **Frontend tasks**: Run `pp check --frontend` - all must pass
    - **E2E tasks**: Run `pp e2e` - all must pass
-   - If you see "Backend issues found. Opening result.json...", fix all static code analysis findings before proceeding
-   - Gate rule: You cannot proceed until output shows "Build succeeded" and "No backend issues found!"
+   - **CRITICAL**: The check command MUST exit with code 0 to be able to commit code
+   - NEVER continue until ALL issues are fixed and check runs without errors
+   - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
    - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
 
 **Step 6. Evaluate and update Product Increment plan**:
@@ -88,16 +89,16 @@ Context update: $4
 Use this exact format with nested structure:
 
 ```
-Understand context and catch up efficiently [pending]                      (STEP 1)
-Study rules (skip if recently done) [pending]                              (STEP 2)
-Research existing patterns for this task type [pending]                     (STEP 3)
-Implement task [name of the task you have been asked to implement] [pending] (STEP 4) *
+Understand context and catch up efficiently [pending]                              (STEP 1)
+Study rules relevant rules for the task at hand [pending]                          (STEP 2)
+Research existing patterns for this task type [pending]                            (STEP 3)
+Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
 ├─  Task #.1 [Copy exact text from Product Increment file] [pending]
 ├─  Task #.2 [Copy exact text from Product Increment file] [pending]
 └─  Task #.N [Copy exact text from Product Increment file] [pending]
 Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Evaluate and update Product Increment plan [pending]                        (STEP 6)
-Create response file [pending]                                              (STEP 7)
+Evaluate and update Product Increment plan [pending]                               (STEP 6)
+Create response file [pending]                                                     (STEP 7)
 ```
 
 **CRITICAL: Use these exact prefixes for proper visual hierarchy:**

@@ -127,45 +127,46 @@ When given general requests (no PRD), follow this workflow:
 **STEP 1**: Read PRD file, find all *.md files in same directory
 **STEP 2**: Use TodoWrite tool to create EXACT format:
 ```
-Product Increment 1: Backend team management [pending]
-├─ 1. [First task title from Product Increment file] [pending]
-├─ 2. [Second task title from Product Increment file] [pending]
-├─ 3. [Third task title from Product Increment file] [pending]
-├─ 4. [Fourth task title from Product Increment file] [pending]
-├─ 5. [Fifth task title from Product Increment file] [pending]
-├─ 6. [Sixth task title from Product Increment file] [pending]
-├─ 7. [Seventh task title from Product Increment file] [pending]
-└─ 8. [Last task title from Product Increment file] [pending]
-Product Increment 2: Frontend team management [pending]
-Product Increment 3: Backend team membership [pending]
-Product Increment 4: Frontend team membership [pending]
-Product Increment 5: End-to-end testing [pending]
+Product Increment [X]: [Name from file] [pending]
+├─ 1. [First task title from active Product Increment file] [pending]
+├─ 2. [Second task title from active Product Increment file] [pending]
+├─ 3. [Third task title from active Product Increment file] [pending]
+├─ 4. [Fourth task title from active Product Increment file] [pending]
+├─ 5. [Fifth task title from active Product Increment file] [pending]
+└─ [Continue for ALL tasks from ACTIVE Product Increment ONLY] [pending]
+Product Increment [Y]: [Other increment name] [pending]
+Product Increment [Z]: [Other increment name] [pending]
+[Continue for all other Product Increments] [pending]
 ```
 
-**CRITICAL**: Read EACH Product Increment file completely and extract ALL ## task titles - do not stop at 3 or 6 tasks. Some Product Increments have 8+ tasks. Extract EVERY task from the file.
-**STEP 3**: For first task only:
-   - Use TodoWrite tool: Mark "Product Increment 1" as [in_progress] in todo list
+**CRITICAL**: Only expand tasks for the product increment you are actively working on. Other Product Increments stay collapsed until you start working on them.
+**STEP 3**: For first task of active Product Increment:
+   - Use TodoWrite tool: Mark active Product Increment as [in_progress] in todo list
    - Use TodoWrite tool: Mark first task as [in_progress] in todo list
    - Use Edit tool on Product Increment file: change [Planned] to [In Progress]
    - Use Task tool with subagent_type='backend-engineer'
    - Message EXACTLY: "We are implementing PRD: [path-to-prd.md]. Please implement task \"[task-title]\" from [path-to-product-increment-file.md]."
-   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-backend-implementation.md."
+   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-increment-type.md."
    - Include PRD path for context
    - Copy ONLY the ## heading text (task number and title)
    - DO NOT copy subtask details (1.1, 1.2, etc.)
    - DO NOT copy requirements or implementation details
-**STEP 4**: Wait for engineer completion
-**STEP 5**: ALWAYS delegate to reviewer (MANDATORY - NO EXCEPTIONS):
-   - Backend tasks → Use Task tool: backend-reviewer
-   - Frontend tasks → Use Task tool: frontend-reviewer
-   - E2E tasks → Use Task tool: e2e-test-reviewer
-   - Message: "Review the work of the [engineer-type]
+**STEP 4**: Always delegate review to appropriate reviewer
+     - Backend tasks → Use Task tool: backend-reviewer
+     - Frontend tasks → Use Task tool: frontend-reviewer
+     - E2E tasks → Use Task tool: e2e-test-reviewer
+   - Message:
+         Review the work of the [engineer-type]
+         Request: [path to engineer's request file]
+         Response: [path to engineer's response file]
+   - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
+   - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
+**STEP 5**: The reviewer has approved and comitted the code mark task completed and move to next:
+   - Use Edit tool on Product Increment file: change [In Progress] to [Completed]
+   - Use TodoWrite tool: Mark task as [completed] in todo list
+   - Move to next task, repeat STEP 3-5
 
-Request: [path to engineer's request file]
-Response: [path to engineer's response file]"
-**STEP 6**: If NOT APPROVED → go back to STEP 3 with engineer
-**STEP 7**: If APPROVED → Use Edit tool: change [In Progress] to [Completed]
-**STEP 8**: Move to next task, repeat STEP 3-7
+**EVERY TASK MUST BE**: Engineer → Reviewer → Approved → Committed → Next Task
 
 **CRITICAL**: EVERY task MUST be reviewed - no exceptions. All work must be approved by reviewers before marking [Completed].
 
@@ -194,7 +195,7 @@ After each delegation:
 5. **NO EVALUATION** - Do NOT say "looks good", "proper structure", "well done"
 6. **Example responses**:
    - ✅ "The backend-engineer reports task completed"
-   - ✅ "The backend-engineer completed task 1 and updated the plan - task 2 has been split into 2a and 2b"
+   - ✅ "The backend-engineer completed task X and updated the plan - task Y has been split into Ya and Yb"
    - ✅ "The backend-reviewer identified 3 issues that need fixing"
    - ❌ "The implementation looks good with proper patterns"
    - ❌ "Excellent work by the engineer"
@@ -212,8 +213,8 @@ After each delegation:
 - **Follow-up review**: "Read your previous review: [path-to-previous-review-file]. Read engineer's latest response: [path-to-engineer-response-file]."
 
 ### Context Message Examples:
-- **Engineer task 2**: "Read your task 1 response: /messages/0001.backend-engineer.response.create-team.md. Check updated plan: task-manager/2025-08-08-teams-feature/1-backend-team-management.md."
-- **Reviewer follow-up**: "Read your previous review: /messages/0002.backend-reviewer.response.review-team.md. Read engineer's fixes: /messages/0003.backend-engineer.response.fix-issues.md."
+- **Engineer subsequent task**: "Read your previous response: /messages/[previous-number].[agent-type].response.[task-name].md. Check updated plan: [product-increment-file-path]."
+- **Reviewer follow-up**: "Read your previous review: /messages/[previous-number].[reviewer-type].response.[review-name].md. Read engineer's fixes: /messages/[latest-number].[engineer-type].response.[fix-name].md."
 
 **DO NOT interpret or summarize** - just provide file paths for agents to read directly.
 

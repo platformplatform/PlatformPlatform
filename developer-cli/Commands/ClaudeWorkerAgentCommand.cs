@@ -306,8 +306,12 @@ public class ClaudeWorkerAgentCommand : Command
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
 
-        // Prepare CLAUDE.md with priming
-        await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
+        // Prepare CLAUDE.md with priming (only if workspace is new to preserve conversations)
+        var claudeMdPath = Path.Combine(agentWorkspaceDirectory, "CLAUDE.md");
+        if (!File.Exists(claudeMdPath))
+        {
+            await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
+        }
 
         // Extract request file name components for response file
         var requestFileName = Path.GetFileName(requestFile);
