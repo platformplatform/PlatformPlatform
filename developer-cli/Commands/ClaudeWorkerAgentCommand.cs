@@ -395,8 +395,30 @@ public class ClaudeWorkerAgentCommand : Command
             _ => $"{agentType} Systematic Workflow"
         };
 
-        var systemPrompt = $"You are a {agentType} Worker. You MUST follow your {workflowName} EXACTLY as written - including the exact todo list format and step sequence. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.";
-        var finalPrompt = $"CRITICAL: Follow your {workflowName} EXACTLY - create the exact todo list format first, then follow each step precisely. Read {requestFile}";
+        // Parse task content to determine if it's a Product Increment task
+        var taskContent = await File.ReadAllTextAsync(requestFile);
+        var isProductIncrementTask = taskContent.Contains("PRD:") && taskContent.Contains("from task-manager/");
+
+        string finalPrompt;
+        if (isProductIncrementTask)
+        {
+            // Extract paths for slash command
+            var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
+            var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
+            var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
+
+            var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
+            var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
+            var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
+
+            finalPrompt = $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\"";
+        }
+        else
+        {
+            finalPrompt = $"Read {requestFile} and follow your {workflowName} exactly";
+        }
+
+        var systemPrompt = $"You are a {agentType} Worker. When done, create response file: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}";
 
         // Try --continue first, fallback to fresh session if no conversation found
         var continueArgs = new List<string>

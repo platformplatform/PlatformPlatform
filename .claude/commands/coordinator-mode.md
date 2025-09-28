@@ -128,18 +128,21 @@ When given general requests (no PRD), follow this workflow:
 **STEP 2**: Use TodoWrite tool to create EXACT format:
 ```
 Product Increment 1: Backend team management [pending]
-├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
-├─ 2. Create GetTeam query for retrieving single team [pending]
-├─ 3. Create GetTeams query for listing all teams [pending]
-├─ 4. Create UpdateTeam command for modifying team details [pending]
-├─ 5. Create DeleteTeam command for removing teams [pending]
-└─ 6. Run pp watch after backend implementation [pending]
+├─ 1. [First task title from Product Increment file] [pending]
+├─ 2. [Second task title from Product Increment file] [pending]
+├─ 3. [Third task title from Product Increment file] [pending]
+├─ 4. [Fourth task title from Product Increment file] [pending]
+├─ 5. [Fifth task title from Product Increment file] [pending]
+├─ 6. [Sixth task title from Product Increment file] [pending]
+├─ 7. [Seventh task title from Product Increment file] [pending]
+└─ 8. [Last task title from Product Increment file] [pending]
 Product Increment 2: Frontend team management [pending]
 Product Increment 3: Backend team membership [pending]
 Product Increment 4: Frontend team membership [pending]
 Product Increment 5: End-to-end testing [pending]
 ```
-COPY THIS EXACTLY - no variations allowed. Extract ## task titles from each Product Increment file.
+
+**CRITICAL**: Read EACH Product Increment file completely and extract ALL ## task titles - do not stop at 3 or 6 tasks. Some Product Increments have 8+ tasks. Extract EVERY task from the file.
 **STEP 3**: For first task only:
    - Use TodoWrite tool: Mark "Product Increment 1" as [in_progress] in todo list
    - Use TodoWrite tool: Mark first task as [in_progress] in todo list
@@ -152,10 +155,19 @@ COPY THIS EXACTLY - no variations allowed. Extract ## task titles from each Prod
    - DO NOT copy subtask details (1.1, 1.2, etc.)
    - DO NOT copy requirements or implementation details
 **STEP 4**: Wait for engineer completion
-**STEP 5**: Use Task tool: backend-reviewer with file paths
+**STEP 5**: ALWAYS delegate to reviewer (MANDATORY - NO EXCEPTIONS):
+   - Backend tasks → Use Task tool: backend-reviewer
+   - Frontend tasks → Use Task tool: frontend-reviewer
+   - E2E tasks → Use Task tool: e2e-test-reviewer
+   - Message: "Review the work of the [engineer-type]
+
+Request: [path to engineer's request file]
+Response: [path to engineer's response file]"
 **STEP 6**: If NOT APPROVED → go back to STEP 3 with engineer
 **STEP 7**: If APPROVED → Use Edit tool: change [In Progress] to [Completed]
 **STEP 8**: Move to next task, repeat STEP 3-7
+
+**CRITICAL**: EVERY task MUST be reviewed - no exceptions. All work must be approved by reviewers before marking [Completed].
 
 **CRITICAL**: Use Edit tool to change status BEFORE each delegation
 
