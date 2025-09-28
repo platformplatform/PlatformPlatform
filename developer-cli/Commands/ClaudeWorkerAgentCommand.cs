@@ -585,9 +585,9 @@ public class ClaudeWorkerAgentCommand : Command
             var agentColor = GetAgentColor(agentType);
             AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
 
-            // Give Claude 5 seconds to finish up
-            AnsiConsole.MarkupLine("[grey]Giving Claude Code 5 seconds to finish...[/]");
-            await Task.Delay(5000);
+            // Give Claude 60 seconds to finish up
+            AnsiConsole.MarkupLine("[grey]Giving Claude Code 60 seconds to finish...[/]");
+            await Task.Delay(TimeSpan.FromSeconds(60));
         }
 
         // Kill the Claude Code process
