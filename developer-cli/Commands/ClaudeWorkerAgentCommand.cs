@@ -385,8 +385,18 @@ public class ClaudeWorkerAgentCommand : Command
         }
 
         // Regular worker configuration
+        var workflowName = agentType switch
+        {
+            "backend-engineer" => "Backend Engineer Systematic Workflow",
+            "frontend-engineer" => "Frontend Engineer Systematic Workflow",
+            "backend-reviewer" => "Backend Reviewer Systematic Workflow",
+            "frontend-reviewer" => "Frontend Reviewer Systematic Workflow",
+            "e2e-test-reviewer" => "E2E Test Reviewer Systematic Workflow",
+            _ => $"{agentType} Systematic Workflow"
+        };
+
         var systemPrompt = $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.";
-        var finalPrompt = $"Read {requestFile} and complete the task. When finished, use Write tool to create {messagesDirectory}/{responseFileName}.tmp with a summary, then use Bash to mv it to {messagesDirectory}/{responseFileName}";
+        var finalPrompt = $"Read {requestFile} and then follow your {workflowName} to process the task in";
 
         // Try --continue first, fallback to fresh session if no conversation found
         var continueArgs = new List<string>
@@ -477,6 +487,7 @@ public class ClaudeWorkerAgentCommand : Command
                 // Timeout - kill Claude anyway
                 break;
             }
+
             await Task.Delay(500); // Check every 500ms
         }
 
@@ -486,14 +497,14 @@ public class ClaudeWorkerAgentCommand : Command
             AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
 
             // Give Claude 5 seconds to finish up
-            AnsiConsole.MarkupLine($"[grey]Giving Claude Code 5 seconds to finish...[/]");
+            AnsiConsole.MarkupLine("[grey]Giving Claude Code 5 seconds to finish...[/]");
             await Task.Delay(5000);
         }
 
         // Kill the Claude Code process
         if (claudeProcess != null && !claudeProcess.HasExited)
         {
-            AnsiConsole.MarkupLine($"[grey]Terminating Claude Code session...[/]");
+            AnsiConsole.MarkupLine("[grey]Terminating Claude Code session...[/]");
             try
             {
                 claudeProcess.Kill();
@@ -736,7 +747,7 @@ public static class WorkerMcpTools
                                 await Task.Delay(500); // Check every 500ms
                             }
 
-                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
+                            AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
 
                             // Read response content immediately - file is complete via atomic rename
                             var responseContent = await File.ReadAllTextAsync(responseFilePath);
