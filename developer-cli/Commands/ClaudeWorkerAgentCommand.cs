@@ -399,50 +399,33 @@ public class ClaudeWorkerAgentCommand : Command
             _ => $"{agentType} Systematic Workflow"
         };
 
-        // Parse task content to determine if it's a Product Increment task
+        // Parse task content using simple string operations - no regex needed
         var taskContent = await File.ReadAllTextAsync(requestFile);
-        var isProductIncrementTask = taskContent.Contains("PRD:") && taskContent.Contains("from task-manager/");
+        var isProductIncrementTask = taskContent.Contains("PRD:") ||
+                                     (taskContent.Contains("Request:") && taskContent.Contains("Response:"));
 
         string finalPrompt;
         if (isProductIncrementTask)
         {
-            // Check if there's a context message in the task content
-            var contextMatch = Regex.Match(taskContent, @"Context:\s*([^\r\n]+(?:\r?\n(?![\w\s]*:)[^\r\n]+)*)");
-            var contextMessage = contextMatch.Success ? contextMatch.Groups[1].Value.Trim() : "";
-
             if (agentType.Contains("reviewer"))
             {
-                // Extract paths for review slash command
-                var requestFileMatch = Regex.Match(taskContent, @"Request:\s*([^\r\n]+)");
-                var responseFileMatch = Regex.Match(taskContent, @"Response:\s*([^\r\n]+)");
-                var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
-                var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
-                var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
+                // Extract paths using simple string operations
+                var reviewPrdPath = ExtractPathAfterKey(taskContent, "PRD:");
+                var reviewProductIncrementPath = ExtractPathAfterKey(taskContent, "Product Increment:");
+                var reviewTaskNumber = ExtractTextAfterKey(taskContent, "Task:");
+                var reviewRequestFilePath = ExtractPathAfterKey(taskContent, "Request:");
+                var reviewResponseFilePath = ExtractPathAfterKey(taskContent, "Response:");
 
-                var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
-                var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
-                var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
-                var requestFilePath = requestFileMatch.Success ? requestFileMatch.Groups[1].Value : "";
-                var responseFilePath = responseFileMatch.Success ? responseFileMatch.Groups[1].Value : "";
-
-                finalPrompt = !string.IsNullOrEmpty(contextMessage)
-                    ? $"/review-task {prdPath} {productIncrementPath} \"{taskTitle}\" {requestFilePath} {responseFilePath} \"{contextMessage}\""
-                    : $"/review-task {prdPath} {productIncrementPath} \"{taskTitle}\" {requestFilePath} {responseFilePath}";
+                finalPrompt = $"/review-task {reviewPrdPath} {reviewProductIncrementPath} {reviewTaskNumber} {reviewRequestFilePath} {reviewResponseFilePath}";
             }
             else
             {
-                // Extract paths for implementation slash command
-                var prdMatch = Regex.Match(taskContent, @"PRD:\s*([^\s]+\.md)");
-                var productIncrementMatch = Regex.Match(taskContent, @"from\s+([^\s]+\.md)");
-                var taskTitleMatch = Regex.Match(taskContent, @"task\s+""([^""]+)""");
+                // Extract paths for engineers
+                var implPrdPath = ExtractPathAfterKey(taskContent, "PRD:");
+                var implProductIncrementPath = ExtractPathAfterKey(taskContent, "from ");
+                var implTaskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
 
-                var prdPath = prdMatch.Success ? prdMatch.Groups[1].Value : "";
-                var productIncrementPath = productIncrementMatch.Success ? productIncrementMatch.Groups[1].Value : "";
-                var taskTitle = taskTitleMatch.Success ? taskTitleMatch.Groups[1].Value : "";
-
-                finalPrompt = !string.IsNullOrEmpty(contextMessage)
-                    ? $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\" \"{contextMessage}\""
-                    : $"/implement-task {prdPath} {productIncrementPath} \"{taskTitle}\"";
+                finalPrompt = $"/implement-task {implPrdPath} {implProductIncrementPath} {implTaskNumber}";
             }
         }
         else
@@ -637,6 +620,43 @@ public class ClaudeWorkerAgentCommand : Command
         Console.Write($"\x1b]0;{title}\x07");
     }
 
+    private static string ExtractPathAfterKey(string content, string key)
+    {
+        var keyIndex = content.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+        if (keyIndex == -1) return "";
+
+        var startIndex = keyIndex + key.Length;
+        var endIndex = content.IndexOfAny(['\r', '\n', ' '], startIndex);
+        if (endIndex == -1) endIndex = content.Length;
+
+        return content.Substring(startIndex, endIndex - startIndex).Trim();
+    }
+
+    private static string ExtractTextAfterKey(string content, string key)
+    {
+        var keyIndex = content.IndexOf(key, StringComparison.OrdinalIgnoreCase);
+        if (keyIndex == -1) return "";
+
+        var startIndex = keyIndex + key.Length;
+        var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
+        if (endIndex == -1) endIndex = content.Length;
+
+        return content.Substring(startIndex, endIndex - startIndex).Trim();
+    }
+
+    private static string ExtractTextBetweenQuotes(string content, string beforeText)
+    {
+        var startPattern = beforeText + "\"";
+        var startIndex = content.IndexOf(startPattern, StringComparison.OrdinalIgnoreCase);
+        if (startIndex == -1) return "";
+
+        startIndex += startPattern.Length;
+        var endIndex = content.IndexOf('"', startIndex);
+        if (endIndex == -1) return "";
+
+        return content.Substring(startIndex, endIndex - startIndex);
+    }
+
     public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
     {
         lock (WorkerSessionLock)
@@ -716,8 +736,16 @@ public static class WorkerMcpTools
         string taskTitle,
         [Description("Task content in markdown format")]
         string markdownContent,
-        [Description("Optional context message: what's changed since agent was last active, what files to read for updates")]
-        string? contextMessage = null)
+        [Description("PRD file path (optional, for Product Increment tasks)")]
+        string? prdPath = null,
+        [Description("Product Increment file path (optional, for Product Increment tasks)")]
+        string? productIncrementPath = null,
+        [Description("Task number or title (optional, for Product Increment tasks)")]
+        string? taskNumber = null,
+        [Description("Engineer's request file path (optional, for review tasks)")]
+        string? requestFilePath = null,
+        [Description("Engineer's response file path (optional, for review tasks)")]
+        string? responseFilePath = null)
     {
         var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
 
@@ -788,7 +816,7 @@ public static class WorkerMcpTools
 
                             // Wait for the response file to be created (atomic rename from .tmp)
                             var responsePattern = $"{taskCounter:D4}.{agentType}.response.{taskShortTitle}.md";
-                            var responseFilePath = Path.Combine(messagesDirectory, responsePattern);
+                            var responseFile = Path.Combine(messagesDirectory, responsePattern);
 
                             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {responsePattern}[/]");
 
@@ -797,7 +825,7 @@ public static class WorkerMcpTools
                             var timeout = TimeSpan.FromMinutes(30);
 
                             // Wait for final renamed file (not .tmp)
-                            while (!File.Exists(responseFilePath))
+                            while (!File.Exists(responseFile))
                             {
                                 if (DateTime.Now - startTime > timeout)
                                 {
@@ -810,7 +838,7 @@ public static class WorkerMcpTools
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
 
                             // Read response content immediately - file is complete via atomic rename
-                            var responseContent = await File.ReadAllTextAsync(responseFilePath);
+                            var responseContent = await File.ReadAllTextAsync(responseFile);
 
                             // Log task completion
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{responsePattern}]", messagesDirectory);
@@ -852,9 +880,9 @@ public static class WorkerMcpTools
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
             var requestFileName = $"{counter:D4}.{agentType}.request.{shortTitle}.md";
-            var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
+            var requestFile = Path.Combine(messagesDirectory, requestFileName);
 
-            await File.WriteAllTextAsync(requestFilePath, markdownContent);
+            await File.WriteAllTextAsync(requestFile, markdownContent);
 
             // Check if this is a new workspace
             var isNewWorkspace = !Directory.Exists(agentWorkspaceDirectory);
@@ -869,8 +897,8 @@ public static class WorkerMcpTools
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "bypassPermissions",
-                "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFilePath}",
-                $"Read {requestFilePath}"
+                "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFile}",
+                $"Read {requestFile}"
             };
 
             var process = new Process
@@ -1176,14 +1204,14 @@ public static class WorkerMcpTools
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
-        var requestFilePath = Path.Combine(messagesDirectory, requestFileName);
+        var restartRequestFile = Path.Combine(messagesDirectory, requestFileName);
 
         var claudeArgs = new[]
         {
             "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
-            "--append-system-prompt", $"You are a {agentType} Worker. Restart attempt #{attemptNumber}. Process task: {requestFilePath}"
+            "--append-system-prompt", $"You are a {agentType} Worker. Restart attempt #{attemptNumber}. Process task: {restartRequestFile}"
         };
 
         var process = new Process
