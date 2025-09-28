@@ -36,7 +36,7 @@ Context update: $6
    - **If no context update**: Read PRD file ($1), Product Increment file ($2), request file ($4), response file ($5)
    - Always check `/application/result.json` for any static code analysis findings
 
-**Step 2. Apply rules (skip if recently done)**:
+**Step 2. Apply rules**:
    - **If context update says "rules already applied"**: Skip detailed rule reading
    - **If first time or context update says "apply rules"**: Read and apply ALL files in appropriate rules directory
    - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
