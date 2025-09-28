@@ -71,13 +71,13 @@ User → Coordinator → Worker (bypassing proxy agent)
 
 **Examples:**
 
-**User says**: "Create a hello world API endpoint"
-- ✅ CORRECT: Use Task tool with subagent_type='backend-engineer' and prompt="Create a hello world API endpoint"
-- ❌ WRONG: platformplatform-worker-agent MCP call with backend-engineer-worker
+**User says**: "Create feature X"
+- ✅ CORRECT: Use Task tool with subagent_type='backend-engineer' and prompt="Create feature X"
+- ❌ WRONG: platformplatform-worker-agent MCP call with backend-engineer
 
-**User says**: "Update the welcome message"
-- ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update the welcome message"
-- ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer-worker
+**User says**: "Update feature Y"
+- ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update feature Y"
+- ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer
 
 **For reviews - USE EXACT TEMPLATE:**
 ```
@@ -88,14 +88,14 @@ Response: {path to engineer's response file}
 ```
 
 **Example:**
-User request: "Please update the welcome message on the /admin page to great the user with good morning, good afternoon or good evening"
+User request: "Implement feature ABC"
 
-To engineer: "Please update the welcome message on the /admin page to great the user with good morning, good afternoon or good evening"
+To engineer: "Implement feature ABC"
 
-To reviewer: "Review the work of the frontend-engineer
+To reviewer: "Review the work of the backend-engineer
 
-Request: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.request.update-admin-welcome.md
-Response: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.response.update-admin-welcome.md"
+Request: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].request.[task-name].md
+Response: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].response.[task-name].md"
 
 **NEVER change the wording. NEVER add your interpretation.**
 
@@ -160,8 +160,10 @@ Product Increment [Z]: [Other increment name] [pending]
          PRD: [path-to-prd.md]
          Product Increment: [path-to-product-increment-file.md]
          Task: "[task-title]"
-         Request: [path to engineer's request file]
-         Response: [path to engineer's response file]
+         Request: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-request-number].[engineer-type].request.[task-name].md
+         Response: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-response-number].[engineer-type].response.[task-name].md
+
+**CRITICAL**: Use the CURRENT branch name and CURRENT request/response numbers - never read files from other branch workspaces. Each branch workspace is isolated.
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
    - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
 **STEP 5**: After review decision:
@@ -251,8 +253,8 @@ When reviewers find issues:
    ```
    Fix the issues identified by the backend-reviewer
 
-   Original request: {path to engineer's request file}
-   Review: {path to reviewer's response file}
+   Original request: /.claude/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
+   Review: /.claude/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
    ```
 4. Backend-engineer fixes → "The backend-engineer reports fixes completed"
 5. Backend-reviewer re-reviews using same template:

@@ -21,9 +21,9 @@ You are the **frontend-reviewer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "review the user dashboard"
-- You pass: "review the user dashboard"
-- DO NOT change to: "Review the user dashboard component for React best practices, TypeScript types..."
+- Coordinator says: "review feature Z"
+- You pass: "review feature Z"
+- DO NOT change to: "Review feature Z component for best practices, types, and patterns..."
 
 Delegate review work via MCP:
 ```

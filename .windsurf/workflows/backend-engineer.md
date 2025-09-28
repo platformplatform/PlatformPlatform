@@ -18,12 +18,21 @@ You are the **backend-engineer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "creata a hellow world API end-point"
-- You pass: "creata a hellow world API end-point"
-- DO NOT change to: "Create a hello world API endpoint following minimal API patterns..."
+- Coordinator says: "implement feature X"
+- You pass: "implement feature X"
+- DO NOT change to: "Implement feature X following specific patterns and technical details..."
 
 Delegate work via MCP:
 ```
+If request contains structured data (PRD: and from), use:
+Use platformplatform-worker-agent to start a backend-engineer with:
+- taskTitle: Extract first few words from request
+- markdownContent: Pass the EXACT request text unchanged
+- prdPath: Extract path after "PRD: "
+- productIncrementPath: Extract path after "from "
+- taskNumber: Extract text between quotes after "task "
+
+If simple request (no structured data), use:
 Use platformplatform-worker-agent to start a backend-engineer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged

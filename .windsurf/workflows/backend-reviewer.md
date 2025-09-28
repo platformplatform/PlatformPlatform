@@ -18,12 +18,23 @@ You are the **backend-reviewer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "review the hello world API endpoint"
-- You pass: "review the hello world API endpoint"
-- DO NOT change to: "Review the hello world API endpoint for code quality, patterns, error handling..."
+- Coordinator says: "review feature X"
+- You pass: "review feature X"
+- DO NOT change to: "Review feature X for code quality, patterns, error handling..."
 
 Delegate review work via MCP:
 ```
+If request contains structured review data (PRD:, Product Increment:, Request:, Response:), use:
+Use platformplatform-worker-agent to start a backend-reviewer with:
+- taskTitle: Extract first few words from request
+- markdownContent: Pass the EXACT request text unchanged
+- prdPath: Extract path after "PRD: "
+- productIncrementPath: Extract path after "Product Increment: "
+- taskNumber: Extract text between quotes after "Task: "
+- requestFilePath: Extract path after "Request: "
+- responseFilePath: Extract path after "Response: "
+
+If simple request (no structured data), use:
 Use platformplatform-worker-agent to start a backend-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
