@@ -94,8 +94,8 @@ To engineer: "Implement feature ABC"
 
 To reviewer: "Review the work of the backend-engineer
 
-Request: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].request.[task-name].md
-Response: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].response.[task-name].md"
+Request: /.workspace/agent-workspaces/[current-branch]/messages/[number].[engineer-type].request.[task-name].md
+Response: /.workspace/agent-workspaces/[current-branch]/messages/[number].[engineer-type].response.[task-name].md"
 
 **NEVER change the wording. NEVER add your interpretation.**
 
@@ -146,7 +146,7 @@ Product Increment [Z]: [Other increment name] [pending]
    - Use Edit tool on Product Increment file: change [Planned] to [In Progress]
    - Use Task tool with subagent_type='backend-engineer'
    - Message EXACTLY: "We are implementing PRD: [path-to-prd.md]. Please implement task \"[task-title]\" from [path-to-product-increment-file.md]."
-   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-increment-type.md."
+   - Example: "We are implementing PRD: .workspace/task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from .workspace/task-manager/YYYY-MM-DD-feature/X-increment-type.md."
    - Include PRD path for context
    - Copy ONLY the ## heading text (task number and title)
    - DO NOT copy subtask details (1.1, 1.2, etc.)
@@ -160,8 +160,8 @@ Product Increment [Z]: [Other increment name] [pending]
          PRD: [path-to-prd.md]
          Product Increment: [path-to-product-increment-file.md]
          Task: "[task-title]"
-         Request: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-request-number].[engineer-type].request.[task-name].md
-         Response: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-response-number].[engineer-type].response.[task-name].md
+         Request: /.workspace/agent-workspaces/[current-branch]/messages/[current-engineer-request-number].[engineer-type].request.[task-name].md
+         Response: /.workspace/agent-workspaces/[current-branch]/messages/[current-engineer-response-number].[engineer-type].response.[task-name].md
 
 **CRITICAL**: Use the CURRENT branch name and CURRENT request/response numbers - never read files from other branch workspaces. Each branch workspace is isolated.
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
@@ -253,8 +253,8 @@ When reviewers find issues:
    ```
    Fix the issues identified by the backend-reviewer
 
-   Original request: /.claude/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
-   Review: /.claude/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
+   Original request: /.workspace/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
+   Review: /.workspace/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
    ```
 4. Backend-engineer fixes → "The backend-engineer reports fixes completed"
 5. Backend-reviewer re-reviews using same template:

@@ -9,7 +9,7 @@ Feature to design: $ARGUMENTS
 
 Start by researching the feature described in the arguments above (if provided). Your job is to work with the user to do research and create a high-level PRD using language that is easy to understand for non-technical people.
 
-The output will be a `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature. Use a tool to get today's date in yyyy-MM-dd format for the directory name.
+The output will be a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature. Use a tool to get today's date in yyyy-MM-dd format for the directory name.
 
 When approved, create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured) with the PRD as the description.
 
@@ -33,7 +33,7 @@ Follow the steps below to create the PRD.
 
 3. Create the PRD description
 
-   Based on your research, create a `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` file containing the high-level PRD description. Use a tool to get today's date in yyyy-MM-dd format. The `[prd-title]` should be a short, relevant title in kebab-case.
+   Based on your research, create a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` file containing the high-level PRD description. Use a tool to get today's date in yyyy-MM-dd format. The `[prd-title]` should be a short, relevant title in kebab-case.
 
    When writing the PRD description:
    - Use sentence case for level-1 headers.
@@ -44,7 +44,7 @@ Follow the steps below to create the PRD.
 
 4. Save and get approval of the PRD description
 
-   Save the PRD description to `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` for user review. Present it to the user and iterate until approved before breaking down into product increments.
+   Save the PRD description to `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` for user review. Present it to the user and iterate until approved before breaking down into product increments.
 
 5. Create product increments overview
 
@@ -84,7 +84,7 @@ Follow the steps below to create the PRD.
    - Avoid mixing backend and frontend in the same product increment
    - Write a clear paragraph describing what each product increment delivers
 
-   Update `./task-manager/yyyy-MM-dd-[prd-title]/prd.md` to include a "## Product increments" section at the end.
+   Update `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` to include a "## Product increments" section at the end.
 
 6. Create a backlog item in [PRODUCT_MANAGEMENT_TOOL] (if configured)
 

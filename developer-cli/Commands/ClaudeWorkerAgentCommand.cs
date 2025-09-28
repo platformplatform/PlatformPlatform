@@ -103,8 +103,11 @@ public class ClaudeWorkerAgentCommand : Command
         var branch = GitHelper.GetCurrentBranch();
 
         // Create workspace and register agent
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
         Directory.CreateDirectory(agentWorkspaceDirectory);
+
+        // Setup workspace with latest rules, commands, and agent personality
+        await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
 
         // Check for stale PID file
         var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
@@ -195,7 +198,7 @@ public class ClaudeWorkerAgentCommand : Command
         AnsiConsole.WriteLine();
 
         // Start watching for request files
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
         Directory.CreateDirectory(messagesDirectory);
 
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
@@ -268,19 +271,20 @@ public class ClaudeWorkerAgentCommand : Command
 
         // Listen for ENTER key for manual control
         _ = Task.Run(async () =>
-        {
-            while (true)
             {
-                var key = Console.ReadKey(true);
-                if (key.Key == ConsoleKey.Enter)
+                while (true)
                 {
-                    AnsiConsole.Clear();
-                    AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
-                    await LaunchManualClaudeSession(agentType, branch);
-                    RedrawWaitingDisplay(agentType, branch);
+                    var key = Console.ReadKey(true);
+                    if (key.Key == ConsoleKey.Enter)
+                    {
+                        AnsiConsole.Clear();
+                        AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+                        await LaunchManualClaudeSession(agentType, branch);
+                        RedrawWaitingDisplay(agentType, branch);
+                    }
                 }
             }
-        });
+        );
 
         // Wait indefinitely (until Ctrl+C)
         await completionSource.Task;
@@ -288,7 +292,7 @@ public class ClaudeWorkerAgentCommand : Command
 
     private async Task LaunchManualClaudeSession(string agentType, string branch)
     {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
         var manualArgs = new List<string>
         {
@@ -350,15 +354,11 @@ public class ClaudeWorkerAgentCommand : Command
 
     private async Task<Process> LaunchClaudeCodeAsync(string requestFile, string agentType, string branch)
     {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
 
-        // Prepare CLAUDE.md with priming (only if workspace is new to preserve conversations)
-        var claudeMdPath = Path.Combine(agentWorkspaceDirectory, "CLAUDE.md");
-        if (!File.Exists(claudeMdPath))
-        {
-            await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
-        }
+        // Always setup workspace with latest rules and commands
+        await WorkerMcpTools.SetupWorkerPrimingAsync(agentWorkspaceDirectory, agentType);
 
         // Extract request file name components for response file
         var requestFileName = Path.GetFileName(requestFile);
@@ -555,7 +555,7 @@ public class ClaudeWorkerAgentCommand : Command
 
     private async Task WaitForResponseAndKillClaude(string requestFile, string agentType, string branch, Process claudeProcess)
     {
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, "messages");
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
 
         // Extract request file name components for response file
         var requestFileName = Path.GetFileName(requestFile);
@@ -819,7 +819,7 @@ public static class WorkerMcpTools
             var branchName = GitHelper.GetCurrentBranch();
 
             // Setup workspace paths
-            var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
+            var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
             var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDirectory, agentType);
             var messagesDirectory = Path.Combine(branchWorkspaceDirectory, "messages");
             var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
@@ -1158,33 +1158,70 @@ public static class WorkerMcpTools
             await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
         }
 
-        // Copy .claude/commands directory for slash command discovery
-        var rootCommandsDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands");
-        var workerCommandsDir = Path.Combine(agentWorkspaceDirectory, ".claude", "commands");
+        // Create symlink to .claude directory for always-current commands, agents, and settings
+        var workerClaudeDir = Path.Combine(agentWorkspaceDirectory, ".claude");
+        var rootClaudeDir = Path.Combine(Configuration.SourceCodeFolder, ".claude");
 
-        if (Directory.Exists(rootCommandsDir))
+        // Remove existing .claude directory/symlink if it exists
+        if (Directory.Exists(workerClaudeDir) || File.Exists(workerClaudeDir))
         {
-            Directory.CreateDirectory(workerCommandsDir);
-            foreach (var file in Directory.GetFiles(rootCommandsDir, "*.md"))
+            try
             {
-                var fileName = Path.GetFileName(file);
-                var destFile = Path.Combine(workerCommandsDir, fileName);
-                await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
+                if (File.GetAttributes(workerClaudeDir).HasFlag(FileAttributes.ReparsePoint))
+                {
+                    Directory.Delete(workerClaudeDir, false); // Delete symlink only
+                }
+                else
+                {
+                    Directory.Delete(workerClaudeDir, true); // Delete directory and contents
+                }
+            }
+            catch
+            {
+                // Continue if deletion fails
             }
         }
 
-        // Copy .claude/agents directory for agent access
-        var rootAgentsDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents");
-        var workerAgentsDir = Path.Combine(agentWorkspaceDirectory, ".claude", "agents");
-
-        if (Directory.Exists(rootAgentsDir))
+        // Create symlink to main .claude directory
+        if (Directory.Exists(rootClaudeDir))
         {
-            Directory.CreateDirectory(workerAgentsDir);
-            foreach (var file in Directory.GetFiles(rootAgentsDir, "*.md"))
+            try
             {
-                var fileName = Path.GetFileName(file);
-                var destFile = Path.Combine(workerAgentsDir, fileName);
-                await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
+                AnsiConsole.MarkupLine($"[grey]Creating symlink: {workerClaudeDir} -> {rootClaudeDir}[/]");
+
+                if (Configuration.IsWindows)
+                {
+                    ProcessHelper.StartProcess($"cmd /c mklink /D \"{workerClaudeDir}\" \"{rootClaudeDir}\"");
+                }
+                else
+                {
+                    // Create relative symlink for better portability
+                    var relativePath = Path.GetRelativePath(Path.GetDirectoryName(workerClaudeDir)!, rootClaudeDir);
+                    Directory.CreateSymbolicLink(workerClaudeDir, relativePath);
+                }
+
+                AnsiConsole.MarkupLine($"[green]Symlink created successfully[/]");
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Symlink creation failed: {ex.Message}[/]");
+                // Fallback to copying if symlink creation fails
+                Directory.CreateDirectory(Path.Combine(workerClaudeDir, "commands"));
+                Directory.CreateDirectory(Path.Combine(workerClaudeDir, "agents"));
+
+                // Copy commands
+                foreach (var file in Directory.GetFiles(Path.Combine(rootClaudeDir, "commands"), "*.md"))
+                {
+                    var fileName = Path.GetFileName(file);
+                    await File.WriteAllTextAsync(Path.Combine(workerClaudeDir, "commands", fileName), await File.ReadAllTextAsync(file));
+                }
+
+                // Copy agents
+                foreach (var file in Directory.GetFiles(Path.Combine(rootClaudeDir, "agents"), "*.md"))
+                {
+                    var fileName = Path.GetFileName(file);
+                    await File.WriteAllTextAsync(Path.Combine(workerClaudeDir, "agents", fileName), await File.ReadAllTextAsync(file));
+                }
             }
         }
     }
@@ -1280,7 +1317,7 @@ public static class WorkerMcpTools
     private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int attemptNumber)
     {
         var branchName = GitHelper.GetCurrentBranch();
-        var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branchName);
+        var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
         var restartRequestFile = Path.Combine(messagesDirectory, requestFileName);
 

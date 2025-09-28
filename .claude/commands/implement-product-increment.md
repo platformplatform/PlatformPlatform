@@ -1,6 +1,6 @@
 ---
 description: Implement tasks defined in a product increment with mandatory code review
-argument-hint: Path to PRD (yyyy-MM-dd-feature/prd.md) and/or paths to a product increment file to implement (e.g., task-manager/2025-01-15-feature/1-backend.md)
+argument-hint: Path to PRD (yyyy-MM-dd-feature/prd.md) and/or paths to a product increment file to implement (e.g., .workspace/task-manager/2025-01-15-feature/1-backend.md)
 ---
 
 # Implement Product Increment Workflow
@@ -191,7 +191,7 @@ For every task in a product increment, follow the workflow below:
      - Provide: Product Increment path, task number, and summary of changes
    - **E2E tasks**: Call `e2e-test-reviewer` agent (call this if you changed e2e files)
      - Provide: Product Increment path, task number, and summary of changes
-   - The code-reviewer agents creates: `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` with findings
+   - The code-reviewer agents creates: `.workspace/task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` with findings
    - **If you modified multiple file types**, call ALL relevant review agents sequentially using the same review file (e.g., both backend-code-reviewer and frontend-code-reviewer)
 
    There are two outcomes of the code review:
@@ -208,10 +208,10 @@ For every task in a product increment, follow the workflow below:
         │  ├─  Mandatory code review [pending] 
         ```
       - Now you MUST validate ALL findings, one by one:
-        1. Update the finding to [In progress] in the `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file
+        1. Update the finding to [In progress] in the `.workspace/task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file
         2. Validate the finding, by reading the rules and code that the code-reviewer agent refers to
-        3. If you agree with the finding, fix it and when done update the finding to [Fixed] in the `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file
-        4. If you disagree with the finding, update the finding to [Rejected], and write a thorough reason at the end of the finding in the `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file.
+        3. If you agree with the finding, fix it and when done update the finding to [Fixed] in the `.workspace/task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file
+        4. If you disagree with the finding, update the finding to [Rejected], and write a thorough reason at the end of the finding in the `.workspace/task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file.
 
       - **CRITICAL: Only the code-reviewer agent can mark findings as [Resolved]**.
       - **LOOP-BACK RULE**: After fixing findings, you MUST return to Step 4 (validate builds) then Step 5 (code review) to ensure your fixes didn't break anything
@@ -225,7 +225,7 @@ For every task in a product increment, follow the workflow below:
    - **Call quality-gate-committer agent**: 
      - Use an imperative form for commit messages starting with an uppercase letter and no trailing period
      - Also supply a description of what has been changed
-     - Provide path to review file: `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md`
+     - Provide path to review file: `.workspace/task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md`
      - Agent will validate review completion, run quality gates, and commit changes if all pass
    - **HARD GATE**: The agent will REJECT commits if:
      - Any review finding is not marked [Resolved]
