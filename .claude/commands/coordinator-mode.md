@@ -199,6 +199,24 @@ After each delegation:
    - ❌ "The implementation looks good with proper patterns"
    - ❌ "Excellent work by the engineer"
 
+## Context Curation Responsibility
+
+**You are the FILE REFERENCE CURATOR** - Provide agents with direct links to relevant files instead of interpreting content.
+
+### For Engineers:
+- **First task**: No context message needed
+- **Subsequent tasks**: "Read your previous response: [path-to-previous-response-file]. Check if Product Increment plan was updated: [path-to-product-increment-file]."
+
+### For Reviewers:
+- **First review**: No context message needed
+- **Follow-up review**: "Read your previous review: [path-to-previous-review-file]. Read engineer's latest response: [path-to-engineer-response-file]."
+
+### Context Message Examples:
+- **Engineer task 2**: "Read your task 1 response: /messages/0001.backend-engineer.response.create-team.md. Check updated plan: task-manager/2025-08-08-teams-feature/1-backend-team-management.md."
+- **Reviewer follow-up**: "Read your previous review: /messages/0002.backend-reviewer.response.review-team.md. Read engineer's fixes: /messages/0003.backend-engineer.response.fix-issues.md."
+
+**DO NOT interpret or summarize** - just provide file paths for agents to read directly.
+
 ## Plan Synchronization Workflow
 
 **When engineer reports plan changes**:

@@ -1,6 +1,6 @@
 ---
 description: Implement a specific task from a Product Increment following the systematic workflow
-argument-hint: [prd-path] [product-increment-path] [task-title]
+argument-hint: [prd-path] [product-increment-path] [task-title] [context-message]
 ---
 
 # Implement Task Workflow
@@ -8,8 +8,13 @@ argument-hint: [prd-path] [product-increment-path] [task-title]
 PRD file: $1
 Product Increment file: $2
 Task to implement: $3
+Context update: $4
 
-Read the PRD file to understand the overall feature context and business requirements. Read the Product Increment file to understand your specific task and extract all subtasks.
+## Context Efficiency
+
+**If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
+
+**If you have context update ($4)**: The coordinator has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
 
 ## Multiple Request Handling
 
@@ -30,21 +35,18 @@ Read the PRD file to understand the overall feature context and business require
    - Extract ALL subtasks from your assigned task and add as nested items under STEP 4
    - Set all tasks to [pending]
 
-**Step 1. Understand full context and catch up on previous work**:
-   - Mark "Understand full context and catch up on previous work" [in_progress] in todo
-   - Read the PRD file ($1) to understand the overall feature context
-   - Read ALL Product Increment files in the directory to understand the complete plan
-   - List all files in `/.claude/agent-workspaces/[current-branch]/messages/` to see what work has been done
-   - Read recent request and response files to understand what other agents have accomplished
-   - Read any updated Product Increment plans to see what has changed since you were last active
-   - Mark "Understand full context and catch up on previous work" [completed] in todo
+**Step 1. Understand context and catch up efficiently**:
+   - Mark "Understand context and catch up efficiently" [in_progress] in todo
+   - **If context update provided ($4)**: Follow the specific instructions in $4 to catch up efficiently
+   - **If no context update**: Read PRD file ($1), all Product Increment files, and check messages directory
+   - Mark "Understand context and catch up efficiently" [completed] in todo
 
-**Step 2. Study all rules for this task type**:
-   - Mark "Study ALL rules for this task type" [in_progress] in todo
-   - **Backend**: Read ALL files in /.claude/rules/backend/
-   - **Frontend**: Read ALL files in /.claude/rules/frontend/
-   - **E2E**: Read ALL files in /.claude/rules/end-to-end-tests/
-   - Mark "Study ALL rules for this task type" [completed] in todo
+**Step 2. Study rules (skip if recently done)**:
+   - Mark "Study rules (skip if recently done)" [in_progress] in todo
+   - **If context update says "rules already studied"**: Skip this step
+   - **If first time or context update says "read rules"**: Read ALL files in appropriate rules directory
+   - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
+   - Mark "Study rules (skip if recently done)" [completed] in todo
 
 **Step 3. Research existing patterns for this task type**:
    - Mark "Research existing patterns for this task type" [in_progress] in todo
@@ -86,8 +88,8 @@ Read the PRD file to understand the overall feature context and business require
 Use this exact format with nested structure:
 
 ```
-Understand full context and catch up on previous work [pending]             (STEP 1)
-Study ALL rules for this task type [pending]                                (STEP 2)
+Understand context and catch up efficiently [pending]                      (STEP 1)
+Study rules (skip if recently done) [pending]                              (STEP 2)
 Research existing patterns for this task type [pending]                     (STEP 3)
 Implement task [name of the task you have been asked to implement] [pending] (STEP 4) *
 ├─  Task #.1 [Copy exact text from Product Increment file] [pending]
