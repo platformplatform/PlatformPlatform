@@ -31,26 +31,92 @@ Context update: $6
 
 **This workflow is MANDATORY** - Follow every step exactly.
 
-**Step 1. Understand context efficiently**:
+**Step 0. Create todo list**:
+   - Create a todo list with all workflow steps using the template below
+   - Use `git status --porcelain` to find ALL changed files
+   - Add a subtask for EACH changed file under STEP 4
+   - Set all tasks to [pending]
+
+**Step 1. Understand context and catch up efficiently**:
+   - Mark "Understand context and catch up efficiently" [in_progress] in todo
    - **If context update provided ($6)**: Follow the specific instructions in $6 to catch up efficiently
    - **If no context update**: Read PRD file ($1), Product Increment file ($2), request file ($4), response file ($5)
+   - Mark "Understand context and catch up efficiently" [completed] in todo
+
+**Step 2. Validate implementation builds by running check command**:
+   - Mark "Validate implementation builds by running check command" [in_progress] in todo
+   - **Backend**: Run `pp check` and verify exit code 0
+   - **Frontend**: Run `pp check --frontend` and verify exit code 0
+   - **E2E**: Run `pp e2e` and verify exit code 0
    - Always check `/application/result.json` for any static code analysis findings
+   - Mark "Validate implementation builds by running check command" [completed] in todo
 
-**Step 2. Apply rules**:
-   - **If context update says "rules already applied"**: Skip detailed rule reading
-   - **If first time or context update says "apply rules"**: Read and apply ALL files in appropriate rules directory
+**Step 3. Study rules**:
+   - Mark "Study rules" [in_progress] in todo
+   - **If context update says "rules already studied"**: Skip this step
+   - **If first time or context update says "read rules"**: Read ALL files in appropriate rules directory
    - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
-   - Review all changed files against applicable rules
+   - Mark "Study rules" [completed] in todo
 
-**Step 3. Make binary decision**:
+**Step 4. Review each changed file in detail**:
+   - Mark "Review each changed file in detail" [in_progress] in todo
+   - For each changed file (from git status):
+     - Mark "Review [filename] and ensure all lines, methods, properties, classes follow ALL rules" [in_progress] in todo
+     - Read the entire file line by line
+     - Compare EVERY line, method, property, class against ALL applicable rules
+     - Document any violations with specific rule citations and line numbers
+     - Mark "Review [filename] and ensure all lines, methods, properties, classes follow ALL rules" [completed] in todo
+   - Mark "Review each changed file in detail" [completed] in todo
+
+**Step 5. Review high level architecture**:
+   - Mark "Review high level architecture" [in_progress] in todo
+   - Make a very high level review of the overall implementation
+   - Check architectural patterns, feature organization, and design consistency
+   - Mark "Review high level architecture" [completed] in todo
+
+**Step 6. Make binary decision (approve or reject)**:
+   - Mark "Make binary decision (approve or reject)" [in_progress] in todo
    - **APPROVED**: Zero findings or only minor suggestions that don't affect functionality
    - **NOT APPROVED**: Any findings that must be fixed
+   - Mark "Make binary decision (approve or reject)" [completed] in todo
 
-**Step 4. Create response file**:
+**Step 7. If approved, commit changes**:
+   - Mark "If approved, commit changes" [in_progress] in todo
+   - **If APPROVED**: Use SlashCommand tool to run `/commit-changes` with descriptive commit message
+   - **If NOT APPROVED**: Skip this step
+   - Mark "If approved, commit changes" [completed] in todo
+
+**Step 8. Update Product Increment status**:
+   - Mark "Update Product Increment status" [in_progress] in todo
+   - **If APPROVED**: Edit Product Increment file: change [Ready for Review] to [Completed]
+   - **If NOT APPROVED**: Edit Product Increment file: change [Ready for Review] to [Changes Required]
+   - Mark "Update Product Increment status" [completed] in todo
+
+**Step 9. Create response file**:
+   - Mark "Create response file" [in_progress] in todo
    - Create response file with clear "## DECISION: APPROVED" or "## DECISION: NOT APPROVED - REQUIRES FIXES"
-   - If APPROVED: Use SlashCommand tool to run `/commit-changes` with descriptive commit message
-   - If NOT APPROVED: List all findings that must be addressed
+   - List all findings if NOT APPROVED
    - Use atomic rename: .tmp → .md to signal completion
+   - Mark "Create response file" [completed] in todo
+
+## Todo list template
+
+Use this exact format:
+
+```
+Understand context and catch up efficiently [pending]                                                       (STEP 1)
+Validate implementation builds by running "pp check" [pending]                                              (STEP 2)
+Study rules relevant for the task at hand [pending]                                                         (STEP 3)
+Review each changed file in detail [pending]                                                                (STEP 4) *
+├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+└─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+Review high level architecture (make a very high level review) [pending]                                   (STEP 5)
+Make binary decision (approve or reject) [pending]                                                          (STEP 6)
+If approved, commit changes [pending]                                                                       (STEP 7)
+Update Product Increment status with [Completed] or [Changes Required] [pending]                            (STEP 8)
+Create response file [pending]                                                                              (STEP 9)
+```
 
 ## Quality Standards
 
