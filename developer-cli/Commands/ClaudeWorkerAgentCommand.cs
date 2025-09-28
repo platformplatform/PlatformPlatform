@@ -267,7 +267,18 @@ public class ClaudeWorkerAgentCommand : Command
 
         var completionSource = new TaskCompletionSource();
 
-        fileSystemWatcher.Created += async (sender, e) => { await HandleIncomingRequest(e.FullPath, agentType, branch); };
+        fileSystemWatcher.Created += async (sender, e) =>
+        {
+            try
+            {
+                await HandleIncomingRequest(e.FullPath, agentType, branch);
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
+                RedrawWaitingDisplay(agentType, branch);
+            }
+        };
 
         // Listen for ENTER key for manual control
         _ = Task.Run(async () =>
