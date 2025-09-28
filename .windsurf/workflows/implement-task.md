@@ -8,8 +8,13 @@ auto_execution_mode: 1
 PRD file: $1
 Product Increment file: $2
 Task to implement: $3
+Context update: $4
 
-Read the PRD file to understand the overall feature context and business requirements. Read the Product Increment file to understand your specific task and extract all subtasks.
+## Context Efficiency
+
+**If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
+
+**If you have context update ($4)**: The coordinator has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
 
 ## Multiple Request Handling
 
@@ -30,21 +35,18 @@ Read the PRD file to understand the overall feature context and business require
    - Extract ALL subtasks from your assigned task and add as nested items under STEP 4
    - Set all tasks to [pending]
 
-**Step 1. Understand full context and catch up on previous work**:
-   - Mark "Understand full context and catch up on previous work" [in_progress] in todo
-   - Read the PRD file ($1) to understand the overall feature context
-   - Read ALL Product Increment files in the directory to understand the complete plan
-   - List all files in `/.claude/agent-workspaces/[current-branch]/messages/` to see what work has been done
-   - Read recent request and response files to understand what other agents have accomplished
-   - Read any updated Product Increment plans to see what has changed since you were last active
-   - Mark "Understand full context and catch up on previous work" [completed] in todo
+**Step 1. Understand context and catch up efficiently**:
+   - Mark "Understand context and catch up efficiently" [in_progress] in todo
+   - **If context update provided ($4)**: Follow the specific instructions in $4 to catch up efficiently
+   - **If no context update**: Read PRD file ($1), all Product Increment files, and check messages directory
+   - Mark "Understand context and catch up efficiently" [completed] in todo
 
-**Step 2. Study all rules for this task type**:
-   - Mark "Study ALL rules for this task type" [in_progress] in todo
-   - **Backend**: Read ALL files in /.claude/rules/backend/
-   - **Frontend**: Read ALL files in /.claude/rules/frontend/
-   - **E2E**: Read ALL files in /.claude/rules/end-to-end-tests/
-   - Mark "Study ALL rules for this task type" [completed] in todo
+**Step 2. Study rules**:
+   - Mark "Study rules" [in_progress] in todo
+   - **If context update says "rules already studied"**: Skip this step
+   - **If first time or context update says "read rules"**: Read ALL files in appropriate rules directory
+   - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
+   - Mark "Study rules" [completed] in todo
 
 **Step 3. Research existing patterns for this task type**:
    - Mark "Research existing patterns for this task type" [in_progress] in todo
@@ -61,13 +63,15 @@ Read the PRD file to understand the overall feature context and business require
       - Mark subtask [completed] in todo
    - Mark main task [completed] in todo
 
-**Step 5. Validate implementation builds**:
-   - Mark "Validate implementation builds" [in_progress] in todo
-   - **Backend tasks**: Run `pp check` - all MUST pass
-   - **Frontend tasks**: Run `pp check --frontend` - all MUST pass
-   - **E2E tasks**: Run `pp e2e` - all MUST pass
-   - Gate rule: You CANNOT proceed until output shows Build succeeded and Zero errors/warnings
-   - Mark "Validate implementation builds" [completed] in todo
+**Step 5. Validate implementation builds and fix all static code analysis warnings**:
+   - Mark "Validate implementation builds and fix all static code analysis warnings" [in_progress] in todo
+   - **Backend tasks**: Run `pp check` - all must pass with zero findings
+   - **Frontend tasks**: Run `pp check --frontend` - all must pass
+   - **E2E tasks**: Run `pp e2e` - all must pass
+   - **CRITICAL**: The check command MUST exit with code 0 to be able to commit code
+   - NEVER continue until ALL issues are fixed and check runs without errors
+   - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
+   - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
 
 **Step 6. Evaluate and update Product Increment plan**:
    - Mark "Evaluate and update Product Increment plan" [in_progress] in todo
@@ -75,8 +79,9 @@ Read the PRD file to understand the overall feature context and business require
    - Update the plan if implementation insights suggest changes
    - Mark "Evaluate and update Product Increment plan" [completed] in todo
 
-**Step 7. Create response file**:
+**Step 7. Create response file and mark ready for review**:
    - Mark "Create response file" [in_progress] in todo
+   - Edit the Product Increment file: change [In Progress] to [Ready for Review]
    - Create response file using atomic rename: .tmp → .md to signal completion
    - Mark "Create response file" [completed] in todo
 
@@ -85,16 +90,16 @@ Read the PRD file to understand the overall feature context and business require
 Use this exact format with nested structure:
 
 ```
-Understand full context and catch up on previous work [pending]             (STEP 1)
-Study ALL rules for this task type [pending]                                (STEP 2)
-Research existing patterns for this task type [pending]                     (STEP 3)
-Implement task [name of the task you have been asked to implement] [pending] (STEP 4) *
+Understand context and catch up efficiently [pending]                              (STEP 1)
+Study rules relevant rules for the task at hand [pending]                          (STEP 2)
+Research existing patterns for this task type [pending]                            (STEP 3)
+Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
 ├─  Task #.1 [Copy exact text from Product Increment file] [pending]
 ├─  Task #.2 [Copy exact text from Product Increment file] [pending]
 └─  Task #.N [Copy exact text from Product Increment file] [pending]
-Validate implementation builds [pending]                                    (STEP 5)
-Evaluate and update Product Increment plan [pending]                        (STEP 6)
-Create response file [pending]                                              (STEP 7)
+Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
+Evaluate and update Product Increment plan [pending]                               (STEP 6)
+Create response file [pending]                                                     (STEP 7)
 ```
 
 **CRITICAL: Use these exact prefixes for proper visual hierarchy:**

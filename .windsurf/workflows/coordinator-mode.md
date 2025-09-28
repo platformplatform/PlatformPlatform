@@ -72,13 +72,13 @@ User → Coordinator → Worker (bypassing proxy agent)
 
 **Examples:**
 
-**User says**: "Create a hello world API endpoint"
-- ✅ CORRECT: Use Task tool with subagent_type='backend-engineer' and prompt="Create a hello world API endpoint"
-- ❌ WRONG: platformplatform-worker-agent MCP call with backend-engineer-worker
+**User says**: "Create feature X"
+- ✅ CORRECT: Use Task tool with subagent_type='backend-engineer' and prompt="Create feature X"
+- ❌ WRONG: platformplatform-worker-agent MCP call with backend-engineer
 
-**User says**: "Update the welcome message"
-- ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update the welcome message"
-- ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer-worker
+**User says**: "Update feature Y"
+- ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update feature Y"
+- ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer
 
 **For reviews - USE EXACT TEMPLATE:**
 ```
@@ -89,14 +89,14 @@ Response: {path to engineer's response file}
 ```
 
 **Example:**
-User request: "Please update the welcome message on the /admin page to great the user with good morning, good afternoon or good evening"
+User request: "Implement feature ABC"
 
-To engineer: "Please update the welcome message on the /admin page to great the user with good morning, good afternoon or good evening"
+To engineer: "Implement feature ABC"
 
-To reviewer: "Review the work of the frontend-engineer
+To reviewer: "Review the work of the backend-engineer
 
-Request: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.request.update-admin-welcome.md
-Response: /Users/thomasjespersen/Developer/PlatformPlatform/.claude/agent-workspaces/agentic-system/messages/0001.frontend-engineer-worker.response.update-admin-welcome.md"
+Request: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].request.[task-name].md
+Response: /.claude/agent-workspaces/[current-branch]/messages/[number].[engineer-type].response.[task-name].md"
 
 **NEVER change the wording. NEVER add your interpretation.**
 
@@ -128,35 +128,54 @@ When given general requests (no PRD), follow this workflow:
 **STEP 1**: Read PRD file, find all *.md files in same directory
 **STEP 2**: Use TodoWrite tool to create EXACT format:
 ```
-Product Increment 1: Backend team management [pending]
-├─ 1. Create team aggregate with database migration and CreateTeam command [pending]
-├─ 2. Create GetTeam query for retrieving single team [pending]
-├─ 3. Create GetTeams query for listing all teams [pending]
-├─ 4. Create UpdateTeam command for modifying team details [pending]
-├─ 5. Create DeleteTeam command for removing teams [pending]
-└─ 6. Run pp watch after backend implementation [pending]
-Product Increment 2: Frontend team management [pending]
-Product Increment 3: Backend team membership [pending]
-Product Increment 4: Frontend team membership [pending]
-Product Increment 5: End-to-end testing [pending]
+Product Increment [X]: [Name from file] [pending]
+├─ 1. [First task title from active Product Increment file] [pending]
+├─ 2. [Second task title from active Product Increment file] [pending]
+├─ 3. [Third task title from active Product Increment file] [pending]
+├─ 4. [Fourth task title from active Product Increment file] [pending]
+├─ 5. [Fifth task title from active Product Increment file] [pending]
+└─ [Continue for ALL tasks from ACTIVE Product Increment ONLY] [pending]
+Product Increment [Y]: [Other increment name] [pending]
+Product Increment [Z]: [Other increment name] [pending]
+[Continue for all other Product Increments] [pending]
 ```
-COPY THIS EXACTLY - no variations allowed. Extract ## task titles from each Product Increment file.
-**STEP 3**: For first task only:
-   - Use TodoWrite tool: Mark "Product Increment 1" as [in_progress] in todo list
+
+**CRITICAL**: Only expand tasks for the product increment you are actively working on. Other Product Increments stay collapsed until you start working on them.
+**STEP 3**: For first task of active Product Increment:
+   - Use TodoWrite tool: Mark active Product Increment as [in_progress] in todo list
    - Use TodoWrite tool: Mark first task as [in_progress] in todo list
    - Use Edit tool on Product Increment file: change [Planned] to [In Progress]
    - Use Task tool with subagent_type='backend-engineer'
    - Message EXACTLY: "We are implementing PRD: [path-to-prd.md]. Please implement task \"[task-title]\" from [path-to-product-increment-file.md]."
-   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-backend-implementation.md."
+   - Example: "We are implementing PRD: task-manager/YYYY-MM-DD-feature/prd.md. Please implement task \"[X. Task title from Product Increment file]\" from task-manager/YYYY-MM-DD-feature/X-increment-type.md."
    - Include PRD path for context
    - Copy ONLY the ## heading text (task number and title)
    - DO NOT copy subtask details (1.1, 1.2, etc.)
    - DO NOT copy requirements or implementation details
-**STEP 4**: Wait for engineer completion
-**STEP 5**: Use Task tool: backend-reviewer with file paths
-**STEP 6**: If NOT APPROVED → go back to STEP 3 with engineer
-**STEP 7**: If APPROVED → Use Edit tool: change [In Progress] to [Completed]
-**STEP 8**: Move to next task, repeat STEP 3-7
+**STEP 4**: Always delegate review to appropriate reviewer
+     - Backend tasks → Use Task tool: backend-reviewer
+     - Frontend tasks → Use Task tool: frontend-reviewer
+     - E2E tasks → Use Task tool: e2e-test-reviewer
+   - Message:
+         Review the work of the [engineer-type]
+         PRD: [path-to-prd.md]
+         Product Increment: [path-to-product-increment-file.md]
+         Task: "[task-title]"
+         Request: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-request-number].[engineer-type].request.[task-name].md
+         Response: /.claude/agent-workspaces/[current-branch]/messages/[current-engineer-response-number].[engineer-type].response.[task-name].md
+
+**CRITICAL**: Use the CURRENT branch name and CURRENT request/response numbers - never read files from other branch workspaces. Each branch workspace is isolated.
+   - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
+   - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
+**STEP 5**: After review decision:
+   - **If APPROVED**: Reviewer has changed status to [Completed] and committed - move to next task
+   - **If NOT APPROVED**: Reviewer has changed status to [Changes Required] - delegate fixes back to engineer
+   - Use TodoWrite tool: Update task status in todo list to match Product Increment file
+   - Move to next task only when status is [Completed], otherwise repeat engineer → reviewer loop
+
+**EVERY TASK MUST BE**: Engineer → Reviewer → Approved → Committed → Next Task
+
+**CRITICAL**: EVERY task MUST be reviewed - no exceptions. All work must be approved by reviewers before marking [Completed].
 
 **CRITICAL**: Use Edit tool to change status BEFORE each delegation
 
@@ -183,10 +202,28 @@ After each delegation:
 5. **NO EVALUATION** - Do NOT say "looks good", "proper structure", "well done"
 6. **Example responses**:
    - ✅ "The backend-engineer reports task completed"
-   - ✅ "The backend-engineer completed task 1 and updated the plan - task 2 has been split into 2a and 2b"
+   - ✅ "The backend-engineer completed task X and updated the plan - task Y has been split into Ya and Yb"
    - ✅ "The backend-reviewer identified 3 issues that need fixing"
    - ❌ "The implementation looks good with proper patterns"
    - ❌ "Excellent work by the engineer"
+
+## Context Curation Responsibility
+
+**You are the FILE REFERENCE CURATOR** - Provide agents with direct links to relevant files instead of interpreting content.
+
+### For Engineers:
+- **First task**: No context message needed
+- **Subsequent tasks**: "Read your previous response: [path-to-previous-response-file]. Check if Product Increment plan was updated: [path-to-product-increment-file]."
+
+### For Reviewers:
+- **First review**: No context message needed
+- **Follow-up review**: "Read your previous review: [path-to-previous-review-file]. Read engineer's latest response: [path-to-engineer-response-file]."
+
+### Context Message Examples:
+- **Engineer subsequent task**: "Read your previous response: /messages/[previous-number].[agent-type].response.[task-name].md. Check updated plan: [product-increment-file-path]."
+- **Reviewer follow-up**: "Read your previous review: /messages/[previous-number].[reviewer-type].response.[review-name].md. Read engineer's fixes: /messages/[latest-number].[engineer-type].response.[fix-name].md."
+
+**DO NOT interpret or summarize** - just provide file paths for agents to read directly.
 
 ## Plan Synchronization Workflow
 
@@ -217,8 +254,8 @@ When reviewers find issues:
    ```
    Fix the issues identified by the backend-reviewer
 
-   Original request: {path to engineer's request file}
-   Review: {path to reviewer's response file}
+   Original request: /.claude/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
+   Review: /.claude/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
    ```
 4. Backend-engineer fixes → "The backend-engineer reports fixes completed"
 5. Backend-reviewer re-reviews using same template:

@@ -21,9 +21,9 @@ You are the **backend-reviewer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "review the hello world API endpoint"
-- You pass: "review the hello world API endpoint"
-- DO NOT change to: "Review the hello world API endpoint for code quality, patterns, error handling..."
+- Coordinator says: "review feature X"
+- You pass: "review feature X"
+- DO NOT change to: "Review feature X for code quality, patterns, error handling..."
 
 Delegate review work via MCP:
 ```

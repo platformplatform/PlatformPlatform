@@ -266,8 +266,55 @@ public class ClaudeWorkerAgentCommand : Command
 
         fileSystemWatcher.Created += async (sender, e) => { await HandleIncomingRequest(e.FullPath, agentType, branch); };
 
+        // Listen for ENTER key for manual control
+        _ = Task.Run(async () =>
+        {
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    AnsiConsole.Clear();
+                    AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+                    await LaunchManualClaudeSession(agentType, branch);
+                    RedrawWaitingDisplay(agentType, branch);
+                }
+            }
+        });
+
         // Wait indefinitely (until Ctrl+C)
         await completionSource.Task;
+    }
+
+    private async Task LaunchManualClaudeSession(string agentType, string branch)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agent-workspaces", branch, agentType);
+
+        var manualArgs = new List<string>
+        {
+            "--continue",
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--permission-mode", "bypassPermissions"
+        };
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "claude",
+                Arguments = string.Join(" ", manualArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                WorkingDirectory = agentWorkspaceDirectory,
+                UseShellExecute = false,
+                RedirectStandardInput = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false
+            }
+        };
+
+        process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+        process.Start();
+        await process.WaitForExitAsync();
     }
 
     private async Task HandleIncomingRequest(string requestFile, string agentType, string branch)
@@ -490,7 +537,7 @@ public class ClaudeWorkerAgentCommand : Command
                 {
                     FileName = "claude",
                     Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = Configuration.SourceCodeFolder,
+                    WorkingDirectory = agentWorkspaceDirectory,
                     UseShellExecute = false,
                     RedirectStandardInput = false,
                     RedirectStandardOutput = false,
@@ -500,6 +547,7 @@ public class ClaudeWorkerAgentCommand : Command
 
             process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
             process.Start();
+            await process.WaitForExitAsync();
         }
 
         return process;
@@ -1108,6 +1156,36 @@ public static class WorkerMcpTools
             }
 
             await File.WriteAllTextAsync(workerClaudeMd, combinedContent);
+        }
+
+        // Copy .claude/commands directory for slash command discovery
+        var rootCommandsDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands");
+        var workerCommandsDir = Path.Combine(agentWorkspaceDirectory, ".claude", "commands");
+
+        if (Directory.Exists(rootCommandsDir))
+        {
+            Directory.CreateDirectory(workerCommandsDir);
+            foreach (var file in Directory.GetFiles(rootCommandsDir, "*.md"))
+            {
+                var fileName = Path.GetFileName(file);
+                var destFile = Path.Combine(workerCommandsDir, fileName);
+                await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
+            }
+        }
+
+        // Copy .claude/agents directory for agent access
+        var rootAgentsDir = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents");
+        var workerAgentsDir = Path.Combine(agentWorkspaceDirectory, ".claude", "agents");
+
+        if (Directory.Exists(rootAgentsDir))
+        {
+            Directory.CreateDirectory(workerAgentsDir);
+            foreach (var file in Directory.GetFiles(rootAgentsDir, "*.md"))
+            {
+                var fileName = Path.GetFileName(file);
+                var destFile = Path.Combine(workerAgentsDir, fileName);
+                await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
+            }
         }
     }
 
