@@ -395,8 +395,8 @@ public class ClaudeWorkerAgentCommand : Command
             _ => $"{agentType} Systematic Workflow"
         };
 
-        var systemPrompt = $"You are a {agentType} Worker. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.";
-        var finalPrompt = $"Read {requestFile} and then follow your {workflowName} to process the task in";
+        var systemPrompt = $"You are a {agentType} Worker. You MUST follow your {workflowName} EXACTLY as written - including the exact todo list format and step sequence. Process the task in: {requestFile}\n\nCRITICAL: When done, you MUST create a response file. First write to: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}. This signals completion to the coordinator.";
+        var finalPrompt = $"CRITICAL: Follow your {workflowName} EXACTLY - create the exact todo list format first, then follow each step precisely. Read {requestFile}";
 
         // Try --continue first, fallback to fresh session if no conversation found
         var continueArgs = new List<string>
