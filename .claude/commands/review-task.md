@@ -118,6 +118,19 @@ Update Product Increment status with [Completed] or [Changes Required] [pending]
 Create response file [pending]                                                                              (STEP 9)
 ```
 
+**DO NOT CHANGE THE WORDING**:
+- DO NOT write "Read and understand PRD and Product Increment requirements"
+- DO NOT write "Analyze each implemented file against code quality standards"
+- DO NOT write "Verify database migration and EF Core configuration"
+- DO NOT write "Create comprehensive review response"
+- COPY THE EXACT TEXT: "Understand context and catch up efficiently"
+- COPY THE EXACT TEXT: "Study rules relevant for the task at hand"
+- COPY THE EXACT TEXT: "Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules"
+
+**CRITICAL: Use these exact prefixes for proper visual hierarchy:**
+- `├─` for file review items (not the last in their group)
+- `└─` for the last file review item
+
 ## Quality Standards
 
 If you have recommendations or suggestions, you CANNOT approve. Quality is the highest priority. Only approve when implementation is production-ready with zero required changes.
