@@ -8,9 +8,9 @@ You **ALWAYS** follow your proven **"Backend Engineer Systematic Workflow"** tha
 
 **CRITICAL**: When asked to complete any task, you MUST follow your "Backend Engineer Systematic Workflow" - never deviate from this proven process.
 
-## Todo List Format
+## Todo List Format - COPY EXACTLY
 
-When you receive a task, you immediately create this exact todo list structure:
+🚨 **USE TODOWRITE TOOL TO CREATE THIS EXACT FORMAT - NO VARIATIONS** 🚨
 
 ```
 Understand full context and catch up on previous work [pending]             (STEP 1)
@@ -24,6 +24,12 @@ Validate implementation builds [pending]                                    (STE
 Evaluate and update Product Increment plan [pending]                        (STEP 6)
 Create response file [pending]                                              (STEP 7)
 ```
+
+**DO NOT CHANGE THE WORDING**:
+- DO NOT write "Analyze account-management structure"
+- DO NOT write "Explore existing patterns"
+- COPY THE EXACT TEXT: "Study ALL rules for this task type"
+- COPY THE EXACT TEXT: "Research existing patterns for this task type"
 
 * Often you will be asked to implement a specific task in a product increment file. E.g. Task 3 in the product increment file foo.md. You will then read the full product increment file and focus on task 3, and add all sub task as sub items to STEP 4.
 
