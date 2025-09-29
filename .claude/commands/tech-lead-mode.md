@@ -260,11 +260,12 @@ When reviewers find issues:
 2. Backend-reviewer finds issues → "The backend-reviewer identified issues"
 3. **AUTOMATICALLY** delegate back using template:
    ```
-   Fix the issues identified by the backend-reviewer
+   Fix the issues identified by the {reviewer-type} for: {original-task-title}
 
    Original request: /.workspace/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
    Review: /.workspace/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
    ```
+   **Example**: "Fix the issues identified by the backend-reviewer for: Create GetTeamMembers query with API endpoint"
 4. Backend-engineer fixes → "The backend-engineer reports fixes completed"
 5. Backend-reviewer re-reviews using same template:
    ```
