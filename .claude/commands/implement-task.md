@@ -73,16 +73,31 @@ Context update: $4
    - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
    - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
 
-**Step 6. Evaluate and update Product Increment plan**:
-   - Mark "Evaluate and update Product Increment plan" [in_progress] in todo
-   - Re-read the Product Increment plan and evaluate if remaining tasks need updates
-   - Update the plan if implementation insights suggest changes
-   - Mark "Evaluate and update Product Increment plan" [completed] in todo
-
-**Step 7. Create response file and mark ready for review**:
-   - Mark "Create response file" [in_progress] in todo
+**Step 6. Mark task as Ready for Review**:
+   - Mark "Mark task as Ready for Review" [in_progress] in todo
    - Edit the Product Increment file: change [In Progress] to [Ready for Review]
+   - **CRITICAL**: NEVER mark task as [Completed] - only reviewers can mark tasks [Completed]
+   - Mark "Mark task as Ready for Review" [completed] in todo
+
+**Step 7. Critically evaluate remaining tasks and update plan**:
+   - Mark "Critically evaluate remaining tasks and update plan" [in_progress] in todo
+   - Re-read the ENTIRE Product Increment plan, focusing on remaining [Planned] tasks
+   - Apply critical thinking: Based on what you learned implementing this task, evaluate each remaining task:
+     * Does the task description clearly define what needs to be implemented?
+     * Is the task still necessary given what was just implemented?
+     * Is "Task # + 1" still the natural next step, or should task order change?
+     * Should any tasks be split into smaller tasks?
+     * Should any tasks be consolidated?
+     * Are there new tasks needed that weren't originally planned?
+   - **If changes needed**: Update the Product Increment file with your improvements
+   - **If plan looks good**: No changes needed, proceed to next step
+   - **Document changes**: If you updated the plan, note this in your response file (Step 8)
+   - Mark "Critically evaluate remaining tasks and update plan" [completed] in todo
+
+**Step 8. Create response file**:
+   - Mark "Create response file" [in_progress] in todo
    - Create response file using atomic rename: .tmp → .md to signal completion
+   - Include summary of implementation and any plan changes made in Step 7
    - **IMPORTANT**: Use descriptive response file names with proper casing for better activity display:
      * Format: `NNNN.{agent-type}.response.Title-Case-Task-Name.md`
      * Example: `0001.backend-engineer.response.Create-Team-Aggregate-With-Database-Migration.md`
@@ -102,8 +117,9 @@ Implement task [name of the task you have been asked to implement] [pending]    
 ├─  Task #.2 [Copy exact text from Product Increment file] [pending]
 └─  Task #.N [Copy exact text from Product Increment file] [pending]
 Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Evaluate and update Product Increment plan [pending]                               (STEP 6)
-Create response file [pending]                                                     (STEP 7)
+Mark task as Ready for Review [pending]                                            (STEP 6)
+Critically evaluate remaining tasks and update plan [pending]                      (STEP 7)
+Create response file [pending]                                                     (STEP 8)
 ```
 
 **CRITICAL: Use these exact prefixes for proper visual hierarchy:**
@@ -114,5 +130,7 @@ Create response file [pending]                                                  
 - DO NOT write "Analyze codebase structure" or similar
 - COPY THE EXACT TEXT: "Study ALL rules for this task type"
 - COPY THE EXACT TEXT: "Research existing patterns for this task type"
+- COPY THE EXACT TEXT: "Mark task as Ready for Review" (STEP 6)
+- COPY THE EXACT TEXT: "Critically evaluate remaining tasks and update plan" (STEP 7)
 
 Continuously use TodoWrite tool to update todo list as you work through them.
