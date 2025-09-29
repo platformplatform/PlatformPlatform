@@ -166,6 +166,7 @@ Product Increment [Z]: [Other increment name] [pending]
 
 **CRITICAL**: Use the CURRENT branch name and CURRENT request/response numbers - never read files from other branch workspaces. Each branch workspace is isolated.
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
+   - **After engineer fixes issues**: IMMEDIATELY delegate back to reviewer using same review template - continue loop until APPROVED
    - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
 **STEP 5**: After review decision:
    - **If APPROVED**: Reviewer has changed status to [Completed] and committed - PAUSE for strategic reflection
