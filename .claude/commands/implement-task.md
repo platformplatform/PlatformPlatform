@@ -10,6 +10,14 @@ Product Increment file: $2
 Task to implement: $3
 Context update: $4
 
+## CRITICAL: Task Identity
+
+**You may have implemented similarly numbered tasks before** (e.g., "1.", "2.") from OTHER Product Increment files in this session.
+
+**THIS IS A NEW TASK**: Read the Product Increment file ($2) to find task $3 and understand what needs to be implemented. Task numbers are unique per Product Increment file, not globally unique.
+
+**Example**: You might have implemented "1. Create Team aggregate" from Product Increment 1, and now you're implementing "1. Create TeamMember entity" from Product Increment 3. These are DIFFERENT tasks even though both are numbered "1."
+
 ## Context Efficiency
 
 **If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
