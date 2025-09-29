@@ -11,7 +11,7 @@ Carefully follow these instructions when implementing DDD repositories in the ba
 ## Implementation
 
 1. Create repositories alongside their corresponding aggregates in the `/[scs-name]/Core/Features/[Feature]/Domain` directory.
-2. Create a public sealed class implementation using a primary constructor.
+2. Create a public sealed class implementation using a primary constructor. Note: only `UserRepository` and `TenantRepository` are internal.
 3. All implementations must inherit from `RepositoryBase<TAggregate, TId>`.
 4. Create an interface that extends `IBaseRepository<TAggregate, TId>` or `ICrudRepository<TAggregate, TId>`:
    - Use `IBaseRepository` when you do not need all CRUD operations.

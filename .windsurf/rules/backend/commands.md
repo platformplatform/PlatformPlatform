@@ -21,7 +21,7 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Name with `Command` suffix.
    - Define properties in the primary constructor.
    - Use property initializers for simple input sanitization, such as trimming and casing.
-   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment).
+   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment). Do this on real properties and NOT on the primary constructor parameters!
 3. Command validator:
    - Only validate if the command has user input.
    - Ideally each property should only have one shared validation message for all cases (required, max length, etc.).
@@ -29,12 +29,12 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
 4. Handler:
    - Create a public sealed class with `Handler`.
    - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
-   - Commands can optionally return e.g., a newly created ID.
+   - Commands can optionally return e.g., a newly created ID. But ONLY do this if you truly need the Id, most often you don't need it.
    - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`.
      - Enclose dynamic values in single quotes and end messages with a period.
    - Never throw exceptions, but always return `Result.Xxx()`.
    - Always create [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) for successful command results.
-     - Optionally log telemetry for failed commands.
+     - Optionally log telemetry for failed commands when it adds business value (e.g. for a failed login).
    - Save changes:
      - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.
      - Never call Entity Framework `SaveChangesAsync()` directly.
@@ -90,7 +90,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
 ```
 
 ```csharp
-public sealed record CreateUserCommand(string Email, string Name)
+public sealed record CreateUserCommand([JsonIgnore] TenantId TenantId; string Email) // ❌ DON'T: Add attributes on positional parameters (“primary constructor parameters”)
     : ICommand, IRequest<Result>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>

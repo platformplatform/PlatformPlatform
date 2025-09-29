@@ -18,8 +18,8 @@ Focus your review on the branch, file path, or scope provided in the arguments a
    - Combine and deduplicate the file list for review.
    - Exclude all auto generated files (e.g. `*.Api.json`, `*.po`).
 
-2. Inspect all *.md files in `.windsurf` and compile the rule list:
-   - Read all *.md files in `.windsurf` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
+2. Inspect all *.md files in `.claude` and compile the rule list:
+   - Read all *.md files in `.claude` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
    - Memorize this list so it can be reused for each changed file, without re-reading all *.md files for each file.
 
 3. Review backend files first, then frontend files:
@@ -41,7 +41,7 @@ Focus your review on the branch, file path, or scope provided in the arguments a
    - If a fix is not obvious, reference the rule and provide a rationale for leaving it as-is.
 
 6. After all backend files are reviewed and fixed:
-   - Run `[CLI_ALIAS] check --backend` to run build, format, test, and inspect for the backend. See [Tools](/.windsurf/rules/tools.md) for details.
+   - Run `[CLI_ALIAS] check --backend` to run build, format, test, and inspect for the backend. See [Tools](/.claude/rules/tools.md) for details.
    - Ensure all checks pass before proceeding to review frontend files.
 
 7. After all frontend files are reviewed and fixed:
@@ -54,9 +54,9 @@ Focus your review on the branch, file path, or scope provided in the arguments a
 
 ```markdown
 # ✅ DO: List all issues with references to rules
-- The command record is not marked as `sealed`. ([backend.md](/.windsurf/rules/backend/backend.md))
-- The validator uses different messages for the same property. ([commands.md](/.windsurf/rules/backend/commands.md))
-- Telemetry event is not named in past tense. ([telemetry-events.md](/.windsurf/rules/backend/telemetry-events.md))
+- The command record is not marked as `sealed`. ([backend.md](/.claude/rules/backend/backend.md))
+- The validator uses different messages for the same property. ([commands.md](/.claude/rules/backend/commands.md))
+- Telemetry event is not named in past tense. ([telemetry-events.md](/.claude/rules/backend/telemetry-events.md))
 
 # ❌ DON'T: Be vague or skip minor issues
 - Looks good overall, just a few nits.
@@ -69,7 +69,7 @@ Focus your review on the branch, file path, or scope provided in the arguments a
 # Step 1: List files to review (current branch)
 git diff --name-only $(git merge-base HEAD main)..HEAD
 
-# Step 2: Inspect all *.md files in .windsurf and compile the rule list
+# Step 2: Inspect all *.md files in .claude and compile the rule list
 # Step 3: Review backend files first, then frontend files
 # Step 4: For each file, determine applicable rules, review, and print issues
 # Step 5: Fix all issues in the file
@@ -82,6 +82,6 @@ git diff --name-only $(git merge-base HEAD main)..HEAD
 ### Example 3 - Referencing rules for issues
 
 ```markdown
-- Property names are not in snake_case. ([telemetry-events.md](/.windsurf/rules/backend/telemetry-events.md))
-- Used `DateTime.UtcNow()` instead of `TimeProvider.System.GetUtcNow()`. ([backend.md](/.windsurf/rules/backend/backend.md))
+- Property names are not in snake_case. ([telemetry-events.md](/.claude/rules/backend/telemetry-events.md))
+- Used `DateTime.UtcNow()` instead of `TimeProvider.System.GetUtcNow()`. ([backend.md](/.claude/rules/backend/backend.md))
 ```

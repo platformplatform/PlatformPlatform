@@ -129,8 +129,8 @@ Follow the steps below to create and publish tasks.
 
 Using these examples, to understand how to write tasks and subtasks for product increments:
 
-- [Backend for team management](/.windsurf/workflows/samples/1-backend-sample.md)
-- [Frontend for team management](/.windsurf/workflows/samples/2-frontend-sample.md)
+- [Backend for team management](/.claude/workflows/samples/1-backend-sample.md)
+- [Frontend for team management](/.claude/workflows/samples/2-frontend-sample.md)
 
 ## ✅ DO:
 

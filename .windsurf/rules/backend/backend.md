@@ -22,7 +22,8 @@ Carefully follow these instructions for C# backend development, including code s
 - JetBrains tooling is used for automatically formatting code, but automatic line breaking has been disabled for more readable code:
   - Wrap lines if "new language" constructs are started after 120 characters. This allows lines longer than 120 characters but ensures that no "important code" is hidden after the 120 character mark.
 - Use clear names instead of making comments.
-- Never use acronyms. E.g., use `SharedAccessSignature` instead of `Sas`.
+- Never use acronyms or abbreviations. E.g., use `SharedAccessSignature` instead of `Sas`, and `Context` over `Ctx`.
+- Prefer long variable names for better readability. E.g. `gravatarHttpClient` over `httpClient`, and `enterKeyListenerCancellationTokenSource` over `enterKeyListenerCancellation`.
 - Avoid using exceptions for control flow:
   - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
   - Use `UnreachableException` to signal unreachable code that cannot be reached by tests.
@@ -37,6 +38,10 @@ Carefully follow these instructions for C# backend development, including code s
 - Don't add comments unless the code is truly not expressing the intent.
 - Never add XML comments.
 - Use `TimeProvider.System.GetUtcNow()` and not `DateTime.UtcNow()`.
+- For enum comparisons:
+  - When comparing enums to enums, use direct comparison: `userRole == UserRole.Owner`.
+  - When comparing string properties to enums (e.g., JWT claims, database string columns), use `.ToString()` on the enum: `executionContext.UserInfo.Role == UserRole.Owner.ToString()`.
+  - Avoid unnecessary `Enum.TryParse` when the comparison context is clear and the string is expected to match the enum.
 
 ## Implementation
 
