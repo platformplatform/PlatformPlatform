@@ -788,23 +788,23 @@ public class ClaudeWorkerAgentCommand : Command
             if (agentType.Contains("reviewer"))
             {
                 // Extract paths using simple string operations
-                var reviewPrdPath = ExtractPathAfterKey(taskContent, "PRD:");
-                var reviewProductIncrementPath = ExtractPathAfterKey(taskContent, "Product Increment:");
-                var reviewTaskNumber = ExtractTextAfterKey(taskContent, "Task:");
-                var reviewRequestFilePath = ExtractPathAfterKey(taskContent, "Request:");
-                var reviewResponseFilePath = ExtractPathAfterKey(taskContent, "Response:");
+                var prdPath = ExtractPathAfterKey(taskContent, "PRD:");
+                var productIncrementPath = ExtractPathAfterKey(taskContent, "Product Increment:");
+                var taskNumber = ExtractTextAfterKey(taskContent, "Task:").Trim('"');
+                var requestFilePath = ExtractPathAfterKey(taskContent, "Request:");
+                var responseFilePath = ExtractPathAfterKey(taskContent, "Response:");
 
                 // Log extracted parameters for debugging
                 var branchName = GitHelper.GetCurrentBranch();
                 var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
                 try
                 {
-                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{reviewPrdPath}' ProductIncrement:'{reviewProductIncrementPath}' Task:'{reviewTaskNumber}' Request:'{reviewRequestFilePath}' Response:'{reviewResponseFilePath}'\n";
+                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
                     File.AppendAllText(workflowLog, parameterLog);
                 }
                 catch { }
 
-                finalPrompt = $"/review-task '{reviewPrdPath}' '{reviewProductIncrementPath}' '{reviewTaskNumber}' '{reviewRequestFilePath}' '{reviewResponseFilePath}'";
+                finalPrompt = $"/review-task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
 
                 // Log the final prompt for debugging
                 try
@@ -817,11 +817,11 @@ public class ClaudeWorkerAgentCommand : Command
             else
             {
                 // Extract paths for engineers
-                var implPrdPath = ExtractPathAfterKey(taskContent, "PRD:");
-                var implProductIncrementPath = ExtractPathAfterKey(taskContent, "from ");
-                var implTaskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
+                var prdPath = ExtractPathAfterKey(taskContent, "PRD:");
+                var productIncrementPath = ExtractPathAfterKey(taskContent, "from ");
+                var taskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
 
-                finalPrompt = $"/implement-task '{implPrdPath}' '{implProductIncrementPath}' '{implTaskNumber}'";
+                finalPrompt = $"/implement-task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
             }
         }
         else
