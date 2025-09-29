@@ -634,7 +634,7 @@ public class ClaudeWorkerAgentCommand : Command
                 var reviewRequestFilePath = ExtractPathAfterKey(taskContent, "Request:");
                 var reviewResponseFilePath = ExtractPathAfterKey(taskContent, "Response:");
 
-                finalPrompt = $"/review-task {reviewPrdPath} {reviewProductIncrementPath} {reviewTaskNumber} {reviewRequestFilePath} {reviewResponseFilePath}";
+                finalPrompt = $"/review-task '{reviewPrdPath}' '{reviewProductIncrementPath}' '{reviewTaskNumber}' '{reviewRequestFilePath}' '{reviewResponseFilePath}'";
             }
             else
             {
@@ -643,7 +643,7 @@ public class ClaudeWorkerAgentCommand : Command
                 var implProductIncrementPath = ExtractPathAfterKey(taskContent, "from ");
                 var implTaskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
 
-                finalPrompt = $"/implement-task {implPrdPath} {implProductIncrementPath} {implTaskNumber}";
+                finalPrompt = $"/implement-task '{implPrdPath}' '{implProductIncrementPath}' '{implTaskNumber}'";
             }
         }
         else
