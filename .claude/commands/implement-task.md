@@ -83,6 +83,10 @@ Context update: $4
    - Mark "Create response file" [in_progress] in todo
    - Edit the Product Increment file: change [In Progress] to [Ready for Review]
    - Create response file using atomic rename: .tmp → .md to signal completion
+   - **IMPORTANT**: Use descriptive response file names with proper casing for better activity display:
+     * Format: `NNNN.{agent-type}.response.Title-Case-Task-Name.md`
+     * Example: `0001.backend-engineer.response.Create-Team-Aggregate-With-Database-Migration.md`
+     * Use Title-Case-With-Dashes so the activity display shows "Create Team Aggregate With Database Migration"
    - Mark "Create response file" [completed] in todo
 
 ## Todo list template

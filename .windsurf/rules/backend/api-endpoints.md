@@ -62,7 +62,7 @@ public sealed class UserEndpoints : IEndpoints
         // ✅ DO: Use [AsParameters] even when the query has no parameters
         group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<UserResponse>();
+        ).Produces<UserResponse>(); // ✅ DO: Add produces when API returns a strongly typed response
     }
 }
 
@@ -96,7 +96,9 @@ public sealed class BadUserEndpoints : IEndpoints
         // ❌ DON'T: Use MVC [FromBody] attribute
         group.MapPost("/bulk-delete", async Task<ApiResult> ([FromBody] BulkDeleteUsersCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<TeamId>(StatusCodes.Status201Created) // ❌ DON'T: Don't add produces status code
+         .ProducesProblem(StatusCodes.Status403Forbidden) // ❌ DON'T: Don't add produces status code
+         .ProducesProblem(StatusCodes.Status409Conflict);
 
         // ❌ DON'T: Forget leading slashes
         // ❌ DON'T: new up command and queries even if they have no parameters... use "[AsParameters] GetUserQuery query" instead
