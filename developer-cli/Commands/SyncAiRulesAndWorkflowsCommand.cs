@@ -278,6 +278,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             
             // Keep content as-is (including $ARGUMENTS)
             var allLines = newFrontmatter.Concat(contentLines).ToList();
+
+            // Convert .claude references to .windsurf references
+            for (var i = 0; i < allLines.Count; i++)
+            {
+                allLines[i] = allLines[i].Replace("](/.claude/", "](/.windsurf/");
+            }
+
             // Remove trailing empty lines
             while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
             {
@@ -290,6 +297,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         {
             // No frontmatter in source, just copy content as-is
             var allLines = contentLines.ToList();
+
+            // Convert .claude references to .windsurf references
+            for (var i = 0; i < allLines.Count; i++)
+            {
+                allLines[i] = allLines[i].Replace("](/.claude/", "](/.windsurf/");
+            }
+
             // Remove trailing empty lines
             while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
             {
