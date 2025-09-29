@@ -25,13 +25,13 @@ public class ClaudeWorkerAgentCommand : Command
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
-            Description = "Agent type to run (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)"
+            Description = "Agent type to run (tech-lead, backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)"
         };
         agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
 
         var mcpOption = new Option<bool>("--mcp", "Run as MCP server for automated workflows");
-        var resumeOption = new Option<bool>("--resume", "Resume specific coordinator session from workspace (only for coordinator agent type)");
-        var continueOption = new Option<bool>("--continue", "Continue most recent conversation in main repo (only for coordinator agent type)");
+        var resumeOption = new Option<bool>("--resume", "Resume specific tech lead session from workspace (only for tech-lead agent type)");
+        var continueOption = new Option<bool>("--continue", "Continue most recent conversation in main repo (only for tech-lead agent type)");
 
         AddArgument(agentTypeArgument);
         AddOption(mcpOption);
@@ -91,7 +91,7 @@ public class ClaudeWorkerAgentCommand : Command
                 new SelectionPrompt<string>()
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
-                        "coordinator",
+                        "tech-lead",
                         "backend-engineer",
                         "frontend-engineer",
                         "backend-reviewer",
@@ -173,17 +173,17 @@ public class ClaudeWorkerAgentCommand : Command
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
-        // Special handling for coordinator - launch directly into Claude Code
-        if (agentType == "coordinator")
+        // Special handling for tech lead - launch directly into Claude Code
+        if (agentType == "tech-lead")
         {
-            AnsiConsole.MarkupLine($"[{agentColor}]Launching coordinator mode...[/]");
+            AnsiConsole.MarkupLine($"[{agentColor}]Launching tech lead mode...[/]");
             await Task.Delay(2000);
 
-            // Ensure coordinator workspace is set up (for session ID file)
+            // Ensure tech lead workspace is set up (for session ID file)
             await SetupAgentWorkspace(agentWorkspaceDirectory);
 
-            // Launch coordinator directly
-            await LaunchCoordinatorAsync(agentType, branch, resume, continueSession);
+            // Launch tech lead directly
+            await LaunchTechLeadAsync(agentType, branch, resume, continueSession);
             return;
         }
 
@@ -209,33 +209,56 @@ public class ClaudeWorkerAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
-    private async Task LaunchCoordinatorAsync(string agentType, string branch, bool resume, bool continueSession)
+    private async Task LaunchTechLeadAsync(string agentType, string branch, bool resume, bool continueSession)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
-        // Coordinator uses same deterministic session management as other agents
+        // Load Tech Lead system prompt from .txt file
+        var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
+        string systemPromptText = "";
+
+        if (File.Exists(systemPromptFile))
+        {
+            systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
+            // Transform to single line and escape quotes for command-line usage
+            systemPromptText = systemPromptText
+                .Replace('\n', ' ')
+                .Replace('\r', ' ')
+                .Replace("\"", "'")
+                .Trim();
+        }
+
+        // Tech Lead uses same deterministic session management as other agents
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
-        var coordinatorArgs = new List<string>
+        var techLeadArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
-            "--permission-mode", "acceptEdits",
-            "/coordinator-mode"
+            "--permission-mode", "acceptEdits"
         };
+
+        // Add system prompt if available
+        if (!string.IsNullOrEmpty(systemPromptText))
+        {
+            techLeadArgs.Add("--append-system-prompt");
+            techLeadArgs.Add(systemPromptText);
+        }
+
+        techLeadArgs.Add("/tech-lead-mode");
 
         // Deterministic session management (ignoring command line flags for consistency)
         if (File.Exists(claudeSessionIdFile))
         {
             var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            coordinatorArgs.Insert(0, "--resume");
-            coordinatorArgs.Insert(1, claudeSessionId.Trim());
+            techLeadArgs.Insert(0, "--resume");
+            techLeadArgs.Insert(1, claudeSessionId.Trim());
         }
         else
         {
             var newClaudeSessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
-            coordinatorArgs.Insert(0, "--session-id");
-            coordinatorArgs.Insert(1, newClaudeSessionId);
+            techLeadArgs.Insert(0, "--session-id");
+            techLeadArgs.Insert(1, newClaudeSessionId);
         }
 
         var process = new Process
@@ -243,7 +266,7 @@ public class ClaudeWorkerAgentCommand : Command
             StartInfo = new ProcessStartInfo
             {
                 FileName = "claude",
-                Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                Arguments = string.Join(" ", techLeadArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                 WorkingDirectory = Configuration.SourceCodeFolder,
                 UseShellExecute = false,
                 RedirectStandardInput = false,
@@ -255,18 +278,18 @@ public class ClaudeWorkerAgentCommand : Command
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
         process.Start();
 
-        // Start coordinator health monitoring
+        // Start tech lead health monitoring
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        _ = Task.Run(async () => await MonitorCoordinatorHealth(process, agentType, branch, messagesDirectory));
+        _ = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
 
         await process.WaitForExitAsync();
 
-        // Coordinator exited - clean up and show completion
+        // Tech Lead exited - clean up and show completion
         var agentColor = GetAgentColor(agentType);
-        AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Coordinator session ended[/]");
+        AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Tech Lead session ended[/]");
     }
 
-    private async Task MonitorCoordinatorHealth(Process coordinatorProcess, string agentType, string branch, string messagesDirectory)
+    private async Task MonitorTechLeadHealth(Process techLeadProcess, string agentType, string branch, string messagesDirectory)
     {
         var timeout = TimeSpan.FromMinutes(62);
         var lastActivity = DateTime.Now;
@@ -280,45 +303,45 @@ public class ClaudeWorkerAgentCommand : Command
 
         watcher.Created += (sender, e) => lastActivity = DateTime.Now;
 
-        while (!coordinatorProcess.HasExited)
+        while (!techLeadProcess.HasExited)
         {
             await Task.Delay(TimeSpan.FromMinutes(1)); // Check every minute
 
             if (DateTime.Now - lastActivity > timeout)
             {
-                // Log coordinator restart to workflow log
+                // Log tech lead restart to workflow log
                 var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
-                var restartLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] COORDINATOR RESTART: {agentType} inactive for 62 minutes, restarting with recovery message\n";
+                var restartLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD RESTART: {agentType} inactive for 62 minutes, restarting with recovery message\n";
                 await File.AppendAllTextAsync(workflowLogPath, restartLogMessage);
 
-                // Kill stalled coordinator
-                AnsiConsole.MarkupLine("[red]Coordinator inactive for 62 minutes - restarting...[/]");
+                // Kill stalled tech lead
+                AnsiConsole.MarkupLine("[red]Tech Lead inactive for 62 minutes - restarting...[/]");
 
                 try
                 {
-                    coordinatorProcess.Kill();
-                    await coordinatorProcess.WaitForExitAsync();
+                    techLeadProcess.Kill();
+                    await techLeadProcess.WaitForExitAsync();
                 }
                 catch
                 {
                     // Process might have already exited
                 }
 
-                // Restart coordinator with recovery message
-                await RestartCoordinatorWithRecoveryMessage(agentType, branch);
+                // Restart tech lead with recovery message
+                await RestartTechLeadWithRecoveryMessage(agentType, branch);
                 break;
             }
         }
     }
 
-    private async Task RestartCoordinatorWithRecoveryMessage(string agentType, string branch)
+    private async Task RestartTechLeadWithRecoveryMessage(string agentType, string branch)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
 
-        var recoveryMessage = "It looks like you or one of the agents stopped. Please evaluate why the progress halted, what went wrong, ultrathink and ensure the system workflow continues until all items on your to-do list are completed. Remember that you are the coordinator and should ALWAYS delegate work.";
+        var recoveryMessage = "It looks like you or one of the agents stopped. Please evaluate why the progress halted, what went wrong, ultrathink and ensure the system workflow continues until all items on your to-do list are completed. Remember that you are the tech lead and should ALWAYS delegate work.";
 
-        var coordinatorArgs = new List<string>
+        var techLeadArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
@@ -330,15 +353,15 @@ public class ClaudeWorkerAgentCommand : Command
         if (File.Exists(claudeSessionIdFile))
         {
             var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            coordinatorArgs.Insert(0, "--resume");
-            coordinatorArgs.Insert(1, claudeSessionId.Trim());
+            techLeadArgs.Insert(0, "--resume");
+            techLeadArgs.Insert(1, claudeSessionId.Trim());
         }
         else
         {
             var newClaudeSessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
-            coordinatorArgs.Insert(0, "--session-id");
-            coordinatorArgs.Insert(1, newClaudeSessionId);
+            techLeadArgs.Insert(0, "--session-id");
+            techLeadArgs.Insert(1, newClaudeSessionId);
         }
 
         var process = new Process
@@ -346,7 +369,7 @@ public class ClaudeWorkerAgentCommand : Command
             StartInfo = new ProcessStartInfo
             {
                 FileName = "claude",
-                Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                Arguments = string.Join(" ", techLeadArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                 WorkingDirectory = Configuration.SourceCodeFolder,
                 UseShellExecute = false,
                 RedirectStandardInput = false,
@@ -360,11 +383,11 @@ public class ClaudeWorkerAgentCommand : Command
 
         // Restart health monitoring for the new process
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        _ = Task.Run(async () => await MonitorCoordinatorHealth(process, agentType, branch, messagesDirectory));
+        _ = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
 
         // Log successful restart
         var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
-        var successLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] COORDINATOR RESTART COMPLETE: {agentType} restarted successfully with recovery message\n";
+        var successLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD RESTART COMPLETE: {agentType} restarted successfully with recovery message\n";
         await File.AppendAllTextAsync(workflowLogPath, successLogMessage);
 
         await process.WaitForExitAsync();
@@ -596,26 +619,26 @@ public class ClaudeWorkerAgentCommand : Command
         var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
 
         // Configure args based on agent type
-        var isCoordinator = agentType == "coordinator";
+        var isTechLead = agentType == "tech-lead";
 
-        if (isCoordinator)
+        if (isTechLead)
         {
-            // Coordinator launches directly with /coordinator-mode (no request file needed)
-            var coordinatorArgs = new List<string>
+            // Tech Lead launches directly with /tech-lead-mode (no request file needed)
+            var techLeadArgs = new List<string>
             {
                 "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "default",
-                "/coordinator-mode"
+"/tech-lead-mode"
             };
 
-            var coordinatorProcess = new Process
+            var techLeadProcess = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "claude",
-                    Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    Arguments = string.Join(" ", techLeadArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                     WorkingDirectory = Configuration.SourceCodeFolder,
                     UseShellExecute = false,
                     RedirectStandardInput = false,
@@ -624,30 +647,30 @@ public class ClaudeWorkerAgentCommand : Command
                 }
             };
 
-            coordinatorProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-            coordinatorProcess.Start();
-            await coordinatorProcess.WaitForExitAsync();
+            techLeadProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            techLeadProcess.Start();
+            await techLeadProcess.WaitForExitAsync();
 
-            // If --continue failed, try fresh coordinator session
-            if (coordinatorProcess.ExitCode != 0)
+            // If --continue failed, try fresh tech lead session
+            if (techLeadProcess.ExitCode != 0)
             {
-                AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh coordinator session...[/]");
+                AnsiConsole.MarkupLine("[yellow]No existing conversation found, starting fresh tech lead session...[/]");
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
-                var freshCoordinatorArgs = new List<string>
+                var freshTechLeadArgs = new List<string>
                 {
                     "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                     "--add-dir", Configuration.SourceCodeFolder,
                     "--permission-mode", "default",
-                    "/coordinator-mode"
+    "/tech-lead-mode"
                 };
 
-                coordinatorProcess = new Process
+                techLeadProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
                         FileName = "claude",
-                        Arguments = string.Join(" ", freshCoordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                        Arguments = string.Join(" ", freshTechLeadArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                         WorkingDirectory = Configuration.SourceCodeFolder,
                         UseShellExecute = false,
                         RedirectStandardInput = false,
@@ -656,11 +679,11 @@ public class ClaudeWorkerAgentCommand : Command
                     }
                 };
 
-                coordinatorProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-                coordinatorProcess.Start();
+                techLeadProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+                techLeadProcess.Start();
             }
 
-            return coordinatorProcess;
+            return techLeadProcess;
         }
 
         // Regular worker configuration
@@ -865,7 +888,7 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
-            "coordinator" => "Coordinator",
+            "tech-lead" => "Tech Lead",
             "backend-engineer" => "Backend Engineer",
             "frontend-engineer" => "Frontend Engineer",
             "backend-reviewer" => "Backend Reviewer",
@@ -879,7 +902,7 @@ public class ClaudeWorkerAgentCommand : Command
     {
         return agentType switch
         {
-            "coordinator" => Color.Red,
+            "tech-lead" => Color.Red,
             "backend-engineer" => Color.Green,
             "frontend-engineer" => Color.Blue,
             "backend-reviewer" => Color.Yellow,
@@ -999,7 +1022,7 @@ public static class WorkerMcpTools
 {
     private static readonly string[] ValidAgentTypes =
     {
-        "coordinator", "backend-engineer", "frontend-engineer",
+        "tech-lead", "backend-engineer", "frontend-engineer",
         "backend-reviewer", "frontend-reviewer", "e2e-test-reviewer"
     };
 

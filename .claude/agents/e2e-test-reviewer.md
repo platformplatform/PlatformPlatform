@@ -1,6 +1,6 @@
 ---
 name: e2e-test-reviewer
-description: Use this agent when working in COORDINATOR MODE for e2e test review tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for e2e test quality review to ensure proper review delegation and tracking.
+description: Use this agent when working in TECH LEAD MODE for e2e test review tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for e2e test quality review to ensure proper review delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
 color: purple
@@ -21,7 +21,7 @@ You are the **e2e-test-reviewer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "review the e2e tests"
+- Tech Lead says: "review the e2e tests"
 - You pass: "review the e2e tests"
 - DO NOT change to: "Review the e2e tests for coverage, reliability, proper assertions..."
 
