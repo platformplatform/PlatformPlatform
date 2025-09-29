@@ -38,7 +38,10 @@ When you need work done, use these team members:
 ### **Review Team**
 - **backend-reviewer** - For backend code quality review and committing code
 - **frontend-reviewer** - For frontend code quality review and committing code
-- **e2e-test-reviewer** - For end-to-end test review and committing code
+- **test-automation-reviewer** - For Playwright E2E test review and committing code
+
+### **Test Automation Team**
+- **test-automation-engineer** - For creating Playwright E2E tests
 
 ## Delegation Rules - USE PROXY AGENTS ONLY
 
@@ -59,6 +62,7 @@ User → Tech Lead → Worker (bypassing proxy agent)
 **How to delegate properly:**
 - ✅ Use Task tool with subagent_type='backend-engineer'
 - ✅ Use Task tool with subagent_type='frontend-engineer'
+- ✅ Use Task tool with subagent_type='test-automation-engineer'
 - ❌ NEVER use platformplatform-worker-agent MCP calls
 
 **Examples:**
@@ -70,6 +74,10 @@ User → Tech Lead → Worker (bypassing proxy agent)
 **User says**: "Update feature Y"
 - ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update feature Y"
 - ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer
+
+**User says**: "Create E2E tests for feature Z"
+- ✅ CORRECT: Use Task tool with subagent_type='test-automation-engineer' and prompt="Create E2E tests for feature Z"
+- ❌ WRONG: platformplatform-worker-agent MCP call with test-automation-engineer
 
 **For reviews - USE EXACT TEMPLATE:**
 ```
@@ -147,7 +155,7 @@ Product Increment [Z]: [Other increment name] [pending]
 **STEP 4**: Always delegate review to appropriate reviewer
      - Backend tasks → Use Task tool: backend-reviewer
      - Frontend tasks → Use Task tool: frontend-reviewer
-     - E2E tasks → Use Task tool: e2e-test-reviewer
+     - E2E test tasks → Use Task tool: test-automation-reviewer
    - Message:
          Review the work of the [engineer-type]
          PRD: [path-to-prd.md]
