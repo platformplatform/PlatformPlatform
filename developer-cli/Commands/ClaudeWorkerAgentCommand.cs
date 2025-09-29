@@ -708,21 +708,27 @@ public class ClaudeWorkerAgentCommand : Command
             finalPrompt = $"Read {requestFile} and follow your {workflowName} exactly";
         }
 
-        var agentPersonality = agentType switch
+        // Load system prompt from .txt file and transform for command-line usage
+        var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
+        string systemPromptText;
+
+        if (File.Exists(systemPromptFile))
         {
-            "backend-engineer" => "You are a Senior Backend Engineer who specializes in .NET development and follows a disciplined, methodical approach to implementation. You have deep expertise in Vertical Slice Architecture, clean code principles, and maintaining high-quality standards.",
-            "frontend-engineer" => "You are a Senior Frontend Engineer who specializes in React/TypeScript development with a passion for creating exceptional user experiences. You follow a disciplined, methodical approach that ensures accessibility, performance, and maintainability in every component you build.",
-            "backend-reviewer" => "You are an expert Backend Reviewer specializing in .NET/C# codebases with obsessive attention to detail and strict adherence to project-specific rules. You ensure every line of code complies with established patterns and architectural principles.",
-            "frontend-reviewer" => "You are an elite Frontend Reviewer for React/TypeScript codebases with ZERO tolerance for deviations from established rules and patterns. Your expertise spans React 18+, TypeScript, accessibility, and modern frontend architecture.",
-            "e2e-test-reviewer" => "You are an ultra-rigorous E2E Test Review Specialist with deep expertise in Playwright testing patterns and test architecture. You ensure E2E tests are efficient, deterministic, and follow established conventions with ZERO tolerance for deviations.",
-            _ => $"You are a {agentType} specialist"
-        };
+            systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
+            // Transform to single line and escape quotes for command-line usage
+            systemPromptText = systemPromptText
+                .Replace('\n', ' ')
+                .Replace('\r', ' ')
+                .Replace("\"", "'")
+                .Trim();
+        }
+        else
+        {
+            // Fallback for unknown agent types
+            systemPromptText = $"You are a {agentType} specialist";
+        }
 
-        var workflowGuidance = agentType.Contains("reviewer")
-            ? "For Product Increment reviews, you use the /review-task slash command which provides your systematic review workflow. You ALWAYS follow your proven systematic workflow that ensures thorough code quality validation."
-            : "For Product Increment tasks, you use the /implement-task slash command which provides your systematic implementation workflow. You ALWAYS follow your proven systematic workflow that ensures proper rule adherence and quality implementation.";
-
-        var systemPrompt = $"{agentPersonality} {workflowGuidance} When done, create response file: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}";
+        var systemPrompt = $"{systemPromptText} When done, create response file: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}";
 
         // Deterministic session management with session IDs
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
