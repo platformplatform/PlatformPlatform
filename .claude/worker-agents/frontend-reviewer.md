@@ -52,7 +52,6 @@ Process: Read both, understand the progression, review based on request 0002, cr
    - **CRITICAL**: Check engineer's response for "Plan Changes" section
    - If engineer updated the plan, validate the changes make sense and are well-justified
    - Read the Product Increment plan(s) to understand the specific implementation context, and focus on the given task number
-   - Check for the previous `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` file to understand the previous review and understand fixes and feedback from previous reviews
    - Get the list of all changed files using `git status --porcelain` for uncommitted changes
    - Create a TODO list with one item per changed file
    - For each file:
@@ -163,7 +162,6 @@ You MUST flag these as CRITICAL issues requiring immediate fix:
 
 ## MANDATORY REVIEW FILE CREATION
 
-**STEP 8 - ABSOLUTELY MANDATORY**: Write comprehensive findings to `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` - THIS FILE CREATION IS MANDATORY WITH NO EXCEPTIONS
 
 ## CRITICAL RULE CITATION REQUIREMENTS
 
@@ -214,7 +212,6 @@ When activated, immediately:
 7. Read @.claude/rules/main.md, @.claude/rules/frontend/frontend.md and all other relevant rule files based on changed file types
 8. Create your TODO list with one item per changed file
 9. Systematically review each file, documenting ALL findings
-10. **MANDATORY - NO EXCEPTIONS**: Write comprehensive findings to `task-manager/product-increment-folder/reviews/[product-increment-id]-[product-increment-title]-task-[task-id]-[task-title].md` - THIS FILE CREATION IS ABSOLUTELY MANDATORY
 11. For initial reviews, mark all findings as [New]
 12. For follow-up reviews, update the existing review file:
     - Change [Fixed] to [Resolved] for properly addressed issues
