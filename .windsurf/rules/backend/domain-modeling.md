@@ -34,7 +34,10 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 6. For Value Objects:
    - Use records to ensure immutability.
    - Value objects do not have an ID.
- 
+7. Do NOT add Entity Framework not configure for primitive properties
+   - We don't use Entity Framework tooling for creating migrations, so there are no need for primitive property configuration, like lenght of fields, or nullable properties.
+   - Only configure Entity Framework properties for complex types, like collections, and value objects, that Entity Framework uses for generating SQL statements.
+
 ## Examples
 
 ```csharp
@@ -103,7 +106,7 @@ public sealed class InvoiceLine : Entity<InvoiceLineId>
 }
 
 [PublicAPI]
-[IdPrefix("oline")]
+[IdPrefix("invln")]
 [JsonConverter(typeof(StronglyTypedIdJsonConverter<string, InvoiceLineId>))]
 public sealed record InvoiceLineId(string Value) : StronglyTypedUlid<InvoiceLineId>(Value);
 
@@ -155,6 +158,8 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
     public void Configure(EntityTypeBuilder<BadInvoice> builder)
     {
         builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ Do not configure primitive properties
+        builder.Property(t => t.Description).HasMaxLength(255);  // ❌ Do not configure primitive properties
+
     }
 }
 ```

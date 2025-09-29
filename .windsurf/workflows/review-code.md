@@ -18,8 +18,8 @@ Focus your review on the branch, file path, or scope provided in the arguments a
    - Combine and deduplicate the file list for review.
    - Exclude all auto generated files (e.g. `*.Api.json`, `*.po`).
 
-2. Inspect all *.md files in `.windsurf` and compile the rule list:
-   - Read all *.md files in `.windsurf` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
+2. Inspect all *.md files in `.claude` and compile the rule list:
+   - Read all *.md files in `.claude` and use their glob patterns to compile and memorize a list of rules that apply to the files being reviewed.
    - Memorize this list so it can be reused for each changed file, without re-reading all *.md files for each file.
 
 3. Review backend files first, then frontend files:
@@ -69,7 +69,7 @@ Focus your review on the branch, file path, or scope provided in the arguments a
 # Step 1: List files to review (current branch)
 git diff --name-only $(git merge-base HEAD main)..HEAD
 
-# Step 2: Inspect all *.md files in .windsurf and compile the rule list
+# Step 2: Inspect all *.md files in .claude and compile the rule list
 # Step 3: Review backend files first, then frontend files
 # Step 4: For each file, determine applicable rules, review, and print issues
 # Step 5: Fix all issues in the file

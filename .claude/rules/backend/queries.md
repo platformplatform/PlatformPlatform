@@ -25,7 +25,7 @@ Carefully follow these instructions when implementing CQRS queries, including st
    - Create a public sealed record marked with `[PublicAPI]` for the response.
    - Name with `Response` suffix: e.g., `UserResponse`.
    - Include all necessary data for the client.
-   - Use [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) and enums.
+   - Use [Strongly Typed IDs](/.claude/rules/backend/strongly-typed-ids.md) and enums.
    - Take special care to not include sensitive data in the response.
 5. Validator (optional):
    - Validation should focus on preventing malicious input like `PageSize=1_000_000_000`; the WebApp will typically ensure that the input is meaningful, so focus on malicious input.

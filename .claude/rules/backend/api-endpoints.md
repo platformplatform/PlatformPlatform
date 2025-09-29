@@ -25,7 +25,7 @@ Carefully follow these instructions when implementing minimal API endpoints in t
    - Line 2: Expression calling `=> mediator.Send()`.
    - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
 6. Follow these requirements:
-   - Use [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) for route parameters.
+   - Use [Strongly Typed IDs](/.claude/rules/backend/strongly-typed-ids.md) for route parameters.
    - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
    - Use `[AsParameters]` for query parameters.
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
@@ -46,6 +46,7 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
+        // ✅ DO: Use [AsParameters] for complex queries with many querystring parameters
         group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<GetUsersResponse>();
@@ -58,6 +59,7 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        // ✅ DO: Use [AsParameters] even when the query has no parameters
         group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<UserResponse>();
@@ -97,8 +99,9 @@ public sealed class BadUserEndpoints : IEndpoints
         );
 
         // ❌ DON'T: Forget leading slashes
-        group.MapGet("me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
-            => await mediator.Send(query)
+        // ❌ DON'T: new up command and queries even if they have no parameters... use "[AsParameters] GetUserQuery query" instead
+        group.MapGet("me", async Task<ApiResult<UserResponse>> (IMediator mediator)
+            => await mediator.Send(new GetUserQuery())
         ).Produces<UserResponse>();
     }
 }

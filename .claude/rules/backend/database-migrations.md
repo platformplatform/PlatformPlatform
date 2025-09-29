@@ -14,6 +14,7 @@ Carefully follow these instructions when creating database migrations.
    - Place migrations in the `/[scs-name]/Core/Database/Migrations` directory.
    - Name migration files with a 14-digit timestamp prefix in the format `YYYYMMDDHHmmss_MigrationName.cs`.
    - Only implement the `Up` method; do not implement the `Down` method.
+   - I repeat... DO NOT CREATE `Down` migration.
 
 2. Follow this strict column ordering in all table creation statements:
    - `TenantId` (if applicable)

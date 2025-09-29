@@ -15,11 +15,11 @@ Carefully follow these instructions when implementing DDD models for aggregates,
    - Aggregates are the root of the DDD model and map 1:1 to database tables.
    - Entities belong to aggregates but have their own identity.
    - Value objects are immutable and have no identity.
-   - Repositories are used to add, get, update, and remove aggregates; consult [Repositories](/.windsurf/rules/backend/repositories.md) for details.
+   - Repositories are used to add, get, update, and remove aggregates; consult [Repositories](/.claude/rules/backend/repositories.md) for details.
 3. Store entities and value objects as JSON columns on the Aggregate in the database to avoid EF Core's `.Include()` method.
 4. For Aggregates:
    - Use public sealed classes that inherit from `AggregateRoot<TId>`.
-   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) for details.
+   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](/.claude/rules/backend/strongly-typed-ids.md) for details.
    - Never use navigational properties to other aggregates (e.g., don't use `User.Tenant`, or `Order.Customer`).
    - Use factory methods when creating aggregates.
    - Make properties private, and use methods when changing state and enforcing business rules.
@@ -34,7 +34,10 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 6. For Value Objects:
    - Use records to ensure immutability.
    - Value objects do not have an ID.
- 
+7. Do NOT add Entity Framework not configure for primitive properties
+   - We don't use Entity Framework tooling for creating migrations, so there are no need for primitive property configuration, like lenght of fields, or nullable properties.
+   - Only configure Entity Framework properties for complex types, like collections, and value objects, that Entity Framework uses for generating SQL statements.
+
 ## Examples
 
 ```csharp
@@ -103,7 +106,7 @@ public sealed class InvoiceLine : Entity<InvoiceLineId>
 }
 
 [PublicAPI]
-[IdPrefix("oline")]
+[IdPrefix("invln")]
 [JsonConverter(typeof(StronglyTypedIdJsonConverter<string, InvoiceLineId>))]
 public sealed record InvoiceLineId(string Value) : StronglyTypedUlid<InvoiceLineId>(Value);
 
@@ -155,6 +158,8 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
     public void Configure(EntityTypeBuilder<BadInvoice> builder)
     {
         builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ Do not configure primitive properties
+        builder.Property(t => t.Description).HasMaxLength(255);  // ❌ Do not configure primitive properties
+
     }
 }
 ```

@@ -9,7 +9,7 @@ PRD file and product increment number: $ARGUMENTS
 
 Read the PRD file provided in the arguments above and focus on the specific product increment number mentioned. Your job is to create technical tasks for that specific product increment.
 
-The goal is to create a `./task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL]. The date prefix should match the PRD's directory date.
+The goal is to create a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL]. The date prefix should match the PRD's directory date.
 
 ## Workflow
 
@@ -17,7 +17,7 @@ Follow the steps below to create and publish tasks.
 
 1. Create product increment header and description
 
-  - Create a product increment file `./task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md`, where the date prefix matches the PRD's directory date, and the `#` and `product-increment-title` is the same as used in the PRD's "Product increments" section.
+  - Create a product increment file `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md`, where the date prefix matches the PRD's directory date, and the `#` and `product-increment-title` is the same as used in the PRD's "Product increments" section.
   - At the top of each product increment file include:
     - **Level 1 header**: This should match the product increment title from the PRD.
     - **Purpose:**  a short description of what this product increment delivers and the features it contains.
@@ -111,13 +111,13 @@ Follow the steps below to create and publish tasks.
 
 4. Review, approve and publish
 
-   Save all product increment files under `./task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` for user review.
+   Save all product increment files under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` for user review.
 
 5. Create product increment and tasks in [PRODUCT_MANAGEMENT_TOOL]
 
    After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create one task for the product increment:
    - The task for the product increment must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
-   - The description should include the full list of tasks and subtasks (copy the content of the file `./task-manager/yyyy-MM-dd-[prd-title]/[#-increment-title].md`)
+   - The description should include the full list of tasks and subtasks (copy the content of the file `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-increment-title].md`)
 
 6. Tools available:
 
@@ -135,7 +135,7 @@ Using these examples, to understand how to write tasks and subtasks for product 
 ## ✅ DO:
 
 - Use the Sequential thinking MCP tool to order tasks correctly.
-- Create one file per product increment under `./task-manager/yyyy-MM-dd-[prd-title]/`.
+- Create one file per product increment under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
 - Keep tasks focused on the smallest vertical slices with API tests and one commit per task.
 - Save files for review before approval.
 - Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to publish tasks after approval.
@@ -149,5 +149,5 @@ Using these examples, to understand how to write tasks and subtasks for product 
 - Include implementation details that cannot be built or tested in one commit.
 - Create tasks that depend on details that will be implemented later.
 - Modify `shared-kernel` or `shared-webapp` without explicit agreement.
-- Create or delete product increment files outside `./task-manager/yyyy-MM-dd-[prd-title]/`.
+- Create or delete product increment files outside `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
 - Write titles in Title Case. Instead always use sentence case.
