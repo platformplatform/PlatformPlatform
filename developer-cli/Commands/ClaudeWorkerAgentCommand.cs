@@ -821,7 +821,25 @@ public class ClaudeWorkerAgentCommand : Command
                 var productIncrementPath = ExtractPathAfterKey(taskContent, "from ");
                 var taskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
 
+                // Log extracted parameters for debugging
+                var branchName = GitHelper.GetCurrentBranch();
+                var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
+                try
+                {
+                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
+                    File.AppendAllText(workflowLog, parameterLog);
+                }
+                catch { }
+
                 finalPrompt = $"/implement-task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
+
+                // Log the final prompt for debugging
+                try
+                {
+                    var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
+                    File.AppendAllText(workflowLog, promptLog);
+                }
+                catch { }
             }
         }
         else
@@ -1049,9 +1067,16 @@ public class ClaudeWorkerAgentCommand : Command
             startIndex++;
         }
 
-        // Extract until end of line (not stopping at spaces since paths can contain spaces)
+        // Extract until end of line OR until ". " (sentence boundary)
         var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
         if (endIndex == -1) endIndex = content.Length;
+
+        // Check for ". " (sentence boundary) before end of line
+        var sentenceEnd = content.IndexOf(". ", startIndex, StringComparison.Ordinal);
+        if (sentenceEnd != -1 && sentenceEnd < endIndex)
+        {
+            endIndex = sentenceEnd;
+        }
 
         return content.Substring(startIndex, endIndex - startIndex).Trim();
     }
