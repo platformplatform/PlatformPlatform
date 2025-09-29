@@ -286,6 +286,11 @@ public class ClaudeWorkerAgentCommand : Command
 
             if (DateTime.Now - lastActivity > timeout)
             {
+                // Log coordinator restart to workflow log
+                var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
+                var restartLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] COORDINATOR RESTART: {agentType} inactive for 62 minutes, restarting with recovery message\n";
+                await File.AppendAllTextAsync(workflowLogPath, restartLogMessage);
+
                 // Kill stalled coordinator
                 AnsiConsole.MarkupLine("[red]Coordinator inactive for 62 minutes - restarting...[/]");
 
@@ -356,6 +361,11 @@ public class ClaudeWorkerAgentCommand : Command
         // Restart health monitoring for the new process
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
         _ = Task.Run(async () => await MonitorCoordinatorHealth(process, agentType, branch, messagesDirectory));
+
+        // Log successful restart
+        var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
+        var successLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] COORDINATOR RESTART COMPLETE: {agentType} restarted successfully with recovery message\n";
+        await File.AppendAllTextAsync(workflowLogPath, successLogMessage);
 
         await process.WaitForExitAsync();
     }
@@ -1415,7 +1425,7 @@ public static class WorkerMcpTools
                     UpdateWorkerSession(currentProcessId, healthCheckRestart.ProcessId, agentType, taskTitle, requestFileName, healthCheckRestart.Process);
                     currentProcessId = healthCheckRestart.ProcessId;
                     restartCount++;
-                    LogWorkerActivity($"Worker {agentType} restarted (attempt {restartCount})", messagesDirectory);
+                    LogWorkerActivity($"WORKER RESTART: {agentType} health check failed, restarted (attempt {restartCount}) after task timeout", messagesDirectory);
                 }
 
                 lastHealthCheck = DateTime.Now;
