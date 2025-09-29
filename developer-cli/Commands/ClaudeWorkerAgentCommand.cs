@@ -19,7 +19,7 @@ public class ClaudeWorkerAgentCommand : Command
     private static bool IsMcpMode;
     private static string? SelectedAgentType;
 
-    private CancellationTokenSource? _enterKeyListenerCts;
+    private CancellationTokenSource? _enterKeyListenerCancellation;
 
     public ClaudeWorkerAgentCommand() : base("claude-worker-agent", "Interactive Worker Host for agent development")
     {
@@ -394,7 +394,7 @@ public class ClaudeWorkerAgentCommand : Command
             try
             {
                 // Stop ENTER key listener during task processing to avoid keyboard interference
-                _enterKeyListenerCts?.Cancel();
+                _enterKeyListenerCancellation?.Cancel();
 
                 await HandleIncomingRequest(e.FullPath, agentType, branch);
 
@@ -419,10 +419,13 @@ public class ClaudeWorkerAgentCommand : Command
 
     private void StartEnterKeyListener(string agentType, string branch)
     {
-        _enterKeyListenerCts = new CancellationTokenSource();
+        // Cancel any existing listener first
+        _enterKeyListenerCancellation?.Cancel();
+        AnsiConsole.MarkupLine("[grey]Starting ENTER key listener[/]");
+        _enterKeyListenerCancellation = new CancellationTokenSource();
         _ = Task.Run(async () =>
             {
-                while (!_enterKeyListenerCts.Token.IsCancellationRequested)
+                while (!_enterKeyListenerCancellation.Token.IsCancellationRequested)
                 {
                     try
                     {
@@ -956,11 +959,12 @@ public static class WorkerMcpTools
         [Description("Engineer's response file path (optional, for review tasks)")]
         string? responseFilePath = null)
     {
-        var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
+        var branchName = GitHelper.GetCurrentBranch();
+        var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
 
         try
         {
-            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
         }
         catch (Exception logEx)
         {
@@ -977,17 +981,17 @@ public static class WorkerMcpTools
                 throw new ArgumentException($"Invalid agent type '{agentType}'. Valid types: {string.Join(", ", ValidAgentTypes)}");
             }
 
-            var branchName = GitHelper.GetCurrentBranch();
+            var currentBranchName = GitHelper.GetCurrentBranch();
 
             // Setup workspace paths
-            var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
+            var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", currentBranchName);
             var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDirectory, agentType);
             var messagesDirectory = Path.Combine(branchWorkspaceDirectory, "messages");
             var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
 
             // Debug: Log the PID file path we're checking
-            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {pidFile}\n");
-            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(pidFile)}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {pidFile}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(pidFile)}\n");
 
             if (File.Exists(pidFile))
             {
@@ -1139,7 +1143,7 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
             }
             catch
             {
@@ -1147,7 +1151,7 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
             }
             catch
             {
@@ -1155,7 +1159,7 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
             }
             catch
             {
@@ -1164,7 +1168,7 @@ public static class WorkerMcpTools
             var quotedArgs = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
             }
             catch
             {
@@ -1177,7 +1181,7 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
             }
             catch
             {
@@ -1188,7 +1192,7 @@ public static class WorkerMcpTools
             // Log what Claude Code actually receives as input
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
             }
             catch
             {
@@ -1198,11 +1202,11 @@ public static class WorkerMcpTools
             await Task.Delay(3000);
             if (process.HasExited)
             {
-                File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
             }
             else
             {
-                File.AppendAllText(debugLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process {process.Id} is running\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process {process.Id} is running\n");
             }
 
             // Track active Worker session
@@ -1212,10 +1216,10 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting worker monitoring for PID: {process.Id}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting worker monitoring for PID: {process.Id}\n");
                 // Monitor for response file creation with FileSystemWatcher
                 var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker monitoring completed with result: {result.Substring(0, Math.Min(100, result.Length))}...\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker monitoring completed with result: {result.Substring(0, Math.Min(100, result.Length))}...\n");
                 return result;
             }
             finally
@@ -1230,7 +1234,7 @@ public static class WorkerMcpTools
         {
             try
             {
-                File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
             }
             catch
             {
@@ -1382,8 +1386,9 @@ public static class WorkerMcpTools
 
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
-        var debugLog = "/Users/thomasjespersen/Developer/PlatformPlatform/.claude/mcp-debug.log";
-        File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
+        var branchName = GitHelper.GetCurrentBranch();
+        var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
         var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
         var responseDetected = false;
         string? responseFilePath = null;
@@ -1393,13 +1398,13 @@ public static class WorkerMcpTools
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
         fileSystemWatcher.Created += (_, e) =>
         {
-            File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
             responseDetected = true;
             responseFilePath = e.FullPath;
         };
         fileSystemWatcher.EnableRaisingEvents = true;
 
-        File.AppendAllText(debugLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {messagesDirectory} for pattern: {responsePattern}\n");
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {messagesDirectory} for pattern: {responsePattern}\n");
 
         var startTime = DateTime.Now;
         var lastHealthCheck = startTime;
