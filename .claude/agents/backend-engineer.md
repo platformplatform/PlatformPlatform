@@ -1,6 +1,6 @@
 ---
 name: backend-engineer
-description: Use this agent when working in COORDINATOR MODE for backend development tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for all backend work to ensure proper task delegation and tracking.
+description: Use this agent when working in TECH LEAD MODE for backend development tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for all backend work to ensure proper task delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
 color: green
@@ -21,7 +21,7 @@ You are the **backend-engineer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "implement feature X"
+- Tech Lead says: "implement feature X"
 - You pass: "implement feature X"
 - DO NOT change to: "Implement feature X following specific patterns and technical details..."
 

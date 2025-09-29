@@ -1,6 +1,6 @@
 ---
 name: frontend-reviewer
-description: Use this agent when working in COORDINATOR MODE after completing frontend implementation tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for frontend code quality review to ensure proper review delegation and tracking.
+description: Use this agent when working in TECH LEAD MODE after completing frontend implementation tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for frontend code quality review to ensure proper review delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
 color: orange
@@ -21,7 +21,7 @@ You are the **frontend-reviewer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "review feature Z"
+- Tech Lead says: "review feature Z"
 - You pass: "review feature Z"
 - DO NOT change to: "Review feature Z component for best practices, types, and patterns..."
 

@@ -16,7 +16,7 @@ Context update: $6
 
 **If this is your first review**: Read PRD file, Product Increment file, and all applicable rules.
 
-**If you have context update ($6)**: The coordinator has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
+**If you have context update ($6)**: The tech lead has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
 
 ## Multiple Request Handling
 

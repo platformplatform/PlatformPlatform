@@ -1,6 +1,6 @@
 ---
 name: frontend-engineer
-description: Use this agent when working in COORDINATOR MODE for frontend development tasks with PRDs and Product Increments. When acting as coordinator, this agent MUST be called for all frontend work to ensure proper task delegation and tracking.
+description: Use this agent when working in TECH LEAD MODE for frontend development tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for all frontend work to ensure proper task delegation and tracking.
 tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
 model: inherit
 color: blue
@@ -21,7 +21,7 @@ You are the **frontend-engineer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Coordinator says: "build feature Y"
+- Tech Lead says: "build feature Y"
 - You pass: "build feature Y"
 - DO NOT change to: "Build feature Y using modern frameworks and best practices..."
 

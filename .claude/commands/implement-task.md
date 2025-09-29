@@ -14,7 +14,7 @@ Context update: $4
 
 **If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
 
-**If you have context update ($4)**: The coordinator has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
+**If you have context update ($4)**: The tech lead has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
 
 ## Multiple Request Handling
 
