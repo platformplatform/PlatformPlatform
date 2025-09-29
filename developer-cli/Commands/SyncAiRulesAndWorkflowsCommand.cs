@@ -18,7 +18,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Source directories from .claude
         var claudeRoot = Path.Combine(Configuration.SourceCodeFolder, ".claude");
         var claudeCommands = Path.Combine(claudeRoot, "commands");
-        var claudeAgents = Path.Combine(claudeRoot, "agents");
         var claudeRules = Path.Combine(claudeRoot, "rules");
         var claudeSamples = Path.Combine(claudeRoot, "samples");
         
@@ -43,18 +42,16 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         try
         {
             // Sync to Windsurf
-            // Commands and Agents → workflows
+            // Commands → workflows
             SyncClaudeToWindsurfWorkflows(claudeCommands, windsurfWorkflows);
-            SyncClaudeToWindsurfWorkflows(claudeAgents, windsurfWorkflows);
             // Rules → rules
             SyncClaudeToWindsurfRules(claudeRules, windsurfRules);
             // Samples → rules (same as rules for Windsurf)
             SyncClaudeToWindsurfRules(claudeSamples, windsurfSamples);
             
             // Sync to Cursor
-            // Commands and Agents → rules/workflows
+            // Commands → rules/workflows
             SyncClaudeToCursorWorkflows(claudeCommands, cursorWorkflows);
-            SyncClaudeToCursorWorkflows(claudeAgents, cursorWorkflows);
             // Rules → rules
             SyncClaudeToCursorRules(claudeRules, cursorRules, cursorWorkflows);
             // Samples → samples (simple copy for Cursor)
@@ -155,15 +152,11 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
             // Rules in Windsurf keep the same format as Claude but need reference conversion
             var lines = File.ReadAllLines(sourceFile);
-            var modifiedLines = new string[lines.Length];
-            
+
             // Convert .claude references to .windsurf references
-            for (var i = 0; i < lines.Length; i++)
-            {
-                modifiedLines[i] = lines[i].Replace("](/.claude/", "](/.windsurf/");
-            }
-            
-            var linesList = modifiedLines.ToList();
+            ReplaceClaudeReferencesWithWindsurf(lines);
+
+            var linesList = lines.ToList();
             // Remove trailing empty lines
             while (linesList.Count > 0 && string.IsNullOrWhiteSpace(linesList[linesList.Count - 1]))
             {
@@ -462,6 +455,14 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
     }
     
     
+    private static void ReplaceClaudeReferencesWithWindsurf(string[] lines)
+    {
+        for (var i = 0; i < lines.Length; i++)
+        {
+            lines[i] = lines[i].Replace("](/.claude/", "](/.windsurf/");
+        }
+    }
+
     private static void ReplaceclaudeReferencesWithCursor(string[] lines)
     {
         for (var i = 0; i < lines.Length; i++)
@@ -508,14 +509,10 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                         else if (mdcPath.StartsWith(".claude/"))
                         {
                             mdcPath = mdcPath.Replace(".claude/", ".cursor/");
-                            // Move commands and agents to rules/workflows
+                            // Move commands to rules/workflows
                             if (mdcPath.Contains("/commands/"))
                             {
                                 mdcPath = mdcPath.Replace(".cursor/commands/", ".cursor/rules/workflows/");
-                            }
-                            else if (mdcPath.Contains("/agents/"))
-                            {
-                                mdcPath = mdcPath.Replace(".cursor/agents/", ".cursor/rules/workflows/");
                             }
                         }
                         
@@ -536,7 +533,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             
             // Handle directory mappings for non-link references
             lines[i] = lines[i].Replace(".cursor/commands", ".cursor/rules/workflows");
-            lines[i] = lines[i].Replace(".cursor/agents", ".cursor/rules/workflows");
             lines[i] = lines[i].Replace(".cursor/workflows", ".cursor/rules/workflows");
             
             // Replace any remaining .md references to .mdc in plain text (not in links)
