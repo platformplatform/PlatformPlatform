@@ -794,7 +794,25 @@ public class ClaudeWorkerAgentCommand : Command
                 var reviewRequestFilePath = ExtractPathAfterKey(taskContent, "Request:");
                 var reviewResponseFilePath = ExtractPathAfterKey(taskContent, "Response:");
 
+                // Log extracted parameters for debugging
+                var branchName = GitHelper.GetCurrentBranch();
+                var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
+                try
+                {
+                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{reviewPrdPath}' ProductIncrement:'{reviewProductIncrementPath}' Task:'{reviewTaskNumber}' Request:'{reviewRequestFilePath}' Response:'{reviewResponseFilePath}'\n";
+                    File.AppendAllText(workflowLog, parameterLog);
+                }
+                catch { }
+
                 finalPrompt = $"/review-task '{reviewPrdPath}' '{reviewProductIncrementPath}' '{reviewTaskNumber}' '{reviewRequestFilePath}' '{reviewResponseFilePath}'";
+
+                // Log the final prompt for debugging
+                try
+                {
+                    var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
+                    File.AppendAllText(workflowLog, promptLog);
+                }
+                catch { }
             }
             else
             {
@@ -1018,7 +1036,14 @@ public class ClaudeWorkerAgentCommand : Command
         if (keyIndex == -1) return "";
 
         var startIndex = keyIndex + key.Length;
-        var endIndex = content.IndexOfAny(['\r', '\n', ' '], startIndex);
+        // Skip any whitespace after the key
+        while (startIndex < content.Length && char.IsWhiteSpace(content[startIndex]) && content[startIndex] != '\r' && content[startIndex] != '\n')
+        {
+            startIndex++;
+        }
+
+        // Extract until end of line (not stopping at spaces since paths can contain spaces)
+        var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
         if (endIndex == -1) endIndex = content.Length;
 
         return content.Substring(startIndex, endIndex - startIndex).Trim();
@@ -1030,6 +1055,13 @@ public class ClaudeWorkerAgentCommand : Command
         if (keyIndex == -1) return "";
 
         var startIndex = keyIndex + key.Length;
+        // Skip any whitespace after the key
+        while (startIndex < content.Length && char.IsWhiteSpace(content[startIndex]) && content[startIndex] != '\r' && content[startIndex] != '\n')
+        {
+            startIndex++;
+        }
+
+        // Extract until end of line
         var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
         if (endIndex == -1) endIndex = content.Length;
 
@@ -1570,7 +1602,7 @@ public static class WorkerMcpTools
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
-            "--append-system-prompt", $"You are a {agentType} Worker. Restart attempt #{attemptNumber}. Process task: {restartRequestFile}"
+            "--append-system-prompt", $"You are a {agentType} Worker. It looks like you stopped. Please re-read the latest request file and then ultrathink and evaluate how to continue the work as your colleagues are waiting for your response."
         };
 
         if (File.Exists(claudeSessionIdFile))
