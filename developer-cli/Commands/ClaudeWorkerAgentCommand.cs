@@ -25,7 +25,7 @@ public class ClaudeWorkerAgentCommand : Command
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
-            Description = "Agent type to run (tech-lead, backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)"
+            Description = "Agent type to run (tech-lead, backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)"
         };
         agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
 
@@ -96,7 +96,8 @@ public class ClaudeWorkerAgentCommand : Command
                         "frontend-engineer",
                         "backend-reviewer",
                         "frontend-reviewer",
-                        "e2e-test-reviewer"
+                        "test-automation-engineer",
+                        "test-automation-reviewer"
                     )
             );
         }
@@ -893,7 +894,8 @@ public class ClaudeWorkerAgentCommand : Command
             "frontend-engineer" => "Frontend Engineer",
             "backend-reviewer" => "Backend Reviewer",
             "frontend-reviewer" => "Frontend Reviewer",
-            "e2e-test-reviewer" => "E2E Test Reviewer",
+            "test-automation-engineer" => "Test Automation Engineer",
+            "test-automation-reviewer" => "Test Automation Reviewer",
             _ => agentType
         };
     }
@@ -907,7 +909,8 @@ public class ClaudeWorkerAgentCommand : Command
             "frontend-engineer" => Color.Blue,
             "backend-reviewer" => Color.Yellow,
             "frontend-reviewer" => Color.Orange3,
-            "e2e-test-reviewer" => Color.Purple,
+            "test-automation-engineer" => Color.Cyan1,
+            "test-automation-reviewer" => Color.Purple,
             _ => Color.White
         };
     }
@@ -1023,13 +1026,13 @@ public static class WorkerMcpTools
     private static readonly string[] ValidAgentTypes =
     {
         "tech-lead", "backend-engineer", "frontend-engineer",
-        "backend-reviewer", "frontend-reviewer", "e2e-test-reviewer"
+        "backend-reviewer", "frontend-reviewer", "test-automation-engineer", "test-automation-reviewer"
     };
 
     [McpServerTool]
-    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, or code review. The agent will work autonomously and return results.")]
+    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Worker type (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, e2e-test-reviewer)")]
+        [Description("Worker type (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,
