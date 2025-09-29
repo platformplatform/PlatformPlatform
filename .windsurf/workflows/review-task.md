@@ -96,6 +96,10 @@ Context update: $6
    - Mark "Create response file" [in_progress] in todo
    - Create response file with clear "## DECISION: APPROVED" or "## DECISION: NOT APPROVED - REQUIRES FIXES"
    - List all findings if NOT APPROVED
+   - **IMPORTANT**: Use descriptive response file names with proper casing for better activity display:
+     * Format: `NNNN.{agent-type}.response.Title-Case-Review-Description.md`
+     * Example: `0001.backend-reviewer.response.Review-Team-Aggregate-Found-3-Critical-Issues.md`
+     * Use Title-Case-With-Dashes so the activity display shows "Review Team Aggregate Found 3 Critical Issues"
    - Use atomic rename: .tmp → .md to signal completion
    - Mark "Create response file" [completed] in todo
 

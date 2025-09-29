@@ -188,20 +188,8 @@ public class ClaudeWorkerAgentCommand : Command
             return;
         }
 
-        // Create a clean waiting display without side borders
-        var rule = new Rule("[bold]WAITING FOR TASKS[/]")
-            .RuleStyle($"{agentColor}")
-            .LeftJustified();
-        AnsiConsole.Write(rule);
-
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
-        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
-        AnsiConsole.WriteLine();
-
-        var bottomRule = new Rule().RuleStyle($"{agentColor} dim");
-        AnsiConsole.Write(bottomRule);
-        AnsiConsole.WriteLine();
+        // Display initial waiting screen with recent activity
+        RedrawWaitingDisplay(agentType, branch);
 
         // Start watching for request files
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
@@ -446,6 +434,98 @@ public class ClaudeWorkerAgentCommand : Command
         }
     }
 
+    private static List<string> GetRecentActivity(string agentType, string branch)
+    {
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
+        var activities = new List<string>();
+
+        if (!Directory.Exists(messagesDirectory))
+        {
+            return activities;
+        }
+
+        try
+        {
+            // Find completed response files for this agent type
+            var responseFiles = Directory.GetFiles(messagesDirectory, $"*.{agentType}.response.*.md")
+                .Select(file => new
+                {
+                    FilePath = file,
+                    FileName = Path.GetFileName(file),
+                    ResponseTime = File.GetLastWriteTime(file)
+                })
+                .OrderBy(f => f.ResponseTime)  // Chronological order: oldest first, newest last
+                .ToList();
+
+            foreach (var file in responseFiles)
+            {
+                // Parse filename: NNNN.agent-type.response.Title-Case-Task-Name.md
+                var parts = file.FileName.Split('.');
+                if (parts.Length >= 4)
+                {
+                    var taskNumber = parts[0];
+                    var taskDescription = parts[3].Replace("-md", "").Replace('-', ' ');
+
+                    try
+                    {
+                        // Find corresponding request file to calculate duration
+                        var requestFileName = $"{taskNumber}.{agentType}.request.*.md";
+                        var requestFiles = Directory.GetFiles(messagesDirectory, requestFileName);
+
+                        if (requestFiles.Length > 0 && File.Exists(requestFiles[0]))
+                        {
+                            var requestTime = File.GetLastWriteTime(requestFiles[0]);
+                            var responseTime = file.ResponseTime;
+                            var duration = responseTime - requestTime;
+
+                            // Ensure duration is positive (handle clock skew, etc.)
+                            if (duration.TotalSeconds > 0)
+                            {
+                                var requestTimeStr = requestTime.ToString("HH:mm");
+                                var responseTimeStr = responseTime.ToString("HH:mm");
+                                var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
+
+                                var activityLine = $"✅ {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
+                                activities.Add(activityLine);
+                            }
+                            else
+                            {
+                                // Duration calculation failed, use simple format
+                                var timeStamp = file.ResponseTime.ToString("HH:mm");
+                                var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                                activities.Add(activityLine);
+                            }
+                        }
+                        else
+                        {
+                            // No request file found, use simple format
+                            var timeStamp = file.ResponseTime.ToString("HH:mm");
+                            var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                            activities.Add(activityLine);
+                        }
+                    }
+                    catch
+                    {
+                        // Any file access error, use simple format
+                        var timeStamp = file.ResponseTime.ToString("HH:mm");
+                        var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                        activities.Add(activityLine);
+                    }
+                }
+            }
+
+            if (activities.Count == 0)
+            {
+                activities.Add("   No completed tasks yet");
+            }
+        }
+        catch
+        {
+            activities.Add("   Unable to load activity history");
+        }
+
+        return activities;
+    }
 
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
@@ -489,7 +569,6 @@ public class ClaudeWorkerAgentCommand : Command
     {
         // Cancel any existing listener first
         _enterKeyListenerCancellation?.Cancel();
-        AnsiConsole.MarkupLine("[grey]Starting ENTER key listener[/]");
         _enterKeyListenerCancellation = new CancellationTokenSource();
         _ = Task.Run(async () =>
             {
@@ -880,8 +959,19 @@ public class ClaudeWorkerAgentCommand : Command
         AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
         AnsiConsole.WriteLine();
 
-        var bottomRule = new Rule().RuleStyle($"{agentColor} dim");
-        AnsiConsole.Write(bottomRule);
+        // Show activities section
+        var activitiesRule = new Rule("[bold]ACTIVITIES[/]")
+            .RuleStyle($"{agentColor}")
+            .LeftJustified();
+        AnsiConsole.Write(activitiesRule);
+
+        AnsiConsole.WriteLine();
+        var recentActivities = GetRecentActivity(agentType, branch);
+        foreach (var activity in recentActivities)
+        {
+            // Show all activities in default white color
+            AnsiConsole.MarkupLine($"{Markup.Escape(activity)}");
+        }
         AnsiConsole.WriteLine();
     }
 
