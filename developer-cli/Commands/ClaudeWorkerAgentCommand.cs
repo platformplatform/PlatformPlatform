@@ -219,7 +219,7 @@ public class ClaudeWorkerAgentCommand : Command
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
-            "--permission-mode", "default",
+            "--permission-mode", "acceptEdits",
             "/coordinator-mode"
         };
 
@@ -254,11 +254,110 @@ public class ClaudeWorkerAgentCommand : Command
 
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
         process.Start();
+
+        // Start coordinator health monitoring
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
+        _ = Task.Run(async () => await MonitorCoordinatorHealth(process, agentType, branch, messagesDirectory));
+
         await process.WaitForExitAsync();
 
         // Coordinator exited - clean up and show completion
         var agentColor = GetAgentColor(agentType);
         AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Coordinator session ended[/]");
+    }
+
+    private async Task MonitorCoordinatorHealth(Process coordinatorProcess, string agentType, string branch, string messagesDirectory)
+    {
+        var timeout = TimeSpan.FromMinutes(62);
+        var lastActivity = DateTime.Now;
+
+        // Monitor messages directory for activity
+        using var watcher = new FileSystemWatcher(messagesDirectory)
+        {
+            Filter = "*.md",
+            EnableRaisingEvents = true
+        };
+
+        watcher.Created += (sender, e) => lastActivity = DateTime.Now;
+
+        while (!coordinatorProcess.HasExited)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(1)); // Check every minute
+
+            if (DateTime.Now - lastActivity > timeout)
+            {
+                // Kill stalled coordinator
+                AnsiConsole.MarkupLine("[red]Coordinator inactive for 62 minutes - restarting...[/]");
+
+                try
+                {
+                    coordinatorProcess.Kill();
+                    await coordinatorProcess.WaitForExitAsync();
+                }
+                catch
+                {
+                    // Process might have already exited
+                }
+
+                // Restart coordinator with recovery message
+                await RestartCoordinatorWithRecoveryMessage(agentType, branch);
+                break;
+            }
+        }
+    }
+
+    private async Task RestartCoordinatorWithRecoveryMessage(string agentType, string branch)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+
+        var recoveryMessage = "It looks like you or one of the agents stopped. Please evaluate why the progress halted, what went wrong, ultrathink and ensure the system workflow continues until all items on your to-do list are completed. Remember that you are the coordinator and should ALWAYS delegate work.";
+
+        var coordinatorArgs = new List<string>
+        {
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--permission-mode", "acceptEdits",
+            recoveryMessage
+        };
+
+        // Use existing session ID if available
+        if (File.Exists(claudeSessionIdFile))
+        {
+            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            coordinatorArgs.Insert(0, "--resume");
+            coordinatorArgs.Insert(1, claudeSessionId.Trim());
+        }
+        else
+        {
+            var newClaudeSessionId = Guid.NewGuid().ToString();
+            await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
+            coordinatorArgs.Insert(0, "--session-id");
+            coordinatorArgs.Insert(1, newClaudeSessionId);
+        }
+
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "claude",
+                Arguments = string.Join(" ", coordinatorArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                WorkingDirectory = Configuration.SourceCodeFolder,
+                UseShellExecute = false,
+                RedirectStandardInput = false,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false
+            }
+        };
+
+        process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+        process.Start();
+
+        // Restart health monitoring for the new process
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
+        _ = Task.Run(async () => await MonitorCoordinatorHealth(process, agentType, branch, messagesDirectory));
+
+        await process.WaitForExitAsync();
     }
 
     private static void CleanupPidFile(string pidFile)
