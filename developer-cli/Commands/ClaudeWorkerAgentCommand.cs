@@ -908,28 +908,35 @@ public class ClaudeWorkerAgentCommand : Command
         var requestFileName = Path.GetFileName(requestFile);
         var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
         var counter = match.Groups[1].Value;
-        var shortTitle = match.Groups[3].Value;
-        var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
-        var responseFilePath = Path.Combine(messagesDirectory, responseFileName);
+        var responseFilePattern = $"{counter}.{agentType}.response.*.md";
 
-        // Wait for response file to appear (not .tmp, the final renamed file)
-        AnsiConsole.MarkupLine($"[grey]Waiting for response file: {responseFilePath}[/]");
+        // Wait for any response file matching the pattern (agents can use descriptive names)
+        AnsiConsole.MarkupLine($"[grey]Waiting for response file: {counter}.{agentType}.response.*.md[/]");
         var startTime = DateTime.Now;
         var timeout = TimeSpan.FromMinutes(30);
 
-        while (!File.Exists(responseFilePath))
+        string? foundResponseFile = null;
+        while (foundResponseFile == null)
         {
             if (DateTime.Now - startTime > timeout)
             {
-                AnsiConsole.MarkupLine($"[red]Timeout waiting for response file: {responseFilePath}[/]");
+                AnsiConsole.MarkupLine($"[red]Timeout waiting for response file: {responseFilePattern}[/]");
                 // Timeout - kill Claude anyway
+                break;
+            }
+
+            // Check for any file matching the pattern
+            var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
+            if (matchingFiles.Length > 0)
+            {
+                foundResponseFile = matchingFiles[0];
                 break;
             }
 
             await Task.Delay(500); // Check every 500ms
         }
 
-        if (File.Exists(responseFilePath))
+        if (foundResponseFile != null)
         {
             var agentColor = GetAgentColor(agentType);
             AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
@@ -1240,8 +1247,7 @@ public static class WorkerMcpTools
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
 
                             // Wait for the response file to be created (atomic rename from .tmp)
-                            var responsePattern = $"{taskCounter:D4}.{agentType}.response.{taskShortTitle}.md";
-                            var responseFile = Path.Combine(messagesDirectory, responsePattern);
+                            var responsePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
                             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {responsePattern}[/]");
 
@@ -1249,12 +1255,21 @@ public static class WorkerMcpTools
                             var startTime = DateTime.Now;
                             var timeout = TimeSpan.FromMinutes(30);
 
-                            // Wait for final renamed file (not .tmp)
-                            while (!File.Exists(responseFile))
+                            string? foundResponseFile = null;
+                            // Wait for any file matching the pattern (agents can use descriptive names)
+                            while (foundResponseFile == null)
                             {
                                 if (DateTime.Now - startTime > timeout)
                                 {
                                     throw new TimeoutException($"Interactive {agentType} did not complete task within 30 minutes");
+                                }
+
+                                // Check for any file matching the pattern
+                                var matchingFiles = Directory.GetFiles(messagesDirectory, responsePattern);
+                                if (matchingFiles.Length > 0)
+                                {
+                                    foundResponseFile = matchingFiles[0];
+                                    break;
                                 }
 
                                 await Task.Delay(500); // Check every 500ms
@@ -1263,10 +1278,11 @@ public static class WorkerMcpTools
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
 
                             // Read response content immediately - file is complete via atomic rename
-                            var responseContent = await File.ReadAllTextAsync(responseFile);
+                            var responseContent = await File.ReadAllTextAsync(foundResponseFile);
 
                             // Log task completion
-                            LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{responsePattern}]", messagesDirectory);
+                            var actualResponseFileName = Path.GetFileName(foundResponseFile);
+                            LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]", messagesDirectory);
 
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Interactive agent completed task[/]");
                             return responseContent;
