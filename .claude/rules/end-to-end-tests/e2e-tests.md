@@ -10,19 +10,20 @@ These rules outline the structure, patterns, and best practices for writing end-
 
 ## Implementation
 
-1. Use `[CLI_ALIAS] e2e` with these option categories to optimize test execution:
-   - Test filtering: `--smoke`, `--include-slow`, search terms (e.g., `"@smoke"`, `"smoke"`, `"user"`, `"localization"`), `--browser`
-   - Change scoping: `--last-failed`, `--only-changed`  
-   - Flaky test detection: `--repeat-each`, `--retries`, `--stop-on-first-failure`
-   - Performance: `--debug-timings` shows step execution times with color coding
+1. Use `mcp__platformplatform-developer-cli__e2e()` with these options to optimize test execution:
+   - Test filtering: `smoke=true`, `includeSlow=true`, `searchTerms=["@smoke"]`, `browser="chromium"`
+   - Change scoping: `lastFailed=true`, `onlyChanged=true`
+   - Flaky test detection: `repeatEach=3`, `retries=2`, `stopOnFirstFailure=true`
+   - Performance: `debugTiming=true` shows step execution times with color coding
+   - **Note**: The MCP tool always runs with `--quiet` flag automatically
 
 2. Test Search and Filtering:
-   - Search by test tags: `[CLI_ALIAS] e2e "@smoke"` or `[CLI_ALIAS] e2e "smoke"` (both work the same)
-   - Search by test content: `[CLI_ALIAS] e2e "user"` (finds tests with "user" in title or content)
-   - Search by filename: `[CLI_ALIAS] e2e "localization"` (finds localization-flows.spec.ts)
-   - Search by specific file: `[CLI_ALIAS] e2e "user-management-flows.spec.ts"`
-   - Multiple search terms: `[CLI_ALIAS] e2e "user" "management"`
-   - The CLI automatically detects which self-contained systems contain matching tests and only runs those
+   - Search by test tags: `e2e(searchTerms=["@smoke"])` or `e2e(searchTerms=["smoke"])` (both work the same)
+   - Search by test content: `e2e(searchTerms=["user"])` (finds tests with "user" in title or content)
+   - Search by filename: `e2e(searchTerms=["localization"])` (finds localization-flows.spec.ts)
+   - Search by specific file: `e2e(searchTerms=["user-management-flows.spec.ts"])`
+   - Multiple search terms: `e2e(searchTerms=["user", "management"])`
+   - The tool automatically detects which self-contained systems contain matching tests and only runs those
 
 3. Test-Driven Debugging Process:
    - Focus on one failing test at a time and make it pass before moving to the next.

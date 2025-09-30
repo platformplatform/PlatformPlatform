@@ -45,9 +45,9 @@ Context update: $6
 
 **Step 2. Validate implementation builds by running check command**:
    - Mark "Validate implementation builds by running check command" [in_progress] in todo
-   - **Backend**: Run `pp check` and verify exit code 0
-   - **Frontend**: Run `pp check --frontend` and verify exit code 0
-   - **E2E**: Run `pp e2e` and verify exit code 0
+   - **Backend**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.BackendOnly)` and verify exit code 0
+   - **Frontend**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.FrontendOnly)` and verify exit code 0
+   - **E2E**: Use `mcp__platformplatform-developer-cli__e2e()` and verify exit code 0 (runs with --quiet automatically)
    - Always check `/application/result.json` for any static code analysis findings
    - Mark "Validate implementation builds by running check command" [completed] in todo
 
@@ -109,7 +109,7 @@ Use this exact format:
 
 ```
 Understand context and catch up efficiently [pending]                                                       (STEP 1)
-Validate implementation builds by running "pp check" [pending]                                              (STEP 2)
+Validate implementation builds by running check command [pending]                                           (STEP 2)
 Study rules relevant for the task at hand [pending]                                                         (STEP 3)
 Review each changed file in detail [pending]                                                                (STEP 4) *
 ├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
