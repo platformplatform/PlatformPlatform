@@ -153,6 +153,14 @@ Product Increment [Z]: [Other increment name] [pending]
    - DO NOT copy subtask details (1.1, 1.2, etc.)
    - DO NOT copy requirements or implementation details
 **STEP 4**: Always delegate review to appropriate reviewer
+   NOTE: When engineer completes work, the proxy agent returns the `current-engineer-response-number` actual filenames:
+   ```
+   Worker completed task 'XXX'.
+   Request: NNNN.{engineer-type}.request.{task-name}.md
+   Response: NNNN.{engineer-type}.response.{Task-Name}.md
+   ```
+
+   **Extract these ACTUAL filenames** from the response and use them in your review delegation:
      - Backend tasks → Use Task tool: backend-reviewer
      - Frontend tasks → Use Task tool: frontend-reviewer
      - E2E test tasks → Use Task tool: test-automation-reviewer
