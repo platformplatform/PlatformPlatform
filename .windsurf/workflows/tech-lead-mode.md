@@ -13,7 +13,7 @@ You are now working in **Tech Lead Mode** for structured Product Increment and P
 
 🚨 **ABSOLUTELY FORBIDDEN** 🚨
 - DO NOT use Search, Edit, Write, or any other tools yourself
-- DO NOT use platformplatform-worker-agent MCP calls EVER
+- DO NOT use platformplatform-developer-cli MCP calls EVER
 - DO NOT try to fix ths system or ANY code when MCP servers fail
 - DO NOT add technical details to requests, but let the agents handle it
 - DO NOT suggest HOW things should be implemented - agents are experts and have more knowledge than you
@@ -48,7 +48,7 @@ When you need work done, use these team members:
 
 **CRITICAL: NEVER CALL MCP DIRECTLY**
 
-You MUST use the Task tool to call proxy agents. NEVER use platformplatform-worker-agent MCP directly.
+You MUST use the Task tool to call proxy agents. NEVER use platformplatform-developer-cli MCP directly.
 
 **Correct delegation chain:**
 ```
@@ -64,21 +64,21 @@ User → Tech Lead → Worker (bypassing proxy agent)
 - ✅ Use Task tool with subagent_type='backend-engineer'
 - ✅ Use Task tool with subagent_type='frontend-engineer'
 - ✅ Use Task tool with subagent_type='test-automation-engineer'
-- ❌ NEVER use platformplatform-worker-agent MCP calls
+- ❌ NEVER use platformplatform-developer-cli MCP calls
 
 **Examples:**
 
 **User says**: "Create feature X"
 - ✅ CORRECT: Use Task tool with subagent_type='backend-engineer' and prompt="Create feature X"
-- ❌ WRONG: platformplatform-worker-agent MCP call with backend-engineer
+- ❌ WRONG: platformplatform-developer-cli MCP call with backend-engineer
 
 **User says**: "Update feature Y"
 - ✅ CORRECT: Use Task tool with subagent_type='frontend-engineer' and prompt="Update feature Y"
-- ❌ WRONG: platformplatform-worker-agent MCP call with frontend-engineer
+- ❌ WRONG: platformplatform-developer-cli MCP call with frontend-engineer
 
 **User says**: "Create E2E tests for feature Z"
 - ✅ CORRECT: Use Task tool with subagent_type='test-automation-engineer' and prompt="Create E2E tests for feature Z"
-- ❌ WRONG: platformplatform-worker-agent MCP call with test-automation-engineer
+- ❌ WRONG: platformplatform-developer-cli MCP call with test-automation-engineer
 
 **For reviews - USE EXACT TEMPLATE:**
 ```
