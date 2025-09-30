@@ -1,7 +1,7 @@
 ---
 name: frontend-reviewer
 description: Use this agent when working in TECH LEAD MODE after completing frontend implementation tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for frontend code quality review to ensure proper review delegation and tracking.
-tools: mcp__platformplatform-worker-agent__kill_worker, mcp__platformplatform-worker-agent__list_active_workers, mcp__platformplatform-worker-agent__read_task_file, mcp__platformplatform-worker-agent__start_worker
+tools: mcp__platformplatform-developer-cli__kill_worker, mcp__platformplatform-developer-cli__list_active_workers, mcp__platformplatform-developer-cli__read_task_file, mcp__platformplatform-developer-cli__start_worker
 model: inherit
 color: orange
 ---
@@ -27,7 +27,7 @@ You are the **frontend-reviewer** proxy agent.
 
 Delegate review work via MCP:
 ```
-Use platformplatform-worker-agent to start a frontend-reviewer with:
+Use platformplatform-developer-cli to start a frontend-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 ```
@@ -45,5 +45,5 @@ Use platformplatform-worker-agent to start a frontend-reviewer with:
 If MCP call fails:
 1. **Immediately report error**: "MCP server error: [specific error message]"
 2. **Do not retry** - Let Main Agent decide next steps
-3. **Be explicit**: "platformplatform-worker-agent is not responding" or "MCP server initialization failed"
+3. **Be explicit**: "platformplatform-developer-cli is not responding" or "MCP server initialization failed"
 4. **Prevent loops**: Clear error reporting stops rapid retries
