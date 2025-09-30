@@ -576,22 +576,29 @@ public class ClaudeWorkerAgentCommand : Command
                 {
                     try
                     {
-                        var key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Enter)
+                        // Non-blocking keyboard check to allow cancellation
+                        if (Console.KeyAvailable)
                         {
-                            AnsiConsole.Clear();
-                            AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+                            var key = Console.ReadKey(true);
+                            if (key.Key == ConsoleKey.Enter)
+                            {
+                                AnsiConsole.Clear();
+                                AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
 
-                            // Launch manual session
-                            await LaunchManualClaudeSession(agentType, branch);
+                                // Launch manual session
+                                await LaunchManualClaudeSession(agentType, branch);
 
-                            // Return to waiting display
-                            RedrawWaitingDisplay(agentType, branch);
+                                // Return to waiting display
+                                RedrawWaitingDisplay(agentType, branch);
 
-                            // Restart the ENTER key listener for next use
-                            StartEnterKeyListener(agentType, branch);
-                            break; // Exit this instance of the listener
+                                // Restart the ENTER key listener for next use
+                                StartEnterKeyListener(agentType, branch);
+                                break; // Exit this instance of the listener
+                            }
                         }
+
+                        // Cancellable delay to allow immediate cancellation
+                        await Task.Delay(100, _enterKeyListenerCancellation.Token);
                     }
                     catch (OperationCanceledException)
                     {
