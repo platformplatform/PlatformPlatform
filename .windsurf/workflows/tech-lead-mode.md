@@ -154,6 +154,14 @@ Product Increment [Z]: [Other increment name] [pending]
    - DO NOT copy subtask details (1.1, 1.2, etc.)
    - DO NOT copy requirements or implementation details
 **STEP 4**: Always delegate review to appropriate reviewer
+   NOTE: When engineer completes work, the proxy agent returns the `current-engineer-response-number` actual filenames:
+   ```
+   Worker completed task 'XXX'.
+   Request: NNNN.{engineer-type}.request.{task-name}.md
+   Response: NNNN.{engineer-type}.response.{Task-Name}.md
+   ```
+
+   **Extract these ACTUAL filenames** from the response and use them in your review delegation:
      - Backend tasks → Use Task tool: backend-reviewer
      - Frontend tasks → Use Task tool: frontend-reviewer
      - E2E test tasks → Use Task tool: test-automation-reviewer
@@ -167,6 +175,7 @@ Product Increment [Z]: [Other increment name] [pending]
 
 **CRITICAL**: Use the CURRENT branch name and CURRENT request/response numbers - never read files from other branch workspaces. Each branch workspace is isolated.
    - **Review Loop**: If NOT APPROVED → delegate fixes back to engineer → review again
+   - **After engineer fixes issues**: IMMEDIATELY delegate back to reviewer using same review template - continue loop until APPROVED
    - **Only when APPROVED**: Reviewer commits automatically, then proceed to STEP 5
 **STEP 5**: After review decision:
    - **If APPROVED**: Reviewer has changed status to [Completed] and committed - PAUSE for strategic reflection
@@ -260,11 +269,12 @@ When reviewers find issues:
 2. Backend-reviewer finds issues → "The backend-reviewer identified issues"
 3. **AUTOMATICALLY** delegate back using template:
    ```
-   Fix the issues identified by the backend-reviewer
+   Fix the issues identified by the {reviewer-type} for: {original-task-title}
 
    Original request: /.workspace/agent-workspaces/{current-branch}/messages/{latest-engineer-request-file}
    Review: /.workspace/agent-workspaces/{current-branch}/messages/{latest-reviewer-response-file}
    ```
+   **Example**: "Fix the issues identified by the backend-reviewer for: Create GetTeamMembers query with API endpoint"
 4. Backend-engineer fixes → "The backend-engineer reports fixes completed"
 5. Backend-reviewer re-reviews using same template:
    ```

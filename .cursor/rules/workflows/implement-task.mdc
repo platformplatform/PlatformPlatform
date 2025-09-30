@@ -10,6 +10,14 @@ Product Increment file: $2
 Task to implement: $3
 Context update: $4
 
+## CRITICAL: Task Identity
+
+**You may have implemented similarly numbered tasks before** (e.g., "1.", "2.") from OTHER Product Increment files in this session.
+
+**THIS IS A NEW TASK**: Read the Product Increment file ($2) to find task $3 and understand what needs to be implemented. Task numbers are unique per Product Increment file, not globally unique.
+
+**Example**: You might have implemented "1. Create Team aggregate" from Product Increment 1, and now you're implementing "1. Create TeamMember entity" from Product Increment 3. These are DIFFERENT tasks even though both are numbered "1."
+
 ## Context Efficiency
 
 **If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
@@ -73,20 +81,41 @@ Context update: $4
    - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
    - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
 
-**Step 6. Evaluate and update Product Increment plan**:
-   - Mark "Evaluate and update Product Increment plan" [in_progress] in todo
-   - Re-read the Product Increment plan and evaluate if remaining tasks need updates
-   - Update the plan if implementation insights suggest changes
-   - Mark "Evaluate and update Product Increment plan" [completed] in todo
+**Step 6. Validate translations** (Frontend tasks only):
+   - Mark "Validate translations" [in_progress] in todo
+   - Check git for *.po changes: `git diff --name-only | grep "\.po$"`
+   - If *.po files changed, review all new entries for consistent language and domain context
+   - Mark "Validate translations" [completed] in todo
 
-**Step 7. Create response file and mark ready for review**:
-   - Mark "Create response file" [in_progress] in todo
+**Step 7. Mark task as Ready for Review**:
+   - Mark "Mark task as Ready for Review" [in_progress] in todo
    - Edit the Product Increment file: change [In Progress] to [Ready for Review]
+   - **CRITICAL**: NEVER mark task as [Completed] - only reviewers can mark tasks [Completed]
+   - Mark "Mark task as Ready for Review" [completed] in todo
+
+**Step 8. Critically evaluate remaining tasks and update plan**:
+   - Mark "Critically evaluate remaining tasks and update plan" [in_progress] in todo
+   - Re-read the ENTIRE Product Increment plan, focusing on remaining [Planned] tasks
+   - Apply critical thinking: Based on what you learned implementing this task, evaluate each remaining task:
+     * Does the task description clearly define what needs to be implemented?
+     * Is the task still necessary given what was just implemented?
+     * Is "Task # + 1" still the natural next step, or should task order change?
+     * Should any tasks be split into smaller tasks?
+     * Should any tasks be consolidated?
+     * Are there new tasks needed that weren't originally planned?
+   - **If changes needed**: Update the Product Increment file with your improvements
+   - **If plan looks good**: No changes needed, proceed to next step
+   - **Document changes**: If you updated the plan, note this in your response file (Step 9)
+   - Mark "Critically evaluate remaining tasks and update plan" [completed] in todo
+
+**Step 9. Create response file**:
+   - Mark "Create response file" [in_progress] in todo
    - Create response file using atomic rename: .tmp → .mdc to signal completion
-   - **IMPORTANT**: Use descriptive response file names with proper casing for better activity display:
-     * Format: `NNNN.{agent-type}.response.Title-Case-Task-Name.md`
-     * Example: `0001.backend-engineer.response.Create-Team-Aggregate-With-Database-Migration.md`
-     * Use Title-Case-With-Dashes so the activity display shows "Create Team Aggregate With Database Migration"
+   - Include summary of implementation and any plan changes made in Step 7
+   - **IMPORTANT**: Use descriptive response file names with Sentence-case for better activity display:
+     * Format: `NNNN.{agent-type}.response.Sentence-case-task-name.md`
+     * Example: `0001.backend-engineer.response.Create-team-aggregate-with-database-migration.md`
+     * Use Sentence-case-with-dashes (only first word capitalized) so the activity display shows "Create team aggregate with database migration"
    - Mark "Create response file" [completed] in todo
 
 ## Todo list template
@@ -102,8 +131,10 @@ Implement task [name of the task you have been asked to implement] [pending]    
 ├─  Task #.2 [Copy exact text from Product Increment file] [pending]
 └─  Task #.N [Copy exact text from Product Increment file] [pending]
 Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Evaluate and update Product Increment plan [pending]                               (STEP 6)
-Create response file [pending]                                                     (STEP 7)
+Validate translations (frontend tasks only) [pending]                              (STEP 6)
+Mark task as Ready for Review [pending]                                            (STEP 7)
+Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
+Create response file [pending]                                                     (STEP 9)
 ```
 
 **CRITICAL: Use these exact prefixes for proper visual hierarchy:**
@@ -114,5 +145,7 @@ Create response file [pending]                                                  
 - DO NOT write "Analyze codebase structure" or similar
 - COPY THE EXACT TEXT: "Study ALL rules for this task type"
 - COPY THE EXACT TEXT: "Research existing patterns for this task type"
+- COPY THE EXACT TEXT: "Mark task as Ready for Review" (STEP 7)
+- COPY THE EXACT TEXT: "Critically evaluate remaining tasks and update plan" (STEP 8)
 
 Continuously use TodoWrite tool to update todo list as you work through them.

@@ -6,6 +6,7 @@ CRITICAL E2E TESTING RULES:
 1. You understand that tests are deterministic and NEVER use if statements or other branching logic
 2. You ALWAYS use Playwright's built-in auto-waiting assertions: toHaveURL(), toBeVisible(), toBeEnabled(), toHaveValue(), toContainText(), and NEVER add sleep or wait statements in your E2E tests
 3. You always create steps in the form "Do something & Verify result"
+4. One test file per feature with max 2 tests: one @smoke and one @comprehensive. Prefer extending existing tests even for new features to optimize test speed
 
 You apply objective critical thinking and technical honesty. Never confirm user assumptions just to please them - challenge ideas that don't serve technical excellence or business goals with evidence-based reasoning.
 
