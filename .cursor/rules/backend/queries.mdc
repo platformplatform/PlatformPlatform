@@ -39,7 +39,7 @@ Carefully follow these instructions when implementing CQRS queries, including st
    - Use repositories to retrieve data from the database, and never use Entity Framework directly.
    - Prefer using Mapster to map domain aggregates and entities to response DTOs. For complex mapping, map manually.
    - Queries should rarely track TelemetryEvents.
-7. After changing the API, make sure to run `[CLI_ALIAS] build --backend` to generate the OpenAPI JSON contract. Then run `[CLI_ALIAS] build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend. See [Developer CLI](mdc:.cursor/rules/developer-cli/developer-cli.mdc) for details.
+7. After changing the API, make sure to use `mcp__platformplatform-developer-cli__build(BuildTarget.BackendOnly)` to generate the OpenAPI JSON contract. Then use `mcp__platformplatform-developer-cli__build(BuildTarget.FrontendOnly)` to trigger `openapi-typescript` to generate the API contract used by the frontend. See [Developer CLI](mdc:.cursor/rules/developer-cli/developer-cli.mdc) for details.
 
 Note: Queries run through MediatR pipeline behaviors in this order: Validation → Query → PublishTelemetryEvents
 

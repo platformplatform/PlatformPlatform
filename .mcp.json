@@ -8,9 +8,9 @@
       "command": "npx",
       "args": ["@browsermcp/mcp@latest"]
     },
-    "platformplatform-worker-agent": {
+    "platformplatform-developer-cli": {
       "command": "dotnet",
-      "args": ["run", "--project", "developer-cli", "claude-worker-agent", "--mcp"]
+      "args": ["run", "--project", "developer-cli", "mcp"]
     }
   }
 }

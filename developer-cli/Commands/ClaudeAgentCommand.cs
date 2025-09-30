@@ -12,16 +12,15 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class ClaudeWorkerAgentCommand : Command
+public class ClaudeAgentCommand : Command
 {
     private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
-    private static bool IsMcpMode;
     private static string? SelectedAgentType;
 
     private CancellationTokenSource? _enterKeyListenerCancellation;
 
-    public ClaudeWorkerAgentCommand() : base("claude-worker-agent", "Interactive Worker Host for agent development")
+    public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
@@ -29,52 +28,24 @@ public class ClaudeWorkerAgentCommand : Command
         };
         agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
 
-        var mcpOption = new Option<bool>("--mcp", "Run as MCP server for automated workflows");
         var resumeOption = new Option<bool>("--resume", "Resume specific tech lead session from workspace (only for tech-lead agent type)");
         var continueOption = new Option<bool>("--continue", "Continue most recent conversation in main repo (only for tech-lead agent type)");
 
         AddArgument(agentTypeArgument);
-        AddOption(mcpOption);
         AddOption(resumeOption);
         AddOption(continueOption);
 
-        this.SetHandler(ExecuteAsync, agentTypeArgument, mcpOption, resumeOption, continueOption);
+        this.SetHandler(ExecuteAsync, agentTypeArgument, resumeOption, continueOption);
     }
 
-    private async Task ExecuteAsync(string? agentType, bool mcp, bool resume, bool continueSession)
+    private async Task ExecuteAsync(string? agentType, bool resume, bool continueSession)
     {
         try
         {
-            IsMcpMode = mcp;
             SelectedAgentType = agentType;
 
-            if (mcp)
-            {
-                // MCP server mode for automated workflows
-                AnsiConsole.MarkupLine("[green]Starting MCP claude-agent-worker-host server...[/]");
-                AnsiConsole.MarkupLine("[dim]Listening on stdio for MCP communication[/]");
-                Console.Error.WriteLine("[MCP DEBUG] Server starting - tools should be available now");
-
-                // Use the official SDK hosting pattern from GitHub repo
-                var builder = Host.CreateApplicationBuilder();
-                builder.Logging.AddConsole(consoleLogOptions =>
-                    {
-                        // Configure all logs to go to stderr
-                        consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
-                    }
-                );
-                builder.Services
-                    .AddMcpServer()
-                    .WithStdioServerTransport()
-                    .WithToolsFromAssembly();
-
-                await builder.Build().RunAsync();
-            }
-            else
-            {
-                // Interactive mode (default)
-                await RunInteractiveMode(agentType, resume, continueSession);
-            }
+            // Interactive mode
+            await RunInteractiveMode(agentType, resume, continueSession);
         }
         catch (Exception ex)
         {
@@ -1362,7 +1333,7 @@ public static class WorkerMcpTools
             Directory.CreateDirectory(agentWorkspaceDirectory);
 
             // Setup workspace with symlink to .claude directory
-            await ClaudeWorkerAgentCommand.SetupAgentWorkspace(agentWorkspaceDirectory);
+            await ClaudeAgentCommand.SetupAgentWorkspace(agentWorkspaceDirectory);
 
             // Deterministic session management for automated workers
             var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -1472,7 +1443,7 @@ public static class WorkerMcpTools
             }
 
             // Track active Worker session
-            ClaudeWorkerAgentCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
+            ClaudeAgentCommand.AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
 
             LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]", messagesDirectory);
 
@@ -1487,7 +1458,7 @@ public static class WorkerMcpTools
             finally
             {
                 // Remove from active sessions and release workspace lock
-                ClaudeWorkerAgentCommand.RemoveWorkerSession(process.Id);
+                ClaudeAgentCommand.RemoveWorkerSession(process.Id);
                 workspaceMutex.ReleaseMutex();
                 workspaceMutex.Dispose();
             }
@@ -1537,14 +1508,14 @@ public static class WorkerMcpTools
     public static string ListActiveWorkers()
     {
         Console.Error.WriteLine("[MCP DEBUG] ListActiveWorkers called");
-        return ClaudeWorkerAgentCommand.GetActiveWorkersList();
+        return ClaudeAgentCommand.GetActiveWorkersList();
     }
 
     [McpServerTool]
     [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
     public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
     {
-        return ClaudeWorkerAgentCommand.TerminateWorker(processId);
+        return ClaudeAgentCommand.TerminateWorker(processId);
     }
 
 
@@ -1691,8 +1662,8 @@ public static class WorkerMcpTools
 
     private static void UpdateWorkerSession(int oldProcessId, int newProcessId, string agentType, string taskTitle, string requestFileName, Process newProcess)
     {
-        ClaudeWorkerAgentCommand.RemoveWorkerSession(oldProcessId);
-        ClaudeWorkerAgentCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
+        ClaudeAgentCommand.RemoveWorkerSession(oldProcessId);
+        ClaudeAgentCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
 
     private static void LogWorkerActivity(string message, string messagesDirectory)

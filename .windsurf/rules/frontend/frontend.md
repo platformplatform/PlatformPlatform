@@ -62,11 +62,11 @@ Carefully follow these instructions for frontend TypeScript and React developmen
    - Reference existing implementations to maintain consistency.
 
 4. Build and format your changes:
-   - After each minor change, run `[CLI_ALIAS] build --frontend` to format your code. See [Tools](/.windsurf/rules/tools.md) for details.
+   - After each minor change, use `mcp__platformplatform-developer-cli__build(BuildTarget.FrontendOnly)` to format your code. See [Tools](/.windsurf/rules/tools.md) for details.
    - This ensures consistent code style across the codebase.
 
 5. Verify your changes:
-   - When a feature is complete, run `[CLI_ALIAS] check --frontend` to verify your changes.
+   - When a feature is complete, use `mcp__platformplatform-developer-cli__check(BuildTarget.FrontendOnly)` to verify your changes.
    - This command runs build, format, and check in that order.
    - Fix any compiler warnings or test failures before proceeding.
 

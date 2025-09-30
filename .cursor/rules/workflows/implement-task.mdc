@@ -67,15 +67,16 @@ Context update: $4
    - For each subtask:
       - Mark subtask [in_progress] in todo
       - Implement subtask following established patterns
-      - For changes run `pp build --backend`, `pp build --frontend`, and/or `pp test` continuously
+      - For backend changes: use `mcp__platformplatform-developer-cli__build(BuildTarget.BackendOnly)` and `mcp__platformplatform-developer-cli__test()`
+      - For frontend changes: use `mcp__platformplatform-developer-cli__build(BuildTarget.FrontendOnly)`
       - Mark subtask [completed] in todo
    - Mark main task [completed] in todo
 
 **Step 5. Validate implementation builds and fix all static code analysis warnings**:
    - Mark "Validate implementation builds and fix all static code analysis warnings" [in_progress] in todo
-   - **Backend tasks**: Run `pp check` - all must pass with zero findings
-   - **Frontend tasks**: Run `pp check --frontend` - all must pass
-   - **E2E tasks**: Run `pp e2e` - all must pass
+   - **Backend tasks**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.BackendOnly)` - all must pass with zero findings
+   - **Frontend tasks**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.FrontendOnly)` - all must pass
+   - **E2E tasks**: Use `mcp__platformplatform-developer-cli__e2e()` - all must pass (runs with --quiet automatically)
    - **CRITICAL**: The check command MUST exit with code 0 to be able to commit code
    - NEVER continue until ALL issues are fixed and check runs without errors
    - Gate rule: You cannot proceed until the check command completes successfully with exit code 0

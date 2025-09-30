@@ -2,6 +2,10 @@ using System.CommandLine;
 using System.CommandLine.Builder;
 using System.CommandLine.Parsing;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using ModelContextProtocol.Server;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -23,14 +27,20 @@ if (args.Length == 0)
 // Preprocess arguments to handle @ symbols in search terms
 args = CommandLineArgumentsPreprocessor.PreprocessArguments(args);
 
+// Check if running MCP command - skip all output to keep stdout clean for MCP protocol
+var isMcpCommand = args.Length > 0 && args[0] == "mcp";
 var solutionName = new DirectoryInfo(Configuration.SourceCodeFolder).Name;
-if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
-{
-    var figletText = new FigletText(solutionName);
-    AnsiConsole.Write(figletText);
-}
 
-AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+if (!isMcpCommand)
+{
+    if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
+    {
+        var figletText = new FigletText(solutionName);
+        AnsiConsole.Write(figletText);
+    }
+
+    AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+}
 
 var rootCommand = new RootCommand
 {
