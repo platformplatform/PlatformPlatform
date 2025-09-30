@@ -106,10 +106,10 @@ Context update: $4
    - Mark "Create response file" [in_progress] in todo
    - Create response file using atomic rename: .tmp → .md to signal completion
    - Include summary of implementation and any plan changes made in Step 7
-   - **IMPORTANT**: Use descriptive response file names with proper casing for better activity display:
-     * Format: `NNNN.{agent-type}.response.Title-Case-Task-Name.md`
-     * Example: `0001.backend-engineer.response.Create-Team-Aggregate-With-Database-Migration.md`
-     * Use Title-Case-With-Dashes so the activity display shows "Create Team Aggregate With Database Migration"
+   - **IMPORTANT**: Use descriptive response file names with Sentence-case for better activity display:
+     * Format: `NNNN.{agent-type}.response.Sentence-case-task-name.md`
+     * Example: `0001.backend-engineer.response.Create-team-aggregate-with-database-migration.md`
+     * Use Sentence-case-with-dashes (only first word capitalized) so the activity display shows "Create team aggregate with database migration"
    - Mark "Create response file" [completed] in todo
 
 ## Todo list template
