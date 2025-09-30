@@ -81,13 +81,19 @@ Context update: $4
    - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
    - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
 
-**Step 6. Mark task as Ready for Review**:
+**Step 6. Validate translations** (Frontend tasks only):
+   - Mark "Validate translations" [in_progress] in todo
+   - Check git for *.po changes: `git diff --name-only | grep "\.po$"`
+   - If *.po files changed, review all new entries for consistent language and domain context
+   - Mark "Validate translations" [completed] in todo
+
+**Step 7. Mark task as Ready for Review**:
    - Mark "Mark task as Ready for Review" [in_progress] in todo
    - Edit the Product Increment file: change [In Progress] to [Ready for Review]
    - **CRITICAL**: NEVER mark task as [Completed] - only reviewers can mark tasks [Completed]
    - Mark "Mark task as Ready for Review" [completed] in todo
 
-**Step 7. Critically evaluate remaining tasks and update plan**:
+**Step 8. Critically evaluate remaining tasks and update plan**:
    - Mark "Critically evaluate remaining tasks and update plan" [in_progress] in todo
    - Re-read the ENTIRE Product Increment plan, focusing on remaining [Planned] tasks
    - Apply critical thinking: Based on what you learned implementing this task, evaluate each remaining task:
@@ -99,10 +105,10 @@ Context update: $4
      * Are there new tasks needed that weren't originally planned?
    - **If changes needed**: Update the Product Increment file with your improvements
    - **If plan looks good**: No changes needed, proceed to next step
-   - **Document changes**: If you updated the plan, note this in your response file (Step 8)
+   - **Document changes**: If you updated the plan, note this in your response file (Step 9)
    - Mark "Critically evaluate remaining tasks and update plan" [completed] in todo
 
-**Step 8. Create response file**:
+**Step 9. Create response file**:
    - Mark "Create response file" [in_progress] in todo
    - Create response file using atomic rename: .tmp → .md to signal completion
    - Include summary of implementation and any plan changes made in Step 7
@@ -125,9 +131,10 @@ Implement task [name of the task you have been asked to implement] [pending]    
 ├─  Task #.2 [Copy exact text from Product Increment file] [pending]
 └─  Task #.N [Copy exact text from Product Increment file] [pending]
 Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Mark task as Ready for Review [pending]                                            (STEP 6)
-Critically evaluate remaining tasks and update plan [pending]                      (STEP 7)
-Create response file [pending]                                                     (STEP 8)
+Validate translations (frontend tasks only) [pending]                              (STEP 6)
+Mark task as Ready for Review [pending]                                            (STEP 7)
+Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
+Create response file [pending]                                                     (STEP 9)
 ```
 
 **CRITICAL: Use these exact prefixes for proper visual hierarchy:**
@@ -138,7 +145,7 @@ Create response file [pending]                                                  
 - DO NOT write "Analyze codebase structure" or similar
 - COPY THE EXACT TEXT: "Study ALL rules for this task type"
 - COPY THE EXACT TEXT: "Research existing patterns for this task type"
-- COPY THE EXACT TEXT: "Mark task as Ready for Review" (STEP 6)
-- COPY THE EXACT TEXT: "Critically evaluate remaining tasks and update plan" (STEP 7)
+- COPY THE EXACT TEXT: "Mark task as Ready for Review" (STEP 7)
+- COPY THE EXACT TEXT: "Critically evaluate remaining tasks and update plan" (STEP 8)
 
 Continuously use TodoWrite tool to update todo list as you work through them.

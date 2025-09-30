@@ -32,6 +32,7 @@ These rules outline the structure, patterns, and best practices for writing end-
 4. Organize tests in a consistent file structure:
    - All e2e test files must be located in `[self-contained-system]/WebApp/tests/e2e/` folder (e.g., `application/account-management/WebApp/tests/e2e/`).
    - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`).
+   - ALWAYS extend existing test files - NEVER create new test files. One test file per feature with max 2 tests: one @smoke and one @comprehensive.
    - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`.
    - `@smoke` tests:
      - Critical tests run on deployment of any self-contained system.

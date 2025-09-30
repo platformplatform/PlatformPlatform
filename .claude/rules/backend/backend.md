@@ -85,6 +85,7 @@ IMPORTANT: Always follow these steps very carefully when implementing changes:
 2. Build and test your changes:
    - Always run `[CLI_ALIAS] build --backend` to build the backend. See [Tools](/.claude/rules/tools.md) for details.
    - Run `[CLI_ALIAS] test` to run all tests.
+   - If you change API contracts (endpoints, DTOs), run `[CLI_ALIAS] check --frontend` to ensure frontend still compiles.
 3. Format your code:
    - When all tests are passing and you think you are feature complete, run `[CLI_ALIAS] format --backend`.
    - The format command will automatically fix code style issues according to our conventions.
