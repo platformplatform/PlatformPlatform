@@ -13,14 +13,14 @@ public class CheckCommand : Command
     {
         AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend checks"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend checks"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to check (only used for backend checks)"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to check (e.g., account-management, back-office)"));
         AddOption(new Option<bool>(["--skip-format"], () => false, "Skip the backend format step which can be time consuming"));
         AddOption(new Option<bool>(["--skip-inspect"], () => false, "Skip the backend inspection step which can be time consuming"));
 
         Handler = CommandHandler.Create<bool, bool, string?, bool, bool>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName, bool skipFormat, bool skipInspect)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool skipFormat, bool skipInspect)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
@@ -35,7 +35,7 @@ public class CheckCommand : Command
 
             if (checkBackend)
             {
-                RunBackendChecks(solutionName, skipFormat, skipInspect);
+                RunBackendChecks(selfContainedSystem, skipFormat, skipInspect);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -63,21 +63,21 @@ public class CheckCommand : Command
         }
     }
 
-    private static void RunBackendChecks(string? solutionName, bool skipFormat, bool skipInspect)
+    private static void RunBackendChecks(string? selfContainedSystem, bool skipFormat, bool skipInspect)
     {
-        string[] solutionArgs = solutionName is not null ? ["--solution-name", solutionName] : [];
+        string[] systemArgs = selfContainedSystem is not null ? ["--self-contained-system", selfContainedSystem] : [];
 
-        new BuildCommand().InvokeAsync([.. solutionArgs, "--backend"]);
-        new TestCommand().InvokeAsync([.. solutionArgs, "--no-build"]);
+        new BuildCommand().InvokeAsync([.. systemArgs, "--backend"]);
+        new TestCommand().InvokeAsync([.. systemArgs, "--no-build"]);
 
         if (!skipFormat)
         {
-            new FormatCommand().InvokeAsync([.. solutionArgs, "--backend"]);
+            new FormatCommand().InvokeAsync([.. systemArgs, "--backend"]);
         }
 
         if (!skipInspect)
         {
-            new InspectCommand().InvokeAsync([.. solutionArgs, "--backend", "--no-build"]);
+            new InspectCommand().InvokeAsync([.. systemArgs, "--backend", "--no-build"]);
         }
     }
 

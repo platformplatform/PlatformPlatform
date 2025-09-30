@@ -15,12 +15,12 @@ public class FormatCommand : Command
     {
         AddOption(new Option<bool?>(["--backend", "-b"], "Only format backend code"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Only format frontend code"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to format (only used for backend code)"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to format (e.g., account-management, back-office)"));
 
         Handler = CommandHandler.Create<bool, bool, string?>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem)
     {
         var formatBackend = backend || !frontend;
         var formatFrontend = frontend || !backend;
@@ -40,7 +40,7 @@ public class FormatCommand : Command
             if (formatBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendFormat(solutionName);
+                RunBackendFormat(selfContainedSystem);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -81,10 +81,10 @@ public class FormatCommand : Command
         }
     }
 
-    private static void RunBackendFormat(string? solutionName)
+    private static void RunBackendFormat(string? selfContainedSystem)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
         // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file

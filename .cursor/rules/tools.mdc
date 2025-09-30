@@ -49,7 +49,7 @@ Use these commands continuously when you are working on the codebase.
   - Build both: `build()` or `build(BuildTarget.Both)`
   - Backend only: `build(BuildTarget.BackendOnly)`
   - Frontend only: `build(BuildTarget.FrontendOnly)`
-  - Specific solution: `build(BuildTarget.BackendOnly, "AccountManagement.slnf")`
+  - Specific solution: `build(BuildTarget.BackendOnly, "account-management")`
 
 **Human Developers - Use CLI**:
 ```bash
@@ -73,7 +73,7 @@ After you have completed a backend task and want to ensure that it works as expe
 **AI Agents - Use MCP Tool**:
 - `mcp__platformplatform-developer-cli__test(solutionName=null, noBuild=false)`
   - All tests: `test()`
-  - Specific solution: `test(solutionName="AccountManagement.slnf")`
+  - Specific solution: `test(solutionName="account-management")`
   - Skip build: `test(noBuild=true)`
 
 **Human Developers - Use CLI**:
@@ -127,7 +127,7 @@ Run these commands before you commit your changes.
   - Format both: `format()` or `format(BuildTarget.Both)`
   - Backend only: `format(BuildTarget.BackendOnly)`
   - Frontend only: `format(BuildTarget.FrontendOnly)`
-  - Specific solution: `format(BuildTarget.BackendOnly, "AccountManagement.slnf")`
+  - Specific solution: `format(BuildTarget.BackendOnly, "account-management")`
 
 **Human Developers - Use CLI**:
 ```bash
@@ -153,7 +153,7 @@ Run code inspections to find quality issues.
   - Inspect both: `inspect()` or `inspect(BuildTarget.Both)`
   - Backend only: `inspect(BuildTarget.BackendOnly)`
   - Frontend only: `inspect(BuildTarget.FrontendOnly)`
-  - Specific solution: `inspect(BuildTarget.BackendOnly, "AccountManagement.slnf")`
+  - Specific solution: `inspect(BuildTarget.BackendOnly, "account-management")`
 
 **Human Developers - Use CLI**:
 ```bash
@@ -213,12 +213,12 @@ Start .NET Aspire on https://localhost:9000 and force database migrations.
 Using `--solution-name` with backend commands is recommended as it significantly reduces execution time compared to running commands against the entire codebase. Especially for the `format` and `inspect` commands.
 
 **AI Agents**:
-- `inspect(BuildTarget.BackendOnly, "BackOffice.slnf")`
-- `format(BuildTarget.BackendOnly, "AccountManagement.slnf")`
+- `inspect(BuildTarget.BackendOnly, "back-office")`
+- `format(BuildTarget.BackendOnly, "account-management")`
 
 **Human Developers**:
-- `[CLI_ALIAS] inspect --backend --solution-name BackOffice.slnf`
-- `[CLI_ALIAS] format --backend --solution-name AccountManagement.slnf`
+- `[CLI_ALIAS] inspect --backend --solution-name back-office`
+- `[CLI_ALIAS] format --backend --solution-name account-management`
 
 The value of the `solutionName` parameter should be the solution filter file (`.slnf`) name from the self-contained system directory.
 

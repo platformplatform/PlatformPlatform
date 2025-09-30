@@ -15,12 +15,12 @@ public class BuildCommand : Command
 
         AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend build"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend build"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build (only used for backend builds)"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to build (e.g., account-management, back-office)"));
 
         Handler = CommandHandler.Create<bool, bool, string?>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
@@ -36,7 +36,7 @@ public class BuildCommand : Command
             if (buildBackend)
             {
                 AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
-                var solutionFile = SolutionHelper.GetSolution(solutionName);
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
                 ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }

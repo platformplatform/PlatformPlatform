@@ -13,13 +13,13 @@ public class InspectCommand : Command
     {
         AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend inspections"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend inspections"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to inspect (only used for backend inspections)"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to inspect (e.g., account-management, back-office)"));
         AddOption(new Option<bool>(["--no-build"], () => false, "Skip building and restoring the solution before running inspections"));
 
         Handler = CommandHandler.Create<bool, bool, string?, bool>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName, bool noBuild)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool noBuild)
     {
         var inspectBackend = backend || !frontend;
         var inspectFrontend = frontend || !backend;
@@ -33,7 +33,7 @@ public class InspectCommand : Command
             if (inspectBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendInspections(solutionName, noBuild);
+                RunBackendInspections(selfContainedSystem, noBuild);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -62,10 +62,10 @@ public class InspectCommand : Command
         }
     }
 
-    private static void RunBackendInspections(string? solutionName, bool noBuild)
+    private static void RunBackendInspections(string? selfContainedSystem, bool noBuild)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code inspections...[/]");
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
