@@ -17,8 +17,10 @@ When working on tasks, follow any specific workflow instructions provided for yo
 2. Consult the relevant rule files before implementation.
 3. Develop a clear implementation plan.
 4. Follow established patterns and conventions.
-5. Use the [CLI_ALIAS] CLI tool for building, testing, and formatting.
-   - Always use the [CLI_ALIAS] CLI commands as described in [Tools](/.windsurf/rules/tools.md).
+5. Use MCP tools for building, testing, and formatting.
+   - Use `mcp__platformplatform-developer-cli__*` tools (build, test, format, inspect, check, watch, e2e)
+   - BrowserMCP available for frontend troubleshooting at https://localhost:9000 (already running)
+   - See [Tools](/.windsurf/rules/tools.md) for details
 
 ## Rules for implementing changes
 

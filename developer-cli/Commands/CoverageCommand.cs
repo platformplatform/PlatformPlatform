@@ -10,16 +10,16 @@ public class CoverageCommand : Command
 {
     public CoverageCommand() : base("coverage", "Run JetBrains Code Coverage")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to build (e.g., account-management, back-office)"));
 
         Handler = CommandHandler.Create(Execute);
     }
 
-    private static void Execute(string? solutionName)
+    private static void Execute(string? selfContainedSystem)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 

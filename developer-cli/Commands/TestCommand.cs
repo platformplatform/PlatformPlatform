@@ -9,17 +9,17 @@ public class TestCommand : Command
 {
     public TestCommand() : base("test", "Runs tests from a solution")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the solution file containing the tests to run"));
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to test (e.g., account-management, back-office)"));
         AddOption(new Option<bool>(["--no-build"], () => false, "Skip building and restoring the solution before running tests"));
 
         Handler = CommandHandler.Create<string?, bool>(Execute);
     }
 
-    private void Execute(string? solutionName, bool noBuild)
+    private void Execute(string? selfContainedSystem, bool noBuild)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         if (!noBuild)
         {

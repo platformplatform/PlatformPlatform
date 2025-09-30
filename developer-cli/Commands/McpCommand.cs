@@ -48,8 +48,8 @@ public static class DeveloperCliMcpTools
         bool backend = false,
         [Description("Build frontend")]
         bool frontend = false,
-        [Description("Solution name")]
-        string? solutionName = null)
+        [Description("Self-contained system (e.g., 'account-management')")]
+        string? selfContainedSystem = null)
     {
         var args = new List<string> { "build" };
         var buildBackend = backend || !frontend;
@@ -57,10 +57,10 @@ public static class DeveloperCliMcpTools
 
         if (buildBackend && !buildFrontend) args.Add("--backend");
         if (buildFrontend && !buildBackend) args.Add("--frontend");
-        if (solutionName is not null)
+        if (selfContainedSystem is not null)
         {
-            args.Add("--solution-name");
-            args.Add(solutionName);
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
 
         var result = ExecuteCliCommand(args.ToArray());
@@ -70,16 +70,16 @@ public static class DeveloperCliMcpTools
     [McpServerTool]
     [Description("Run tests")]
     public static string Test(
-        [Description("Solution name")]
-        string? solutionName = null,
+        [Description("Self-contained system (e.g., 'account-management')")]
+        string? selfContainedSystem = null,
         [Description("Skip build")]
         bool noBuild = false)
     {
         var args = new List<string> { "test" };
-        if (solutionName is not null)
+        if (selfContainedSystem is not null)
         {
-            args.Add("--solution-name");
-            args.Add(solutionName);
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
         if (noBuild) args.Add("--no-build");
 
@@ -94,8 +94,8 @@ public static class DeveloperCliMcpTools
         bool backend = false,
         [Description("Format frontend")]
         bool frontend = false,
-        [Description("Solution name")]
-        string? solutionName = null)
+        [Description("Self-contained system (e.g., 'account-management')")]
+        string? selfContainedSystem = null)
     {
         var args = new List<string> { "format" };
         var formatBackend = backend || !frontend;
@@ -103,10 +103,10 @@ public static class DeveloperCliMcpTools
 
         if (formatBackend && !formatFrontend) args.Add("--backend");
         if (formatFrontend && !formatBackend) args.Add("--frontend");
-        if (solutionName is not null)
+        if (selfContainedSystem is not null)
         {
-            args.Add("--solution-name");
-            args.Add(solutionName);
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
 
         var result = ExecuteCliCommand(args.ToArray());
@@ -120,8 +120,8 @@ public static class DeveloperCliMcpTools
         bool backend = false,
         [Description("Inspect frontend")]
         bool frontend = false,
-        [Description("Solution name")]
-        string? solutionName = null,
+        [Description("Self-contained system (e.g., 'account-management')")]
+        string? selfContainedSystem = null,
         [Description("Skip build")]
         bool noBuild = false)
     {
@@ -131,10 +131,10 @@ public static class DeveloperCliMcpTools
 
         if (inspectBackend && !inspectFrontend) args.Add("--backend");
         if (inspectFrontend && !inspectBackend) args.Add("--frontend");
-        if (solutionName is not null)
+        if (selfContainedSystem is not null)
         {
-            args.Add("--solution-name");
-            args.Add(solutionName);
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
         if (noBuild) args.Add("--no-build");
 
@@ -149,8 +149,8 @@ public static class DeveloperCliMcpTools
         bool backend = false,
         [Description("Check frontend")]
         bool frontend = false,
-        [Description("Solution name")]
-        string? solutionName = null)
+        [Description("Self-contained system (e.g., 'account-management')")]
+        string? selfContainedSystem = null)
     {
         var args = new List<string> { "check" };
         var checkBackend = backend || !frontend;
@@ -158,10 +158,10 @@ public static class DeveloperCliMcpTools
 
         if (checkBackend && !checkFrontend) args.Add("--backend");
         if (checkFrontend && !checkBackend) args.Add("--frontend");
-        if (solutionName is not null)
+        if (selfContainedSystem is not null)
         {
-            args.Add("--solution-name");
-            args.Add(solutionName);
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
 
         var result = ExecuteCliCommand(args.ToArray());
