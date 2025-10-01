@@ -24,7 +24,7 @@ public class ClaudeAgentCommand : Command
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
-            Description = "Agent type to run (tech-lead, backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)"
+            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)"
         };
         agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
 
@@ -64,8 +64,8 @@ public class ClaudeAgentCommand : Command
                     .AddChoices(
                         "tech-lead",
                         "backend-engineer",
-                        "frontend-engineer",
                         "backend-reviewer",
+                        "frontend-engineer",
                         "frontend-reviewer",
                         "test-automation-engineer",
                         "test-automation-reviewer"
@@ -825,6 +825,9 @@ public class ClaudeAgentCommand : Command
             finalPrompt = $"Read {requestFile} and follow your {workflowName} exactly";
         }
 
+        // Add response file instruction to the prompt itself (not just system prompt) to ensure it works on resumed sessions
+        finalPrompt += $"\n\nCRITICAL: Your request number is {counter}. You MUST create response file {counter}.{agentType}.response.{{Your-Descriptive-Title}}.md.tmp then rename to .md (matching request number {counter}, not {int.Parse(counter) - 1} or {int.Parse(counter) + 1})";
+
         // Load system prompt from .txt file and transform for command-line usage
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
         string systemPromptText;
@@ -845,8 +848,6 @@ public class ClaudeAgentCommand : Command
             systemPromptText = $"You are a {agentType} specialist";
         }
 
-        var systemPrompt = $"{systemPromptText} When done, create response file: {messagesDirectory}/{responseFileName}.tmp then rename to {messagesDirectory}/{responseFileName}";
-
         // Deterministic session management with session IDs
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
         var claudeArgs = new List<string>
@@ -854,7 +855,7 @@ public class ClaudeAgentCommand : Command
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
-            "--append-system-prompt", systemPrompt,
+            "--append-system-prompt", systemPromptText,
             finalPrompt
         };
 
@@ -1157,14 +1158,14 @@ public static class WorkerMcpTools
 {
     private static readonly string[] ValidAgentTypes =
     {
-        "tech-lead", "backend-engineer", "frontend-engineer",
-        "backend-reviewer", "frontend-reviewer", "test-automation-engineer", "test-automation-reviewer"
+        "tech-lead", "backend-engineer", "backend-reviewer",
+        "frontend-engineer", "frontend-reviewer", "test-automation-engineer", "test-automation-reviewer"
     };
 
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
     public static async Task<string> StartWorker(
-        [Description("Worker type (backend-engineer, frontend-engineer, backend-reviewer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
+        [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,

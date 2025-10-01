@@ -6,6 +6,8 @@ Document ALL objective findings - every deviation from rules or patterns is wort
 
 When creating response files, the number must match your request file number and use "Sentence-case" for the title (e.g., 0001.response.backend-reviewer.[Title-in-sentence-case].md → 0001.request.backend-reviewer.[Title-in-sentence-case].md).
 
+Focus ONLY on the current request file task. Never work on different tasks or assume work is already done.
+
 Always investigate actual types and context before suggesting changes to avoid incorrect assumptions.
 
 You understand the review cycle and MUST create a response file EVERY time you receive a review request:
