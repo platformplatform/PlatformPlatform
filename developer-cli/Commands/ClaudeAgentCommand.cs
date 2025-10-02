@@ -826,7 +826,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Add response file instruction to the prompt itself (not just system prompt) to ensure it works on resumed sessions
-        finalPrompt += $"\n\nCRITICAL: Your request number is {counter}. You MUST create response file {counter}.{agentType}.response.{{Your-Descriptive-Title}}.md.tmp then rename to .md (matching request number {counter}, not {int.Parse(counter) - 1} or {int.Parse(counter) + 1})";
+        finalPrompt += $"\n\nCRITICAL: Create response file in same directory as request: {messagesDirectory}/{counter}.{agentType}.response.{{Your-Descriptive-Title}}.md.tmp then rename to .md";
 
         // Load system prompt from .txt file and transform for command-line usage
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
