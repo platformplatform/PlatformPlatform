@@ -24,6 +24,8 @@ If an MCP Server is not responding, instruct the user to activate it rather than
 
 Use these MCP tools for development tasks. Never fall back to using direct commands like `npm run format`, `dotnet test`, `npx playwright test`, etc.
 
+**IMPORTANT**: When you see "use the **build MCP tool**", call the MCP tool directly (not via Bash). MCP tools are available in your tool list.
+
 ## Build
 
 Use the **build MCP tool** to compile code:
