@@ -208,6 +208,14 @@ public static class DeveloperCliMcpTools
         return result.Success ? "Task-manager initialized successfully" : $"Failed to initialize task-manager.\n\n{result.Output}";
     }
 
+    [McpServerTool]
+    [Description("Sync AI rules from .claude to .windsurf and .cursor. CRITICAL: Always make AI rule changes in .claude folder first, then sync")]
+    public static string SyncAiRules()
+    {
+        var result = ExecuteCliCommand(["sync-ai-rules"]);
+        return result.Success ? "AI rules synced successfully to .windsurf and .cursor" : $"Failed to sync AI rules.\n\n{result.Output}";
+    }
+
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
     {
         var outputLines = new List<string>();
