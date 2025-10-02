@@ -45,9 +45,9 @@ Context update: $6
 
 **Step 2. Validate implementation builds by running check command**:
    - Mark "Validate implementation builds by running check command" [in_progress] in todo
-   - **Backend**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.BackendOnly)` and verify exit code 0
-   - **Frontend**: Use `mcp__platformplatform-developer-cli__check(BuildTarget.FrontendOnly)` and verify exit code 0
-   - **E2E**: Use `mcp__platformplatform-developer-cli__e2e()` and verify exit code 0 (runs with --quiet automatically)
+   - **Backend**: Use the **check MCP tool** for backend and verify exit code 0
+   - **Frontend**: Use the **check MCP tool** for frontend and verify exit code 0
+   - **E2E**: Use the **e2e MCP tool** and verify exit code 0 (runs with quiet mode automatically)
    - Always check `/application/result.json` for any static code analysis findings
    - Mark "Validate implementation builds by running check command" [completed] in todo
 

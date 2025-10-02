@@ -41,11 +41,11 @@ Focus your review on the branch, file path, or scope provided in the arguments a
    - If a fix is not obvious, reference the rule and provide a rationale for leaving it as-is.
 
 6. After all backend files are reviewed and fixed:
-   - Run `[CLI_ALIAS] check --backend` to run build, format, test, and inspect for the backend. See [Tools](mdc:.cursor/rules/tools.mdc) for details.
+   - Use the **check MCP tool** for backend to run build, format, test, and inspect. See [Tools](mdc:.cursor/rules/tools.mdc) for details.
    - Ensure all checks pass before proceeding to review frontend files.
 
 7. After all frontend files are reviewed and fixed:
-   - Run `[CLI_ALIAS] check --frontend` to run build, format, test, and inspect for the frontend.
+   - Use the **check MCP tool** for frontend to run build, format, test, and inspect.
    - Ensure all checks pass before completing the review process.
 
 ## Examples
@@ -73,10 +73,10 @@ git diff --name-only $(git merge-base HEAD main)..HEAD
 # Step 3: Review backend files first, then frontend files
 # Step 4: For each file, determine applicable rules, review, and print issues
 # Step 5: Fix all issues in the file
-# Step 6: After all backend files are reviewed and fixed, run:
-[CLI_ALIAS] check --backend
-# Step 7: After all frontend files are reviewed and fixed, run:
-[CLI_ALIAS] check --frontend
+# Step 6: After all backend files are reviewed and fixed:
+#         Use the **check MCP tool** for backend
+# Step 7: After all frontend files are reviewed and fixed:
+#         Use the **check MCP tool** for frontend
 ```
 
 ### Example 3 - Referencing rules for issues

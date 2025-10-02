@@ -10,18 +10,18 @@ These rules outline the structure, patterns, and best practices for writing end-
 
 ## Implementation
 
-1. Use `mcp__platformplatform-developer-cli__e2e()` with these options to optimize test execution:
-   - Test filtering: `smoke=true`, `includeSlow=true`, `searchTerms=["@smoke"]`, `browser="chromium"`
-   - Change scoping: `lastFailed=true`, `onlyChanged=true`
-   - Flaky test detection: `repeatEach=3`, `retries=2`, `stopOnFirstFailure=true`
-   - Performance: `debugTiming=true` shows step execution times with color coding
-   - **Note**: The MCP tool always runs with `--quiet` flag automatically
+1. Use the **e2e MCP tool** to run end-to-end tests with these options:
+   - Test filtering: smoke tests only, specific browser, search terms
+   - Change scoping: last failed tests, only changed tests
+   - Flaky test detection: repeat tests, retry on failure, stop on first failure
+   - Performance: debug timing to see step execution times
+   - **Note**: The **e2e MCP tool** always runs with quiet mode automatically
 
 2. Test Search and Filtering:
-   - Search by test tags: `e2e(searchTerms=["@smoke"])` or `e2e(searchTerms=["smoke"])` (both work the same)
-   - Search by test content: `e2e(searchTerms=["user"])` (finds tests with "user" in title or content)
-   - Search by filename: `e2e(searchTerms=["localization"])` (finds localization-flows.spec.ts)
-   - Search by specific file: `e2e(searchTerms=["user-management-flows.spec.ts"])`
+   - Search by test tags: smoke, comprehensive
+   - Search by test content: find tests containing specific text
+   - Search by filename: find specific test files
+   - See [Tools](/.claude/rules/tools.md) for complete **e2e MCP tool** options
    - Multiple search terms: `e2e(searchTerms=["user", "management"])`
    - The tool automatically detects which self-contained systems contain matching tests and only runs those
 

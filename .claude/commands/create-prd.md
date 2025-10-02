@@ -19,7 +19,7 @@ Follow the steps below to create the PRD.
 
 1. Ensure `task-manager` git repository exists
 
-   Run `[CLI_ALIAS] init-task-manager` to initialize the task-manager directory as a git submodule that's ignored by the main repository.
+   Use the **init MCP tool** to initialize the task-manager directory in .workspace as a separate git repository.
 
 2. Research and understand the feature
 
