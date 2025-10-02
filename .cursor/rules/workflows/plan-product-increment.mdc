@@ -129,8 +129,8 @@ Follow the steps below to create and publish tasks.
 
 Using these examples, to understand how to write tasks and subtasks for product increments:
 
-- [Backend for team management](mdc:.cursor/rules/workflows/samples/1-backend-sample.mdc)
-- [Frontend for team management](mdc:.cursor/rules/workflows/samples/2-frontend-sample.mdc)
+- [Backend for team management](mdc:.cursor/samples/1-backend-sample.mdc)
+- [Frontend for team management](mdc:.cursor/samples/2-frontend-sample.mdc)
 
 ## ✅ DO:
 
