@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'input=$(cat); cmd=$(echo \"$input\" | sed -n \"s/.*\\\"command\\\":\\\"\\([^\\\"]*\\)\\\".*/\\1/p\"); case \"$cmd\" in *\"dotnet build\"*|*\"dotnet test\"*|*\"dotnet format\"*|*\"npm run format\"*|*\"npm test\"*|*\"npm run build\"*|*\"npx playwright test\"*) echo \"❌ BLOCKED: Use pp CLI instead.\" >&2; echo \"Command: $cmd\" >&2; echo \"\" >&2; echo \"Use these instead:\" >&2; echo \"• dotnet build → pp build\" >&2; echo \"• dotnet test → pp test\" >&2; echo \"• dotnet format → pp format\" >&2; echo \"• npm run format → pp format\" >&2; echo \"• npm test → pp test\" >&2; echo \"• npm run build → pp build\" >&2; echo \"• npx playwright test → pp e2e\" >&2; echo \"\" >&2; echo \"Refer to .claude/rules/tools.md for details.\" >&2; exit 2 ;; *) exit 0 ;; esac'"
+            "command": "sh -c 'input=$(cat); cmd=$(echo \"$input\" | sed -n \"s/.*\\\"command\\\":\\\"\\([^\\\"]*\\)\\\".*/\\1/p\"); case \"$cmd\" in *\"dotnet build\"*|*\"dotnet test\"*|*\"dotnet format\"*|*\"npm run format\"*|*\"npm test\"*|*\"npm run build\"*|*\"npx playwright test\"*) echo \"❌ BLOCKED: Use MCP tools instead.\" >&2; echo \"Command: $cmd\" >&2; echo \"\" >&2; echo \"Use these instead:\" >&2; echo \"• dotnet build → **build MCP tool**\" >&2; echo \"• dotnet test → **test MCP tool**\" >&2; echo \"• dotnet format → **format MCP tool**\" >&2; echo \"• npm run format → **format MCP tool**\" >&2; echo \"• npm test → **test MCP tool**\" >&2; echo \"• npm run build → **build MCP tool**\" >&2; echo \"• npx playwright test → **e2e MCP tool**\" >&2; echo \"\" >&2; echo \"Refer to .claude/rules/tools.md for details.\" >&2; exit 2 ;; *) exit 0 ;; esac'"
           }
         ]
       }
