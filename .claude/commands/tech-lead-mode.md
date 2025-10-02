@@ -191,7 +191,7 @@ Product Increment [Z]: [Other increment name] [pending]
 
 **EVERY TASK MUST BE**: Engineer → Reviewer → Approved → Committed → Next Task
 
-**CRITICAL**: EVERY task MUST be reviewed - no exceptions. All work must be approved by reviewers before marking [Completed].
+**CRITICAL**: EVERY task MUST be reviewed - no exceptions. Tasks are ONLY complete after reviewer approval and commit, never after engineer implementation.
 
 **CRITICAL**: Use Edit tool to change status BEFORE each delegation
 
