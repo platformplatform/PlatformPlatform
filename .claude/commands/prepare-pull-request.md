@@ -51,18 +51,12 @@ Use the branch name or feature description provided in the arguments above (if a
    - Use the placeholder term `your-self-contained-system` for downstream implementations.
 
 6. Build, test, format and inspect the codebase:
-   - If changes have been made to backend `*.cs` but only to one self-contained system, run:
-      ```bash
-      [CLI_ALIAS] check --backend --solution-name SelfContainedSystem.slnf
-      ```
-   - If backend changes have been made to `*.cs` in multiple self-contained systems or the Shared Kernel, run:
-      ```bash
-      [CLI_ALIAS] check --backend
-      ```
-   - If changes have been made to frontend `*.ts`, run:
-      ```bash
-      [CLI_ALIAS] check --frontend
-      ```
+   - If changes have been made to backend `*.cs` but only to one self-contained system:
+      - Use the **check MCP tool** for that specific backend system
+   - If backend changes have been made to `*.cs` in multiple self-contained systems or the Shared Kernel:
+      - Use the **check MCP tool** for backend
+   - If changes have been made to frontend `*.ts`:
+      - Use the **check MCP tool** for frontend
    - If there are errors, they must be fixed before the pull request can be created.
 
 ## Examples

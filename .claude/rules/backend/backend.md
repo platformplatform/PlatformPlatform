@@ -83,11 +83,11 @@ IMPORTANT: Always follow these steps very carefully when implementing changes:
 
 1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [API Tests](/.claude/rules/backend/api-tests.md) for details.
 2. Build and test your changes:
-   - Always use `mcp__platformplatform-developer-cli__build(BuildTarget.BackendOnly)` to build the backend. See [Tools](/.claude/rules/tools.md) for details.
-   - Use `mcp__platformplatform-developer-cli__test()` to run all tests.
-   - If you change API contracts (endpoints, DTOs), use `mcp__platformplatform-developer-cli__check(BuildTarget.FrontendOnly)` to ensure frontend still compiles.
+   - Use the **build MCP tool** for backend. See [Tools](/.claude/rules/tools.md) for details.
+   - Use the **test MCP tool** to run all tests.
+   - If you change API contracts (endpoints, DTOs), use the **check MCP tool** for frontend to ensure it still compiles.
 3. Format your code:
-   - When all tests are passing and you think you are feature complete, use `mcp__platformplatform-developer-cli__format(BuildTarget.BackendOnly)`.
-   - The format command will automatically fix code style issues according to our conventions.
+   - When all tests are passing and you think you are feature complete, use the **format MCP tool** for backend.
+   - The format tool will automatically fix code style issues according to our conventions.
 
 When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account-management`, `back-office`) you're working with. Replace `[Feature]` with the specific feature name you're working with (e.g., `Users`, `Tenants`, `Authentication`). A feature is often 1:1 with a domain aggregate (e.g., `User`, `Tenant`, `Login`).

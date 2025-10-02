@@ -18,7 +18,7 @@ When working on tasks, follow any specific workflow instructions provided for yo
 3. Develop a clear implementation plan.
 4. Follow established patterns and conventions.
 5. Use MCP tools for building, testing, and formatting.
-   - Use `mcp__platformplatform-developer-cli__*` tools (build, test, format, inspect, check, watch, e2e)
+   - Use the **build**, **test**, **format**, **inspect**, **check**, **watch**, and **e2e** MCP tools
    - BrowserMCP available for frontend troubleshooting at https://localhost:9000 (already running)
    - See [Tools](/.windsurf/rules/tools.md) for details
 

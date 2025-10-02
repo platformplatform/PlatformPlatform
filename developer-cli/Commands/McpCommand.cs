@@ -200,6 +200,14 @@ public static class DeveloperCliMcpTools
         return result.Success ? $"E2E tests completed.\n\n{result.Output}" : $"E2E tests failed.\n\n{result.Output}";
     }
 
+    [McpServerTool]
+    [Description("Initialize task-manager directory in .workspace as separate git repository")]
+    public static string InitTaskManager()
+    {
+        var result = ExecuteCliCommand(["init-task-manager"]);
+        return result.Success ? "Task-manager initialized successfully" : $"Failed to initialize task-manager.\n\n{result.Output}";
+    }
+
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
     {
         var outputLines = new List<string>();

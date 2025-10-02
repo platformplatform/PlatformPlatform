@@ -51,8 +51,8 @@ Whether you get approval on the 1st attempt or the 10th attempt is IRRELEVANT. W
 **REMEMBER:** Multiple review cycles are EXPECTED and CELEBRATED. They prove you're following the process correctly. There is NO penalty for needing many reviews - only rewards for patience and thoroughness.
 
 **CRITICAL This workflow is MANDATORY** - Follow every step exactly
-**CRITICAL: Always use [CLI_ALIAS]** - The [CLI_ALIAS] is configured globally as the actual alias will change from project to project.
-**FORBIDDEN**: `dotnet`, `npm`, `npx` commands - NEVER fall back to these even if [CLI_ALIAS] appears to fail
+**CRITICAL: Always use MCP tools** - Use the **build**, **test**, **format**, **check**, and **e2e** MCP tools for all development tasks.
+**FORBIDDEN**: `dotnet`, `npm`, `npx` commands - NEVER fall back to these direct commands
 
 ## Sample workflow 
 
@@ -163,15 +163,15 @@ For every task in a product increment, follow the workflow below:
    - For each subtask:
       - Mark subtask [in_progress] in todo
       - Implement subtasks. While doing so continuously research existing patterns in the code. If you run into problems use MCPs like Context7 to learn about the latest syntax, and use Perplexity or online search to troubleshoot.
-      - For changes run `[CLI_ALIAS] build --backend`, `[CLI_ALIAS] build --frontend`, and/or `[CLI_ALIAS] test` continuously to validate that the implementation is correct.
+      - For changes use the **build** and **test** MCP tools continuously to validate that the implementation is correct.
       - Mark subtask [completed] in todo
 
 **Step 4. Validate implementation builds**:
    - Mark "Validate implementation builds" [in_progress] in todo
    - **🚨 HARD STOP: Build, Tests, and all static code analysis checks must pass with ZERO tolerance for exceptions 🚨**
-   - **Backend tasks**: Run `[CLI_ALIAS] check` - all MUST pass (this will build both backend and frontend which is important as backend changes might break frontend)
-   - **Frontend tasks**: Run `[CLI_ALIAS] check --frontend` and `[CLI_ALIAS] e2e` - all MUST pass
-   - **E2E tasks**: Run `[CLI_ALIAS] e2e` - all MUST pass
+   - **Backend tasks**: Use the **check MCP tool** - all MUST pass (this will build both backend and frontend which is important as backend changes might break frontend)
+   - **Frontend tasks**: Use the **check MCP tool** for frontend and the **e2e MCP tool** - all MUST pass
+   - **E2E tasks**: Use the **e2e MCP tool** - all MUST pass
 
    - **Gate rule**: You CANNOT proceed until output shows:
      - ✅ "Build succeeded"
@@ -179,7 +179,7 @@ For every task in a product increment, follow the workflow below:
      - ✅ Zero errors/warnings
    - **Mark [completed] ONLY when all gates pass**
 
-   Note: If e2e tests fail, run `[CLI_ALIAS] watch --detach --force` to restart the server
+   Note: If e2e tests fail, use the **watch MCP tool** to restart the server
 
    **🏆 HIGH SCORE TIP:** Never skip failures - fix all issues before proceeding!
 
@@ -259,11 +259,11 @@ For every task in a product increment, follow the workflow below:
 - **Moving between increments**: Agents jump to next Product Increment before finishing current one. This is FORBIDDEN.
 - **Ignoring build failures**: Agents continue despite compilation errors. This is FORBIDDEN.
 - **Not updating status**: Agents forget to mark tasks [Completed] in .md files. This is FORBIDDEN.
-- **Using wrong tools**: Agents fall back to `dotnet`, `npm`, `npx` instead of `[CLI_ALIAS]`. This is FORBIDDEN.
+- **Using wrong tools**: Agents fall back to `dotnet`, `npm`, `npx` instead of MCP tools. This is FORBIDDEN.
 - **STOPPING EARLY**: Agents stop before completing ALL requested Product Increments. This is FORBIDDEN.
 - **Poor todo tracking**: Agents don't maintain accurate todo lists throughout. This is FORBIDDEN.
 
-**Solution**: Follow the workflow exactly. No exceptions. No shortcuts. Always use [CLI_ALIAS].
+**Solution**: Follow the workflow exactly. No exceptions. No shortcuts. Always use MCP tools.
 
 ## 🏆 FINAL SUCCESS CRITERIA - YOU MUST NOT STOP UNTIL:
 
