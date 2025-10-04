@@ -36,8 +36,25 @@ public class BuildCommand : Command
             if (buildBackend)
             {
                 AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
-                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-                ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+
+                if (selfContainedSystem is null)
+                {
+                    // Build all self-contained systems
+                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+                    foreach (var system in systems)
+                    {
+                        AnsiConsole.MarkupLine($"[dim]Building {system}...[/]");
+                        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
+                        ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                    }
+                }
+                else
+                {
+                    // Build specific system
+                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+                    ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                }
+
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 

@@ -65,6 +65,38 @@ public class InspectCommand : Command
     private static void RunBackendInspections(string? selfContainedSystem, bool noBuild)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code inspections...[/]");
+
+        if (selfContainedSystem is null)
+        {
+            // Inspect all self-contained systems
+            var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+            var allIssuesFound = false;
+
+            foreach (var system in systems)
+            {
+                AnsiConsole.MarkupLine($"[dim]Inspecting {system}...[/]");
+                var hasIssues = InspectSystem(system, noBuild);
+                if (hasIssues) allIssuesFound = true;
+            }
+
+            if (allIssuesFound)
+            {
+                Environment.Exit(1);
+            }
+        }
+        else
+        {
+            // Inspect specific system
+            var hasIssues = InspectSystem(selfContainedSystem, noBuild);
+            if (hasIssues)
+            {
+                Environment.Exit(1);
+            }
+        }
+    }
+
+    private static bool InspectSystem(string selfContainedSystem, bool noBuild)
+    {
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
@@ -83,14 +115,13 @@ public class InspectCommand : Command
         if (resultJson.Contains("\"results\": [],"))
         {
             AnsiConsole.MarkupLine("[green]No backend issues found![/]");
+            return false;
         }
         else
         {
             AnsiConsole.MarkupLine("[yellow]Backend issues found. Opening result.json...[/]");
             ProcessHelper.StartProcess("code result.json", solutionFile.Directory!.FullName);
-
-            // Exit with error code to indicate inspection failures
-            Environment.Exit(1);
+            return true;
         }
     }
 
