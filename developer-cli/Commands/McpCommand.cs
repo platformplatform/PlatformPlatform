@@ -42,13 +42,13 @@ public class McpCommand : Command
 public static class DeveloperCliMcpTools
 {
     [McpServerTool]
-    [Description("Build code")]
+    [Description("Build code. Builds both backend and frontend by default. Use backend/frontend flags to build only one.")]
     public static string Build(
-        [Description("Build backend/frontend/both")]
+        [Description("Build backend only (optional)")]
         bool backend = false,
-        [Description("Build frontend")]
+        [Description("Build frontend only (optional)")]
         bool frontend = false,
-        [Description("Self-contained system (e.g., 'account-management')")]
+        [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
         var args = new List<string> { "build" };
@@ -68,11 +68,11 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Run tests")]
+    [Description("Run tests. Tests entire codebase by default.")]
     public static string Test(
-        [Description("Self-contained system (e.g., 'account-management')")]
+        [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build")]
+        [Description("Skip build (optional)")]
         bool noBuild = false)
     {
         var args = new List<string> { "test" };
@@ -90,13 +90,13 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Format code")]
+    [Description("Format code. Formats both backend and frontend by default. Use backend/frontend flags to format only one.")]
     public static string Format(
-        [Description("Format backend")]
+        [Description("Format backend only (optional)")]
         bool backend = false,
-        [Description("Format frontend")]
+        [Description("Format frontend only (optional)")]
         bool frontend = false,
-        [Description("Self-contained system (e.g., 'account-management')")]
+        [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
         var args = new List<string> { "format" };
@@ -116,15 +116,15 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Run code inspections")]
+    [Description("Run code inspections. Inspects both backend and frontend by default. Use backend/frontend flags to inspect only one.")]
     public static string Inspect(
-        [Description("Inspect backend")]
+        [Description("Inspect backend only (optional)")]
         bool backend = false,
-        [Description("Inspect frontend")]
+        [Description("Inspect frontend only (optional)")]
         bool frontend = false,
-        [Description("Self-contained system (e.g., 'account-management')")]
+        [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build")]
+        [Description("Skip build (optional)")]
         bool noBuild = false)
     {
         var args = new List<string> { "inspect" };
@@ -147,13 +147,13 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Run all checks")]
+    [Description("Run all checks (build + test + format + inspect). Checks both backend and frontend by default. Use backend/frontend flags to check only one.")]
     public static string Check(
-        [Description("Check backend")]
+        [Description("Check backend only (optional)")]
         bool backend = false,
-        [Description("Check frontend")]
+        [Description("Check frontend only (optional)")]
         bool frontend = false,
-        [Description("Self-contained system (e.g., 'account-management')")]
+        [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
         var args = new List<string> { "check" };
