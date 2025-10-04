@@ -149,7 +149,7 @@ public class ClaudeAgentCommand : Command
         if (agentType == "tech-lead")
         {
             AnsiConsole.MarkupLine($"[{agentColor}]Launching tech lead mode...[/]");
-            await Task.Delay(2000);
+            await Task.Delay(TimeSpan.FromSeconds(2));
 
             // Ensure tech lead workspace is set up (for session ID file)
             await SetupAgentWorkspace(agentWorkspaceDirectory);
@@ -206,15 +206,19 @@ public class ClaudeAgentCommand : Command
 
         techLeadArgs.Add("/tech-lead-mode");
 
+        // TODO: When Anthropic fixes bug #3188, switch back to --resume {session-id}
         // Deterministic session management (ignoring command line flags for consistency)
         if (File.Exists(claudeSessionIdFile))
         {
-            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            techLeadArgs.Insert(0, "--resume");
-            techLeadArgs.Insert(1, claudeSessionId.Trim());
+            // Session exists - use --continue (workaround for Anthropic bug #3188 where --resume ignores session ID)
+            // var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            // techLeadArgs.Insert(0, "--resume");
+            // techLeadArgs.Insert(1, claudeSessionId.Trim());
+            techLeadArgs.Insert(0, "--continue");
         }
         else
         {
+            // First time - create session marker file for tracking
             var newClaudeSessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
             techLeadArgs.Insert(0, "--session-id");
@@ -265,92 +269,64 @@ public class ClaudeAgentCommand : Command
 
         while (!techLeadProcess.HasExited)
         {
-            await Task.Delay(TimeSpan.FromMinutes(1)); // Check every minute
-
-            if (DateTime.Now - lastActivity > timeout)
+            // Find most recent file modification
+            var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
+            if (mostRecentFileTime > lastActivity)
             {
-                // Log tech lead restart to workflow log
+                lastActivity = mostRecentFileTime;
+            }
+
+            var timeSinceLastActivity = DateTime.Now - lastActivity;
+
+            if (timeSinceLastActivity > timeout)
+            {
+                // Log tech lead timeout to workflow log
                 var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
-                var restartLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD RESTART: {agentType} inactive for 62 minutes, restarting with recovery message\n";
-                await File.AppendAllTextAsync(workflowLogPath, restartLogMessage);
+                var timeoutLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD TIMEOUT: {agentType} inactive for 1 hour, killing process (main thread will restart)\n";
+                await File.AppendAllTextAsync(workflowLogPath, timeoutLogMessage);
 
-                // Kill stalled tech lead
-                AnsiConsole.MarkupLine("[red]Tech Lead inactive for 62 minutes - restarting...[/]");
-
+                // Kill stalled tech lead - main thread restart loop will handle restart
                 try
                 {
                     techLeadProcess.Kill();
-                    await techLeadProcess.WaitForExitAsync();
                 }
                 catch
                 {
                     // Process might have already exited
                 }
 
-                // Restart tech lead with recovery message
-                await RestartTechLeadWithRecoveryMessage(agentType, branch);
+                // Exit monitor - main thread has restart loop with proper terminal context
                 break;
+            }
+            else
+            {
+                // Calculate how long to wait before next check
+                var timeUntilTimeout = timeout - timeSinceLastActivity;
+                // Wait for the remaining time (max 5 minutes to catch activity sooner)
+                var waitTime = timeUntilTimeout > TimeSpan.FromMinutes(5)
+                    ? TimeSpan.FromMinutes(5)
+                    : timeUntilTimeout;
+
+                await Task.Delay(waitTime);
             }
         }
     }
 
-    private async Task RestartTechLeadWithRecoveryMessage(string agentType, string branch)
+    internal static DateTime GetMostRecentFileModification()
     {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
-        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
-
-        var recoveryMessage = "It looks like you or one of the agents stopped. Please evaluate why the progress halted, what went wrong, ultrathink and ensure the system workflow continues until all items on your to-do list are completed. Remember that you are the tech lead and should ALWAYS delegate work.";
-
-        var techLeadArgs = new List<string>
+        try
         {
-            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-            "--add-dir", Configuration.SourceCodeFolder,
-            "--permission-mode", "acceptEdits",
-            recoveryMessage
-        };
+            var repositoryRoot = Configuration.SourceCodeFolder;
 
-        // Use existing session ID if available
-        if (File.Exists(claudeSessionIdFile))
-        {
-            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            techLeadArgs.Insert(0, "--resume");
-            techLeadArgs.Insert(1, claudeSessionId.Trim());
+            // Find the most recently modified file anywhere
+            return Directory.GetFiles(repositoryRoot, "*.*", SearchOption.AllDirectories)
+                .Max(f => File.GetLastWriteTime(f));
         }
-        else
+        catch
         {
-            var newClaudeSessionId = Guid.NewGuid().ToString();
-            await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
-            techLeadArgs.Insert(0, "--session-id");
-            techLeadArgs.Insert(1, newClaudeSessionId);
+            // If check fails, return current time to reset activity timer
+            return DateTime.Now;
         }
-
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "claude",
-                Arguments = string.Join(" ", techLeadArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                WorkingDirectory = Configuration.SourceCodeFolder,
-                UseShellExecute = false,
-                RedirectStandardInput = false,
-                RedirectStandardOutput = false,
-                RedirectStandardError = false
-            }
-        };
-
-        process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
-        process.Start();
-
-        // Restart health monitoring for the new process
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        _ = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
-
-        // Log successful restart
-        var workflowLogPath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "workflow.log");
-        var successLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD RESTART COMPLETE: {agentType} restarted successfully with recovery message\n";
-        await File.AppendAllTextAsync(workflowLogPath, successLogMessage);
-
-        await process.WaitForExitAsync();
     }
 
     internal static async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
@@ -597,18 +573,21 @@ public class ClaudeAgentCommand : Command
             "--permission-mode", "bypassPermissions"
         };
 
+        // TODO: When Anthropic fixes bug #3188, switch back to --resume {session-id}
         if (File.Exists(claudeSessionIdFile))
         {
-            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            manualArgs.Insert(0, "--resume");
-            manualArgs.Insert(1, claudeSessionId.Trim());
+            // Session exists - use --continue (workaround for Anthropic bug #3188 where --resume ignores session ID)
+            manualArgs.Insert(0, "--continue");
+            // var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            // manualArgs.Insert(0, "--resume");
+            // manualArgs.Insert(1, claudeSessionId.Trim());
         }
         else
         {
+            // First time - create session marker file for tracking
             var newClaudeSessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
-            manualArgs.Insert(0, "--session-id");
-            manualArgs.Insert(1, newClaudeSessionId);
+            manualArgs.Insert(0, "--continue");
         }
 
         var process = new Process
@@ -642,14 +621,14 @@ public class ClaudeAgentCommand : Command
         AnsiConsole.MarkupLine($"[dim]Request: {Path.GetFileName(requestFile)}[/]");
 
         // Read task content
-        await Task.Delay(500); // Let file write complete
+        await Task.Delay(TimeSpan.FromMilliseconds(500)); // Let file write complete
         var taskContent = await File.ReadAllTextAsync(requestFile);
         var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
 
         AnsiConsole.MarkupLine($"[dim]Task: {Markup.Escape(firstLine)}[/]");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
-        await Task.Delay(3000);
+        await Task.Delay(TimeSpan.FromSeconds(3));
 
         // Launch Claude Code with the request
         var claudeProcess = await LaunchClaudeCodeAsync(requestFile, agentType, branch);
@@ -859,17 +838,19 @@ public class ClaudeAgentCommand : Command
             finalPrompt
         };
 
+        // TODO: When Anthropic fixes bug #3188, switch back to --resume {session-id}
         if (File.Exists(claudeSessionIdFile))
         {
-            // Resume existing session
-            var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
-            claudeArgs.Insert(0, "--resume");
-            claudeArgs.Insert(1, claudeSessionId.Trim());
+            // Session exists - use --continue (workaround for Anthropic bug #3188 where --resume ignores session ID)
+            claudeArgs.Insert(0, "--continue");
+            //var claudeSessionId = await File.ReadAllTextAsync(claudeSessionIdFile);
+            //claudeArgs.Insert(0, "--resume");
+            //claudeArgs.Insert(1, claudeSessionId.Trim());
             AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
         }
         else
         {
-            // Create new session
+            // First time - create session marker file for tracking
             var newClaudeSessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(claudeSessionIdFile, newClaudeSessionId);
             claudeArgs.Insert(0, "--session-id");
@@ -930,31 +911,45 @@ public class ClaudeAgentCommand : Command
                 break;
             }
 
-            await Task.Delay(500); // Check every 500ms
+            await Task.Delay(TimeSpan.FromMilliseconds(500)); // Check every 500ms
         }
 
         if (foundResponseFile != null)
         {
             var agentColor = GetAgentColor(agentType);
             AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
-
-            // Give Claude 60 seconds to finish up
-            AnsiConsole.MarkupLine("[grey]Giving Claude Code 60 seconds to finish...[/]");
-            await Task.Delay(TimeSpan.FromSeconds(60));
         }
 
-        // Kill the Claude Code process
+        // Graceful shutdown: Send Ctrl+C twice, wait, then force kill if needed
         if (claudeProcess != null && !claudeProcess.HasExited)
         {
-            AnsiConsole.MarkupLine("[grey]Terminating Claude Code session...[/]");
             try
             {
-                claudeProcess.Kill();
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                // Send SIGINT twice (Ctrl+C, C)
+                for (int i = 0; i < 2; i++)
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "kill",
+                        Arguments = $"-SIGINT {claudeProcess.Id}",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true
+                    });
+                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                }
+
+                // Wait 3 seconds for graceful exit
+                await Task.Delay(TimeSpan.FromSeconds(3));
+
+                // Force kill if still alive
+                if (!claudeProcess.HasExited)
+                {
+                    claudeProcess.Kill();
+                }
             }
             catch
             {
-                // Process might have already exited
+                try { claudeProcess.Kill(); } catch { }
             }
         }
     }
@@ -1276,7 +1271,7 @@ public static class WorkerMcpTools
                                     break;
                                 }
 
-                                await Task.Delay(500); // Check every 500ms
+                                await Task.Delay(TimeSpan.FromMilliseconds(500)); // Check every 500ms
                             }
 
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
@@ -1433,7 +1428,7 @@ public static class WorkerMcpTools
             }
 
             // Check if process exits immediately
-            await Task.Delay(3000);
+            await Task.Delay(TimeSpan.FromSeconds(3));
             if (process.HasExited)
             {
                 File.AppendAllText(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
@@ -1543,12 +1538,23 @@ public static class WorkerMcpTools
         File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {messagesDirectory} for pattern: {responsePattern}\n");
 
         var startTime = DateTime.Now;
-        var lastHealthCheck = startTime;
+        var lastActivity = DateTime.Now;
+        var workerTimeout = TimeSpan.FromMinutes(5);  // Workers should be active - 5 min timeout
         var overallTimeout = TimeSpan.FromHours(2);
 
         while (!responseDetected && DateTime.Now - startTime < overallTimeout)
         {
-            if (ShouldPerformHealthCheck(lastHealthCheck))
+            // Find most recent file modification
+            var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
+            if (mostRecentFileTime > lastActivity)
+            {
+                lastActivity = mostRecentFileTime;
+            }
+
+            var timeSinceLastActivity = DateTime.Now - lastActivity;
+
+            // If worker inactive for 5 minutes, restart it
+            if (timeSinceLastActivity > workerTimeout)
             {
                 if (!IsWorkerProcessHealthy(currentProcessId))
                 {
@@ -1566,13 +1572,21 @@ public static class WorkerMcpTools
                     UpdateWorkerSession(currentProcessId, healthCheckRestart.ProcessId, agentType, taskTitle, requestFileName, healthCheckRestart.Process);
                     currentProcessId = healthCheckRestart.ProcessId;
                     restartCount++;
-                    LogWorkerActivity($"WORKER RESTART: {agentType} health check failed, restarted (attempt {restartCount}) after task timeout", messagesDirectory);
+                    LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 5 minutes, restarted (attempt {restartCount})", messagesDirectory);
+                    lastActivity = DateTime.Now;  // Reset activity after restart
                 }
-
-                lastHealthCheck = DateTime.Now;
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(5));
+            // Calculate smart wait time
+            var timeUntilTimeout = workerTimeout - timeSinceLastActivity;
+            var waitTime = timeUntilTimeout > TimeSpan.FromMinutes(1)
+                ? TimeSpan.FromMinutes(1)
+                : timeUntilTimeout;
+
+            if (waitTime > TimeSpan.Zero)
+            {
+                await Task.Delay(waitTime);
+            }
         }
 
         if (!responseDetected)
@@ -1597,11 +1611,6 @@ public static class WorkerMcpTools
         return $"Worker completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {responseFileName}\nRestarts: {restartCount}\n\nResponse content:\n{responseContent}";
     }
 
-    private static bool ShouldPerformHealthCheck(DateTime lastHealthCheck)
-    {
-        return DateTime.Now - lastHealthCheck >= TimeSpan.FromMinutes(15);
-    }
-
     private static bool IsWorkerProcessHealthy(int processId)
     {
         var processes = Process.GetProcesses();
@@ -1621,9 +1630,30 @@ public static class WorkerMcpTools
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-            "--add-dir", Configuration.SourceCodeFolder,
-            "--append-system-prompt", $"You are a {agentType} Worker. It looks like you stopped. Please re-read the latest request file and then ultrathink and evaluate how to continue the work as your colleagues are waiting for your response."
+            "--add-dir", Configuration.SourceCodeFolder
         };
+
+        // Load base system prompt from .txt file for ALL agent types
+        var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
+        if (File.Exists(systemPromptFile))
+        {
+            var systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
+            systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
+            claudeArgs.Add("--append-system-prompt");
+            claudeArgs.Add(systemPromptText);
+        }
+
+        // Add agent-specific restart nudge message
+        if (agentType == "tech-lead")
+        {
+            claudeArgs.Add("--append-system-prompt");
+            claudeArgs.Add("You are the tech-lead. It looks like you stopped. Please ultrathink and evaluate how to continue coordinating the team.");
+        }
+        else
+        {
+            claudeArgs.Add("--append-system-prompt");
+            claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. Please re-read the latest request file and then ultrathink and evaluate how to continue the work as your colleagues are waiting for your response.");
+        }
 
         if (File.Exists(claudeSessionIdFile))
         {
