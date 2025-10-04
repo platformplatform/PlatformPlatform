@@ -84,6 +84,26 @@ public class FormatCommand : Command
     private static void RunBackendFormat(string? selfContainedSystem)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
+
+        if (selfContainedSystem is null)
+        {
+            // Format all self-contained systems
+            var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+            foreach (var system in systems)
+            {
+                AnsiConsole.MarkupLine($"[dim]Formatting {system}...[/]");
+                FormatSystem(system);
+            }
+        }
+        else
+        {
+            // Format specific system
+            FormatSystem(selfContainedSystem);
+        }
+    }
+
+    private static void FormatSystem(string selfContainedSystem)
+    {
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 

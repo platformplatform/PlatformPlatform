@@ -19,13 +19,33 @@ public class TestCommand : Command
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-
-        if (!noBuild)
+        if (selfContainedSystem is null)
         {
-            ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-        }
+            // Test all self-contained systems
+            var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+            foreach (var system in systems)
+            {
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
 
-        ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+                if (!noBuild)
+                {
+                    ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                }
+
+                ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+            }
+        }
+        else
+        {
+            // Test specific system
+            var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+            if (!noBuild)
+            {
+                ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+            }
+
+            ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+        }
     }
 }
