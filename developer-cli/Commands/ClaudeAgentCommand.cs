@@ -369,6 +369,27 @@ public class ClaudeAgentCommand : Command
                 }
             }
         }
+
+        // Setup .mcp.json with relative path to developer-cli
+        var rootMcpJsonPath = Path.Combine(Configuration.SourceCodeFolder, ".mcp.json");
+        var workerMcpJsonPath = Path.Combine(agentWorkspaceDirectory, ".mcp.json");
+
+        if (File.Exists(rootMcpJsonPath))
+        {
+            // Create MCP config JSON with proper formatting
+            var mcpConfigJson = """
+            {
+              "mcpServers": {
+                "platformplatform-developer-cli": {
+                  "command": "dotnet",
+                  "args": ["run", "--project", "../../../../developer-cli", "mcp"]
+                }
+              }
+            }
+            """;
+
+            await File.WriteAllTextAsync(workerMcpJsonPath, mcpConfigJson);
+        }
     }
 
     private static void CleanupPidFile(string pidFile)
