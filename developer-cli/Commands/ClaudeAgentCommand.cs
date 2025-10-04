@@ -18,8 +18,6 @@ public class ClaudeAgentCommand : Command
     private static readonly Lock WorkerSessionLock = new();
     private static string? SelectedAgentType;
 
-    private CancellationTokenSource? _enterKeyListenerCancellation;
-
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
@@ -482,82 +480,72 @@ public class ClaudeAgentCommand : Command
             EnableRaisingEvents = true
         };
 
-        var completionSource = new TaskCompletionSource();
+        var requestReceived = false;
+        string? requestFilePath = null;
 
-        fileSystemWatcher.Created += async (sender, e) =>
+        fileSystemWatcher.Created += (sender, e) =>
         {
-            try
-            {
-                // Stop ENTER key listener during task processing to avoid keyboard interference
-                _enterKeyListenerCancellation?.Cancel();
-
-                await HandleIncomingRequest(e.FullPath, agentType, branch);
-
-                // Restart ENTER key listener after task processing
-                StartEnterKeyListener(agentType, branch);
-            }
-            catch (Exception ex)
-            {
-                AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
-                RedrawWaitingDisplay(agentType, branch);
-                // Restart ENTER key listener after error
-                StartEnterKeyListener(agentType, branch);
-            }
+            requestReceived = true;
+            requestFilePath = e.FullPath;
         };
 
-        // Listen for ENTER key for manual control - restarts after each use
-        StartEnterKeyListener(agentType, branch);
+        // Main loop: standby display with ENTER listener
+        while (true)
+        {
+            // Show standby display and wait for ENTER key or request file
+            var userPressedEnter = await WaitInStandbyMode(agentType, branch, () => requestReceived);
 
-        // Wait indefinitely (until Ctrl+C)
-        await completionSource.Task;
+            if (requestReceived && requestFilePath != null)
+            {
+                // Request file arrived - handle it
+                requestReceived = false;
+                try
+                {
+                    await HandleIncomingRequest(requestFilePath, agentType, branch);
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
+                }
+                requestFilePath = null;
+            }
+            else if (userPressedEnter)
+            {
+                // User pressed ENTER - launch manual session
+                await LaunchManualClaudeSession(agentType, branch);
+            }
+        }
     }
 
-    private void StartEnterKeyListener(string agentType, string branch)
+    private async Task<bool> WaitInStandbyMode(string agentType, string branch, Func<bool> checkForRequest)
     {
-        // Cancel any existing listener first
-        _enterKeyListenerCancellation?.Cancel();
-        _enterKeyListenerCancellation = new CancellationTokenSource();
-        _ = Task.Run(async () =>
+        // Display standby screen
+        RedrawWaitingDisplay(agentType, branch);
+
+        // Wait for ENTER key or incoming request
+        while (true)
+        {
+            // Check if request file arrived (non-blocking)
+            if (checkForRequest())
             {
-                while (!_enterKeyListenerCancellation.Token.IsCancellationRequested)
+                return false; // Request received, not user ENTER
+            }
+
+            // Check for ENTER key (non-blocking)
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
                 {
-                    try
-                    {
-                        // Non-blocking keyboard check to allow cancellation
-                        if (Console.KeyAvailable)
-                        {
-                            var key = Console.ReadKey(true);
-                            if (key.Key == ConsoleKey.Enter)
-                            {
-                                AnsiConsole.Clear();
-                                AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
-
-                                // Launch manual session
-                                await LaunchManualClaudeSession(agentType, branch);
-
-                                // Return to waiting display
-                                RedrawWaitingDisplay(agentType, branch);
-
-                                // Restart the ENTER key listener for next use
-                                StartEnterKeyListener(agentType, branch);
-                                break; // Exit this instance of the listener
-                            }
-                        }
-
-                        // Cancellable delay to allow immediate cancellation
-                        await Task.Delay(100, _enterKeyListenerCancellation.Token);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        break;
-                    }
-                    catch
-                    {
-                        break;
-                    }
+                    AnsiConsole.Clear();
+                    AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
+                    return true; // User pressed ENTER
                 }
             }
-        );
+
+            // Small delay to prevent CPU spinning
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+        }
     }
 
     private async Task LaunchManualClaudeSession(string agentType, string branch)
