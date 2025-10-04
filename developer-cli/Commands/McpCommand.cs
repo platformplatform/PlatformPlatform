@@ -84,7 +84,9 @@ public static class DeveloperCliMcpTools
         if (noBuild) args.Add("--no-build");
 
         var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"Tests completed.\n\n{result.Output}" : $"Tests failed.\n\n{result.Output}";
+        return result.Success
+            ? SummarizeTestSuccess(result.Output)
+            : $"Tests failed.\n\n{TruncateOutput(result.Output, 2000)}";
     }
 
     [McpServerTool]
@@ -139,7 +141,9 @@ public static class DeveloperCliMcpTools
         if (noBuild) args.Add("--no-build");
 
         var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"Inspections completed.\n\n{result.Output}" : $"Inspections found issues.\n\n{result.Output}";
+        return result.Success
+            ? "Inspections completed successfully. Results saved to /application/result.json"
+            : $"Inspections found issues.\n\n{TruncateOutput(result.Output, 2000)}";
     }
 
     [McpServerTool]
@@ -165,7 +169,9 @@ public static class DeveloperCliMcpTools
         }
 
         var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"All checks passed.\n\n{result.Output}" : $"Checks failed.\n\n{result.Output}";
+        return result.Success
+            ? "All checks passed (build + test + format + inspect)."
+            : $"Checks failed.\n\n{TruncateOutput(result.Output, 3000)}";
     }
 
     [McpServerTool]
@@ -257,5 +263,37 @@ public static class DeveloperCliMcpTools
         if (errorLines.Count > 0) allOutput += "\n\nErrors:\n" + string.Join("\n", errorLines);
 
         return (process.ExitCode == 0, allOutput);
+    }
+
+    private static string SummarizeTestSuccess(string output)
+    {
+        // Extract test summary line (e.g., "Passed! - Failed: 0, Passed: 42, Skipped: 0, Total: 42")
+        var lines = output.Split('\n');
+        var summaryLine = lines.FirstOrDefault(l => l.Contains("Passed!") || l.Contains("Failed:"));
+
+        if (summaryLine != null)
+        {
+            return $"Tests passed.\n\n{summaryLine}";
+        }
+
+        // Fallback: just confirm success without massive output
+        return "Tests passed successfully.";
+    }
+
+    private static string TruncateOutput(string output, int maxChars)
+    {
+        if (output.Length <= maxChars)
+        {
+            return output;
+        }
+
+        var halfSize = maxChars / 2;
+        var beginning = output[..halfSize];
+        var ending = output[^halfSize..];
+
+        var lines = output.Split('\n');
+        var totalLines = lines.Length;
+
+        return $"{beginning}\n\n... [Output truncated: {output.Length - maxChars} chars omitted, {totalLines} total lines] ...\n\n{ending}";
     }
 }
