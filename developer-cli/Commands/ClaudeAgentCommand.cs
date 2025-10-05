@@ -897,21 +897,12 @@ public class ClaudeAgentCommand : Command
         var counter = match.Groups[1].Value;
         var responseFilePattern = $"{counter}.{agentType}.response.*.md";
 
-        // Wait for any response file matching the pattern (agents can use descriptive names)
+        // Wait indefinitely for response file (user is manually controlling this agent)
         AnsiConsole.MarkupLine($"[grey]Waiting for response file: {counter}.{agentType}.response.*.md[/]");
-        var startTime = DateTime.Now;
-        var timeout = TimeSpan.FromMinutes(30);
 
         string? foundResponseFile = null;
         while (foundResponseFile == null)
         {
-            if (DateTime.Now - startTime > timeout)
-            {
-                AnsiConsole.MarkupLine($"[red]Timeout waiting for response file: {responseFilePattern}[/]");
-                // Timeout - kill Claude anyway
-                break;
-            }
-
             // Check for any file matching the pattern
             var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
             if (matchingFiles.Length > 0)
@@ -1259,17 +1250,26 @@ public static class WorkerMcpTools
 
                             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {responsePattern}[/]");
 
-                            // Poll for response file with timeout (30 minutes max)
+                            // Poll for response file with activity monitoring (2-hour overall max)
                             var startTime = DateTime.Now;
-                            var timeout = TimeSpan.FromMinutes(30);
+                            var lastActivity = DateTime.Now;
+                            var overallTimeout = TimeSpan.FromHours(2);
 
                             string? foundResponseFile = null;
                             // Wait for any file matching the pattern (agents can use descriptive names)
                             while (foundResponseFile == null)
                             {
-                                if (DateTime.Now - startTime > timeout)
+                                // Check for file system activity
+                                var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
+                                if (mostRecentFileTime > lastActivity)
                                 {
-                                    throw new TimeoutException($"Interactive {agentType} did not complete task within 30 minutes");
+                                    lastActivity = mostRecentFileTime;
+                                }
+
+                                // Only enforce overall timeout (2 hours max), no inactivity timeout for interactive agents
+                                if (DateTime.Now - startTime > overallTimeout)
+                                {
+                                    throw new TimeoutException($"Interactive {agentType} exceeded 2-hour overall timeout");
                                 }
 
                                 // Check for any file matching the pattern
@@ -1548,7 +1548,9 @@ public static class WorkerMcpTools
 
         var startTime = DateTime.Now;
         var lastActivity = DateTime.Now;
-        var workerTimeout = TimeSpan.FromMinutes(5);  // Workers should be active - 5 min timeout
+        var workerTimeout = agentType.Contains("reviewer")
+            ? TimeSpan.FromMinutes(20)
+            : TimeSpan.FromMinutes(10);  // Engineers: 10 min inactivity timeout
         var overallTimeout = TimeSpan.FromHours(2);
 
         while (!responseDetected && DateTime.Now - startTime < overallTimeout)
@@ -1581,7 +1583,8 @@ public static class WorkerMcpTools
                     UpdateWorkerSession(currentProcessId, healthCheckRestart.ProcessId, agentType, taskTitle, requestFileName, healthCheckRestart.Process);
                     currentProcessId = healthCheckRestart.ProcessId;
                     restartCount++;
-                    LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 5 minutes, restarted (attempt {restartCount})", messagesDirectory);
+                    var timeoutMinutes = agentType.Contains("reviewer") ? 20 : 10;
+                    LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {timeoutMinutes} minutes, restarted (attempt {restartCount})", messagesDirectory);
                     lastActivity = DateTime.Now;  // Reset activity after restart
                 }
             }
