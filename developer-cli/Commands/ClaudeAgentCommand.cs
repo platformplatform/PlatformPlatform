@@ -17,6 +17,7 @@ public class ClaudeAgentCommand : Command
     private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
     private static string? SelectedAgentType;
+    private static bool ShowAllActivities = false;
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -552,7 +553,7 @@ public class ClaudeAgentCommand : Command
                 return false; // Request received, not user ENTER
             }
 
-            // Check for ENTER key (non-blocking)
+            // Check for keyboard input (non-blocking)
             if (Console.KeyAvailable)
             {
                 var key = Console.ReadKey(true);
@@ -561,6 +562,12 @@ public class ClaudeAgentCommand : Command
                     AnsiConsole.Clear();
                     AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
                     return true; // User pressed ENTER
+                }
+                else if (key.Key == ConsoleKey.A && (key.Modifiers & ConsoleModifiers.Control) != 0)
+                {
+                    // Ctrl+A - toggle showing all activities
+                    ShowAllActivities = !ShowAllActivities;
+                    RedrawWaitingDisplay(agentType, branch);
                 }
             }
 
@@ -973,7 +980,7 @@ public class ClaudeAgentCommand : Command
 
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
-        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control[/]");
+        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control | Press [bold white]CTRL+A[/] to toggle all activities[/]");
         AnsiConsole.WriteLine();
 
         // Show activities section
@@ -984,7 +991,18 @@ public class ClaudeAgentCommand : Command
 
         AnsiConsole.WriteLine();
         var recentActivities = GetRecentActivity(agentType, branch);
-        foreach (var activity in recentActivities)
+
+        // Show only last 10 by default, or all if toggled
+        var activitiesToShow = ShowAllActivities
+            ? recentActivities
+            : recentActivities.TakeLast(10).ToList();
+
+        if (!ShowAllActivities && recentActivities.Count > 10)
+        {
+            AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 10} older activities hidden (Ctrl+A to show all)[/]");
+        }
+
+        foreach (var activity in activitiesToShow)
         {
             // Show all activities in default white color
             AnsiConsole.MarkupLine($"{Markup.Escape(activity)}");
