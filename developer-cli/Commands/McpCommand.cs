@@ -178,9 +178,41 @@ public static class DeveloperCliMcpTools
     [Description("Start .NET Aspire at https://localhost:9000")]
     public static string Watch()
     {
-        var args = new List<string> { "watch", "--detach", "--force" };
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"Aspire started.\n\n{result.Output}" : $"Failed to start.\n\n{result.Output}";
+        // Call watch command in detached mode - don't wait for process exit
+        var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
+        var args = new List<string> { "run", "--project", developerCliPath, "watch", "--detach", "--force" };
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = string.Join(" ", args),
+            WorkingDirectory = Configuration.SourceCodeFolder,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process { StartInfo = processStartInfo };
+        var output = new List<string>();
+        var errors = new List<string>();
+
+        process.OutputDataReceived += (_, e) => { if (e.Data != null) output.Add(e.Data); };
+        process.ErrorDataReceived += (_, e) => { if (e.Data != null) errors.Add(e.Data); };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+
+        // Wait briefly to capture startup messages, then return (don't wait for full exit)
+        Thread.Sleep(TimeSpan.FromSeconds(3));
+
+        if (process.HasExited && process.ExitCode != 0)
+        {
+            return $"Failed to start Aspire.\n\n{string.Join("\n", output)}\n{string.Join("\n", errors)}";
+        }
+
+        return "Aspire started successfully in detached mode at https://localhost:9000";
     }
 
     [McpServerTool]
