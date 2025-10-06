@@ -999,14 +999,14 @@ public class ClaudeAgentCommand : Command
         AnsiConsole.WriteLine();
         var recentActivities = GetRecentActivity(agentType, branch);
 
-        // Show only last 10 by default, or all if toggled
+        // Show only last 5 by default, or all if toggled
         var activitiesToShow = ShowAllActivities
             ? recentActivities
-            : recentActivities.TakeLast(10).ToList();
+            : recentActivities.TakeLast(5).ToList();
 
-        if (!ShowAllActivities && recentActivities.Count > 10)
+        if (!ShowAllActivities && recentActivities.Count > 5)
         {
-            AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 10} older activities hidden (Ctrl+A to show all)[/]");
+            AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 5} older activities hidden (Ctrl+A to show all)[/]");
         }
 
         foreach (var activity in activitiesToShow)
