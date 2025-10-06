@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -1251,14 +1252,39 @@ public static class WorkerMcpTools
 
                             Directory.CreateDirectory(messagesDirectory);
 
+                            // Use file-based locking to prevent race conditions when multiple processes increment the counter
                             var taskCounterFile = Path.Combine(messagesDirectory, ".task-counter");
+                            var taskCounterLockFile = Path.Combine(messagesDirectory, ".task-counter.lock");
                             var taskCounter = 1;
-                            if (File.Exists(taskCounterFile) && int.TryParse(await File.ReadAllTextAsync(taskCounterFile), out var existingCounter))
-                            {
-                                taskCounter = existingCounter + 1;
-                            }
 
-                            await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
+                            // Retry with exponential backoff if lock is held
+                            for (int retry = 0; retry < 10; retry++)
+                            {
+                                try
+                                {
+                                    using (var lockStream = new FileStream(taskCounterLockFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                                    {
+                                        // We have the lock, read current value
+                                        if (File.Exists(taskCounterFile) && int.TryParse(await File.ReadAllTextAsync(taskCounterFile), out var existingCounter))
+                                        {
+                                            taskCounter = existingCounter + 1;
+                                        }
+
+                                        // Write new value
+                                        await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
+                                        break; // Success, exit retry loop
+                                    }
+                                }
+                                catch (IOException)
+                                {
+                                    // Lock is held by another process, wait and retry
+                                    if (retry == 9)
+                                    {
+                                        throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
+                                    }
+                                    await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
+                                }
+                            }
 
                             var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
@@ -1267,13 +1293,29 @@ public static class WorkerMcpTools
 
                             await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
 
+                            // Save current task info for recovery scenarios
+                            var interactiveTaskInfo = new
+                            {
+                                task_number = $"{taskCounter:D4}",
+                                request_file = taskRequestFileName,
+                                started_at = DateTime.UtcNow.ToString("O"),
+                                attempt = 1,
+                                branch = currentBranchName,
+                                title = taskTitle
+                            };
+
+                            var interactiveTaskFile = Path.Combine(agentWorkspaceDirectory, ".current-task.json");
+                            await File.WriteAllTextAsync(interactiveTaskFile, JsonSerializer.Serialize(interactiveTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
+
                             // Log task start
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
 
-                            // Wait for the response file to be created (atomic rename from .tmp)
-                            var responsePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
+                            // Wait for the response file to be created
+                            // Agent creates "response.md" and we rename it to the correct pattern
+                            var fixedResponseName = "response.md";
+                            var expectedResponsePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
-                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {responsePattern}[/]");
+                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {fixedResponseName}[/]");
 
                             // Poll for response file with activity monitoring (2-hour overall max)
                             var startTime = DateTime.Now;
@@ -1297,11 +1339,19 @@ public static class WorkerMcpTools
                                     throw new TimeoutException($"Interactive {agentType} exceeded 2-hour overall timeout");
                                 }
 
-                                // Check for any file matching the pattern
-                                var matchingFiles = Directory.GetFiles(messagesDirectory, responsePattern);
-                                if (matchingFiles.Length > 0)
+                                // Check for the fixed response file
+                                var fixedResponsePath = Path.Combine(agentWorkspaceDirectory, fixedResponseName);
+                                if (File.Exists(fixedResponsePath))
                                 {
-                                    foundResponseFile = matchingFiles[0];
+                                    // Generate proper response filename
+                                    var interactiveShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(5))
+                                        .ToLowerInvariant().Replace(".", "").Replace(",", "");
+                                    var properResponseName = $"{taskCounter:D4}.{agentType}.response.{interactiveShortTitle}.md";
+                                    var properResponsePath = Path.Combine(messagesDirectory, properResponseName);
+
+                                    // Move the file to the correct location with proper naming
+                                    File.Move(fixedResponsePath, properResponsePath);
+                                    foundResponseFile = properResponsePath;
                                     break;
                                 }
 
@@ -1318,7 +1368,13 @@ public static class WorkerMcpTools
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]", messagesDirectory);
 
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Interactive agent completed task[/]");
-                            return responseContent;
+
+                            // Return clear task information for the Tech Lead
+                            return $"Task delegated successfully to {agentType}.\n" +
+                                   $"Task number: {taskCounter:D4}\n" +
+                                   $"Request file: {taskRequestFileName}\n" +
+                                   $"Response file: {actualResponseFileName}\n\n" +
+                                   $"Response content:\n{responseContent}";
                         }
                     }
                     catch (ArgumentException)
@@ -1342,14 +1398,39 @@ public static class WorkerMcpTools
             // Ensure messages directory exists
             Directory.CreateDirectory(messagesDirectory);
 
+            // Use file-based locking to prevent race conditions when multiple processes increment the counter
             var counterFile = Path.Combine(messagesDirectory, ".task-counter");
+            var counterLockFile = Path.Combine(messagesDirectory, ".task-counter.lock");
             var counter = 1;
-            if (File.Exists(counterFile) && int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
-            {
-                counter = currentCounter + 1;
-            }
 
-            await File.WriteAllTextAsync(counterFile, counter.ToString());
+            // Retry with exponential backoff if lock is held
+            for (int retry = 0; retry < 10; retry++)
+            {
+                try
+                {
+                    using (var lockStream = new FileStream(counterLockFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                    {
+                        // We have the lock, read current value
+                        if (File.Exists(counterFile) && int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
+                        {
+                            counter = currentCounter + 1;
+                        }
+
+                        // Write new value
+                        await File.WriteAllTextAsync(counterFile, counter.ToString());
+                        break; // Success, exit retry loop
+                    }
+                }
+                catch (IOException)
+                {
+                    // Lock is held by another process, wait and retry
+                    if (retry == 9)
+                    {
+                        throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
+                    }
+                    await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
+                }
+            }
 
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
@@ -1364,6 +1445,20 @@ public static class WorkerMcpTools
 
             // Setup workspace with symlink to .claude directory
             await ClaudeAgentCommand.SetupAgentWorkspace(agentWorkspaceDirectory);
+
+            // Save current task info for recovery scenarios
+            var currentTaskInfo = new
+            {
+                task_number = $"{counter:D4}",
+                request_file = requestFileName,
+                started_at = DateTime.UtcNow.ToString("O"),
+                attempt = 1,
+                branch = branchName,
+                title = taskTitle
+            };
+
+            var currentTaskFile = Path.Combine(agentWorkspaceDirectory, ".current-task.json");
+            await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(currentTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
 
             // Deterministic session management for automated workers
             var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -1554,22 +1649,28 @@ public static class WorkerMcpTools
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
         File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
-        var responsePattern = $"{counter:D4}.{agentType}.response.*.md";
+
+        // Agent creates "response.md" in their workspace, we'll rename it properly
+        var agentWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
+        var fixedResponseName = "response.md";
+        var fixedResponsePath = Path.Combine(agentWorkspaceDir, fixedResponseName);
+
         var responseDetected = false;
         string? responseFilePath = null;
         var currentProcessId = processId;
         var restartCount = 0;
 
-        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, responsePattern);
+        // Watch for the fixed response file in the agent's workspace
+        using var fileSystemWatcher = new FileSystemWatcher(agentWorkspaceDir, fixedResponseName);
         fileSystemWatcher.Created += (_, e) =>
         {
             File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
             responseDetected = true;
-            responseFilePath = e.FullPath;
+            // We'll move and rename it later
         };
         fileSystemWatcher.EnableRaisingEvents = true;
 
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {messagesDirectory} for pattern: {responsePattern}\n");
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {agentWorkspaceDir} for file: {fixedResponseName}\n");
 
         var startTime = DateTime.Now;
         var lastActivity = DateTime.Now;
@@ -1633,19 +1734,33 @@ public static class WorkerMcpTools
 
         await Task.Delay(TimeSpan.FromSeconds(5)); // Grace period for file writing
 
-        if (!File.Exists(responseFilePath))
+        // Check if the fixed response file exists
+        if (!File.Exists(fixedResponsePath))
         {
             return "Response file was detected but no longer exists";
         }
 
-        // Example: 0001.backend-engineer.response.Added-JWT-auth-and-4-tests.md
-        var responseFileName = Path.GetFileName(responseFilePath);
+        // Generate proper response filename and move it to messages directory
+        var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(5))
+            .ToLowerInvariant().Replace(".", "").Replace(",", "");
+        var responseFileName = $"{counter:D4}.{agentType}.response.{shortTitle}.md";
+        responseFilePath = Path.Combine(messagesDirectory, responseFileName);
+
+        // Move the file to the correct location with proper naming
+        File.Move(fixedResponsePath, responseFilePath);
 
         var description = Path.GetFileNameWithoutExtension(responseFileName).Split('.').Last().Replace('-', ' ');
         LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{description}' -> [{responseFileName}]", messagesDirectory);
 
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
-        return $"Worker completed task '{taskTitle}'.\nRequest: {requestFileName}\nResponse: {responseFileName}\nRestarts: {restartCount}\n\nResponse content:\n{responseContent}";
+
+        return $"Task completed successfully by {agentType}.\n" +
+               $"Task number: {counter:D4}\n" +
+               $"Task title: {taskTitle}\n" +
+               $"Request file: {requestFileName}\n" +
+               $"Response file: {responseFileName}\n" +
+               $"Restarts needed: {restartCount}\n\n" +
+               $"Response content:\n{responseContent}";
     }
 
     private static bool IsWorkerProcessHealthy(int processId)
@@ -1680,7 +1795,7 @@ public static class WorkerMcpTools
             claudeArgs.Add(systemPromptText);
         }
 
-        // Add agent-specific restart nudge message
+        // Add agent-specific restart nudge message with task context
         if (agentType == "tech-lead")
         {
             claudeArgs.Add("--append-system-prompt");
@@ -1688,8 +1803,12 @@ public static class WorkerMcpTools
         }
         else
         {
+            // Simplified restart message - no task numbers needed
             claudeArgs.Add("--append-system-prompt");
-            claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. Please re-read the latest request file and then ultrathink and evaluate how to continue the work as your colleagues are waiting for your response.");
+            claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. " +
+                         $"Please re-read the latest request file in the messages directory and continue working on it. " +
+                         $"When you are ready to submit your response, create a file named 'response.md' in your current directory. " +
+                         $"IMPORTANT: Always name your response file exactly 'response.md' - do NOT include any numbers or other naming.");
         }
 
         if (File.Exists(claudeSessionIdFile))
