@@ -137,7 +137,10 @@ public class ClaudeAgentCommand : Command
         // Set terminal title
         SetTerminalTitle($"{displayName} - {branch}");
 
-        var agentBanner = new FigletText(displayName).Color(GetAgentColor(agentType));
+        // Load small Figlet font for compact banner
+        var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
+        var font = File.Exists(smallFontPath) ? FigletFont.Load(smallFontPath) : FigletFont.Default;
+        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(agentType));
         AnsiConsole.Write(agentBanner);
 
         var agentColor = GetAgentColor(agentType);
@@ -966,7 +969,11 @@ public class ClaudeAgentCommand : Command
         AnsiConsole.Clear();
 
         var displayName = GetAgentDisplayName(agentType);
-        var agentBanner = new FigletText(displayName).Color(GetAgentColor(agentType));
+
+        // Load small Figlet font for compact banner
+        var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
+        var font = File.Exists(smallFontPath) ? FigletFont.Load(smallFontPath) : FigletFont.Default;
+        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(agentType));
         AnsiConsole.Write(agentBanner);
 
         var agentColor = GetAgentColor(agentType);
