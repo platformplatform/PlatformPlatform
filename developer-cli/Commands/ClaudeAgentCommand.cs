@@ -3,9 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -18,7 +15,7 @@ public class ClaudeAgentCommand : Command
     private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
     private static string? SelectedAgentType;
-    private static bool ShowAllActivities = false;
+    private static bool ShowAllActivities;
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -178,7 +175,7 @@ public class ClaudeAgentCommand : Command
 
         // Load Tech Lead system prompt from .txt file
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
-        string systemPromptText = "";
+        var systemPromptText = "";
 
         if (File.Exists(systemPromptFile))
         {
@@ -273,7 +270,7 @@ public class ClaudeAgentCommand : Command
         while (!techLeadProcess.HasExited)
         {
             // Find most recent file modification
-            var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
+            var mostRecentFileTime = GetMostRecentFileModification();
             if (mostRecentFileTime > lastActivity)
             {
                 lastActivity = mostRecentFileTime;
@@ -301,17 +298,15 @@ public class ClaudeAgentCommand : Command
                 // Exit monitor - main thread has restart loop with proper terminal context
                 break;
             }
-            else
-            {
-                // Calculate how long to wait before next check
-                var timeUntilTimeout = timeout - timeSinceLastActivity;
-                // Wait for the remaining time (max 5 minutes to catch activity sooner)
-                var waitTime = timeUntilTimeout > TimeSpan.FromMinutes(5)
-                    ? TimeSpan.FromMinutes(5)
-                    : timeUntilTimeout;
 
-                await Task.Delay(waitTime);
-            }
+            // Calculate how long to wait before next check
+            var timeUntilTimeout = timeout - timeSinceLastActivity;
+            // Wait for the remaining time (max 5 minutes to catch activity sooner)
+            var waitTime = timeUntilTimeout > TimeSpan.FromMinutes(5)
+                ? TimeSpan.FromMinutes(5)
+                : timeUntilTimeout;
+
+            await Task.Delay(waitTime);
         }
     }
 
@@ -383,15 +378,15 @@ public class ClaudeAgentCommand : Command
         {
             // Create MCP config JSON with proper formatting
             var mcpConfigJson = """
-            {
-              "mcpServers": {
-                "platformplatform-developer-cli": {
-                  "command": "dotnet",
-                  "args": ["run", "--project", "../../../../developer-cli", "mcp"]
-                }
-              }
-            }
-            """;
+                                {
+                                  "mcpServers": {
+                                    "platformplatform-developer-cli": {
+                                      "command": "dotnet",
+                                      "args": ["run", "--project", "../../../../developer-cli", "mcp"]
+                                    }
+                                  }
+                                }
+                                """;
 
             await File.WriteAllTextAsync(workerMcpJsonPath, mcpConfigJson);
         }
@@ -420,12 +415,13 @@ public class ClaudeAgentCommand : Command
             // Find completed response files for this agent type
             var responseFiles = Directory.GetFiles(messagesDirectory, $"*.{agentType}.response.*.md")
                 .Select(file => new
-                {
-                    FilePath = file,
-                    FileName = Path.GetFileName(file),
-                    ResponseTime = File.GetLastWriteTime(file)
-                })
-                .OrderBy(f => f.ResponseTime)  // Chronological order: oldest first, newest last
+                    {
+                        FilePath = file,
+                        FileName = Path.GetFileName(file),
+                        ResponseTime = File.GetLastWriteTime(file)
+                    }
+                )
+                .OrderBy(f => f.ResponseTime) // Chronological order: oldest first, newest last
                 .ToList();
 
             foreach (var file in responseFiles)
@@ -533,6 +529,7 @@ public class ClaudeAgentCommand : Command
                 {
                     AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
                 }
+
                 requestFilePath = null;
             }
             else if (userPressedEnter)
@@ -567,7 +564,8 @@ public class ClaudeAgentCommand : Command
                     AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
                     return true; // User pressed ENTER
                 }
-                else if (key.Key == ConsoleKey.A && (key.Modifiers & ConsoleModifiers.Control) != 0)
+
+                if (key.Key == ConsoleKey.A && (key.Modifiers & ConsoleModifiers.Control) != 0)
                 {
                     // Ctrl+A - toggle showing all activities
                     ShowAllActivities = !ShowAllActivities;
@@ -687,7 +685,7 @@ public class ClaudeAgentCommand : Command
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "default",
-"/tech-lead-mode"
+                "/tech-lead-mode"
             };
 
             var techLeadProcess = new Process
@@ -719,7 +717,7 @@ public class ClaudeAgentCommand : Command
                     "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                     "--add-dir", Configuration.SourceCodeFolder,
                     "--permission-mode", "default",
-    "/tech-lead-mode"
+                    "/tech-lead-mode"
                 };
 
                 techLeadProcess = new Process
@@ -779,7 +777,9 @@ public class ClaudeAgentCommand : Command
                     var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
                     File.AppendAllText(workflowLog, parameterLog);
                 }
-                catch { }
+                catch
+                {
+                }
 
                 finalPrompt = $"/review-task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
 
@@ -789,7 +789,9 @@ public class ClaudeAgentCommand : Command
                     var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
                     File.AppendAllText(workflowLog, promptLog);
                 }
-                catch { }
+                catch
+                {
+                }
             }
             else
             {
@@ -806,7 +808,9 @@ public class ClaudeAgentCommand : Command
                     var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
                     File.AppendAllText(workflowLog, parameterLog);
                 }
-                catch { }
+                catch
+                {
+                }
 
                 finalPrompt = $"/implement-task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
 
@@ -816,7 +820,9 @@ public class ClaudeAgentCommand : Command
                     var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
                     File.AppendAllText(workflowLog, promptLog);
                 }
-                catch { }
+                catch
+                {
+                }
             }
         }
         else
@@ -937,15 +943,16 @@ public class ClaudeAgentCommand : Command
             try
             {
                 // Send SIGINT twice (Ctrl+C, C)
-                for (int i = 0; i < 2; i++)
+                for (var i = 0; i < 2; i++)
                 {
                     Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "kill",
-                        Arguments = $"-SIGINT {claudeProcess.Id}",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true
-                    });
+                        {
+                            FileName = "kill",
+                            Arguments = $"-SIGINT {claudeProcess.Id}",
+                            UseShellExecute = false,
+                            RedirectStandardOutput = true
+                        }
+                    );
                     await Task.Delay(TimeSpan.FromMilliseconds(100));
                 }
 
@@ -960,7 +967,13 @@ public class ClaudeAgentCommand : Command
             }
             catch
             {
-                try { claudeProcess.Kill(); } catch { }
+                try
+                {
+                    claudeProcess.Kill();
+                }
+                catch
+                {
+                }
             }
         }
     }
@@ -1015,6 +1028,7 @@ public class ClaudeAgentCommand : Command
             // Show all activities in default white color
             AnsiConsole.MarkupLine($"{Markup.Escape(activity)}");
         }
+
         AnsiConsole.WriteLine();
     }
 
@@ -1258,7 +1272,7 @@ public static class WorkerMcpTools
                             var taskCounter = 1;
 
                             // Retry with exponential backoff if lock is held
-                            for (int retry = 0; retry < 10; retry++)
+                            for (var retry = 0; retry < 10; retry++)
                             {
                                 try
                                 {
@@ -1282,6 +1296,7 @@ public static class WorkerMcpTools
                                     {
                                         throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
                                     }
+
                                     await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
                                 }
                             }
@@ -1311,11 +1326,8 @@ public static class WorkerMcpTools
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
 
                             // Wait for the response file to be created
-                            // Agent creates "response.md" and we rename it to the correct pattern
-                            var fixedResponseName = "response.md";
-                            var expectedResponsePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
-
-                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete: {fixedResponseName}[/]");
+                            // Agent creates descriptive markdown file
+                            AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete task {taskCounter:D4}[/]");
 
                             // Poll for response file with activity monitoring (2-hour overall max)
                             var startTime = DateTime.Now;
@@ -1339,18 +1351,19 @@ public static class WorkerMcpTools
                                     throw new TimeoutException($"Interactive {agentType} exceeded 2-hour overall timeout");
                                 }
 
-                                // Check for the fixed response file
-                                var fixedResponsePath = Path.Combine(agentWorkspaceDirectory, fixedResponseName);
-                                if (File.Exists(fixedResponsePath))
+                                // Check for any markdown file in the workspace (agent creates descriptive names)
+                                var markdownFiles = Directory.GetFiles(agentWorkspaceDirectory, "*.md");
+                                if (markdownFiles.Length > 0)
                                 {
-                                    // Generate proper response filename
-                                    var interactiveShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(5))
-                                        .ToLowerInvariant().Replace(".", "").Replace(",", "");
-                                    var properResponseName = $"{taskCounter:D4}.{agentType}.response.{interactiveShortTitle}.md";
+                                    var responseFile = markdownFiles[0]; // Take first markdown file found
+                                    var agentDescriptiveName = Path.GetFileNameWithoutExtension(responseFile);
+
+                                    // Generate proper response filename preserving agent's description
+                                    var properResponseName = $"{taskCounter:D4}.{agentType}.response.{agentDescriptiveName}.md";
                                     var properResponsePath = Path.Combine(messagesDirectory, properResponseName);
 
                                     // Move the file to the correct location with proper naming
-                                    File.Move(fixedResponsePath, properResponsePath);
+                                    File.Move(responseFile, properResponsePath);
                                     foundResponseFile = properResponsePath;
                                     break;
                                 }
@@ -1404,7 +1417,7 @@ public static class WorkerMcpTools
             var counter = 1;
 
             // Retry with exponential backoff if lock is held
-            for (int retry = 0; retry < 10; retry++)
+            for (var retry = 0; retry < 10; retry++)
             {
                 try
                 {
@@ -1428,6 +1441,7 @@ public static class WorkerMcpTools
                     {
                         throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
                     }
+
                     await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
                 }
             }
@@ -1643,40 +1657,38 @@ public static class WorkerMcpTools
         return ClaudeAgentCommand.TerminateWorker(processId);
     }
 
-
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
         File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
 
-        // Agent creates "response.md" in their workspace, we'll rename it properly
+        // Agent creates descriptive markdown file in their workspace, we'll rename it properly
         var agentWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
-        var fixedResponseName = "response.md";
-        var fixedResponsePath = Path.Combine(agentWorkspaceDir, fixedResponseName);
 
         var responseDetected = false;
         string? responseFilePath = null;
         var currentProcessId = processId;
         var restartCount = 0;
+        string? detectedFileName = null;
 
-        // Watch for the fixed response file in the agent's workspace
-        using var fileSystemWatcher = new FileSystemWatcher(agentWorkspaceDir, fixedResponseName);
+        // Watch for any markdown file in the agent's workspace
+        using var fileSystemWatcher = new FileSystemWatcher(agentWorkspaceDir, "*.md");
         fileSystemWatcher.Created += (_, e) =>
         {
             File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
+            detectedFileName = e.Name;
             responseDetected = true;
-            // We'll move and rename it later
         };
         fileSystemWatcher.EnableRaisingEvents = true;
 
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {agentWorkspaceDir} for file: {fixedResponseName}\n");
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {agentWorkspaceDir} for pattern: *.md\n");
 
         var startTime = DateTime.Now;
         var lastActivity = DateTime.Now;
         var workerTimeout = agentType.Contains("reviewer")
             ? TimeSpan.FromMinutes(20)
-            : TimeSpan.FromMinutes(10);  // Engineers: 10 min inactivity timeout
+            : TimeSpan.FromMinutes(10); // Engineers: 10 min inactivity timeout
         var overallTimeout = TimeSpan.FromHours(2);
 
         while (!responseDetected && DateTime.Now - startTime < overallTimeout)
@@ -1711,7 +1723,7 @@ public static class WorkerMcpTools
                     restartCount++;
                     var timeoutMinutes = agentType.Contains("reviewer") ? 20 : 10;
                     LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {timeoutMinutes} minutes, restarted (attempt {restartCount})", messagesDirectory);
-                    lastActivity = DateTime.Now;  // Reset activity after restart
+                    lastActivity = DateTime.Now; // Reset activity after restart
                 }
             }
 
@@ -1734,20 +1746,27 @@ public static class WorkerMcpTools
 
         await Task.Delay(TimeSpan.FromSeconds(5)); // Grace period for file writing
 
-        // Check if the fixed response file exists
-        if (!File.Exists(fixedResponsePath))
+        // Get the actual response file that was created
+        if (string.IsNullOrEmpty(detectedFileName))
+        {
+            return "Response file was detected but filename not captured";
+        }
+
+        var actualResponsePath = Path.Combine(agentWorkspaceDir, detectedFileName);
+        if (!File.Exists(actualResponsePath))
         {
             return "Response file was detected but no longer exists";
         }
 
-        // Generate proper response filename and move it to messages directory
-        var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(5))
-            .ToLowerInvariant().Replace(".", "").Replace(",", "");
-        var responseFileName = $"{counter:D4}.{agentType}.response.{shortTitle}.md";
+        // Extract the descriptive part from the agent's filename (remove .md extension)
+        var agentDescription = Path.GetFileNameWithoutExtension(detectedFileName);
+
+        // Generate proper response filename preserving agent's description
+        var responseFileName = $"{counter:D4}.{agentType}.response.{agentDescription}.md";
         responseFilePath = Path.Combine(messagesDirectory, responseFileName);
 
         // Move the file to the correct location with proper naming
-        File.Move(fixedResponsePath, responseFilePath);
+        File.Move(actualResponsePath, responseFilePath);
 
         var description = Path.GetFileNameWithoutExtension(responseFileName).Split('.').Last().Replace('-', ' ');
         LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{description}' -> [{responseFileName}]", messagesDirectory);
@@ -1803,12 +1822,13 @@ public static class WorkerMcpTools
         }
         else
         {
-            // Simplified restart message - no task numbers needed
+            // Simplified restart message - no task numbers needed, encourage descriptive naming
             claudeArgs.Add("--append-system-prompt");
             claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. " +
-                         $"Please re-read the latest request file in the messages directory and continue working on it. " +
-                         $"When you are ready to submit your response, create a file named 'response.md' in your current directory. " +
-                         $"IMPORTANT: Always name your response file exactly 'response.md' - do NOT include any numbers or other naming.");
+                           $"Please re-read the latest request file and continue working on it. " +
+                           $"When you are ready to submit your response, create a descriptive markdown file in your current directory that reflects the work completed. " +
+                           $"IMPORTANT: Do NOT include any task numbers or dates in your filename - only a brief description of what you accomplished."
+            );
         }
 
         if (File.Exists(claudeSessionIdFile))
