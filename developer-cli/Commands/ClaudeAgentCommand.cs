@@ -159,12 +159,35 @@ public class ClaudeAgentCommand : Command
             return;
         }
 
-        // Display initial waiting screen with recent activity
-        RedrawWaitingDisplay(agentType, branch);
-
-        // Start watching for request files
+        // Check for task recovery - if .task-id exists, resume the task
+        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
         Directory.CreateDirectory(messagesDirectory);
+
+        if (File.Exists(taskIdFile))
+        {
+            var taskId = await File.ReadAllTextAsync(taskIdFile);
+            taskId = taskId.Trim();
+
+            // Find the request file for this task
+            var requestPattern = $"{taskId}.{agentType}.request.*.md";
+            var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
+
+            if (requestFiles.Length > 0)
+            {
+                var requestFile = requestFiles[0];
+                AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
+                AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
+                AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
+                await Task.Delay(TimeSpan.FromSeconds(3));
+
+                // Handle the recovered task immediately
+                await HandleIncomingRequest(requestFile, agentType, branch);
+            }
+        }
+
+        // Display initial waiting screen with recent activity
+        RedrawWaitingDisplay(agentType, branch);
 
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
@@ -1322,6 +1345,10 @@ public static class WorkerMcpTools
                             var interactiveTaskFile = Path.Combine(agentWorkspaceDirectory, ".current-task.json");
                             await File.WriteAllTextAsync(interactiveTaskFile, JsonSerializer.Serialize(interactiveTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
 
+                            // Create .task-id file for recovery after crash/restart
+                            var interactiveTaskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+                            await File.WriteAllTextAsync(interactiveTaskIdFile, $"{taskCounter:D4}");
+
                             // Log task start
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
 
@@ -1372,6 +1399,13 @@ public static class WorkerMcpTools
                             }
 
                             AnsiConsole.MarkupLine("[grey][[MCP DEBUG]] Response file detected, reading content...[/]");
+
+                            // Delete .task-id file after successful completion
+                            var completedTaskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+                            if (File.Exists(completedTaskIdFile))
+                            {
+                                File.Delete(completedTaskIdFile);
+                            }
 
                             // Read response content immediately - file is complete via atomic rename
                             var responseContent = await File.ReadAllTextAsync(foundResponseFile);
@@ -1473,6 +1507,10 @@ public static class WorkerMcpTools
 
             var currentTaskFile = Path.Combine(agentWorkspaceDirectory, ".current-task.json");
             await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(currentTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
+
+            // Create .task-id file for recovery after crash/restart
+            var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+            await File.WriteAllTextAsync(taskIdFile, $"{counter:D4}");
 
             // Deterministic session management for automated workers
             var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -1767,6 +1805,13 @@ public static class WorkerMcpTools
 
         // Move the file to the correct location with proper naming
         File.Move(actualResponsePath, responseFilePath);
+
+        // Delete .task-id file after successful completion
+        var completedTaskIdFile = Path.Combine(agentWorkspaceDir, ".task-id");
+        if (File.Exists(completedTaskIdFile))
+        {
+            File.Delete(completedTaskIdFile);
+        }
 
         var description = Path.GetFileNameWithoutExtension(responseFileName).Split('.').Last().Replace('-', ' ');
         LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{description}' -> [{responseFileName}]", messagesDirectory);
