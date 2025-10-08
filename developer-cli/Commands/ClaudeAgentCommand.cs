@@ -456,6 +456,19 @@ public class ClaudeAgentCommand : Command
                     var taskNumber = parts[0];
                     var taskDescription = parts[3].Replace("-md", "").Replace('-', ' ');
 
+                    // Determine status icon based on response filename
+                    var statusIcon = "✔️"; // Default for completed tasks
+                    if (taskDescription.StartsWith("Approved ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        statusIcon = "✅"; // Green checkmark for approved
+                        taskDescription = taskDescription.Substring("Approved ".Length); // Remove prefix from display
+                    }
+                    else if (taskDescription.StartsWith("Rejected ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        statusIcon = "❌"; // Red X for rejected
+                        taskDescription = taskDescription.Substring("Rejected ".Length); // Remove prefix from display
+                    }
+
                     try
                     {
                         // Find corresponding request file to calculate duration
@@ -475,14 +488,14 @@ public class ClaudeAgentCommand : Command
                                 var responseTimeStr = responseTime.ToString("HH:mm");
                                 var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
 
-                                var activityLine = $"✅ {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
+                                var activityLine = $"{statusIcon} {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
                                 activities.Add(activityLine);
                             }
                             else
                             {
                                 // Duration calculation failed, use simple format
                                 var timeStamp = file.ResponseTime.ToString("HH:mm");
-                                var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                                var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
                                 activities.Add(activityLine);
                             }
                         }
@@ -490,7 +503,7 @@ public class ClaudeAgentCommand : Command
                         {
                             // No request file found, use simple format
                             var timeStamp = file.ResponseTime.ToString("HH:mm");
-                            var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                            var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
                             activities.Add(activityLine);
                         }
                     }
@@ -498,7 +511,7 @@ public class ClaudeAgentCommand : Command
                     {
                         // Any file access error, use simple format
                         var timeStamp = file.ResponseTime.ToString("HH:mm");
-                        var activityLine = $"✅ {timeStamp} - {taskNumber} - {taskDescription}";
+                        var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
                         activities.Add(activityLine);
                     }
                 }
