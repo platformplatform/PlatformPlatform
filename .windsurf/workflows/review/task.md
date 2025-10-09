@@ -5,6 +5,13 @@ auto_execution_mode: 1
 
 # Review Task Workflow
 
+**IMPORTANT**: If you're reading this, the slash command worked! If you DON'T see this text and only see `/review/task`, then:
+1. Read `.claude/commands/review/task.md` (this file)
+2. Find your request: `../messages/*.{your-agent-type}.request.*.md`
+3. Follow the workflow below
+
+---
+
 ## STEP 0: Create Todo List - DO THIS NOW!
 
 **YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
