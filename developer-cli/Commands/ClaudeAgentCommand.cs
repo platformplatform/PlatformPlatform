@@ -188,7 +188,7 @@ public class ClaudeAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
-    private async Task LaunchTechLeadAsync(string agentType, string branch, bool _, bool __)
+    private async Task LaunchTechLeadAsync(string agentType, string branch, bool resume, bool continueSession)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
@@ -263,7 +263,7 @@ public class ClaudeAgentCommand : Command
 
         // Start tech lead health monitoring
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        var monitoringTask = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
+        _ = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
 
         await process.WaitForExitAsync();
 
@@ -278,9 +278,8 @@ public class ClaudeAgentCommand : Command
         var lastActivity = DateTime.Now;
 
         // Monitor messages directory for activity
-        using var watcher = new FileSystemWatcher(messagesDirectory)
+        using var watcher = new FileSystemWatcher(messagesDirectory, "*.md")
         {
-            Filter = "*.md",
             EnableRaisingEvents = true
         };
 
@@ -517,9 +516,8 @@ public class ClaudeAgentCommand : Command
 
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
-        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory)
+        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, $"*.{agentType}.request.*.md")
         {
-            Filter = $"*.{agentType}.request.*.md",
             EnableRaisingEvents = true
         };
 
@@ -1256,15 +1254,13 @@ public static class WorkerMcpTools
                             // Interactive worker-host handles file creation and moves it to messages directory
                             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete task {taskCounter:D4}[/]");
 
-                            // Poll for response file in messages directory (interactive worker-host manages file movement)
+                            // Poll for response file in messages directory (MCP tool writes it there)
                             var startTime = DateTime.Now;
-                            var lastActivity = DateTime.Now;
                             var overallTimeout = TimeSpan.FromHours(2);
 
                             string? foundResponseFile = null;
                             var responseFilePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
-                            // Wait for response file in messages directory (MCP tool writes it there)
                             while (foundResponseFile == null)
                             {
                                 // Only enforce overall timeout (2 hours max)
@@ -1348,8 +1344,6 @@ public static class WorkerMcpTools
 
             await File.WriteAllTextAsync(requestFile, markdownContent);
 
-            // Check if this is a new workspace
-            var isNewWorkspace = !Directory.Exists(agentWorkspaceDirectory);
             Directory.CreateDirectory(agentWorkspaceDirectory);
 
             // Setup workspace with symlink to .claude directory
@@ -1642,7 +1636,6 @@ public static class WorkerMcpTools
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
         File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for process ID: {processId}\n");
 
-        var agentWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
         var currentProcessId = processId;
         var restartCount = 0;
         var startTime = DateTime.Now;
@@ -1740,19 +1733,11 @@ public static class WorkerMcpTools
                $"Response content:\n{responseContent}";
     }
 
-    private static bool IsWorkerProcessHealthy(int processId)
-    {
-        var processes = Process.GetProcesses();
-        var workerProcess = processes.FirstOrDefault(p => p.Id == processId);
-        return workerProcess is { HasExited: false };
-    }
-
-    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int attemptNumber)
+    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int _)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
-        var restartRequestFile = Path.Combine(messagesDirectory, requestFileName);
 
         // Deterministic session management for restart
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
