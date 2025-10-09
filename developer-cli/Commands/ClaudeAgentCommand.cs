@@ -20,26 +20,21 @@ public class ClaudeAgentCommand : Command
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
-            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)"
+            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)",
+            Arity = ArgumentArity.ZeroOrOne
         };
-        agentTypeArgument.Arity = ArgumentArity.ZeroOrOne;
-
-        var resumeOption = new Option<bool>("--resume", "Resume specific tech lead session from workspace (only for tech-lead agent type)");
-        var continueOption = new Option<bool>("--continue", "Continue most recent conversation in main repo (only for tech-lead agent type)");
 
         AddArgument(agentTypeArgument);
-        AddOption(resumeOption);
-        AddOption(continueOption);
 
-        this.SetHandler(ExecuteAsync, agentTypeArgument, resumeOption, continueOption);
+        this.SetHandler(ExecuteAsync, agentTypeArgument);
     }
 
-    private async Task ExecuteAsync(string? agentType, bool resume, bool continueSession)
+    private async Task ExecuteAsync(string? agentType)
     {
         try
         {
             // Interactive mode
-            await RunInteractiveMode(agentType, resume, continueSession);
+            await RunInteractiveMode(agentType);
         }
         catch (Exception ex)
         {
@@ -47,7 +42,7 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private async Task RunInteractiveMode(string? agentType, bool resume, bool continueSession)
+    private async Task RunInteractiveMode(string? agentType)
     {
         // If no agent type provided, prompt for selection
         if (string.IsNullOrEmpty(agentType))
@@ -151,7 +146,7 @@ public class ClaudeAgentCommand : Command
             await SetupAgentWorkspace(agentWorkspaceDirectory);
 
             // Launch tech lead directly
-            await LaunchTechLeadAsync(agentType, branch, resume, continueSession);
+            await LaunchTechLeadAsync(agentType, branch);
             return;
         }
 
@@ -188,7 +183,7 @@ public class ClaudeAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
-    private async Task LaunchTechLeadAsync(string agentType, string branch, bool resume, bool continueSession)
+    private async Task LaunchTechLeadAsync(string agentType, string branch)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
@@ -557,6 +552,7 @@ public class ClaudeAgentCommand : Command
         RedrawWaitingDisplay(agentType, branch);
 
         // Wait for ENTER key or incoming request
+        // ReSharper disable once FunctionNeverReturns - Intentional infinite loop, returns on ENTER or request
         while (true)
         {
             // Check if request file arrived (non-blocking)
@@ -777,13 +773,13 @@ public class ClaudeAgentCommand : Command
                 var branchName = GitHelper.GetCurrentBranch();
                 var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
                 var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
-                File.AppendAllText(workflowLog, parameterLog);
+                await File.AppendAllTextAsync(workflowLog, parameterLog);
 
                 finalPrompt = $"/review/task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
 
                 // Log the final prompt for debugging
                 var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
-                File.AppendAllText(workflowLog, promptLog);
+                await File.AppendAllTextAsync(workflowLog, promptLog);
             }
             else
             {
@@ -796,13 +792,13 @@ public class ClaudeAgentCommand : Command
                 var branchName = GitHelper.GetCurrentBranch();
                 var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
                 var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
-                File.AppendAllText(workflowLog, parameterLog);
+                await File.AppendAllTextAsync(workflowLog, parameterLog);
 
                 finalPrompt = $"/implement/task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
 
                 // Log the final prompt for debugging
                 var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
-                File.AppendAllText(workflowLog, promptLog);
+                await File.AppendAllTextAsync(workflowLog, promptLog);
             }
         }
         else
@@ -1145,10 +1141,10 @@ public class ClaudeAgentCommand : Command
 public static class WorkerMcpTools
 {
     private static readonly string[] ValidAgentTypes =
-    {
+    [
         "tech-lead", "backend-engineer", "backend-reviewer",
         "frontend-engineer", "frontend-reviewer", "test-automation-engineer", "test-automation-reviewer"
-    };
+    ];
 
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
@@ -1173,7 +1169,7 @@ public static class WorkerMcpTools
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
 
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
+        await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
 
         AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] StartWorker called: agentType={agentType}, taskTitle={taskTitle}[/]");
 
@@ -1194,8 +1190,8 @@ public static class WorkerMcpTools
             var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
 
             // Debug: Log the PID file path we're checking
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {processIdFile}\n");
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(processIdFile)}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {processIdFile}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(processIdFile)}\n");
 
             if (File.Exists(processIdFile))
             {
@@ -1261,6 +1257,7 @@ public static class WorkerMcpTools
                             string? foundResponseFile = null;
                             var responseFilePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
+                            // ReSharper disable once LoopVariableIsNeverChangedInsideLoop - foundResponseFile set when file detected
                             while (foundResponseFile == null)
                             {
                                 // Only enforce overall timeout (2 hours max)
@@ -1406,12 +1403,12 @@ public static class WorkerMcpTools
             // CRITICAL: Remove CLAUDECODE to prevent forced print mode
             process.StartInfo.Environment.Remove("CLAUDECODE");
 
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
 
             var quotedArgs = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
 
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Starting Claude Code worker process in: {agentWorkspaceDirectory}[/]");
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Claude args: {string.Join(" ", claudeArgs)}[/]");
@@ -1421,22 +1418,22 @@ public static class WorkerMcpTools
             // Create PID file for automated worker
             await File.WriteAllTextAsync(processIdFile, process.Id.ToString());
 
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
 
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Worker process started with PID: {process.Id}[/]");
 
             // Log what Claude Code actually receives as input
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
 
             // Check if process exits immediately
             await Task.Delay(TimeSpan.FromSeconds(3));
             if (process.HasExited)
             {
-                File.AppendAllText(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] ERROR: Worker process {process.Id} exited immediately with code: {process.ExitCode}\n");
             }
             else
             {
-                File.AppendAllText(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process {process.Id} is running\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] Worker process {process.Id} is running\n");
             }
 
             // Track active Worker session
@@ -1446,10 +1443,10 @@ public static class WorkerMcpTools
 
             try
             {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting worker monitoring for PID: {process.Id}\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting worker monitoring for PID: {process.Id}\n");
                 // Monitor for response file creation with FileSystemWatcher
                 var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker monitoring completed with result: {result.Substring(0, Math.Min(100, result.Length))}...\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker monitoring completed with result: {result.Substring(0, Math.Min(100, result.Length))}...\n");
                 return result;
             }
             finally
@@ -1469,7 +1466,7 @@ public static class WorkerMcpTools
         }
         catch (Exception ex)
         {
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
 
             // Clean up PID file on error
             var processIdFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".process-id");
@@ -1634,7 +1631,7 @@ public static class WorkerMcpTools
     {
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for process ID: {processId}\n");
+        await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for process ID: {processId}\n");
 
         var currentProcessId = processId;
         var restartCount = 0;
@@ -1658,23 +1655,23 @@ public static class WorkerMcpTools
             if (exited)
             {
                 // Worker completed normally (called MCP CompleteTask or ReviewCompleted)
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process exited normally\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process exited normally\n");
                 break;
             }
 
             // Timeout - check if worker is making progress
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inactivity check: No completion after 20 minutes\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inactivity check: No completion after 20 minutes\n");
 
             var hasGitChanges = ClaudeAgentCommand.HasGitChanges();
             if (hasGitChanges)
             {
                 // Worker is making changes, still active
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Git changes detected, worker is active\n");
+                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Git changes detected, worker is active\n");
                 continue;
             }
 
             // No git changes for 20 minutes - worker is stuck
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] No git changes detected, restarting worker\n");
+            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] No git changes detected, restarting worker\n");
 
             // Kill stuck worker
             if (!currentProcess.HasExited)
@@ -1683,7 +1680,7 @@ public static class WorkerMcpTools
             }
 
             // Restart worker
-            var restartResult = await RestartWorker(agentType, messagesDirectory, requestFileName, restartCount + 1);
+            var restartResult = await RestartWorker(agentType, messagesDirectory, requestFileName);
             if (!restartResult.Success || restartResult.Process == null)
             {
                 return $"Worker restart failed: {restartResult.ErrorMessage}";
@@ -1733,7 +1730,8 @@ public static class WorkerMcpTools
                $"Response content:\n{responseContent}";
     }
 
-    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName, int _)
+    // ReSharper disable UnusedParameter.Local - messagesDirectory and requestFileName needed for call signature consistency
+    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
@@ -1848,6 +1846,7 @@ public static class WorkerMcpTools
     }
 }
 
+// ReSharper disable once NotAccessedPositionalProperty.Global - RequestFileName used in ToString for debugging
 public record WorkerSession(
     int ProcessId,
     string AgentType,
