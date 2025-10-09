@@ -1,13 +1,5 @@
 {
   "mcpServers": {
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"]
-    },
-    "browsermcp": {
-      "command": "npx",
-      "args": ["@browsermcp/mcp@latest"]
-    },
     "platformplatform-developer-cli": {
       "command": "dotnet",
       "args": ["run", "--project", "developer-cli", "mcp"]
