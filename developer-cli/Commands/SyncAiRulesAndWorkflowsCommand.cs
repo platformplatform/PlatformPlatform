@@ -1,6 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -20,12 +21,12 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var claudeCommands = Path.Combine(claudeRoot, "commands");
         var claudeRules = Path.Combine(claudeRoot, "rules");
         var claudeSamples = Path.Combine(claudeRoot, "samples");
-        
+
         // Target directories for Windsurf
         var windsurfWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/workflows");
         var windsurfRules = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/rules");
         var windsurfSamples = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/rules");
-        
+
         // Target directories for Cursor
         var cursorWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules/workflows");
         var cursorRules = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules");
@@ -48,7 +49,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             SyncClaudeToWindsurfRules(claudeRules, windsurfRules);
             // Samples → rules (same as rules for Windsurf)
             SyncClaudeToWindsurfRules(claudeSamples, windsurfSamples);
-            
+
             // Sync to Cursor
             // Commands → rules/workflows
             SyncClaudeToCursorWorkflows(claudeCommands, cursorWorkflows);
@@ -135,7 +136,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             targetFiles.Add(targetFile);
         }
     }
-    
+
     private static void SyncClaudeToWindsurfRules(string sourceDirectory, string targetDirectory)
     {
         if (!Directory.Exists(sourceDirectory)) return;
@@ -162,12 +163,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 linesList.RemoveAt(linesList.Count - 1);
             }
+
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, linesList));
             targetFiles.Add(targetFile);
         }
     }
-    
+
     private static void SyncClaudeToCursorWorkflows(string sourceDirectory, string targetDirectory)
     {
         if (!Directory.Exists(sourceDirectory)) return;
@@ -188,7 +190,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             targetFiles.Add(targetFile);
         }
     }
-    
+
     private static void SyncClaudeToCursorRules(string sourceDirectory, string targetDirectory, string workflowsDirectory)
     {
         if (!Directory.Exists(sourceDirectory)) return;
@@ -203,10 +205,10 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Change .md to .mdc for Cursor
             var targetFileName = Path.GetFileNameWithoutExtension(relativePath) + ".mdc";
             var targetFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relativePath) ?? "", targetFileName);
-            
+
             // Skip if this would conflict with a workflow file
             if (targetFile.StartsWith(workflowsDirectory)) continue;
-            
+
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
 
             ConvertClaudeToCursorRule(sourceFile, targetFile);
@@ -235,25 +237,26 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 lines.RemoveAt(lines.Count - 1);
             }
+
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, lines));
             targetFiles.Add(targetFile);
         }
     }
-    
+
     private static void ConvertClaudeToWindsurfWorkflow(string sourceFile, string targetFile)
     {
         var lines = File.ReadAllLines(sourceFile);
         var (frontmatterLines, contentLines) = SplitFrontmatter(lines);
-        
+
         // Only add frontmatter if source file has frontmatter
         if (frontmatterLines.Count > 0)
         {
             var frontmatterDict = ParseFrontmatter(frontmatterLines);
-            
+
             // Convert frontmatter for Windsurf workflows
             var newFrontmatter = new List<string> { "---" };
-            
+
             // Get description from Claude frontmatter
             if (frontmatterDict.TryGetValue("description", out var description))
             {
@@ -262,13 +265,14 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                 {
                     description = $"Workflow for {description.ToLower()}";
                 }
+
                 newFrontmatter.Add($"description: {description}");
             }
-            
+
             // Add auto_execution_mode for workflows
             newFrontmatter.Add("auto_execution_mode: 1");
             newFrontmatter.Add("---");
-            
+
             // Keep content as-is (including $ARGUMENTS)
             var allLines = newFrontmatter.Concat(contentLines).ToList();
 
@@ -283,6 +287,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
+
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, allLines));
         }
@@ -302,28 +307,29 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
+
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, allLines));
         }
     }
-    
+
     private static void ConvertClaudeToCursorWorkflow(string sourceFile, string targetFile)
     {
         var lines = File.ReadAllLines(sourceFile);
         var (frontmatterLines, contentLines) = SplitFrontmatter(lines);
-        
+
         // Keep content as-is (including $ARGUMENTS) but replace references
         var modifiedContent = contentLines.ToArray();
         ReplaceclaudeReferencesWithCursor(modifiedContent);
-        
+
         // Only add frontmatter if source file has frontmatter
         if (frontmatterLines.Count > 0)
         {
             var frontmatterDict = ParseFrontmatter(frontmatterLines);
-            
+
             // Convert frontmatter for Cursor workflows
             var newFrontmatter = new List<string> { "---" };
-            
+
             // Get description from Claude frontmatter
             if (frontmatterDict.TryGetValue("description", out var description))
             {
@@ -332,13 +338,14 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                 {
                     description = $"Workflow for {description.ToLower()}";
                 }
+
                 newFrontmatter.Add($"description: {description}");
             }
-            
+
             newFrontmatter.Add("globs: ");
             newFrontmatter.Add("alwaysApply: false");
             newFrontmatter.Add("---");
-            
+
             // Combine frontmatter and content
             // Skip first line of content if it's empty (to avoid double blank line after frontmatter)
             var contentToWrite = modifiedContent.ToList();
@@ -346,12 +353,14 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 contentToWrite.RemoveAt(0);
             }
+
             var allLines = newFrontmatter.Concat(contentToWrite).ToList();
             // Remove trailing empty lines
             while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
+
             File.WriteAllLines(targetFile, allLines);
         }
         else
@@ -363,19 +372,20 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
+
             File.WriteAllLines(targetFile, allLines);
         }
     }
-    
+
     private static void ConvertClaudeToCursorRule(string sourceFile, string targetFile)
     {
         var lines = File.ReadAllLines(sourceFile);
         var (frontmatterLines, contentLines) = SplitFrontmatter(lines);
         var frontmatterDict = ParseFrontmatter(frontmatterLines);
-        
+
         // Convert frontmatter for Cursor rules
         var newFrontmatter = new List<string> { "---" };
-        
+
         // Convert trigger patterns
         if (frontmatterDict.TryGetValue("trigger", out var trigger))
         {
@@ -383,41 +393,64 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             {
                 case "always_on":
                     if (frontmatterDict.TryGetValue("description", out var desc))
+                    {
                         newFrontmatter.Add($"description: {desc}");
+                    }
+
                     if (frontmatterDict.TryGetValue("globs", out var globs) && !string.IsNullOrWhiteSpace(globs))
+                    {
                         newFrontmatter.Add($"globs: {globs}");
+                    }
                     else
+                    {
                         newFrontmatter.Add("globs: ");
+                    }
+
                     newFrontmatter.Add("alwaysApply: true");
                     break;
-                    
+
                 case "glob":
                     if (frontmatterDict.TryGetValue("description", out desc))
+                    {
                         newFrontmatter.Add($"description: {desc}");
+                    }
+
                     if (frontmatterDict.TryGetValue("globs", out globs))
+                    {
                         newFrontmatter.Add($"globs: {globs}");
+                    }
+
                     newFrontmatter.Add("alwaysApply: false");
                     break;
-                    
+
                 case "model_decision":
                     if (frontmatterDict.TryGetValue("description", out desc))
+                    {
                         newFrontmatter.Add($"description: {desc}");
+                    }
+
                     newFrontmatter.Add("globs: ");
                     newFrontmatter.Add("alwaysApply: false");
                     break;
-                    
+
                 case "manual":
                     newFrontmatter.Add("description: ");
                     newFrontmatter.Add("globs: ");
                     newFrontmatter.Add("alwaysApply: false");
                     break;
-                    
+
                 default:
                     // Fallback
                     if (frontmatterDict.TryGetValue("description", out desc))
+                    {
                         newFrontmatter.Add($"description: {desc}");
+                    }
+
                     if (frontmatterDict.TryGetValue("globs", out globs))
+                    {
                         newFrontmatter.Add($"globs: {globs}");
+                    }
+
                     newFrontmatter.Add("alwaysApply: false");
                     break;
             }
@@ -426,18 +459,24 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         {
             // No trigger field, use defaults
             if (frontmatterDict.TryGetValue("description", out var desc))
+            {
                 newFrontmatter.Add($"description: {desc}");
+            }
+
             if (frontmatterDict.TryGetValue("globs", out var globs))
+            {
                 newFrontmatter.Add($"globs: {globs}");
+            }
+
             newFrontmatter.Add("alwaysApply: false");
         }
-        
+
         newFrontmatter.Add("---");
-        
+
         // Replace .claude references with .cursor references
         var modifiedContent = contentLines.ToArray();
         ReplaceclaudeReferencesWithCursor(modifiedContent);
-        
+
         // Combine frontmatter and content
         // Skip first line of content if it's empty (to avoid double blank line after frontmatter)
         var contentToWrite = modifiedContent.ToList();
@@ -445,16 +484,17 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         {
             contentToWrite.RemoveAt(0);
         }
+
         var allLines = newFrontmatter.Concat(contentToWrite).ToList();
         // Remove trailing empty lines
         while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
         {
             allLines.RemoveAt(allLines.Count - 1);
         }
+
         File.WriteAllLines(targetFile, allLines);
     }
-    
-    
+
     private static void ReplaceClaudeReferencesWithWindsurf(string[] lines)
     {
         for (var i = 0; i < lines.Length; i++)
@@ -468,33 +508,33 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         for (var i = 0; i < lines.Length; i++)
         {
             // Handle markdown links - convert paths to use mdc: prefix for Cursor
-            lines[i] = System.Text.RegularExpressions.Regex.Replace(lines[i], 
-                @"\[([^\]]+)\]\(([^)]+)\)", 
-                m => 
+            lines[i] = Regex.Replace(lines[i],
+                @"\[([^\]]+)\]\(([^)]+)\)",
+                m =>
                 {
                     var linkText = m.Groups[1].Value;
                     var linkPath = m.Groups[2].Value;
-                    
+
                     // Also convert .md to .mdc in link text if it's a filename
                     if (linkText.EndsWith(".md"))
                     {
                         linkText = linkText.Replace(".md", ".mdc");
                     }
-                    
+
                     // Skip if already has mdc: prefix or is external URL
                     if (linkPath.StartsWith("mdc:") || linkPath.StartsWith("http"))
                     {
                         // But still update the link text if needed
                         return $"[{linkText}]({linkPath})";
                     }
-                    
+
                     // Handle absolute paths - add mdc: prefix
                     if (linkPath.StartsWith("/"))
                     {
                         // Convert absolute paths to mdc: format
                         // Remove leading slash and change .md to .mdc
                         var mdcPath = linkPath.Substring(1).Replace(".md", ".mdc");
-                        
+
                         // Handle .windsurf paths - convert to .cursor
                         if (mdcPath.StartsWith(".windsurf/"))
                         {
@@ -515,34 +555,36 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                                 mdcPath = mdcPath.Replace(".cursor/commands/", ".cursor/rules/workflows/");
                             }
                         }
-                        
+
                         return $"[{linkText}](mdc:{mdcPath})";
                     }
-                    
+
                     // Handle relative paths - also need to convert .md to .mdc
                     if (linkPath.EndsWith(".md"))
                     {
                         linkPath = linkPath.Replace(".md", ".mdc");
                     }
+
                     return $"[{linkText}]({linkPath})";
-                });
-            
+                }
+            );
+
             // Replace any remaining .claude references with .cursor
             lines[i] = lines[i].Replace(".claude", ".cursor");
             lines[i] = lines[i].Replace(".windsurf", ".cursor");
-            
+
             // Handle directory mappings for non-link references
             lines[i] = lines[i].Replace(".cursor/commands", ".cursor/rules/workflows");
             lines[i] = lines[i].Replace(".cursor/workflows", ".cursor/rules/workflows");
-            
+
             // Replace any remaining .md references to .mdc in plain text (not in links)
             // This handles cases like "Step 2: Inspect all *.md files"
-            lines[i] = System.Text.RegularExpressions.Regex.Replace(lines[i], 
-                @"(\*\.md\b|\.md\s|\.md$)", 
-                m => m.Value.Replace(".md", ".mdc"));
+            lines[i] = Regex.Replace(lines[i],
+                @"(\*\.md\b|\.md\s|\.md$)",
+                m => m.Value.Replace(".md", ".mdc")
+            );
         }
     }
-
 
     private static (List<string> frontmatterLines, List<string> contentLines) SplitFrontmatter(string[] lines)
     {
@@ -577,7 +619,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
         return (frontmatterLines, contentLines);
     }
-
 
     private static Dictionary<string, string> ParseFrontmatter(List<string> frontmatterLines)
     {

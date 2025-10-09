@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
-using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -25,10 +24,7 @@ public class McpCommand : Command
         Console.Error.WriteLine("[MCP] Listening on stdio for MCP communication");
 
         var builder = Host.CreateApplicationBuilder();
-        builder.Logging.AddConsole(consoleLogOptions =>
-            {
-                consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace;
-            }
+        builder.Logging.AddConsole(consoleLogOptions => { consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace; }
         );
         builder.Services
             .AddMcpServer()
@@ -38,6 +34,7 @@ public class McpCommand : Command
         await builder.Build().RunAsync();
     }
 }
+
 [McpServerToolType]
 public static class DeveloperCliMcpTools
 {
@@ -51,20 +48,7 @@ public static class DeveloperCliMcpTools
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
-        var args = new List<string> { "build" };
-        var buildBackend = backend || !frontend;
-        var buildFrontend = frontend || !backend;
-
-        if (buildBackend && !buildFrontend) args.Add("--backend");
-        if (buildFrontend && !buildBackend) args.Add("--frontend");
-        if (selfContainedSystem is not null)
-        {
-            args.Add("--self-contained-system");
-            args.Add(selfContainedSystem);
-        }
-
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"Build completed.\n\n{result.Output}" : $"Build failed.\n\n{result.Output}";
+        return ExecuteStandardMcpCommand("build", backend, frontend, selfContainedSystem);
     }
 
     [McpServerTool]
@@ -72,21 +56,17 @@ public static class DeveloperCliMcpTools
     public static string Test(
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")]
-        bool noBuild = false)
+        [Description("Skip build (optional)")] bool noBuild = false,
+        [Description("Test backend only (optional)")]
+        bool backend = false,
+        [Description("Test frontend only (optional)")]
+        bool frontend = false)
     {
-        var args = new List<string> { "test" };
-        if (selfContainedSystem is not null)
-        {
-            args.Add("--self-contained-system");
-            args.Add(selfContainedSystem);
-        }
-        if (noBuild) args.Add("--no-build");
-
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success
-            ? SummarizeTestSuccess(result.Output)
-            : $"Tests failed.\n\n{TruncateOutput(result.Output, 2000)}";
+        return ExecuteStandardMcpCommand("test", backend, frontend, selfContainedSystem, args =>
+            {
+                if (noBuild) args.Add("--no-build");
+            }
+        );
     }
 
     [McpServerTool]
@@ -99,20 +79,7 @@ public static class DeveloperCliMcpTools
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
-        var args = new List<string> { "format" };
-        var formatBackend = backend || !frontend;
-        var formatFrontend = frontend || !backend;
-
-        if (formatBackend && !formatFrontend) args.Add("--backend");
-        if (formatFrontend && !formatBackend) args.Add("--frontend");
-        if (selfContainedSystem is not null)
-        {
-            args.Add("--self-contained-system");
-            args.Add(selfContainedSystem);
-        }
-
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"Code formatted.\n\n{result.Output}" : $"Formatting failed.\n\n{result.Output}";
+        return ExecuteStandardMcpCommand("format", backend, frontend, selfContainedSystem);
     }
 
     [McpServerTool]
@@ -124,26 +91,13 @@ public static class DeveloperCliMcpTools
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")]
-        bool noBuild = false)
+        [Description("Skip build (optional)")] bool noBuild = false)
     {
-        var args = new List<string> { "inspect" };
-        var inspectBackend = backend || !frontend;
-        var inspectFrontend = frontend || !backend;
-
-        if (inspectBackend && !inspectFrontend) args.Add("--backend");
-        if (inspectFrontend && !inspectBackend) args.Add("--frontend");
-        if (selfContainedSystem is not null)
-        {
-            args.Add("--self-contained-system");
-            args.Add(selfContainedSystem);
-        }
-        if (noBuild) args.Add("--no-build");
-
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success
-            ? "Inspections completed successfully. Results saved to /application/result.json"
-            : $"Inspections found issues.\n\n{TruncateOutput(result.Output, 2000)}";
+        return ExecuteStandardMcpCommand("inspect", backend, frontend, selfContainedSystem, args =>
+            {
+                if (noBuild) args.Add("--no-build");
+            }
+        );
     }
 
     [McpServerTool]
@@ -156,22 +110,7 @@ public static class DeveloperCliMcpTools
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
     {
-        var args = new List<string> { "check" };
-        var checkBackend = backend || !frontend;
-        var checkFrontend = frontend || !backend;
-
-        if (checkBackend && !checkFrontend) args.Add("--backend");
-        if (checkFrontend && !checkBackend) args.Add("--frontend");
-        if (selfContainedSystem is not null)
-        {
-            args.Add("--self-contained-system");
-            args.Add(selfContainedSystem);
-        }
-
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success
-            ? "All checks passed (build + test + format + inspect)."
-            : $"Checks failed.\n\n{TruncateOutput(result.Output, 3000)}";
+        return ExecuteStandardMcpCommand("check", backend, frontend, selfContainedSystem);
     }
 
     [McpServerTool]
@@ -197,8 +136,14 @@ public static class DeveloperCliMcpTools
         var output = new List<string>();
         var errors = new List<string>();
 
-        process.OutputDataReceived += (_, e) => { if (e.Data != null) output.Add(e.Data); };
-        process.ErrorDataReceived += (_, e) => { if (e.Data != null) errors.Add(e.Data); };
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data != null) output.Add(e.Data);
+        };
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data != null) errors.Add(e.Data);
+        };
 
         process.Start();
         process.BeginOutputReadLine();
@@ -218,12 +163,9 @@ public static class DeveloperCliMcpTools
     [McpServerTool]
     [Description("Run E2E tests")]
     public static string E2e(
-        [Description("Search terms")]
-        string[] searchTerms = null!,
-        [Description("Browser")]
-        string browser = "all",
-        [Description("Smoke only")]
-        bool smoke = false)
+        [Description("Search terms")] string[] searchTerms = null!,
+        [Description("Browser")] string browser = "all",
+        [Description("Smoke only")] bool smoke = false)
     {
         var args = new List<string> { "e2e", "--quiet" };
         if (searchTerms is { Length: > 0 }) args.AddRange(searchTerms);
@@ -232,6 +174,7 @@ public static class DeveloperCliMcpTools
             args.Add("--browser");
             args.Add(browser);
         }
+
         if (smoke) args.Add("--smoke");
 
         var result = ExecuteCliCommand(args.ToArray());
@@ -260,7 +203,7 @@ public static class DeveloperCliMcpTools
         var errorLines = new List<string>();
 
         var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var allArgs = new List<string> { "run", "--project", developerCliPath };
+        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
         allArgs.AddRange(args);
 
         var processStartInfo = new ProcessStartInfo
@@ -297,35 +240,44 @@ public static class DeveloperCliMcpTools
         return (process.ExitCode == 0, allOutput);
     }
 
-    private static string SummarizeTestSuccess(string output)
+    private static (bool Success, string Output, string TempFilePath) ExecuteCliCommandQuietly(string[] args)
     {
-        // Extract test summary line (e.g., "Passed! - Failed: 0, Passed: 42, Skipped: 0, Total: 42")
-        var lines = output.Split('\n');
-        var summaryLine = lines.FirstOrDefault(l => l.Contains("Passed!") || l.Contains("Failed:"));
+        var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
+        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
+        allArgs.AddRange(args);
 
-        if (summaryLine != null)
-        {
-            return $"Tests passed.\n\n{summaryLine}";
-        }
+        var command = $"dotnet {string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
+        var result = ProcessHelper.ExecuteQuietly(command, Configuration.SourceCodeFolder);
 
-        // Fallback: just confirm success without massive output
-        return "Tests passed successfully.";
+        return (result.Success, result.CombinedOutput, result.TempFilePath);
     }
 
-    private static string TruncateOutput(string output, int maxChars)
+    private static string ExecuteStandardMcpCommand(
+        string commandName,
+        bool backend = false,
+        bool frontend = false,
+        string? selfContainedSystem = null,
+        Action<List<string>>? additionalArgs = null)
     {
-        if (output.Length <= maxChars)
+        var args = new List<string> { commandName, "--quiet" };
+
+        if (backend && !frontend) args.Add("--backend");
+        if (frontend && !backend) args.Add("--frontend");
+        if (selfContainedSystem is not null)
         {
-            return output;
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
 
-        var halfSize = maxChars / 2;
-        var beginning = output[..halfSize];
-        var ending = output[^halfSize..];
+        additionalArgs?.Invoke(args);
 
-        var lines = output.Split('\n');
-        var totalLines = lines.Length;
+        var result = ExecuteCliCommandQuietly(args.ToArray());
 
-        return $"{beginning}\n\n... [Output truncated: {output.Length - maxChars} chars omitted, {totalLines} total lines] ...\n\n{ending}";
+        if (result.Success)
+        {
+            return result.Output;
+        }
+
+        return $"{commandName} failed.\n\n{result.Output}\n\nFull output: {result.TempFilePath}";
     }
 }
