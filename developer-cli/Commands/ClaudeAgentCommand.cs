@@ -752,10 +752,9 @@ public class ClaudeAgentCommand : Command
             .Replace("\"", "'")
             .Trim();
 
-        // Worker session management - always use --continue (creates new or continues existing)
+        // Worker session management - fresh session for each task (no conversation continuity needed)
         var claudeArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
@@ -763,7 +762,7 @@ public class ClaudeAgentCommand : Command
             finalPrompt
         };
 
-        AnsiConsole.MarkupLine("[yellow]Starting worker session...[/]");
+        AnsiConsole.MarkupLine("[yellow]Starting fresh worker session...[/]");
 
         var process = new Process
         {
@@ -1219,16 +1218,33 @@ public static class WorkerMcpTools
             var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
             await File.WriteAllTextAsync(taskIdFile, $"{counter:D4}");
 
-            // Automated worker session management - always use --continue
+            // Automated worker - call slash command
+            var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
+
+            // Load worker system prompt
+            var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
+            var systemPromptText = "";
+            if (File.Exists(systemPromptFile))
+            {
+                systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
+                systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
+            }
+
+            // Don't use --continue for first automated worker (no conversation exists in workspace)
             var claudeArgs = new List<string>
             {
-                "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
-                "--permission-mode", "bypassPermissions",
-                "--append-system-prompt", $"You are a {agentType} Worker. Process task in shared messages: {requestFile}",
-                $"Read {requestFile}"
+                "--permission-mode", "bypassPermissions"
             };
+
+            if (!string.IsNullOrEmpty(systemPromptText))
+            {
+                claudeArgs.Add("--append-system-prompt");
+                claudeArgs.Add(systemPromptText);
+            }
+
+            claudeArgs.Add(slashCommand);
 
             var process = new Process
             {
@@ -1578,10 +1594,9 @@ public static class WorkerMcpTools
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
 
-        // Worker restart session management - always use --continue
+        // Worker restart - fresh session (worker was stuck, start clean)
         var claudeArgs = new List<string>
         {
-            "--continue",
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder
         };
