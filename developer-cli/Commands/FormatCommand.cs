@@ -16,14 +16,21 @@ public class FormatCommand : Command
         AddOption(new Option<bool?>(["--backend", "-b"], "Only format backend code"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Only format frontend code"));
         AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to format (e.g., account-management, back-office)"));
+        AddOption(new Option<bool>(["--quiet", "-q"], "Minimal output mode"));
 
-        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
+        Handler = CommandHandler.Create<bool, bool, string?, bool>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? selfContainedSystem)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool quiet)
     {
         var formatBackend = backend || !frontend;
         var formatFrontend = frontend || !backend;
+
+        if (quiet)
+        {
+            ExecuteQuiet(formatBackend, formatFrontend, selfContainedSystem);
+            return;
+        }
 
         try
         {
@@ -196,5 +203,89 @@ public class FormatCommand : Command
         }
 
         return projectPaths;
+    }
+
+    private static void ExecuteQuiet(bool formatBackend, bool formatFrontend, string? selfContainedSystem)
+    {
+        try
+        {
+            if (formatBackend)
+            {
+                if (selfContainedSystem is null)
+                {
+                    // Format all self-contained systems
+                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
+                    foreach (var system in systems)
+                    {
+                        FormatSystemQuiet(system);
+                    }
+                }
+                else
+                {
+                    // Format specific system
+                    FormatSystemQuiet(selfContainedSystem);
+                }
+            }
+
+            if (formatFrontend)
+            {
+                var result = ProcessHelper.ExecuteQuietly("npm run lint", Configuration.ApplicationFolder);
+                if (!result.Success)
+                {
+                    Console.WriteLine("Frontend format failed.");
+                    Console.WriteLine(result.CombinedOutput);
+                    Environment.Exit(1);
+                }
+            }
+
+            Console.WriteLine("Code formatted successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Format failed: {ex.Message}");
+            Environment.Exit(1);
+        }
+    }
+
+    private static void FormatSystemQuiet(string selfContainedSystem)
+    {
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+        var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+        if (!restoreResult.Success)
+        {
+            Console.WriteLine($"Tool restore failed for {selfContainedSystem}.");
+            Console.WriteLine(restoreResult.CombinedOutput);
+            Environment.Exit(1);
+        }
+
+        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
+        var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
+        var jetbrainsSupportedSolutionFile = string.Empty;
+        try
+        {
+            jetbrainsSupportedSolutionFile = createTemporarySolutionFile
+                ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
+                : solutionFile.FullName;
+
+            var formatResult = ProcessHelper.ExecuteQuietly(
+                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
+                solutionFile.Directory!.FullName
+            );
+
+            if (!formatResult.Success)
+            {
+                Console.WriteLine($"Format failed for {selfContainedSystem}.");
+                Console.WriteLine(formatResult.CombinedOutput);
+                Environment.Exit(1);
+            }
+        }
+        finally
+        {
+            if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
+            {
+                File.Delete(jetbrainsSupportedSolutionFile);
+            }
+        }
     }
 }

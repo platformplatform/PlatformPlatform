@@ -16,16 +16,23 @@ public class CheckCommand : Command
         AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to check (e.g., account-management, back-office)"));
         AddOption(new Option<bool>(["--skip-format"], () => false, "Skip the backend format step which can be time consuming"));
         AddOption(new Option<bool>(["--skip-inspect"], () => false, "Skip the backend inspection step which can be time consuming"));
+        AddOption(new Option<bool>(["--quiet", "-q"], "Minimal output mode"));
 
-        Handler = CommandHandler.Create<bool, bool, string?, bool, bool>(Execute);
+        Handler = CommandHandler.Create<bool, bool, string?, bool, bool, bool>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool skipFormat, bool skipInspect)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool skipFormat, bool skipInspect, bool quiet)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
         var checkBackend = backend || !frontend;
         var checkFrontend = frontend || !backend;
+
+        if (quiet)
+        {
+            ExecuteQuiet(checkBackend, checkFrontend, selfContainedSystem, skipFormat, skipInspect);
+            return;
+        }
 
         try
         {
@@ -86,5 +93,53 @@ public class CheckCommand : Command
         new BuildCommand().InvokeAsync(["--frontend"]);
         new FormatCommand().InvokeAsync(["--frontend"]);
         new InspectCommand().InvokeAsync(["--frontend"]);
+    }
+
+    private static void ExecuteQuiet(bool checkBackend, bool checkFrontend, string? selfContainedSystem, bool skipFormat, bool skipInspect)
+    {
+        try
+        {
+            if (checkBackend)
+            {
+                var systemArgs = selfContainedSystem is not null ? new[] { "--self-contained-system", selfContainedSystem, "--quiet" } : new[] { "--quiet" };
+
+                // Build
+                new BuildCommand().InvokeAsync([.. systemArgs, "--backend"]).Wait();
+
+                // Test
+                new TestCommand().InvokeAsync([.. systemArgs, "--no-build"]).Wait();
+
+                // Format
+                if (!skipFormat)
+                {
+                    new FormatCommand().InvokeAsync([.. systemArgs, "--backend"]).Wait();
+                }
+
+                // Inspect
+                if (!skipInspect)
+                {
+                    new InspectCommand().InvokeAsync([.. systemArgs, "--backend", "--no-build"]).Wait();
+                }
+            }
+
+            if (checkFrontend)
+            {
+                // Build
+                new BuildCommand().InvokeAsync(["--frontend", "--quiet"]).Wait();
+
+                // Format
+                new FormatCommand().InvokeAsync(["--frontend", "--quiet"]).Wait();
+
+                // Inspect
+                new InspectCommand().InvokeAsync(["--frontend", "--quiet"]).Wait();
+            }
+
+            Console.WriteLine("All checks passed.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Checks failed: {ex.Message}");
+            Environment.Exit(1);
+        }
     }
 }
