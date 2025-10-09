@@ -5,9 +5,9 @@ auto_execution_mode: 1
 
 # Implement Task Workflow
 
-## STEP 0: Create Todo List (DO THIS FIRST!)
+## STEP 0: Create Todo List - DO THIS NOW!
 
-**CRITICAL**: Before doing ANYTHING else, create this exact todo list:
+**YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
 
 ```
 Understand context and catch up efficiently [pending]                              (STEP 1)
@@ -24,7 +24,35 @@ Critically evaluate remaining tasks and update plan [pending]                   
 Call /complete/task to signal completion [pending]                                 (STEP 9)
 ```
 
-**DO NOT CHANGE THE WORDING** - Copy exactly as shown above
+### Examples
+
+**✅ DO: Copy exact wording**
+```
+Understand context and catch up efficiently [pending]                              (STEP 1)
+Study relevant rules for the task at hand [pending]                                (STEP 2)
+Research existing patterns for this task type [pending]                            (STEP 3)
+```
+
+**❌ DON'T: Rewrite or simplify**
+```
+Analyze codebase structure [pending]
+Read project documentation [pending]
+Find similar code [pending]
+```
+
+**✅ DO: Use exact STEP labels**
+```
+Mark task as Ready for Review [pending]                                            (STEP 7)
+Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
+```
+
+**❌ DON'T: Change step names**
+```
+Update task status [pending]
+Review remaining work [pending]
+```
+
+**DO NOT CHANGE THE WORDING** - Copy the exact text shown in the template above
 
 ---
 
@@ -99,6 +127,35 @@ Extract:
 - Call `/complete/task` slash command
 - Provide summary and full response
 - Your session will terminate
+
+---
+
+## REMINDER: Todo List Format
+
+**THE TODO LIST MUST FOLLOW THIS EXACT FORMAT**:
+
+```
+Understand context and catch up efficiently [pending]                              (STEP 1)
+Study relevant rules for the task at hand [pending]                                (STEP 2)
+Research existing patterns for this task type [pending]                            (STEP 3)
+Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
+├─  Task #.1 [Copy exact text from Product Increment file] [pending]
+├─  Task #.2 [Copy exact text from Product Increment file] [pending]
+└─  Task #.N [Copy exact text from Product Increment file] [pending]
+Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
+Validate translations (frontend tasks only) [pending]                              (STEP 6)
+Mark task as Ready for Review [pending]                                            (STEP 7)
+Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
+Call /complete/task to signal completion [pending]                                 (STEP 9)
+```
+
+**DO NOT CHANGE THE WORDING**:
+- ❌ DON'T write "Analyze codebase structure"
+- ✅ DO copy "Study relevant rules for the task at hand"
+- ❌ DON'T write "Find similar implementations"
+- ✅ DO copy "Research existing patterns for this task type"
+- ❌ DON'T write "Update task status"
+- ✅ DO copy "Mark task as Ready for Review"
 
 ---
 
