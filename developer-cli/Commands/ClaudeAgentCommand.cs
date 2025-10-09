@@ -71,7 +71,7 @@ public class ClaudeAgentCommand : Command
         // Setup workspace with symlink to .claude directory
         await SetupAgentWorkspace(agentWorkspaceDirectory);
 
-        // Check for stale PID file
+        // Check for stale process ID file from previous automated worker
         var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
         if (File.Exists(processIdFile))
         {
@@ -83,12 +83,12 @@ public class ClaudeAgentCommand : Command
                     var existingProcess = Process.GetProcessById(pid);
                     if (!existingProcess.HasExited)
                     {
-                        AnsiConsole.MarkupLine($"[yellow]Warning: An interactive {agentType} appears to be already running (PID: {pid})[/]");
-                        AnsiConsole.MarkupLine("[yellow]This might be a stale PID file from a crashed session.[/]");
+                        AnsiConsole.MarkupLine($"[yellow]Warning: An automated {agentType} worker appears to be running (process ID: {pid})[/]");
+                        AnsiConsole.MarkupLine("[yellow]This might be a stale process ID file from a crashed session.[/]");
 
                         var deleteChoice = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
-                                .Title("Delete the stale PID file and continue?")
+                                .Title("Delete the stale process ID file and continue?")
                                 .AddChoices("Yes, delete and continue", "No, exit")
                                 .HighlightStyle(new Style(Color.Yellow))
                         );
@@ -101,22 +101,20 @@ public class ClaudeAgentCommand : Command
                 }
                 catch (ArgumentException)
                 {
-                    // Process doesn't exist, PID is stale
+                    // Process doesn't exist, process ID is stale
                 }
             }
 
             File.Delete(processIdFile);
         }
 
-        // Create PID file to register this agent
-        var currentPid = Environment.ProcessId;
-        await File.WriteAllTextAsync(processIdFile, currentPid.ToString());
+        // Interactive mode does NOT create .process-id file
+        // Only automated workers write .process-id (so MCP tools can kill them)
 
-        // Ensure PID file is deleted on exit (keep session ID for conversation persistence)
-        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(processIdFile);
+        // Ensure Ctrl+C exits cleanly
         Console.CancelKeyPress += (_, e) =>
         {
-            CleanupPidFile(processIdFile);
+            // Allow normal Ctrl+C behavior (exit process)
             e.Cancel = false;
         };
 
