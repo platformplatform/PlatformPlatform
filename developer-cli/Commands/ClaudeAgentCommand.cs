@@ -1302,40 +1302,14 @@ public static class WorkerMcpTools
 
                             Directory.CreateDirectory(messagesDirectory);
 
-                            // Use file-based locking to prevent race conditions when multiple processes increment the counter
+                            // Read current counter, increment, and write
                             var taskCounterFile = Path.Combine(messagesDirectory, ".task-counter");
-                            var taskCounterLockFile = Path.Combine(messagesDirectory, ".task-counter.lock");
                             var taskCounter = 1;
-
-                            // Retry with exponential backoff if lock is held
-                            for (var retry = 0; retry < 10; retry++)
+                            if (File.Exists(taskCounterFile) && int.TryParse(await File.ReadAllTextAsync(taskCounterFile), out var existingCounter))
                             {
-                                try
-                                {
-                                    using (var lockStream = new FileStream(taskCounterLockFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-                                    {
-                                        // We have the lock, read current value
-                                        if (File.Exists(taskCounterFile) && int.TryParse(await File.ReadAllTextAsync(taskCounterFile), out var existingCounter))
-                                        {
-                                            taskCounter = existingCounter + 1;
-                                        }
-
-                                        // Write new value
-                                        await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
-                                        break; // Success, exit retry loop
-                                    }
-                                }
-                                catch (IOException)
-                                {
-                                    // Lock is held by another process, wait and retry
-                                    if (retry == 9)
-                                    {
-                                        throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
-                                    }
-
-                                    await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
-                                }
+                                taskCounter = existingCounter + 1;
                             }
+                            await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
 
                             var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
@@ -1451,40 +1425,14 @@ public static class WorkerMcpTools
             // Ensure messages directory exists
             Directory.CreateDirectory(messagesDirectory);
 
-            // Use file-based locking to prevent race conditions when multiple processes increment the counter
+            // Read current counter, increment, and write
             var counterFile = Path.Combine(messagesDirectory, ".task-counter");
-            var counterLockFile = Path.Combine(messagesDirectory, ".task-counter.lock");
             var counter = 1;
-
-            // Retry with exponential backoff if lock is held
-            for (var retry = 0; retry < 10; retry++)
+            if (File.Exists(counterFile) && int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
             {
-                try
-                {
-                    using (var lockStream = new FileStream(counterLockFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
-                    {
-                        // We have the lock, read current value
-                        if (File.Exists(counterFile) && int.TryParse(await File.ReadAllTextAsync(counterFile), out var currentCounter))
-                        {
-                            counter = currentCounter + 1;
-                        }
-
-                        // Write new value
-                        await File.WriteAllTextAsync(counterFile, counter.ToString());
-                        break; // Success, exit retry loop
-                    }
-                }
-                catch (IOException)
-                {
-                    // Lock is held by another process, wait and retry
-                    if (retry == 9)
-                    {
-                        throw new InvalidOperationException("Failed to acquire task counter lock after 10 attempts");
-                    }
-
-                    await Task.Delay(TimeSpan.FromMilliseconds(100 * Math.Pow(2, retry)));
-                }
+                counter = currentCounter + 1;
             }
+            await File.WriteAllTextAsync(counterFile, counter.ToString());
 
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
                 .ToLowerInvariant().Replace(".", "").Replace(",", "");
