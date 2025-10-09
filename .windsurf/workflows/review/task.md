@@ -5,9 +5,9 @@ auto_execution_mode: 1
 
 # Review Task Workflow
 
-## STEP 0: Create Todo List (DO THIS FIRST!)
+## STEP 0: Create Todo List - DO THIS NOW!
 
-**CRITICAL**: Before doing ANYTHING else, create this exact todo list:
+**YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
 
 ```
 Understand context and catch up efficiently [pending]                                                       (STEP 1)
@@ -24,7 +24,37 @@ Update Product Increment status with [Completed] or [Changes Required] [pending]
 Call /complete/review to signal completion [pending]                                                        (STEP 9)
 ```
 
-**DO NOT CHANGE THE WORDING** - Copy exactly as shown above
+### Examples
+
+**✅ DO: Copy exact wording**
+```
+Understand context and catch up efficiently [pending]                                                       (STEP 1)
+Validate implementation builds by running check command [pending]                                           (STEP 2)
+Study rules relevant for the task at hand [pending]                                                         (STEP 3)
+```
+
+**❌ DON'T: Rewrite or simplify**
+```
+Read engineer's work [pending]
+Run build [pending]
+Check coding standards [pending]
+```
+
+**✅ DO: Use exact file review format with full description**
+```
+Review each changed file in detail [pending]                                                                (STEP 4) *
+├─  Review TeamEndpoints.cs and ensure all lines, methods, properties, classes follow ALL rules [pending]
+└─  Review TeamRepository.cs and ensure all lines, methods, properties, classes follow ALL rules [pending]
+```
+
+**❌ DON'T: Abbreviate or change wording**
+```
+Review files [pending]
+├─  TeamEndpoints.cs [pending]
+└─  TeamRepository.cs [pending]
+```
+
+**DO NOT CHANGE THE WORDING** - Copy the exact text shown in the template above
 
 ---
 
@@ -95,6 +125,35 @@ Extract paths and read all referenced files.
 - Call `/complete/review` slash command
 - Specify approved (true/false) and summary
 - Your session will terminate
+
+---
+
+## REMINDER: Todo List Format
+
+**THE TODO LIST MUST FOLLOW THIS EXACT FORMAT**:
+
+```
+Understand context and catch up efficiently [pending]                                                       (STEP 1)
+Validate implementation builds by running check command [pending]                                           (STEP 2)
+Study rules relevant for the task at hand [pending]                                                         (STEP 3)
+Review each changed file in detail [pending]                                                                (STEP 4) *
+├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+└─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
+Review high level architecture (make a very high level review) [pending]                                   (STEP 5)
+Make binary decision (approve or reject) [pending]                                                          (STEP 6)
+If approved, commit changes [pending]                                                                       (STEP 7)
+Update Product Increment status with [Completed] or [Changes Required] [pending]                            (STEP 8)
+Call /complete/review to signal completion [pending]                                                        (STEP 9)
+```
+
+**DO NOT CHANGE THE WORDING**:
+- ❌ DON'T write "Read engineer's work"
+- ✅ DO copy "Understand context and catch up efficiently"
+- ❌ DON'T write "Review files"
+- ✅ DO copy "Review each changed file in detail"
+- ❌ DON'T write "Decide approval"
+- ✅ DO copy "Make binary decision (approve or reject)"
 
 ---
 
