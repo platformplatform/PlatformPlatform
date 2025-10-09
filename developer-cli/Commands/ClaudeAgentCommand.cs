@@ -14,8 +14,7 @@ public class ClaudeAgentCommand : Command
 {
     internal static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
-    private static string? SelectedAgentType;
-    private static bool ShowAllActivities;
+    private static bool _showAllActivities;
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -39,8 +38,6 @@ public class ClaudeAgentCommand : Command
     {
         try
         {
-            SelectedAgentType = agentType;
-
             // Interactive mode
             await RunInteractiveMode(agentType, resume, continueSession);
         }
@@ -70,7 +67,6 @@ public class ClaudeAgentCommand : Command
             );
         }
 
-        SelectedAgentType = agentType;
         var branch = GitHelper.GetCurrentBranch();
 
         // Create workspace and register agent
@@ -192,7 +188,7 @@ public class ClaudeAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
-    private async Task LaunchTechLeadAsync(string agentType, string branch, bool resume, bool continueSession)
+    private async Task LaunchTechLeadAsync(string agentType, string branch, bool _, bool __)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
@@ -288,7 +284,7 @@ public class ClaudeAgentCommand : Command
             EnableRaisingEvents = true
         };
 
-        watcher.Created += (sender, e) => lastActivity = DateTime.Now;
+        watcher.Created += (_, _) => lastActivity = DateTime.Now;
 
         while (!techLeadProcess.HasExited)
         {
@@ -530,7 +526,7 @@ public class ClaudeAgentCommand : Command
         var requestReceived = false;
         string? requestFilePath = null;
 
-        fileSystemWatcher.Created += (sender, e) =>
+        fileSystemWatcher.Created += (_, e) =>
         {
             requestReceived = true;
             requestFilePath = e.FullPath;
@@ -585,7 +581,7 @@ public class ClaudeAgentCommand : Command
                 if (key.Key == ConsoleKey.A && (key.Modifiers & ConsoleModifiers.Control) != 0)
                 {
                     // Ctrl+A - toggle showing all activities
-                    ShowAllActivities = !ShowAllActivities;
+                    _showAllActivities = !_showAllActivities;
                     RedrawWaitingDisplay(agentType, branch);
                 }
             }
@@ -678,17 +674,9 @@ public class ClaudeAgentCommand : Command
     private async Task<Process> LaunchClaudeCodeAsync(string requestFile, string agentType, string branch)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
 
         // Setup workspace with symlink to .claude directory (no custom CLAUDE.md needed)
         await SetupAgentWorkspace(agentWorkspaceDirectory);
-
-        // Extract request file name components for response file
-        var requestFileName = Path.GetFileName(requestFile);
-        var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
-        var counter = match.Groups[1].Value;
-        var shortTitle = match.Groups[3].Value;
-        var responseFileName = $"{counter}.{agentType}.response.{shortTitle}.md";
 
         // Configure args based on agent type
         var isTechLead = agentType == "tech-lead";
@@ -903,28 +891,22 @@ public class ClaudeAgentCommand : Command
         // Wait indefinitely for response file (user is manually controlling this agent)
         AnsiConsole.MarkupLine($"[grey]Waiting for response file: {counter}.{agentType}.response.*.md[/]");
 
-        string? foundResponseFile = null;
-        while (foundResponseFile == null)
+        while (true)
         {
             // Check for any file matching the pattern
             var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
             if (matchingFiles.Length > 0)
             {
-                foundResponseFile = matchingFiles[0];
+                var agentColor = GetAgentColor(agentType);
+                AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
                 break;
             }
 
             await Task.Delay(TimeSpan.FromMilliseconds(500)); // Check every 500ms
         }
 
-        if (foundResponseFile != null)
-        {
-            var agentColor = GetAgentColor(agentType);
-            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
-        }
-
         // Graceful shutdown: Send Ctrl+C twice, wait, then force kill if needed
-        if (claudeProcess != null && !claudeProcess.HasExited)
+        if (!claudeProcess.HasExited)
         {
             // Send SIGINT twice (Ctrl+C, C)
             for (var i = 0; i < 2; i++)
@@ -987,11 +969,11 @@ public class ClaudeAgentCommand : Command
         var recentActivities = GetRecentActivity(agentType, branch);
 
         // Show only last 5 by default, or all if toggled
-        var activitiesToShow = ShowAllActivities
+        var activitiesToShow = _showAllActivities
             ? recentActivities
             : recentActivities.TakeLast(5).ToList();
 
-        if (!ShowAllActivities && recentActivities.Count > 5)
+        if (!_showAllActivities && recentActivities.Count > 5)
         {
             AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 5} older activities hidden (Ctrl+A to show all)[/]");
         }
@@ -1798,7 +1780,7 @@ public static class WorkerMcpTools
         }
         else
         {
-            var completionCommand = agentType.Contains("reviewer") ? "/complete-review" : "/complete-task";
+            var completionCommand = agentType.Contains("reviewer") ? "/complete/review" : "/complete/task";
             claudeArgs.Add("--append-system-prompt");
             claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. " +
                            $"Please re-read the latest request file and continue working on it. " +
