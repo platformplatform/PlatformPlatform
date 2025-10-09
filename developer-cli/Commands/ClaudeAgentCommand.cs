@@ -308,14 +308,10 @@ public class ClaudeAgentCommand : Command
                 var timeoutLogMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] TECH LEAD TIMEOUT: {agentType} inactive for 1 hour, killing process (main thread will restart)\n";
                 await File.AppendAllTextAsync(workflowLogPath, timeoutLogMessage);
 
-                // Kill stalled tech lead - main thread restart loop will handle restart
-                try
+                // Kill stalled tech lead if still running - main thread restart loop will handle restart
+                if (!techLeadProcess.HasExited)
                 {
                     techLeadProcess.Kill();
-                }
-                catch
-                {
-                    // Process might have already exited
                 }
 
                 // Exit monitor - main thread has restart loop with proper terminal context
@@ -335,19 +331,11 @@ public class ClaudeAgentCommand : Command
 
     internal static DateTime GetMostRecentFileModification()
     {
-        try
-        {
-            var repositoryRoot = Configuration.SourceCodeFolder;
+        var repositoryRoot = Configuration.SourceCodeFolder;
 
-            // Find the most recently modified file anywhere
-            return Directory.GetFiles(repositoryRoot, "*.*", SearchOption.AllDirectories)
-                .Max(f => File.GetLastWriteTime(f));
-        }
-        catch
-        {
-            // If check fails, return current time to reset activity timer
-            return DateTime.Now;
-        }
+        // Find the most recently modified file anywhere
+        return Directory.GetFiles(repositoryRoot, "*.*", SearchOption.AllDirectories)
+            .Max(f => File.GetLastWriteTime(f));
     }
 
     internal static async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
@@ -469,47 +457,37 @@ public class ClaudeAgentCommand : Command
                         taskDescription = taskDescription.Substring("Rejected ".Length); // Remove prefix from display
                     }
 
-                    try
+                    // Find corresponding request file to calculate duration
+                    var requestFileName = $"{taskNumber}.{agentType}.request.*.md";
+                    var requestFiles = Directory.GetFiles(messagesDirectory, requestFileName);
+
+                    if (requestFiles.Length > 0 && File.Exists(requestFiles[0]))
                     {
-                        // Find corresponding request file to calculate duration
-                        var requestFileName = $"{taskNumber}.{agentType}.request.*.md";
-                        var requestFiles = Directory.GetFiles(messagesDirectory, requestFileName);
+                        var requestTime = File.GetLastWriteTime(requestFiles[0]);
+                        var responseTime = file.ResponseTime;
+                        var duration = responseTime - requestTime;
 
-                        if (requestFiles.Length > 0 && File.Exists(requestFiles[0]))
+                        // Ensure duration is positive (handle clock skew, etc.)
+                        if (duration.TotalSeconds > 0)
                         {
-                            var requestTime = File.GetLastWriteTime(requestFiles[0]);
-                            var responseTime = file.ResponseTime;
-                            var duration = responseTime - requestTime;
+                            var requestTimeStr = requestTime.ToString("HH:mm");
+                            var responseTimeStr = responseTime.ToString("HH:mm");
+                            var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
 
-                            // Ensure duration is positive (handle clock skew, etc.)
-                            if (duration.TotalSeconds > 0)
-                            {
-                                var requestTimeStr = requestTime.ToString("HH:mm");
-                                var responseTimeStr = responseTime.ToString("HH:mm");
-                                var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
-
-                                var activityLine = $"{statusIcon} {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
-                                activities.Add(activityLine);
-                            }
-                            else
-                            {
-                                // Duration calculation failed, use simple format
-                                var timeStamp = file.ResponseTime.ToString("HH:mm");
-                                var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
-                                activities.Add(activityLine);
-                            }
+                            var activityLine = $"{statusIcon} {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
+                            activities.Add(activityLine);
                         }
                         else
                         {
-                            // No request file found, use simple format
+                            // Duration calculation failed, use simple format
                             var timeStamp = file.ResponseTime.ToString("HH:mm");
                             var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
                             activities.Add(activityLine);
                         }
                     }
-                    catch
+                    else
                     {
-                        // Any file access error, use simple format
+                        // No request file found, use simple format
                         var timeStamp = file.ResponseTime.ToString("HH:mm");
                         var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
                         activities.Add(activityLine);
@@ -557,15 +535,7 @@ public class ClaudeAgentCommand : Command
             {
                 // Request file arrived - handle it
                 requestReceived = false;
-                try
-                {
-                    await HandleIncomingRequest(requestFilePath, agentType, branch);
-                }
-                catch (Exception ex)
-                {
-                    AnsiConsole.MarkupLine($"[red]Error handling request: {ex.Message}[/]");
-                }
-
+                await HandleIncomingRequest(requestFilePath, agentType, branch);
                 requestFilePath = null;
             }
             else if (userPressedEnter)
@@ -809,26 +779,14 @@ public class ClaudeAgentCommand : Command
                 // Log extracted parameters for debugging
                 var branchName = GitHelper.GetCurrentBranch();
                 var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-                try
-                {
-                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
-                    File.AppendAllText(workflowLog, parameterLog);
-                }
-                catch
-                {
-                }
+                var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
+                File.AppendAllText(workflowLog, parameterLog);
 
                 finalPrompt = $"/review-task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
 
                 // Log the final prompt for debugging
-                try
-                {
-                    var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
-                    File.AppendAllText(workflowLog, promptLog);
-                }
-                catch
-                {
-                }
+                var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
+                File.AppendAllText(workflowLog, promptLog);
             }
             else
             {
@@ -840,26 +798,14 @@ public class ClaudeAgentCommand : Command
                 // Log extracted parameters for debugging
                 var branchName = GitHelper.GetCurrentBranch();
                 var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-                try
-                {
-                    var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
-                    File.AppendAllText(workflowLog, parameterLog);
-                }
-                catch
-                {
-                }
+                var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
+                File.AppendAllText(workflowLog, parameterLog);
 
                 finalPrompt = $"/implement-task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
 
                 // Log the final prompt for debugging
-                try
-                {
-                    var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
-                    File.AppendAllText(workflowLog, promptLog);
-                }
-                catch
-                {
-                }
+                var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
+                File.AppendAllText(workflowLog, promptLog);
             }
         }
         else
@@ -969,40 +915,27 @@ public class ClaudeAgentCommand : Command
         // Graceful shutdown: Send Ctrl+C twice, wait, then force kill if needed
         if (claudeProcess != null && !claudeProcess.HasExited)
         {
-            try
+            // Send SIGINT twice (Ctrl+C, C)
+            for (var i = 0; i < 2; i++)
             {
-                // Send SIGINT twice (Ctrl+C, C)
-                for (var i = 0; i < 2; i++)
-                {
-                    Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "kill",
-                            Arguments = $"-SIGINT {claudeProcess.Id}",
-                            UseShellExecute = false,
-                            RedirectStandardOutput = true
-                        }
-                    );
-                    await Task.Delay(TimeSpan.FromMilliseconds(100));
-                }
-
-                // Wait 3 seconds for graceful exit
-                await Task.Delay(TimeSpan.FromSeconds(3));
-
-                // Force kill if still alive
-                if (!claudeProcess.HasExited)
-                {
-                    claudeProcess.Kill();
-                }
+                Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "kill",
+                        Arguments = $"-SIGINT {claudeProcess.Id}",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true
+                    }
+                );
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
             }
-            catch
+
+            // Wait 3 seconds for graceful exit
+            await Task.Delay(TimeSpan.FromSeconds(3));
+
+            // Force kill if still alive
+            if (!claudeProcess.HasExited)
             {
-                try
-                {
-                    claudeProcess.Kill();
-                }
-                catch
-                {
-                }
+                claudeProcess.Kill();
             }
         }
     }
@@ -1249,14 +1182,7 @@ public static class WorkerMcpTools
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
 
-        try
-        {
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
-        }
-        catch (Exception logEx)
-        {
-            Console.Error.WriteLine($"[DEBUG LOG ERROR] {logEx.Message}");
-        }
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StartWorker called: agentType={agentType}, taskTitle={taskTitle}\n");
 
         AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] StartWorker called: agentType={agentType}, taskTitle={taskTitle}[/]");
 
@@ -1498,38 +1424,12 @@ public static class WorkerMcpTools
             // CRITICAL: Remove CLAUDECODE to prevent forced print mode
             process.StartInfo.Environment.Remove("CLAUDECODE");
 
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
-            }
-            catch
-            {
-            }
-
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
-            }
-            catch
-            {
-            }
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Environment: CLAUDECODE removed\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Full arguments array: [{string.Join(", ", claudeArgs.Select(arg => $"'{arg}'"))}]\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting Claude Code worker in: {agentWorkspaceDirectory}\n");
 
             var quotedArgs = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
-            }
-            catch
-            {
-            }
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Command: claude {quotedArgs}\n");
 
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Starting Claude Code worker process in: {agentWorkspaceDirectory}[/]");
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Claude args: {string.Join(" ", claudeArgs)}[/]");
@@ -1539,24 +1439,12 @@ public static class WorkerMcpTools
             // Create PID file for automated worker
             await File.WriteAllTextAsync(pidFile, process.Id.ToString());
 
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
-            }
-            catch
-            {
-            }
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
 
             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Worker process started with PID: {process.Id}[/]");
 
             // Log what Claude Code actually receives as input
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
-            }
-            catch
-            {
-            }
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Claude input should be: {claudeArgs.Last()}\n");
 
             // Check if process exits immediately
             await Task.Delay(TimeSpan.FromSeconds(3));
@@ -1599,37 +1487,19 @@ public static class WorkerMcpTools
         }
         catch (Exception ex)
         {
-            try
-            {
-                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
-            }
-            catch
-            {
-            }
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
 
             // Clean up PID file on error
             var pidFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".pid");
             if (File.Exists(pidFileCleanup))
             {
-                try
-                {
-                    File.Delete(pidFileCleanup);
-                }
-                catch
-                {
-                }
+                File.Delete(pidFileCleanup);
             }
 
             if (workspaceMutex != null)
             {
-                try
-                {
-                    workspaceMutex.ReleaseMutex();
-                    workspaceMutex.Dispose();
-                }
-                catch
-                {
-                }
+                workspaceMutex.ReleaseMutex();
+                workspaceMutex.Dispose();
             }
 
             return $"Error starting worker: {ex.Message}";
