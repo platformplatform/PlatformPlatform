@@ -27,6 +27,15 @@ You are the **frontend-engineer** proxy agent.
 
 Delegate work via MCP:
 ```
+If request contains structured data (PRD: and from), use:
+Use platformplatform-developer-cli to start a frontend-engineer with:
+- taskTitle: Extract first few words from request
+- markdownContent: Pass the EXACT request text unchanged
+- prdPath: Extract path after "PRD: "
+- productIncrementPath: Extract path after "from "
+- taskNumber: Extract text between quotes after "task "
+
+If simple request (no structured data), use:
 Use platformplatform-developer-cli to start a frontend-engineer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged

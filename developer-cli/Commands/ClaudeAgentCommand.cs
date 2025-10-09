@@ -1366,16 +1366,18 @@ public static class WorkerMcpTools
                             LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
 
                             // Wait for the response file to be created
-                            // Agent creates descriptive markdown file
+                            // Interactive worker-host handles file creation and moves it to messages directory
                             AnsiConsole.MarkupLine($"[grey][[MCP DEBUG]] Waiting for interactive agent to complete task {taskCounter:D4}[/]");
 
-                            // Poll for response file with activity monitoring (2-hour overall max)
+                            // Poll for response file in messages directory (interactive worker-host manages file movement)
                             var startTime = DateTime.Now;
                             var lastActivity = DateTime.Now;
                             var overallTimeout = TimeSpan.FromHours(2);
 
                             string? foundResponseFile = null;
-                            // Wait for any file matching the pattern (agents can use descriptive names)
+                            var responseFilePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
+
+                            // Wait for response file in messages directory (where interactive worker-host puts it)
                             while (foundResponseFile == null)
                             {
                                 // Check for file system activity
@@ -1391,20 +1393,11 @@ public static class WorkerMcpTools
                                     throw new TimeoutException($"Interactive {agentType} exceeded 2-hour overall timeout");
                                 }
 
-                                // Check for any markdown file in the workspace (agent creates descriptive names)
-                                var markdownFiles = Directory.GetFiles(agentWorkspaceDirectory, "*.md");
-                                if (markdownFiles.Length > 0)
+                                // Check for response file in messages directory (interactive worker-host already moved it)
+                                var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
+                                if (matchingFiles.Length > 0)
                                 {
-                                    var responseFile = markdownFiles[0]; // Take first markdown file found
-                                    var agentDescriptiveName = Path.GetFileNameWithoutExtension(responseFile);
-
-                                    // Generate proper response filename preserving agent's description
-                                    var properResponseName = $"{taskCounter:D4}.{agentType}.response.{agentDescriptiveName}.md";
-                                    var properResponsePath = Path.Combine(messagesDirectory, properResponseName);
-
-                                    // Move the file to the correct location with proper naming
-                                    File.Move(responseFile, properResponsePath);
-                                    foundResponseFile = properResponsePath;
+                                    foundResponseFile = matchingFiles[0];
                                     break;
                                 }
 
