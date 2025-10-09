@@ -784,8 +784,9 @@ public class ClaudeAgentCommand : Command
             "frontend-engineer" => "Frontend Engineer Systematic Workflow",
             "backend-reviewer" => "Backend Reviewer Systematic Workflow",
             "frontend-reviewer" => "Frontend Reviewer Systematic Workflow",
-            "e2e-test-reviewer" => "E2E Test Reviewer Systematic Workflow",
-            _ => $"{agentType} Systematic Workflow"
+            "test-automation-engineer" => "Test Automation Engineer Systematic Workflow",
+            "test-automation-reviewer" => "Test Automation Reviewer Systematic Workflow",
+            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
         };
 
         // Parse task content using simple string operations - no regex needed
@@ -868,23 +869,18 @@ public class ClaudeAgentCommand : Command
 
         // Load system prompt from .txt file and transform for command-line usage
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
-        string systemPromptText;
+        if (!File.Exists(systemPromptFile))
+        {
+            throw new FileNotFoundException($"System prompt file not found: {systemPromptFile}");
+        }
 
-        if (File.Exists(systemPromptFile))
-        {
-            systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
-            // Transform to single line and escape quotes for command-line usage
-            systemPromptText = systemPromptText
-                .Replace('\n', ' ')
-                .Replace('\r', ' ')
-                .Replace("\"", "'")
-                .Trim();
-        }
-        else
-        {
-            // Fallback for unknown agent types
-            systemPromptText = $"You are a {agentType} specialist";
-        }
+        var systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
+        // Transform to single line and escape quotes for command-line usage
+        systemPromptText = systemPromptText
+            .Replace('\n', ' ')
+            .Replace('\r', ' ')
+            .Replace("\"", "'")
+            .Trim();
 
         // Deterministic session management with session IDs
         var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -1076,7 +1072,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => "Frontend Reviewer",
             "test-automation-engineer" => "Test Automation Engineer",
             "test-automation-reviewer" => "Test Automation Reviewer",
-            _ => agentType
+            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
         };
     }
 
@@ -1091,7 +1087,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => Color.Orange3,
             "test-automation-engineer" => Color.Cyan1,
             "test-automation-reviewer" => Color.Purple,
-            _ => Color.White
+            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
         };
     }
 
