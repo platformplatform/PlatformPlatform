@@ -21,3 +21,41 @@ Call this when you've finished reviewing.
    - `responseContent`: Your full review
 
 Your session terminates immediately.
+
+---
+
+## Examples
+
+**✅ DO: Use sentence case summaries**
+```
+approved: true
+reviewSummary: "Excellent implementation"
+```
+```
+approved: false
+reviewSummary: "Missing test coverage"
+```
+
+**❌ DON'T: Use generic or vague summaries**
+```
+approved: true
+reviewSummary: "Good"
+```
+```
+approved: false
+reviewSummary: "Issues found"
+```
+
+**✅ DO: Be specific about what's good or missing**
+```
+"Clean architecture and comprehensive tests"
+"Missing validation for edge cases"
+"Incorrect use of strongly typed IDs"
+```
+
+**❌ DON'T: Use technical jargon without context**
+```
+"LGTM"
+"Needs refactoring"
+"Bad code"
+```
