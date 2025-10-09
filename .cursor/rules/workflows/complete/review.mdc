@@ -1,0 +1,51 @@
+---
+description: Workflow for signal review completion and terminate reviewer session
+globs: 
+alwaysApply: false
+---
+# Complete Review Workflow
+
+**For Reviewer Agents Only**: backend-reviewer, frontend-reviewer, test-automation-reviewer
+
+This command signals to the Worker Host that you have completed your review. It will write your response file and terminate your session.
+
+## When to Use This
+
+Call `/complete-review` when:
+- You have finished reviewing and reached a decision (approved or rejected)
+- You are stuck and cannot make progress
+- You have been inactive and received a restart reminder
+
+## Workflow
+
+1. **Make your decision**: Approved or Rejected?
+
+2. **Prepare comprehensive review feedback** in markdown format
+
+3. **Determine brief summary** in sentence case (e.g., "Excellent implementation", "Missing test coverage")
+
+4. **Call MCP CompleteReview tool** with:
+   - agentType: Your agent type (backend-reviewer, frontend-reviewer, or test-automation-reviewer)
+   - approved: true if approved, false if rejected
+   - reviewSummary: Your brief summary
+   - responseContent: Your full review feedback
+
+Your session will terminate immediately after calling the tool.
+
+## Example - Approved
+
+Summary: "Excellent implementation"
+Content: Full review praising the work
+
+Call MCP CompleteReview(approved=true, ...)
+
+Result: `/messages/0002.backend-reviewer.response.Approved-Excellent-implementation.md`
+
+## Example - Rejected
+
+Summary: "Missing test coverage"
+Content: Full review listing issues
+
+Call MCP CompleteReview(approved=false, ...)
+
+Result: `/messages/0002.backend-reviewer.response.Rejected-Missing-test-coverage.md`

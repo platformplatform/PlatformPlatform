@@ -227,7 +227,7 @@ public class ClaudeAgentCommand : Command
             techLeadArgs.Add(systemPromptText);
         }
 
-        techLeadArgs.Add("/tech-lead-mode");
+        techLeadArgs.Add("/orchestrate/tech-lead");
 
         // TODO: When Anthropic fixes bug #3188, switch back to --resume {session-id}
         // Deterministic session management (ignoring command line flags for consistency)
@@ -695,14 +695,14 @@ public class ClaudeAgentCommand : Command
 
         if (isTechLead)
         {
-            // Tech Lead launches directly with /tech-lead-mode (no request file needed)
+            // Tech Lead launches directly with /orchestrate/tech-lead (no request file needed)
             var techLeadArgs = new List<string>
             {
                 "--continue",
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                 "--add-dir", Configuration.SourceCodeFolder,
                 "--permission-mode", "default",
-                "/tech-lead-mode"
+                "/orchestrate/tech-lead"
             };
 
             var techLeadProcess = new Process
@@ -734,7 +734,7 @@ public class ClaudeAgentCommand : Command
                     "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
                     "--add-dir", Configuration.SourceCodeFolder,
                     "--permission-mode", "default",
-                    "/tech-lead-mode"
+                    "/orchestrate/tech-lead"
                 };
 
                 techLeadProcess = new Process
@@ -793,7 +793,7 @@ public class ClaudeAgentCommand : Command
                 var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
                 File.AppendAllText(workflowLog, parameterLog);
 
-                finalPrompt = $"/review-task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
+                finalPrompt = $"/review/task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
 
                 // Log the final prompt for debugging
                 var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
@@ -812,7 +812,7 @@ public class ClaudeAgentCommand : Command
                 var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
                 File.AppendAllText(workflowLog, parameterLog);
 
-                finalPrompt = $"/implement-task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
+                finalPrompt = $"/implement/task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
 
                 // Log the final prompt for debugging
                 var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";

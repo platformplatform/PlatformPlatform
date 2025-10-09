@@ -1,0 +1,68 @@
+---
+description: Workflow for signal task completion and terminate worker session
+auto_execution_mode: 1
+---
+
+# Complete Task Workflow
+
+**For Worker Agents Only**: backend-engineer, frontend-engineer, test-automation-engineer
+
+This command signals to the Worker Host that you have completed your task. It will write your response file and terminate your session.
+
+## When to Use This
+
+Call `/complete-task` when:
+- You have successfully completed the task
+- You are stuck and cannot make progress (so Worker Host can restart you)
+- You have been inactive and received a restart reminder
+
+## Workflow
+
+1. **Prepare your response content**:
+   - Write a comprehensive response describing what you accomplished
+   - Include any important notes or context for the Tech Lead
+   - Format as markdown
+
+2. **Determine task summary**:
+   - Brief sentence case summary (e.g., "Api endpoints implemented", "User authentication added")
+   - Do NOT include task numbers or dates
+   - Keep it descriptive and natural
+
+3. **Call MCP CompleteTask tool**:
+   ```
+   Use the MCP CompleteTask tool with these parameters:
+   - agentType: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
+   - taskSummary: Your brief summary from step 2
+   - responseContent: Your full response from step 1
+   ```
+
+4. **Important**: After calling the MCP tool, your session will be terminated immediately. The MCP tool writes the response file and kills your process.
+
+## Example
+
+If you just implemented API endpoints for user management:
+
+**Task Summary**: "User management endpoints implemented"
+
+**Response Content**:
+```markdown
+# User Management Endpoints Implementation
+
+## Changes Made
+- Created GET /users endpoint
+- Created POST /users endpoint
+- Added validation logic
+- Updated API documentation
+
+## Testing
+All endpoint tests passing.
+```
+
+Then call: `MCP CompleteTask` with those parameters.
+
+## Remember
+
+The MCP tool will:
+- Write your response to `/messages/{task-id}.{agent-type}.response.{summary}.md`
+- Terminate your session
+- Signal completion to Worker Host
