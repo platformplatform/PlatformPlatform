@@ -12,22 +12,18 @@ description: Implement a specific task from a Product Increment following the sy
 Understand context and catch up efficiently [pending]                              (STEP 1)
 Study relevant rules for the task at hand [pending]                                (STEP 2)
 Research existing patterns for this task type [pending]                            (STEP 3)
-Implement task [TASK-TITLE-GOES-HERE] [pending]                                    (STEP 4) *
-├─  Subtask 1 [Copy from Product Increment file] [pending]
-├─  Subtask 2 [Copy from Product Increment file] [pending]
-└─  Subtask N [Copy from Product Increment file] [pending]
-Validate implementation builds and passes all checks [pending]                      (STEP 5)
-Validate translations (frontend only) [pending]                                    (STEP 6)
+Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
+├─  Task #.1 [Copy exact text from Product Increment file] [pending]
+├─  Task #.2 [Copy exact text from Product Increment file] [pending]
+└─  Task #.N [Copy exact text from Product Increment file] [pending]
+Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
+Validate translations (frontend tasks only) [pending]                              (STEP 6)
 Mark task as Ready for Review [pending]                                            (STEP 7)
 Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
 Call /complete/task to signal completion [pending]                                 (STEP 9)
 ```
 
-**DO NOT CHANGE THE WORDING** - Copy exactly as shown above.
-
-Replace:
-- `[TASK-TITLE-GOES-HERE]` with your task title from the request
-- Add subtasks from Product Increment file under Step 4
+**DO NOT CHANGE THE WORDING** - Copy exactly as shown above
 
 ---
 

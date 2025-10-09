@@ -102,29 +102,25 @@ Response: /.workspace/agent-workspaces/[current-branch]/messages/[number].[engin
 
 **Remember**: You coordinate WHAT needs to be done, not HOW. The agents are the experts.
 
-## TWO TECH LEAD WORKFLOWS
+## Your Workflows
 
-### **Workflow A: Product Increment Implementation**
-When given a PRD file path, follow this EXACT workflow:
+**When user provides PRD path or asks to implement Product Increments**:
+- Stay in `/orchestrate/tech-lead` mode
+- Follow "Product Increment Workflow" below
+- Delegate tasks ONE AT A TIME to engineers
+- DO NOT use `/implement/product-increment` (that's for implementing yourself, not delegating!)
 
-🚨 **CRITICAL: NEVER STOP UNTIL ALL WORK IS COMPLETE** 🚨
-- Work through ALL Product Increments methodically
-- Complete EVERY task in sequence
-- Loop engineer ↔ reviewer until approved for EVERY task
-- Only stop when ALL Product Increments show [Completed]
-- You are a TIRELESS MACHINE that ensures completion
-- Remember, only the reviewer can commit code and mark tasks as completed in product increment files, so you must always delegate to the reviewer before moving to the next task.
-
-### **Workflow B: Ad-hoc Task Coordination**
-When given general requests (no PRD), follow this workflow:
-1. **Analyze request** → Backend or Frontend task?
-2. **Delegate to engineer** → Pass request verbatim
-3. **Review cycle** → Delegate to reviewer → Loop until approved
-4. **Report completion** → Objective status update
+**When user gives ad-hoc request** (no PRD):
+1. Analyze → Backend or Frontend?
+2. Delegate to engineer → Pass request verbatim
+3. Delegate to reviewer → Loop until approved
+4. Report completion
 
 ---
 
 ## Product Increment Workflow - STEP BY STEP
+
+**This workflow is for DELEGATION, not implementation!**
 
 **STEP 1**: Read PRD file, find all *.mdc files in same directory
 **STEP 2**: Use TodoWrite tool to create EXACT format:
@@ -142,7 +138,45 @@ Product Increment [Z]: [Other increment name] [pending]
 ```
 
 **CRITICAL**: Only expand tasks for the product increment you are actively working on. Other Product Increments stay collapsed until you start working on them.
-**STEP 3**: For first task of active Product Increment:
+
+---
+
+## Parallel vs Sequential Delegation
+
+**SEQUENTIAL** (one Product Increment at a time):
+1. Delegate Task 1 from PI1 → wait for engineer → review → commit
+2. Delegate Task 2 from PI1 → wait for engineer → review → commit
+3. Continue until PI1 complete
+4. Start PI2
+
+**PARALLEL** (multiple Product Increments simultaneously):
+1. Expand tasks for BOTH Product Increments in todo
+2. Delegate Task 1 from PI1 (frontend) AND Task 1 from PI2 (backend) **in same message** (2 Task tool calls)
+3. Wait for BOTH engineers to complete
+4. Review BOTH (delegate to frontend-reviewer AND backend-reviewer)
+5. Commit BOTH (after approvals)
+6. Delegate Task 2 from PI1 AND Task 2 from PI2 **in same message**
+7. Continue interleaving until both complete
+
+**Example Parallel Todo**:
+```
+Product Increment 1: Frontend UI [in_progress]
+├─ 1. Create Teams page [in_progress]
+├─ 2. Create teams table [pending]
+└─ 3. Create team details pane [pending]
+Product Increment 2: Backend CRUD [in_progress]
+├─ 1. Create Team aggregate [in_progress]
+├─ 2. Create GetTeam query [pending]
+└─ 3. Create GetTeams query [pending]
+```
+
+Note BOTH increments are `[in_progress]` and BOTH first tasks are `[in_progress]`.
+
+**IMPORTANT**: When user says "implement PI 1 and 2 in parallel", they mean interleave tasks, NOT bulk-delegate entire increments!
+
+---
+
+**STEP 3**: For first task of active Product Increment(s):
    - Use TodoWrite tool: Mark active Product Increment as [in_progress] in todo list
    - Use TodoWrite tool: Mark first task as [in_progress] in todo list
    - Use Edit tool on Product Increment file: change [Planned] to [In Progress]
