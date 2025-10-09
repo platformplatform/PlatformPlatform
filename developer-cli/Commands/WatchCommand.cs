@@ -265,7 +265,7 @@ public class WatchCommand : Command
         var subdomain = uri.Host.Split('.')[0];
 
         // Check if ngrok is already running
-        var isNgrokRunning = false;
+        bool isNgrokRunning;
 
         if (Configuration.IsWindows)
         {

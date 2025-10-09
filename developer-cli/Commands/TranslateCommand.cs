@@ -191,14 +191,9 @@ public class TranslateCommand : Command
                 toReturn.Add(translated);
             }
 
-            if (toReturn.Count > 0)
-            {
-                AnsiConsole.MarkupLine($"[green]{toReturn.Count} entries have been translated.[/]");
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[yellow]No entries were translated.[/]");
-            }
+            AnsiConsole.MarkupLine(toReturn.Count > 0
+                ? $"[green]{toReturn.Count} entries have been translated.[/]"
+                : "[yellow]No entries were translated.[/]");
 
             return toReturn;
         }

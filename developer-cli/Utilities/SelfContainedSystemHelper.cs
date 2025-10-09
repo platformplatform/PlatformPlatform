@@ -8,7 +8,7 @@ public static class SelfContainedSystemHelper
     public static string[] GetAvailableSelfContainedSystems()
     {
         return Directory.GetDirectories(Configuration.ApplicationFolder)
-            .Where(dir => HasRequiredFolders(dir))
+            .Where(HasRequiredFolders)
             .Select(Path.GetFileName)
             .Where(name => name is not null)
             .Select(name => name!)

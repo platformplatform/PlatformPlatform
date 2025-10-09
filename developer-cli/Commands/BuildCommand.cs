@@ -99,9 +99,6 @@ public class BuildCommand : Command
 
     private static void ExecuteQuiet(bool buildBackend, bool buildFrontend, string? selfContainedSystem)
     {
-        var allErrors = new List<string>();
-        var allWarnings = new List<string>();
-
         try
         {
             if (buildBackend)
@@ -120,10 +117,6 @@ public class BuildCommand : Command
                             Console.WriteLine($"Build failed for {system}. See: {result.TempFilePath}");
                             Environment.Exit(1);
                         }
-
-                        var summary = BuildOutputParser.ParseDotnetBuildOutput(result.CombinedOutput);
-                        allErrors.AddRange(summary.Errors);
-                        allWarnings.AddRange(summary.Warnings);
                     }
                 }
                 else
@@ -137,10 +130,6 @@ public class BuildCommand : Command
                         Console.WriteLine($"Build failed. See: {result.TempFilePath}");
                         Environment.Exit(1);
                     }
-
-                    var summary = BuildOutputParser.ParseDotnetBuildOutput(result.CombinedOutput);
-                    allErrors.AddRange(summary.Errors);
-                    allWarnings.AddRange(summary.Warnings);
                 }
             }
 
@@ -177,24 +166,7 @@ public class BuildCommand : Command
             }
 
             // Success - show minimal output
-            if (allWarnings.Count == 0)
-            {
-                Console.WriteLine("Build succeeded.");
-            }
-            else
-            {
-                Console.WriteLine($"Build succeeded with {allWarnings.Count} warning(s):");
-                Console.WriteLine();
-                foreach (var warning in allWarnings.Take(5))
-                {
-                    Console.WriteLine($"  {warning}");
-                }
-
-                if (allWarnings.Count > 5)
-                {
-                    Console.WriteLine($"  ... and {allWarnings.Count - 5} more warning(s)");
-                }
-            }
+            Console.WriteLine("Build succeeded.");
         }
         catch (Exception ex)
         {
@@ -245,6 +217,6 @@ public class BuildCommand : Command
             }
         }
 
-        return errors.Count > 0 ? errors : new List<string> { "Build failed. See full output for details." };
+        return errors.Count > 0 ? errors : ["Build failed. See full output for details."];
     }
 }

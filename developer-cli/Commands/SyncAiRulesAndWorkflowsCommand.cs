@@ -124,7 +124,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         Directory.CreateDirectory(targetDirectory);
 
         var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-        var targetFiles = new List<string>();
 
         foreach (var sourceFile in sourceFiles)
         {
@@ -133,7 +132,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
 
             ConvertClaudeToWindsurfWorkflow(sourceFile, targetFile);
-            targetFiles.Add(targetFile);
         }
     }
 
@@ -143,7 +141,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         Directory.CreateDirectory(targetDirectory);
 
         var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-        var targetFiles = new List<string>();
 
         foreach (var sourceFile in sourceFiles)
         {
@@ -159,14 +156,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
             var linesList = lines.ToList();
             // Remove trailing empty lines
-            while (linesList.Count > 0 && string.IsNullOrWhiteSpace(linesList[linesList.Count - 1]))
+            while (linesList.Count > 0 && string.IsNullOrWhiteSpace(linesList[^1]))
             {
                 linesList.RemoveAt(linesList.Count - 1);
             }
 
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, linesList));
-            targetFiles.Add(targetFile);
         }
     }
 
@@ -176,7 +172,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         Directory.CreateDirectory(targetDirectory);
 
         var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-        var targetFiles = new List<string>();
 
         foreach (var sourceFile in sourceFiles)
         {
@@ -187,7 +182,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
 
             ConvertClaudeToCursorWorkflow(sourceFile, targetFile);
-            targetFiles.Add(targetFile);
         }
     }
 
@@ -197,7 +191,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         Directory.CreateDirectory(targetDirectory);
 
         var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-        var targetFiles = new List<string>();
 
         foreach (var sourceFile in sourceFiles)
         {
@@ -212,7 +205,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
 
             ConvertClaudeToCursorRule(sourceFile, targetFile);
-            targetFiles.Add(targetFile);
         }
     }
 
@@ -222,7 +214,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         Directory.CreateDirectory(targetDirectory);
 
         var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-        var targetFiles = new List<string>();
 
         foreach (var sourceFile in sourceFiles)
         {
@@ -233,14 +224,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Simple copy - no format conversion needed for samples
             var lines = File.ReadAllLines(sourceFile).ToList();
             // Remove trailing empty lines
-            while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[lines.Count - 1]))
+            while (lines.Count > 0 && string.IsNullOrWhiteSpace(lines[^1]))
             {
                 lines.RemoveAt(lines.Count - 1);
             }
 
             // Use WriteAllText with Join to avoid extra newline at end
             File.WriteAllText(targetFile, string.Join(Environment.NewLine, lines));
-            targetFiles.Add(targetFile);
         }
     }
 
@@ -283,7 +273,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             }
 
             // Remove trailing empty lines
-            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
+            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[^1]))
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
@@ -303,7 +293,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             }
 
             // Remove trailing empty lines
-            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
+            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[^1]))
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
@@ -356,7 +346,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
             var allLines = newFrontmatter.Concat(contentToWrite).ToList();
             // Remove trailing empty lines
-            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
+            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[^1]))
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
@@ -368,7 +358,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // No frontmatter in source, just copy content with reference replacements
             var allLines = modifiedContent.ToList();
             // Remove trailing empty lines
-            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
+            while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[^1]))
             {
                 allLines.RemoveAt(allLines.Count - 1);
             }
@@ -487,7 +477,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
         var allLines = newFrontmatter.Concat(contentToWrite).ToList();
         // Remove trailing empty lines
-        while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[allLines.Count - 1]))
+        while (allLines.Count > 0 && string.IsNullOrWhiteSpace(allLines[^1]))
         {
             allLines.RemoveAt(allLines.Count - 1);
         }
@@ -545,7 +535,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                                 mdcPath = mdcPath.Replace(".cursor/workflows/", ".cursor/rules/workflows/");
                             }
                         }
-                        // Handle .claude paths - convert to .cursor  
+                        // Handle .claude paths - convert to .cursor
                         else if (mdcPath.StartsWith(".claude/"))
                         {
                             mdcPath = mdcPath.Replace(".claude/", ".cursor/");

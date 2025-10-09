@@ -130,7 +130,7 @@ public class End2EndCommand : Command
         foreach (var currentSelfContainedSystem in selfContainedSystemsToTest)
         {
             var selfContainedSystemSuccess = RunTestsForSystem(currentSelfContainedSystem, testPatterns, browser, debug, debugTiming, searchGrep, headed, includeSlow, lastFailed,
-                onlyChanged, quiet, repeatEach, retries, showReport, slowMo, smoke, stopOnFirstFailure, ui, workers
+                onlyChanged, repeatEach, retries, showReport, slowMo, smoke, stopOnFirstFailure, ui, workers
             );
 
             if (!selfContainedSystemSuccess)
@@ -226,7 +226,6 @@ public class End2EndCommand : Command
         bool includeSlow,
         bool lastFailed,
         bool onlyChanged,
-        bool quiet,
         int? repeatEach,
         int? retries,
         bool showReport,
@@ -237,9 +236,9 @@ public class End2EndCommand : Command
         int? workers)
     {
         var systemPath = Path.Combine(Configuration.ApplicationFolder, selfContainedSystem, "WebApp");
-        var e2eTestsPath = Path.Combine(systemPath, "tests/e2e");
+        var e2ETestsPath = Path.Combine(systemPath, "tests/e2e");
 
-        if (!Directory.Exists(e2eTestsPath))
+        if (!Directory.Exists(e2ETestsPath))
         {
             AnsiConsole.MarkupLine($"[yellow]No e2e tests found for {selfContainedSystem}. Skipping...[/]");
             return true;
@@ -263,7 +262,7 @@ public class End2EndCommand : Command
         var isLocalhost = BaseUrl.Contains("localhost", StringComparison.OrdinalIgnoreCase);
 
         var playwrightArgs = BuildPlaywrightArgs(
-            testPatterns, browser, debug, searchGrep, showBrowser, includeSlow, lastFailed, onlyChanged, quiet, repeatEach,
+            testPatterns, browser, debug, searchGrep, showBrowser, includeSlow, lastFailed, onlyChanged, repeatEach,
             retries, runSequential, smoke, stopOnFirstFailure, ui, workers
         );
 
@@ -338,20 +337,22 @@ public class End2EndCommand : Command
 
         var matchingSystems = new HashSet<string>();
 
-        foreach (var pattern in testPatterns.Where(p => p != null && p != "*"))
+        foreach (var pattern in testPatterns.Where(p => p != "*"))
         {
             var normalizedPattern = pattern.EndsWith(".spec.ts") ? pattern : $"{pattern}.spec.ts";
             normalizedPattern = Path.GetFileName(normalizedPattern);
 
             foreach (var system in availableSystems)
             {
-                var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
-                if (!Directory.Exists(e2eTestsPath)) continue;
+                var e2ETestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
+                if (!Directory.Exists(e2ETestsPath)) continue;
 
-                var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories)
-                    .Select(Path.GetFileName);
+                var testFiles = Directory.GetFiles(e2ETestsPath, "*.spec.ts", SearchOption.AllDirectories)
+                    .Select(Path.GetFileName)
+                    .Where(f => f is not null)
+                    .Select(f => f!);
 
-                if (testFiles.Any(file => file?.Equals(normalizedPattern, StringComparison.OrdinalIgnoreCase) == true))
+                if (testFiles.Any(file => file.Equals(normalizedPattern, StringComparison.OrdinalIgnoreCase)))
                 {
                     matchingSystems.Add(system);
                 }
@@ -364,10 +365,10 @@ public class End2EndCommand : Command
         {
             foreach (var system in availableSystems)
             {
-                var e2eTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
-                if (!Directory.Exists(e2eTestsPath)) continue;
+                var e2ETestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
+                if (!Directory.Exists(e2ETestsPath)) continue;
 
-                var testFiles = Directory.GetFiles(e2eTestsPath, "*.spec.ts", SearchOption.AllDirectories);
+                var testFiles = Directory.GetFiles(e2ETestsPath, "*.spec.ts", SearchOption.AllDirectories);
                 foreach (var testFile in testFiles)
                 {
                     // For filename search, remove @ if present for comparison
@@ -403,7 +404,6 @@ public class End2EndCommand : Command
         bool includeSlow,
         bool lastFailed,
         bool onlyChanged,
-        bool quiet,
         int? repeatEach,
         int? retries,
         bool runSequential,
@@ -456,26 +456,6 @@ public class End2EndCommand : Command
         if (stopOnFirstFailure) args.Add("-x");
 
         return string.Join(" ", args);
-    }
-
-    private static string PromptForSelfContainedSystem(string[] availableSystems)
-    {
-        if (availableSystems.Length == 0)
-        {
-            AnsiConsole.MarkupLine("[red]No self-contained systems found.[/]");
-            Environment.Exit(1);
-            return string.Empty; // This line will never be reached but is needed to satisfy the compiler
-        }
-
-        var selectedSystem = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select a [green]self-contained system[/] to test:")
-                .PageSize(10)
-                .MoreChoicesText("[grey](Move up and down to reveal more systems)[/]")
-                .AddChoices(availableSystems)
-        );
-
-        return selectedSystem;
     }
 
     private static void OpenHtmlReport(string selfContainedSystem)

@@ -13,10 +13,8 @@ public static class CommandLineArgumentsPreprocessor
     public static string[] PreprocessArguments(string[] args)
     {
         var result = new List<string>();
-        for (var i = 0; i < args.Length; i++)
+        foreach (var arg in args)
         {
-            var arg = args[i];
-
             // Handle positional arguments that start with @ (for e2e search terms)
             if (arg.StartsWith("@"))
             {
