@@ -734,10 +734,7 @@ public class ClaudeAgentCommand : Command
             return techLeadProcess;
         }
 
-        // Slash commands discover context from request file - no parameter extraction needed
-        string finalPrompt = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
-
-        // Load system prompt from .txt file and transform for command-line usage
+        // Load agent system prompt
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
         if (!File.Exists(systemPromptFile))
         {
@@ -745,22 +742,41 @@ public class ClaudeAgentCommand : Command
         }
 
         var systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
-        // Transform to single line and escape quotes for command-line usage
-        systemPromptText = systemPromptText
-            .Replace('\n', ' ')
-            .Replace('\r', ' ')
-            .Replace("\"", "'")
-            .Trim();
+        systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
 
-        // Worker session management - fresh session for each task (no conversation continuity needed)
+        // Load workflow and embed it (100% reliable, no slash command dependency)
+        var workflowFile = agentType.Contains("reviewer")
+            ? Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "review", "task.md")
+            : Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "implement", "task.md");
+
+        var workflowText = "";
+        if (File.Exists(workflowFile))
+        {
+            workflowText = await File.ReadAllTextAsync(workflowFile);
+            // Remove YAML frontmatter (between --- lines)
+            var frontmatterEnd = workflowText.IndexOf("---", 3);
+            if (frontmatterEnd > 0)
+            {
+                workflowText = workflowText.Substring(frontmatterEnd + 3).Trim();
+            }
+            workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
+        }
+
+        // Worker session - fresh for each task
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
-            "--append-system-prompt", systemPromptText,
-            finalPrompt
+            "--append-system-prompt", systemPromptText
         };
+
+        // Append workflow as system prompt (not slash command)
+        if (!string.IsNullOrEmpty(workflowText))
+        {
+            claudeArgs.Add("--append-system-prompt");
+            claudeArgs.Add(workflowText);
+        }
 
         AnsiConsole.MarkupLine("[yellow]Starting fresh worker session...[/]");
 
@@ -1218,10 +1234,7 @@ public static class WorkerMcpTools
             var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
             await File.WriteAllTextAsync(taskIdFile, $"{counter:D4}");
 
-            // Automated worker - call slash command
-            var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
-
-            // Load worker system prompt
+            // Load agent system prompt
             var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
             var systemPromptText = "";
             if (File.Exists(systemPromptFile))
@@ -1230,7 +1243,25 @@ public static class WorkerMcpTools
                 systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
             }
 
-            // Don't use --continue for first automated worker (no conversation exists in workspace)
+            // Load workflow and embed it (100% reliable, no slash command dependency)
+            var workflowFile = agentType.Contains("reviewer")
+                ? Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "review", "task.md")
+                : Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "implement", "task.md");
+
+            var workflowText = "";
+            if (File.Exists(workflowFile))
+            {
+                workflowText = await File.ReadAllTextAsync(workflowFile);
+                // Remove YAML frontmatter
+                var frontmatterEnd = workflowText.IndexOf("---", 3);
+                if (frontmatterEnd > 0)
+                {
+                    workflowText = workflowText.Substring(frontmatterEnd + 3).Trim();
+                }
+                workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
+            }
+
+            // Fresh session for automated worker
             var claudeArgs = new List<string>
             {
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
@@ -1244,7 +1275,12 @@ public static class WorkerMcpTools
                 claudeArgs.Add(systemPromptText);
             }
 
-            claudeArgs.Add(slashCommand);
+            // Append workflow as system prompt (not slash command)
+            if (!string.IsNullOrEmpty(workflowText))
+            {
+                claudeArgs.Add("--append-system-prompt");
+                claudeArgs.Add(workflowText);
+            }
 
             var process = new Process
             {

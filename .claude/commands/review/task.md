@@ -4,169 +4,66 @@ description: Review a specific task implementation from a Product Increment foll
 
 # Review Task Workflow
 
-**IMPORTANT**: If you're reading this, the slash command worked! If you DON'T see this text and only see `/review/task`, then:
-1. Read `.claude/commands/review/task.md` (this file)
-2. Find your request: `../messages/*.{your-agent-type}.request.*.md`
-3. Follow the workflow below
-
----
-
 ## STEP 0: Create Todo List - DO THIS NOW!
 
-**YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
+**CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
-```
-Understand context and catch up efficiently [pending]                                                       (STEP 1)
-Validate implementation builds by running check command [pending]                                           (STEP 2)
-Study rules relevant for the task at hand [pending]                                                         (STEP 3)
-Review each changed file in detail [pending]                                                                (STEP 4) *
-├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-└─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-Review high level architecture (make a very high level review) [pending]                                   (STEP 5)
-Make binary decision (approve or reject) [pending]                                                          (STEP 6)
-If approved, commit changes [pending]                                                                       (STEP 7)
-Update Product Increment status with [Completed] or [Changes Required] [pending]                            (STEP 8)
-Call /complete/review to signal completion [pending]                                                        (STEP 9)
-```
-
-### Examples
-
-**✅ DO: Copy exact wording**
-```
-Understand context and catch up efficiently [pending]                                                       (STEP 1)
-Validate implementation builds by running check command [pending]                                           (STEP 2)
-Study rules relevant for the task at hand [pending]                                                         (STEP 3)
+```json
+{
+  "todos": [
+    {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
+    {"content": "Validate implementation builds by running check command", "status": "pending", "activeForm": "Validating implementation builds"},
+    {"content": "Study rules relevant for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
+    {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
+    {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
+    {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
+    {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes if approved"},
+    {"content": "Update Product Increment status with [Completed] or [Changes Required]", "status": "pending", "activeForm": "Updating Product Increment status"},
+    {"content": "Call /complete/review to signal completion", "status": "pending", "activeForm": "Calling completion command"}
+  ]
+}
 ```
 
-**❌ DON'T: Rewrite or simplify**
-```
-Read engineer's work [pending]
-Run build [pending]
-Check coding standards [pending]
-```
-
-**✅ DO: Use exact file review format with full description**
-```
-Review each changed file in detail [pending]                                                                (STEP 4) *
-├─  Review TeamEndpoints.cs and ensure all lines, methods, properties, classes follow ALL rules [pending]
-└─  Review TeamRepository.cs and ensure all lines, methods, properties, classes follow ALL rules [pending]
-```
-
-**❌ DON'T: Abbreviate or change wording**
-```
-Review files [pending]
-├─  TeamEndpoints.cs [pending]
-└─  TeamRepository.cs [pending]
-```
-
-**DO NOT CHANGE THE WORDING** - Copy the exact text shown in the template above
+After creating base todo, expand "Review each changed file" with files from `git status --porcelain`.
 
 ---
 
 ## Context Discovery
 
-You are a reviewer agent. Find your request:
+Find your request file in `../messages/*.{agent-type}.request.*.md` and read it.
 
-1. **Check your working directory**: You're in `.workspace/agent-workspaces/{branch}/{agent-type}/`
-2. **Find request file**: Look in `../messages/` for most recent `*.{agent-type}.request.*.md`
-3. **Read request file**: It contains review instructions
+**Request contains**:
+- Task title, PRD path, Product Increment path
+- Engineer's request and response files
 
-**Request file format**:
-```
-Please review task "Task title" from {product-increment-path}
-
-Product Requirements Document: {prd-path}
-Product Increment: {product-increment-path}
-Task: "Task title"
-Request: {engineer-request-file}
-Response: {engineer-response-file}
-```
-
-Extract paths and read all referenced files.
+Read all referenced files.
 
 ---
 
 ## Workflow Steps
 
-**STEP 1**: Understand context
-- Read PRD, Product Increment, engineer's request and response
-- Mark [completed]
+**STEP 1**: Read all context files
 
-**STEP 2**: Validate builds
-- Run **check MCP tool** (backend or frontend)
-- Must pass with zero findings
-- Mark [completed]
+**STEP 2**: Run **check MCP tool**, must pass
 
 **STEP 3**: Study rules
-- Backend: `.claude/rules/backend/`
-- Frontend: `.claude/rules/frontend/`
-- Mark [completed]
 
-**STEP 4**: Review each file
-- For each file: Read line-by-line, check against ALL rules
-- Document violations with rule citations
-- Mark each file [completed]
+**STEP 4**: Review each file line-by-line
 
 **STEP 5**: Review architecture
-- High-level patterns and design
-- Mark [completed]
 
-**STEP 6**: Make decision
-- **APPROVED**: Zero required changes
-- **NOT APPROVED**: Any findings that must be fixed
-- Mark [completed]
+**STEP 6**: Decide - APPROVED or NOT APPROVED
 
-**STEP 7**: Commit if approved
-- If APPROVED: Run `/review/commit` with commit message
-- If NOT APPROVED: Skip
-- Mark [completed]
+**STEP 7**: If APPROVED, run `/review/commit`
 
-**STEP 8**: Update status
-- If APPROVED: Change `[Ready for Review]` to `[Completed]`
-- If NOT APPROVED: Change to `[Changes Required]`
-- Mark [completed]
+**STEP 8**: Edit Product Increment status
 
-**STEP 9**: Signal completion
-- Call `/complete/review` slash command
-- Specify approved (true/false) and summary
-- Your session will terminate
+**STEP 9**: Call `/complete/review`
 
 ---
 
-## REMINDER: Todo List Format
+## REMINDER: Use Exact TodoWrite JSON
 
-**THE TODO LIST MUST FOLLOW THIS EXACT FORMAT**:
+**✅ DO: Copy JSON from STEP 0**
 
-```
-Understand context and catch up efficiently [pending]                                                       (STEP 1)
-Validate implementation builds by running check command [pending]                                           (STEP 2)
-Study rules relevant for the task at hand [pending]                                                         (STEP 3)
-Review each changed file in detail [pending]                                                                (STEP 4) *
-├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-├─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-└─  Review [filename.ext] and ensure all lines, methods, properties, classes follow ALL rules [pending]
-Review high level architecture (make a very high level review) [pending]                                   (STEP 5)
-Make binary decision (approve or reject) [pending]                                                          (STEP 6)
-If approved, commit changes [pending]                                                                       (STEP 7)
-Update Product Increment status with [Completed] or [Changes Required] [pending]                            (STEP 8)
-Call /complete/review to signal completion [pending]                                                        (STEP 9)
-```
-
-**DO NOT CHANGE THE WORDING**:
-- ❌ DON'T write "Read engineer's work"
-- ✅ DO copy "Understand context and catch up efficiently"
-- ❌ DON'T write "Review files"
-- ✅ DO copy "Review each changed file in detail"
-- ❌ DON'T write "Decide approval"
-- ✅ DO copy "Make binary decision (approve or reject)"
-
----
-
-## Critical Rules
-
-- Quality is highest priority
-- Cannot approve if you have recommendations
-- Use **check** MCP tool, never `dotnet` commands
-- Follow todo list exactly
-- Update todo continuously
+**❌ DON'T: Create custom format**

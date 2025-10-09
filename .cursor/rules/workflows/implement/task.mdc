@@ -5,171 +5,69 @@ alwaysApply: false
 ---
 # Implement Task Workflow
 
-**IMPORTANT**: If you're reading this, the slash command worked! If you DON'T see this text and only see `/implement/task`, then:
-1. Read `.cursor/rules/workflows/implement/task.md` (this file)
-2. Find your request: `../messages/*.{your-agent-type}.request.*.mdc`
-3. Follow the workflow below
-
----
-
 ## STEP 0: Create Todo List - DO THIS NOW!
 
-**YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
+**CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
-```
-Understand context and catch up efficiently [pending]                              (STEP 1)
-Study relevant rules for the task at hand [pending]                                (STEP 2)
-Research existing patterns for this task type [pending]                            (STEP 3)
-Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
-├─  Task #.1 [Copy exact text from Product Increment file] [pending]
-├─  Task #.2 [Copy exact text from Product Increment file] [pending]
-└─  Task #.N [Copy exact text from Product Increment file] [pending]
-Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Validate translations (frontend tasks only) [pending]                              (STEP 6)
-Mark task as Ready for Review [pending]                                            (STEP 7)
-Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
-Call /complete/task to signal completion [pending]                                 (STEP 9)
-```
-
-### Examples
-
-**✅ DO: Copy exact wording**
-```
-Understand context and catch up efficiently [pending]                              (STEP 1)
-Study relevant rules for the task at hand [pending]                                (STEP 2)
-Research existing patterns for this task type [pending]                            (STEP 3)
+```json
+{
+  "todos": [
+    {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
+    {"content": "Study relevant rules for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
+    {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
+    {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
+    {"content": "Validate implementation builds and fix all static code analysis warnings", "status": "pending", "activeForm": "Validating implementation"},
+    {"content": "Validate translations (frontend tasks only)", "status": "pending", "activeForm": "Validating translations"},
+    {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
+    {"content": "Critically evaluate remaining tasks and update plan", "status": "pending", "activeForm": "Evaluating remaining tasks"},
+    {"content": "Call /complete/task to signal completion", "status": "pending", "activeForm": "Calling completion command"}
+  ]
+}
 ```
 
-**❌ DON'T: Rewrite or simplify**
-```
-Analyze codebase structure [pending]
-Read project documentation [pending]
-Find similar code [pending]
-```
-
-**✅ DO: Use exact STEP labels**
-```
-Mark task as Ready for Review [pending]                                            (STEP 7)
-Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
-```
-
-**❌ DON'T: Change step names**
-```
-Update task status [pending]
-Review remaining work [pending]
-```
-
-**DO NOT CHANGE THE WORDING** - Copy the exact text shown in the template above
+After creating base todo, expand "Implement task" with subtasks from Product Increment file.
 
 ---
 
 ## Context Discovery
 
-You are a worker agent. Find your request:
+Find your request file in `../messages/*.{agent-type}.request.*.mdc` and read it.
 
-1. **Check your working directory**: You're in `.workspace/agent-workspaces/{branch}/{agent-type}/`
-2. **Find request file**: Look in `../messages/` for most recent `*.{agent-type}.request.*.mdc`
-3. **Read request file**: It contains your task instructions
+Example: `../messages/0001.backend-engineer.request.create-team-aggregate.md`
 
-**Request file format**:
-```
-Please implement task "Task title" from {product-increment-path}
+**Request contains**:
+- Task title (what to implement)
+- Product Increment file path
+- PRD file path
 
-Product Requirements Document: {prd-path}
-```
-
-Extract:
-- **Task title**: The quoted text after "task"
-- **Product Increment path**: After "from"
-- **PRD path**: After "Product Requirements Document:"
+Read all three files to understand context.
 
 ---
 
 ## Workflow Steps
 
-**STEP 1**: Understand context
-- Read PRD file
-- Read Product Increment file
-- Find your task in Product Increment (match title from request)
-- Extract ALL subtasks for your task
-- Update todo: Add subtasks under Step 4, mark Step 1 [completed]
+**STEP 1**: Read PRD, Product Increment, find your task, extract subtasks, update todo
 
-**STEP 2**: Study rules
-- Backend: Read `.cursor/rules/backend/`
-- Frontend: Read `.cursor/rules/frontend/`
-- Mark [completed]
+**STEP 2**: Study rules (`.cursor/rules/backend/` or `.cursor/rules/frontend/`)
 
-**STEP 3**: Research patterns
-- Search codebase for similar implementations
-- Mark [completed]
+**STEP 3**: Research similar implementations in codebase
 
-**STEP 4**: Implement
-- For each subtask: Mark [in_progress], implement, mark [completed]
-- Use **build** and **test** MCP tools frequently
-- Mark main task [completed]
+**STEP 4**: Implement each subtask, use **build** and **test** MCP tools
 
-**STEP 5**: Validate
-- Backend: Run **check MCP tool** for backend (must pass with zero findings)
-- Frontend: Run **check MCP tool** for frontend (must pass)
-- Fix ALL warnings/errors
-- Mark [completed]
+**STEP 5**: Run **check MCP tool**, fix all warnings (must pass)
 
-**STEP 6**: Validate translations (frontend only)
-- Check `git diff --name-only | grep "\.po$"`
-- Review translation entries
-- Mark [completed]
+**STEP 6**: Frontend only - validate translations
 
-**STEP 7**: Mark task Ready for Review
-- Edit Product Increment file: Change `[In Progress]` to `[Ready for Review]`
-- NEVER mark `[Completed]` - only reviewers do that
-- Mark [completed]
+**STEP 7**: Edit Product Increment file: `[In Progress]` → `[Ready for Review]`
 
-**STEP 8**: Evaluate remaining tasks
-- Re-read Product Increment file
-- Critically assess if plan still makes sense
-- Update plan if needed
-- Mark [completed]
+**STEP 8**: Re-read Product Increment, update plan if needed
 
-**STEP 9**: Signal completion
-- Call `/complete/task` slash command
-- Provide summary and full response
-- Your session will terminate
+**STEP 9**: Call `/complete/task`, provide summary and response
 
 ---
 
-## REMINDER: Todo List Format
+## REMINDER: Use Exact TodoWrite JSON
 
-**THE TODO LIST MUST FOLLOW THIS EXACT FORMAT**:
+**✅ DO: Copy the JSON from STEP 0**
 
-```
-Understand context and catch up efficiently [pending]                              (STEP 1)
-Study relevant rules for the task at hand [pending]                                (STEP 2)
-Research existing patterns for this task type [pending]                            (STEP 3)
-Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
-├─  Task #.1 [Copy exact text from Product Increment file] [pending]
-├─  Task #.2 [Copy exact text from Product Increment file] [pending]
-└─  Task #.N [Copy exact text from Product Increment file] [pending]
-Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Validate translations (frontend tasks only) [pending]                              (STEP 6)
-Mark task as Ready for Review [pending]                                            (STEP 7)
-Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
-Call /complete/task to signal completion [pending]                                 (STEP 9)
-```
-
-**DO NOT CHANGE THE WORDING**:
-- ❌ DON'T write "Analyze codebase structure"
-- ✅ DO copy "Study relevant rules for the task at hand"
-- ❌ DON'T write "Find similar implementations"
-- ✅ DO copy "Research existing patterns for this task type"
-- ❌ DON'T write "Update task status"
-- ✅ DO copy "Mark task as Ready for Review"
-
----
-
-## Critical Rules
-
-- Use **build**, **test**, **check**, **e2e** MCP tools ONLY
-- Never use `dotnet`, `npm`, `npx` commands directly
-- Follow todo list exactly
-- Update todo continuously
-- Never skip steps
+**❌ DON'T: Create custom todo format**
