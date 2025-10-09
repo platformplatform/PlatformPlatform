@@ -20,8 +20,8 @@ public class McpCommand : Command
     private static async Task ExecuteAsync()
     {
         // MCP server mode - all output to stderr to keep stdout clean
-        Console.Error.WriteLine("[MCP] Starting MCP server...");
-        Console.Error.WriteLine("[MCP] Listening on stdio for MCP communication");
+        await Console.Error.WriteLineAsync("[MCP] Starting MCP server...");
+        await Console.Error.WriteLineAsync("[MCP] Listening on stdio for MCP communication");
 
         var builder = Host.CreateApplicationBuilder();
         builder.Logging.AddConsole(consoleLogOptions => { consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace; }
@@ -132,7 +132,8 @@ public static class DeveloperCliMcpTools
             CreateNoWindow = true
         };
 
-        using var process = new Process { StartInfo = processStartInfo };
+        using var process = new Process();
+        process.StartInfo = processStartInfo;
         var output = new List<string>();
         var errors = new List<string>();
 
@@ -162,7 +163,7 @@ public static class DeveloperCliMcpTools
 
     [McpServerTool]
     [Description("Run E2E tests")]
-    public static string E2e(
+    public static string E2E(
         [Description("Search terms")] string[] searchTerms = null!,
         [Description("Browser")] string browser = "all",
         [Description("Smoke only")] bool smoke = false)
@@ -217,7 +218,8 @@ public static class DeveloperCliMcpTools
             CreateNoWindow = true
         };
 
-        using var process = new Process { StartInfo = processStartInfo };
+        using var process = new Process();
+        process.StartInfo = processStartInfo;
 
         process.OutputDataReceived += (_, e) =>
         {

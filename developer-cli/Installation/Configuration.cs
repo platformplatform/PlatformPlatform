@@ -178,7 +178,7 @@ public static class Configuration
 
 public class ConfigurationSetting
 {
-    public string? CliSourceCodeFolder { get; set; }
+    public string? CliSourceCodeFolder { get; init; }
 
     public string? Hash { get; set; }
 

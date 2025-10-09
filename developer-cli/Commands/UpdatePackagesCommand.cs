@@ -216,8 +216,7 @@ public sealed class UpdatePackagesCommand : Command
         while (packagesToCheckDependencies.Count > 0)
         {
             var packageName = packagesToCheckDependencies.Dequeue();
-            if (checkedPackages.Contains(packageName)) continue;
-            checkedPackages.Add(packageName);
+            if (!checkedPackages.Add(packageName)) continue;
 
             var update = candidatePackageUpdates[packageName];
 
@@ -890,34 +889,6 @@ public sealed class UpdatePackagesCommand : Command
     private static int GetMajorVersion(string version)
     {
         return new Version(version).Major;
-    }
-
-    private static void ValidateBackend()
-    {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[blue]Running backend validation...[/]");
-
-        // Run pp build --backend
-        AnsiConsole.MarkupLine("[dim]Running: pp build --backend[/]");
-        ProcessHelper.StartProcess("pp build --backend", Configuration.SourceCodeFolder);
-
-        // Run pp test
-        AnsiConsole.MarkupLine("[dim]Running: pp test[/]");
-        ProcessHelper.StartProcess("pp test", Configuration.SourceCodeFolder);
-
-        AnsiConsole.MarkupLine("[green]✓ Backend validation completed successfully![/]");
-    }
-
-    private static void ValidateFrontend()
-    {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[blue]Running frontend validation...[/]");
-
-        // Run pp build --frontend
-        AnsiConsole.MarkupLine("[dim]Running: pp build --frontend[/]");
-        ProcessHelper.StartProcess("pp build --frontend", Configuration.SourceCodeFolder);
-
-        AnsiConsole.MarkupLine("[green]✓ Frontend validation completed successfully![/]");
     }
 
     private static void UpdateAspireSdkVersion(bool dryRun)

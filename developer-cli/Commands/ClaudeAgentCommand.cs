@@ -273,10 +273,8 @@ public class ClaudeAgentCommand : Command
         var lastActivity = DateTime.Now;
 
         // Monitor messages directory for activity
-        using var watcher = new FileSystemWatcher(messagesDirectory, "*.md")
-        {
-            EnableRaisingEvents = true
-        };
+        using var watcher = new FileSystemWatcher(messagesDirectory, "*.md");
+        watcher.EnableRaisingEvents = true;
 
         watcher.Created += (_, _) => lastActivity = DateTime.Now;
 
@@ -509,12 +507,11 @@ public class ClaudeAgentCommand : Command
         return activities;
     }
 
+    // ReSharper disable once FunctionNeverReturns
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
-        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, $"*.{agentType}.request.*.md")
-        {
-            EnableRaisingEvents = true
-        };
+        using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, $"*.{agentType}.request.*.md");
+        fileSystemWatcher.EnableRaisingEvents = true;
 
         var requestReceived = false;
         string? requestFilePath = null;
@@ -552,7 +549,6 @@ public class ClaudeAgentCommand : Command
         RedrawWaitingDisplay(agentType, branch);
 
         // Wait for ENTER key or incoming request
-        // ReSharper disable once FunctionNeverReturns - Intentional infinite loop, returns on ENTER or request
         while (true)
         {
             // Check if request file arrived (non-blocking)

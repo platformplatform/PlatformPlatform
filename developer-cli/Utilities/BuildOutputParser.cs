@@ -11,12 +11,6 @@ public static partial class BuildOutputParser
     [GeneratedRegex(@"Build (succeeded|FAILED)", RegexOptions.IgnoreCase)]
     private static partial Regex BuildResultRegex();
 
-    [GeneratedRegex(@"(\d+)\s+Error\(s\)", RegexOptions.IgnoreCase)]
-    private static partial Regex ErrorCountRegex();
-
-    [GeneratedRegex(@"(\d+)\s+Warning\(s\)", RegexOptions.IgnoreCase)]
-    private static partial Regex WarningCountRegex();
-
     public static BuildSummary ParseDotnetBuildOutput(string output)
     {
         var errors = new List<string>();
@@ -52,7 +46,7 @@ public static partial class BuildOutputParser
 
     public static string FormatBuildSummary(BuildSummary summary, string tempFilePath, string commandName = "Build")
     {
-        if (summary.Success && summary.Warnings.Count == 0)
+        if (summary is { Success: true, Warnings.Count: 0 })
         {
             return $"{commandName} succeeded.";
         }
