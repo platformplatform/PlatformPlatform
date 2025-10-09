@@ -734,71 +734,8 @@ public class ClaudeAgentCommand : Command
             return techLeadProcess;
         }
 
-        // Regular worker configuration
-        var workflowName = agentType switch
-        {
-            "backend-engineer" => "Backend Engineer Systematic Workflow",
-            "frontend-engineer" => "Frontend Engineer Systematic Workflow",
-            "backend-reviewer" => "Backend Reviewer Systematic Workflow",
-            "frontend-reviewer" => "Frontend Reviewer Systematic Workflow",
-            "test-automation-engineer" => "Test Automation Engineer Systematic Workflow",
-            "test-automation-reviewer" => "Test Automation Reviewer Systematic Workflow",
-            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
-        };
-
-        // Parse task content using simple string operations - no regex needed
-        var taskContent = await File.ReadAllTextAsync(requestFile);
-        var isProductIncrementTask = taskContent.Contains("PRD:") ||
-                                     (taskContent.Contains("Request:") && taskContent.Contains("Response:"));
-
-        string finalPrompt;
-        if (isProductIncrementTask)
-        {
-            if (agentType.Contains("reviewer"))
-            {
-                // Extract paths using simple string operations
-                var prdPath = ExtractPathAfterKey(taskContent, "PRD:");
-                var productIncrementPath = ExtractPathAfterKey(taskContent, "Product Increment:");
-                var taskNumber = ExtractTextAfterKey(taskContent, "Task:").Trim('"');
-                var requestFilePath = ExtractPathAfterKey(taskContent, "Request:");
-                var responseFilePath = ExtractPathAfterKey(taskContent, "Response:");
-
-                // Log extracted parameters for debugging
-                var branchName = GitHelper.GetCurrentBranch();
-                var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-                var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}' Request:'{requestFilePath}' Response:'{responseFilePath}'\n";
-                await File.AppendAllTextAsync(workflowLog, parameterLog);
-
-                finalPrompt = $"/review/task '{prdPath}' '{productIncrementPath}' '{taskNumber}' '{requestFilePath}' '{responseFilePath}'";
-
-                // Log the final prompt for debugging
-                var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] REVIEWER FINAL PROMPT: {finalPrompt}\n";
-                await File.AppendAllTextAsync(workflowLog, promptLog);
-            }
-            else
-            {
-                // Extract paths for engineers
-                var prdPath = ExtractPathAfterKey(taskContent, "PRD:");
-                var productIncrementPath = ExtractPathAfterKey(taskContent, "from ");
-                var taskNumber = ExtractTextBetweenQuotes(taskContent, "task ");
-
-                // Log extracted parameters for debugging
-                var branchName = GitHelper.GetCurrentBranch();
-                var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-                var parameterLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER PARAMETERS - PRD:'{prdPath}' ProductIncrement:'{productIncrementPath}' Task:'{taskNumber}'\n";
-                await File.AppendAllTextAsync(workflowLog, parameterLog);
-
-                finalPrompt = $"/implement/task '{prdPath}' '{productIncrementPath}' '{taskNumber}'";
-
-                // Log the final prompt for debugging
-                var promptLog = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ENGINEER FINAL PROMPT: {finalPrompt}\n";
-                await File.AppendAllTextAsync(workflowLog, promptLog);
-            }
-        }
-        else
-        {
-            finalPrompt = $"Read {requestFile} and follow your {workflowName} exactly";
-        }
+        // Slash commands discover context from request file - no parameter extraction needed
+        string finalPrompt = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
 
         // Load system prompt from .txt file and transform for command-line usage
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
@@ -1010,64 +947,6 @@ public class ClaudeAgentCommand : Command
         // ANSI escape sequence to set terminal title
         // Works in most modern terminals (iTerm2, Terminal.app, Windows Terminal, etc.)
         Console.Write($"\x1b]0;{title}\x07");
-    }
-
-    private static string ExtractPathAfterKey(string content, string key)
-    {
-        var keyIndex = content.IndexOf(key, StringComparison.OrdinalIgnoreCase);
-        if (keyIndex == -1) return "";
-
-        var startIndex = keyIndex + key.Length;
-        // Skip any whitespace after the key
-        while (startIndex < content.Length && char.IsWhiteSpace(content[startIndex]) && content[startIndex] != '\r' && content[startIndex] != '\n')
-        {
-            startIndex++;
-        }
-
-        // Extract until end of line OR until ". " (sentence boundary)
-        var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
-        if (endIndex == -1) endIndex = content.Length;
-
-        // Check for ". " (sentence boundary) before end of line
-        var sentenceEnd = content.IndexOf(". ", startIndex, StringComparison.Ordinal);
-        if (sentenceEnd != -1 && sentenceEnd < endIndex)
-        {
-            endIndex = sentenceEnd;
-        }
-
-        return content.Substring(startIndex, endIndex - startIndex).Trim();
-    }
-
-    private static string ExtractTextAfterKey(string content, string key)
-    {
-        var keyIndex = content.IndexOf(key, StringComparison.OrdinalIgnoreCase);
-        if (keyIndex == -1) return "";
-
-        var startIndex = keyIndex + key.Length;
-        // Skip any whitespace after the key
-        while (startIndex < content.Length && char.IsWhiteSpace(content[startIndex]) && content[startIndex] != '\r' && content[startIndex] != '\n')
-        {
-            startIndex++;
-        }
-
-        // Extract until end of line
-        var endIndex = content.IndexOfAny(['\r', '\n'], startIndex);
-        if (endIndex == -1) endIndex = content.Length;
-
-        return content.Substring(startIndex, endIndex - startIndex).Trim();
-    }
-
-    private static string ExtractTextBetweenQuotes(string content, string beforeText)
-    {
-        var startPattern = beforeText + "\"";
-        var startIndex = content.IndexOf(startPattern, StringComparison.OrdinalIgnoreCase);
-        if (startIndex == -1) return "";
-
-        startIndex += startPattern.Length;
-        var endIndex = content.IndexOf('"', startIndex);
-        if (endIndex == -1) return "";
-
-        return content.Substring(startIndex, endIndex - startIndex);
     }
 
     public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)

@@ -1,152 +1,114 @@
 ---
 description: Implement a specific task from a Product Increment following the systematic workflow
-argument-hint: [prd-path] [product-increment-path] [task-title] [context-message]
 ---
 
 # Implement Task Workflow
 
-PRD file: $1
-Product Increment file: $2
-Task to implement: $3
-Context update: $4
+## STEP 0: Create Todo List (DO THIS FIRST!)
 
-## CRITICAL: Task Identity
-
-**You may have implemented similarly numbered tasks before** (e.g., "1.", "2.") from OTHER Product Increment files in this session.
-
-**THIS IS A NEW TASK**: Read the Product Increment file ($2) to find task $3 and understand what needs to be implemented. Task numbers are unique per Product Increment file, not globally unique.
-
-**Example**: You might have implemented "1. Create Team aggregate" from Product Increment 1, and now you're implementing "1. Create TeamMember entity" from Product Increment 3. These are DIFFERENT tasks even though both are numbered "1."
-
-## Context Efficiency
-
-**If this is your first task**: Read the PRD file to understand the overall feature context. Read all Product Increment files and all rules.
-
-**If you have context update ($4)**: The tech lead has provided file references to read for catching up efficiently. Read the specified files instead of re-reading everything.
-
-## Multiple Request Handling
-
-**If you see multiple request files when starting**:
-1. **Read ALL request files** in chronological order (0001, 0002, 0003...)
-2. **Understand the sequence** - Later requests might modify or clarify earlier ones
-3. **Implement the FINAL/LATEST request** - This supersedes earlier requests
-4. **Create ONE response file** for the latest request only
-5. **Don't respond to superseded requests** - Only the final request matters
-
-## Mandatory workflow
-
-**This workflow is MANDATORY** - Follow every step exactly.
-
-**Step 0. Create todo list**:
-   - Create a todo list with all workflow steps using the template below
-   - Read the Product Increment file ($2) and find your assigned task ($3)
-   - Extract ALL subtasks from your assigned task and add as nested items under STEP 4
-   - Set all tasks to [pending]
-
-**Step 1. Understand context and catch up efficiently**:
-   - Mark "Understand context and catch up efficiently" [in_progress] in todo
-   - **If context update provided ($4)**: Follow the specific instructions in $4 to catch up efficiently
-   - **If no context update**: Read PRD file ($1), all Product Increment files, and check messages directory
-   - Mark "Understand context and catch up efficiently" [completed] in todo
-
-**Step 2. Study rules**:
-   - Mark "Study rules" [in_progress] in todo
-   - **If context update says "rules already studied"**: Skip this step
-   - **If first time or context update says "read rules"**: Read ALL files in appropriate rules directory
-   - **Backend**: /.claude/rules/backend/, **Frontend**: /.claude/rules/frontend/, **E2E**: /.claude/rules/end-to-end-tests/
-   - Mark "Study rules" [completed] in todo
-
-**Step 3. Research existing patterns for this task type**:
-   - Mark "Research existing patterns for this task type" [in_progress] in todo
-   - Study similar implementations in codebase for all the subtasks that will be implemented in step 4
-   - Validate approach matches established patterns
-   - Mark "Research existing patterns for this task type" [completed] in todo
-
-**Step 4. Implement all subtasks**:
-   - Mark main task [in_progress] in todo
-   - For each subtask:
-      - Mark subtask [in_progress] in todo
-      - Implement subtask following established patterns
-      - For backend changes: use the **build** and **test** MCP tools for backend
-      - For frontend changes: use the **build MCP tool** for frontend
-      - Mark subtask [completed] in todo
-   - Mark main task [completed] in todo
-
-**Step 5. Validate implementation builds and fix all static code analysis warnings**:
-   - Mark "Validate implementation builds and fix all static code analysis warnings" [in_progress] in todo
-   - **Backend tasks**: Use the **check MCP tool** for backend - all must pass with zero findings
-   - **Frontend tasks**: Use the **check MCP tool** for frontend - all must pass
-   - **E2E tasks**: Use the **e2e MCP tool** - all must pass (runs with quiet mode automatically)
-   - **CRITICAL**: The check command MUST exit with code 0 to be able to commit code
-   - NEVER continue until ALL issues are fixed and check runs without errors
-   - Gate rule: You cannot proceed until the check command completes successfully with exit code 0
-   - Mark "Validate implementation builds and fix all static code analysis warnings" [completed] in todo
-
-**Step 6. Validate translations** (Frontend tasks only):
-   - Mark "Validate translations" [in_progress] in todo
-   - Check git for *.po changes: `git diff --name-only | grep "\.po$"`
-   - If *.po files changed, review all new entries for consistent language and domain context
-   - Mark "Validate translations" [completed] in todo
-
-**Step 7. Mark task as Ready for Review**:
-   - Mark "Mark task as Ready for Review" [in_progress] in todo
-   - Edit the Product Increment file: change [In Progress] to [Ready for Review]
-   - **CRITICAL**: NEVER mark task as [Completed] - only reviewers can mark tasks [Completed]
-   - Mark "Mark task as Ready for Review" [completed] in todo
-
-**Step 8. Critically evaluate remaining tasks and update plan**:
-   - Mark "Critically evaluate remaining tasks and update plan" [in_progress] in todo
-   - Re-read the ENTIRE Product Increment plan, focusing on remaining [Planned] tasks
-   - Apply critical thinking: Based on what you learned implementing this task, evaluate each remaining task:
-     * Does the task description clearly define what needs to be implemented?
-     * Is the task still necessary given what was just implemented?
-     * Is "Task # + 1" still the natural next step, or should task order change?
-     * Should any tasks be split into smaller tasks?
-     * Should any tasks be consolidated?
-     * Are there new tasks needed that weren't originally planned?
-   - **If changes needed**: Update the Product Increment file with your improvements
-   - **If plan looks good**: No changes needed, proceed to next step
-   - **Document changes**: If you updated the plan, note this in your response file (Step 9)
-   - Mark "Critically evaluate remaining tasks and update plan" [completed] in todo
-
-**Step 9. Create response file**:
-   - Mark "Create response file" [in_progress] in todo
-   - Create response file using atomic rename: .tmp → .md to signal completion
-   - Include summary of implementation and any plan changes made in Step 7
-   - **IMPORTANT**: Use descriptive response file names with Sentence-case for better activity display:
-     * Format: `NNNN.{agent-type}.response.Sentence-case-task-name.md`
-     * Example: `0001.backend-engineer.response.Create-team-aggregate-with-database-migration.md`
-     * Use Sentence-case-with-dashes (only first word capitalized) so the activity display shows "Create team aggregate with database migration"
-   - Mark "Create response file" [completed] in todo
-
-## Todo list template
-
-Use this exact format with nested structure:
+**CRITICAL**: Before doing ANYTHING else, create this exact todo list:
 
 ```
 Understand context and catch up efficiently [pending]                              (STEP 1)
-Study rules relevant rules for the task at hand [pending]                          (STEP 2)
+Study relevant rules for the task at hand [pending]                                (STEP 2)
 Research existing patterns for this task type [pending]                            (STEP 3)
-Implement task [name of the task you have been asked to implement] [pending]       (STEP 4) *
-├─  Task #.1 [Copy exact text from Product Increment file] [pending]
-├─  Task #.2 [Copy exact text from Product Increment file] [pending]
-└─  Task #.N [Copy exact text from Product Increment file] [pending]
-Validate implementation builds and fix all static code analysis warnings [pending] (STEP 5)
-Validate translations (frontend tasks only) [pending]                              (STEP 6)
+Implement task [TASK-TITLE-GOES-HERE] [pending]                                    (STEP 4) *
+├─  Subtask 1 [Copy from Product Increment file] [pending]
+├─  Subtask 2 [Copy from Product Increment file] [pending]
+└─  Subtask N [Copy from Product Increment file] [pending]
+Validate implementation builds and passes all checks [pending]                      (STEP 5)
+Validate translations (frontend only) [pending]                                    (STEP 6)
 Mark task as Ready for Review [pending]                                            (STEP 7)
 Critically evaluate remaining tasks and update plan [pending]                      (STEP 8)
-Create response file [pending]                                                     (STEP 9)
+Call /complete/task to signal completion [pending]                                 (STEP 9)
 ```
 
-**CRITICAL: Use these exact prefixes for proper visual hierarchy:**
-- `├─` for subtask items (not the last in their group)
-- `└─` for the last subtask item
+**DO NOT CHANGE THE WORDING** - Copy exactly as shown above.
 
-**DO NOT CHANGE THE WORDING**:
-- DO NOT write "Analyze codebase structure" or similar
-- COPY THE EXACT TEXT: "Study ALL rules for this task type"
-- COPY THE EXACT TEXT: "Research existing patterns for this task type"
-- COPY THE EXACT TEXT: "Mark task as Ready for Review" (STEP 7)
-- COPY THE EXACT TEXT: "Critically evaluate remaining tasks and update plan" (STEP 8)
+Replace:
+- `[TASK-TITLE-GOES-HERE]` with your task title from the request
+- Add subtasks from Product Increment file under Step 4
 
-Continuously use TodoWrite tool to update todo list as you work through them.
+---
+
+## Context Discovery
+
+You are a worker agent. Find your request:
+
+1. **Check your working directory**: You're in `.workspace/agent-workspaces/{branch}/{agent-type}/`
+2. **Find request file**: Look in `../messages/` for most recent `*.{agent-type}.request.*.md`
+3. **Read request file**: It contains your task instructions
+
+**Request file format**:
+```
+Please implement task "Task title" from {product-increment-path}
+
+Product Requirements Document: {prd-path}
+```
+
+Extract:
+- **Task title**: The quoted text after "task"
+- **Product Increment path**: After "from"
+- **PRD path**: After "Product Requirements Document:"
+
+---
+
+## Workflow Steps
+
+**STEP 1**: Understand context
+- Read PRD file
+- Read Product Increment file
+- Find your task in Product Increment (match title from request)
+- Extract ALL subtasks for your task
+- Update todo: Add subtasks under Step 4, mark Step 1 [completed]
+
+**STEP 2**: Study rules
+- Backend: Read `.claude/rules/backend/`
+- Frontend: Read `.claude/rules/frontend/`
+- Mark [completed]
+
+**STEP 3**: Research patterns
+- Search codebase for similar implementations
+- Mark [completed]
+
+**STEP 4**: Implement
+- For each subtask: Mark [in_progress], implement, mark [completed]
+- Use **build** and **test** MCP tools frequently
+- Mark main task [completed]
+
+**STEP 5**: Validate
+- Backend: Run **check MCP tool** for backend (must pass with zero findings)
+- Frontend: Run **check MCP tool** for frontend (must pass)
+- Fix ALL warnings/errors
+- Mark [completed]
+
+**STEP 6**: Validate translations (frontend only)
+- Check `git diff --name-only | grep "\.po$"`
+- Review translation entries
+- Mark [completed]
+
+**STEP 7**: Mark task Ready for Review
+- Edit Product Increment file: Change `[In Progress]` to `[Ready for Review]`
+- NEVER mark `[Completed]` - only reviewers do that
+- Mark [completed]
+
+**STEP 8**: Evaluate remaining tasks
+- Re-read Product Increment file
+- Critically assess if plan still makes sense
+- Update plan if needed
+- Mark [completed]
+
+**STEP 9**: Signal completion
+- Call `/complete/task` slash command
+- Provide summary and full response
+- Your session will terminate
+
+---
+
+## Critical Rules
+
+- Use **build**, **test**, **check**, **e2e** MCP tools ONLY
+- Never use `dotnet`, `npm`, `npx` commands directly
+- Follow todo list exactly
+- Update todo continuously
+- Never skip steps
