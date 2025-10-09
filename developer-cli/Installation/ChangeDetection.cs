@@ -150,10 +150,26 @@ public static class ChangeDetection
             }
 
             // Call "dotnet publish" to create a new executable
-            ProcessHelper.StartProcess(
-                $"dotnet publish DeveloperCli.csproj -o \"{Configuration.PublishFolder}\"",
-                Configuration.CliFolder
-            );
+            // Retry logic to handle intermittent assembly loading issues during publish
+            var maxRetries = 3;
+            for (var attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    ProcessHelper.StartProcess(
+                        $"dotnet publish DeveloperCli.csproj -o \"{Configuration.PublishFolder}\"",
+                        Configuration.CliFolder,
+                        throwOnError: true
+                    );
+                    break; // Success, exit retry loop
+                }
+                catch (ProcessExecutionException) when (attempt < maxRetries)
+                {
+                    // Wait before retry to allow file locks to release
+                    Thread.Sleep(1000);
+                    AnsiConsole.MarkupLine($"[yellow]Publish failed, retrying ({attempt}/{maxRetries - 1})...[/]");
+                }
+            }
 
             var configurationSetting = Configuration.GetConfigurationSetting();
             configurationSetting.Hash = currentHash;
