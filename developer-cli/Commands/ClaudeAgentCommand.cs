@@ -1540,6 +1540,9 @@ public static class WorkerMcpTools
 
             process.Start();
 
+            // Create PID file for automated worker
+            await File.WriteAllTextAsync(pidFile, process.Id.ToString());
+
             try
             {
                 File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
@@ -1585,6 +1588,13 @@ public static class WorkerMcpTools
             }
             finally
             {
+                // Clean up PID file
+                var pidFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".pid");
+                if (File.Exists(pidFileCleanup))
+                {
+                    File.Delete(pidFileCleanup);
+                }
+
                 // Remove from active sessions and release workspace lock
                 ClaudeAgentCommand.RemoveWorkerSession(process.Id);
                 workspaceMutex.ReleaseMutex();
@@ -1599,6 +1609,19 @@ public static class WorkerMcpTools
             }
             catch
             {
+            }
+
+            // Clean up PID file on error
+            var pidFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".pid");
+            if (File.Exists(pidFileCleanup))
+            {
+                try
+                {
+                    File.Delete(pidFileCleanup);
+                }
+                catch
+                {
+                }
             }
 
             if (workspaceMutex != null)
@@ -1865,6 +1888,12 @@ public static class WorkerMcpTools
 
     private static void UpdateWorkerSession(int oldProcessId, int newProcessId, string agentType, string taskTitle, string requestFileName, Process newProcess)
     {
+        // Update PID file with new process ID
+        var branchName = GitHelper.GetCurrentBranch();
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
+        var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
+        File.WriteAllText(pidFile, newProcessId.ToString());
+
         ClaudeAgentCommand.RemoveWorkerSession(oldProcessId);
         ClaudeAgentCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
