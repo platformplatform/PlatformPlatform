@@ -955,7 +955,7 @@ public class ClaudeAgentCommand : Command
         Console.Write($"\x1b]0;{title}\x07");
     }
 
-    private static async Task<bool> ShouldContinueSession(string agentWorkspaceDirectory)
+    internal static async Task<bool> ShouldContinueSession(string agentWorkspaceDirectory)
     {
         var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
 
@@ -1307,7 +1307,7 @@ public static class WorkerMcpTools
             }
 
             // Session management - check if we should continue existing session
-            if (await ShouldContinueSession(agentWorkspaceDirectory))
+            if (await ClaudeAgentCommand.ShouldContinueSession(agentWorkspaceDirectory))
             {
                 claudeArgs.Insert(0, "--continue");
             }
@@ -1668,7 +1668,7 @@ public static class WorkerMcpTools
         };
 
         // Session management - continue existing session for restart
-        if (await ShouldContinueSession(agentWorkspaceDirectory))
+        if (await ClaudeAgentCommand.ShouldContinueSession(agentWorkspaceDirectory))
         {
             claudeArgs.Insert(0, "--continue");
         }
