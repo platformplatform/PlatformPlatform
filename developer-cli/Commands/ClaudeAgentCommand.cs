@@ -263,7 +263,7 @@ public class ClaudeAgentCommand : Command
 
         // Start tech lead health monitoring
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        _ = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
+        var monitoringTask = Task.Run(async () => await MonitorTechLeadHealth(process, agentType, branch, messagesDirectory));
 
         await process.WaitForExitAsync();
 
