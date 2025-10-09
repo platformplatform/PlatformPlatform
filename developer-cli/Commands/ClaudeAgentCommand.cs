@@ -12,7 +12,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class ClaudeAgentCommand : Command
 {
-    private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
+    internal static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
     private static string? SelectedAgentType;
     private static bool ShowAllActivities;
@@ -81,10 +81,10 @@ public class ClaudeAgentCommand : Command
         await SetupAgentWorkspace(agentWorkspaceDirectory);
 
         // Check for stale PID file
-        var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
-        if (File.Exists(pidFile))
+        var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
+        if (File.Exists(processIdFile))
         {
-            var existingPid = await File.ReadAllTextAsync(pidFile);
+            var existingPid = await File.ReadAllTextAsync(processIdFile);
             if (int.TryParse(existingPid, out var pid))
             {
                 try
@@ -114,18 +114,18 @@ public class ClaudeAgentCommand : Command
                 }
             }
 
-            File.Delete(pidFile);
+            File.Delete(processIdFile);
         }
 
         // Create PID file to register this agent
         var currentPid = Environment.ProcessId;
-        await File.WriteAllTextAsync(pidFile, currentPid.ToString());
+        await File.WriteAllTextAsync(processIdFile, currentPid.ToString());
 
         // Ensure PID file is deleted on exit (keep session ID for conversation persistence)
-        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(pidFile);
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => CleanupPidFile(processIdFile);
         Console.CancelKeyPress += (_, e) =>
         {
-            CleanupPidFile(pidFile);
+            CleanupPidFile(processIdFile);
             e.Cancel = false;
         };
 
@@ -292,11 +292,10 @@ public class ClaudeAgentCommand : Command
 
         while (!techLeadProcess.HasExited)
         {
-            // Find most recent file modification
-            var mostRecentFileTime = GetMostRecentFileModification();
-            if (mostRecentFileTime > lastActivity)
+            // Check for git changes to detect activity
+            if (HasGitChanges())
             {
-                lastActivity = mostRecentFileTime;
+                lastActivity = DateTime.Now;
             }
 
             var timeSinceLastActivity = DateTime.Now - lastActivity;
@@ -327,15 +326,6 @@ public class ClaudeAgentCommand : Command
 
             await Task.Delay(waitTime);
         }
-    }
-
-    internal static DateTime GetMostRecentFileModification()
-    {
-        var repositoryRoot = Configuration.SourceCodeFolder;
-
-        // Find the most recently modified file anywhere
-        return Directory.GetFiles(repositoryRoot, "*.*", SearchOption.AllDirectories)
-            .Max(f => File.GetLastWriteTime(f));
     }
 
     internal static async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
@@ -403,12 +393,33 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private static void CleanupPidFile(string pidFile)
+    private static void CleanupPidFile(string processIdFile)
     {
-        if (File.Exists(pidFile))
+        if (File.Exists(processIdFile))
         {
-            File.Delete(pidFile);
+            File.Delete(processIdFile);
         }
+    }
+
+    internal static bool HasGitChanges()
+    {
+        var process = new Process
+        {
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "status --porcelain",
+                WorkingDirectory = Configuration.SourceCodeFolder,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            }
+        };
+
+        process.Start();
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+
+        return !string.IsNullOrWhiteSpace(output);
     }
 
     private static List<string> GetRecentActivity(string agentType, string branch)
@@ -1200,15 +1211,15 @@ public static class WorkerMcpTools
             var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", currentBranchName);
             var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDirectory, agentType);
             var messagesDirectory = Path.Combine(branchWorkspaceDirectory, "messages");
-            var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
+            var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
 
             // Debug: Log the PID file path we're checking
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {pidFile}\n");
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(pidFile)}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Checking for PID file: {processIdFile}\n");
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] PID file exists: {File.Exists(processIdFile)}\n");
 
-            if (File.Exists(pidFile))
+            if (File.Exists(processIdFile))
             {
-                var pidContent = await File.ReadAllTextAsync(pidFile);
+                var pidContent = await File.ReadAllTextAsync(processIdFile);
                 if (int.TryParse(pidContent, out var pid))
                 {
                     try
@@ -1228,6 +1239,7 @@ public static class WorkerMcpTools
                             {
                                 taskCounter = existingCounter + 1;
                             }
+
                             await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
 
                             var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
@@ -1270,23 +1282,16 @@ public static class WorkerMcpTools
                             string? foundResponseFile = null;
                             var responseFilePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
-                            // Wait for response file in messages directory (where interactive worker-host puts it)
+                            // Wait for response file in messages directory (MCP tool writes it there)
                             while (foundResponseFile == null)
                             {
-                                // Check for file system activity
-                                var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
-                                if (mostRecentFileTime > lastActivity)
-                                {
-                                    lastActivity = mostRecentFileTime;
-                                }
-
-                                // Only enforce overall timeout (2 hours max), no inactivity timeout for interactive agents
+                                // Only enforce overall timeout (2 hours max)
                                 if (DateTime.Now - startTime > overallTimeout)
                                 {
                                     throw new TimeoutException($"Interactive {agentType} exceeded 2-hour overall timeout");
                                 }
 
-                                // Check for response file in messages directory (interactive worker-host already moved it)
+                                // Check for response file in messages directory
                                 var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
                                 if (matchingFiles.Length > 0)
                                 {
@@ -1325,7 +1330,7 @@ public static class WorkerMcpTools
                     }
                     catch (ArgumentException)
                     {
-                        File.Delete(pidFile);
+                        File.Delete(processIdFile);
                     }
                 }
             }
@@ -1351,6 +1356,7 @@ public static class WorkerMcpTools
             {
                 counter = currentCounter + 1;
             }
+
             await File.WriteAllTextAsync(counterFile, counter.ToString());
 
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
@@ -1437,7 +1443,7 @@ public static class WorkerMcpTools
             process.Start();
 
             // Create PID file for automated worker
-            await File.WriteAllTextAsync(pidFile, process.Id.ToString());
+            await File.WriteAllTextAsync(processIdFile, process.Id.ToString());
 
             File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process started with PID: {process.Id}\n");
 
@@ -1473,10 +1479,10 @@ public static class WorkerMcpTools
             finally
             {
                 // Clean up PID file
-                var pidFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".pid");
-                if (File.Exists(pidFileCleanup))
+                var processIdFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".process-id");
+                if (File.Exists(processIdFileCleanup))
                 {
-                    File.Delete(pidFileCleanup);
+                    File.Delete(processIdFileCleanup);
                 }
 
                 // Remove from active sessions and release workspace lock
@@ -1490,10 +1496,10 @@ public static class WorkerMcpTools
             File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] ERROR in StartWorker: {ex.Message}\n");
 
             // Clean up PID file on error
-            var pidFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".pid");
-            if (File.Exists(pidFileCleanup))
+            var processIdFileCleanup = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType, ".process-id");
+            if (File.Exists(processIdFileCleanup))
             {
-                File.Delete(pidFileCleanup);
+                File.Delete(processIdFileCleanup);
             }
 
             if (workspaceMutex != null)
@@ -1535,128 +1541,213 @@ public static class WorkerMcpTools
         return ClaudeAgentCommand.TerminateWorker(processId);
     }
 
+    [McpServerTool]
+    [Description("Signal task completion from worker agent. Call this when you have finished implementing a task. This will write your response file and terminate your session.")]
+    public static async Task<string> CompleteTask(
+        [Description("Agent type (backend-engineer, frontend-engineer, test-automation-engineer)")]
+        string agentType,
+        [Description("Brief task summary in sentence case (e.g., 'Api endpoints implemented')")]
+        string taskSummary,
+        [Description("Full response content in markdown")]
+        string responseContent)
+    {
+        var branchName = GitHelper.GetCurrentBranch();
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "messages");
+
+        // Read task ID from .task-id file
+        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+        if (!File.Exists(taskIdFile))
+        {
+            return "Error: No active task found (.task-id file missing). Are you running as a worker agent?";
+        }
+
+        var taskId = await File.ReadAllTextAsync(taskIdFile);
+        taskId = taskId.Trim();
+
+        // Create response filename
+        var sanitizedSummary = string.Join("-", taskSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Replace(".", "").Replace(",", "");
+        var responseFileName = $"{taskId}.{agentType}.response.{sanitizedSummary}.md";
+        var responseFilePath = Path.Combine(messagesDirectory, responseFileName);
+
+        // Write response file directly to messages directory
+        await File.WriteAllTextAsync(responseFilePath, responseContent);
+
+        // Delete .task-id file
+        File.Delete(taskIdFile);
+
+        // Log completion
+        LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]", messagesDirectory);
+
+        // Read .process-id file to find worker process
+        var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
+        if (File.Exists(processIdFile))
+        {
+            var processIdContent = await File.ReadAllTextAsync(processIdFile);
+            if (int.TryParse(processIdContent, out var workerProcessId))
+            {
+                // Kill the worker agent process (this process!)
+                var workerProcess = Process.GetProcessById(workerProcessId);
+                workerProcess.Kill();
+            }
+        }
+
+        return $"Task completed. Response file: {responseFileName}";
+    }
+
+    [McpServerTool]
+    [Description("Signal review completion from reviewer agent. Call this when you have finished reviewing a task. This will write your response file and terminate your session.")]
+    public static async Task<string> CompleteReview(
+        [Description("Agent type (backend-reviewer, frontend-reviewer, test-automation-reviewer)")]
+        string agentType,
+        [Description("Review approved (true) or rejected (false)")]
+        bool approved,
+        [Description("Brief review summary in sentence case (e.g., 'Excellent implementation', 'Missing tests')")]
+        string reviewSummary,
+        [Description("Full response content in markdown")]
+        string responseContent)
+    {
+        var branchName = GitHelper.GetCurrentBranch();
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "messages");
+
+        // Read task ID from .task-id file
+        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+        if (!File.Exists(taskIdFile))
+        {
+            return "Error: No active task found (.task-id file missing). Are you running as a reviewer agent?";
+        }
+
+        var taskId = await File.ReadAllTextAsync(taskIdFile);
+        taskId = taskId.Trim();
+
+        // Create response filename with status prefix
+        var statusPrefix = approved ? "Approved" : "Rejected";
+        var sanitizedSummary = string.Join("-", reviewSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .Replace(".", "").Replace(",", "");
+        var responseFileName = $"{taskId}.{agentType}.response.{statusPrefix}-{sanitizedSummary}.md";
+        var responseFilePath = Path.Combine(messagesDirectory, responseFileName);
+
+        // Write response file directly to messages directory
+        await File.WriteAllTextAsync(responseFilePath, responseContent);
+
+        // Delete .task-id file
+        File.Delete(taskIdFile);
+
+        // Log completion
+        LogWorkflowEvent($"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]", messagesDirectory);
+
+        // Read .process-id file to find reviewer process
+        var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
+        if (File.Exists(processIdFile))
+        {
+            var processIdContent = await File.ReadAllTextAsync(processIdFile);
+            if (int.TryParse(processIdContent, out var reviewerProcessId))
+            {
+                // Kill the reviewer agent process (this process!)
+                var reviewerProcess = Process.GetProcessById(reviewerProcessId);
+                reviewerProcess.Kill();
+            }
+        }
+
+        return $"Review completed ({statusPrefix}). Response file: {responseFileName}";
+    }
+
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for PID: {processId}\n");
+        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for process ID: {processId}\n");
 
-        // Agent creates descriptive markdown file in their workspace, we'll rename it properly
         var agentWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
-
-        var responseDetected = false;
-        string? responseFilePath = null;
         var currentProcessId = processId;
         var restartCount = 0;
-        string? detectedFileName = null;
-
-        // Watch for any markdown file in the agent's workspace
-        using var fileSystemWatcher = new FileSystemWatcher(agentWorkspaceDir, "*.md");
-        fileSystemWatcher.Created += (_, e) =>
-        {
-            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher detected: {e.Name}\n");
-            detectedFileName = e.Name;
-            responseDetected = true;
-        };
-        fileSystemWatcher.EnableRaisingEvents = true;
-
-        File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] FileSystemWatcher monitoring: {agentWorkspaceDir} for pattern: *.md\n");
-
         var startTime = DateTime.Now;
-        var lastActivity = DateTime.Now;
-        var workerTimeout = agentType.Contains("reviewer")
-            ? TimeSpan.FromMinutes(20)
-            : TimeSpan.FromMinutes(10); // Engineers: 10 min inactivity timeout
         var overallTimeout = TimeSpan.FromHours(2);
+        var inactivityCheckInterval = TimeSpan.FromMinutes(20);
 
-        while (!responseDetected && DateTime.Now - startTime < overallTimeout)
+        // Get Process object from active sessions
+        if (!ClaudeAgentCommand.ActiveWorkerSessions.TryGetValue(processId, out var session))
         {
-            // Find most recent file modification
-            var mostRecentFileTime = ClaudeAgentCommand.GetMostRecentFileModification();
-            if (mostRecentFileTime > lastActivity)
-            {
-                lastActivity = mostRecentFileTime;
-            }
-
-            var timeSinceLastActivity = DateTime.Now - lastActivity;
-
-            // If worker inactive for 5 minutes, restart it
-            if (timeSinceLastActivity > workerTimeout)
-            {
-                if (!IsWorkerProcessHealthy(currentProcessId))
-                {
-                    var healthCheckRestart = await RestartWorker(agentType, messagesDirectory, requestFileName, restartCount + 1);
-                    if (!healthCheckRestart.Success)
-                    {
-                        return $"Worker restart failed: {healthCheckRestart.ErrorMessage}";
-                    }
-
-                    if (healthCheckRestart.Process == null)
-                    {
-                        return "Worker restart succeeded but process is null";
-                    }
-
-                    UpdateWorkerSession(currentProcessId, healthCheckRestart.ProcessId, agentType, taskTitle, requestFileName, healthCheckRestart.Process);
-                    currentProcessId = healthCheckRestart.ProcessId;
-                    restartCount++;
-                    var timeoutMinutes = agentType.Contains("reviewer") ? 20 : 10;
-                    LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {timeoutMinutes} minutes, restarted (attempt {restartCount})", messagesDirectory);
-                    lastActivity = DateTime.Now; // Reset activity after restart
-                }
-            }
-
-            // Calculate smart wait time
-            var timeUntilTimeout = workerTimeout - timeSinceLastActivity;
-            var waitTime = timeUntilTimeout > TimeSpan.FromMinutes(1)
-                ? TimeSpan.FromMinutes(1)
-                : timeUntilTimeout;
-
-            if (waitTime > TimeSpan.Zero)
-            {
-                await Task.Delay(waitTime);
-            }
+            return "Error: Worker session not found in active sessions";
         }
 
-        if (!responseDetected)
+        var currentProcess = session.Process;
+
+        while (DateTime.Now - startTime < overallTimeout)
         {
+            // Block waiting for process exit or timeout (20 minutes)
+            var exited = currentProcess.WaitForExit(inactivityCheckInterval);
+
+            if (exited)
+            {
+                // Worker completed normally (called MCP CompleteTask or ReviewCompleted)
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process exited normally\n");
+                break;
+            }
+
+            // Timeout - check if worker is making progress
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inactivity check: No completion after 20 minutes\n");
+
+            var hasGitChanges = ClaudeAgentCommand.HasGitChanges();
+            if (hasGitChanges)
+            {
+                // Worker is making changes, still active
+                File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Git changes detected, worker is active\n");
+                continue;
+            }
+
+            // No git changes for 20 minutes - worker is stuck
+            File.AppendAllText(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] No git changes detected, restarting worker\n");
+
+            // Kill stuck worker
+            if (!currentProcess.HasExited)
+            {
+                currentProcess.Kill();
+            }
+
+            // Restart worker
+            var restartResult = await RestartWorker(agentType, messagesDirectory, requestFileName, restartCount + 1);
+            if (!restartResult.Success || restartResult.Process == null)
+            {
+                return $"Worker restart failed: {restartResult.ErrorMessage}";
+            }
+
+            UpdateWorkerSession(currentProcessId, restartResult.ProcessId, agentType, taskTitle, requestFileName, restartResult.Process);
+            currentProcess = restartResult.Process;
+            currentProcessId = restartResult.ProcessId;
+            restartCount++;
+
+            LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 20 minutes (no git changes), restarted (attempt {restartCount})", messagesDirectory);
+        }
+
+        // Check for overall timeout
+        if (DateTime.Now - startTime >= overallTimeout)
+        {
+            if (!currentProcess.HasExited)
+            {
+                currentProcess.Kill();
+            }
+
             return $"Worker timeout after 2 hours (restarts: {restartCount})";
         }
 
-        await Task.Delay(TimeSpan.FromSeconds(5)); // Grace period for file writing
+        // Worker exited - response file should be in messages directory (written by MCP tool)
+        var responseFilePattern = $"{counter:D4}.{agentType}.response.*.md";
+        var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
 
-        // Get the actual response file that was created
-        if (string.IsNullOrEmpty(detectedFileName))
+        if (matchingFiles.Length == 0)
         {
-            return "Response file was detected but filename not captured";
+            return $"Worker exited but no response file found matching: {responseFilePattern}";
         }
 
-        var actualResponsePath = Path.Combine(agentWorkspaceDir, detectedFileName);
-        if (!File.Exists(actualResponsePath))
-        {
-            return "Response file was detected but no longer exists";
-        }
-
-        // Extract the descriptive part from the agent's filename (remove .md extension)
-        var agentDescription = Path.GetFileNameWithoutExtension(detectedFileName);
-
-        // Generate proper response filename preserving agent's description
-        var responseFileName = $"{counter:D4}.{agentType}.response.{agentDescription}.md";
-        responseFilePath = Path.Combine(messagesDirectory, responseFileName);
-
-        // Move the file to the correct location with proper naming
-        File.Move(actualResponsePath, responseFilePath);
-
-        // Delete .task-id file after successful completion
-        var completedTaskIdFile = Path.Combine(agentWorkspaceDir, ".task-id");
-        if (File.Exists(completedTaskIdFile))
-        {
-            File.Delete(completedTaskIdFile);
-        }
-
-        var description = Path.GetFileNameWithoutExtension(responseFileName).Split('.').Last().Replace('-', ' ');
-        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{description}' -> [{responseFileName}]", messagesDirectory);
+        var responseFilePath = matchingFiles[0];
+        var responseFileName = Path.GetFileName(responseFilePath);
 
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
+
+        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})", messagesDirectory);
 
         return $"Task completed successfully by {agentType}.\n" +
                $"Task number: {counter:D4}\n" +
@@ -1707,12 +1798,11 @@ public static class WorkerMcpTools
         }
         else
         {
-            // Simplified restart message - no task numbers needed, encourage descriptive naming
+            var completionCommand = agentType.Contains("reviewer") ? "/complete-review" : "/complete-task";
             claudeArgs.Add("--append-system-prompt");
             claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. " +
                            $"Please re-read the latest request file and continue working on it. " +
-                           $"When you are ready to submit your response, create a descriptive markdown file in your current directory that reflects the work completed. " +
-                           $"IMPORTANT: Do NOT include any task numbers or dates in your filename - only a brief description of what you accomplished."
+                           $"Remember to call {completionCommand} when done or if stuck."
             );
         }
 
@@ -1757,8 +1847,8 @@ public static class WorkerMcpTools
         // Update PID file with new process ID
         var branchName = GitHelper.GetCurrentBranch();
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
-        var pidFile = Path.Combine(agentWorkspaceDirectory, ".pid");
-        File.WriteAllText(pidFile, newProcessId.ToString());
+        var processIdFile = Path.Combine(agentWorkspaceDirectory, ".process-id");
+        File.WriteAllText(processIdFile, newProcessId.ToString());
 
         ClaudeAgentCommand.RemoveWorkerSession(oldProcessId);
         ClaudeAgentCommand.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
