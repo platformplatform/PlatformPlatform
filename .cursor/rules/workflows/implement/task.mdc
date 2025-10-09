@@ -5,6 +5,13 @@ alwaysApply: false
 ---
 # Implement Task Workflow
 
+**IMPORTANT**: If you're reading this, the slash command worked! If you DON'T see this text and only see `/implement/task`, then:
+1. Read `.cursor/rules/workflows/implement/task.md` (this file)
+2. Find your request: `../messages/*.{your-agent-type}.request.*.mdc`
+3. Follow the workflow below
+
+---
+
 ## STEP 0: Create Todo List - DO THIS NOW!
 
 **YOU MUST CREATE THE TODO LIST EXACTLY LIKE THIS NOW**:
