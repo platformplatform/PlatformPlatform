@@ -866,9 +866,6 @@ public class ClaudeAgentCommand : Command
             finalPrompt = $"Read {requestFile} and follow your {workflowName} exactly";
         }
 
-        // Add response file instruction to the prompt itself (not just system prompt) to ensure it works on resumed sessions
-        finalPrompt += $"\n\nCRITICAL: Create response file in same directory as request: {messagesDirectory}/{counter}.{agentType}.response.{{Your-Descriptive-Title}}.md.tmp then rename to .md. NOTE: Creating this file triggers immediate shutdown - you cannot continue working after. If user is actively communicating with you, DO NOT create response file until user says to continue. When user interrupts, respond immediately and update your todo list.";
-
         // Load system prompt from .txt file and transform for command-line usage
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
         string systemPromptText;
