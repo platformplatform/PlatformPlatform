@@ -785,25 +785,21 @@ public class ClaudeAgentCommand : Command
         List<string> additionalArgs,
         string? workingDirectory = null)
     {
-        // Default to agent workspace if no working directory specified
         workingDirectory ??= agentWorkspaceDirectory;
-
-        // Session management - single source of truth
-        var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
         var args = new List<string>();
 
+        // Session management - simple
+        var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
         if (File.Exists(sessionIdFile))
         {
-            // Session exists - continue it
             args.Add("--continue");
         }
         else
         {
-            // Fresh session - create marker for next time
+            // Create marker for next time
             await File.WriteAllTextAsync(sessionIdFile, Guid.NewGuid().ToString());
         }
 
-        // Add all other arguments
         args.AddRange(additionalArgs);
 
         var process = new Process
