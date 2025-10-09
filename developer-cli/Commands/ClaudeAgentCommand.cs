@@ -762,7 +762,10 @@ public class ClaudeAgentCommand : Command
             workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
         }
 
-        // Worker session - fresh for each task
+        // Session management: Check for .claude-session-id to determine if we continue existing session
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        var isExistingSession = File.Exists(claudeSessionIdFile);
+
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
@@ -778,7 +781,18 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add(workflowText);
         }
 
-        AnsiConsole.MarkupLine("[yellow]Starting fresh worker session...[/]");
+        // Add --continue if session exists, otherwise start fresh
+        if (isExistingSession)
+        {
+            claudeArgs.Insert(0, "--continue");
+            AnsiConsole.MarkupLine("[yellow]Continuing existing session...[/]");
+        }
+        else
+        {
+            // Create session marker for next run
+            await File.WriteAllTextAsync(claudeSessionIdFile, DateTime.UtcNow.ToString("O"));
+            AnsiConsole.MarkupLine("[yellow]Starting fresh worker session...[/]");
+        }
 
         var process = new Process
         {
@@ -1261,7 +1275,10 @@ public static class WorkerMcpTools
                 workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
             }
 
-            // Fresh session for automated worker
+            // Session management: Check for .claude-session-id
+            var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+            var isExistingSession = File.Exists(claudeSessionIdFile);
+
             var claudeArgs = new List<string>
             {
                 "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
@@ -1280,6 +1297,17 @@ public static class WorkerMcpTools
             {
                 claudeArgs.Add("--append-system-prompt");
                 claudeArgs.Add(workflowText);
+            }
+
+            // Add --continue if session exists, otherwise start fresh
+            if (isExistingSession)
+            {
+                claudeArgs.Insert(0, "--continue");
+            }
+            else
+            {
+                // Create session marker for next run
+                await File.WriteAllTextAsync(claudeSessionIdFile, DateTime.UtcNow.ToString("O"));
             }
 
             var process = new Process
@@ -1630,12 +1658,26 @@ public static class WorkerMcpTools
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
         var agentWorkspaceDirectory = Path.Combine(branchWorkspaceDir, agentType);
 
-        // Worker restart - fresh session (worker was stuck, start clean)
+        // Session management: Check for .claude-session-id (should exist since worker was running)
+        var claudeSessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        var isExistingSession = File.Exists(claudeSessionIdFile);
+
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder
         };
+
+        // Add --continue for restart (resume existing session)
+        if (isExistingSession)
+        {
+            claudeArgs.Insert(0, "--continue");
+        }
+        else
+        {
+            // Create session marker if missing
+            await File.WriteAllTextAsync(claudeSessionIdFile, DateTime.UtcNow.ToString("O"));
+        }
 
         // Load base system prompt from .txt file for ALL agent types
         var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
