@@ -283,3 +283,138 @@ public static class DeveloperCliMcpTools
         return $"{commandName} failed.\n\n{result.Output}\n\nFull output: {result.TempFilePath}";
     }
 }
+
+[McpServerToolType]
+public static class WorkerMcpTools
+{
+    [McpServerTool]
+    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
+    public static string StartWorker(
+        [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
+        string agentType,
+        [Description("Short title for the task")]
+        string taskTitle,
+        [Description("Task content in markdown format")]
+        string markdownContent,
+        [Description("PRD file path (optional, for Product Increment tasks)")]
+        string? prdPath = null,
+        [Description("Product Increment file path (optional, for Product Increment tasks)")]
+        string? productIncrementPath = null,
+        [Description("Task number or title (optional, for Product Increment tasks)")]
+        string? taskNumber = null,
+        [Description("Engineer's request file path (optional, for review tasks)")]
+        string? requestFilePath = null,
+        [Description("Engineer's response file path (optional, for review tasks)")]
+        string? responseFilePath = null)
+    {
+        // Thin wrapper - calls the claude-agent CLI command in MCP mode
+        var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent };
+
+        if (prdPath != null) { args.Add("--prd-path"); args.Add(prdPath); }
+        if (productIncrementPath != null) { args.Add("--product-increment-path"); args.Add(productIncrementPath); }
+        if (taskNumber != null) { args.Add("--task-number"); args.Add(taskNumber); }
+        if (requestFilePath != null) { args.Add("--request-file-path"); args.Add(requestFilePath); }
+        if (responseFilePath != null) { args.Add("--response-file-path"); args.Add(responseFilePath); }
+
+        var result = ExecuteCliCommand(args.ToArray());
+        return result.Success ? result.Output : $"StartWorker failed.\n\n{result.Output}";
+    }
+
+    [McpServerTool]
+    [Description("View the details of a development task that was assigned to an agent. Use this to check what work was requested.")]
+    public static string ReadTaskFile([Description("Path to task file to read")] string filePath)
+    {
+        try
+        {
+            return File.Exists(filePath) ? File.ReadAllText(filePath) : $"File not found: '{filePath}'";
+        }
+        catch (Exception ex)
+        {
+            return $"Error reading file: {ex.Message}";
+        }
+    }
+
+    [McpServerTool]
+    [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
+    public static string ListActiveWorkers()
+    {
+        return ClaudeAgentCommand.GetActiveWorkersList();
+    }
+
+    [McpServerTool]
+    [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
+    public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
+    {
+        return ClaudeAgentCommand.TerminateWorker(processId);
+    }
+
+    [McpServerTool]
+    [Description("Signal task completion from worker agent. Call this when you have finished implementing a task. This will write your response file and terminate your session.")]
+    public static async Task<string> CompleteTask(
+        [Description("Agent type (backend-engineer, frontend-engineer, test-automation-engineer)")]
+        string agentType,
+        [Description("Brief task summary in sentence case (e.g., 'Api endpoints implemented')")]
+        string taskSummary,
+        [Description("Full response content in markdown")]
+        string responseContent)
+    {
+        return await ClaudeAgentCommand.CompleteTask(agentType, taskSummary, responseContent);
+    }
+
+    [McpServerTool]
+    [Description("Signal review completion from reviewer agent. Call this when you have finished reviewing a task. This will write your response file and terminate your session.")]
+    public static async Task<string> CompleteReview(
+        [Description("Agent type (backend-reviewer, frontend-reviewer, test-automation-reviewer)")]
+        string agentType,
+        [Description("Review approved (true) or rejected (false)")]
+        bool approved,
+        [Description("Brief review summary in sentence case (e.g., 'Excellent implementation', 'Missing tests')")]
+        string reviewSummary,
+        [Description("Full response content in markdown")]
+        string responseContent)
+    {
+        return await ClaudeAgentCommand.CompleteReview(agentType, approved, reviewSummary, responseContent);
+    }
+
+    private static (bool Success, string Output) ExecuteCliCommand(string[] args)
+    {
+        var outputLines = new List<string>();
+
+        var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
+        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
+        allArgs.AddRange(args);
+
+        var processStartInfo = new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+            WorkingDirectory = Configuration.SourceCodeFolder,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process();
+        process.StartInfo = processStartInfo;
+
+        process.OutputDataReceived += (_, e) =>
+        {
+            if (e.Data is not null) outputLines.Add(e.Data);
+        };
+
+        process.ErrorDataReceived += (_, e) =>
+        {
+            if (e.Data is not null) outputLines.Add(e.Data);
+        };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        process.WaitForExit();
+
+        var allOutput = string.Join("\n", outputLines);
+
+        return (process.ExitCode == 0, allOutput);
+    }
+}
