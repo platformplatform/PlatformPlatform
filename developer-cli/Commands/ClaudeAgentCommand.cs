@@ -29,6 +29,7 @@ public class ClaudeAgentCommand : Command
         this.SetHandler(ExecuteAsync, agentTypeArgument);
     }
 
+    // Entry Point
     private async Task ExecuteAsync(string? agentType)
     {
         try
@@ -181,6 +182,7 @@ public class ClaudeAgentCommand : Command
         await WatchForRequestsAsync(agentType, messagesDirectory, branch);
     }
 
+    // Tech Lead
     private async Task LaunchTechLeadAsync(string agentType, string branch)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
@@ -279,190 +281,7 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    internal static async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
-    {
-        Directory.CreateDirectory(agentWorkspaceDirectory);
-
-        // Create symlink to .claude directory for always-current commands, agents, and settings (only if doesn't exist)
-        var workerClaudeDir = Path.Combine(agentWorkspaceDirectory, ".claude");
-        var rootClaudeDir = Path.Combine(Configuration.SourceCodeFolder, ".claude");
-
-        // Only create symlink if it doesn't exist
-        if (!Directory.Exists(workerClaudeDir) && !File.Exists(workerClaudeDir) && Directory.Exists(rootClaudeDir))
-        {
-            try
-            {
-                if (Configuration.IsWindows)
-                {
-                    ProcessHelper.StartProcess($"cmd /c mklink /D \"{workerClaudeDir}\" \"{rootClaudeDir}\"");
-                }
-                else
-                {
-                    // Create relative symlink for better portability
-                    var relativePath = Path.GetRelativePath(Path.GetDirectoryName(workerClaudeDir)!, rootClaudeDir);
-                    Directory.CreateSymbolicLink(workerClaudeDir, relativePath);
-                }
-            }
-            catch
-            {
-                // Fallback to copying essential files if symlink creation fails
-                Directory.CreateDirectory(Path.Combine(workerClaudeDir, "commands"));
-
-                // Copy only essential commands
-                var commandsSource = Path.Combine(rootClaudeDir, "commands");
-                if (Directory.Exists(commandsSource))
-                {
-                    foreach (var file in Directory.GetFiles(commandsSource, "*.md"))
-                    {
-                        var fileName = Path.GetFileName(file);
-                        var destFile = Path.Combine(workerClaudeDir, "commands", fileName);
-                        await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
-                    }
-                }
-            }
-        }
-
-        // Setup .mcp.json with relative path to developer-cli
-        var rootMcpJsonPath = Path.Combine(Configuration.SourceCodeFolder, ".mcp.json");
-        var workerMcpJsonPath = Path.Combine(agentWorkspaceDirectory, ".mcp.json");
-
-        if (File.Exists(rootMcpJsonPath))
-        {
-            // Create MCP config JSON with proper formatting
-            var mcpConfigJson = """
-                                {
-                                  "mcpServers": {
-                                    "platformplatform-developer-cli": {
-                                      "command": "dotnet",
-                                      "args": ["run", "--project", "../../../../developer-cli", "mcp"]
-                                    }
-                                  }
-                                }
-                                """;
-
-            await File.WriteAllTextAsync(workerMcpJsonPath, mcpConfigJson);
-        }
-    }
-
-    internal static bool HasGitChanges()
-    {
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "git",
-                Arguments = "status --porcelain",
-                WorkingDirectory = Configuration.SourceCodeFolder,
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            }
-        };
-
-        process.Start();
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-
-        return !string.IsNullOrWhiteSpace(output);
-    }
-
-    private static List<string> GetRecentActivity(string agentType, string branch)
-    {
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-        var activities = new List<string>();
-
-        if (!Directory.Exists(messagesDirectory))
-        {
-            return activities;
-        }
-
-        try
-        {
-            // Find completed response files for this agent type
-            var responseFiles = Directory.GetFiles(messagesDirectory, $"*.{agentType}.response.*.md")
-                .Select(file => new
-                    {
-                        FilePath = file,
-                        FileName = Path.GetFileName(file),
-                        ResponseTime = File.GetLastWriteTime(file)
-                    }
-                )
-                .OrderBy(f => f.ResponseTime) // Chronological order: oldest first, newest last
-                .ToList();
-
-            foreach (var file in responseFiles)
-            {
-                // Parse filename: NNNN.agent-type.response.Title-Case-Task-Name.md
-                var parts = file.FileName.Split('.');
-                if (parts.Length >= 4)
-                {
-                    var taskNumber = parts[0];
-                    var taskDescription = parts[3].Replace("-md", "").Replace('-', ' ');
-
-                    // Determine status icon based on response filename
-                    var statusIcon = "✔️"; // Default for completed tasks
-                    if (taskDescription.StartsWith("Approved ", StringComparison.OrdinalIgnoreCase))
-                    {
-                        statusIcon = "✅"; // Green checkmark for approved
-                        taskDescription = taskDescription.Substring("Approved ".Length); // Remove prefix from display
-                    }
-                    else if (taskDescription.StartsWith("Rejected ", StringComparison.OrdinalIgnoreCase))
-                    {
-                        statusIcon = "❌"; // Red X for rejected
-                        taskDescription = taskDescription.Substring("Rejected ".Length); // Remove prefix from display
-                    }
-
-                    // Find corresponding request file to calculate duration
-                    var requestFileName = $"{taskNumber}.{agentType}.request.*.md";
-                    var requestFiles = Directory.GetFiles(messagesDirectory, requestFileName);
-
-                    if (requestFiles.Length > 0 && File.Exists(requestFiles[0]))
-                    {
-                        var requestTime = File.GetLastWriteTime(requestFiles[0]);
-                        var responseTime = file.ResponseTime;
-                        var duration = responseTime - requestTime;
-
-                        // Ensure duration is positive (handle clock skew, etc.)
-                        if (duration.TotalSeconds > 0)
-                        {
-                            var requestTimeStr = requestTime.ToString("HH:mm");
-                            var responseTimeStr = responseTime.ToString("HH:mm");
-                            var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
-
-                            var activityLine = $"{statusIcon} {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
-                            activities.Add(activityLine);
-                        }
-                        else
-                        {
-                            // Duration calculation failed, use simple format
-                            var timeStamp = file.ResponseTime.ToString("HH:mm");
-                            var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
-                            activities.Add(activityLine);
-                        }
-                    }
-                    else
-                    {
-                        // No request file found, use simple format
-                        var timeStamp = file.ResponseTime.ToString("HH:mm");
-                        var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
-                        activities.Add(activityLine);
-                    }
-                }
-            }
-
-            if (activities.Count == 0)
-            {
-                activities.Add("   No completed tasks yet");
-            }
-        }
-        catch
-        {
-            activities.Add("   Unable to load activity history");
-        }
-
-        return activities;
-    }
-
-    // ReSharper disable once FunctionNeverReturns
+    // Request Watching & Handling
     private async Task WatchForRequestsAsync(string agentType, string messagesDirectory, string branch)
     {
         using var fileSystemWatcher = new FileSystemWatcher(messagesDirectory, $"*.{agentType}.request.*.md");
@@ -536,22 +355,6 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private async Task LaunchManualClaudeSession(string agentType, string branch)
-    {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
-
-        var manualArgs = new List<string>
-        {
-            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-            "--add-dir", Configuration.SourceCodeFolder,
-            "--permission-mode", "bypassPermissions"
-        };
-
-        // Use common launch method (handles session management)
-        var process = await LaunchClaudeCode(agentWorkspaceDirectory, manualArgs);
-        await process.WaitForExitAsync();
-    }
-
     private async Task HandleIncomingRequest(string requestFile, string agentType, string branch)
     {
         var agentColor = GetAgentColor(agentType);
@@ -581,6 +384,22 @@ public class ClaudeAgentCommand : Command
 
         // Return to waiting display
         RedrawWaitingDisplay(agentType, branch);
+    }
+
+    private async Task LaunchManualClaudeSession(string agentType, string branch)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
+
+        var manualArgs = new List<string>
+        {
+            "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
+            "--add-dir", Configuration.SourceCodeFolder,
+            "--permission-mode", "bypassPermissions"
+        };
+
+        // Use common launch method (handles session management)
+        var process = await LaunchClaudeCode(agentWorkspaceDirectory, manualArgs);
+        await process.WaitForExitAsync();
     }
 
     private async Task<Process> LaunchClaudeCodeAsync(string agentType, string branch)
@@ -689,101 +508,94 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private void RedrawWaitingDisplay(string agentType, string branch)
+    // Setup & Utilities
+    internal static async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
     {
-        AnsiConsole.Clear();
+        Directory.CreateDirectory(agentWorkspaceDirectory);
 
-        var displayName = GetAgentDisplayName(agentType);
+        // Create symlink to .claude directory for always-current commands, agents, and settings (only if doesn't exist)
+        var workerClaudeDir = Path.Combine(agentWorkspaceDirectory, ".claude");
+        var rootClaudeDir = Path.Combine(Configuration.SourceCodeFolder, ".claude");
 
-        // Load small Figlet font for compact banner
-        var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
-        var font = File.Exists(smallFontPath) ? FigletFont.Load(smallFontPath) : FigletFont.Default;
-        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(agentType));
-        AnsiConsole.Write(agentBanner);
-
-        var agentColor = GetAgentColor(agentType);
-
-        AnsiConsole.WriteLine();
-
-        var rule = new Rule("[bold]WAITING FOR TASKS[/]")
-            .RuleStyle($"{agentColor}")
-            .LeftJustified();
-        AnsiConsole.Write(rule);
-
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
-        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control | Press [bold white]CTRL+A[/] to toggle all activities[/]");
-        AnsiConsole.WriteLine();
-
-        // Show activities section
-        var activitiesRule = new Rule("[bold]ACTIVITIES[/]")
-            .RuleStyle($"{agentColor}")
-            .LeftJustified();
-        AnsiConsole.Write(activitiesRule);
-
-        AnsiConsole.WriteLine();
-        var recentActivities = GetRecentActivity(agentType, branch);
-
-        // Show only last 5 by default, or all if toggled
-        var activitiesToShow = _showAllActivities
-            ? recentActivities
-            : recentActivities.TakeLast(5).ToList();
-
-        if (!_showAllActivities && recentActivities.Count > 5)
+        // Only create symlink if it doesn't exist
+        if (!Directory.Exists(workerClaudeDir) && !File.Exists(workerClaudeDir) && Directory.Exists(rootClaudeDir))
         {
-            AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 5} older activities hidden (Ctrl+A to show all)[/]");
+            try
+            {
+                if (Configuration.IsWindows)
+                {
+                    ProcessHelper.StartProcess($"cmd /c mklink /D \"{workerClaudeDir}\" \"{rootClaudeDir}\"");
+                }
+                else
+                {
+                    // Create relative symlink for better portability
+                    var relativePath = Path.GetRelativePath(Path.GetDirectoryName(workerClaudeDir)!, rootClaudeDir);
+                    Directory.CreateSymbolicLink(workerClaudeDir, relativePath);
+                }
+            }
+            catch
+            {
+                // Fallback to copying essential files if symlink creation fails
+                Directory.CreateDirectory(Path.Combine(workerClaudeDir, "commands"));
+
+                // Copy only essential commands
+                var commandsSource = Path.Combine(rootClaudeDir, "commands");
+                if (Directory.Exists(commandsSource))
+                {
+                    foreach (var file in Directory.GetFiles(commandsSource, "*.md"))
+                    {
+                        var fileName = Path.GetFileName(file);
+                        var destFile = Path.Combine(workerClaudeDir, "commands", fileName);
+                        await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
+                    }
+                }
+            }
         }
 
-        foreach (var activity in activitiesToShow)
+        // Setup .mcp.json with relative path to developer-cli
+        var rootMcpJsonPath = Path.Combine(Configuration.SourceCodeFolder, ".mcp.json");
+        var workerMcpJsonPath = Path.Combine(agentWorkspaceDirectory, ".mcp.json");
+
+        if (File.Exists(rootMcpJsonPath))
         {
-            // Show all activities in default white color
-            AnsiConsole.MarkupLine($"{Markup.Escape(activity)}");
+            // Create MCP config JSON with proper formatting
+            var mcpConfigJson = """
+                                {
+                                  "mcpServers": {
+                                    "platformplatform-developer-cli": {
+                                      "command": "dotnet",
+                                      "args": ["run", "--project", "../../../../developer-cli", "mcp"]
+                                    }
+                                  }
+                                }
+                                """;
+
+            await File.WriteAllTextAsync(workerMcpJsonPath, mcpConfigJson);
         }
-
-        AnsiConsole.WriteLine();
     }
 
-    private static string GetAgentDisplayName(string agentType)
+    internal static bool HasGitChanges()
     {
-        return agentType switch
+        var process = new Process
         {
-            "tech-lead" => "Tech Lead",
-            "backend-engineer" => "Backend Engineer",
-            "frontend-engineer" => "Frontend Engineer",
-            "backend-reviewer" => "Backend Reviewer",
-            "frontend-reviewer" => "Frontend Reviewer",
-            "test-automation-engineer" => "Test Automation Engineer",
-            "test-automation-reviewer" => "Test Automation Reviewer",
-            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
+            StartInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = "status --porcelain",
+                WorkingDirectory = Configuration.SourceCodeFolder,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            }
         };
+
+        process.Start();
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+
+        return !string.IsNullOrWhiteSpace(output);
     }
 
-    private static Color GetAgentColor(string agentType)
-    {
-        return agentType switch
-        {
-            "tech-lead" => Color.Red,
-            "backend-engineer" => Color.Green,
-            "frontend-engineer" => Color.Blue,
-            "backend-reviewer" => Color.Yellow,
-            "frontend-reviewer" => Color.Orange3,
-            "test-automation-engineer" => Color.Cyan1,
-            "test-automation-reviewer" => Color.Purple,
-            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
-        };
-    }
-
-    private static void SetTerminalTitle(string title)
-    {
-        // ANSI escape sequence to set terminal title
-        // Works in most modern terminals (iTerm2, Terminal.app, Windows Terminal, etc.)
-        Console.Write($"\x1b]0;{title}\x07");
-    }
-
-    internal static async Task<Process> LaunchClaudeCode(
-        string agentWorkspaceDirectory,
-        List<string> additionalArgs,
-        string? workingDirectory = null)
+    internal static async Task<Process> LaunchClaudeCode(string agentWorkspaceDirectory, List<string> additionalArgs, string? workingDirectory = null)
     {
         workingDirectory ??= agentWorkspaceDirectory;
         var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -848,6 +660,197 @@ public class ClaudeAgentCommand : Command
 
         return freshProcess;
     }
+
+    // Display & UI
+    private void RedrawWaitingDisplay(string agentType, string branch)
+    {
+        AnsiConsole.Clear();
+
+        var displayName = GetAgentDisplayName(agentType);
+
+        // Load small Figlet font for compact banner
+        var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
+        var font = File.Exists(smallFontPath) ? FigletFont.Load(smallFontPath) : FigletFont.Default;
+        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(agentType));
+        AnsiConsole.Write(agentBanner);
+
+        var agentColor = GetAgentColor(agentType);
+
+        AnsiConsole.WriteLine();
+
+        var rule = new Rule("[bold]WAITING FOR TASKS[/]")
+            .RuleStyle($"{agentColor}")
+            .LeftJustified();
+        AnsiConsole.Write(rule);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"Branch: [{agentColor} bold]{branch}[/]");
+        AnsiConsole.MarkupLine("Status: [dim]Press [bold white]ENTER[/] for manual control | Press [bold white]CTRL+A[/] to toggle all activities[/]");
+        AnsiConsole.WriteLine();
+
+        // Show activities section
+        var activitiesRule = new Rule("[bold]ACTIVITIES[/]")
+            .RuleStyle($"{agentColor}")
+            .LeftJustified();
+        AnsiConsole.Write(activitiesRule);
+
+        AnsiConsole.WriteLine();
+        var recentActivities = GetRecentActivity(agentType, branch);
+
+        // Show only last 5 by default, or all if toggled
+        var activitiesToShow = _showAllActivities
+            ? recentActivities
+            : recentActivities.TakeLast(5).ToList();
+
+        if (!_showAllActivities && recentActivities.Count > 5)
+        {
+            AnsiConsole.MarkupLine($"[dim]   ... {recentActivities.Count - 5} older activities hidden (Ctrl+A to show all)[/]");
+        }
+
+        foreach (var activity in activitiesToShow)
+        {
+            // Show all activities in default white color
+            AnsiConsole.MarkupLine($"{Markup.Escape(activity)}");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
+    private static List<string> GetRecentActivity(string agentType, string branch)
+    {
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
+        var activities = new List<string>();
+
+        if (!Directory.Exists(messagesDirectory))
+        {
+            return activities;
+        }
+
+        try
+        {
+            // Find completed response files for this agent type
+            var responseFiles = Directory.GetFiles(messagesDirectory, $"*.{agentType}.response.*.md")
+                .Select(file => new
+                    {
+                        FilePath = file,
+                        FileName = Path.GetFileName(file),
+                        ResponseTime = File.GetLastWriteTime(file)
+                    }
+                )
+                .OrderBy(f => f.ResponseTime) // Chronological order: oldest first, newest last
+                .ToList();
+
+            foreach (var file in responseFiles)
+            {
+                // Parse filename: NNNN.agent-type.response.Title-Case-Task-Name.md
+                var parts = file.FileName.Split('.');
+                if (parts.Length >= 4)
+                {
+                    var taskNumber = parts[0];
+                    var taskDescription = parts[3].Replace("-md", "").Replace('-', ' ');
+
+                    // Determine status icon based on response filename
+                    var statusIcon = "✔️"; // Default for completed tasks
+                    if (taskDescription.StartsWith("Approved ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        statusIcon = "✅"; // Green checkmark for approved
+                        taskDescription = taskDescription.Substring("Approved ".Length); // Remove prefix from display
+                    }
+                    else if (taskDescription.StartsWith("Rejected ", StringComparison.OrdinalIgnoreCase))
+                    {
+                        statusIcon = "❌"; // Red X for rejected
+                        taskDescription = taskDescription.Substring("Rejected ".Length); // Remove prefix from display
+                    }
+
+                    // Find corresponding request file to calculate duration
+                    var requestFileName = $"{taskNumber}.{agentType}.request.*.md";
+                    var requestFiles = Directory.GetFiles(messagesDirectory, requestFileName);
+
+                    if (requestFiles.Length > 0 && File.Exists(requestFiles[0]))
+                    {
+                        var requestTime = File.GetLastWriteTime(requestFiles[0]);
+                        var responseTime = file.ResponseTime;
+                        var duration = responseTime - requestTime;
+
+                        // Ensure duration is positive (handle clock skew, etc.)
+                        if (duration.TotalSeconds > 0)
+                        {
+                            var requestTimeStr = requestTime.ToString("HH:mm");
+                            var responseTimeStr = responseTime.ToString("HH:mm");
+                            var durationStr = $"{(int)duration.TotalMinutes}m {duration.Seconds}s";
+
+                            var activityLine = $"{statusIcon} {requestTimeStr}-{responseTimeStr} - {taskNumber} - {taskDescription} ({durationStr})";
+                            activities.Add(activityLine);
+                        }
+                        else
+                        {
+                            // Duration calculation failed, use simple format
+                            var timeStamp = file.ResponseTime.ToString("HH:mm");
+                            var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
+                            activities.Add(activityLine);
+                        }
+                    }
+                    else
+                    {
+                        // No request file found, use simple format
+                        var timeStamp = file.ResponseTime.ToString("HH:mm");
+                        var activityLine = $"{statusIcon} {timeStamp} - {taskNumber} - {taskDescription}";
+                        activities.Add(activityLine);
+                    }
+                }
+            }
+
+            if (activities.Count == 0)
+            {
+                activities.Add("   No completed tasks yet");
+            }
+        }
+        catch
+        {
+            activities.Add("   Unable to load activity history");
+        }
+
+        return activities;
+    }
+
+    private static string GetAgentDisplayName(string agentType)
+    {
+        return agentType switch
+        {
+            "tech-lead" => "Tech Lead",
+            "backend-engineer" => "Backend Engineer",
+            "frontend-engineer" => "Frontend Engineer",
+            "backend-reviewer" => "Backend Reviewer",
+            "frontend-reviewer" => "Frontend Reviewer",
+            "test-automation-engineer" => "Test Automation Engineer",
+            "test-automation-reviewer" => "Test Automation Reviewer",
+            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
+        };
+    }
+
+    private static Color GetAgentColor(string agentType)
+    {
+        return agentType switch
+        {
+            "tech-lead" => Color.Red,
+            "backend-engineer" => Color.Green,
+            "frontend-engineer" => Color.Blue,
+            "backend-reviewer" => Color.Yellow,
+            "frontend-reviewer" => Color.Orange3,
+            "test-automation-engineer" => Color.Cyan1,
+            "test-automation-reviewer" => Color.Purple,
+            _ => throw new ArgumentException($"Unknown agent type: {agentType}")
+        };
+    }
+
+    private static void SetTerminalTitle(string title)
+    {
+        // ANSI escape sequence to set terminal title
+        // Works in most modern terminals (iTerm2, Terminal.app, Windows Terminal, etc.)
+        Console.Write($"\x1b]0;{title}\x07");
+    }
+
+    // Workers
 
     public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
     {
@@ -1456,7 +1459,7 @@ public static class WorkerMcpTools
             }
 
             // Restart worker
-            var restartResult = await RestartWorker(agentType, messagesDirectory, requestFileName);
+            var restartResult = await RestartWorker(agentType);
             if (!restartResult.Success || restartResult.Process == null)
             {
                 return $"Worker restart failed: {restartResult.ErrorMessage}";
@@ -1506,8 +1509,7 @@ public static class WorkerMcpTools
                $"Response content:\n{responseContent}";
     }
 
-    // ReSharper disable UnusedParameter.Local - messagesDirectory and requestFileName needed for call signature consistency
-    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType, string messagesDirectory, string requestFileName)
+    private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
