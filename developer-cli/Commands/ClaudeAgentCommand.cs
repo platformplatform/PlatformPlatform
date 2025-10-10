@@ -246,14 +246,29 @@ public class ClaudeAgentCommand : Command
         var hostProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".host-process-id");
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
 
-        // Acquire workspace lock
-        var mutexName = $"{agentType}-{branchName}";
-        var workspaceMutex = new Mutex(false, mutexName);
-
-        if (!workspaceMutex.WaitOne(TimeSpan.FromSeconds(5)))
+        // Check if there's actually a running worker-host (use process ID file as source of truth)
+        if (File.Exists(hostProcessIdFile))
         {
-            workspaceMutex.Dispose();
-            throw new InvalidOperationException($"Another {agentType} is already active in branch '{branchName}'");
+            var processIdContent = await File.ReadAllTextAsync(hostProcessIdFile);
+            if (int.TryParse(processIdContent, out var existingProcessId))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(existingProcessId);
+                    if (!existingProcess.HasExited)
+                    {
+                        // Actually running - this is a real conflict
+                        throw new InvalidOperationException($"Another {agentType} is already active in branch '{branchName}' (Process ID: {existingProcessId})");
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist - stale process ID file, clean it up
+                }
+            }
+
+            // Clean up stale process ID file
+            File.Delete(hostProcessIdFile);
         }
 
         try
@@ -350,10 +365,21 @@ public class ClaudeAgentCommand : Command
             var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
             claudeArgs.Add(slashCommand);
 
+            // DEBUG: Log the exact command being executed
+            var commandLine = $"claude {string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
+            Logger.Debug("AUTOMATED MODE - Launching Claude Code");
+            Logger.Debug($"Agent Type: {agentType}");
+            Logger.Debug($"Working Directory: {agentWorkspaceDirectory}");
+            Logger.Debug($"Command: {commandLine}");
+
             // Launch worker-agent (Claude Code) in agent workspace
             var process = await LaunchClaudeCode(agentWorkspaceDirectory, claudeArgs);
 
-            // Create .worker-process-id with worker-agent's PID
+            Logger.Debug($"Process started with ID: {process.Id}");
+            await Task.Delay(TimeSpan.FromSeconds(3));
+            Logger.Debug($"Process alive after 3s: {!process.HasExited}");
+
+            // Create .worker-process-id with worker-agent's process ID
             await File.WriteAllTextAsync(workerProcessIdFile, process.Id.ToString());
 
             // Track active worker session
@@ -380,8 +406,6 @@ public class ClaudeAgentCommand : Command
                 }
 
                 RemoveWorkerSession(process.Id);
-                workspaceMutex.ReleaseMutex();
-                workspaceMutex.Dispose();
             }
         }
         catch
@@ -395,9 +419,6 @@ public class ClaudeAgentCommand : Command
             {
                 File.Delete(workerProcessIdFile);
             }
-
-            workspaceMutex.ReleaseMutex();
-            workspaceMutex.Dispose();
 
             throw; // Re-throw to be caught by ExecuteAsync
         }
@@ -777,8 +798,21 @@ public class ClaudeAgentCommand : Command
         var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
         claudeArgs.Add(slashCommand);
 
+        // DEBUG: Log the exact command being executed
+        var commandLine = $"claude {string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
+        Logger.Debug("INTERACTIVE MODE - Launching Claude Code");
+        Logger.Debug($"Agent Type: {agentType}");
+        Logger.Debug($"Working Directory: {agentWorkspaceDirectory}");
+        Logger.Debug($"Command: {commandLine}");
+
         // Use common launch method (handles session management)
-        return await LaunchClaudeCode(agentWorkspaceDirectory, claudeArgs);
+        var process = await LaunchClaudeCode(agentWorkspaceDirectory, claudeArgs);
+
+        Logger.Debug($"Process started with ID: {process.Id}");
+        await Task.Delay(TimeSpan.FromSeconds(3));
+        Logger.Debug($"Process alive after 3s: {!process.HasExited}");
+
+        return process;
     }
 
     private static async Task WaitForResponseAndKillClaude(string requestFile, string agentType, string branch, Process claudeProcess)
@@ -928,9 +962,12 @@ public class ClaudeAgentCommand : Command
         workingDirectory ??= agentWorkspaceDirectory;
         var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
 
-        // Try with --continue if session marker exists
+        Logger.Debug($"LaunchClaudeCode - Session file exists: {File.Exists(sessionIdFile)}");
+
+        // Try --continue if session marker exists
         if (File.Exists(sessionIdFile))
         {
+            Logger.Debug("Attempting --continue (session marker exists)");
             var argsWithContinue = new List<string> { "--continue" };
             argsWithContinue.AddRange(additionalArgs);
 
@@ -941,14 +978,11 @@ public class ClaudeAgentCommand : Command
                     FileName = "claude",
                     Arguments = string.Join(" ", argsWithContinue.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                     WorkingDirectory = workingDirectory,
-                    UseShellExecute = false,
-                    RedirectStandardInput = false,
-                    RedirectStandardOutput = false,
-                    RedirectStandardError = false
+                    UseShellExecute = true
                 }
             };
 
-            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            Logger.Debug($"Starting with --continue, working directory: {workingDirectory}");
             process.Start();
 
             // Wait briefly to check if it started successfully
@@ -957,36 +991,40 @@ public class ClaudeAgentCommand : Command
             // If still running, --continue succeeded
             if (!process.HasExited)
             {
+                Logger.Debug($"--continue succeeded, process ID: {process.Id}");
                 return process; // Return LIVE process
             }
 
             // --continue failed (no conversation to continue), delete marker and start fresh
+            Logger.Debug($"--continue failed (process exited with code {process.ExitCode}), deleting session marker");
             File.Delete(sessionIdFile);
         }
 
         // Fresh start (no session marker or --continue failed)
+        Logger.Debug("Starting fresh session (no session marker or --continue failed)");
         // Create session marker BEFORE starting so any exit (crash, kill, normal) leaves the file
         await File.WriteAllTextAsync(sessionIdFile, Guid.NewGuid().ToString());
 
         var freshArgs = new List<string>();
         freshArgs.AddRange(additionalArgs);
 
+        var commandLine = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        Logger.Debug($"Starting fresh process - UseShellExecute: true, Working directory: {workingDirectory}");
+        Logger.Debug($"Command: claude {commandLine}");
+
         var freshProcess = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "claude",
-                Arguments = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                Arguments = commandLine,
                 WorkingDirectory = workingDirectory,
-                UseShellExecute = false,
-                RedirectStandardInput = false,
-                RedirectStandardOutput = false,
-                RedirectStandardError = false
+                UseShellExecute = true
             }
         };
 
-        freshProcess.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
         freshProcess.Start();
+        Logger.Debug($"Fresh process started with ID: {freshProcess.Id}");
 
         return freshProcess;
     }
@@ -1184,9 +1222,7 @@ public class ClaudeAgentCommand : Command
 
     private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
     {
-        var branchName = GitHelper.GetCurrentBranch();
-        var workflowLog = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "workflow.log");
-        await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] WaitForWorkerCompletion started for process ID: {processId}\n");
+        Logger.Debug($"WaitForWorkerCompletion started for process ID: {processId}");
 
         var currentProcessId = processId;
         var restartCount = 0;
@@ -1216,30 +1252,37 @@ public class ClaudeAgentCommand : Command
                 if (exited)
                 {
                     processExited = true;
+                    Logger.Debug($"Worker process {currentProcessId} exited after {i * 5} seconds of checking");
                     break; // Process died, exit immediately!
+                }
+
+                // Log every minute to show we're still checking
+                if (i > 0 && i % 12 == 0)
+                {
+                    Logger.Debug($"Still waiting for worker {currentProcessId} to complete ({i * 5} seconds elapsed)");
                 }
             }
 
             if (processExited)
             {
                 // Worker completed normally (called CompleteTask which killed itself)
-                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Worker process exited normally\n");
+                Logger.Debug("Worker process exited normally");
                 break;
             }
 
             // 20 minutes passed - check if worker is making progress
-            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inactivity check: No completion after 20 minutes\n");
+            Logger.Debug("Inactivity check: No completion after 20 minutes");
 
             var hasGitChanges = HasGitChanges();
             if (hasGitChanges)
             {
                 // Worker is making changes, still active
-                await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Git changes detected, worker is active\n");
+                Logger.Debug("Git changes detected, worker is active");
                 continue;
             }
 
             // No git changes for 20 minutes - worker is stuck, restart it
-            await File.AppendAllTextAsync(workflowLog, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] No git changes detected, restarting worker\n");
+            Logger.Debug("No git changes detected, restarting worker");
 
             if (!currentProcess.HasExited)
             {
@@ -1374,28 +1417,12 @@ public class ClaudeAgentCommand : Command
 
     private static void LogWorkerActivity(string message, string messagesDirectory)
     {
-        var logFile = Path.Combine(Path.GetDirectoryName(messagesDirectory)!, "workflow.log");
-        var logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}\n";
-
-        if (!Directory.Exists(Path.GetDirectoryName(logFile)))
-        {
-            return;
-        }
-
-        File.AppendAllText(logFile, logEntry);
+        Logger.Debug(message);
     }
 
     internal static void LogWorkflowEvent(string message, string messagesDirectory)
     {
-        var logFile = Path.Combine(Path.GetDirectoryName(messagesDirectory)!, "workflow.log");
-        var logEntry = $"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] {message}\n";
-
-        if (!Directory.Exists(Path.GetDirectoryName(logFile)))
-        {
-            return;
-        }
-
-        File.AppendAllText(logFile, logEntry);
+        Logger.Debug(message);
     }
 
     // Workers (Session Management)
