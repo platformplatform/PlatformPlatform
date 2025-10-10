@@ -786,27 +786,17 @@ public class ClaudeAgentCommand : Command
         string? workingDirectory = null)
     {
         workingDirectory ??= agentWorkspaceDirectory;
-        var args = new List<string>();
 
-        // Session management
-        var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
-        if (File.Exists(sessionIdFile))
-        {
-            args.Add("--continue");
-        }
-        else
-        {
-            await File.WriteAllTextAsync(sessionIdFile, Guid.NewGuid().ToString());
-        }
-
-        args.AddRange(additionalArgs);
+        // Try with --continue first
+        var argsWithContinue = new List<string> { "--continue" };
+        argsWithContinue.AddRange(additionalArgs);
 
         var process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
                 FileName = "claude",
-                Arguments = string.Join(" ", args.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                Arguments = string.Join(" ", argsWithContinue.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
                 RedirectStandardInput = false,
@@ -817,6 +807,32 @@ public class ClaudeAgentCommand : Command
 
         process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
         process.Start();
+        await process.WaitForExitAsync();
+
+        // If --continue failed (no conversation), try without it
+        if (process.ExitCode != 0)
+        {
+            var argsFresh = new List<string>();
+            argsFresh.AddRange(additionalArgs);
+
+            process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "claude",
+                    Arguments = string.Join(" ", argsFresh.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
+                    WorkingDirectory = workingDirectory,
+                    UseShellExecute = false,
+                    RedirectStandardInput = false,
+                    RedirectStandardOutput = false,
+                    RedirectStandardError = false
+                }
+            };
+
+            process.StartInfo.EnvironmentVariables.Remove("CLAUDECODE");
+            process.Start();
+        }
+
         return process;
     }
 
