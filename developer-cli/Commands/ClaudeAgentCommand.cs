@@ -216,7 +216,7 @@ public class ClaudeAgentCommand : Command
 
         techLeadArgs.Add("/orchestrate/tech-lead");
 
-        // Launch using common method (handles session management)
+        // Launch Tech Lead
         var process = await LaunchClaudeCode(agentWorkspaceDirectory, techLeadArgs, Configuration.SourceCodeFolder);
 
         // Start tech lead health monitoring
@@ -788,7 +788,7 @@ public class ClaudeAgentCommand : Command
         workingDirectory ??= agentWorkspaceDirectory;
         var args = new List<string>();
 
-        // Session management - simple
+        // Session management
         var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
         if (File.Exists(sessionIdFile))
         {
@@ -796,7 +796,6 @@ public class ClaudeAgentCommand : Command
         }
         else
         {
-            // Create marker for next time
             await File.WriteAllTextAsync(sessionIdFile, Guid.NewGuid().ToString());
         }
 
