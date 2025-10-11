@@ -356,8 +356,8 @@ public static class WorkerMcpTools
     }
 
     [McpServerTool]
-    [Description("Signal task completion from worker agent. Call this when you have finished implementing a task. This will write your response file and terminate your session.")]
-    public static async Task<string> CompleteTask(
+    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal task completion from worker agent. Call this when you have finished implementing a task. This will write your response file and immediately terminate your session. There is no going back after this call.")]
+    public static async Task<string> CompleteAndExitTask(
         [Description("Agent type (backend-engineer, frontend-engineer, test-automation-engineer)")]
         string agentType,
         [Description("Brief task summary in sentence case (e.g., 'Api endpoints implemented')")]
@@ -365,12 +365,12 @@ public static class WorkerMcpTools
         [Description("Full response content in markdown")]
         string responseContent)
     {
-        return await ClaudeAgentCommand.CompleteTask(agentType, taskSummary, responseContent);
+        return await ClaudeAgentCommand.CompleteAndExitTask(agentType, taskSummary, responseContent);
     }
 
     [McpServerTool]
-    [Description("Signal review completion from reviewer agent. Call this when you have finished reviewing a task. This will write your response file and terminate your session.")]
-    public static async Task<string> CompleteReview(
+    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal review completion from reviewer agent. Call this when you have finished reviewing a task. This will write your response file and immediately terminate your session. There is no going back after this call.")]
+    public static async Task<string> CompleteAndExitReview(
         [Description("Agent type (backend-reviewer, frontend-reviewer, test-automation-reviewer)")]
         string agentType,
         [Description("Review approved (true) or rejected (false)")]
@@ -380,7 +380,7 @@ public static class WorkerMcpTools
         [Description("Full response content in markdown")]
         string responseContent)
     {
-        return await ClaudeAgentCommand.CompleteReview(agentType, approved, reviewSummary, responseContent);
+        return await ClaudeAgentCommand.CompleteAndExitReview(agentType, approved, reviewSummary, responseContent);
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)

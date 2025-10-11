@@ -661,12 +661,12 @@ public class ClaudeAgentCommand : Command
         // Launch worker-agent (Claude Code) with /implement/task slash command
         var claudeProcess = await LaunchClaudeCodeAsync(agentType, branch);
 
-        // Create .worker-process-id with worker-agent's PID (so CompleteTask can kill it)
+        // Create .worker-process-id with worker-agent's process ID (so CompleteAndExitTask can kill it)
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
         await File.WriteAllTextAsync(workerProcessIdFile, claudeProcess.Id.ToString());
 
-        // Wait for response file (worker will call CompleteTask which kills itself)
+        // Wait for response file (worker will call CompleteAndExitTask which kills itself)
         await WaitForResponseAndKillClaude(requestFile, agentType, branch, claudeProcess);
 
         // Clean up .worker-process-id after worker exits
@@ -1196,7 +1196,7 @@ public class ClaudeAgentCommand : Command
         while (DateTime.Now - startTime < overallTimeout)
         {
             // Check process exit frequently (every 5 seconds) instead of blocking for 20 minutes
-            // This allows prompt detection when worker calls CompleteTask and kills itself
+            // This allows prompt detection when worker calls CompleteAndExitTask and kills itself
             var checkInterval = TimeSpan.FromSeconds(5);
             var checksUntilInactivityCheck = (int)(inactivityCheckInterval.TotalSeconds / checkInterval.TotalSeconds);
 
@@ -1220,7 +1220,7 @@ public class ClaudeAgentCommand : Command
 
             if (processExited)
             {
-                // Worker completed normally (called CompleteTask which killed itself)
+                // Worker completed normally (called CompleteAndExitTask which killed itself)
                 Logger.Debug("Worker process exited normally");
                 break;
             }
@@ -1423,7 +1423,7 @@ public class ClaudeAgentCommand : Command
 
     // MCP Tools for Worker Completion
 
-    public static async Task<string> CompleteTask(
+    public static async Task<string> CompleteAndExitTask(
         string agentType,
         string taskSummary,
         string responseContent)
@@ -1486,7 +1486,7 @@ public class ClaudeAgentCommand : Command
         return $"Task completed. Response file: {responseFileName}";
     }
 
-    public static async Task<string> CompleteReview(
+    public static async Task<string> CompleteAndExitReview(
         string agentType,
         bool approved,
         string reviewSummary,

@@ -41,8 +41,7 @@ Read all referenced files to understand what was implemented.
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes if approved"},
-    {"content": "Update Product Increment status with [Completed] or [Changes Required]", "status": "pending", "activeForm": "Updating Product Increment status"},
-    {"content": "Call /complete/review to signal completion", "status": "pending", "activeForm": "Calling completion command"}
+    {"content": "Update Product Increment status with [Completed] or [Changes Required]", "status": "pending", "activeForm": "Updating Product Increment status"}
   ]
 }
 ```
@@ -69,7 +68,33 @@ After creating base todo, expand "Review each changed file" with files from `git
 
 **STEP 8**: Edit Product Increment status
 
-**STEP 9**: Call `/complete/review`
+**STEP 9**: Signal completion and exit
+
+⚠️ **CRITICAL - SESSION TERMINATING CALL**:
+
+After completing your review, you MUST call the MCP **CompleteAndExitReview** tool to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
+
+**Before calling CompleteAndExitReview**:
+1. Ensure all todos are marked as completed
+2. Make your binary decision: APPROVED or NOT APPROVED
+3. Write comprehensive review feedback
+4. Create a brief summary in sentence case (e.g., "Excellent implementation" or "Missing test coverage")
+
+**Call MCP CompleteAndExitReview tool**:
+- `agentType`: Your agent type (backend-reviewer, frontend-reviewer, or test-automation-reviewer)
+- `approved`: true or false
+- `reviewSummary`: Your brief summary
+- `responseContent`: Your full review feedback in markdown
+
+⚠️ Your session terminates IMMEDIATELY after calling CompleteAndExitReview
+
+**Examples of good summaries**:
+- ✅ "Excellent implementation"
+- ✅ "Missing test coverage"
+- ✅ "Clean architecture and comprehensive tests"
+- ✅ "Incorrect use of strongly typed IDs"
+- ❌ "Good" (too vague)
+- ❌ "LGTM" (unclear)
 
 ---
 
