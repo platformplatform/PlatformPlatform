@@ -1,9 +1,11 @@
 ---
-description: Workflow for implement a specific task from a product increment following the systematic workflow
+description: Workflow for task title to implement (e.g., "add user filtering")
 globs: 
 alwaysApply: false
 ---
 # Implement Task Workflow
+
+You are implementing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 

@@ -339,8 +339,10 @@ public class ClaudeAgentCommand : Command
                 claudeArgs.Add(systemPromptText);
             }
 
-            // Add slash command to trigger workflow
-            var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
+            // Add slash command to trigger workflow with task title
+            var slashCommand = agentType.Contains("reviewer")
+                ? $"/review:task {taskTitle}"
+                : $"/implement:task {taskTitle}";
             claudeArgs.Add(slashCommand);
 
             // DEBUG: Log the exact command being executed
@@ -749,8 +751,23 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
-        // Add slash command to trigger workflow
-        var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
+        // Read task title from current-task.json
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
+        var taskTitle = "task";
+        if (File.Exists(currentTaskFile))
+        {
+            var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+            if (taskInfo.TryGetProperty("title", out var titleElement))
+            {
+                taskTitle = titleElement.GetString() ?? "task";
+            }
+        }
+
+        // Add slash command to trigger workflow with task title
+        var slashCommand = agentType.Contains("reviewer")
+            ? $"/review:task {taskTitle}"
+            : $"/implement:task {taskTitle}";
         claudeArgs.Add(slashCommand);
 
         // DEBUG: Log the exact command being executed
@@ -1317,12 +1334,27 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add(systemPromptText);
         }
 
+        // Read task title from current-task.json
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
+        var taskTitle = "task";
+        if (File.Exists(currentTaskFile))
+        {
+            var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+            if (taskInfo.TryGetProperty("title", out var titleElement))
+            {
+                taskTitle = titleElement.GetString() ?? "task";
+            }
+        }
+
         // Add restart nudge (workflow will be loaded by slash command when we add it below)
-        var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
         claudeArgs.Add("--append-system-prompt");
         claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
 
-        // Add slash command to trigger workflow
+        // Add slash command to trigger workflow with task title
+        var slashCommand = agentType.Contains("reviewer")
+            ? $"/review:task {taskTitle}"
+            : $"/implement:task {taskTitle}";
         claudeArgs.Add(slashCommand);
 
         // Use common launch method (handles session management) in agent workspace

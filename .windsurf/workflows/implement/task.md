@@ -1,9 +1,11 @@
 ---
-description: Workflow for implement a specific task from a product increment following the systematic workflow
+description: Workflow for task title to implement (e.g., "add user filtering")
 auto_execution_mode: 1
 ---
 
 # Implement Task Workflow
+
+You are implementing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 
