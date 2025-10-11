@@ -204,19 +204,26 @@ public static class DeveloperCliMcpTools
         var errorLines = new List<string>();
 
         var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
-        allArgs.AddRange(args);
 
         var processStartInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
             WorkingDirectory = Configuration.SourceCodeFolder,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
         };
+
+        // Use ArgumentList instead of Arguments to avoid shell parsing issues
+        processStartInfo.ArgumentList.Add("run");
+        processStartInfo.ArgumentList.Add("--project");
+        processStartInfo.ArgumentList.Add(developerCliPath);
+        processStartInfo.ArgumentList.Add("--");
+        foreach (var arg in args)
+        {
+            processStartInfo.ArgumentList.Add(arg);
+        }
 
         using var process = new Process();
         process.StartInfo = processStartInfo;
@@ -381,19 +388,26 @@ public static class WorkerMcpTools
         var outputLines = new List<string>();
 
         var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
-        allArgs.AddRange(args);
 
         var processStartInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
             WorkingDirectory = Configuration.SourceCodeFolder,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true
         };
+
+        // Use ArgumentList instead of Arguments to avoid shell parsing issues
+        processStartInfo.ArgumentList.Add("run");
+        processStartInfo.ArgumentList.Add("--project");
+        processStartInfo.ArgumentList.Add(developerCliPath);
+        processStartInfo.ArgumentList.Add("--");
+        foreach (var arg in args)
+        {
+            processStartInfo.ArgumentList.Add(arg);
+        }
 
         using var process = new Process();
         process.StartInfo = processStartInfo;
