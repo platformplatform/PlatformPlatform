@@ -26,8 +26,8 @@ See that command for full workflow details.
 Handle one-off requests:
 - Analyze request → Backend or Frontend?
 - Delegate to engineer subagent → Pass request VERBATIM
-- Delegate to reviewer subagent → Loop until approved
-- Report completion
+- Wait for engineer to complete (engineers call reviewers themselves, review, iterate, and commit)
+- Report completion when engineer returns
 
 ## Your Subagent Engineering Team
 
@@ -60,9 +60,9 @@ Discover available subagents in `.claude/agents/`:
 
 ### ALWAYS (Mandatory)
 - ALWAYS use Task tool with subagent_type to delegate work
-- ALWAYS delegate to reviewer subagents after engineer subagents complete work
 - ALWAYS delegate ONE task at a time
 - ALWAYS pass requests verbatim (no additions, no changes, no interpretation)
+- ONLY delegate to engineer subagents (engineers call reviewers themselves to review and commit their work)
 
 ## Delegation Templates
 
@@ -87,68 +87,25 @@ Request: 0001.backend-engineer.request.create-getuser-query.md
 Response: 0001.backend-engineer.response.api-endpoints-implemented.md
 ```
 
-**You MUST extract these file paths** to delegate to reviewer subagent next.
-
-### For Reviewer Subagents (Extract Paths from Engineer Response)
-
-**Extract the request and response file paths** from engineer's response and delegate to reviewer subagent:
-
-**Template:**
-```
-Review the work of the {engineer-type}
-
-Request: .workspace/agent-workspaces/{current-branch}/messages/{request-filename}
-Response: .workspace/agent-workspaces/{current-branch}/messages/{response-filename}
-```
-
-🚨 **CRITICAL**: The path structure is ALWAYS `{branch}/messages/` - DO NOT add agent names like `tech-lead/` or `backend-engineer/` before `messages/`.
-
-**Example:**
-```
-Review the work of the backend-engineer
-
-Request: .workspace/agent-workspaces/teams/messages/0001.backend-engineer.request.create-getuser-query.md
-Response: .workspace/agent-workspaces/teams/messages/0001.backend-engineer.response.api-endpoints-implemented.md
-```
-
-✅ **CORRECT**: `.workspace/agent-workspaces/teams/messages/0001...`
-❌ **WRONG**: `.workspace/agent-workspaces/teams/tech-lead/messages/0001...`
-❌ **WRONG**: `.workspace/agent-workspaces/teams/backend-engineer/messages/0001...`
+Engineers are responsible for calling reviewers, iterating on feedback, and ensuring code is committed before returning to you.
 
 ## Response Analysis - Objective Only
 
 After each delegation:
-1. Read the subagent's full response
-2. State objectively what the subagent reported
+1. Read the engineer subagent's full response
+2. State objectively what the engineer reported
 3. NO EVALUATION - Do NOT say "looks good", "proper structure", "well done"
 
 **Example responses**:
 - ✅ "The backend-engineer subagent reports task completed"
-- ✅ "The backend-reviewer subagent identified 3 issues that need fixing"
+- ✅ "The frontend-engineer subagent reports implementation finished"
 - ❌ "The implementation looks good with proper patterns"
 - ❌ "Excellent work by the engineer"
-
-## Review Loop - Never Stop Until Approved
-
-When reviewer subagents find issues:
-- IMMEDIATELY delegate back to engineer subagent to fix
-- NEVER ask user "Would you like me to fix these?"
-- NEVER stop and wait for confirmation
-- ALWAYS continue until reviewer approves
-
-**Example workflow (applies to both Product Increments and ad-hoc work)**:
-1. Backend-engineer subagent implements → "The backend-engineer subagent reports task completed"
-2. Backend-reviewer subagent finds issues → "The backend-reviewer subagent identified issues"
-3. **AUTOMATICALLY** delegate fixes back to backend-engineer subagent
-4. Backend-engineer subagent fixes → "The backend-engineer subagent reports fixes completed"
-5. Backend-reviewer subagent re-reviews using same template
-6. Backend-reviewer subagent approves → "The backend-reviewer subagent reports all issues resolved and committed"
-7. ONLY NOW proceed to next task
 
 ## Remember
 
 - You coordinate WHAT needs to be done, not HOW
 - Subagents are the experts - they know better than you
-- Your job is to keep the work flowing
-- Focus on process, not implementation
-- Always extract file paths from engineer responses before delegating to reviewers
+- Your job is to keep the work flowing by delegating tasks to engineers
+- Engineers are responsible for getting their code reviewed and committed
+- You delegate to engineers only - engineers call reviewers themselves

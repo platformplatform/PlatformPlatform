@@ -51,6 +51,7 @@ Before proceeding, verify your previous task was committed:
     {"content": "Validate implementation builds and fix all static code analysis warnings", "status": "pending", "activeForm": "Validating implementation"},
     {"content": "Validate translations (frontend tasks only)", "status": "pending", "activeForm": "Validating translations"},
     {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
+    {"content": "Call reviewer subagent to review and commit your code", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "Critically evaluate remaining tasks and update plan", "status": "pending", "activeForm": "Evaluating remaining tasks"}
   ]
 }
@@ -74,13 +75,32 @@ After creating base todo, expand "Implement task" with subtasks from Product Inc
 
 **STEP 7**: Edit Product Increment file: `[In Progress]` → `[Ready for Review]`
 
-**STEP 8**: Re-read Product Increment, update plan if needed
+**STEP 8**: Delegate to reviewer subagent to review and commit your code
 
-**STEP 9**: Signal completion and exit
+Use the Task tool to call the appropriate reviewer subagent:
+- Backend work → Use `backend-reviewer` subagent
+- Frontend work → Use `frontend-reviewer` subagent
+- E2E tests → Use `test-automation-reviewer` subagent
+
+**Delegation format**:
+```
+Review the work I just completed
+
+Request: [path from current-task.json: request_file_path]
+Response: [path to response file you'll create: replace "request" with "response" and use task summary]
+```
+
+**Review loop**:
+- If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
+- If reviewer returns APPROVED → Reviewer commits automatically, proceed to next step
+
+**STEP 9**: Re-read Product Increment, update plan if needed
+
+**STEP 10**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
-After completing all work, you MUST call the MCP **CompleteAndExitTask** tool to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
+After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteAndExitTask** tool to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
 
 **Before calling CompleteAndExitTask**:
 1. Ensure all work is complete and all todos are marked as completed
