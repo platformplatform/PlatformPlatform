@@ -41,7 +41,7 @@ Read all referenced files to understand what was implemented.
 {
   "todos": [
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
-    {"content": "Validate implementation builds by running check command", "status": "pending", "activeForm": "Validating implementation builds"},
+    {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
     {"content": "Study rules relevant for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
@@ -60,7 +60,23 @@ After creating base todo, expand "Review each changed file" with files from `git
 
 **STEP 1**: Read all context files
 
-**STEP 2**: Run **check MCP tool**, must pass
+**STEP 2**: Run validation tools in parallel (backend tasks only)
+
+For **backend tasks**, run **format**, **test**, and **inspect** in parallel using the Task tool:
+- Spawn three `backend-tool-runner` subagents simultaneously
+- One runs `format`, one runs `test`, one runs `inspect`
+- Wait for all three to complete
+- All must pass (reject if any fail)
+
+**Parallel execution example**:
+```
+In a single message, use Task tool three times:
+1. Task tool → backend-tool-runner: "Run backend tool: format"
+2. Task tool → backend-tool-runner: "Run backend tool: test"
+3. Task tool → backend-tool-runner: "Run backend tool: inspect"
+```
+
+For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 3**: Study rules
 

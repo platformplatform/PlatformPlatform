@@ -66,7 +66,22 @@ After creating base todo, expand "Implement task" with subtasks from Product Inc
 
 **STEP 4**: Implement each subtask, use **build** and **test** MCP tools
 
-**STEP 5**: Run **check MCP tool**, fix all warnings (must pass)
+**STEP 5**: Run validation tools in parallel (backend tasks only)
+
+For **backend tasks**, run **test** and **inspect** in parallel using the Task tool:
+- Spawn two `backend-tool-runner` subagents simultaneously
+- One runs `test`, the other runs `inspect`
+- Wait for both to complete
+- Fix any failures or warnings (both must pass)
+
+**Parallel execution example**:
+```
+In a single message, use Task tool twice:
+1. Task tool → backend-tool-runner: "Run backend tool: test"
+2. Task tool → backend-tool-runner: "Run backend tool: inspect"
+```
+
+For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 6**: Frontend only - validate translations
 
