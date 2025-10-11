@@ -316,29 +316,13 @@ public class ClaudeAgentCommand : Command
             var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
             await File.WriteAllTextAsync(taskIdFile, $"{counter:D4}");
 
-            // Load system prompt and workflow
+            // Load system prompt (but NOT workflow - that's loaded by the slash command)
             var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
             var systemPromptText = "";
             if (File.Exists(systemPromptFile))
             {
                 systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
                 systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
-            }
-
-            var workflowFile = agentType.Contains("reviewer")
-                ? Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "review", "task.md")
-                : Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "implement", "task.md");
-
-            var workflowText = "";
-            if (File.Exists(workflowFile))
-            {
-                workflowText = await File.ReadAllTextAsync(workflowFile);
-                var frontmatterEnd = workflowText.IndexOf("---", 3, StringComparison.Ordinal);
-                if (frontmatterEnd > 0)
-                {
-                    workflowText = workflowText.Substring(frontmatterEnd + 3).Trim();
-                }
-                workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
             }
 
             // Build Claude arguments
@@ -355,14 +339,8 @@ public class ClaudeAgentCommand : Command
                 claudeArgs.Add(systemPromptText);
             }
 
-            if (!string.IsNullOrEmpty(workflowText))
-            {
-                claudeArgs.Add("--append-system-prompt");
-                claudeArgs.Add(workflowText);
-            }
-
-            // Add slash command to trigger workflow
-            var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
+            // Add slash command to trigger workflow (must be quoted string for Claude Code)
+            var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
             claudeArgs.Add(slashCommand);
 
             // DEBUG: Log the exact command being executed
@@ -725,10 +703,10 @@ public class ClaudeAgentCommand : Command
             manualArgs.Add(systemPromptText);
         }
 
-        // Add slash command based on agent type
+        // Add slash command based on agent type (must be quoted string for Claude Code)
         if (agentType == "tech-lead")
         {
-            manualArgs.Add("/orchestrate/tech-lead");
+            manualArgs.Add("\"/orchestrate/tech-lead\"");
         }
 
         // Launch and wait
@@ -762,24 +740,7 @@ public class ClaudeAgentCommand : Command
         var systemPromptText = await File.ReadAllTextAsync(systemPromptFile);
         systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
 
-        // Load workflow and embed it
-        var workflowFile = agentType.Contains("reviewer")
-            ? Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "review", "task.md")
-            : Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "implement", "task.md");
-
-        var workflowText = "";
-        if (File.Exists(workflowFile))
-        {
-            workflowText = await File.ReadAllTextAsync(workflowFile);
-            var frontmatterEnd = workflowText.IndexOf("---", 3, StringComparison.Ordinal);
-            if (frontmatterEnd > 0)
-            {
-                workflowText = workflowText.Substring(frontmatterEnd + 3).Trim();
-            }
-            workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
-        }
-
-        // Build arguments
+        // Build arguments (workflow will be loaded by the slash command, not embedded)
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
@@ -788,14 +749,8 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
-        if (!string.IsNullOrEmpty(workflowText))
-        {
-            claudeArgs.Add("--append-system-prompt");
-            claudeArgs.Add(workflowText);
-        }
-
-        // Add slash command to trigger workflow (like tech-lead uses /orchestrate/tech-lead)
-        var slashCommand = agentType.Contains("reviewer") ? "/review/task" : "/implement/task";
+        // Add slash command to trigger workflow (must be quoted string for Claude Code)
+        var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
         claudeArgs.Add(slashCommand);
 
         // DEBUG: Log the exact command being executed
@@ -1362,34 +1317,13 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add(systemPromptText);
         }
 
-        // Add workflow
-        var workflowFile = agentType.Contains("reviewer")
-            ? Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "review", "task.md")
-            : Path.Combine(Configuration.SourceCodeFolder, ".claude", "commands", "implement", "task.md");
-
-        if (File.Exists(workflowFile))
-        {
-            var workflowText = await File.ReadAllTextAsync(workflowFile);
-            var frontmatterEnd = workflowText.IndexOf("---", 3, StringComparison.Ordinal);
-            if (frontmatterEnd > 0)
-            {
-                workflowText = workflowText.Substring(frontmatterEnd + 3).Trim();
-            }
-            workflowText = workflowText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
-
-            if (!string.IsNullOrEmpty(workflowText))
-            {
-                claudeArgs.Add("--append-system-prompt");
-                claudeArgs.Add(workflowText);
-            }
-        }
-
-        // Add restart nudge
-        var completionCommand = agentType.Contains("reviewer") ? "/complete/review" : "/complete/task";
+        // Add restart nudge (workflow will be loaded by slash command when we add it below)
+        var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
         claudeArgs.Add("--append-system-prompt");
-        claudeArgs.Add($"You are a {agentType} Worker. It looks like you stopped. " +
-                       $"Please re-read the latest request file and continue working on it. " +
-                       $"Remember to call {completionCommand} when done or if stuck.");
+        claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
+
+        // Add slash command to trigger workflow
+        claudeArgs.Add(slashCommand);
 
         // Use common launch method (handles session management) in agent workspace
         var process = await LaunchClaudeCode(agentWorkspaceDirectory, claudeArgs);
