@@ -21,6 +21,14 @@ description: Implement a specific task from a Product Increment following the sy
 
 If this is a Product Increment task, also read the PRD and Product Increment files.
 
+**CRITICAL - Verify Previous Work Committed**:
+
+Before proceeding, verify your previous task was committed:
+1. Run `git log --oneline -5` to check recent commits
+2. Look for commits containing your agent type (e.g., "backend-engineer", "frontend-engineer")
+3. If your previous task is uncommitted: **REFUSE to start** and respond with error explaining uncommitted work exists
+4. Note: Changes from other engineers (parallel work) are expected and fine - only verify YOUR previous work is committed
+
 ---
 
 ## STEP 1: Create Todo List - DO THIS NOW!
