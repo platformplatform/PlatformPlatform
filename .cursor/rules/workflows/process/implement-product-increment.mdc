@@ -44,6 +44,16 @@ Interleave tasks from multiple Product Increments:
 5. Delegate Task 2 from Product Increment 1 AND Task 2 from Product Increment 2 in same message
 6. Continue interleaving
 
+🚨 **CRITICAL PARALLEL SAFETY RULE** 🚨
+
+**NEVER spawn multiple instances of the SAME agent type in parallel**:
+- ❌ WRONG: Two `backend-engineer` agents simultaneously (codebase conflicts)
+- ❌ WRONG: Two `frontend-engineer` agents simultaneously (codebase conflicts)
+- ✅ CORRECT: One `backend-engineer` AND one `frontend-engineer` simultaneously (different codebases)
+- ✅ CORRECT: One `backend-engineer` AND one `test-automation-engineer` simultaneously (different areas)
+
+**Rule**: Only run tasks in parallel if they use **DIFFERENT agent types**. Same agent type = sequential execution required.
+
 ## Mandatory Workflow
 
 ### Step 1: Create Todo List
@@ -135,6 +145,7 @@ Stop ONLY when:
 - Change code or commit yourself
 - Use `developer_cli` MCP tool
 - Decide on parallel mode yourself - Only use if user explicitly requests
+- Spawn multiple instances of the SAME agent type in parallel (causes codebase conflicts)
 
 **ALWAYS**:
 - Use Task tool with subagent_type to delegate work
@@ -142,6 +153,7 @@ Stop ONLY when:
 - ONLY delegate to engineer subagents (engineers handle reviews themselves)
 - Update todo list status as you progress
 - Use Sequential mode by default
+- If running in parallel mode, ensure each parallel task uses a DIFFERENT agent type
 
 ## Task Status Tracking
 
