@@ -685,8 +685,8 @@ public class ClaudeAgentCommand : Command
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
-        // Tech-lead uses acceptEdits, others use bypassPermissions
-        var permissionMode = agentType == "tech-lead" ? "acceptEdits" : "bypassPermissions";
+        // All agents use bypassPermissions for maximum speed
+        var permissionMode = "bypassPermissions";
 
         var manualArgs = new List<string>
         {
