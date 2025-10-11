@@ -4,7 +4,30 @@ description: Review a specific task implementation from a Product Increment foll
 
 # Review Task Workflow
 
-## STEP 0: Create Todo List - DO THIS NOW!
+## STEP 0: Read Task Assignment
+
+**Read `current-task.json` in your workspace root** to get:
+- `request_file_path`: Full path to your request file
+- `prd_path`: Path to PRD (if Product Increment task)
+- `product_increment_path`: Path to Product Increment (if applicable)
+- `task_number_in_increment`: Task number in the increment (if applicable)
+- `title`: Task title
+
+**Then read the request file** from the path in `request_file_path`.
+
+**Request file contains**:
+- Engineer type being reviewed
+- PRD path (if applicable)
+- Product Increment path (if applicable)
+- Task title
+- Engineer's request file path
+- Engineer's response file path
+
+Read all referenced files to understand what was implemented.
+
+---
+
+## STEP 1: Create Todo List - DO THIS NOW!
 
 **CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
@@ -25,18 +48,6 @@ description: Review a specific task implementation from a Product Increment foll
 ```
 
 After creating base todo, expand "Review each changed file" with files from `git status --porcelain`.
-
----
-
-## Context Discovery
-
-Find your request file in `../messages/*.{agent-type}.request.*.md` and read it.
-
-**Request contains**:
-- Task title, PRD path, Product Increment path
-- Engineer's request and response files
-
-Read all referenced files.
 
 ---
 
