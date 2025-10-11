@@ -5,7 +5,26 @@ auto_execution_mode: 1
 
 # Implement Task Workflow
 
-## STEP 0: Create Todo List - DO THIS NOW!
+## STEP 0: Read Task Assignment
+
+**Read `current-task.json` in your workspace root** to get:
+- `request_file_path`: Full path to your request file
+- `prd_path`: Path to PRD (if Product Increment task)
+- `product_increment_path`: Path to Product Increment (if applicable)
+- `task_number_in_increment`: Your task number in the increment (if applicable)
+- `title`: Task title
+
+**Then read the request file** from the path in `request_file_path`.
+
+**Request file contains**:
+- Task description/instructions
+- Any additional context from Tech Lead
+
+If this is a Product Increment task, also read the PRD and Product Increment files.
+
+---
+
+## STEP 1: Create Todo List - DO THIS NOW!
 
 **CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
@@ -25,28 +44,11 @@ auto_execution_mode: 1
 }
 ```
 
-After creating base todo, expand "Implement task" with subtasks from Product Increment file.
-
----
-
-## Context Discovery
-
-Find your request file in `../messages/*.{agent-type}.request.*.md` and read it.
-
-Example: `../messages/0001.backend-engineer.request.create-team-aggregate.md`
-
-**Request contains**:
-- Task title (what to implement)
-- Product Increment file path
-- PRD file path
-
-Read all three files to understand context.
+After creating base todo, expand "Implement task" with subtasks from Product Increment file (if applicable).
 
 ---
 
 ## Workflow Steps
-
-**STEP 1**: Read PRD, Product Increment, find your task, extract subtasks, update todo
 
 **STEP 2**: Study rules (`.claude/rules/backend/` or `.claude/rules/frontend/`)
 
