@@ -8,9 +8,10 @@ auto_execution_mode: 1
 PRD and/or Product Increment file(s): $ARGUMENTS
 
 If you only get the PRD:
-1. Use Read tool to read the PRD file
-2. Use Glob tool to find all `.md` files in the same directory: `**/.workspace/task-manager/[prd-directory]/*.md`
-3. Orchestrate implementation of all found Product Increment files
+1. Read the PRD file using: `Read(file_path: "/path/to/prd.md")`
+2. Find all Product Increment files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
+3. Filter out prd.md from the glob results
+4. Orchestrate implementation of all found Product Increment files
 
 ## Your Role: Coordination Only
 

@@ -14,8 +14,12 @@ Carefully follow these instructions when implementing translations and internati
 3. Always use plain English text in translation markers.
 4. Never hardcode text without proper translation wrappers.
 5. Use "Sentence case" for everything (Buttons, Menus, Headings, etc.).
-6. Never change the `*.po` files directly; they are auto-generated based on the uses of `<Trans>...</Trans>` and t\`...\`.
-7. Be carefull not to translate fully dynamic content, such as variable values or dynamic text.
+6. Translation workflow:
+   - After adding/changing `<Trans>` or t\`\` markers, the `*.po` files are auto-generated/updated by the build system
+   - Never manually add or remove entires to `*.po` files
+   - **CRITICAL**: After auto-generation updates the `*.po` files, you MUST translate all new/updated entries in the `*.po` files for all supported languages
+   - Only translate the `msgstr` values; never change `msgid` values
+7. Be careful not to translate fully dynamic content, such as variable values or dynamic text.
 
 ## Examples
 
