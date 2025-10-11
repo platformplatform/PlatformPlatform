@@ -339,8 +339,8 @@ public class ClaudeAgentCommand : Command
                 claudeArgs.Add(systemPromptText);
             }
 
-            // Add slash command to trigger workflow (must be quoted string for Claude Code)
-            var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
+            // Add slash command to trigger workflow
+            var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
             claudeArgs.Add(slashCommand);
 
             // DEBUG: Log the exact command being executed
@@ -703,10 +703,10 @@ public class ClaudeAgentCommand : Command
             manualArgs.Add(systemPromptText);
         }
 
-        // Add slash command based on agent type (must be quoted string for Claude Code)
+        // Add slash command based on agent type
         if (agentType == "tech-lead")
         {
-            manualArgs.Add("\"/orchestrate/tech-lead\"");
+            manualArgs.Add("/orchestrate:tech-lead");
         }
 
         // Launch and wait
@@ -749,8 +749,8 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
-        // Add slash command to trigger workflow (must be quoted string for Claude Code)
-        var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
+        // Add slash command to trigger workflow
+        var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
         claudeArgs.Add(slashCommand);
 
         // DEBUG: Log the exact command being executed
@@ -1318,7 +1318,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Add restart nudge (workflow will be loaded by slash command when we add it below)
-        var slashCommand = agentType.Contains("reviewer") ? "\"/review/task\"" : "\"/implement/task\"";
+        var slashCommand = agentType.Contains("reviewer") ? "/review:task" : "/implement:task";
         claudeArgs.Add("--append-system-prompt");
         claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
 
