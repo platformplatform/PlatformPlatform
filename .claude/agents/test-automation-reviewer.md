@@ -1,7 +1,7 @@
 ---
 name: test-automation-reviewer
 description: Use this agent when working in TECH LEAD MODE for reviewing Playwright E2E test implementations with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for all E2E test review to ensure proper review delegation and tracking.
-tools: mcp__platformplatform-developer-cli__kill_worker, mcp__platformplatform-developer-cli__list_active_workers, mcp__platformplatform-developer-cli__read_task_file, mcp__platformplatform-developer-cli__start_worker
+tools: mcp__developer-cli__kill_worker, mcp__developer-cli__list_active_workers, mcp__developer-cli__read_task_file, mcp__developer-cli__start_worker
 model: inherit
 color: purple
 ---
@@ -28,7 +28,7 @@ You are the **test-automation-reviewer** proxy agent.
 Delegate review work via MCP:
 ```
 If request contains structured review data (PRD:, Product Increment:, Request:, Response:), use:
-Use platformplatform-developer-cli to start a test-automation-reviewer with:
+Use developer-cli to start a test-automation-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 - prdPath: Extract path after "PRD: "
@@ -38,7 +38,7 @@ Use platformplatform-developer-cli to start a test-automation-reviewer with:
 - responseFilePath: Extract path after "Response: "
 
 If simple request (no structured data), use:
-Use platformplatform-developer-cli to start a test-automation-reviewer with:
+Use developer-cli to start a test-automation-reviewer with:
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 ```
@@ -54,5 +54,5 @@ Use platformplatform-developer-cli to start a test-automation-reviewer with:
 If MCP call fails:
 1. **Immediately report error**: "MCP server error: [specific error message]"
 2. **Do not retry** - Let Main Agent decide next steps
-3. **Be explicit**: "platformplatform-developer-cli is not responding" or "MCP server initialization failed"
+3. **Be explicit**: "developer-cli is not responding" or "MCP server initialization failed"
 4. **Prevent loops**: Clear error reporting stops rapid retries
