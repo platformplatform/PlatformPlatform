@@ -1457,6 +1457,9 @@ public class ClaudeAgentCommand : Command
         // Log completion
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]", messagesDirectory);
 
+        // Wait for Claude Code to persist session state before killing process
+        await Task.Delay(TimeSpan.FromSeconds(10));
+
         // Read .worker-process-id file to find worker-agent process
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
         if (File.Exists(workerProcessIdFile))
@@ -1518,6 +1521,9 @@ public class ClaudeAgentCommand : Command
 
         // Log completion
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]", messagesDirectory);
+
+        // Wait for Claude Code to persist session state before killing process
+        await Task.Delay(TimeSpan.FromSeconds(10));
 
         // Read .worker-process-id file to find worker-agent process
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
