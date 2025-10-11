@@ -2,7 +2,7 @@
   "enabledMcpjsonServers": [
     "context7",
     "browsermcp",
-    "platformplatform-developer-cli"
+    "developer-cli"
   ],
   "hooks": {
     "PreToolUse": [

@@ -879,7 +879,7 @@ public class ClaudeAgentCommand : Command
             var mcpConfigJson = """
                                 {
                                   "mcpServers": {
-                                    "platformplatform-developer-cli": {
+                                    "developer-cli": {
                                       "command": "dotnet",
                                       "args": ["run", "--project", "../../../../developer-cli", "mcp"]
                                     }
