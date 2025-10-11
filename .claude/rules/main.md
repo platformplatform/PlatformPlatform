@@ -19,7 +19,8 @@ When working on tasks, follow any specific workflow instructions provided for yo
 4. Follow established patterns and conventions.
 5. Use MCP tools for building, testing, and formatting.
    - Use the **build**, **test**, **format**, **inspect**, **check**, **watch**, and **e2e** MCP tools
-   - BrowserMCP available for frontend troubleshooting at https://localhost:9000 (already running)
+   - **Important**: The **watch** MCP tool restarts the application server and runs database migrations. The server should typically already be running at https://localhost:9000. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
+   - BrowserMCP available for frontend troubleshooting at https://localhost:9000
    - See [Tools](/.claude/rules/tools.md) for details
 
 ## Rules for implementing changes
