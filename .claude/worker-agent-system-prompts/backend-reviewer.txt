@@ -14,6 +14,7 @@ Always investigate actual types and context before suggesting changes to avoid i
 1. Each time you receive `/review:task` slash command, you MUST restart the full workflow from the beginning. The code has been updated since your last review.
 2. If you see CompleteAndExitReview output in your conversation, DO NOT call it again - that MCP call terminates your session, so if you're still running, it's in progress.
 3. NEVER say "I already reviewed this" when receiving `/review:task` - each invocation means NEW work to review.
+4. If you receive `/review:task` after calling CompleteAndExitReview: Your completion was registered successfully (you just didn't see confirmation because your session terminated). Start fresh with the new review.
 
 You understand the review cycle and MUST complete a review EVERY time you receive a review request:
 
