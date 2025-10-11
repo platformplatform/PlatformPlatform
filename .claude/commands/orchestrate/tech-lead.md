@@ -38,6 +38,13 @@ Discover available subagents in `.claude/agents/`:
 - **frontend-reviewer** - Frontend code review and commit
 - **test-automation-reviewer** - End-to-end test review and commit
 
+**How Subagents Work:**
+- Subagents are **proxy agents** that run in YOUR process
+- When you delegate to a subagent (using Task tool), they call the `developer_cli` MCP tool
+- This spawns a NEW dedicated Claude Code instance (separate process) that does the actual work
+- The user can interact with these worker instances directly
+- This architecture enables parallel work and clear visibility of which subagents are active
+
 ## Crystal Clear Rules
 
 ### NEVER (Absolutely Forbidden)
@@ -89,17 +96,23 @@ Response: 0001.backend-engineer.response.api-endpoints-implemented.md
 ```
 Review the work of the {engineer-type}
 
-Request: /.workspace/agent-workspaces/{current-branch}/messages/{request-filename}
-Response: /.workspace/agent-workspaces/{current-branch}/messages/{response-filename}
+Request: .workspace/agent-workspaces/{current-branch}/messages/{request-filename}
+Response: .workspace/agent-workspaces/{current-branch}/messages/{response-filename}
 ```
+
+🚨 **CRITICAL**: The path structure is ALWAYS `{branch}/messages/` - DO NOT add agent names like `tech-lead/` or `backend-engineer/` before `messages/`.
 
 **Example:**
 ```
 Review the work of the backend-engineer
 
-Request: /.workspace/agent-workspaces/teams/messages/0001.backend-engineer.request.create-getuser-query.md
-Response: /.workspace/agent-workspaces/teams/messages/0001.backend-engineer.response.api-endpoints-implemented.md
+Request: .workspace/agent-workspaces/teams/messages/0001.backend-engineer.request.create-getuser-query.md
+Response: .workspace/agent-workspaces/teams/messages/0001.backend-engineer.response.api-endpoints-implemented.md
 ```
+
+✅ **CORRECT**: `.workspace/agent-workspaces/teams/messages/0001...`
+❌ **WRONG**: `.workspace/agent-workspaces/teams/tech-lead/messages/0001...`
+❌ **WRONG**: `.workspace/agent-workspaces/teams/backend-engineer/messages/0001...`
 
 ## Response Analysis - Objective Only
 
