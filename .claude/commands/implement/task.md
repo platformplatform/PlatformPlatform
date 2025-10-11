@@ -1,8 +1,14 @@
 ---
 description: Implement a specific task from a Product Increment following the systematic workflow
+args:
+  - name: title
+    description: Task title to implement (e.g., "Add user filtering")
+    required: false
 ---
 
 # Implement Task Workflow
+
+You are implementing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 

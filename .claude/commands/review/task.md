@@ -1,8 +1,14 @@
 ---
 description: Review a specific task implementation from a Product Increment following the systematic review workflow
+args:
+  - name: title
+    description: Task title to review (e.g., "Add user filtering")
+    required: false
 ---
 
 # Review Task Workflow
+
+You are reviewing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 

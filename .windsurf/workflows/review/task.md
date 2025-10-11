@@ -1,9 +1,11 @@
 ---
-description: Workflow for review a specific task implementation from a product increment following the systematic review workflow
+description: Workflow for task title to review (e.g., "add user filtering")
 auto_execution_mode: 1
 ---
 
 # Review Task Workflow
+
+You are reviewing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 
