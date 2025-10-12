@@ -407,3 +407,5 @@ playwright-report/
 **/playwright/.cache/
 **/.auth/
 
+# PlatformPlatform agent workspace
+.workspace
