@@ -1474,6 +1474,10 @@ public class ClaudeAgentCommand : Command
         var taskId = await File.ReadAllTextAsync(taskIdFile);
         taskId = taskId.Trim();
 
+        // Anti-suicide check
+        var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitTask");
+        if (validationError != null) return validationError;
+
         // Create response filename
         var sanitizedSummary = string.Join("-", taskSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Replace(".", "").Replace(",", "");
@@ -1538,6 +1542,10 @@ public class ClaudeAgentCommand : Command
         var taskId = await File.ReadAllTextAsync(taskIdFile);
         taskId = taskId.Trim();
 
+        // Anti-suicide check
+        var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitReview");
+        if (validationError != null) return validationError;
+
         // Create response filename with status prefix
         var statusPrefix = approved ? "Approved" : "Rejected";
         var sanitizedSummary = string.Join("-", reviewSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
@@ -1581,6 +1589,48 @@ public class ClaudeAgentCommand : Command
         }
 
         return $"Review completed ({statusPrefix}). Response file: {responseFileName}";
+    }
+
+    private static async Task<string?> ValidateTaskTiming(string agentWorkspaceDirectory, string methodName)
+    {
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
+        if (!File.Exists(currentTaskFile)) return null;
+
+        var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+
+        if (!taskInfo.TryGetProperty("started_at", out var startedAtElement) ||
+            !taskInfo.TryGetProperty("attempt", out var attemptElement))
+        {
+            return null;
+        }
+
+        var startedAt = DateTime.Parse(startedAtElement.GetString()!);
+        var attempt = attemptElement.GetInt32();
+        var elapsedSeconds = (DateTime.UtcNow - startedAt).TotalSeconds;
+
+        if (elapsedSeconds >= 60 || attempt != 1) return null;
+
+        // Increment attempt counter
+        var updatedTaskInfo = new
+        {
+            task_number = taskInfo.GetProperty("task_number").GetString(),
+            request_file_path = taskInfo.GetProperty("request_file_path").GetString(),
+            started_at = startedAtElement.GetString(),
+            attempt = 2,
+            branch = taskInfo.GetProperty("branch").GetString(),
+            title = taskInfo.GetProperty("title").GetString()
+        };
+
+        await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
+
+        return $"""
+            Task assigned {(int)elapsedSeconds} seconds ago - too soon to complete.
+
+            If you see a previous task in your conversation history: That task is already done. You died and were reborn for THIS task. Do not call {methodName} for old tasks.
+
+            If you genuinely completed THIS task already, call {methodName} again to confirm.
+            """;
     }
 }
 
