@@ -340,9 +340,14 @@ public class ClaudeAgentCommand : Command
             }
 
             // Add slash command to trigger workflow with task title
-            var slashCommand = agentType.Contains("reviewer")
-                ? $"/review:task {taskTitle}"
-                : $"/implement:task {taskTitle}";
+            var slashCommand = agentType switch
+            {
+                "test-automation-engineer" => $"/implement:e2e-tests {taskTitle}",
+                "test-automation-reviewer" => $"/review:e2e-tests {taskTitle}",
+                _ => agentType.Contains("reviewer")
+                    ? $"/review:task {taskTitle}"
+                    : $"/implement:task {taskTitle}"
+            };
             claudeArgs.Add(slashCommand);
 
             // DEBUG: Log the exact command being executed
@@ -765,9 +770,14 @@ public class ClaudeAgentCommand : Command
         }
 
         // Add slash command to trigger workflow with task title
-        var slashCommand = agentType.Contains("reviewer")
-            ? $"/review:task {taskTitle}"
-            : $"/implement:task {taskTitle}";
+        var slashCommand = agentType switch
+        {
+            "test-automation-engineer" => $"/implement:e2e-tests {taskTitle}",
+            "test-automation-reviewer" => $"/review:e2e-tests {taskTitle}",
+            _ => agentType.Contains("reviewer")
+                ? $"/review:task {taskTitle}"
+                : $"/implement:task {taskTitle}"
+        };
         claudeArgs.Add(slashCommand);
 
         // DEBUG: Log the exact command being executed
@@ -1352,9 +1362,14 @@ public class ClaudeAgentCommand : Command
         claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
 
         // Add slash command to trigger workflow with task title
-        var slashCommand = agentType.Contains("reviewer")
-            ? $"/review:task {taskTitle}"
-            : $"/implement:task {taskTitle}";
+        var slashCommand = agentType switch
+        {
+            "test-automation-engineer" => $"/implement:e2e-tests {taskTitle}",
+            "test-automation-reviewer" => $"/review:e2e-tests {taskTitle}",
+            _ => agentType.Contains("reviewer")
+                ? $"/review:task {taskTitle}"
+                : $"/implement:task {taskTitle}"
+        };
         claudeArgs.Add(slashCommand);
 
         // Use common launch method (handles session management) in agent workspace

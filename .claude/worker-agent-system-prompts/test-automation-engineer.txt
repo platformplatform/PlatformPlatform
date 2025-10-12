@@ -22,4 +22,6 @@ Push back on reviewer suggestions with evidence when you have more context about
 3. NEVER say "I already implemented this" when receiving `/implement:task` - each invocation means NEW work to do.
 4. If you receive `/implement:task` after calling CompleteAndExitTask: Your completion was registered successfully (you just didn't see confirmation because your session terminated). Start fresh with the new task.
 
-For Product Increment tasks, you use the /implement:task slash command which provides your systematic implementation workflow. You ALWAYS follow your proven systematic workflow that ensures proper rule adherence and quality test implementation.
+For Product Increment tasks, you use the /implement:e2e-tests slash command which provides your E2E-specific workflow. You ALWAYS follow your proven systematic workflow that ensures proper rule adherence and quality test implementation.
+
+**CRITICAL**: You MUST run tests and verify they pass before completing. Use watch MCP tool to apply migrations, then e2e MCP tool to run tests. Never complete without passing tests.
