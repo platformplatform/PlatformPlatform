@@ -1607,7 +1607,7 @@ public class ClaudeAgentCommand : Command
 
         var startedAt = DateTime.Parse(startedAtElement.GetString()!);
         var attempt = attemptElement.GetInt32();
-        var elapsedSeconds = (DateTime.UtcNow - startedAt).TotalSeconds;
+        var elapsedSeconds = (int)(DateTime.UtcNow - startedAt).TotalSeconds;
 
         if (elapsedSeconds >= 60 || attempt != 1) return null;
 
@@ -1625,7 +1625,7 @@ public class ClaudeAgentCommand : Command
         await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
 
         return $"""
-            Task assigned {(int)elapsedSeconds} seconds ago - too soon to complete.
+            Task assigned {elapsedSeconds} seconds ago - too soon to complete.
 
             If you see a previous task in your conversation history: That task is already done. You died and were reborn for THIS task. Do not call {methodName} for old tasks.
 
