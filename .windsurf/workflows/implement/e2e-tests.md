@@ -55,12 +55,30 @@ If a product increment file is provided in the arguments above, read it to under
 
 6. Create or update test structure:
    - For smoke tests: Create/update `application/[scs-name]/WebApp/tests/e2e/smoke.spec.ts`.
-   - For comprehensive tests: Create feature-specific files like `user-management.spec.ts`, `authentication.spec.ts`.
+   - For comprehensive tests: Create feature-specific files like `user-management-flows.spec.ts`, `team-management-flows.spec.ts`.
    - Avoid creating many small, isolated tests - prefer comprehensive scenarios that test multiple aspects.
+
+7. **CRITICAL - Run watch tool to apply database migrations**:
+   - Use **watch MCP tool** to restart server and run migrations
+   - This MUST be done before running tests if backend schema changed
+   - The tool starts .NET Aspire at https://localhost:9000
+
+8. **CRITICAL - Run tests and verify they pass**:
+   - Use **e2e MCP tool** to run your tests
+   - Start with smoke tests: `e2e(smoke=true)`
+   - Then run comprehensive tests with search terms: `e2e(searchTerms=["feature-name"])`
+   - **ALL tests MUST pass** before proceeding
+   - If tests fail: Fix them and run again (never proceed with failing tests)
+
+9. Call reviewer to review your tests:
+   - Use Task tool to call `test-automation-reviewer` subagent
+   - Provide paths to request and response files
+   - Iterate with reviewer until approved
 
 ## Key principles
 
-- Comprehensive coverage: Test all critical paths and important edge cases.
-- Follow conventions: Adhere to the established patterns in [End-to-End Tests](/.windsurf/rules/end-to-end-tests/e2e-tests.md).
-- Clear organization: Properly categorize tests and use descriptive names.
-- Realistic user journeys: Test scenarios that reflect actual user behavior.
+- **Tests must pass**: Never complete without running tests and verifying they pass
+- **Database migrations**: Always run watch tool if backend schema changed
+- **Speed is critical**: Structure tests to minimize steps while maximizing coverage
+- **Follow conventions**: Adhere to patterns in [End-to-End Tests](/.windsurf/rules/end-to-end-tests/e2e-tests.md)
+- **Realistic user journeys**: Test scenarios that reflect actual user behavior
