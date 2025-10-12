@@ -120,11 +120,11 @@ After completing all work AND receiving reviewer approval, you MUST call the MCP
 **Before calling CompleteAndExitTask**:
 1. Ensure all work is complete and all todos are marked as completed
 2. Write a comprehensive response (what you accomplished, notes for Tech Lead)
-3. Create a brief summary in sentence case (e.g., "Api endpoints implemented")
+3. Create an objective technical summary in sentence case (like a commit message)
 
 **Call MCP CompleteAndExitTask tool**:
 - `agentType`: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
-- `taskSummary`: Your brief summary
+- `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add team member endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
 - `responseContent`: Your full response in markdown
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteAndExitTask

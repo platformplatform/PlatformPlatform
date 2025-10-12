@@ -97,23 +97,15 @@ After completing your review, you MUST call the MCP **CompleteAndExitReview** to
 1. Ensure all todos are marked as completed
 2. Make your binary decision: APPROVED or NOT APPROVED
 3. Write comprehensive review feedback
-4. Create a brief summary in sentence case (e.g., "Excellent implementation" or "Missing test coverage")
+4. Create an objective technical summary in sentence case (like a commit message)
 
 **Call MCP CompleteAndExitReview tool**:
 - `agentType`: Your agent type (backend-reviewer, frontend-reviewer, or test-automation-reviewer)
 - `approved`: true or false
-- `reviewSummary`: Your brief summary
+- `reviewSummary`: Objective technical description of what was reviewed and the outcome (imperative mood, sentence case). Examples: "Add team member endpoints with authorization", "Fix missing null checks in user repository", "Add test coverage for payment flow". NEVER use subjective evaluations like "Excellent implementation", "Clean code", or "LGTM".
 - `responseContent`: Your full review feedback in markdown
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteAndExitReview
-
-**Examples of good summaries**:
-- ✅ "Excellent implementation"
-- ✅ "Missing test coverage"
-- ✅ "Clean architecture and comprehensive tests"
-- ✅ "Incorrect use of strongly typed IDs"
-- ❌ "Good" (too vague)
-- ❌ "LGTM" (unclear)
 
 ---
 
