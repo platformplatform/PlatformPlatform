@@ -41,7 +41,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("FirstName", Faker.Person.FirstName),
                 ("LastName", Faker.Person.LastName),
                 ("Title", "Philanthropist & Innovator"),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US")
@@ -83,7 +83,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("FirstName", Faker.Person.FirstName),
                 ("LastName", Faker.Person.LastName),
                 ("Title", "Philanthropist & Innovator"),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US")

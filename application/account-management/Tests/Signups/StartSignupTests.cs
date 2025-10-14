@@ -81,7 +81,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
                     ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
-                    ("Type", EmailConfirmationType.Signup.ToString()),
+                    ("Type", nameof(EmailConfirmationType.Signup)),
                     ("OneTimePasswordHash", oneTimePasswordHash),
                     ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),

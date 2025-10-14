@@ -26,7 +26,7 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountManagementDbConte
                 ("FirstName", Faker.Name.FirstName()),
                 ("LastName", Faker.Name.LastName()),
                 ("Title", Faker.Name.JobTitle()),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US")

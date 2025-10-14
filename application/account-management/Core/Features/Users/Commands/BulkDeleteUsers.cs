@@ -31,7 +31,7 @@ public sealed class BulkDeleteUsersHandler(
 {
     public async Task<Result> Handle(BulkDeleteUsersCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
+        if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
             return Result.Forbidden("Only owners are allowed to delete other users.");
         }
