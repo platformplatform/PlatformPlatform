@@ -71,8 +71,7 @@ app.MapScalarApiReference("/openapi", options =>
         options
             .WithOpenApiRoutePattern("/openapi/v1.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-            .WithTitle("PlatformPlatform API")
-            .WithSidebar(true);
+            .WithTitle("PlatformPlatform API");
     }
 );
 
