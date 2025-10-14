@@ -8,10 +8,10 @@ namespace PlatformPlatform.DeveloperCli.Installation;
 public abstract record Prerequisite
 {
     public static readonly Prerequisite Dotnet = new CommandLineToolPrerequisite("dotnet", "dotnet", new Version(9, 0, 305));
-    public static readonly Prerequisite Docker = new CommandLineToolPrerequisite("docker", "Docker", new Version(27, 1, 1));
-    public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(22, 3, 0));
-    public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 63));
-    public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 55));
+    public static readonly Prerequisite Docker = new CommandLineToolPrerequisite("docker", "Docker", new Version(28, 4, 0));
+    public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(24, 7, 0));
+    public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 78));
+    public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 81));
 
     protected abstract bool IsValid();
 
