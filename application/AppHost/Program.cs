@@ -10,7 +10,7 @@ CheckPortAvailability();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var certificatePassword = builder.CreateSslCertificateIfNotExists();
+var certificatePassword = await builder.CreateSslCertificateIfNotExists();
 
 SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
 
