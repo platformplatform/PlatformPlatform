@@ -75,7 +75,6 @@ export function Checkbox({ className, children, ...props }: Readonly<CheckboxPro
       )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
             <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />

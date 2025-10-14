@@ -1,13 +1,19 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": true,
+    "useIgnoreFile": false,
     "defaultBranch": "main"
   },
-  "organizeImports": {
-    "enabled": true
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on"
+        }
+      }
+    }
   },
   "formatter": {
     "indentStyle": "space",
@@ -24,7 +30,7 @@
     "rules": {
       "recommended": true,
       "correctness": {
-        "all": true,
+        "recommended": true,
         "useImportExtensions": "off",
         "noUndeclaredDependencies": "off",
         "noUndeclaredVariables": "error",
@@ -32,7 +38,7 @@
         "noUnusedVariables": "error"
       },
       "suspicious": {
-        "all": true,
+        "recommended": true,
         "noReactSpecificProps": "off",
         "noEmptyBlockStatements": "off",
         "noConsole": {
@@ -43,12 +49,12 @@
         }
       },
       "complexity": {
-        "all": true,
+        "recommended": true,
         "noForEach": "off",
         "useSimplifiedLogicExpression": "off"
       },
       "style": {
-        "all": true,
+        "recommended": true,
         "noUnusedTemplateLiteral": "error",
         "useTemplate": "error",
         "noImplicitBoolean": "error",
@@ -81,10 +87,18 @@
           }
         }
       }
-    },
-    "ignore": ["*/environment.d.ts", "*/tailwind-preset.ts", "*/module-federation-types/*.d.ts"]
+    }
   },
   "files": {
-    "ignore": ["*.Api.json"]
+    "includes": [
+      "**",
+      "!**/dist/**",
+      "!**/environment.d.ts",
+      "!**/tailwind-preset.ts",
+      "!**/module-federation-types/*.d.ts",
+      "!**/*.Api.json",
+      "!**/*.css",
+      "!**/*.generated.*"
+    ]
   }
 }

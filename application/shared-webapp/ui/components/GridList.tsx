@@ -43,7 +43,6 @@ export function GridListItem({ children, ...props }: Readonly<GridListItemProps>
   return (
     <AriaGridListItem textValue={textValue} {...props} className={itemStyles}>
       {({ selectionMode, selectionBehavior, allowsDragging }) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           {/* Add elements for drag and drop and selection. */}
           {allowsDragging && <Button slot="drag">≡</Button>}

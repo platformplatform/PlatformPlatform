@@ -285,15 +285,14 @@ export function AppLayout({
           </div>
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
-        <div
-          role="complementary"
+        <aside
           className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"
         >
           <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
-        </div>
+        </aside>
 
         {/* Main content area */}
         <main

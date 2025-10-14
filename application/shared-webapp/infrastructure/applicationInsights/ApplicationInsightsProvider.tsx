@@ -28,7 +28,7 @@ export function ApplicationInsightsProvider({ children }: Readonly<AppInsightsPr
 const applicationInsights = new ApplicationInsights({
   config: {
     // Set the application ID to the webapp and application
-    appId: import.meta.build_env.APPLICATION_ID,
+    appId: import.meta.build_env.applicationId,
     // Set the instrumentation key to a dummy value as we are not using the default endpoint
     instrumentationKey: "webapp",
     disableInstrumentationKeyValidation: true,

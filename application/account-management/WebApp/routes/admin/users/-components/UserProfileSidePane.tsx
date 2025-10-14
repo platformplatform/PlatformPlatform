@@ -249,7 +249,7 @@ export function UserProfileSidePane({
       {isSmallScreen && <div className="fixed inset-0 z-[59] bg-black/50" aria-hidden="true" />}
 
       {/* Side pane */}
-      <div
+      <section
         ref={sidePaneRef}
         className="relative z-[60] flex h-full w-full flex-col border-border border-l bg-background"
         aria-label={t`User profile`}
@@ -334,7 +334,7 @@ export function UserProfileSidePane({
             </Button>
           </div>
         )}
-      </div>
+      </section>
 
       {/* Change User Role Dialog */}
       {user && (

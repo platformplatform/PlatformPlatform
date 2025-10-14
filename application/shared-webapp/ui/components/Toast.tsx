@@ -172,7 +172,7 @@ interface ToastProps<T> extends AriaToastProps<T> {
 }
 
 function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps<T>>) {
-  const ref = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>; // Note(raix): Remove when fixed in react-aria
+  const ref = useRef<HTMLFieldSetElement>(null) as RefObject<HTMLFieldSetElement>; // Note(raix): Remove when fixed in react-aria
   const { toastProps, titleProps, closeButtonProps, descriptionProps } = useToast(props, state, ref);
   const { content } = props.toast;
 
@@ -248,10 +248,10 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
   if (isReactNode(content)) {
     return (
       <toastContext.Provider value={{ variant: "info" }}>
-        <div
+        <fieldset
           {...toastProps}
           ref={ref}
-          className={toastStyle()}
+          className={`${toastStyle()} border-0 p-6`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
           onFocus={handleFocus}
@@ -259,7 +259,7 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
         >
           <div {...titleProps}>{content}</div>
           {closeButton}
-        </div>
+        </fieldset>
       </toastContext.Provider>
     );
   }
@@ -268,10 +268,10 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
 
   return (
     <toastContext.Provider value={{ variant }}>
-      <div
+      <fieldset
         {...toastProps}
         ref={ref}
-        className={toastStyle({ variant })}
+        className={`${toastStyle({ variant })} border-0 p-6`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onFocus={handleFocus}
@@ -291,7 +291,7 @@ function Toast<T extends ToastContents>({ state, ...props }: Readonly<ToastProps
         </div>
         <div>{action}</div>
         {closeButton}
-      </div>
+      </fieldset>
     </toastContext.Provider>
   );
 }
