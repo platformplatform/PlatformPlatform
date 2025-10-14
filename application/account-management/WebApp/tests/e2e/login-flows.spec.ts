@@ -73,7 +73,8 @@ test.describe("@smoke", () => {
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
       // Try accessing users page
       await page.goto("/admin/users");
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers");
+      // TanStack Router adds default search params, so check that the URL starts with the expected path
+      await expect(page).toHaveURL(/\/login\?returnPath=%2Fadmin%2Fusers/);
       await expectNetworkErrors(context, [401]);
 
       // Try accessing admin dashboard

@@ -1,5 +1,5 @@
 import type { Href } from "@react-types/shared";
-import { type MakeRouteMatch, Link as RouterLink, useRouter } from "@tanstack/react-router";
+import { Link as RouterLink, useRouter } from "@tanstack/react-router";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -100,7 +100,7 @@ const getTargetPath = (to: Href | string, router: ReturnType<typeof useRouter>):
     return to;
   }
   try {
-    return router.buildLocation({ to: to as MakeRouteMatch }).pathname;
+    return router.buildLocation({ to }).pathname;
   } catch {
     return String(to);
   }

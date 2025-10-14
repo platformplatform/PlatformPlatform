@@ -182,9 +182,12 @@ test.describe("@smoke", () => {
     await step("Update user profile title & verify successful profile update")(async () => {
       await page.getByRole("button", { name: "User profile menu" }).click();
       await page.getByRole("menuitem", { name: "Edit profile" }).click();
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
-      await page.getByRole("button", { name: "Save changes" }).click();
+      // Wait for menu popover to close before checking for profile dialog
+      await expect(page.getByRole("dialog", { name: "User profile menu" })).not.toBeVisible();
+      const profileDialog = page.getByRole("dialog", { name: "User profile" });
+      await expect(profileDialog).toBeVisible();
+      await profileDialog.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
+      await profileDialog.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(testContext, 200, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
