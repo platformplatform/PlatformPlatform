@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "dotnet-sonarscanner": {
-      "version": "9.2.1",
+      "version": "11.0.0",
       "commands": ["dotnet-sonarscanner"]
     },
     "jetbrains.dotcover.globaltool": {
@@ -11,15 +11,15 @@
       "commands": ["dotnet-dotcover"]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2024.3.6",
+      "version": "2025.2.4",
       "commands": ["jb"]
     },
     "dotnet-ef": {
-      "version": "9.0.3",
+      "version": "9.0.10",
       "commands": ["dotnet-ef"]
     },
     "aspire.cli": {
-      "version": "9.2.0-preview.1.25209.2",
+      "version": "9.5.2",
       "commands": ["aspire"]
     }
   }
