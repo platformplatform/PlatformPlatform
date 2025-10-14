@@ -16,6 +16,7 @@ SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
+    .WithImageTag("2022-latest") // Fix bug in Aspire 9.5.1 for SQL Server 2025 incompatibility with ARM computers (see https://github.com/dotnet/aspire/issues/11736)
     .WithDataVolume("platform-platform-sql-server-data")
     .WithLifetime(ContainerLifetime.Persistent);
 
