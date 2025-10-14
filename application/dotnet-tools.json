@@ -3,24 +3,34 @@
   "isRoot": true,
   "tools": {
     "dotnet-sonarscanner": {
-      "version": "9.2.1",
-      "commands": ["dotnet-sonarscanner"]
+      "version": "10.4.1",
+      "commands": [
+        "dotnet-sonarscanner"
+      ]
     },
     "jetbrains.dotcover.globaltool": {
       "version": "2023.2.5",
-      "commands": ["dotnet-dotcover"]
+      "commands": [
+        "dotnet-dotcover"
+      ]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2024.3.6",
-      "commands": ["jb"]
+      "version": "2025.2.3",
+      "commands": [
+        "jb"
+      ]
     },
     "dotnet-ef": {
-      "version": "9.0.3",
-      "commands": ["dotnet-ef"]
+      "version": "9.0.9",
+      "commands": [
+        "dotnet-ef"
+      ]
     },
     "aspire.cli": {
-      "version": "9.2.0-preview.1.25209.2",
-      "commands": ["aspire"]
+      "version": "9.5.1",
+      "commands": [
+        "aspire"
+      ]
     }
   }
 }
