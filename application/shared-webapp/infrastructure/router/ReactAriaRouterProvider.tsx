@@ -1,4 +1,4 @@
-import type { NavigateOptions, RegisteredRouter, RoutePaths, ToOptions, ToPathOption } from "@tanstack/react-router";
+import type { NavigateOptions, RegisteredRouter, ToOptions, ToPathOption } from "@tanstack/react-router";
 import { useRouter } from "@tanstack/react-router";
 import type React from "react";
 import { RouterProvider } from "react-aria-components";
@@ -14,14 +14,9 @@ import { RouterProvider } from "react-aria-components";
 type AdditionalPathsType = `https://${string}` | `http://${string}`;
 const additionalPathPrefixes: AdditionalPathsType[] = ["https://", "http://"];
 
-/**
- * Routes part of the route tree.
- */
-type RoutePathsType = RoutePaths<RegisteredRouter["routeTree"]>;
-
 declare module "react-aria-components" {
   interface RouterConfig {
-    href: ToPathOption<RegisteredRouter, RoutePathsType, RoutePathsType | AdditionalPathsType>;
+    href: ToPathOption<RegisteredRouter> | AdditionalPathsType;
     routerOptions: Omit<NavigateOptions, keyof ToOptions>;
   }
 }
