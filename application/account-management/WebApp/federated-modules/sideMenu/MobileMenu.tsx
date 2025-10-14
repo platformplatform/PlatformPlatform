@@ -1,15 +1,15 @@
-import type { components } from "@/shared/lib/api/api.generated";
-import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { SideMenuSeparator, overlayContext } from "@repo/ui/components/SideMenu";
+import { overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MailQuestion, UserIcon } from "lucide-react";
 import { useContext } from "react";
+import type { components } from "@/shared/lib/api/api.generated";
+import { api } from "@/shared/lib/api/client";
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import { SupportDialog } from "../common/SupportDialog";
 import TenantSelector from "../common/TenantSelector";

@@ -1,4 +1,3 @@
-import { type Schemas, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
@@ -16,6 +15,7 @@ import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Label } from "react-aria-components";
+import { api, type Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"]; // Align with backend

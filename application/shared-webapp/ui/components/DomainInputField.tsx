@@ -4,17 +4,17 @@ import { useFocusRing } from "react-aria";
 import {
   TextField as AriaTextField,
   type TextFieldProps as AriaTextFieldProps,
+  FormValidationContext,
   type ValidationResult
 } from "react-aria-components";
-import { FormValidationContext } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
+import { focusRing } from "./focusRing";
 import { Group } from "./Group";
 import { Input } from "./Input";
 import { Label } from "./Label";
-import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
 
 const inputStyles = tv({

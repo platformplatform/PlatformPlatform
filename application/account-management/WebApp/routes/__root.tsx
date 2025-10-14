@@ -1,8 +1,6 @@
-import AuthSyncModalComponent from "@/federated-modules/common/AuthSyncModal";
-import { queryClient } from "@/shared/lib/api/client";
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
-import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
 import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
@@ -10,7 +8,9 @@ import { useInitializeLocale } from "@repo/infrastructure/translations/useInitia
 import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Outlet, createRootRoute, useNavigate } from "@tanstack/react-router";
+import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import AuthSyncModalComponent from "@/federated-modules/common/AuthSyncModal";
+import { queryClient } from "@/shared/lib/api/client";
 
 export const Route = createRootRoute({
   component: Root,

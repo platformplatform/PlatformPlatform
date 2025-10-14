@@ -9,14 +9,14 @@ import {
   CheckboxGroup as AriaCheckboxGroup,
   type CheckboxGroupProps as AriaCheckboxGroupProps,
   type CheckboxProps,
-  type ValidationResult,
-  composeRenderProps
+  composeRenderProps,
+  type ValidationResult
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "children"> {
@@ -75,7 +75,6 @@ export function Checkbox({ className, children, ...props }: Readonly<CheckboxPro
       )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
             <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />

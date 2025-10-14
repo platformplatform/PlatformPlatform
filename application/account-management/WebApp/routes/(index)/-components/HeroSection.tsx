@@ -1,5 +1,3 @@
-import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
-import logoMark from "@/shared/images/logo-mark.svg";
 import { LoginButton } from "@repo/infrastructure/auth/LoginButton";
 import { SignUpButton } from "@repo/infrastructure/auth/SignUpButton";
 import { Badge } from "@repo/ui/components/Badge";
@@ -10,6 +8,8 @@ import { Popover } from "@repo/ui/components/Popover";
 import { ArrowRightIcon, ChevronDownIcon, GithubIcon } from "lucide-react";
 import type React from "react";
 import { DialogTrigger } from "react-aria-components";
+import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
+import logoMark from "@/shared/images/logo-mark.svg";
 import { heroDesktopUrl, heroMobileUrl, logoWrap } from "./cdnImages";
 
 // HeroSection: A functional component that displays the hero section
@@ -43,7 +43,7 @@ export function HeroSection() {
         <ProductDescription />
         <ActionButtons />
       </div>
-      <div className=" flex justify-center px-24">
+      <div className="flex justify-center px-24">
         <img className="hidden rounded-t-2xl md:block" src={heroDesktopUrl} alt="Footer" />
         <img className="md:hidden" src={heroMobileUrl} alt="Footer" />
       </div>
@@ -124,7 +124,7 @@ function ProductTitle() {
 }
 
 function ProductSubtitle() {
-  return <h4 className="font-semibold text-base text-muted-foreground ">Super. Simple. SaaS.</h4>;
+  return <h4 className="font-semibold text-base text-muted-foreground">Super. Simple. SaaS.</h4>;
 }
 
 function ProductDescription() {

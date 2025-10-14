@@ -36,7 +36,7 @@ export async function getWorkerTenant(
 
   // Check if we have valid authentication state for the owner (primary user)
   const ownerStorageStatePath = getStorageStatePath(workerIndex, "owner", selfContainedSystemPrefix);
-  const hasValidAuth = await isAuthenticationStateValid(ownerStorageStatePath);
+  const _hasValidAuth = await isAuthenticationStateValid(ownerStorageStatePath);
 
   // Always create the tenant object structure
   const tenant = createTenantWithUsers(workerIndex, selfContainedSystemPrefix);
@@ -57,7 +57,6 @@ export async function getWorkerTenant(
 export function getSelfContainedSystemPrefix(): string | undefined {
   // Try to extract from current working directory
   const cwd = process.cwd();
-  const match = cwd.match(/application\/([^\/]+)\/WebApp/);
+  const match = cwd.match(/application\/([^/]+)\/WebApp/);
   return match ? match[1] : undefined;
 }
-

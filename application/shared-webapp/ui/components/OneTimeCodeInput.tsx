@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useId, useImperativeHandle, useMemo, useState } from "react";
-import { Digit } from "./Digit";
 import type { DigitPattern } from "./Digit";
+import { Digit } from "./Digit";
 
 export interface OneTimeCodeInputProps {
   disabled?: boolean;
@@ -86,10 +86,9 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
     onValueChange?.(newValue, newIsComplete);
   };
   return (
-    <div className="flex flex-row gap-4" aria-label={ariaLabel}>
+    <fieldset className="flex flex-row gap-4 border-0 p-0" aria-label={ariaLabel}>
       {digits.map((digit, i) => (
         <Digit
-          // biome-ignore lint/suspicious/noArrayIndexKey: The index is used as a unique key for the digit
           key={i}
           id={digitRefs[i]}
           value={digit}
@@ -101,6 +100,6 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
         />
       ))}
       <input type="hidden" name={name} value={inputValue} />
-    </div>
+    </fieldset>
   );
 });

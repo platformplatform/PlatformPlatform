@@ -19,10 +19,11 @@ import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
 import { FieldError } from "./FieldError";
+import { focusRing } from "./focusRing";
 import { Label } from "./Label";
 import { Popover } from "./Popover";
-import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
+
 export type { Key } from "react-aria-components";
 
 const buttonStyles = tv({

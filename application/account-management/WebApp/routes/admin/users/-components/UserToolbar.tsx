@@ -1,11 +1,11 @@
-import type { components } from "@/shared/lib/api/client";
-import { UserRole, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
+import type { components } from "@/shared/lib/api/client";
+import { api, UserRole } from "@/shared/lib/api/client";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import InviteUserDialog from "./InviteUserDialog";
 import { TenantNameRequiredDialog } from "./TenantNameRequiredDialog";

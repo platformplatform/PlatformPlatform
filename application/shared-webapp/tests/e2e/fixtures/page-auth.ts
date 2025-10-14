@@ -1,10 +1,9 @@
-import { type Browser, type BrowserContext, type Page, test as base, expect } from "@playwright/test";
+import { type Browser, type BrowserContext, test as base, expect, type Page } from "@playwright/test";
 import { createAuthStateManager } from "@shared/e2e/auth/auth-state-manager";
 import { getSelfContainedSystemPrefix, getWorkerTenant } from "@shared/e2e/fixtures/worker-auth";
 import type { Tenant, User, UserRole } from "@shared/e2e/types/auth";
+import { assertNoUnexpectedErrors, createTestContext, type TestContext } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow } from "@shared/e2e/utils/test-data";
-import { createTestContext, assertNoUnexpectedErrors, type TestContext } from "@shared/e2e/utils/test-assertions";
-
 
 // Extend the global interface to include testTenant
 declare global {
@@ -68,7 +67,7 @@ async function performFreshAuthentication(
     await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
     await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
     await page.getByRole("button", { name: "Save" }).click();
-    
+
     const { expectToastMessage } = await import("../utils/test-assertions.js");
     await expectToastMessage(testContext, "Account name updated successfully");
   }

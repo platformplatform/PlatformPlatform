@@ -1,5 +1,3 @@
-import type { components } from "@/shared/lib/api/api.generated";
-import { api } from "@/shared/lib/api/client";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
@@ -8,6 +6,8 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { Text } from "@repo/ui/components/Text";
 import { XIcon } from "lucide-react";
+import type { components } from "@/shared/lib/api/api.generated";
+import { api } from "@/shared/lib/api/client";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
 

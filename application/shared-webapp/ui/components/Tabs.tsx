@@ -7,11 +7,11 @@ import {
   TabList as AriaTabList,
   TabPanel as AriaTabPanel,
   Tabs as AriaTabs,
+  composeRenderProps,
   type TabListProps,
   type TabPanelProps,
   type TabProps,
-  type TabsProps,
-  composeRenderProps
+  type TabsProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";

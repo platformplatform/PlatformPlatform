@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { type ThemeMode, sanitizeThemeMode } from "./utils";
+import { sanitizeThemeMode, type ThemeMode } from "./utils";
 
 const STORAGE_KEY = "preferred-theme";
 

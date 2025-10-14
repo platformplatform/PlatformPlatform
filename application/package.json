@@ -41,7 +41,7 @@
     "zod": "4.1.12"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "2.3.4",
     "@faker-js/faker": "10.1.0",
     "@lingui/cli": "5.1.0",
     "@lingui/format-po": "5.1.0",

@@ -5,8 +5,8 @@ import {
   ListBox as AriaListBox,
   ListBoxItem as AriaListBoxItem,
   type ListBoxProps as AriaListBoxProps,
-  type ListBoxItemProps,
-  composeRenderProps
+  composeRenderProps,
+  type ListBoxItemProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";

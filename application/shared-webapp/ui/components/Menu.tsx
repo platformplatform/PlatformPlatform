@@ -8,12 +8,12 @@ import {
   Menu as AriaMenu,
   MenuItem as AriaMenuItem,
   type MenuProps as AriaMenuProps,
+  composeRenderProps,
   Header,
   Keyboard,
   type MenuItemProps,
   Separator,
-  type SeparatorProps,
-  composeRenderProps
+  type SeparatorProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { DropdownSection, type DropdownSectionProps, dropdownItemStyles } from "./Dropdown";

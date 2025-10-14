@@ -2,7 +2,7 @@ import type React from "react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { getStorageThemeMode, useStorageThemeMode } from "./useStorageThemeMode";
 import { getSystemThemeMode, useSystemThemeMode } from "./useSystemThemeMode";
-import { SystemThemeMode, ThemeMode, resolveThemeMode, setClassNameThemeMode } from "./utils";
+import { resolveThemeMode, SystemThemeMode, setClassNameThemeMode, ThemeMode } from "./utils";
 
 type ThemeModeSetter = (mode: ThemeMode) => ThemeMode;
 

@@ -1,5 +1,3 @@
-import { UserRole, api, type components } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
@@ -9,6 +7,8 @@ import { Modal } from "@repo/ui/components/Modal";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useCallback, useState } from "react";
+import { api, type components, UserRole } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
 type UserDetails = components["schemas"]["UserDetails"];
 

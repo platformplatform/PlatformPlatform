@@ -1,7 +1,7 @@
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
  */
-import { Group, type GroupProps, composeRenderProps } from "react-aria-components";
+import { composeRenderProps, Group, type GroupProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { focusRing } from "./focusRing";
 

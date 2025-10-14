@@ -9,9 +9,9 @@ import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
+import { focusRing } from "./focusRing";
 import { Link } from "./Link";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
-import { focusRing } from "./focusRing";
 
 export const collapsedContext = createContext(false);
 export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
@@ -745,12 +745,10 @@ const _getClientCoordinates = (
 
 // Backdrop component for overlay mode
 const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
-  <div
+  <button
+    type="button"
     className="fixed top-0 right-0 bottom-0 left-[72px] z-40 bg-black/50 transition-opacity duration-100 sm:block md:z-[65] xl:hidden"
     onClick={closeOverlay}
-    onKeyDown={(e) => e.key === "Enter" && closeOverlay()}
-    role="button"
-    tabIndex={0}
     aria-label="Close menu"
   />
 );
@@ -908,13 +906,17 @@ const MenuNav = ({
     aria-label="Main navigation"
   >
     {/* Vertical divider line - draggable on XL screens */}
-    <div
-      className={`absolute top-0 right-0 h-full border-border border-r ${
-        shouldShowResizeHandle ? "w-2 cursor-col-resize" : ""
-      }`}
-      onMouseDown={shouldShowResizeHandle ? handleResizeStart : undefined}
-      onTouchStart={shouldShowResizeHandle ? handleResizeStart : undefined}
-    />
+    {shouldShowResizeHandle ? (
+      <button
+        type="button"
+        className="absolute top-0 right-0 h-full w-2 cursor-col-resize border-border border-r bg-transparent p-0"
+        onMouseDown={handleResizeStart}
+        onTouchStart={handleResizeStart}
+        aria-label="Resize sidebar"
+      />
+    ) : (
+      <div className="absolute top-0 right-0 h-full border-border border-r" />
+    )}
 
     {/* Fixed header section with logo */}
     <div className="relative flex h-[72px] w-full shrink-0 items-center">

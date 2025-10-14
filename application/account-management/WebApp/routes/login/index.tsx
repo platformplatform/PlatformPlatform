@@ -1,8 +1,3 @@
-import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
-import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
@@ -13,8 +8,13 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
+import { api } from "@/shared/lib/api/client";
 import { getSignupState } from "../signup/-shared/signupState";
 import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 

@@ -11,7 +11,7 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
   const prefix = selfContainedSystemPrefix ? `${selfContainedSystemPrefix}-` : "";
 
   // Compact timestamp (YY-MM-DDTHH-MM)
-  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "");
 
   const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 

@@ -1,10 +1,10 @@
-import { api, type components } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useCallback } from "react";
+import { api, type components } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
