@@ -19,7 +19,7 @@ public sealed class RemoveTenantLogoHandler(
 {
     public async Task<Result> Handle(RemoveTenantLogoCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
+        if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
             return Result.Forbidden("Only owners are allowed to remove tenant logo.");
         }

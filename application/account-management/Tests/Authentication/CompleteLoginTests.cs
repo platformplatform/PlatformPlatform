@@ -237,7 +237,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -253,7 +253,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("LastName", Faker.Name.LastName()),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Owner.ToString()),
+                ("Role", nameof(UserRole.Owner)),
                 ("Locale", "en-US")
             ]
         );
@@ -310,7 +310,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );

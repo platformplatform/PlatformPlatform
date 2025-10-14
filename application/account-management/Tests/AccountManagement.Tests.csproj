@@ -12,12 +12,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Api\AccountManagement.Api.csproj" />
-        <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj" />
+        <ProjectReference Include="..\Api\AccountManagement.Api.csproj"/>
+        <ProjectReference Include="..\..\shared-kernel\Tests\SharedKernel.Tests.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
     </ItemGroup>
 
     <ItemGroup>

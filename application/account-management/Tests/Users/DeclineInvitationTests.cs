@@ -27,7 +27,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", TenantState.Trial.ToString()),
+                ("State", nameof(TenantState.Trial)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -43,7 +43,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("LastName", null),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "")
             ]
         );
@@ -97,7 +97,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", TenantState.Trial.ToString()),
+                ("State", nameof(TenantState.Trial)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -107,7 +107,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", TenantState.Trial.ToString()),
+                ("State", nameof(TenantState.Trial)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -123,7 +123,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("LastName", null),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "")
             ]
         );
@@ -139,7 +139,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("LastName", null),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "")
             ]
         );
