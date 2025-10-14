@@ -1,6 +1,4 @@
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
-using Microsoft.OpenApi.Writers;
+using Microsoft.OpenApi;
 using Yarp.ReverseProxy.Configuration;
 
 namespace PlatformPlatform.AppGateway.ApiAggregation;
@@ -28,7 +26,7 @@ public class ApiAggregationService(
             Paths = new OpenApiPaths(),
             Components = new OpenApiComponents
             {
-                Schemas = new Dictionary<string, OpenApiSchema>()
+                Schemas = new Dictionary<string, IOpenApiSchema>()
             }
         };
 
@@ -72,15 +70,12 @@ public class ApiAggregationService(
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync();
-        var reader = new OpenApiStreamReader();
-        var openApiDocument = reader.Read(stream, out _);
-        return openApiDocument;
+        var (openApiDocument, _) = await OpenApiDocument.LoadAsync(stream);
+        return openApiDocument ?? throw new InvalidOperationException($"Failed to load OpenAPI document from {clusterOpenApiUrl}");
     }
 
     private void CombineOpenApiDocuments(OpenApiDocument aggregatedOpenApiDocument, OpenApiDocument openApiDocument)
     {
-        if (openApiDocument.Paths is null) return;
-
         // Merge paths
         foreach (var path in openApiDocument.Paths)
         {
@@ -91,7 +86,7 @@ public class ApiAggregationService(
         }
 
         // Merge schemas
-        if (openApiDocument.Components?.Schemas is not null)
+        if (openApiDocument.Components?.Schemas is not null && aggregatedOpenApiDocument.Components?.Schemas is not null)
         {
             foreach (var schema in openApiDocument.Components.Schemas)
             {
@@ -106,9 +101,10 @@ public class ApiAggregationService(
             }
         }
 
+        var serverUrl = openApiDocument.Servers?.FirstOrDefault()?.Url ?? "unknown";
         logger.LogInformation(
             "Successfully fetched and merged OpenAPI document for {ServerUrl}",
-            openApiDocument.Servers.Single().Url
+            serverUrl
         );
     }
 
