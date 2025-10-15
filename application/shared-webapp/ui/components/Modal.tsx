@@ -43,7 +43,7 @@ const overlayStyles = tv({
 });
 
 const modalStyles = tv({
-  base: "flex w-full flex-col overflow-hidden bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
+  base: "flex flex-col overflow-hidden bg-popover bg-clip-padding text-left align-middle text-foreground shadow-2xl dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]",
   variants: {
     isEntering: {
       true: "zoom-in-105 animate-in duration-200 ease-out"
@@ -52,8 +52,8 @@ const modalStyles = tv({
       true: "zoom-out-95 animate-out duration-200 ease-in"
     },
     isFullScreenMobile: {
-      true: "max-sm:h-full max-sm:max-h-full max-sm:rounded-none max-sm:border-0 sm:max-h-[calc(100vh-2rem)] sm:w-fit sm:rounded-lg sm:border sm:border-border",
-      false: "max-h-[calc(100vh-2rem)] rounded-lg border border-border sm:w-fit"
+      true: "max-sm:h-full max-sm:max-h-full max-sm:w-full max-sm:rounded-none max-sm:border-0 sm:max-h-[calc(100vh-2rem)] sm:rounded-lg sm:border sm:border-border",
+      false: "max-h-[calc(100vh-2rem)] rounded-lg border border-border"
     }
   },
   defaultVariants: {

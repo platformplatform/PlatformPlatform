@@ -135,7 +135,10 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           </Heading>
         </Dialog>
       ) : (
-        <Dialog aria-label={t`User profile`} className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden">
+        <Dialog
+          aria-label={t`User profile`}
+          className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-lg"
+        >
           <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
           <DialogHeader description={<Trans>Update your profile picture and personal details here.</Trans>}>
             <Heading slot="title" className="text-2xl">
