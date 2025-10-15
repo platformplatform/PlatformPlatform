@@ -1,9 +1,7 @@
 using System.CommandLine;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using ModelContextProtocol.Server;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -149,7 +147,6 @@ public class ClaudeAgentCommand : Command
         string agentWorkspaceDirectory,
         string messagesDirectory)
     {
-
         // Get next task counter
         var taskCounterFile = Path.Combine(messagesDirectory, ".task-counter");
         var taskCounter = 1;
@@ -157,6 +154,7 @@ public class ClaudeAgentCommand : Command
         {
             taskCounter = existingCounter + 1;
         }
+
         await File.WriteAllTextAsync(taskCounterFile, taskCounter.ToString());
 
         // Create request file
@@ -171,7 +169,7 @@ public class ClaudeAgentCommand : Command
         var taskInfo = new
         {
             task_number = $"{taskCounter:D4}",
-            request_file_path = taskRequestFilePath,  // Full absolute path
+            request_file_path = taskRequestFilePath, // Full absolute path
             started_at = DateTime.UtcNow.ToString("O"),
             attempt = 1,
             branch = GitHelper.GetCurrentBranch(),
@@ -185,15 +183,15 @@ public class ClaudeAgentCommand : Command
         var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
         await File.WriteAllTextAsync(taskIdFile, $"{taskCounter:D4}");
 
-        LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]", messagesDirectory);
+        LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
         // Wait for response file (interactive agent will process it)
         var startTime = DateTime.Now;
         var overallTimeout = TimeSpan.FromHours(2);
-        string? foundResponseFile = null;
+        string? foundResponseFile;
         var responseFilePattern = $"{taskCounter:D4}.{agentType}.response.*.md";
 
-        while (foundResponseFile == null)
+        while (true)
         {
             if (DateTime.Now - startTime > overallTimeout)
             {
@@ -220,7 +218,7 @@ public class ClaudeAgentCommand : Command
         var responseContent = await File.ReadAllTextAsync(foundResponseFile);
         var actualResponseFileName = Path.GetFileName(foundResponseFile);
 
-        LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]", messagesDirectory);
+        LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]");
 
         return $"Task delegated successfully to {agentType}.\n" +
                $"Task number: {taskCounter:D4}\n" +
@@ -287,6 +285,7 @@ public class ClaudeAgentCommand : Command
             {
                 counter = currentCounter + 1;
             }
+
             await File.WriteAllTextAsync(counterFile, counter.ToString());
 
             // Create request file
@@ -303,7 +302,7 @@ public class ClaudeAgentCommand : Command
             var currentTaskInfo = new
             {
                 task_number = $"{counter:D4}",
-                request_file_path = requestFile,  // Full absolute path
+                request_file_path = requestFile, // Full absolute path
                 started_at = DateTime.UtcNow.ToString("O"),
                 attempt = 1,
                 branch = branchName,
@@ -370,7 +369,7 @@ public class ClaudeAgentCommand : Command
             // Track active worker session
             AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
 
-            LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]", messagesDirectory);
+            LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]");
 
             try
             {
@@ -385,6 +384,7 @@ public class ClaudeAgentCommand : Command
                 {
                     File.Delete(hostProcessIdFile);
                 }
+
                 if (File.Exists(workerProcessIdFile))
                 {
                     File.Delete(workerProcessIdFile);
@@ -400,6 +400,7 @@ public class ClaudeAgentCommand : Command
             {
                 File.Delete(hostProcessIdFile);
             }
+
             if (File.Exists(workerProcessIdFile))
             {
                 File.Delete(workerProcessIdFile);
@@ -1283,7 +1284,7 @@ public class ClaudeAgentCommand : Command
             currentProcessId = restartResult.ProcessId;
             restartCount++;
 
-            LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 20 minutes (no git changes), restarted (attempt {restartCount})", messagesDirectory);
+            LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 20 minutes (no git changes), restarted (attempt {restartCount})");
         }
 
         // Check for overall timeout
@@ -1310,7 +1311,7 @@ public class ClaudeAgentCommand : Command
         var responseFileName = Path.GetFileName(responseFilePath);
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
 
-        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})", messagesDirectory);
+        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})");
 
         return $"Task completed successfully by {agentType}.\n" +
                $"Task number: {counter:D4}\n" +
@@ -1396,12 +1397,12 @@ public class ClaudeAgentCommand : Command
         AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
 
-    private static void LogWorkerActivity(string message, string messagesDirectory)
+    private static void LogWorkerActivity(string message)
     {
         Logger.Debug(message);
     }
 
-    internal static void LogWorkflowEvent(string message, string messagesDirectory)
+    internal static void LogWorkflowEvent(string message)
     {
         Logger.Debug(message);
     }
@@ -1506,7 +1507,7 @@ public class ClaudeAgentCommand : Command
         File.Delete(taskIdFile);
 
         // Log completion
-        LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]", messagesDirectory);
+        LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]");
 
         // Wait for Claude Code to persist session state before killing process
         await Task.Delay(TimeSpan.FromSeconds(10));
@@ -1575,7 +1576,7 @@ public class ClaudeAgentCommand : Command
         File.Delete(taskIdFile);
 
         // Log completion
-        LogWorkflowEvent($"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]", messagesDirectory);
+        LogWorkflowEvent($"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]");
 
         // Wait for Claude Code to persist session state before killing process
         await Task.Delay(TimeSpan.FromSeconds(10));
@@ -1617,6 +1618,7 @@ public class ClaudeAgentCommand : Command
         if (!taskInfo.TryGetProperty("started_at", out var startedAtElement) ||
             !taskInfo.TryGetProperty("attempt", out var attemptElement))
         {
+            File.Delete(currentTaskFile);
             return null;
         }
 
@@ -1624,7 +1626,11 @@ public class ClaudeAgentCommand : Command
         var attempt = attemptElement.GetInt32();
         var elapsedSeconds = (int)(DateTime.UtcNow - startedAt).TotalSeconds;
 
-        if (elapsedSeconds >= 60 || attempt != 1) return null;
+        if (elapsedSeconds >= 60 || attempt > 1)
+        {
+            File.Delete(currentTaskFile);
+            return null;
+        }
 
         // Increment attempt counter
         var updatedTaskInfo = new
@@ -1632,7 +1638,7 @@ public class ClaudeAgentCommand : Command
             task_number = taskInfo.GetProperty("task_number").GetString(),
             request_file_path = taskInfo.GetProperty("request_file_path").GetString(),
             started_at = startedAtElement.GetString(),
-            attempt = 2,
+            attempt = ++attempt,
             branch = taskInfo.GetProperty("branch").GetString(),
             title = taskInfo.GetProperty("title").GetString()
         };
@@ -1640,12 +1646,12 @@ public class ClaudeAgentCommand : Command
         await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
 
         return $"""
-            Task assigned {elapsedSeconds} seconds ago - too soon to complete.
+                Task assigned {elapsedSeconds} seconds ago - too soon to complete.
 
-            If you see a previous task in your conversation history: That task is already done. You died and were reborn for THIS task. Do not call {methodName} for old tasks.
+                If you see a previous task in your conversation history: That task is already done. You died and were reborn for THIS task. Do not call {methodName} for old tasks.
 
-            If you genuinely completed THIS task already, call {methodName} again to confirm.
-            """;
+                If you genuinely completed THIS task already, call {methodName} again to confirm.
+                """;
     }
 }
 

@@ -193,7 +193,8 @@ public class TranslateCommand : Command
 
             AnsiConsole.MarkupLine(toReturn.Count > 0
                 ? $"[green]{toReturn.Count} entries have been translated.[/]"
-                : "[yellow]No entries were translated.[/]");
+                : "[yellow]No entries were translated.[/]"
+            );
 
             return toReturn;
         }
