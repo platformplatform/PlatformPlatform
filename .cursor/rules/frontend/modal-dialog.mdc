@@ -15,44 +15,73 @@ Carefully follow these instructions when implementing modal dialogs in the front
 4. Use `onPress` instead of `onClick` for event handlers.
 5. Include appropriate aria labels for accessibility.
 6. Use `<Trans>...</Trans>` or t\`...\` for translations (content should be plain English).
+7. **REQUIRED**: Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, or `sm:w-dialog-xl`) to every `Dialog` component.
+
+## Dialog Sizing
+
+Every dialog must have a fixed width class to ensure consistent sizing across languages:
+
+- `sm:w-dialog-md` - Use for most dialogs: alerts, confirmations, simple forms (1-3 fields), informational dialogs
+- `sm:w-dialog-lg` - Use for standard forms with multiple fields (4-6 fields)
+- `sm:w-dialog-xl` - Use for complex forms with many fields, file uploads, or multi-section content
+
+The `AlertDialog` component has `sm:w-dialog-md` as its default size, but can be overridden if needed.
 
 ## Examples
 
-### Example 1 - Simple Dialog
+### Example 1 - Simple Form Dialog
 
 ```typescript
 const [isOpen, setIsOpen] = useState(false);
 
-const openDialog = () => setIsOpen(true);
-const closeDialog = () => setIsOpen(false);
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+  <Dialog className="sm:w-dialog-md">
+    <XIcon
+      onClick={() => setIsOpen(false)}
+      className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
+    />
+    <DialogHeader description={<Trans>Enter the email address.</Trans>}>
+      <Heading slot="title" className="text-2xl">
+        <Trans>Invite user</Trans>
+      </Heading>
+    </DialogHeader>
 
-// Button to open the dialog
-<Button onPress={openDialog}>
-  <Trans>Open Dialog</Trans>
-</Button>
-
-// The dialog itself
-<DialogContainer isOpen={isOpen} onDismiss={closeDialog}>
-  <Dialog>
-    <Heading>
-      <Trans>Dialog Title</Trans>
-    </Heading>
-    <Content>
-      <Text>
-        <Trans>Dialog content goes here</Trans>
-      </Text>
-    </Content>
-    <ButtonGroup>
-      <Button variant="secondary" onPress={closeDialog}>
-        <Trans>Cancel</Trans>
-      </Button>
-      <Button variant="primary" onPress={() => {
-        // Action logic here
-        closeDialog();
-      }}>
-        <Trans>Confirm</Trans>
-      </Button>
-    </ButtonGroup>
+    <Form onSubmit={handleSubmit}>
+      <DialogContent className="flex flex-col gap-4">
+        <TextField
+          autoFocus={true}
+          isRequired={true}
+          name="email"
+          label={t`Email`}
+        />
+      </DialogContent>
+      <DialogFooter>
+        <Button variant="secondary" onPress={() => setIsOpen(false)}>
+          <Trans>Cancel</Trans>
+        </Button>
+        <Button type="submit">
+          <Trans>Send invite</Trans>
+        </Button>
+      </DialogFooter>
+    </Form>
   </Dialog>
-</DialogContainer>
+</Modal>
 ```
+
+### Example 2 - Alert Dialog
+
+```typescript
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+  <AlertDialog
+    title={t`Delete user`}
+    variant="destructive"
+    actionLabel={t`Delete`}
+    cancelLabel={t`Cancel`}
+    onAction={handleDelete}
+  >
+    <Trans>Are you sure you want to delete this user?</Trans>
+  </AlertDialog>
+</Modal>
+```
+
+Note: `AlertDialog` has `sm:w-dialog-md` as default, no need to specify unless you want a different size.
