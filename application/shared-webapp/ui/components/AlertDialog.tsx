@@ -3,6 +3,7 @@ import { type ReactNode, useId } from "react";
 import { chain } from "react-aria";
 import type { DialogProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
+import { twMerge } from "tailwind-merge";
 import { Button } from "./Button";
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
@@ -45,7 +46,7 @@ export function AlertDialog({
 }: Readonly<AlertDialogProps>) {
   const contentId = useId();
   return (
-    <Dialog role="alertdialog" aria-describedby={contentId} {...props}>
+    <Dialog role="alertdialog" aria-describedby={contentId} {...props} className={twMerge("sm:w-dialog-md", props.className)}>
       {({ close }) => (
         <>
           <Heading slot="title">{title}</Heading>
