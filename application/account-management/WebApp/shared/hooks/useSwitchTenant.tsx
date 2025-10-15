@@ -1,8 +1,8 @@
+import { t } from "@lingui/core/macro";
+import { authSyncService, type TenantSwitchedMessage } from "@repo/infrastructure/auth/AuthSyncService";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
-import { t } from "@lingui/core/macro";
-import { type TenantSwitchedMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
 

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, ImgHTMLAttributes } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ImageLoaderOptions {
   src: string;

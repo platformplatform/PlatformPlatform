@@ -9,14 +9,14 @@ import {
   CheckboxGroup as AriaCheckboxGroup,
   type CheckboxGroupProps as AriaCheckboxGroupProps,
   type CheckboxProps,
-  type ValidationResult,
-  composeRenderProps
+  composeRenderProps,
+  type ValidationResult
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "children"> {

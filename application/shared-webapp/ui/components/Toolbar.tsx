@@ -1,7 +1,7 @@
 /**
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/toolbar--docs
  */
-import { Toolbar as AriaToolbar, type ToolbarProps, composeRenderProps } from "react-aria-components";
+import { Toolbar as AriaToolbar, composeRenderProps, type ToolbarProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
 export { Group as ToolbarGroup } from "react-aria-components";

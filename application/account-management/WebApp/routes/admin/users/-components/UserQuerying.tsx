@@ -1,6 +1,3 @@
-import { type SortOrder, type SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 import { parseDate } from "@internationalized/date";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -18,6 +15,9 @@ import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {

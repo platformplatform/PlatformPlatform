@@ -1,4 +1,3 @@
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -12,6 +11,7 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
 import { useEffect } from "react";
+import { api } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
   isOpen: boolean;

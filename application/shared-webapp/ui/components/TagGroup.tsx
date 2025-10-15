@@ -9,16 +9,16 @@ import {
   type TagGroupProps as AriaTagGroupProps,
   type TagProps as AriaTagProps,
   Button,
+  composeRenderProps,
   TagList,
   type TagListProps,
-  Text,
-  composeRenderProps
+  Text
 } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 
 const variants = {
   primary:

@@ -8,7 +8,7 @@ import { XIcon } from "lucide-react";
  * ref: https://ui.shadcn.com/docs/components/toast
  */
 import type React from "react";
-import { type RefObject, createContext, isValidElement, useContext, useEffect, useRef, useState } from "react";
+import { createContext, isValidElement, type RefObject, useContext, useEffect, useRef, useState } from "react";
 import { Button as AriaButton } from "react-aria-components";
 import { createPortal } from "react-dom";
 import { tv } from "tailwind-variants";

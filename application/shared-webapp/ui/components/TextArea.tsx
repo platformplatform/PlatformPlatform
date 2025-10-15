@@ -12,8 +12,8 @@ import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 const textAreaStyles = tv({

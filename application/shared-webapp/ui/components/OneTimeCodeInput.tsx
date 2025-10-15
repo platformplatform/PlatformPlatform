@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useId, useImperativeHandle, useMemo, useState } from "react";
-import { Digit } from "./Digit";
 import type { DigitPattern } from "./Digit";
+import { Digit } from "./Digit";
 
 export interface OneTimeCodeInputProps {
   disabled?: boolean;

@@ -2,8 +2,9 @@
  * ref: https://react-spectrum.adobe.com/react-aria/DropZone.html
  * ref: https://ui.shadcn.com/docs/components/input
  */
-import { DropZone as AriaDropZone, composeRenderProps } from "react-aria-components";
+
 import type { DropZoneProps } from "react-aria-components";
+import { DropZone as AriaDropZone, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 
 const dropZoneStyles = tv({

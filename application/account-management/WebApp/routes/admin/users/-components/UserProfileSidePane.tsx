@@ -1,5 +1,3 @@
-import type { components } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -15,6 +13,8 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { InfoIcon, Trash2Icon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import type { components } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];

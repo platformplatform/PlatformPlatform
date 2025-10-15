@@ -1,7 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { createTestContext } from "@shared/e2e/utils/test-assertions";
-import {} from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 test.describe("@smoke", () => {

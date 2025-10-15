@@ -1,6 +1,6 @@
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { Navigate, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { CommunitySection } from "./-components/CommunitySection";
 import { CtaSection } from "./-components/CtaSection";
 import { CtaSection2 } from "./-components/CtaSection2";

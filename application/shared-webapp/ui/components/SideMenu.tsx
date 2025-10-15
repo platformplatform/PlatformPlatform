@@ -9,9 +9,9 @@ import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
+import { focusRing } from "./focusRing";
 import { Link } from "./Link";
 import { Tooltip, TooltipTrigger } from "./Tooltip";
-import { focusRing } from "./focusRing";
 
 export const collapsedContext = createContext(false);
 export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);

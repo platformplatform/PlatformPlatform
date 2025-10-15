@@ -1,5 +1,4 @@
 import "@repo/ui/tailwind.css";
-import { router } from "@/shared/lib/router/router";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/errorHandler";
 import { createFederatedTranslation } from "@repo/infrastructure/translations/createFederatedTranslation";
@@ -7,6 +6,7 @@ import { GlobalToastRegion } from "@repo/ui/components/Toast";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import reactDom from "react-dom/client";
+import { router } from "@/shared/lib/router/router";
 
 const { TranslationProvider } = await createFederatedTranslation(
   (locale) => import(`@/shared/translations/locale/${locale}.ts`)

@@ -1,12 +1,12 @@
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
-import { UserStatus, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { TopMenu } from "@/shared/components/topMenu";
+import { api, UserStatus } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/admin/")({
   component: Home

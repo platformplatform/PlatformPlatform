@@ -1,9 +1,9 @@
-import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
-import type { components } from "@/shared/lib/api/api.generated";
 import { t } from "@lingui/core/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { useState } from "react";
+import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
+import type { components } from "@/shared/lib/api/api.generated";
 import { AcceptInvitationDialog } from "../common/AcceptInvitationDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import TenantSelector from "../common/TenantSelector";
