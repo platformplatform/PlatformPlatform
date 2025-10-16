@@ -1,8 +1,8 @@
 ---
-description: Workflow for plan technical tasks for a product increment based on a prd
-auto_execution_mode: 1
+description: Workflow for create technical tasks for a product increment based on a prd
+globs: 
+alwaysApply: false
 ---
-
 # Plan Product Increment Workflow
 
 PRD file and product increment number: $ARGUMENTS
@@ -129,8 +129,8 @@ Follow the steps below to create and publish tasks.
 
 Using these examples, to understand how to write tasks and subtasks for product increments:
 
-- [Backend for team management](/.windsurf/samples/1-backend-sample.md)
-- [Frontend for team management](/.windsurf/samples/2-frontend-sample.md)
+- [Backend for team management](mdc:.cursor/samples/1-backend-sample.mdc)
+- [Frontend for team management](mdc:.cursor/samples/2-frontend-sample.mdc)
 
 ## ✅ DO:
 

@@ -15,9 +15,9 @@ Create PRDs and Product Increment plans using:
 - Edit/Write for planning documents ONLY (`.workspace/task-manager/*.md`)
 - Available commands:
   - `/process/create-prd` - Create Product Requirement Document
-  - `/process/plan-product-increment` - Create technical task breakdown
+  - `/process/create-product-increment-tasks` - Create technical task breakdown for a product increment
 
-### 2. Product Increment Coordination
+### 2. Product Increment Task Coordination
 Use `/process/implement-product-increment` to orchestrate implementation.
 See that command for full workflow details.
 
