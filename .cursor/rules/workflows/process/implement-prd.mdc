@@ -1,9 +1,9 @@
 ---
-description: Workflow for orchestrate implementation of product increment tasks through delegation to engineering subagents
+description: Workflow for orchestrate implementation of all product increments in a prd through delegation to product increment coordinator subagents
 globs: 
 alwaysApply: false
 ---
-# Orchestrate Product Increment Implementation
+# Orchestrate PRD Implementation
 
 PRD and/or Product Increment file(s): $ARGUMENTS
 
@@ -13,52 +13,70 @@ If you only get the PRD:
 3. Filter out prd.mdc from the glob results
 4. Orchestrate implementation of all found Product Increment files
 
-## Your Role: Coordination Only
+## Your Role: High-Level Coordination
 
-🚨 **YOU ORCHESTRATE - YOU DO NOT IMPLEMENT** 🚨
+🚨 **YOU ORCHESTRATE PRODUCT INCREMENTS - NOT INDIVIDUAL TASKS** 🚨
 
 Your job as Tech Lead:
-- Delegate tasks to engineer subagents ONE AT A TIME
-- Wait for engineer to complete (engineers call reviewers themselves, iterate, and get code committed)
-- Move to next task when engineer returns
-- Keep the machine running until everything is complete
+- Create collapsed todo with ALL Product Increments
+- Delegate ENTIRE Product Increments to engineer subagents
+- Engineer subagents handle task expansion, delegation, and progress tracking
+- Wait for engineers to complete
+- Move to next Product Increment
 - NEVER change code, commit, or use MCP tools yourself
 
 ## Execution Modes
 
 ### Sequential (Default - ALWAYS Use Unless User Explicitly Requests Parallel)
-Implement one Product Increment completely before starting the next:
-1. Delegate Task 1 from Product Increment 1 → Review → Commit
-2. Delegate Task 2 from Product Increment 1 → Review → Commit
-3. Continue until Product Increment 1 complete
-4. Start Product Increment 2
+
+Delegate one Product Increment completely before starting the next:
+
+1. Delegate Product Increment 1 to appropriate proxy agent → Wait for completion
+2. Delegate Product Increment 2 to appropriate proxy agent → Wait for completion
+3. Continue until all Product Increments complete
 
 **CRITICAL**: Only use parallel mode if the USER explicitly says "in parallel" or "simultaneously". DO NOT decide this yourself.
 
 ### Parallel (ONLY When User Explicitly Requests)
-Interleave tasks from multiple Product Increments:
-1. Expand tasks for ALL active Product Increments in todo
-2. Delegate Task 1 from Product Increment 1 (frontend) AND Task 1 from Product Increment 2 (backend) in same message
-3. Review BOTH when complete
-4. Commit BOTH after approvals
-5. Delegate Task 2 from Product Increment 1 AND Task 2 from Product Increment 2 in same message
-6. Continue interleaving
 
-🚨 **CRITICAL PARALLEL SAFETY RULE** 🚨
+**BEFORE delegating in parallel, evaluate dependencies**:
 
-**NEVER spawn multiple instances of the SAME agent type in parallel**:
-- ❌ WRONG: Two `backend-engineer` agents simultaneously (codebase conflicts)
-- ❌ WRONG: Two `frontend-engineer` agents simultaneously (codebase conflicts)
-- ✅ CORRECT: One `backend-engineer` AND one `frontend-engineer` simultaneously (different codebases)
-- ✅ CORRECT: One `backend-engineer` AND one `test-automation-engineer` simultaneously (different areas)
+1. **Check engineer type conflicts**: Can't run two Product Increments with same engineer type (same worker)
+   - ❌ WRONG: Two backend Product Increments simultaneously
+   - ✅ CORRECT: Backend + Frontend simultaneously
 
-**Rule**: Only run tasks in parallel if they use **DIFFERENT agent types**. Same agent type = sequential execution required.
+2. **Check functional dependencies**: Can't run dependent work in parallel
+   - ❌ WRONG: Frontend Product Increment that requires backend APIs being built in parallel
+   - ❌ WRONG: E2E tests for features being implemented in parallel
+   - ✅ CORRECT: Independent backend and frontend Product Increments
+   - ✅ CORRECT: Backend APIs + E2E tests for existing features
+
+**If dependencies exist OR same engineer type needed**: Use Sequential mode instead.
+
+**If Product Increments are independent AND use different engineer types**: Delegate in parallel.
+
+**Example** (independent Product Increments):
+```
+In a SINGLE message, use Task tool multiple times:
+1. Task tool → backend-engineer: "Handle Product Increment: /path/1-backend-apis.md, PRD: /path/prd.md"
+2. Task tool → frontend-engineer: "Handle Product Increment: /path/2-frontend-ui.md, PRD: /path/prd.md"
+
+ONLY if frontend UI doesn't depend on the backend APIs being built in Product Increment 1
+```
+
+Engineer subagents work autonomously and in parallel:
+- Backend engineer expands its Product Increment, loops through backend tasks
+- Frontend engineer expands its Product Increment, loops through frontend tasks
+- Both update the shared todo list independently
+- Both return when their Product Increment is complete
+
+**CRITICAL**: If you're unsure about dependencies, use Sequential mode (safer default).
 
 ## Mandatory Workflow
 
 ### Step 1: Create Todo List
 
-Use TodoWrite to create high-level todo with ALL Product Increments:
+Use TodoWrite to create high-level collapsed todo with ALL Product Increments:
 
 ```
 Product Increment 1: Backend user management [pending]
@@ -66,118 +84,111 @@ Product Increment 2: Frontend user management [pending]
 Product Increment 3: End-to-end testing [pending]
 ```
 
-### Step 2: Expand Active Product Increment
+**Note**: Engineer subagents will expand Product Increments with subtasks during execution. These subtasks are managed by the subagents, not you.
 
-When starting a Product Increment, expand it with ALL tasks:
+### Step 2: Delegate Product Increments
 
+**Sequential Mode (default)**:
+
+FOR EACH Product Increment:
+
+**a. Delegate ENTIRE Product Increment to engineer subagent**:
+
+Use Task tool with appropriate engineer subagent:
+- Backend Product Increment → `backend-engineer` subagent
+- Frontend Product Increment → `frontend-engineer` subagent
+- E2E tests Product Increment → `test-automation-engineer` subagent
+
+**Delegation format**:
 ```
-Product Increment 1: Backend user management [in_progress]
-├─ 1. Create user aggregate with CreateUser command [pending]
-├─ 2. Create GetUser query [pending]
-├─ 3. Create GetUsers query [pending]
-├─ 4. Create UpdateUser command [pending]
-└─ 5. Create DeleteUser command [pending]
-Product Increment 2: Frontend user management [pending]
-Product Increment 3: End-to-end testing [pending]
-```
-
-### Step 3: For Each Task - Delegate to Engineer
-
-**Mark task [in_progress] in todo**
-
-**Delegate to Engineer Subagent**:
-- Use Task tool with appropriate engineer subagent (backend-engineer, frontend-engineer, test-automation-engineer)
-- Pass request VERBATIM from Product Increment file
-- Example: "We are implementing PRD: [path]. Please implement task \"1. Create user aggregate with CreateUser command\" from [product-increment-path]."
-
-**Wait for engineer subagent completion**:
-- Engineer implements the task
-- Engineer calls reviewer subagent themselves
-- Engineer iterates with reviewer until approved
-- Reviewer commits the code
-- Engineer returns to you when everything is done
-
-**Read engineer's response**
-
-**Mark task [completed] in todo**
-
-**Move to next task**
-
-### Step 4: Complete Product Increment
-
-When all tasks in Product Increment are [completed]:
-- Remove ALL subtasks from todo list (keep only Product Increment line)
-- Mark Product Increment [completed] in todo
-
-**Before:**
-```
-Product Increment 1: Backend user management [in_progress]
-├─ 1. Create user aggregate with CreateUser command [completed]
-├─ 2. Create GetUser query [completed]
-├─ 3. Create GetUsers query [completed]
-├─ 4. Create UpdateUser command [completed]
-└─ 5. Create DeleteUser command [completed]
-Product Increment 2: Frontend user management [pending]
-Product Increment 3: End-to-end testing [pending]
+Handle Product Increment: /path/to/1-backend.mdc
+PRD: /path/to/prd.mdc
 ```
 
-**After:**
-```
-Product Increment 1: Backend user management [completed]
-Product Increment 2: Frontend user management [pending]
-Product Increment 3: End-to-end testing [pending]
-```
+**b. Wait for engineer subagent completion**:
+- Engineer subagent reads Product Increment file
+- Engineer subagent expands todo with all tasks
+- Engineer subagent delegates tasks to workers one by one
+- Engineer subagent collapses todo when all tasks complete
+- Engineer subagent returns
 
-- If more Product Increments remain, expand next one and repeat Step 3
+**c. Read engineer subagent's response**
 
-### Step 5: Finish When Complete
+**d. Move to next Product Increment**
+
+**Parallel Mode** (only if user explicitly requests):
+
+In a SINGLE message, delegate ALL Product Increments using Task tool multiple times (one for each Product Increment, using different engineer types).
+
+Wait for ALL engineer subagents to complete, then done.
+
+### Step 3: Finish When Complete
 
 Stop ONLY when:
-- ALL Product Increments are [completed]
-- ALL tasks within them are [completed]
-- ALL code is reviewed and committed
+- ALL Product Increments are [completed] in todo
+- ALL engineer subagents have returned
 
 ## Critical Rules
 
 **NEVER**:
 - Stop before completion - Continue until everything is done
-- Add technical details to requests - Pass them verbatim
+- Expand todo with tasks - Engineer subagents handle task expansion
+- Delegate individual tasks - Delegate entire Product Increments
 - Change code or commit yourself
-- Use `developer_cli` MCP tool
+- Use `developer_cli` MCP tool directly
 - Decide on parallel mode yourself - Only use if user explicitly requests
-- Spawn multiple instances of the SAME agent type in parallel (causes codebase conflicts)
+- Delegate multiple Product Increments to same engineer type in parallel
 
 **ALWAYS**:
-- Use Task tool with subagent_type to delegate work
-- Delegate ONE task at a time (unless parallel mode explicitly requested BY USER)
-- ONLY delegate to engineer subagents (engineers handle reviews themselves)
-- Update todo list status as you progress
+- Use Task tool with subagent_type to delegate Product Increments
+- Create collapsed todo (Product Increments only, no tasks)
+- Let engineer subagents handle task expansion/delegation/collapse
 - Use Sequential mode by default
-- If running in parallel mode, ensure each parallel task uses a DIFFERENT agent type
+- In parallel mode, ensure each Product Increment uses DIFFERENT engineer type
 
-## Task Status Tracking
+## Engineer Subagent Responsibilities
 
-**Todo Items**: [pending] → [in_progress] → [completed]
-**Product Increment Tasks** (in .mdc files): [Planned] → [In Progress] → [Ready for Review] → [Completed]
+Engineer subagents (backend-engineer, frontend-engineer, test-automation-engineer) handle:
+- Reading Product Increment file and extracting tasks
+- Expanding todo with tasks under their Product Increment
+- Looping through tasks, delegating each to workers
+- Tracking progress in shared todo list
+- Collapsing todo when all tasks complete
+- Returning completion report to you
 
-Note: Engineers update to [Ready for Review], reviewers update to [Completed] when they commit.
+**You do NOT handle tasks** - only Product Increments.
 
-## The Machine Must Keep Running
+## Examples
 
-Your job is to ensure work flows continuously:
-1. Delegate task to engineer subagent
-2. Engineer implements, reviews with reviewer, gets approval and commit
-3. Engineer returns to you
-4. Report objectively what engineer accomplished
-5. Move to next task
-6. Repeat until all work is complete
+**Sequential Mode**:
+```
+1. Create collapsed todo with 3 Product Increments
+2. Delegate "Handle Product Increment: /path/1-backend.md, PRD: /path/prd.md" to backend-engineer
+3. Wait (engineer expands todo, delegates 5 tasks, collapses todo, returns)
+4. Delegate "Handle Product Increment: /path/2-frontend.md, PRD: /path/prd.md" to frontend-engineer
+5. Wait (engineer expands todo, delegates 4 tasks, collapses todo, returns)
+6. Delegate "Handle Product Increment: /path/3-e2e.md, PRD: /path/prd.md" to test-automation-engineer
+7. Wait (engineer expands todo, delegates 2 tasks, collapses todo, returns)
+8. Done - all Product Increments completed
+```
 
-NEVER ask user "Would you like me to continue?" - Just continue.
+**Parallel Mode** (user explicitly requested):
+```
+1. Create collapsed todo with 3 Product Increments
+2. In SINGLE message:
+   - Delegate Product Increment 1 to backend-engineer
+   - Delegate Product Increment 2 to frontend-engineer
+3. Both engineers work autonomously in parallel:
+   - Backend engineer: expand → delegate 5 tasks → collapse
+   - Frontend engineer: expand → delegate 4 tasks → collapse
+4. Wait for BOTH to return
+5. Done - Product Increments 1 and 2 completed in parallel
+```
 
 ## Remember
 
-- Subagents are the experts - they know better than you
-- Pass requests verbatim - no additions, no changes, no interpretation
-- Your job is delegating tasks to engineers and tracking progress
-- Engineers handle all review coordination with reviewers themselves
-- Sequential mode is default - only use parallel if USER explicitly requests it
+- You delegate Product Increments, not tasks
+- Engineer subagents are autonomous Product Increment coordinators
+- Engineer subagents handle all task-level work
+- Your job: Create collapsed todo, delegate Product Increments, track completion
+- Sequential is default - parallel only when user explicitly requests
