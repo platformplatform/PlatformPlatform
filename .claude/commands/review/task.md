@@ -86,29 +86,27 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 6**: Decide - APPROVED or NOT APPROVED
 
-**STEP 7**: If APPROVED, run `/review/commit`
+**STEP 7**: If APPROVED, commit changes and get commit hash
 
 **STEP 8**: Edit Product Increment status
+
+Update the Product Increment file:
+- If APPROVED: Change status to `[Completed]`
+- If REJECTED: Change status to `[Changes Required]`
 
 **STEP 9**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
-After completing your review, you MUST call the MCP **CompleteAndExitReview** tool to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
+Call MCP **CompleteAndExitReview** tool - your session terminates IMMEDIATELY after this call.
 
-**Before calling CompleteAndExitReview**:
-1. Ensure all todos are marked as completed
-2. Make your binary decision: APPROVED or NOT APPROVED
-3. Write comprehensive review feedback
-4. Create an objective technical summary in sentence case (like a commit message)
+**For APPROVED reviews**:
+- Provide: `commitHash` (from `git rev-parse HEAD` in STEP 7)
+- Set: `rejectReason` to null
 
-**Call MCP CompleteAndExitReview tool**:
-- `agentType`: Your agent type (backend-reviewer, frontend-reviewer, or test-automation-reviewer)
-- `approved`: true or false
-- `reviewSummary`: Objective technical description of what was reviewed and the outcome (imperative mood, sentence case). Examples: "Add team member endpoints with authorization", "Fix missing null checks in user repository", "Add test coverage for payment flow". NEVER use subjective evaluations like "Excellent implementation", "Clean code", or "LGTM".
-- `responseContent`: Your full review feedback in markdown
-
-⚠️ Your session terminates IMMEDIATELY after calling CompleteAndExitReview
+**For REJECTED reviews**:
+- Set: `commitHash` to null
+- Provide: `rejectReason` (sentence case, imperative mood)
 
 ---
 

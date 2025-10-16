@@ -1540,10 +1540,21 @@ public class ClaudeAgentCommand : Command
 
     public static async Task<string> CompleteAndExitReview(
         string agentType,
-        bool approved,
-        string reviewSummary,
+        string? commitHash,
+        string? rejectReason,
         string responseContent)
     {
+        var approved = commitHash is not null;
+        if (approved && rejectReason is not null)
+        {
+            throw new InvalidOperationException("Cannot provide both commitHash and rejectReason");
+        }
+
+        if (commitHash is null && rejectReason is null)
+        {
+            throw new InvalidOperationException("Must provide either commitHash or rejectReason");
+        }
+
         var branchName = GitHelper.GetCurrentBranch();
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "messages");
@@ -1560,10 +1571,33 @@ public class ClaudeAgentCommand : Command
 
         // Anti-suicide check
         var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitReview");
-        if (validationError != null) return validationError;
+        if (validationError is not null) return validationError;
+
+        string reviewSummary;
+        string statusPrefix;
+
+        if (approved)
+        {
+            // Verify commit exists
+            var commitCheckResult = ProcessHelper.ExecuteQuietly($"git cat-file -t {commitHash}", Configuration.SourceCodeFolder);
+            if (!commitCheckResult.Success || commitCheckResult.StdOut.Trim() != "commit")
+            {
+                throw new InvalidOperationException($"Commit {commitHash} does not exist");
+            }
+
+            // Extract commit message as review summary
+            var commitMessageResult = ProcessHelper.ExecuteQuietly($"git log -1 --format=%s {commitHash}", Configuration.SourceCodeFolder);
+            reviewSummary = commitMessageResult.StdOut.Trim();
+
+            statusPrefix = "Approved";
+        }
+        else
+        {
+            reviewSummary = rejectReason!;
+            statusPrefix = "Rejected";
+        }
 
         // Create response filename with status prefix
-        var statusPrefix = approved ? "Approved" : "Rejected";
         var sanitizedSummary = string.Join("-", reviewSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             .Replace(".", "").Replace(",", "");
         var responseFileName = $"{taskId}.{agentType}.response.{statusPrefix}-{sanitizedSummary}.md";
@@ -1576,7 +1610,10 @@ public class ClaudeAgentCommand : Command
         File.Delete(taskIdFile);
 
         // Log completion
-        LogWorkflowEvent($"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]");
+        var logMessage = approved
+            ? $"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}, commit: {commitHash}): '{reviewSummary}' -> [{responseFileName}]"
+            : $"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]";
+        LogWorkflowEvent(logMessage);
 
         // Wait for Claude Code to persist session state before killing process
         await Task.Delay(TimeSpan.FromSeconds(10));
@@ -1604,7 +1641,9 @@ public class ClaudeAgentCommand : Command
             }
         }
 
-        return $"Review completed ({statusPrefix}). Response file: {responseFileName}";
+        return approved
+            ? $"Review completed ({statusPrefix}, commit: {commitHash}). Response file: {responseFileName}"
+            : $"Review completed ({statusPrefix}). Response file: {responseFileName}";
     }
 
     private static async Task<string?> ValidateTaskTiming(string agentWorkspaceDirectory, string methodName)
