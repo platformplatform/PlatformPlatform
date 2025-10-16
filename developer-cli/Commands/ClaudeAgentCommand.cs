@@ -13,6 +13,7 @@ public class ClaudeAgentCommand : Command
     internal static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
     private static readonly Lock WorkerSessionLock = new();
     private static bool _showAllActivities;
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -169,20 +170,19 @@ public class ClaudeAgentCommand : Command
         await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
 
         // Save task metadata with full paths
-        var taskInfo = new
-        {
-            task_number = $"{taskCounter:D4}",
-            request_file_path = taskRequestFilePath, // Full absolute path
-            started_at = DateTime.UtcNow.ToString("O"),
-            attempt = 1,
-            title = taskTitle,
-            prd_path = prdPath,
-            product_increment_path = productIncrementPath,
-            task_number_in_increment = taskNumber
-        };
+        var taskInfo = new CurrentTaskInfo(
+            TaskNumber: $"{taskCounter:D4}",
+            RequestFilePath: taskRequestFilePath,
+            StartedAt: DateTime.UtcNow.ToString("O"),
+            Attempt: 1,
+            Title: taskTitle,
+            PrdPath: prdPath,
+            ProductIncrementPath: productIncrementPath,
+            TaskNumberInIncrement: taskNumber
+        );
 
         var taskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
-        await File.WriteAllTextAsync(taskFile, JsonSerializer.Serialize(taskInfo, new JsonSerializerOptions { WriteIndented = true }));
+        await File.WriteAllTextAsync(taskFile, JsonSerializer.Serialize(taskInfo, JsonOptions));
 
         LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
@@ -294,20 +294,19 @@ public class ClaudeAgentCommand : Command
             await SetupAgentWorkspace(agentWorkspaceDirectory);
 
             // Save task metadata with full paths
-            var currentTaskInfo = new
-            {
-                task_number = $"{counter:D4}",
-                request_file_path = requestFile, // Full absolute path
-                started_at = DateTime.UtcNow.ToString("O"),
-                attempt = 1,
-                title = taskTitle,
-                prd_path = prdPath,
-                product_increment_path = productIncrementPath,
-                task_number_in_increment = taskNumber
-            };
+            var currentTaskInfo = new CurrentTaskInfo(
+                TaskNumber: $"{counter:D4}",
+                RequestFilePath: requestFile,
+                StartedAt: DateTime.UtcNow.ToString("O"),
+                Attempt: 1,
+                Title: taskTitle,
+                PrdPath: prdPath,
+                ProductIncrementPath: productIncrementPath,
+                TaskNumberInIncrement: taskNumber
+            );
 
             var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
-            await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(currentTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
+            await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(currentTaskInfo, JsonOptions));
 
             // Load system prompt (but NOT workflow - that's loaded by the slash command)
             var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
@@ -527,17 +526,13 @@ public class ClaudeAgentCommand : Command
         if (File.Exists(currentTaskFile))
         {
             var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+            var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
 
-            if (taskInfo.TryGetProperty("task_number", out var taskNumberElement) &&
-                taskInfo.TryGetProperty("title", out var titleElement))
+            if (taskInfo is not null)
             {
-                var taskNumber = taskNumberElement.GetString();
-                var taskTitle = titleElement.GetString();
-
                 // Show incomplete task prompt
                 AnsiConsole.MarkupLine($"[{agentColor} bold]⚠️ INCOMPLETE TASK DETECTED[/]");
-                AnsiConsole.MarkupLine($"[dim]Task {taskNumber} - '{Markup.Escape(taskTitle ?? "Unknown")}' is currently in development.[/]");
+                AnsiConsole.MarkupLine($"[dim]Task {taskInfo.TaskNumber} - '{Markup.Escape(taskInfo.Title)}' is currently in development.[/]");
                 AnsiConsole.WriteLine();
 
                 var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?", defaultValue: true);
@@ -545,7 +540,7 @@ public class ClaudeAgentCommand : Command
                 if (wantsToContinue)
                 {
                     // Find the request file for this task
-                    var requestPattern = $"{taskNumber}.{agentType}.request.*.md";
+                    var requestPattern = $"{taskInfo.TaskNumber}.{agentType}.request.*.md";
                     var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
 
                     if (requestFiles.Length > 0)
@@ -782,10 +777,10 @@ public class ClaudeAgentCommand : Command
         if (File.Exists(currentTaskFile))
         {
             var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
-            if (taskInfo.TryGetProperty("title", out var titleElement))
+            var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+            if (taskInfo is not null)
             {
-                taskTitle = titleElement.GetString() ?? "task";
+                taskTitle = taskInfo.Title;
             }
         }
 
@@ -1370,10 +1365,10 @@ public class ClaudeAgentCommand : Command
         if (File.Exists(currentTaskFile))
         {
             var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
-            if (taskInfo.TryGetProperty("title", out var titleElement))
+            var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+            if (taskInfo is not null)
             {
-                taskTitle = titleElement.GetString() ?? "task";
+                taskTitle = taskInfo.Title;
             }
         }
 
@@ -1507,14 +1502,14 @@ public class ClaudeAgentCommand : Command
         }
 
         var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+        var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
 
-        if (!taskInfo.TryGetProperty("task_number", out var taskNumberElement))
+        if (taskInfo is null)
         {
-            return "Error: current-task.json missing task_number field";
+            return "Error: Failed to deserialize current-task.json";
         }
 
-        var taskId = taskNumberElement.GetString();
+        var taskId = taskInfo.TaskNumber;
 
         // Anti-suicide check
         var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitTask");
@@ -1590,14 +1585,14 @@ public class ClaudeAgentCommand : Command
         }
 
         var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+        var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
 
-        if (!taskInfo.TryGetProperty("task_number", out var taskNumberElement))
+        if (taskInfo is null)
         {
-            return "Error: current-task.json missing task_number field";
+            return "Error: Failed to deserialize current-task.json";
         }
 
-        var taskId = taskNumberElement.GetString();
+        var taskId = taskInfo.TaskNumber;
 
         // Anti-suicide check
         var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitReview");
@@ -1679,17 +1674,16 @@ public class ClaudeAgentCommand : Command
         if (!File.Exists(currentTaskFile)) return null;
 
         var taskJson = await File.ReadAllTextAsync(currentTaskFile);
-        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+        var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
 
-        if (!taskInfo.TryGetProperty("started_at", out var startedAtElement) ||
-            !taskInfo.TryGetProperty("attempt", out var attemptElement))
+        if (taskInfo is null)
         {
             File.Delete(currentTaskFile);
             return null;
         }
 
-        var startedAt = DateTime.Parse(startedAtElement.GetString()!);
-        var attempt = attemptElement.GetInt32();
+        var startedAt = DateTime.Parse(taskInfo.StartedAt);
+        var attempt = taskInfo.Attempt;
         var elapsedSeconds = (int)(DateTime.UtcNow - startedAt).TotalSeconds;
 
         if (elapsedSeconds >= 60 || attempt > 1)
@@ -1699,19 +1693,9 @@ public class ClaudeAgentCommand : Command
         }
 
         // Increment attempt counter
-        var updatedTaskInfo = new
-        {
-            task_number = taskInfo.GetProperty("task_number").GetString(),
-            request_file_path = taskInfo.GetProperty("request_file_path").GetString(),
-            started_at = startedAtElement.GetString(),
-            attempt = ++attempt,
-            title = taskInfo.GetProperty("title").GetString(),
-            prd_path = taskInfo.TryGetProperty("prd_path", out var prdElement) ? prdElement.GetString() : null,
-            product_increment_path = taskInfo.TryGetProperty("product_increment_path", out var piElement) ? piElement.GetString() : null,
-            task_number_in_increment = taskInfo.TryGetProperty("task_number_in_increment", out var tnElement) ? tnElement.GetString() : null
-        };
+        var updatedTaskInfo = taskInfo with { Attempt = attempt + 1 };
 
-        await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
+        await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, JsonOptions));
 
         return $"""
                 Task assigned {elapsedSeconds} seconds ago - too soon to complete.
@@ -1731,4 +1715,15 @@ public record WorkerSession(
     string RequestFileName,
     DateTime StartTime,
     Process Process
+);
+
+public record CurrentTaskInfo(
+    string TaskNumber,
+    string RequestFilePath,
+    string StartedAt,
+    int Attempt,
+    string Title,
+    string? PrdPath,
+    string? ProductIncrementPath,
+    string? TaskNumberInIncrement
 );
