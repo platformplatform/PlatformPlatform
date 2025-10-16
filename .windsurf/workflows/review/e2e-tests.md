@@ -72,11 +72,11 @@ You are reviewing: **{{{title}}}**
 
 **Critical Check 3 - No Sleep Statements:**
 - Search for: `waitForTimeout`, `sleep`, `delay`, `setTimeout`
-- **REJECT immediately if found**
+- **REJECT immediately if found - no exceptions, no discussion**
+- Playwright auto-waits - sleep is NEVER needed in any scenario
 - Demand Playwright await assertions instead:
   - Use `toBeVisible()`, `toHaveURL()`, `toContainText()`, etc.
-  - Playwright auto-waits - sleep is NEVER needed
-- If engineer claims it's needed: **REJECT and demand ultrathinking for alternative**
+  - These built-in auto-wait mechanisms handle all timing scenarios
 
 **STEP 6**: Review test efficiency
 
