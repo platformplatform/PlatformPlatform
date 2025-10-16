@@ -15,25 +15,28 @@ Use the description provided in the arguments above (if any) to understand what 
 
 ### Critical File Scope Verification
 
+**IMPORTANT**: This verification only matters when both backend and frontend engineers are working on the same branch in parallel. If you're the only engineer on the branch, you can skip this check.
+
 **Before committing**, verify you are only committing files within your scope:
 
-**Backend reviewers** may ONLY commit:
-- `.cs` files (C#/.NET code)
-- `.csproj` files (project files)
-- `.sln` files (solution files)
-- Database migration files
-- `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` (auto-generated API files)
+**Backend reviewers** should ONLY commit changes in:
+- Backend folders: `Api/`, `Core/`, `Workers/`, `Tests/` (C# code)
+- Backend-specific files: `.cs`, `.csproj`, `.sln`, database migrations
+- Root configuration files that affect backend: `application/global.json`, `application/dotnet-tools.json`, `.editorconfig`, etc.
 
-**Frontend reviewers** may ONLY commit:
-- `.ts`, `.tsx` files (TypeScript/React)
-- `.css` files (styles)
-- `.json` files (except `*.Api.json` which belongs to backend)
-- `.po`, `.pot` files (translations)
-- Frontend configuration files (`package.json`, `tsconfig.json`, `vite.config.ts`, etc.)
+**Frontend reviewers** should ONLY commit changes in:
+- Frontend folders: `WebApp/` (TypeScript/React code)
+- Frontend-specific files: `.ts`, `.tsx`, `.css`, `.po`, `.pot`, frontend configs
+- Root configuration files that affect frontend: `biome.json`, `package.json`, `tsconfig.json`, etc.
+
+**Special cases**:
+- `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` belongs to **backend** (auto-generated from API contracts)
+- Shared documentation (`README.md`, etc.) belongs to whoever made the functional change being documented
+- When in doubt, use your judgment based on what the changes actually affect
 
 **REJECT the commit immediately if**:
-- Backend reviewer finds `.ts`/`.tsx` files in staged changes
-- Frontend reviewer finds `.cs` files in staged changes
+- Backend reviewer finds changes in `WebApp/` folders (except `*.Api.json`)
+- Frontend reviewer finds changes in `Api/`, `Core/`, `Workers/`, or `Tests/` folders
 - Frontend reviewer finds `*.Api.json` files in staged changes
 
 Use `git status --porcelain` to verify file scope before proceeding.
