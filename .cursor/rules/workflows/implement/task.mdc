@@ -10,18 +10,18 @@ You are implementing: **{{{title}}}**
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` in your workspace root** to get:
-- `request_file_path`: Full path to your request file
-- `prd_path`: Path to PRD (if Product Increment task)
-- `product_increment_path`: Path to Product Increment (if applicable)
-- `task_number_in_increment`: Your task number in the increment (if applicable)
+- `requestFilePath`: Full path to your request file
+- `prdPath`: Path to PRD (if Product Increment task)
+- `productIncrementPath`: Path to Product Increment (if applicable)
+- `taskNumberInIncrement`: Your task number in the increment (if applicable)
 - `title`: Task title
 
-**Then read the request file** from the path in `request_file_path`.
+**Then read the request file** from the path in `requestFilePath`.
 
-**If `prd_path` exists in current-task.json:**
-1. Read PRD from the path in `prd_path`
-2. Read Product Increment plan from the path in `product_increment_path`
-3. Understand your task (`task_number_in_increment`) within the larger feature context
+**If `prdPath` exists in current-task.json:**
+1. Read PRD from the path in `prdPath`
+2. Read Product Increment plan from the path in `productIncrementPath`
+3. Understand your task (`taskNumberInIncrement`) within the larger feature context
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -97,7 +97,7 @@ Use the Task tool to call the appropriate reviewer subagent:
 ```
 Review the work I just completed
 
-Request: [path from current-task.json: request_file_path]
+Request: [path from current-task.json: requestFilePath]
 Response: [path to response file you'll create: replace "request" with "response" and use task summary]
 ```
 

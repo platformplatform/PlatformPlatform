@@ -34,18 +34,18 @@ Avoid subjective personal preferences.
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` in your workspace root** to get:
-- `request_file_path`: Full path to your request file
-- `prd_path`: Path to PRD (if Product Increment task)
-- `product_increment_path`: Path to Product Increment (if applicable)
-- `task_number_in_increment`: Task number in the increment (if applicable)
+- `requestFilePath`: Full path to your request file
+- `prdPath`: Path to PRD (if Product Increment task)
+- `productIncrementPath`: Path to Product Increment (if applicable)
+- `taskNumberInIncrement`: Task number in the increment (if applicable)
 - `title`: Task title
 
-**Then read the request file** from the path in `request_file_path`.
+**Then read the request file** from the path in `requestFilePath`.
 
-**If `prd_path` exists in current-task.json:**
-1. Read PRD from the path in `prd_path`
-2. Read Product Increment plan from the path in `product_increment_path`
-3. Understand the task (`task_number_in_increment`) within the larger feature context
+**If `prdPath` exists in current-task.json:**
+1. Read PRD from the path in `prdPath`
+2. Read Product Increment plan from the path in `productIncrementPath`
+3. Understand the task (`taskNumberInIncrement`) within the larger feature context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 

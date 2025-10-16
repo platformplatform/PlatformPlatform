@@ -105,16 +105,14 @@ Handle Product Increment: /path/to/1-backend.md
 PRD: /path/to/prd.md
 ```
 
-**b. Wait for engineer subagent completion**:
+**b. Wait for engineer subagent to complete successfully**:
 - Engineer subagent reads Product Increment file
 - Engineer subagent expands todo with all tasks
 - Engineer subagent delegates tasks to workers one by one
 - Engineer subagent collapses todo when all tasks complete
-- Engineer subagent returns
+- Engineer subagent reports completion
 
-**c. Read engineer subagent's response**
-
-**d. Move to next Product Increment**
+**c. Move to next Product Increment** (only if subagent completed successfully)
 
 **Parallel Mode** (only if user explicitly requests):
 
