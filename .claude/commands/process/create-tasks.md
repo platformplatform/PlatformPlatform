@@ -134,7 +134,6 @@ Using these examples, to understand how to write tasks and subtasks for product 
 
 ## ✅ DO:
 
-- Use the Sequential thinking MCP tool to order tasks correctly.
 - Create one file per product increment under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
 - Keep tasks focused on the smallest vertical slices with API tests and one commit per task.
 - Save files for review before approval.
