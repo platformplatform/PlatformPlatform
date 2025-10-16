@@ -47,6 +47,8 @@ Use developer-cli to start a test-automation-reviewer with:
 
 **DO NOT use Search, Read, Edit, Write, or any other tools. DO NOT review tests yourself.**
 
+**CRITICAL**: MCP calls MUST run in FOREGROUND with 2-hour timeout. Do NOT run as background task.
+
 ## Error Handling
 
 **CRITICAL**: If MCP call fails, immediately return error to Main Agent - DO NOT let the call hang silently.

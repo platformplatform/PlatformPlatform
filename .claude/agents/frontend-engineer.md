@@ -45,6 +45,8 @@ Use developer-cli to start a frontend-engineer with:
 
 **DO NOT use Search, Read, Edit, Write, or any other tools. DO NOT implement code yourself.**
 
+**CRITICAL**: MCP calls MUST run in FOREGROUND with 2-hour timeout. Do NOT run as background task.
+
 ## Error Handling
 
 **CRITICAL**: If MCP call fails, immediately return error to Main Agent - DO NOT let the call hang silently.
