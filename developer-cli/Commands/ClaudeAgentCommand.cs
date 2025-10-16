@@ -520,7 +520,7 @@ public class ClaudeAgentCommand : Command
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
-        // Check for task recovery - if current-task.json exists, resume the task
+        // Check for task recovery - if current-task.json exists, prompt user
         var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
 
@@ -529,24 +529,44 @@ public class ClaudeAgentCommand : Command
             var taskJson = await File.ReadAllTextAsync(currentTaskFile);
             var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
 
-            if (taskInfo.TryGetProperty("task_number", out var taskNumberElement))
+            if (taskInfo.TryGetProperty("task_number", out var taskNumberElement) &&
+                taskInfo.TryGetProperty("title", out var titleElement))
             {
-                var taskId = taskNumberElement.GetString();
+                var taskNumber = taskNumberElement.GetString();
+                var taskTitle = titleElement.GetString();
 
-                // Find the request file for this task
-                var requestPattern = $"{taskId}.{agentType}.request.*.md";
-                var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
+                // Show incomplete task prompt
+                AnsiConsole.MarkupLine($"[{agentColor} bold]⚠️ INCOMPLETE TASK DETECTED[/]");
+                AnsiConsole.MarkupLine($"[dim]Task {taskNumber} - '{Markup.Escape(taskTitle ?? "Unknown")}' is currently in development.[/]");
+                AnsiConsole.WriteLine();
 
-                if (requestFiles.Length > 0)
+                var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?", defaultValue: true);
+
+                if (wantsToContinue)
                 {
-                    var requestFile = requestFiles[0];
-                    AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
-                    AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
-                    AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
-                    await Task.Delay(TimeSpan.FromSeconds(3));
+                    // Find the request file for this task
+                    var requestPattern = $"{taskNumber}.{agentType}.request.*.md";
+                    var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
 
-                    // Handle the recovered task immediately
-                    await HandleIncomingRequest(requestFile, agentType, branch);
+                    if (requestFiles.Length > 0)
+                    {
+                        var requestFile = requestFiles[0];
+                        AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
+                        AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
+                        AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
+                        await Task.Delay(TimeSpan.FromSeconds(3));
+
+                        // Handle the recovered task immediately
+                        await HandleIncomingRequest(requestFile, agentType, branch);
+                    }
+                }
+                else
+                {
+                    // User chose NO - delete current-task.json and start fresh
+                    File.Delete(currentTaskFile);
+                    AnsiConsole.MarkupLine($"[{agentColor}]Task cleared. Starting fresh...[/]");
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    // Fall through to normal startup (tech-lead launches, others wait)
                 }
             }
         }
