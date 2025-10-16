@@ -21,11 +21,10 @@ You are implementing: **{{{title}}}**
 
 **Then read the request file** from the path in `request_file_path`.
 
-**Request file contains**:
-- Task description/instructions
-- Any additional context from Tech Lead
-
-If this is a Product Increment task, also read the PRD and Product Increment files.
+**If `prd_path` exists in current-task.json:**
+1. Read PRD from the path in `prd_path`
+2. Read Product Increment plan from the path in `product_increment_path`
+3. Understand your task (`task_number_in_increment`) within the larger feature context
 
 **CRITICAL - Verify Previous Work Committed**:
 

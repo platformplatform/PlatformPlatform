@@ -125,7 +125,7 @@ public class ClaudeAgentCommand : Command
                     if (!existingProcess.HasExited)
                     {
                         // Interactive worker-host is running - delegate task to it
-                        return await DelegateToInteractiveWorkerHost(agentType, taskTitle, markdownContent, agentWorkspaceDirectory, messagesDirectory);
+                        return await DelegateToInteractiveWorkerHost(agentType, taskTitle, markdownContent, agentWorkspaceDirectory, messagesDirectory, prdPath, productIncrementPath, taskNumber);
                     }
                 }
                 catch (ArgumentException)
@@ -145,7 +145,10 @@ public class ClaudeAgentCommand : Command
         string taskTitle,
         string markdownContent,
         string agentWorkspaceDirectory,
-        string messagesDirectory)
+        string messagesDirectory,
+        string? prdPath,
+        string? productIncrementPath,
+        string? taskNumber)
     {
         // Get next task counter
         var taskCounterFile = Path.Combine(messagesDirectory, ".task-counter");
@@ -172,16 +175,14 @@ public class ClaudeAgentCommand : Command
             request_file_path = taskRequestFilePath, // Full absolute path
             started_at = DateTime.UtcNow.ToString("O"),
             attempt = 1,
-            branch = GitHelper.GetCurrentBranch(),
-            title = taskTitle
+            title = taskTitle,
+            prd_path = prdPath,
+            product_increment_path = productIncrementPath,
+            task_number_in_increment = taskNumber
         };
 
         var taskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
         await File.WriteAllTextAsync(taskFile, JsonSerializer.Serialize(taskInfo, new JsonSerializerOptions { WriteIndented = true }));
-
-        // Create .task-id for recovery
-        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
-        await File.WriteAllTextAsync(taskIdFile, $"{taskCounter:D4}");
 
         LogWorkflowEvent($"[{taskCounter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
@@ -206,12 +207,6 @@ public class ClaudeAgentCommand : Command
             }
 
             await Task.Delay(TimeSpan.FromMilliseconds(500));
-        }
-
-        // Clean up task ID file
-        if (File.Exists(taskIdFile))
-        {
-            File.Delete(taskIdFile);
         }
 
         // Read and return response
@@ -305,15 +300,14 @@ public class ClaudeAgentCommand : Command
                 request_file_path = requestFile, // Full absolute path
                 started_at = DateTime.UtcNow.ToString("O"),
                 attempt = 1,
-                branch = branchName,
-                title = taskTitle
+                title = taskTitle,
+                prd_path = prdPath,
+                product_increment_path = productIncrementPath,
+                task_number_in_increment = taskNumber
             };
 
             var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
             await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(currentTaskInfo, new JsonSerializerOptions { WriteIndented = true }));
-
-            var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
-            await File.WriteAllTextAsync(taskIdFile, $"{counter:D4}");
 
             // Load system prompt (but NOT workflow - that's loaded by the slash command)
             var systemPromptFile = Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{agentType}.txt");
@@ -526,29 +520,34 @@ public class ClaudeAgentCommand : Command
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
-        // Check for task recovery - if .task-id exists, resume the task
-        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
+        // Check for task recovery - if current-task.json exists, resume the task
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
 
-        if (File.Exists(taskIdFile))
+        if (File.Exists(currentTaskFile))
         {
-            var taskId = await File.ReadAllTextAsync(taskIdFile);
-            taskId = taskId.Trim();
+            var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+            var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
 
-            // Find the request file for this task
-            var requestPattern = $"{taskId}.{agentType}.request.*.md";
-            var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
-
-            if (requestFiles.Length > 0)
+            if (taskInfo.TryGetProperty("task_number", out var taskNumberElement))
             {
-                var requestFile = requestFiles[0];
-                AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
-                AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
-                AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
-                await Task.Delay(TimeSpan.FromSeconds(3));
+                var taskId = taskNumberElement.GetString();
 
-                // Handle the recovered task immediately
-                await HandleIncomingRequest(requestFile, agentType, branch);
+                // Find the request file for this task
+                var requestPattern = $"{taskId}.{agentType}.request.*.md";
+                var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
+
+                if (requestFiles.Length > 0)
+                {
+                    var requestFile = requestFiles[0];
+                    AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
+                    AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
+                    AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
+                    await Task.Delay(TimeSpan.FromSeconds(3));
+
+                    // Handle the recovered task immediately
+                    await HandleIncomingRequest(requestFile, agentType, branch);
+                }
             }
         }
 
@@ -1480,15 +1479,22 @@ public class ClaudeAgentCommand : Command
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "messages");
 
-        // Read task ID from .task-id file
-        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
-        if (!File.Exists(taskIdFile))
+        // Read task number from current-task.json
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
+        if (!File.Exists(currentTaskFile))
         {
-            return "Error: No active task found (.task-id file missing). Are you running as a worker agent?";
+            return "Error: No active task found (current-task.json missing). Are you running as a worker agent?";
         }
 
-        var taskId = await File.ReadAllTextAsync(taskIdFile);
-        taskId = taskId.Trim();
+        var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+
+        if (!taskInfo.TryGetProperty("task_number", out var taskNumberElement))
+        {
+            return "Error: current-task.json missing task_number field";
+        }
+
+        var taskId = taskNumberElement.GetString();
 
         // Anti-suicide check
         var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitTask");
@@ -1502,9 +1508,6 @@ public class ClaudeAgentCommand : Command
 
         // Write response file directly to messages directory
         await File.WriteAllTextAsync(responseFilePath, responseContent);
-
-        // Delete .task-id file
-        File.Delete(taskIdFile);
 
         // Log completion
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]");
@@ -1559,15 +1562,22 @@ public class ClaudeAgentCommand : Command
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
         var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, "messages");
 
-        // Read task ID from .task-id file
-        var taskIdFile = Path.Combine(agentWorkspaceDirectory, ".task-id");
-        if (!File.Exists(taskIdFile))
+        // Read task number from current-task.json
+        var currentTaskFile = Path.Combine(agentWorkspaceDirectory, "current-task.json");
+        if (!File.Exists(currentTaskFile))
         {
-            return "Error: No active task found (.task-id file missing). Are you running as a reviewer agent?";
+            return "Error: No active task found (current-task.json missing). Are you running as a reviewer agent?";
         }
 
-        var taskId = await File.ReadAllTextAsync(taskIdFile);
-        taskId = taskId.Trim();
+        var taskJson = await File.ReadAllTextAsync(currentTaskFile);
+        var taskInfo = JsonSerializer.Deserialize<JsonElement>(taskJson);
+
+        if (!taskInfo.TryGetProperty("task_number", out var taskNumberElement))
+        {
+            return "Error: current-task.json missing task_number field";
+        }
+
+        var taskId = taskNumberElement.GetString();
 
         // Anti-suicide check
         var validationError = await ValidateTaskTiming(agentWorkspaceDirectory, "CompleteAndExitReview");
@@ -1605,9 +1615,6 @@ public class ClaudeAgentCommand : Command
 
         // Write response file directly to messages directory
         await File.WriteAllTextAsync(responseFilePath, responseContent);
-
-        // Delete .task-id file
-        File.Delete(taskIdFile);
 
         // Log completion
         var logMessage = approved
@@ -1678,8 +1685,10 @@ public class ClaudeAgentCommand : Command
             request_file_path = taskInfo.GetProperty("request_file_path").GetString(),
             started_at = startedAtElement.GetString(),
             attempt = ++attempt,
-            branch = taskInfo.GetProperty("branch").GetString(),
-            title = taskInfo.GetProperty("title").GetString()
+            title = taskInfo.GetProperty("title").GetString(),
+            prd_path = taskInfo.TryGetProperty("prd_path", out var prdElement) ? prdElement.GetString() : null,
+            product_increment_path = taskInfo.TryGetProperty("product_increment_path", out var piElement) ? piElement.GetString() : null,
+            task_number_in_increment = taskInfo.TryGetProperty("task_number_in_increment", out var tnElement) ? tnElement.GetString() : null
         };
 
         await File.WriteAllTextAsync(currentTaskFile, JsonSerializer.Serialize(updatedTaskInfo, new JsonSerializerOptions { WriteIndented = true }));

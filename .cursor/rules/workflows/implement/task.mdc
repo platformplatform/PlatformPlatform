@@ -18,11 +18,10 @@ You are implementing: **{{{title}}}**
 
 **Then read the request file** from the path in `request_file_path`.
 
-**Request file contains**:
-- Task description/instructions
-- Any additional context from Tech Lead
-
-If this is a Product Increment task, also read the PRD and Product Increment files.
+**If `prd_path` exists in current-task.json:**
+1. Read PRD from the path in `prd_path`
+2. Read Product Increment plan from the path in `product_increment_path`
+3. Understand your task (`task_number_in_increment`) within the larger feature context
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -104,7 +103,7 @@ Response: [path to response file you'll create: replace "request" with "response
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
-- If reviewer returns APPROVED → Reviewer commits automatically, proceed to next step
+- If reviewer returns APPROVED → Find and verify commit contains exactly your changes
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 
