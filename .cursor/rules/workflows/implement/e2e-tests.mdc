@@ -26,7 +26,7 @@ If a product increment file is provided in the arguments above, read it to under
 
 3. Review existing test examples:
    - Read [End-to-End Tests](mdc:.cursor/rules/end-to-end-tests/e2e-tests.mdc) for detailed information.
-   - Examine [signup.spec.ts](mdc:application/account-management/WebApp/tests/e2e/signup.spec.ts) and [login.spec.ts](mdc:application/account-management/WebApp/tests/e2e/login.spec.ts) for inspiration.
+   - Examine [signup-flows.spec.ts](mdc:application/account-management/WebApp/tests/e2e/signup-flows.spec.ts) and [login-flows.spec.ts](mdc:application/account-management/WebApp/tests/e2e/login-flows.spec.ts) for inspiration.
    - Note the structure, assertions, test organization, and the "Act & Assert:" comment format.
 
 4. Plan comprehensive test scenarios:
