@@ -91,17 +91,26 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 8**: Delegate to reviewer subagent to review and commit your code
 
-Use the Task tool to call the appropriate reviewer subagent:
-- Backend work → Use `backend-reviewer` subagent
-- Frontend work → Use `frontend-reviewer` subagent
-- E2E tests → Use `test-automation-reviewer` subagent
+**CRITICAL - Before calling reviewer**:
+
+1. Run `git status --porcelain` to see ALL changed files
+2. Identify YOUR files (files you created/modified for THIS task):
+   - Include ALL your changes (don't forget .po files, generated files, etc.)
+   - Exclude files from parallel engineers (different agent types)
+   - If you changed files outside your scope: `git restore <file>` to revert
+3. List YOUR files in "Files Changed" section (one per line with status)
 
 **Delegation format**:
 ```
 Review the work I just completed
 
+## Files Changed
+- path/to/file1.tsx
+- path/to/file2.cs
+- path/to/translations.po
+
 Request: [path from current-task.json: requestFilePath]
-Response: [path to response file you'll create: replace "request" with "response" and use task summary]
+Response: [response file path]
 ```
 
 **Review loop**:

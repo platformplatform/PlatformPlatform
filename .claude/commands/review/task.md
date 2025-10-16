@@ -106,6 +106,19 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 7**: If APPROVED, commit changes and get commit hash
 
+1. Extract "Files Changed" from engineer's request
+2. Verify scope: Backend → `Api/Core/Tests`, Frontend → `WebApp`, E2E → `Tests`. If wrong: REJECT
+
+**Execute steps 3-6 immediately without delay (minimize race conditions)**:
+
+3. Stage files: `git add <file>` for each file in engineer's list
+4. Verify: `git diff --cached --name-only` matches engineer's list exactly. If not: REJECT
+5. Commit with descriptive message
+6. Get hash: `git rev-parse HEAD`
+
+🚨 **NEVER use `git add -A` or `git add .`**
+🚨 **Execute git commands immediately** - no other work between staging and committing
+
 **STEP 8**: Edit Product Increment status
 
 Update the Product Increment file:
