@@ -1562,16 +1562,17 @@ public class ClaudeAgentCommand : Command
         string? rejectReason,
         string responseContent)
     {
-        var approved = commitHash is not null;
-        if (approved && rejectReason is not null)
+        if (!string.IsNullOrWhiteSpace(commitHash) && !string.IsNullOrWhiteSpace(rejectReason))
         {
             throw new InvalidOperationException("Cannot provide both commitHash and rejectReason");
         }
 
-        if (commitHash is null && rejectReason is null)
+        if (string.IsNullOrWhiteSpace(commitHash) && string.IsNullOrWhiteSpace(rejectReason))
         {
             throw new InvalidOperationException("Must provide either commitHash or rejectReason");
         }
+
+        var approved = !string.IsNullOrEmpty(commitHash);
 
         var branchName = GitHelper.GetCurrentBranch();
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName, agentType);
