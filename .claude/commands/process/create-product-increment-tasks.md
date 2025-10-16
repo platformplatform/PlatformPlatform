@@ -1,5 +1,5 @@
 ---
-description: Plan technical tasks for a product increment based on a PRD
+description: Create technical tasks for a product increment based on a PRD
 argument-hint: Path to PRD file and increment number (e.g., ".workspace/task-manager/2025-01-15-feature/prd.md increment 1")
 ---
 
