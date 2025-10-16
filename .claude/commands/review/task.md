@@ -42,15 +42,12 @@ Avoid subjective personal preferences.
 
 **Then read the request file** from the path in `request_file_path`.
 
-**Request file contains**:
-- Engineer type being reviewed
-- PRD path (if applicable)
-- Product Increment path (if applicable)
-- Task title
-- Engineer's request file path
-- Engineer's response file path
+**If `prd_path` exists in current-task.json:**
+1. Read PRD from the path in `prd_path`
+2. Read Product Increment plan from the path in `product_increment_path`
+3. Understand the task (`task_number_in_increment`) within the larger feature context
 
-Read all referenced files to understand what was implemented.
+**Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
 ---
 
