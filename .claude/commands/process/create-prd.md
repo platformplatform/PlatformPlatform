@@ -92,7 +92,7 @@ Follow the steps below to create the PRD.
 
 ## Example
 
-Use this [Product requirement description example](/.claude/workflows/samples/example-prd.md) as a template.
+Use this [Product requirement description example](/.claude/samples/example-prd.md) as a template.
 
 ✅ DO:
 - Follow the exact structure in the example PRD.
