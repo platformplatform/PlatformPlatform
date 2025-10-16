@@ -109,16 +109,16 @@ export default {
     function ({ addUtilities }: { addUtilities: (utilities: Record<string, Record<string, string>>) => void }) {
       addUtilities({
         ".w-dialog-md": {
-          "min-width": "24rem",
-          "max-width": "32rem"
+          "width": "28rem"
         },
         ".w-dialog-lg": {
-          "min-width": "32rem",
-          "max-width": "40rem"
+          "width": "36rem"
         },
         ".w-dialog-xl": {
-          "min-width": "40rem",
-          "max-width": "48rem"
+          "width": "44rem"
+        },
+        ".w-dialog-2xl": {
+          "width": "52rem"
         }
       });
     }

@@ -16,7 +16,7 @@ Carefully follow these instructions when implementing modal dialogs in the front
 4. Use `onPress` instead of `onClick` for event handlers.
 5. Include appropriate aria labels for accessibility.
 6. Use `<Trans>...</Trans>` or t\`...\` for translations (content should be plain English).
-7. **REQUIRED**: Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, or `sm:w-dialog-xl`) to every `Dialog` component.
+7. **REQUIRED**: Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, `sm:w-dialog-xl`, or `sm:w-dialog-2xl`) to every `Dialog` component.
 
 ## Dialog Sizing
 
@@ -25,6 +25,7 @@ Every dialog must have a fixed width class to ensure consistent sizing across la
 - `sm:w-dialog-md` - Use for most dialogs: alerts, confirmations, simple forms (1-3 fields), informational dialogs
 - `sm:w-dialog-lg` - Use for standard forms with multiple fields (4-6 fields)
 - `sm:w-dialog-xl` - Use for complex forms with many fields, file uploads, or multi-section content
+- `sm:w-dialog-2xl` - Use for extra-large dialogs with dual-list interfaces or very complex layouts that need fixed width to prevent resizing
 
 The `AlertDialog` component has `sm:w-dialog-md` as its default size, but can be overridden if needed.
 
