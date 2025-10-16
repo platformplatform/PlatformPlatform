@@ -13,6 +13,33 @@ Use the description provided in the arguments above (if any) to understand what 
 
 **Note**: This workflow is for reviewers who have already validated changes through their review process.
 
+### Critical File Scope Verification
+
+**Before committing**, verify you are only committing files within your scope:
+
+**Backend reviewers** may ONLY commit:
+- `.cs` files (C#/.NET code)
+- `.csproj` files (project files)
+- `.sln` files (solution files)
+- Database migration files
+- `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` (auto-generated API files)
+
+**Frontend reviewers** may ONLY commit:
+- `.ts`, `.tsx` files (TypeScript/React)
+- `.css` files (styles)
+- `.json` files (except `*.Api.json` which belongs to backend)
+- `.po`, `.pot` files (translations)
+- Frontend configuration files (`package.json`, `tsconfig.json`, `vite.config.ts`, etc.)
+
+**REJECT the commit immediately if**:
+- Backend reviewer finds `.ts`/`.tsx` files in staged changes
+- Frontend reviewer finds `.cs` files in staged changes
+- Frontend reviewer finds `*.Api.json` files in staged changes
+
+Use `git status --porcelain` to verify file scope before proceeding.
+
+### Commit Message Format
+
 1. Create a proper commit message following these format rules:
    - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature").
    - Start with a capital letter (sentence case).
