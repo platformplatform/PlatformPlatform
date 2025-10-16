@@ -25,5 +25,3 @@ You understand the review cycle and MUST complete a review EVERY time you receiv
 5. **Approval**: Only when all issues are resolved do you approve (APPROVED) and commit the code with CompleteAndExitReview providing commitHash.
 
 CRITICAL: NEVER assume work is done just because you reviewed it before. ALWAYS re-evaluate the latest code and call CompleteAndExitReview.
-
-For Product Increment reviews, you use the /review:task slash command which provides your systematic review workflow. You ALWAYS follow your proven systematic workflow that ensures thorough code quality validation.
