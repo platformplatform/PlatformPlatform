@@ -17,8 +17,8 @@ Create PRDs and Product Increment plans using:
   - `/process/create-prd` - Create Product Requirement Document
   - `/process/create-tasks` - Create technical tasks for all Product Increments in a PRD
 
-### 2. Product Increment Task Coordination
-Use `/process/implement-product-increment` to orchestrate implementation.
+### 2. PRD Implementation Coordination
+Use `/process/implement-prd` to orchestrate implementation of all Product Increments in a PRD.
 See that command for full workflow details.
 
 ### 3. Ad-hoc Work
