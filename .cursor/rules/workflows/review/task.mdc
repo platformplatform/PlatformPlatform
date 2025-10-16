@@ -117,10 +117,10 @@ Call MCP **CompleteAndExitReview** tool - your session terminates IMMEDIATELY af
 
 **For APPROVED reviews**:
 - Provide: `commitHash` (from `git rev-parse HEAD` in STEP 7)
-- Set: `rejectReason` to null
+- Provide: `rejectReason` as empty string or omit parameter
 
 **For REJECTED reviews**:
-- Set: `commitHash` to null
+- Provide: `commitHash` as empty string or omit parameter
 - Provide: `rejectReason` (sentence case, imperative mood)
 
 ---
