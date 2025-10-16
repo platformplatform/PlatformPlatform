@@ -1,31 +1,37 @@
 ---
-description: Workflow for create technical tasks for a product increment based on a prd
+description: Workflow for create technical tasks for all product increments in a prd
 globs: 
 alwaysApply: false
 ---
-# Plan Product Increment Workflow
+# Create Tasks Workflow
 
-PRD file and product increment number: $ARGUMENTS
+PRD file: $ARGUMENTS
 
-Read the PRD file provided in the arguments above and focus on the specific product increment number mentioned. Your job is to create technical tasks for that specific product increment.
+Read the PRD file provided in the arguments above and identify ALL Product Increments listed in it. Your job is to create technical tasks for each Product Increment.
 
-The goal is to create a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` file with low-level technical tasks and, when approved, create matching tasks in [PRODUCT_MANAGEMENT_TOOL]. The date prefix should match the PRD's directory date.
+The goal is to create `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` files with low-level technical tasks for each Product Increment. The date prefix should match the PRD's directory date.
 
 ## Workflow
 
-Follow the steps below to create and publish tasks.
+Follow the steps below to create tasks for all Product Increments.
 
-1. Create product increment header and description
+0. Identify Product Increments and create todo list
 
-  - Create a product increment file `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md`, where the date prefix matches the PRD's directory date, and the `#` and `product-increment-title` is the same as used in the PRD's "Product increments" section.
-  - At the top of each product increment file include:
-    - **Level 1 header**: This should match the product increment title from the PRD.
-    - **Purpose:**  a short description of what this product increment delivers and the features it contains.
+   - Read the PRD and identify all Product Increments listed in the "Product Increments" section
+   - Create a todo list with one item per Product Increment (e.g., "Plan Product Increment 1: Backend", "Plan Product Increment 2: Frontend")
+   - For each Product Increment, follow steps 1-4 below
+
+1. Create Product Increment header and description
+
+  - Create a Product Increment file `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md`, where the date prefix matches the PRD's directory date, and the `#` and `product-increment-title` is the same as used in the PRD's "Product Increments" section.
+  - At the top of each Product Increment file include:
+    - **Level 1 header**: This should match the Product Increment title from the PRD (e.g., "Backend for team management").
+    - **Purpose:**  a short description of what this Product Increment delivers and the features it contains.
     - **NOT included:** out-of-scope items.
-    - **Dependencies:** previous product increments or external requirements.
+    - **Dependencies:** previous Product Increments or external requirements.
     - **IMPORTANT:** warning not to work outside this scope.
 
-2. Break product increment into tasks
+2. Break Product Increment into tasks
 
    **CRITICAL: A task = one commit = one complete vertical slice**
 
@@ -109,35 +115,26 @@ Follow the steps below to create and publish tasks.
    - Use `backticks` for names of classes, properties, file names
    - Avoid modifying `shared-kernel` or `shared-webapp` unless explicitly agreed
 
-4. Review, approve and publish
+4. Save Product Increment files
 
-   Save all product increment files under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md` for user review.
+   Save all Product Increment files under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-product-increment-title].md`.
 
-5. Create product increment and tasks in [PRODUCT_MANAGEMENT_TOOL]
-
-   After final approval, use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to create one task for the product increment:
-   - The task for the product increment must be linked to the parent backlog item for the PRD in [PRODUCT_MANAGEMENT_TOOL].
-   - The description should include the full list of tasks and subtasks (copy the content of the file `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#-increment-title].md`)
-
-6. Tools available:
+5. Tools available:
 
    - Perplexity MCP tool for research on complex implementation questions.
    - Context7 MCP tool for up-to-date best practices and technology updates.
-   - Sequential thinking MCP tool to ensure tasks are ordered correctly.
 
 ## Example
 
-Using these examples, to understand how to write tasks and subtasks for product increments:
+Using these examples, to understand how to write tasks and subtasks for Product Increments:
 
 - [Backend for team management](mdc:.cursor/samples/1-backend-sample.mdc)
 - [Frontend for team management](mdc:.cursor/samples/2-frontend-sample.mdc)
 
 ## ✅ DO:
 
-- Create one file per product increment under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
+- Create one file per Product Increment under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
 - Keep tasks focused on the smallest vertical slices with API tests and one commit per task.
-- Save files for review before approval.
-- Use the [PRODUCT_MANAGEMENT_TOOL] MCP tool to publish tasks after approval.
 
 ## ❌ DON'T:
 
@@ -148,5 +145,5 @@ Using these examples, to understand how to write tasks and subtasks for product 
 - Include implementation details that cannot be built or tested in one commit.
 - Create tasks that depend on details that will be implemented later.
 - Modify `shared-kernel` or `shared-webapp` without explicit agreement.
-- Create or delete product increment files outside `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
+- Create or delete Product Increment files outside `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`.
 - Write titles in Title Case. Instead always use sentence case.
