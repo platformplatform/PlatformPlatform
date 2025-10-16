@@ -107,7 +107,7 @@ Response: [path to response file you'll create: replace "request" with "response
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
-- If reviewer returns APPROVED → Reviewer commits automatically, proceed to next step
+- If reviewer returns APPROVED → Find and verify commit contains exactly your changes
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 

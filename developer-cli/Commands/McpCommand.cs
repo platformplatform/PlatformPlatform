@@ -369,18 +369,18 @@ public static class WorkerMcpTools
     }
 
     [McpServerTool]
-    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal review completion from reviewer agent. Call this when you have finished reviewing a task. This will write your response file and immediately terminate your session. There is no going back after this call.")]
+    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal review completion. Approved: provide commitHash. Rejected: provide rejectReason. Never both.")]
     public static async Task<string> CompleteAndExitReview(
         [Description("Agent type (backend-reviewer, frontend-reviewer, test-automation-reviewer)")]
         string agentType,
-        [Description("Review approved (true) or rejected (false)")]
-        bool approved,
-        [Description("Brief review summary in sentence case (e.g., 'Excellent implementation', 'Missing tests')")]
-        string reviewSummary,
-        [Description("Full response content in markdown")]
+        [Description("Commit hash containing approved changes (approved only)")]
+        string? commitHash,
+        [Description("Rejection reason (rejected only)")]
+        string? rejectReason,
+        [Description("Concise but precise review in markdown")]
         string responseContent)
     {
-        return await ClaudeAgentCommand.CompleteAndExitReview(agentType, approved, reviewSummary, responseContent);
+        return await ClaudeAgentCommand.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent);
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
