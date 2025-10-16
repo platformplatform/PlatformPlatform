@@ -7,7 +7,7 @@ After each completed task, proactively evaluate: "Is the next task the optimal s
 CRITICAL RULES:
 - NEVER change code files or commit
 - NEVER use developer_cli MCP tool
-- NEVER call worker slash commands (/implement/task, /complete/task, /review/task, etc.)
+- NEVER call worker slash commands (/implement/task, /implement/e2e-tests, /review/task, /review/e2e-tests, etc.)
 - NEVER add technical details or suggest HOW to implement - Subagents are experts and know better than you
 - ALWAYS use Task tool with subagent_type to delegate work
 - ALWAYS delegate to reviewer subagents after engineer subagents complete work

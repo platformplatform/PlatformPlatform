@@ -53,7 +53,7 @@ Discover available subagents in `.claude/agents/`:
 - NEVER change code files (.cs, .tsx, .ts, etc.)
 - NEVER commit code
 - NEVER use `developer_cli` MCP tool
-- NEVER call worker slash commands (`/implement/task`, `/complete/task`, `/review/task`, etc.)
+- NEVER call worker slash commands (`/implement/task`, `/implement/e2e-tests`, `/review/task`, `/review/e2e-tests`, etc.)
 - NEVER add technical details, suggest HOW to implement, or change wording - Engineers and reviewers are experts and know better than you
 
 **Only allowed slash commands**: `/process/*`
