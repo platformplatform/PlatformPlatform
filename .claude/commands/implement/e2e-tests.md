@@ -18,7 +18,7 @@ If a product increment file is provided in the arguments above, read it to under
    - Identify key user interactions and expected behaviors.
 
 2. Use Browser MCP to explore the webapp functionality:
-   - Navigate to the application: `mcp0_browser_navigate({ url: "https://localhost:9000" })`.
+   - Navigate to the application using the `mcp__chrome-devtools__navigate_page` tool with url: "https://localhost:9000".
    - Interact with the feature manually to understand user flows.
    - Take snapshots to identify UI elements and their structure.
    - Document key interactions and expected behaviors.
