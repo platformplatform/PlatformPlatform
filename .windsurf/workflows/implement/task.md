@@ -112,7 +112,7 @@ Response: [response file path]
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
-- If reviewer returns APPROVED → Find and verify commit contains exactly your changes
+- If reviewer returns APPROVED → Proceed to completion
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 
