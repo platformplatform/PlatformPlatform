@@ -537,32 +537,12 @@ public class ClaudeAgentCommand : Command
 
                 var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?", defaultValue: true);
 
-                if (wantsToContinue)
-                {
-                    // Find the request file for this task
-                    var requestPattern = $"{taskInfo.TaskNumber}.{agentType}.request.*.md";
-                    var requestFiles = Directory.GetFiles(messagesDirectory, requestPattern);
+                AnsiConsole.MarkupLine($"[{agentColor}]Resuming session...[/]");
+                await Task.Delay(TimeSpan.FromSeconds(1));
 
-                    if (requestFiles.Length > 0)
-                    {
-                        var requestFile = requestFiles[0];
-                        AnsiConsole.MarkupLine($"[{agentColor} bold]⚡ TASK RECOVERY[/]");
-                        AnsiConsole.MarkupLine($"[dim]Resuming task: {Path.GetFileName(requestFile)}[/]");
-                        AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
-                        await Task.Delay(TimeSpan.FromSeconds(3));
-
-                        // Handle the recovered task immediately
-                        await HandleIncomingRequest(requestFile, agentType, branch);
-                    }
-                }
-                else
-                {
-                    // User chose NO - delete current-task.json and start fresh
-                    File.Delete(currentTaskFile);
-                    AnsiConsole.MarkupLine($"[{agentColor}]Task cleared. Starting fresh...[/]");
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-                    // Fall through to normal startup (tech-lead launches, others wait)
-                }
+                // Launch manual session (with or without slash command based on user choice)
+                await LaunchManualClaudeSessionWithOptionalSlashCommand(agentType, branch, wantsToContinue ? taskInfo.Title : null);
+                return; // Exit after session ends
             }
         }
 
@@ -703,16 +683,18 @@ public class ClaudeAgentCommand : Command
 
     private static async Task LaunchManualClaudeSession(string agentType, string branch)
     {
-        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
+        await LaunchManualClaudeSessionWithOptionalSlashCommand(agentType, branch, null);
+    }
 
-        // All agents use bypassPermissions for maximum speed
-        var permissionMode = "bypassPermissions";
+    private static async Task LaunchManualClaudeSessionWithOptionalSlashCommand(string agentType, string branch, string? taskTitleForSlashCommand)
+    {
+        var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
         var manualArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--add-dir", Configuration.SourceCodeFolder,
-            "--permission-mode", permissionMode
+            "--permission-mode", "bypassPermissions"
         };
 
         // Load system prompt
@@ -725,8 +707,20 @@ public class ClaudeAgentCommand : Command
             manualArgs.Add(systemPromptText);
         }
 
-        // Add slash command based on agent type
-        if (agentType == "tech-lead")
+        // Add slash command if provided (for task continuation) or based on agent type (for tech-lead)
+        if (taskTitleForSlashCommand is not null)
+        {
+            var slashCommand = agentType switch
+            {
+                "test-automation-engineer" => $"/implement:e2e-tests {taskTitleForSlashCommand}",
+                "test-automation-reviewer" => $"/review:e2e-tests {taskTitleForSlashCommand}",
+                _ => agentType.Contains("reviewer")
+                    ? $"/review:task {taskTitleForSlashCommand}"
+                    : $"/implement:task {taskTitleForSlashCommand}"
+            };
+            manualArgs.Add(slashCommand);
+        }
+        else if (agentType == "tech-lead")
         {
             manualArgs.Add("/orchestrate:tech-lead");
         }
