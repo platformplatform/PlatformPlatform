@@ -84,7 +84,7 @@ public class ClaudeAgentCommand : Command
         }
         catch (Exception ex)
         {
-            TryLogError("Command execution failed", ex);
+            Logger.Error($"Command execution failed: {ex.Message}");
             AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
         }
     }
@@ -1221,25 +1221,6 @@ public class ClaudeAgentCommand : Command
     private void LogWorkerActivity(string message)
     {
         Logger.Debug(message);
-    }
-
-    private static void TryLogError(string message, Exception? ex = null)
-    {
-        try
-        {
-            if (ex is not null)
-            {
-                Logger.Error($"{message}: {ex.Message}");
-            }
-            else
-            {
-                Logger.Error(message);
-            }
-        }
-        catch
-        {
-            // Best effort logging - if logging fails, silently continue
-        }
     }
 
     private static void KillProcess(Process process)
