@@ -29,8 +29,6 @@ public class ClaudeAgentCommand : Command
         var prdPathOption = new Option<string?>("--prd-path", "PRD file path (optional)");
         var productIncrementPathOption = new Option<string?>("--product-increment-path", "Product Increment file path (optional)");
         var taskNumberOption = new Option<string?>("--task-number", "Task number (optional)");
-        var requestFilePathOption = new Option<string?>("--request-file-path", "Engineer's request file path (optional)");
-        var responseFilePathOption = new Option<string?>("--response-file-path", "Engineer's response file path (optional)");
 
         AddArgument(agentTypeArgument);
         AddOption(mcpOption);
@@ -39,8 +37,6 @@ public class ClaudeAgentCommand : Command
         AddOption(prdPathOption);
         AddOption(productIncrementPathOption);
         AddOption(taskNumberOption);
-        AddOption(requestFilePathOption);
-        AddOption(responseFilePathOption);
 
         this.SetHandler(async (context) =>
         {
@@ -51,10 +47,8 @@ public class ClaudeAgentCommand : Command
             var prdPath = context.ParseResult.GetValueForOption(prdPathOption);
             var productIncrementPath = context.ParseResult.GetValueForOption(productIncrementPathOption);
             var taskNumber = context.ParseResult.GetValueForOption(taskNumberOption);
-            var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
-            var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
 
-            await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber, requestFilePath, responseFilePath);
+            await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
         });
     }
 
@@ -66,9 +60,7 @@ public class ClaudeAgentCommand : Command
         string? markdownContent,
         string? prdPath,
         string? productIncrementPath,
-        string? taskNumber,
-        string? requestFilePath,
-        string? responseFilePath)
+        string? taskNumber)
     {
         try
         {
@@ -80,7 +72,7 @@ public class ClaudeAgentCommand : Command
                     throw new ArgumentException("--mcp mode requires agent-type, --task-title, and --markdown-content");
                 }
 
-                var result = await RunMcpMode(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber, requestFilePath, responseFilePath);
+                var result = await RunMcpMode(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
 
                 // Output to stdout for MCP to capture (use plain WriteLine for clean output)
                 await Console.Out.WriteLineAsync(result);
@@ -104,9 +96,7 @@ public class ClaudeAgentCommand : Command
         string markdownContent,
         string? prdPath,
         string? productIncrementPath,
-        string? taskNumber,
-        string? requestFilePath,
-        string? responseFilePath)
+        string? taskNumber)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
@@ -138,7 +128,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // No interactive worker-host - spawn temporary automated worker-host
-        return await SpawnAutomatedWorkerHost(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber, requestFilePath, responseFilePath);
+        return await SpawnAutomatedWorkerHost(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
     }
 
     private static async Task<string> DelegateToInteractiveWorkerHost(
@@ -228,9 +218,7 @@ public class ClaudeAgentCommand : Command
         string markdownContent,
         string? prdPath,
         string? productIncrementPath,
-        string? taskNumber,
-        string? requestFilePath,
-        string? responseFilePath)
+        string? taskNumber)
     {
         var branchName = GitHelper.GetCurrentBranch();
         var branchWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branchName);
@@ -359,16 +347,36 @@ public class ClaudeAgentCommand : Command
             // Create .worker-process-id with worker-agent's process ID
             await File.WriteAllTextAsync(workerProcessIdFile, process.Id.ToString());
 
-            // Track active worker session
-            AddWorkerSession(process.Id, agentType, taskTitle, requestFileName, process);
-
             LogWorkflowEvent($"[{counter:D4}.{agentType}.request] Started: '{taskTitle}' -> [{requestFileName}]");
 
             try
             {
-                // Monitor for completion
-                var result = await WaitForWorkerCompletionAsync(messagesDirectory, counter, agentType, process.Id, taskTitle, requestFileName);
-                return result;
+                // Monitor process with unified timeout/restart logic
+                var responseFilePattern = $"{counter:D4}.{agentType}.response.*.md";
+                var options = new ProcessMonitoringOptions(
+                    InactivityTimeout: TimeSpan.FromMinutes(20),
+                    OverallTimeout: TimeSpan.FromMinutes(115),
+                    ExpectResponseFile: true,
+                    TaskTitle: taskTitle,
+                    RequestFileName: requestFileName,
+                    TaskNumber: $"{counter:D4}",
+                    ResponseFilePattern: responseFilePattern,
+                    MessagesDirectory: messagesDirectory
+                );
+
+                var result = await MonitorProcessWithTimeout(process, agentType, options);
+
+                if (result.Success && result.ResponseContent != null)
+                {
+                    return $"Task completed successfully by {agentType}.\n" +
+                           $"Task number: {counter:D4}\n" +
+                           $"Task title: {taskTitle}\n" +
+                           $"Request file: {requestFileName}\n" +
+                           $"Restarts needed: {result.RestartCount}\n\n" +
+                           $"Response content:\n{result.ResponseContent}";
+                }
+
+                return result.Message;
             }
             finally
             {
@@ -382,8 +390,6 @@ public class ClaudeAgentCommand : Command
                 {
                     File.Delete(workerProcessIdFile);
                 }
-
-                RemoveWorkerSession(process.Id);
             }
         }
         catch
@@ -541,7 +547,7 @@ public class ClaudeAgentCommand : Command
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
                 // Launch manual session (with or without slash command based on user choice)
-                await LaunchManualClaudeSessionWithOptionalSlashCommand(agentType, branch, wantsToContinue ? taskInfo.Title : null);
+                await LaunchManualClaudeSession(agentType, branch, wantsToContinue ? taskInfo.Title : null);
                 return; // Exit after session ends
             }
         }
@@ -668,8 +674,26 @@ public class ClaudeAgentCommand : Command
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
         await File.WriteAllTextAsync(workerProcessIdFile, claudeProcess.Id.ToString());
 
-        // Wait for response file (worker will call CompleteAndExitTask which kills itself)
-        await WaitForResponseAndKillClaude(requestFile, agentType, branch, claudeProcess);
+        // Extract task number from request file
+        var requestFileName = Path.GetFileName(requestFile);
+        var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
+        var taskNumber = match.Groups[1].Value;
+        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
+        var responseFilePattern = $"{taskNumber}.{agentType}.response.*.md";
+
+        // Monitor process with unified timeout/restart logic
+        var options = new ProcessMonitoringOptions(
+            InactivityTimeout: TimeSpan.FromMinutes(20),
+            OverallTimeout: TimeSpan.FromMinutes(115),
+            ExpectResponseFile: true,
+            TaskTitle: firstLine,
+            RequestFileName: requestFileName,
+            TaskNumber: taskNumber,
+            ResponseFilePattern: responseFilePattern,
+            MessagesDirectory: messagesDirectory
+        );
+
+        var result = await MonitorProcessWithTimeout(claudeProcess, agentType, options);
 
         // Clean up .worker-process-id after worker exits
         if (File.Exists(workerProcessIdFile))
@@ -677,16 +701,21 @@ public class ClaudeAgentCommand : Command
             File.Delete(workerProcessIdFile);
         }
 
+        // Show completion status
+        if (result.Success)
+        {
+            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
+        }
+
         // Return to waiting display
         RedrawWaitingDisplay(agentType, branch);
     }
 
-    private static async Task LaunchManualClaudeSession(string agentType, string branch)
-    {
-        await LaunchManualClaudeSessionWithOptionalSlashCommand(agentType, branch, null);
-    }
-
-    private static async Task LaunchManualClaudeSessionWithOptionalSlashCommand(string agentType, string branch, string? taskTitleForSlashCommand)
+    private static async Task LaunchManualClaudeSession(string agentType, string branch, string? taskTitleForSlashCommand = null)
     {
         var agentWorkspaceDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, agentType);
 
@@ -732,7 +761,33 @@ public class ClaudeAgentCommand : Command
         var workerProcessIdFile = Path.Combine(agentWorkspaceDirectory, ".worker-process-id");
         await File.WriteAllTextAsync(workerProcessIdFile, process.Id.ToString());
 
-        await process.WaitForExitAsync();
+        // Monitor process with unified timeout/restart logic
+        // Tech-lead gets 62 minutes (allows 3 worker restarts @ 20 min each)
+        // Workers get 20 minutes
+        var inactivityTimeout = agentType == "tech-lead"
+            ? TimeSpan.FromMinutes(62)
+            : TimeSpan.FromMinutes(20);
+
+        var options = new ProcessMonitoringOptions(
+            InactivityTimeout: inactivityTimeout,
+            OverallTimeout: TimeSpan.FromMinutes(115),
+            ExpectResponseFile: false, // Manual sessions don't expect response files
+            TaskTitle: agentType == "tech-lead" ? "Tech Lead Session" : "Manual Session",
+            RequestFileName: "" // Not applicable for manual sessions
+        );
+
+        var result = await MonitorProcessWithTimeout(process, agentType, options);
+
+        // Show completion status
+        var agentColor = GetAgentColor(agentType);
+        if (result.Success)
+        {
+            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
+        }
 
         // Clean up
         if (File.Exists(workerProcessIdFile))
@@ -804,61 +859,6 @@ public class ClaudeAgentCommand : Command
         Logger.Debug($"Process alive after 3s: {!process.HasExited}");
 
         return process;
-    }
-
-    private static async Task WaitForResponseAndKillClaude(string requestFile, string agentType, string branch, Process claudeProcess)
-    {
-        var messagesDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "messages");
-
-        // Extract request file name components for response file
-        var requestFileName = Path.GetFileName(requestFile);
-        var match = Regex.Match(requestFileName, @"^(\d+)\.([^.]+)\.request\.(.+)\.md$");
-        var counter = match.Groups[1].Value;
-        var responseFilePattern = $"{counter}.{agentType}.response.*.md";
-
-        // Wait indefinitely for response file (user is manually controlling this agent)
-        AnsiConsole.MarkupLine($"[grey]Waiting for response file: {counter}.{agentType}.response.*.md[/]");
-
-        while (true)
-        {
-            // Check for any file matching the pattern
-            var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
-            if (matchingFiles.Length > 0)
-            {
-                var agentColor = GetAgentColor(agentType);
-                AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Response file created[/]");
-                break;
-            }
-
-            await Task.Delay(TimeSpan.FromMilliseconds(500)); // Check every 500ms
-        }
-
-        // Graceful shutdown: Send Ctrl+C twice, wait, then force kill if needed
-        if (!claudeProcess.HasExited)
-        {
-            // Send SIGINT twice (Ctrl+C, C)
-            for (var i = 0; i < 2; i++)
-            {
-                Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "kill",
-                        Arguments = $"-SIGINT {claudeProcess.Id}",
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true
-                    }
-                );
-                await Task.Delay(TimeSpan.FromMilliseconds(100));
-            }
-
-            // Wait 3 seconds for graceful exit
-            await Task.Delay(TimeSpan.FromSeconds(3));
-
-            // Force kill if still alive
-            if (!claudeProcess.HasExited)
-            {
-                claudeProcess.Kill();
-            }
-        }
     }
 
     // Setup & Utilities
@@ -1211,125 +1211,6 @@ public class ClaudeAgentCommand : Command
 
     // Worker Completion & Restart Logic
 
-    private static async Task<string> WaitForWorkerCompletionAsync(string messagesDirectory, int counter, string agentType, int processId, string taskTitle, string requestFileName)
-    {
-        Logger.Debug($"WaitForWorkerCompletion started for process ID: {processId}");
-
-        var currentProcessId = processId;
-        var restartCount = 0;
-        var startTime = DateTime.Now;
-        var overallTimeout = TimeSpan.FromHours(2);
-        var inactivityCheckInterval = TimeSpan.FromMinutes(20);
-
-        // Get Process object from active sessions
-        if (!ActiveWorkerSessions.TryGetValue(processId, out var session))
-        {
-            return "Error: Worker session not found in active sessions";
-        }
-
-        var currentProcess = session.Process;
-
-        while (DateTime.Now - startTime < overallTimeout)
-        {
-            // Check process exit frequently (every 5 seconds) instead of blocking for 20 minutes
-            // This allows prompt detection when worker calls CompleteAndExitTask and kills itself
-            var checkInterval = TimeSpan.FromSeconds(5);
-            var checksUntilInactivityCheck = (int)(inactivityCheckInterval.TotalSeconds / checkInterval.TotalSeconds);
-
-            var processExited = false;
-            for (var i = 0; i < checksUntilInactivityCheck; i++)
-            {
-                var exited = currentProcess.WaitForExit(checkInterval);
-                if (exited)
-                {
-                    processExited = true;
-                    Logger.Debug($"Worker process {currentProcessId} exited after {i * 5} seconds of checking");
-                    break; // Process died, exit immediately!
-                }
-
-                // Log every minute to show we're still checking
-                if (i > 0 && i % 12 == 0)
-                {
-                    Logger.Debug($"Still waiting for worker {currentProcessId} to complete ({i * 5} seconds elapsed)");
-                }
-            }
-
-            if (processExited)
-            {
-                // Worker completed normally (called CompleteAndExitTask which killed itself)
-                Logger.Debug("Worker process exited normally");
-                break;
-            }
-
-            // 20 minutes passed - check if worker is making progress
-            Logger.Debug("Inactivity check: No completion after 20 minutes");
-
-            var hasGitChanges = HasGitChanges();
-            if (hasGitChanges)
-            {
-                // Worker is making changes, still active
-                Logger.Debug("Git changes detected, worker is active");
-                continue;
-            }
-
-            // No git changes for 20 minutes - worker is stuck, restart it
-            Logger.Debug("No git changes detected, restarting worker");
-
-            if (!currentProcess.HasExited)
-            {
-                currentProcess.Kill();
-            }
-
-            // Restart worker
-            var restartResult = await RestartWorker(agentType);
-            if (!restartResult.Success || restartResult.Process == null)
-            {
-                return $"Worker restart failed: {restartResult.ErrorMessage}";
-            }
-
-            UpdateWorkerSession(currentProcessId, restartResult.ProcessId, agentType, taskTitle, requestFileName, restartResult.Process);
-            currentProcess = restartResult.Process;
-            currentProcessId = restartResult.ProcessId;
-            restartCount++;
-
-            LogWorkerActivity($"WORKER RESTART: {agentType} inactive for 20 minutes (no git changes), restarted (attempt {restartCount})");
-        }
-
-        // Check for overall timeout
-        if (DateTime.Now - startTime >= overallTimeout)
-        {
-            if (!currentProcess.HasExited)
-            {
-                currentProcess.Kill();
-            }
-
-            return $"Worker timeout after 2 hours (restarts: {restartCount})";
-        }
-
-        // Worker exited - response file should be in messages directory
-        var responseFilePattern = $"{counter:D4}.{agentType}.response.*.md";
-        var matchingFiles = Directory.GetFiles(messagesDirectory, responseFilePattern);
-
-        if (matchingFiles.Length == 0)
-        {
-            return $"Worker exited but no response file found matching: {responseFilePattern}";
-        }
-
-        var responseFilePath = matchingFiles[0];
-        var responseFileName = Path.GetFileName(responseFilePath);
-        var responseContent = await File.ReadAllTextAsync(responseFilePath);
-
-        LogWorkflowEvent($"[{counter:D4}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})");
-
-        return $"Task completed successfully by {agentType}.\n" +
-               $"Task number: {counter:D4}\n" +
-               $"Task title: {taskTitle}\n" +
-               $"Request file: {requestFileName}\n" +
-               $"Response file: {responseFileName}\n" +
-               $"Restarts needed: {restartCount}\n\n" +
-               $"Response content:\n{responseContent}";
-    }
-
     private static async Task<(bool Success, int ProcessId, Process? Process, string ErrorMessage)> RestartWorker(string agentType)
     {
         var branchName = GitHelper.GetCurrentBranch();
@@ -1403,6 +1284,127 @@ public class ClaudeAgentCommand : Command
 
         RemoveWorkerSession(oldProcessId);
         AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
+    }
+
+    private static async Task<ProcessCompletionResult> MonitorProcessWithTimeout(
+        Process process,
+        string agentType,
+        ProcessMonitoringOptions options)
+    {
+        var startTime = DateTime.Now;
+        var currentProcess = process;
+        var currentProcessId = process.Id;
+        var restartCount = 0;
+
+        // Track in active sessions (for workers only, not tech-lead)
+        if (options.ExpectResponseFile)
+        {
+            AddWorkerSession(currentProcessId, agentType, options.TaskTitle, options.RequestFileName, currentProcess);
+        }
+
+        try
+        {
+            while (DateTime.Now - startTime < options.OverallTimeout)
+            {
+                // Block until process exits OR inactivity timeout (no polling!)
+                var exited = currentProcess.WaitForExit(options.InactivityTimeout);
+
+                if (exited)
+                {
+                    // Process completed normally
+                    Logger.Debug($"Process {currentProcessId} exited normally");
+
+                    if (options.ExpectResponseFile)
+                    {
+                        // Wait briefly for file write to complete
+                        await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+                        // Check for response file
+                        var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
+                        if (matchingFiles.Length == 0)
+                        {
+                            return new ProcessCompletionResult(
+                                false,
+                                $"Worker exited but no response file found matching: {options.ResponseFilePattern}"
+                            );
+                        }
+
+                        var responseFilePath = matchingFiles[0];
+                        var responseFileName = Path.GetFileName(responseFilePath);
+                        var responseContent = await File.ReadAllTextAsync(responseFilePath);
+
+                        LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})");
+
+                        return new ProcessCompletionResult(
+                            true,
+                            $"Task completed successfully (restarts: {restartCount})",
+                            responseContent,
+                            restartCount
+                        );
+                    }
+
+                    // Tech-lead - no response file expected
+                    return new ProcessCompletionResult(true, "Session completed", null, restartCount);
+                }
+
+                // Inactivity timeout reached - check if worker is making progress
+                Logger.Debug($"Inactivity timeout ({options.InactivityTimeout.TotalMinutes} min) reached for {agentType} process {currentProcessId}");
+
+                var hasGitChanges = HasGitChanges();
+                if (hasGitChanges)
+                {
+                    Logger.Debug("Git changes detected, worker is active - continuing");
+                    continue;
+                }
+
+                // No git changes - worker is stuck, restart it
+                Logger.Debug("No git changes detected, restarting worker");
+
+                if (!currentProcess.HasExited)
+                {
+                    currentProcess.Kill();
+                }
+
+                // Restart worker
+                var restartResult = await RestartWorker(agentType);
+                if (!restartResult.Success || restartResult.Process == null)
+                {
+                    return new ProcessCompletionResult(false, $"Worker restart failed: {restartResult.ErrorMessage}");
+                }
+
+                // Update tracking
+                if (options.ExpectResponseFile)
+                {
+                    UpdateWorkerSession(currentProcessId, restartResult.ProcessId, agentType, options.TaskTitle, options.RequestFileName, restartResult.Process);
+                }
+
+                currentProcess = restartResult.Process;
+                currentProcessId = restartResult.ProcessId;
+                restartCount++;
+
+                LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {options.InactivityTimeout.TotalMinutes} minutes (no git changes), restarted (attempt {restartCount})");
+            }
+
+            // Overall timeout reached
+            Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached for {agentType}");
+
+            if (!currentProcess.HasExited)
+            {
+                currentProcess.Kill();
+            }
+
+            return new ProcessCompletionResult(
+                false,
+                $"Worker timeout after {options.OverallTimeout.TotalMinutes} minutes (restarts: {restartCount})"
+            );
+        }
+        finally
+        {
+            if (options.ExpectResponseFile)
+            {
+                RemoveWorkerSession(currentProcessId);
+            }
+        }
     }
 
     private static void LogWorkerActivity(string message)
@@ -1721,4 +1723,22 @@ public record CurrentTaskInfo(
     string? PrdPath,
     string? ProductIncrementPath,
     string? TaskNumberInIncrement
+);
+
+public record ProcessMonitoringOptions(
+    TimeSpan InactivityTimeout,
+    TimeSpan OverallTimeout,
+    bool ExpectResponseFile,
+    string TaskTitle,
+    string RequestFileName,
+    string? TaskNumber = null,
+    string? ResponseFilePattern = null,
+    string? MessagesDirectory = null
+);
+
+public record ProcessCompletionResult(
+    bool Success,
+    string Message,
+    string? ResponseContent = null,
+    int RestartCount = 0
 );
