@@ -123,7 +123,79 @@ public class ClaudeAgentCommand : Command
         }
 
         // No interactive worker-host - spawn temporary automated worker-host
-        return await SpawnAutomatedWorkerHost(workspace, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
+        try
+        {
+            // Create directories first
+            Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);
+            Directory.CreateDirectory(workspace.MessagesDirectory);
+
+            // Create .host-process-id with this automated worker-host's PID
+            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+
+            // Get next task counter
+            var counter = await GetNextTaskCounter(workspace);
+
+            // Create request file
+            var requestFileName = CreateRequestFileName(counter, workspace.AgentType, taskTitle);
+            var requestFile = Path.Combine(workspace.MessagesDirectory, requestFileName);
+            await File.WriteAllTextAsync(requestFile, markdownContent);
+
+            await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
+
+            // Save task metadata with full paths
+            var currentTaskInfo = CreateTaskMetadata(counter, requestFile, taskTitle, prdPath, productIncrementPath, taskNumber);
+            await WriteTaskMetadata(workspace, currentTaskInfo);
+
+            // Launch worker-agent (Claude Code) in agent workspace
+            var process = await LaunchWorker(workspace, taskTitle);
+
+            // Create .worker-process-id with worker-agent's process ID
+            await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
+
+            ClaudeAgentLifecycle.LogWorkflowEvent($"[{counter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{requestFileName}]");
+
+            // Monitor process with unified timeout/restart logic
+            var responseFilePattern = $"{counter:D4}.{workspace.AgentType}.response.*.md";
+            var options = new ProcessMonitoringOptions(
+                TimeSpan.FromMinutes(20),
+                TimeSpan.FromMinutes(115),
+                true,
+                taskTitle,
+                requestFileName,
+                $"{counter:D4}",
+                responseFilePattern,
+                workspace.MessagesDirectory
+            );
+
+            var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
+
+            if (result.Success)
+            {
+                return $"Task completed successfully by {workspace.AgentType}.\n" +
+                       $"Task number: {counter:D4}\n" +
+                       $"Task title: {taskTitle}\n" +
+                       $"Request file: {requestFileName}\n" +
+                       $"Restarts needed: {result.RestartCount}\n\n" +
+                       $"Response content:\n{result.ResponseContent}";
+            }
+            else
+            {
+                return result.Message;
+            }
+        }
+        finally
+        {
+            // Clean up PID files
+            if (File.Exists(workspace.HostProcessIdFile))
+            {
+                File.Delete(workspace.HostProcessIdFile);
+            }
+
+            if (File.Exists(workspace.WorkerProcessIdFile))
+            {
+                File.Delete(workspace.WorkerProcessIdFile);
+            }
+        }
     }
 
     private async Task<string> DelegateToInteractiveWorkerHost(
@@ -135,35 +207,16 @@ public class ClaudeAgentCommand : Command
         string? taskNumber)
     {
         // Get next task counter
-        var taskCounter = 1;
-        if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var existingCounter))
-        {
-            taskCounter = existingCounter + 1;
-        }
-
-        await File.WriteAllTextAsync(workspace.TaskCounterFile, taskCounter.ToString());
+        var taskCounter = await GetNextTaskCounter(workspace);
 
         // Create request file
-        var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
-            .ToLowerInvariant().Replace(".", "").Replace(",", "");
-        var taskRequestFileName = $"{taskCounter:D4}.{workspace.AgentType}.request.{taskShortTitle}.md";
+        var taskRequestFileName = CreateRequestFileName(taskCounter, workspace.AgentType, taskTitle);
         var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
-
         await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
 
         // Save task metadata with full paths
-        var taskInfo = new CurrentTaskInfo(
-            $"{taskCounter:D4}",
-            taskRequestFilePath,
-            DateTime.UtcNow.ToString("O"),
-            1,
-            taskTitle,
-            prdPath,
-            productIncrementPath,
-            taskNumber
-        );
-
-        await File.WriteAllTextAsync(workspace.CurrentTaskFile, JsonSerializer.Serialize(taskInfo, JsonOptions));
+        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle, prdPath, productIncrementPath, taskNumber);
+        await WriteTaskMetadata(workspace, taskInfo);
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
@@ -201,149 +254,6 @@ public class ClaudeAgentCommand : Command
                $"Request file: {taskRequestFileName}\n" +
                $"Response file: {actualResponseFileName}\n\n" +
                $"Response content:\n{responseContent}";
-    }
-
-    private async Task<string> SpawnAutomatedWorkerHost(
-        Workspace workspace,
-        string taskTitle,
-        string markdownContent,
-        string? prdPath,
-        string? productIncrementPath,
-        string? taskNumber)
-    {
-        // Check if there's actually a running worker-host (use process ID file as source of truth)
-        if (File.Exists(workspace.HostProcessIdFile))
-        {
-            var processIdContent = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
-            if (int.TryParse(processIdContent, out var existingProcessId))
-            {
-                try
-                {
-                    var existingProcess = Process.GetProcessById(existingProcessId);
-                    if (!existingProcess.HasExited)
-                    {
-                        // Actually running - this is a real conflict
-                        throw new InvalidOperationException($"Another {workspace.AgentType} is already active in branch '{workspace.Branch}' (Process ID: {existingProcessId})");
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    // Process doesn't exist - stale process ID file, clean it up
-                }
-            }
-
-            // Clean up stale process ID file
-            File.Delete(workspace.HostProcessIdFile);
-        }
-
-        try
-        {
-            // Create directories first
-            Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);
-            Directory.CreateDirectory(workspace.MessagesDirectory);
-
-            // Create .host-process-id with this automated worker-host's PID
-            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
-
-            // Get next task counter
-            var counter = 1;
-            if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var currentCounter))
-            {
-                counter = currentCounter + 1;
-            }
-
-            await File.WriteAllTextAsync(workspace.TaskCounterFile, counter.ToString());
-
-            // Create request file
-            var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
-                .ToLowerInvariant().Replace(".", "").Replace(",", "");
-            var requestFileName = $"{counter:D4}.{workspace.AgentType}.request.{shortTitle}.md";
-            var requestFile = Path.Combine(workspace.MessagesDirectory, requestFileName);
-
-            await File.WriteAllTextAsync(requestFile, markdownContent);
-
-            await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
-
-            // Save task metadata with full paths
-            var currentTaskInfo = new CurrentTaskInfo(
-                $"{counter:D4}",
-                requestFile,
-                DateTime.UtcNow.ToString("O"),
-                1,
-                taskTitle,
-                prdPath,
-                productIncrementPath,
-                taskNumber
-            );
-
-            await File.WriteAllTextAsync(workspace.CurrentTaskFile, JsonSerializer.Serialize(currentTaskInfo, JsonOptions));
-
-            // Launch worker-agent (Claude Code) in agent workspace
-            var process = await LaunchWorker(workspace, taskTitle);
-
-            // Create .worker-process-id with worker-agent's process ID
-            await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
-
-            ClaudeAgentLifecycle.LogWorkflowEvent($"[{counter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{requestFileName}]");
-
-            try
-            {
-                // Monitor process with unified timeout/restart logic
-                var responseFilePattern = $"{counter:D4}.{workspace.AgentType}.response.*.md";
-                var options = new ProcessMonitoringOptions(
-                    TimeSpan.FromMinutes(20),
-                    TimeSpan.FromMinutes(115),
-                    true,
-                    taskTitle,
-                    requestFileName,
-                    $"{counter:D4}",
-                    responseFilePattern,
-                    workspace.MessagesDirectory
-                );
-
-                var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
-
-                if (result.Success)
-                {
-                    return $"Task completed successfully by {workspace.AgentType}.\n" +
-                           $"Task number: {counter:D4}\n" +
-                           $"Task title: {taskTitle}\n" +
-                           $"Request file: {requestFileName}\n" +
-                           $"Restarts needed: {result.RestartCount}\n\n" +
-                           $"Response content:\n{result.ResponseContent}";
-                }
-
-                return result.Message;
-            }
-            finally
-            {
-                // Clean up PID files
-                if (File.Exists(workspace.HostProcessIdFile))
-                {
-                    File.Delete(workspace.HostProcessIdFile);
-                }
-
-                if (File.Exists(workspace.WorkerProcessIdFile))
-                {
-                    File.Delete(workspace.WorkerProcessIdFile);
-                }
-            }
-        }
-        catch
-        {
-            // Clean up on error
-            if (File.Exists(workspace.HostProcessIdFile))
-            {
-                File.Delete(workspace.HostProcessIdFile);
-            }
-
-            if (File.Exists(workspace.WorkerProcessIdFile))
-            {
-                File.Delete(workspace.WorkerProcessIdFile);
-            }
-
-            throw; // Re-throw to be caught by ExecuteAsync
-        }
     }
 
     private async Task RunInteractiveMode(string? agentType)
@@ -495,12 +405,12 @@ public class ClaudeAgentCommand : Command
             // Display initial waiting screen with recent activity
             RedrawWaitingDisplay(agentType, workspace.Branch);
 
-            await WatchForRequestsAsync(workspace);
+            await WaitForTasksOrManualControl(workspace);
         }
     }
 
     // Request Watching & Handling
-    private async Task WatchForRequestsAsync(Workspace workspace)
+    private async Task WaitForTasksOrManualControl(Workspace workspace)
     {
         // Create messages directory if it doesn't exist (needed for FileSystemWatcher)
         Directory.CreateDirectory(workspace.MessagesDirectory);
@@ -763,6 +673,52 @@ public class ClaudeAgentCommand : Command
         Logger.Debug($"Process alive after delay: {!process.HasExited}");
 
         return process;
+    }
+
+    // Task Management Helpers
+
+    private async Task<int> GetNextTaskCounter(Workspace workspace)
+    {
+        var counter = 1;
+        if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var currentCounter))
+        {
+            counter = currentCounter + 1;
+        }
+
+        await File.WriteAllTextAsync(workspace.TaskCounterFile, counter.ToString());
+        return counter;
+    }
+
+    private static string CreateRequestFileName(int taskCounter, string agentType, string taskTitle)
+    {
+        var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
+            .ToLowerInvariant().Replace(".", "").Replace(",", "");
+        return $"{taskCounter:D4}.{agentType}.request.{shortTitle}.md";
+    }
+
+    private static CurrentTaskInfo CreateTaskMetadata(
+        int taskCounter,
+        string requestFilePath,
+        string taskTitle,
+        string? prdPath,
+        string? productIncrementPath,
+        string? taskNumber)
+    {
+        return new CurrentTaskInfo(
+            $"{taskCounter:D4}",
+            requestFilePath,
+            DateTime.UtcNow.ToString("O"),
+            1,
+            taskTitle,
+            prdPath,
+            productIncrementPath,
+            taskNumber
+        );
+    }
+
+    private async Task WriteTaskMetadata(Workspace workspace, CurrentTaskInfo taskInfo)
+    {
+        await File.WriteAllTextAsync(workspace.CurrentTaskFile, JsonSerializer.Serialize(taskInfo, JsonOptions));
     }
 
     // Setup & Utilities
