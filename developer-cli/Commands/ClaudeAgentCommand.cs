@@ -831,13 +831,7 @@ public class ClaudeAgentCommand : Command
 
             var process = new Process
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "claude",
-                    Arguments = string.Join(" ", argsWithContinue.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg)),
-                    WorkingDirectory = workingDirectory,
-                    UseShellExecute = true
-                }
+                StartInfo = BuildProcessStartInfo(argsWithContinue, workingDirectory)
             };
 
             Logger.Debug($"Starting with --continue, working directory: {workingDirectory}");
@@ -872,13 +866,7 @@ public class ClaudeAgentCommand : Command
 
         var freshProcess = new Process
         {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "claude",
-                Arguments = commandLine,
-                WorkingDirectory = workingDirectory,
-                UseShellExecute = true
-            }
+            StartInfo = BuildProcessStartInfo(freshArgs, workingDirectory)
         };
 
         freshProcess.Start();
@@ -1285,6 +1273,19 @@ public class ClaudeAgentCommand : Command
                 }
             }
         }
+    }
+
+    private static ProcessStartInfo BuildProcessStartInfo(List<string> claudeArgs, string workingDirectory)
+    {
+        var commandLine = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+
+        return new ProcessStartInfo
+        {
+            FileName = "claude",
+            Arguments = commandLine,
+            WorkingDirectory = workingDirectory,
+            UseShellExecute = true
+        };
     }
 }
 
