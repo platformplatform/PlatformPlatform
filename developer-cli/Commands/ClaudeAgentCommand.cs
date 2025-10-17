@@ -320,7 +320,7 @@ public class ClaudeAgentCommand : Command
                         }
 
                         // Kill existing process
-                        existingProcess.Kill();
+                        KillProcess(existingProcess);
                         // Allow OS time to fully terminate process and release resources before proceeding
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
@@ -1178,7 +1178,7 @@ public class ClaudeAgentCommand : Command
 
                 if (!currentProcess.HasExited)
                 {
-                    currentProcess.Kill();
+                    KillProcess(currentProcess);
                 }
 
                 // Restart worker
@@ -1206,7 +1206,7 @@ public class ClaudeAgentCommand : Command
 
             if (!currentProcess.HasExited)
             {
-                currentProcess.Kill();
+                KillProcess(currentProcess);
             }
 
             return new ProcessCompletionResult(
@@ -1244,6 +1244,46 @@ public class ClaudeAgentCommand : Command
         catch
         {
             // Best effort logging - if logging fails, silently continue
+        }
+    }
+
+    private static void KillProcess(Process process)
+    {
+        if (process.HasExited)
+        {
+            return;
+        }
+
+        if (Configuration.IsWindows)
+        {
+            // Windows: Direct termination (no SIGINT support)
+            process.Kill();
+        }
+        else
+        {
+            // Unix/Mac: Graceful SIGINT first, then force kill
+            try
+            {
+                // Send SIGINT signal to allow Claude Code to cleanup
+                ProcessHelper.StartProcess($"kill -SIGINT {process.Id}");
+
+                // Wait briefly for graceful shutdown
+                var exited = process.WaitForExit(TimeSpan.FromSeconds(3));
+
+                if (!exited && !process.HasExited)
+                {
+                    // Graceful shutdown failed, force kill
+                    process.Kill();
+                }
+            }
+            catch
+            {
+                // Fallback to direct kill if SIGINT fails
+                if (!process.HasExited)
+                {
+                    process.Kill();
+                }
+            }
         }
     }
 }
