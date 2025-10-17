@@ -400,8 +400,11 @@ public class ClaudeAgentCommand : Command
         // Tech-lead launches immediately, other agents wait for requests
         if (agentType == "tech-lead")
         {
-            // Tech-lead launches directly (same as pressing ENTER)
-            await LaunchManualClaudeSession(workspace);
+            // Check if session exists - if yes, use --continue only, otherwise use slash command
+            var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
+            var useSlashCommand = !File.Exists(sessionIdFile);
+
+            await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
             AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Tech Lead session ended[/]");
         }
         else
@@ -446,9 +449,8 @@ public class ClaudeAgentCommand : Command
             }
             else if (userPressedEnter)
             {
-                // User pressed ENTER - launch manual session and exit
-                await LaunchManualClaudeSession(workspace);
-                return;
+                // User pressed ENTER - launch manual session and return to waiting
+                await LaunchManualClaudeSession(workspace, useSlashCommand: false);
             }
         }
     }
@@ -559,10 +561,10 @@ public class ClaudeAgentCommand : Command
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
     }
 
-    private async Task LaunchManualClaudeSession(Workspace workspace, string? taskTitleForSlashCommand = null)
+    private async Task LaunchManualClaudeSession(Workspace workspace, string? taskTitleForSlashCommand = null, bool useSlashCommand = true)
     {
-        // Launch worker (task title provided or null for tech-lead to use default slash command)
-        var process = await LaunchWorker(workspace, taskTitleForSlashCommand);
+        // Launch worker (slash command usage controlled by useSlashCommand parameter)
+        var process = await LaunchWorker(workspace, taskTitleForSlashCommand, useSlashCommand: useSlashCommand);
 
         // Create .worker-process-id
         await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
@@ -605,7 +607,8 @@ public class ClaudeAgentCommand : Command
     private async Task<Process> LaunchWorker(
         Workspace workspace,
         string? taskTitle = null,
-        bool isRestart = false)
+        bool isRestart = false,
+        bool useSlashCommand = true)
     {
         await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
 
@@ -634,34 +637,38 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
         }
 
-        // Determine task title
-        var effectiveTaskTitle = taskTitle;
-        if (effectiveTaskTitle == null)
+        // Add slash command only if requested (manual sessions use --continue only)
+        if (useSlashCommand)
         {
-            // Read from current-task.json
-            effectiveTaskTitle = "task";
-            if (File.Exists(workspace.CurrentTaskFile))
+            // Determine task title
+            var effectiveTaskTitle = taskTitle;
+            if (effectiveTaskTitle == null)
             {
-                var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
-                var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
-                if (taskInfo is not null)
+                // Read from current-task.json
+                effectiveTaskTitle = "task";
+                if (File.Exists(workspace.CurrentTaskFile))
                 {
-                    effectiveTaskTitle = taskInfo.Title;
+                    var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
+                    var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+                    if (taskInfo is not null)
+                    {
+                        effectiveTaskTitle = taskInfo.Title;
+                    }
                 }
             }
-        }
 
-        // Add slash command to trigger workflow
-        var slashCommand = workspace.AgentType switch
-        {
-            "tech-lead" => "/orchestrate:tech-lead",
-            "test-automation-engineer" => $"/implement:e2e-tests {effectiveTaskTitle}",
-            "test-automation-reviewer" => $"/review:e2e-tests {effectiveTaskTitle}",
-            _ => workspace.AgentType.Contains("reviewer")
-                ? $"/review:task {effectiveTaskTitle}"
-                : $"/implement:task {effectiveTaskTitle}"
-        };
-        claudeArgs.Add(slashCommand);
+            // Add slash command to trigger workflow
+            var slashCommand = workspace.AgentType switch
+            {
+                "tech-lead" => "/orchestrate:tech-lead",
+                "test-automation-engineer" => $"/implement:e2e-tests {effectiveTaskTitle}",
+                "test-automation-reviewer" => $"/review:e2e-tests {effectiveTaskTitle}",
+                _ => workspace.AgentType.Contains("reviewer")
+                    ? $"/review:task {effectiveTaskTitle}"
+                    : $"/implement:task {effectiveTaskTitle}"
+            };
+            claudeArgs.Add(slashCommand);
+        }
 
         // DEBUG: Log the exact command being executed
         var commandLine = $"claude {string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
