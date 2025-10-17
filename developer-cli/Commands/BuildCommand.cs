@@ -47,25 +47,8 @@ public class BuildCommand : Command
             if (buildBackend)
             {
                 AnsiConsole.MarkupLine("[blue]Running backend build...[/]");
-
-                if (selfContainedSystem is null)
-                {
-                    // Build all self-contained systems
-                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                    foreach (var system in systems)
-                    {
-                        AnsiConsole.MarkupLine($"[dim]Building {system}...[/]");
-                        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
-                        ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                    }
-                }
-                else
-                {
-                    // Build specific system
-                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-                    ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                }
-
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+                ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -103,33 +86,13 @@ public class BuildCommand : Command
         {
             if (buildBackend)
             {
-                if (selfContainedSystem is null)
-                {
-                    // Build all self-contained systems
-                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                    foreach (var system in systems)
-                    {
-                        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
-                        var result = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+                var result = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
 
-                        if (!result.Success)
-                        {
-                            Console.WriteLine($"Build failed for {system}. See: {result.TempFilePath}");
-                            Environment.Exit(1);
-                        }
-                    }
-                }
-                else
+                if (!result.Success)
                 {
-                    // Build specific system
-                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-                    var result = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-
-                    if (!result.Success)
-                    {
-                        Console.WriteLine($"Build failed. See: {result.TempFilePath}");
-                        Environment.Exit(1);
-                    }
+                    Console.WriteLine($"Build failed. See: {result.TempFilePath}");
+                    Environment.Exit(1);
                 }
             }
 

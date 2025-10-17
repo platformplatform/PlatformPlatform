@@ -45,17 +45,27 @@ public static class SelfContainedSystemHelper
     {
         if (selfContainedSystem is null)
         {
-            var available = GetAvailableSelfContainedSystems();
+            // When no system is specified, use the root solution for faster single-pass processing
+            var slnxFiles = Directory.GetFiles(Configuration.ApplicationFolder, "*.slnx");
 
-            if (available.Length == 0)
+            if (slnxFiles.Length == 0)
             {
-                AnsiConsole.MarkupLine("[red]No self-contained systems found.[/]");
+                AnsiConsole.MarkupLine("[red]No root solution file (.slnx) found in application/[/]");
+                AnsiConsole.MarkupLine("[yellow]Please ensure a .slnx file exists in the application folder, or specify a self-contained system using the -s flag.[/]");
+                AnsiConsole.MarkupLine($"[yellow]Available systems: {string.Join(", ", GetAvailableSelfContainedSystems())}[/]");
                 Environment.Exit(1);
             }
 
-            selfContainedSystem = available.Length == 1
-                ? available[0]
-                : PromptForSelfContainedSystem(available);
+            if (slnxFiles.Length > 1)
+            {
+                var fileNames = slnxFiles.Select(Path.GetFileName).ToArray();
+                AnsiConsole.MarkupLine("[red]Multiple root solution files (.slnx) found in application/[/]");
+                AnsiConsole.MarkupLine($"[yellow]Found: {string.Join(", ", fileNames)}[/]");
+                AnsiConsole.MarkupLine("[yellow]Please ensure only one .slnx file exists in the application folder.[/]");
+                Environment.Exit(1);
+            }
+
+            return new FileInfo(slnxFiles[0]);
         }
 
         var scsFolder = Path.Combine(Configuration.ApplicationFolder, selfContainedSystem);
