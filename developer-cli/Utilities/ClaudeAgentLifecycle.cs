@@ -29,48 +29,6 @@ public static class ClaudeAgentLifecycle
         }
     }
 
-    public static string GetActiveWorkersList()
-    {
-        lock (WorkerSessionLock)
-        {
-            if (ActiveWorkerSessions.Count == 0)
-            {
-                return "No active workers currently";
-            }
-
-            var workerList = ActiveWorkerSessions.Values.Select(w =>
-                $"PID: {w.ProcessId}, Agent: {w.AgentType}, Task: {w.TaskTitle}, Started: {w.StartTime:HH:mm:ss}, Duration: {DateTime.Now - w.StartTime:mm\\:ss}"
-            ).ToList();
-
-            return $"Active workers ({ActiveWorkerSessions.Count}):\n{string.Join("\n", workerList)}";
-        }
-    }
-
-    public static string TerminateWorker(int processId)
-    {
-        lock (WorkerSessionLock)
-        {
-            if (ActiveWorkerSessions.TryGetValue(processId, out var session))
-            {
-                session.Process.Kill();
-                ActiveWorkerSessions.Remove(processId);
-                return $"Terminated worker PID: '{processId}' (Agent: {session.AgentType}, Task: {session.TaskTitle})";
-            }
-
-            // Fallback to direct process kill if not in our tracking
-            try
-            {
-                var process = Process.GetProcessById(processId);
-                process.Kill();
-                return $"Terminated untracked worker PID: '{processId}'";
-            }
-            catch (Exception ex)
-            {
-                return $"Error terminating worker: {ex.Message}";
-            }
-        }
-    }
-
     public static async Task<string> CompleteAndExitTask(
         string agentType,
         string taskSummary,

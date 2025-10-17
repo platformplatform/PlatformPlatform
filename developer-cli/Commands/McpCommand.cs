@@ -24,8 +24,7 @@ public class McpCommand : Command
         await Console.Error.WriteLineAsync("[MCP] Listening on stdio for MCP communication");
 
         var builder = Host.CreateApplicationBuilder();
-        builder.Logging.AddConsole(consoleLogOptions => { consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace; }
-        );
+        builder.Logging.AddConsole(consoleLogOptions => { consoleLogOptions.LogToStandardErrorThreshold = LogLevel.Trace; });
         builder.Services
             .AddMcpServer()
             .WithStdioServerTransport()
@@ -39,11 +38,11 @@ public class McpCommand : Command
 public static class DeveloperCliMcpTools
 {
     [McpServerTool]
-    [Description("Build code. Builds both backend and frontend by default. Use backend/frontend flags to build only one.")]
+    [Description("Build code")]
     public static string Build(
-        [Description("Build backend only (optional)")]
+        [Description("Backend")]
         bool backend = false,
-        [Description("Build frontend only (optional)")]
+        [Description("Frontend")]
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null)
@@ -52,17 +51,13 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Run tests. Tests entire codebase by default.")]
+    [Description("Run backend tests")]
     public static string Test(
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")] bool noBuild = true,
-        [Description("Test backend only (optional)")]
-        bool backend = false,
-        [Description("Test frontend only (optional)")]
-        bool frontend = false)
+        [Description("Skip build")] bool noBuild = true)
     {
-        return ExecuteStandardMcpCommand("test", backend, frontend, selfContainedSystem, args =>
+        return ExecuteStandardMcpCommand("test", true, false, selfContainedSystem, args =>
             {
                 if (noBuild) args.Add("--no-build");
             }
@@ -70,15 +65,15 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Format code. Formats both backend and frontend by default. Use backend/frontend flags to format only one.")]
+    [Description("Format code")]
     public static string Format(
-        [Description("Format backend only (optional)")]
+        [Description("Backend")]
         bool backend = false,
-        [Description("Format frontend only (optional)")]
+        [Description("Frontend")]
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")] bool noBuild = true)
+        [Description("Skip build")] bool noBuild = true)
     {
         return ExecuteStandardMcpCommand("format", backend, frontend, selfContainedSystem, args =>
             {
@@ -88,15 +83,15 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Run code inspections. Inspects both backend and frontend by default. Use backend/frontend flags to inspect only one.")]
+    [Description("Run code static code analsis")]
     public static string Inspect(
-        [Description("Inspect backend only (optional)")]
+        [Description("Backend")]
         bool backend = false,
-        [Description("Inspect frontend only (optional)")]
+        [Description("Frontend")]
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")] bool noBuild = true)
+        [Description("Skip build")] bool noBuild = true)
     {
         return ExecuteStandardMcpCommand("inspect", backend, frontend, selfContainedSystem, args =>
             {
@@ -106,7 +101,7 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Start .NET Aspire at https://localhost:9000")]
+    [Description("Restart .NET Aspire and run database migrations at https://localhost:9000")]
     public static string Watch()
     {
         // Call watch command in detached mode - don't wait for process exit
@@ -175,7 +170,7 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Initialize task-manager directory in .workspace as separate git repository")]
+    [Description("Initialize task-manager")]
     public static string InitTaskManager()
     {
         var result = ExecuteCliCommand(["init-task-manager"]);
@@ -255,8 +250,8 @@ public static class DeveloperCliMcpTools
 
     private static string ExecuteStandardMcpCommand(
         string commandName,
-        bool backend = false,
-        bool frontend = false,
+        bool backend,
+        bool frontend,
         string? selfContainedSystem = null,
         Action<List<string>>? additionalArgs = null)
     {
@@ -272,8 +267,7 @@ public static class DeveloperCliMcpTools
 
         additionalArgs?.Invoke(args);
 
-        var result = ExecuteCliCommandQuietly(args.ToArray());
-        return result.Output;
+        return ExecuteCliCommandQuietly(args.ToArray()).Output;
     }
 }
 
@@ -321,18 +315,6 @@ public static class WorkerMcpTools
             args.Add(taskNumber);
         }
 
-        if (requestFilePath != null)
-        {
-            args.Add("--request-file-path");
-            args.Add(requestFilePath);
-        }
-
-        if (responseFilePath != null)
-        {
-            args.Add("--response-file-path");
-            args.Add(responseFilePath);
-        }
-
         var result = ExecuteCliCommand(args.ToArray());
         return result.Success ? result.Output : $"StartWorker failed.\n\n{result.Output}";
     }
@@ -349,20 +331,6 @@ public static class WorkerMcpTools
         {
             return $"Error reading file: {ex.Message}";
         }
-    }
-
-    [McpServerTool]
-    [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
-    public static string ListActiveWorkers()
-    {
-        return ClaudeAgentLifecycle.GetActiveWorkersList();
-    }
-
-    [McpServerTool]
-    [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
-    public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
-    {
-        return ClaudeAgentLifecycle.TerminateWorker(processId);
     }
 
     [McpServerTool]
