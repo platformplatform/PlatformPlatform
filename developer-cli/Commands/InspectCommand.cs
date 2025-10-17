@@ -72,38 +72,6 @@ public class InspectCommand : Command
     private static void RunBackendInspections(string? selfContainedSystem, bool noBuild)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code inspections...[/]");
-
-        if (selfContainedSystem is null)
-        {
-            // Inspect all self-contained systems
-            var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-            var allIssuesFound = false;
-
-            foreach (var system in systems)
-            {
-                AnsiConsole.MarkupLine($"[dim]Inspecting {system}...[/]");
-                var hasIssues = InspectSystem(system, noBuild);
-                if (hasIssues) allIssuesFound = true;
-            }
-
-            if (allIssuesFound)
-            {
-                Environment.Exit(1);
-            }
-        }
-        else
-        {
-            // Inspect specific system
-            var hasIssues = InspectSystem(selfContainedSystem, noBuild);
-            if (hasIssues)
-            {
-                Environment.Exit(1);
-            }
-        }
-    }
-
-    private static bool InspectSystem(string selfContainedSystem, bool noBuild)
-    {
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
@@ -122,12 +90,12 @@ public class InspectCommand : Command
         if (resultJson.Contains("\"results\": [],"))
         {
             AnsiConsole.MarkupLine("[green]No backend issues found![/]");
-            return false;
         }
-
-        AnsiConsole.MarkupLine("[yellow]Backend issues found. Opening result.json...[/]");
-        ProcessHelper.StartProcess("code result.json", solutionFile.Directory!.FullName);
-        return true;
+        else
+        {
+            AnsiConsole.MarkupLine("[yellow]Backend issues found. Opening result.json...[/]");
+            ProcessHelper.StartProcess("code result.json", solutionFile.Directory!.FullName);
+        }
     }
 
     private static void RunFrontendInspections()
@@ -144,21 +112,41 @@ public class InspectCommand : Command
 
             if (inspectBackend)
             {
-                if (selfContainedSystem is null)
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+                var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+                if (!restoreResult.Success)
                 {
-                    // Inspect all self-contained systems
-                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                    foreach (var system in systems)
+                    Console.WriteLine("Tool restore failed.");
+                    Console.WriteLine(restoreResult.CombinedOutput);
+                    Environment.Exit(1);
+                }
+
+                if (!noBuild)
+                {
+                    var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName);
+                    if (!buildResult.Success)
                     {
-                        var systemHasIssues = InspectSystemQuiet(system, noBuild);
-                        if (systemHasIssues) hasIssues = true;
+                        Console.WriteLine("Build failed.");
+                        Console.WriteLine(buildResult.CombinedOutput);
+                        Environment.Exit(1);
                     }
                 }
-                else
+
+                var inspectResult = ProcessHelper.ExecuteQuietly(
+                    $"dotnet jb inspectcode {solutionFile.Name} --no-build --no-restore --output=result.json --severity=SUGGESTION",
+                    solutionFile.Directory!.FullName
+                );
+
+                if (!inspectResult.Success)
                 {
-                    // Inspect specific system
-                    hasIssues = InspectSystemQuiet(selfContainedSystem, noBuild);
+                    Console.WriteLine("Inspections failed.");
+                    Console.WriteLine(inspectResult.CombinedOutput);
+                    Environment.Exit(1);
                 }
+
+                var resultJson = File.ReadAllText(Path.Combine(solutionFile.Directory!.FullName, "result.json"));
+                hasIssues = !resultJson.Contains("\"results\": [],");
             }
 
             if (inspectFrontend)
@@ -185,44 +173,5 @@ public class InspectCommand : Command
             Console.WriteLine($"Inspections failed: {ex.Message}");
             Environment.Exit(1);
         }
-    }
-
-    private static bool InspectSystemQuiet(string selfContainedSystem, bool noBuild)
-    {
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-
-        var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
-        if (!restoreResult.Success)
-        {
-            Console.WriteLine($"Tool restore failed for {selfContainedSystem}.");
-            Console.WriteLine(restoreResult.CombinedOutput);
-            Environment.Exit(1);
-        }
-
-        if (!noBuild)
-        {
-            var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName);
-            if (!buildResult.Success)
-            {
-                Console.WriteLine($"Build failed for {selfContainedSystem}.");
-                Console.WriteLine(buildResult.CombinedOutput);
-                Environment.Exit(1);
-            }
-        }
-
-        var inspectResult = ProcessHelper.ExecuteQuietly(
-            $"dotnet jb inspectcode {solutionFile.Name} --no-build --no-restore --output=result.json --severity=SUGGESTION",
-            solutionFile.Directory!.FullName
-        );
-
-        if (!inspectResult.Success)
-        {
-            Console.WriteLine($"Inspections failed for {selfContainedSystem}.");
-            Console.WriteLine(inspectResult.CombinedOutput);
-            Environment.Exit(1);
-        }
-
-        var resultJson = File.ReadAllText(Path.Combine(solutionFile.Directory!.FullName, "result.json"));
-        return !resultJson.Contains("\"results\": [],");
     }
 }

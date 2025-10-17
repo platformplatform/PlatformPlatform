@@ -39,34 +39,14 @@ public class TestCommand : Command
     {
         if (testBackend)
         {
-            if (selfContainedSystem is null)
+            var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+            if (!noBuild)
             {
-                // Test all self-contained systems
-                var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                foreach (var system in systems)
-                {
-                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
-
-                    if (!noBuild)
-                    {
-                        ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                    }
-
-                    ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
-                }
+                ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
             }
-            else
-            {
-                // Test specific system
-                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
-                if (!noBuild)
-                {
-                    ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                }
-
-                ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
-            }
+            ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
         }
 
         if (testFrontend)
@@ -81,57 +61,25 @@ public class TestCommand : Command
         {
             if (testBackend)
             {
-                if (selfContainedSystem is null)
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+                if (!noBuild)
                 {
-                    // Test all self-contained systems
-                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                    foreach (var system in systems)
+                    var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
+                    if (!buildResult.Success)
                     {
-                        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(system);
-
-                        if (!noBuild)
-                        {
-                            var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                            if (!buildResult.Success)
-                            {
-                                Console.WriteLine($"Build failed for {system}.");
-                                Console.WriteLine(buildResult.CombinedOutput);
-                                Environment.Exit(1);
-                            }
-                        }
-
-                        var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
-                        if (!testResult.Success)
-                        {
-                            Console.WriteLine($"Tests failed for {system}.");
-                            Console.WriteLine(testResult.CombinedOutput);
-                            Environment.Exit(1);
-                        }
-                    }
-                }
-                else
-                {
-                    // Test specific system
-                    var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-
-                    if (!noBuild)
-                    {
-                        var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-                        if (!buildResult.Success)
-                        {
-                            Console.WriteLine("Build failed.");
-                            Console.WriteLine(buildResult.CombinedOutput);
-                            Environment.Exit(1);
-                        }
-                    }
-
-                    var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
-                    if (!testResult.Success)
-                    {
-                        Console.WriteLine("Tests failed.");
-                        Console.WriteLine(testResult.CombinedOutput);
+                        Console.WriteLine("Build failed.");
+                        Console.WriteLine(buildResult.CombinedOutput);
                         Environment.Exit(1);
                     }
+                }
+
+                var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+                if (!testResult.Success)
+                {
+                    Console.WriteLine("Tests failed.");
+                    Console.WriteLine(testResult.CombinedOutput);
+                    Environment.Exit(1);
                 }
             }
 

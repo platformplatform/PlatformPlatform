@@ -91,26 +91,6 @@ public class FormatCommand : Command
     private static void RunBackendFormat(string? selfContainedSystem)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
-
-        if (selfContainedSystem is null)
-        {
-            // Format all self-contained systems
-            var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-            foreach (var system in systems)
-            {
-                AnsiConsole.MarkupLine($"[dim]Formatting {system}...[/]");
-                FormatSystem(system);
-            }
-        }
-        else
-        {
-            // Format specific system
-            FormatSystem(selfContainedSystem);
-        }
-    }
-
-    private static void FormatSystem(string selfContainedSystem)
-    {
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
         ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
 
@@ -211,19 +191,43 @@ public class FormatCommand : Command
         {
             if (formatBackend)
             {
-                if (selfContainedSystem is null)
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+                var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+                if (!restoreResult.Success)
                 {
-                    // Format all self-contained systems
-                    var systems = SelfContainedSystemHelper.GetAvailableSelfContainedSystems();
-                    foreach (var system in systems)
+                    Console.WriteLine("Tool restore failed.");
+                    Console.WriteLine(restoreResult.CombinedOutput);
+                    Environment.Exit(1);
+                }
+
+                // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
+                var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
+                var jetbrainsSupportedSolutionFile = string.Empty;
+                try
+                {
+                    jetbrainsSupportedSolutionFile = createTemporarySolutionFile
+                        ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
+                        : solutionFile.FullName;
+
+                    var formatResult = ProcessHelper.ExecuteQuietly(
+                        $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
+                        solutionFile.Directory!.FullName
+                    );
+
+                    if (!formatResult.Success)
                     {
-                        FormatSystemQuiet(system);
+                        Console.WriteLine("Format failed.");
+                        Console.WriteLine(formatResult.CombinedOutput);
+                        Environment.Exit(1);
                     }
                 }
-                else
+                finally
                 {
-                    // Format specific system
-                    FormatSystemQuiet(selfContainedSystem);
+                    if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
+                    {
+                        File.Delete(jetbrainsSupportedSolutionFile);
+                    }
                 }
             }
 
@@ -244,48 +248,6 @@ public class FormatCommand : Command
         {
             Console.WriteLine($"Format failed: {ex.Message}");
             Environment.Exit(1);
-        }
-    }
-
-    private static void FormatSystemQuiet(string selfContainedSystem)
-    {
-        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-
-        var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
-        if (!restoreResult.Success)
-        {
-            Console.WriteLine($"Tool restore failed for {selfContainedSystem}.");
-            Console.WriteLine(restoreResult.CombinedOutput);
-            Environment.Exit(1);
-        }
-
-        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
-        var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
-        var jetbrainsSupportedSolutionFile = string.Empty;
-        try
-        {
-            jetbrainsSupportedSolutionFile = createTemporarySolutionFile
-                ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
-                : solutionFile.FullName;
-
-            var formatResult = ProcessHelper.ExecuteQuietly(
-                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
-                solutionFile.Directory!.FullName
-            );
-
-            if (!formatResult.Success)
-            {
-                Console.WriteLine($"Format failed for {selfContainedSystem}.");
-                Console.WriteLine(formatResult.CombinedOutput);
-                Environment.Exit(1);
-            }
-        }
-        finally
-        {
-            if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
-            {
-                File.Delete(jetbrainsSupportedSolutionFile);
-            }
         }
     }
 }
