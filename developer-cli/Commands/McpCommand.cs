@@ -317,11 +317,35 @@ public static class WorkerMcpTools
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent };
 
-        if (prdPath != null) { args.Add("--prd-path"); args.Add(prdPath); }
-        if (productIncrementPath != null) { args.Add("--product-increment-path"); args.Add(productIncrementPath); }
-        if (taskNumber != null) { args.Add("--task-number"); args.Add(taskNumber); }
-        if (requestFilePath != null) { args.Add("--request-file-path"); args.Add(requestFilePath); }
-        if (responseFilePath != null) { args.Add("--response-file-path"); args.Add(responseFilePath); }
+        if (prdPath != null)
+        {
+            args.Add("--prd-path");
+            args.Add(prdPath);
+        }
+
+        if (productIncrementPath != null)
+        {
+            args.Add("--product-increment-path");
+            args.Add(productIncrementPath);
+        }
+
+        if (taskNumber != null)
+        {
+            args.Add("--task-number");
+            args.Add(taskNumber);
+        }
+
+        if (requestFilePath != null)
+        {
+            args.Add("--request-file-path");
+            args.Add(requestFilePath);
+        }
+
+        if (responseFilePath != null)
+        {
+            args.Add("--response-file-path");
+            args.Add(responseFilePath);
+        }
 
         var result = ExecuteCliCommand(args.ToArray());
         return result.Success ? result.Output : $"StartWorker failed.\n\n{result.Output}";

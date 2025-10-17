@@ -100,17 +100,26 @@ public class ClaudeAgentCommand : Command
         var workspace = new Workspace(agentType);
 
         // Check if interactive worker-host is already running
-        var existingProcess = await GetRunningProcessFromPidFile(workspace.HostProcessIdFile);
-        if (existingProcess != null)
-        {
-            // Interactive worker-host is running - delegate task to it
-            return await DelegateToInteractiveWorkerHost(workspace, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
-        }
-
-        // Clean up stale PID file if exists
         if (File.Exists(workspace.HostProcessIdFile))
         {
-            File.Delete(workspace.HostProcessIdFile);
+            var pidContent = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
+            if (int.TryParse(pidContent, out var pid))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(pid);
+                    if (!existingProcess.HasExited)
+                    {
+                        // Interactive worker-host is running - delegate task to it
+                        return await DelegateToInteractiveWorkerHost(workspace, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist, clean up stale PID file
+                    File.Delete(workspace.HostProcessIdFile);
+                }
+            }
         }
 
         // No interactive worker-host - spawn temporary automated worker-host
@@ -126,7 +135,13 @@ public class ClaudeAgentCommand : Command
         string? taskNumber)
     {
         // Get next task counter
-        var taskCounter = await GetNextTaskCounter(workspace);
+        var taskCounter = 1;
+        if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var existingCounter))
+        {
+            taskCounter = existingCounter + 1;
+        }
+
+        await File.WriteAllTextAsync(workspace.TaskCounterFile, taskCounter.ToString());
 
         // Create request file
         var taskShortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
@@ -196,17 +211,28 @@ public class ClaudeAgentCommand : Command
         string? productIncrementPath,
         string? taskNumber)
     {
-        // Check if there's actually a running worker-host (conflict detection)
-        var existingProcess = await GetRunningProcessFromPidFile(workspace.HostProcessIdFile);
-        if (existingProcess != null)
-        {
-            // Actually running - this is a real conflict
-            throw new InvalidOperationException($"Another {workspace.AgentType} is already active in branch '{workspace.Branch}' (Process ID: {existingProcess.Id})");
-        }
-
-        // Clean up stale PID file if exists
+        // Check if there's actually a running worker-host (use process ID file as source of truth)
         if (File.Exists(workspace.HostProcessIdFile))
         {
+            var processIdContent = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
+            if (int.TryParse(processIdContent, out var existingProcessId))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(existingProcessId);
+                    if (!existingProcess.HasExited)
+                    {
+                        // Actually running - this is a real conflict
+                        throw new InvalidOperationException($"Another {workspace.AgentType} is already active in branch '{workspace.Branch}' (Process ID: {existingProcessId})");
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist - stale process ID file, clean it up
+                }
+            }
+
+            // Clean up stale process ID file
             File.Delete(workspace.HostProcessIdFile);
         }
 
@@ -220,7 +246,13 @@ public class ClaudeAgentCommand : Command
             await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
 
             // Get next task counter
-            var counter = await GetNextTaskCounter(workspace);
+            var counter = 1;
+            if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var currentCounter))
+            {
+                counter = currentCounter + 1;
+            }
+
+            await File.WriteAllTextAsync(workspace.TaskCounterFile, counter.ToString());
 
             // Create request file
             var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
@@ -285,14 +317,31 @@ public class ClaudeAgentCommand : Command
             }
             finally
             {
-                // Clean up both PID files (automated mode - temp process)
-                CleanupPidFiles(workspace, cleanHost: true, cleanWorker: true);
+                // Clean up PID files
+                if (File.Exists(workspace.HostProcessIdFile))
+                {
+                    File.Delete(workspace.HostProcessIdFile);
+                }
+
+                if (File.Exists(workspace.WorkerProcessIdFile))
+                {
+                    File.Delete(workspace.WorkerProcessIdFile);
+                }
             }
         }
         catch
         {
-            // Clean up both PID files on error (automated mode - temp process)
-            CleanupPidFiles(workspace, cleanHost: true, cleanWorker: true);
+            // Clean up on error
+            if (File.Exists(workspace.HostProcessIdFile))
+            {
+                File.Delete(workspace.HostProcessIdFile);
+            }
+
+            if (File.Exists(workspace.WorkerProcessIdFile))
+            {
+                File.Delete(workspace.WorkerProcessIdFile);
+            }
+
             throw; // Re-throw to be caught by ExecuteAsync
         }
     }
@@ -326,39 +375,49 @@ public class ClaudeAgentCommand : Command
         await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
 
         // Check for existing worker-host process
-        var existingProcess = await GetRunningProcessFromPidFile(workspace.HostProcessIdFile);
-        if (existingProcess != null)
-        {
-            // Active worker-host is running - calculate how long it's been alive
-            var processAge = DateTime.Now - existingProcess.StartTime;
-            var ageString = processAge.TotalMinutes < 1
-                ? $"{(int)processAge.TotalSeconds} seconds ago"
-                : processAge.TotalHours < 1
-                    ? $"{(int)processAge.TotalMinutes} minutes {(int)(processAge.TotalSeconds % 60)} seconds ago"
-                    : $"{(int)processAge.TotalHours} hours {processAge.Minutes} minutes ago";
-
-            AnsiConsole.MarkupLine($"[yellow]⚠ Another {agentType} worker-host is currently running (PID: {existingProcess.Id}, Started: {ageString})[/]");
-
-            var choice = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("What would you like to do?")
-                    .AddChoices("Kill the existing worker-host and start fresh", "Exit")
-                    .HighlightStyle(new Style(Color.Yellow))
-            );
-
-            if (choice == "Exit")
-            {
-                return;
-            }
-
-            // Kill existing process
-            existingProcess.Kill();
-            await Task.Delay(TimeSpan.FromSeconds(1)); // Wait for cleanup
-        }
-
-        // Clean up stale PID file if exists
         if (File.Exists(workspace.HostProcessIdFile))
         {
+            var existingPid = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
+            if (int.TryParse(existingPid, out var pid))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(pid);
+                    if (!existingProcess.HasExited)
+                    {
+                        // Active worker-host is running - calculate how long it's been alive
+                        var processAge = DateTime.Now - existingProcess.StartTime;
+                        var ageString = processAge.TotalMinutes < 1
+                            ? $"{(int)processAge.TotalSeconds} seconds ago"
+                            : processAge.TotalHours < 1
+                                ? $"{(int)processAge.TotalMinutes} minutes {(int)(processAge.TotalSeconds % 60)} seconds ago"
+                                : $"{(int)processAge.TotalHours} hours {processAge.Minutes} minutes ago";
+
+                        AnsiConsole.MarkupLine($"[yellow]⚠ Another {agentType} worker-host is currently running (PID: {pid}, Started: {ageString})[/]");
+
+                        var choice = AnsiConsole.Prompt(
+                            new SelectionPrompt<string>()
+                                .Title("What would you like to do?")
+                                .AddChoices("Kill the existing worker-host and start fresh", "Exit")
+                                .HighlightStyle(new Style(Color.Yellow))
+                        );
+
+                        if (choice == "Exit")
+                        {
+                            return;
+                        }
+
+                        // Kill existing process
+                        existingProcess.Kill();
+                        await Task.Delay(TimeSpan.FromSeconds(1)); // Wait for cleanup
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist - stale PID file, just delete it silently
+                }
+            }
+
             File.Delete(workspace.HostProcessIdFile);
         }
 
@@ -564,11 +623,21 @@ public class ClaudeAgentCommand : Command
 
         var result = await MonitorProcessWithTimeout(claudeProcess, workspace.AgentType, options);
 
-        // Clean up .worker-process-id after worker exits (keep .host-process-id for next task)
-        CleanupPidFiles(workspace, cleanHost: false, cleanWorker: true);
+        // Clean up .worker-process-id after worker exits
+        if (File.Exists(workspace.WorkerProcessIdFile))
+        {
+            File.Delete(workspace.WorkerProcessIdFile);
+        }
 
         // Show completion status
-        ShowCompletionStatus(result, workspace.AgentType);
+        if (result.Success)
+        {
+            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
+        }
 
         // Return to waiting display
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
@@ -600,10 +669,21 @@ public class ClaudeAgentCommand : Command
         var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
 
         // Show completion status
-        ShowCompletionStatus(result, workspace.AgentType);
+        var agentColor = GetAgentColor(workspace.AgentType);
+        if (result.Success)
+        {
+            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
+        }
 
-        // Clean up .worker-process-id after worker exits (keep .host-process-id if interactive)
-        CleanupPidFiles(workspace, cleanHost: false, cleanWorker: true);
+        // Clean up
+        if (File.Exists(workspace.WorkerProcessIdFile))
+        {
+            File.Delete(workspace.WorkerProcessIdFile);
+        }
     }
 
     private async Task<Process> LaunchWorker(
@@ -1184,61 +1264,6 @@ public class ClaudeAgentCommand : Command
     {
         Logger.Debug(message);
     }
-
-    private void ShowCompletionStatus(ProcessCompletionResult result, string agentType)
-    {
-        var agentColor = GetAgentColor(agentType);
-        if (result.Success)
-        {
-            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
-        }
-    }
-
-    private void CleanupPidFiles(Workspace workspace, bool cleanHost = false, bool cleanWorker = true)
-    {
-        if (cleanHost && File.Exists(workspace.HostProcessIdFile))
-        {
-            File.Delete(workspace.HostProcessIdFile);
-        }
-
-        if (cleanWorker && File.Exists(workspace.WorkerProcessIdFile))
-        {
-            File.Delete(workspace.WorkerProcessIdFile);
-        }
-    }
-
-    private async Task<int> GetNextTaskCounter(Workspace workspace)
-    {
-        var counter = 1;
-        if (File.Exists(workspace.TaskCounterFile) && int.TryParse(await File.ReadAllTextAsync(workspace.TaskCounterFile), out var existingCounter))
-        {
-            counter = existingCounter + 1;
-        }
-        await File.WriteAllTextAsync(workspace.TaskCounterFile, counter.ToString());
-        return counter;
-    }
-
-    private async Task<Process?> GetRunningProcessFromPidFile(string pidFilePath)
-    {
-        if (!File.Exists(pidFilePath)) return null;
-
-        var pidContent = await File.ReadAllTextAsync(pidFilePath);
-        if (!int.TryParse(pidContent, out var pid)) return null;
-
-        try
-        {
-            var process = Process.GetProcessById(pid);
-            return process.HasExited ? null : process;
-        }
-        catch (ArgumentException)
-        {
-            return null;
-        }
-    }
 }
 
 // ReSharper disable once NotAccessedPositionalProperty.Global - RequestFileName used in ToString for debugging
@@ -1283,13 +1308,22 @@ public record ProcessCompletionResult(
 public class Workspace(string agentType, string? branch = null)
 {
     public string AgentType { get; } = agentType;
+
     public string Branch { get; } = branch ?? GitHelper.GetCurrentBranch();
+
     public string BranchWorkspaceDirectory => Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", Branch);
+
     public string AgentWorkspaceDirectory => Path.Combine(BranchWorkspaceDirectory, AgentType);
+
     public string MessagesDirectory => Path.Combine(BranchWorkspaceDirectory, "messages");
+
     public string HostProcessIdFile => Path.Combine(AgentWorkspaceDirectory, ".host-process-id");
+
     public string WorkerProcessIdFile => Path.Combine(AgentWorkspaceDirectory, ".worker-process-id");
+
     public string CurrentTaskFile => Path.Combine(AgentWorkspaceDirectory, "current-task.json");
+
     public string TaskCounterFile => Path.Combine(MessagesDirectory, ".task-counter");
+
     public string SystemPromptFile => Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{AgentType}.txt");
 }
