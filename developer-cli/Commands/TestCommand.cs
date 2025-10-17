@@ -68,8 +68,7 @@ public class TestCommand : Command
                     var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
                     if (!buildResult.Success)
                     {
-                        Console.WriteLine("Build failed.");
-                        Console.WriteLine(buildResult.CombinedOutput);
+                        Console.WriteLine(buildResult.GetErrorSummary("Build"));
                         Environment.Exit(1);
                     }
                 }
@@ -77,8 +76,7 @@ public class TestCommand : Command
                 var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
                 if (!testResult.Success)
                 {
-                    Console.WriteLine("Tests failed.");
-                    Console.WriteLine(testResult.CombinedOutput);
+                    Console.WriteLine(testResult.GetErrorSummary("Tests"));
                     Environment.Exit(1);
                 }
             }
@@ -88,8 +86,7 @@ public class TestCommand : Command
                 var result = ProcessHelper.ExecuteQuietly("npm test", Configuration.ApplicationFolder);
                 if (!result.Success)
                 {
-                    Console.WriteLine("Frontend tests failed.");
-                    Console.WriteLine(result.CombinedOutput);
+                    Console.WriteLine(result.GetErrorSummary("Frontend tests"));
                     Environment.Exit(1);
                 }
             }

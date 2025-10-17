@@ -74,10 +74,9 @@ public class InspectCommand : Command
         AnsiConsole.MarkupLine("[blue]Running backend code inspections...[/]");
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
-        ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
-
         if (!noBuild)
         {
+            ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
             ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName);
         }
 
@@ -114,21 +113,19 @@ public class InspectCommand : Command
             {
                 var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
-                var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
-                if (!restoreResult.Success)
-                {
-                    Console.WriteLine("Tool restore failed.");
-                    Console.WriteLine(restoreResult.CombinedOutput);
-                    Environment.Exit(1);
-                }
-
                 if (!noBuild)
                 {
+                    var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+                    if (!restoreResult.Success)
+                    {
+                        Console.WriteLine(restoreResult.GetErrorSummary("Tool restore"));
+                        Environment.Exit(1);
+                    }
+
                     var buildResult = ProcessHelper.ExecuteQuietly($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName);
                     if (!buildResult.Success)
                     {
-                        Console.WriteLine("Build failed.");
-                        Console.WriteLine(buildResult.CombinedOutput);
+                        Console.WriteLine(buildResult.GetErrorSummary("Build"));
                         Environment.Exit(1);
                     }
                 }
@@ -140,8 +137,7 @@ public class InspectCommand : Command
 
                 if (!inspectResult.Success)
                 {
-                    Console.WriteLine("Inspections failed.");
-                    Console.WriteLine(inspectResult.CombinedOutput);
+                    Console.WriteLine(inspectResult.GetErrorSummary("Inspections"));
                     Environment.Exit(1);
                 }
 
@@ -154,8 +150,7 @@ public class InspectCommand : Command
                 var result = ProcessHelper.ExecuteQuietly("npm run check", Configuration.ApplicationFolder);
                 if (!result.Success)
                 {
-                    Console.WriteLine("Frontend type checking failed.");
-                    Console.WriteLine(result.CombinedOutput);
+                    Console.WriteLine(result.GetErrorSummary("Frontend type checking"));
                     Environment.Exit(1);
                 }
             }

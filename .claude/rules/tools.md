@@ -65,14 +65,17 @@ Use the **inspect MCP tool** to run static code analysis:
 - Inspect specific self-contained system
 - Results saved to `/application/result.json`
 
-## Check
+## Comprehensive Validation Workflow
 
-Use the **check MCP tool** for comprehensive validation (build + test + format + inspect):
-- Check both backend and frontend
-- Check backend only
-- Check frontend only
-- Check specific self-contained system
-- Must pass with exit code 0 before committing
+For comprehensive validation before committing:
+1. First, run **build MCP tool** to compile code
+2. Then run these MCP tools **in parallel** for maximum speed:
+   - **test MCP tool** (with `--no-build`) - Run all tests
+   - **format MCP tool** - Format code
+   - **inspect MCP tool** (with `--no-build`) - Run static analysis
+
+All tools support backend/frontend flags and specific self-contained systems.
+All tools must pass with exit code 0 before committing.
 
 ## Watch
 

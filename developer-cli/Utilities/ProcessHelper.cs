@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -234,4 +235,30 @@ public record ProcessResult(int ExitCode, string StdOut, string StdErr, string T
     public bool Success => ExitCode == 0;
 
     public string CombinedOutput => $"{StdOut}\n{StdErr}";
+
+    public string GetErrorSummary(string operation)
+    {
+        var errorLines = CombinedOutput
+            .Split('\n')
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToArray();
+
+        var outputBuilder = new StringBuilder();
+        outputBuilder.Append(operation).AppendLine(" failed.");
+        outputBuilder.AppendLine();
+
+        foreach (var line in errorLines.Take(3))
+        {
+            outputBuilder.Append("  ").AppendLine(line.Trim());
+        }
+
+        if (errorLines.Length > 3)
+        {
+            outputBuilder.Append("  ... and ").Append(errorLines.Length - 3).AppendLine(" more line(s)");
+            outputBuilder.AppendLine();
+            outputBuilder.Append("Full output: ").Append(TempFilePath);
+        }
+
+        return outputBuilder.ToString();
+    }
 }
