@@ -833,8 +833,24 @@ public class ClaudeAgentCommand : Command
         if (File.Exists(sessionIdFile))
         {
             Logger.Debug("Attempting --continue (session marker exists)");
+
             var argsWithContinue = new List<string> { "--continue" };
-            argsWithContinue.AddRange(additionalArgs);
+
+            var addDirArg = additionalArgs.IndexOf("--add-dir");
+            if (addDirArg >= 0 && addDirArg + 1 < additionalArgs.Count)
+            {
+                argsWithContinue.Add("--add-dir");
+                argsWithContinue.Add(additionalArgs[addDirArg + 1]);
+            }
+
+            argsWithContinue.Add("--permission-mode");
+            argsWithContinue.Add("bypassPermissions");
+
+            var slashCommand = additionalArgs.FirstOrDefault(arg => arg.StartsWith('/') && !arg.Substring(1).Contains('/'));
+            if (slashCommand is not null)
+            {
+                argsWithContinue.Add(slashCommand);
+            }
 
             var process = new Process
             {
