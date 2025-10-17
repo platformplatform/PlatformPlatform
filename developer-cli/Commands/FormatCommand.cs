@@ -16,19 +16,20 @@ public class FormatCommand : Command
         AddOption(new Option<bool?>(["--backend", "-b"], "Only format backend code"));
         AddOption(new Option<bool?>(["--frontend", "-f"], "Only format frontend code"));
         AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The name of the self-contained system to format (e.g., account-management, back-office)"));
+        AddOption(new Option<bool>(["--no-build"], () => false, "Skip building and restoring before formatting"));
         AddOption(new Option<bool>(["--quiet", "-q"], "Minimal output mode"));
 
-        Handler = CommandHandler.Create<bool, bool, string?, bool>(Execute);
+        Handler = CommandHandler.Create<bool, bool, string?, bool, bool>(Execute);
     }
 
-    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool quiet)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool noBuild, bool quiet)
     {
         var formatBackend = backend || !frontend;
         var formatFrontend = frontend || !backend;
 
         if (quiet)
         {
-            ExecuteQuiet(formatBackend, formatFrontend, selfContainedSystem);
+            ExecuteQuiet(formatBackend, formatFrontend, selfContainedSystem, noBuild);
             return;
         }
 
@@ -47,7 +48,7 @@ public class FormatCommand : Command
             if (formatBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendFormat(selfContainedSystem);
+                RunBackendFormat(selfContainedSystem, noBuild);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -88,11 +89,15 @@ public class FormatCommand : Command
         }
     }
 
-    private static void RunBackendFormat(string? selfContainedSystem)
+    private static void RunBackendFormat(string? selfContainedSystem, bool noBuild)
     {
         AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
-        ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
+
+        if (!noBuild)
+        {
+            ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
+        }
 
         // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
         var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
@@ -185,7 +190,7 @@ public class FormatCommand : Command
         return projectPaths;
     }
 
-    private static void ExecuteQuiet(bool formatBackend, bool formatFrontend, string? selfContainedSystem)
+    private static void ExecuteQuiet(bool formatBackend, bool formatFrontend, string? selfContainedSystem, bool noBuild)
     {
         try
         {
@@ -193,12 +198,14 @@ public class FormatCommand : Command
             {
                 var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
-                var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
-                if (!restoreResult.Success)
+                if (!noBuild)
                 {
-                    Console.WriteLine("Tool restore failed.");
-                    Console.WriteLine(restoreResult.CombinedOutput);
-                    Environment.Exit(1);
+                    var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+                    if (!restoreResult.Success)
+                    {
+                        Console.WriteLine(restoreResult.GetErrorSummary("Tool restore"));
+                        Environment.Exit(1);
+                    }
                 }
 
                 // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
@@ -217,8 +224,7 @@ public class FormatCommand : Command
 
                     if (!formatResult.Success)
                     {
-                        Console.WriteLine("Format failed.");
-                        Console.WriteLine(formatResult.CombinedOutput);
+                        Console.WriteLine(formatResult.GetErrorSummary("Format"));
                         Environment.Exit(1);
                     }
                 }
@@ -236,8 +242,7 @@ public class FormatCommand : Command
                 var result = ProcessHelper.ExecuteQuietly("npm run lint", Configuration.ApplicationFolder);
                 if (!result.Success)
                 {
-                    Console.WriteLine("Frontend format failed.");
-                    Console.WriteLine(result.CombinedOutput);
+                    Console.WriteLine(result.GetErrorSummary("Frontend format"));
                     Environment.Exit(1);
                 }
             }

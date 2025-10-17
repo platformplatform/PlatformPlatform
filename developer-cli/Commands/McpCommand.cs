@@ -56,7 +56,7 @@ public static class DeveloperCliMcpTools
     public static string Test(
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")] bool noBuild = false,
+        [Description("Skip build (optional)")] bool noBuild = true,
         [Description("Test backend only (optional)")]
         bool backend = false,
         [Description("Test frontend only (optional)")]
@@ -77,9 +77,14 @@ public static class DeveloperCliMcpTools
         [Description("Format frontend only (optional)")]
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
-        string? selfContainedSystem = null)
+        string? selfContainedSystem = null,
+        [Description("Skip build (optional)")] bool noBuild = true)
     {
-        return ExecuteStandardMcpCommand("format", backend, frontend, selfContainedSystem);
+        return ExecuteStandardMcpCommand("format", backend, frontend, selfContainedSystem, args =>
+            {
+                if (noBuild) args.Add("--no-build");
+            }
+        );
     }
 
     [McpServerTool]
@@ -91,26 +96,13 @@ public static class DeveloperCliMcpTools
         bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (optional)")] bool noBuild = false)
+        [Description("Skip build (optional)")] bool noBuild = true)
     {
         return ExecuteStandardMcpCommand("inspect", backend, frontend, selfContainedSystem, args =>
             {
                 if (noBuild) args.Add("--no-build");
             }
         );
-    }
-
-    [McpServerTool]
-    [Description("Run all checks (build + test + format + inspect). Checks both backend and frontend by default. Use backend/frontend flags to check only one.")]
-    public static string Check(
-        [Description("Check backend only (optional)")]
-        bool backend = false,
-        [Description("Check frontend only (optional)")]
-        bool frontend = false,
-        [Description("Self-contained system, e.g., 'account-management' (optional)")]
-        string? selfContainedSystem = null)
-    {
-        return ExecuteStandardMcpCommand("check", backend, frontend, selfContainedSystem);
     }
 
     [McpServerTool]
@@ -178,8 +170,8 @@ public static class DeveloperCliMcpTools
 
         if (smoke) args.Add("--smoke");
 
-        var result = ExecuteCliCommand(args.ToArray());
-        return result.Success ? $"E2E tests completed.\n\n{result.Output}" : $"E2E tests failed.\n\n{result.Output}";
+        var result = ExecuteCliCommandQuietly(args.ToArray());
+        return result.Output;
     }
 
     [McpServerTool]
@@ -281,13 +273,7 @@ public static class DeveloperCliMcpTools
         additionalArgs?.Invoke(args);
 
         var result = ExecuteCliCommandQuietly(args.ToArray());
-
-        if (result.Success)
-        {
-            return result.Output;
-        }
-
-        return $"{commandName} failed.\n\n{result.Output}\n\nFull output: {result.TempFilePath}";
+        return result.Output;
     }
 }
 
