@@ -345,14 +345,14 @@ public static class WorkerMcpTools
     [Description("Check which development agents are currently working on tasks. Shows what work is in progress.")]
     public static string ListActiveWorkers()
     {
-        return ClaudeAgentCommand.GetActiveWorkersList();
+        return ClaudeAgentLifecycle.GetActiveWorkersList();
     }
 
     [McpServerTool]
     [Description("Stop a development agent that is taking too long or needs to be cancelled. Use when work needs to be interrupted.")]
     public static string KillWorker([Description("Process ID of Worker to terminate")] int processId)
     {
-        return ClaudeAgentCommand.TerminateWorker(processId);
+        return ClaudeAgentLifecycle.TerminateWorker(processId);
     }
 
     [McpServerTool]
@@ -365,7 +365,7 @@ public static class WorkerMcpTools
         [Description("Full response content in markdown")]
         string responseContent)
     {
-        return await ClaudeAgentCommand.CompleteAndExitTask(agentType, taskSummary, responseContent);
+        return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent);
     }
 
     [McpServerTool]
@@ -380,7 +380,7 @@ public static class WorkerMcpTools
         [Description("Concise but precise review in markdown")]
         string responseContent)
     {
-        return await ClaudeAgentCommand.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent);
+        return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent);
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
