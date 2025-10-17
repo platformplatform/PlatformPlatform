@@ -442,8 +442,9 @@ public class ClaudeAgentCommand : Command
             }
             else if (userPressedEnter)
             {
-                // User pressed ENTER - launch manual session
+                // User pressed ENTER - launch manual session and exit
                 await LaunchManualClaudeSession(workspace);
+                return;
             }
         }
     }
