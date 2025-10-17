@@ -240,6 +240,7 @@ public class ClaudeAgentCommand : Command
                 break;
             }
 
+            // Polling delay to reduce filesystem query frequency while waiting for interactive worker to create response file
             await Task.Delay(TimeSpan.FromMilliseconds(500));
         }
 
@@ -319,7 +320,8 @@ public class ClaudeAgentCommand : Command
 
                         // Kill existing process
                         existingProcess.Kill();
-                        await Task.Delay(TimeSpan.FromSeconds(1)); // Wait for cleanup
+                        // Allow OS time to fully terminate process and release resources before proceeding
+                        await Task.Delay(TimeSpan.FromSeconds(1));
                     }
                 }
                 catch (ArgumentException)
@@ -385,6 +387,7 @@ public class ClaudeAgentCommand : Command
                 var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?");
 
                 AnsiConsole.MarkupLine($"[{agentColor}]Resuming session...[/]");
+                // Brief pause to allow user to read the resuming message before launching Claude Code
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
                 // Launch manual session (with or without slash command based on user choice)
@@ -482,7 +485,7 @@ public class ClaudeAgentCommand : Command
                 }
             }
 
-            // Small delay to prevent CPU spinning
+            // Prevent tight polling loop from consuming excessive CPU while checking for keyboard input and request files
             await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
     }
@@ -498,14 +501,15 @@ public class ClaudeAgentCommand : Command
         AnsiConsole.MarkupLine($"[{agentColor} bold]▶ TASK RECEIVED[/]");
         AnsiConsole.MarkupLine($"[dim]Request: {Path.GetFileName(requestFile)}[/]");
 
-        // Read task content
-        await Task.Delay(TimeSpan.FromMilliseconds(500)); // Let file write complete
+        // Allow filesystem time to complete file write operation before reading to avoid partial content
+        await Task.Delay(TimeSpan.FromMilliseconds(500));
         var taskContent = await File.ReadAllTextAsync(requestFile);
         var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
 
         AnsiConsole.MarkupLine($"[dim]Task: {Markup.Escape(firstLine)}[/]");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
+        // Countdown delay to give user time to see task details before Claude Code UI takes over
         await Task.Delay(TimeSpan.FromSeconds(3));
 
         // Launch worker-agent (Claude Code) - task title read from current-task.json
@@ -670,6 +674,7 @@ public class ClaudeAgentCommand : Command
         var process = await LaunchClaudeCode(workspace.AgentWorkspaceDirectory, claudeArgs);
 
         Logger.Debug($"Process started with ID: {process.Id}");
+        // Verification delay to confirm process launched successfully before returning (longer for initial launch to allow Claude Code startup)
         await Task.Delay(TimeSpan.FromSeconds(isRestart ? 2 : 3));
         Logger.Debug($"Process alive after delay: {!process.HasExited}");
 
@@ -837,7 +842,7 @@ public class ClaudeAgentCommand : Command
             Logger.Debug($"Starting with --continue, working directory: {workingDirectory}");
             process.Start();
 
-            // Wait briefly to check if it started successfully
+            // Verification delay to determine if --continue succeeded or if Claude Code exited immediately due to no conversation to continue
             await Task.Delay(TimeSpan.FromSeconds(2));
 
             // If still running, --continue succeeded
@@ -1126,7 +1131,7 @@ public class ClaudeAgentCommand : Command
 
                     if (options.ExpectResponseFile)
                     {
-                        // Wait briefly for file write to complete
+                        // Allow MCP tool time to complete writing response file after process exit
                         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
                         // Check for response file
