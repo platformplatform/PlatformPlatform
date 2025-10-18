@@ -333,16 +333,22 @@ public class ClaudeAgentCommand : Command
             var checkExistingRequests = true; // Only check on first iteration
             while (true)
             {
+                Logger.Debug($"[{agentType}] Main loop: Calling WaitForTasksOrManualControl (checkExisting: {checkExistingRequests})");
                 var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace, checkExistingRequests);
                 checkExistingRequests = false; // After first iteration, only rely on FileSystemWatcher
+                Logger.Debug($"[{agentType}] WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
 
                 if (isRequest && requestPath != null)
                 {
+                    Logger.Debug($"[{agentType}] Processing request: {requestPath}");
                     await HandleIncomingRequest(requestPath, workspace);
+                    Logger.Debug($"[{agentType}] Finished processing request: {requestPath}");
                 }
                 else
                 {
+                    Logger.Debug($"[{agentType}] Launching manual session");
                     await LaunchManualClaudeSession(workspace, useSlashCommand: false);
+                    Logger.Debug($"[{agentType}] Manual session ended");
                 }
             }
         }
@@ -351,11 +357,17 @@ public class ClaudeAgentCommand : Command
     // Request Watching & Handling
     private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace, bool checkExistingRequests = false)
     {
-        // Check for unprocessed request files (requests without responses) - only on startup
+        Logger.Debug($"[{workspace.AgentType}] WaitForTasksOrManualControl: Entry (checkExisting: {checkExistingRequests})");
+        Logger.Debug($"[{workspace.AgentType}] WorkerProcessIdFile exists: {File.Exists(workspace.WorkerProcessIdFile)}");
+
+        // Check for unprocessed request files (requests without responses) - only on first iteration
         if (checkExistingRequests && !File.Exists(workspace.WorkerProcessIdFile))
         {
+            Logger.Debug($"[{workspace.AgentType}] Scanning for unprocessed requests...");
             var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
             var allResponses = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
+
+            Logger.Debug($"[{workspace.AgentType}] Found {allRequests.Length} request files, {allResponses.Length} response files");
 
             var processedTaskNumbers = allResponses
                 .Select(f => Regex.Match(Path.GetFileName(f), @"^(\d+)\.").Groups[1].Value)
@@ -371,14 +383,21 @@ public class ClaudeAgentCommand : Command
                 .OrderBy(File.GetCreationTime)
                 .ToList();
 
+            Logger.Debug($"[{workspace.AgentType}] Found {unprocessedRequests.Count} unprocessed requests");
+
             if (unprocessedRequests.Count > 0)
             {
-                Logger.Debug($"Found unprocessed request: {unprocessedRequests[0]}");
+                Logger.Debug($"[{workspace.AgentType}] Returning unprocessed request: {unprocessedRequests[0]}");
                 return (true, unprocessedRequests[0]);
             }
         }
+        else
+        {
+            Logger.Debug($"[{workspace.AgentType}] Skipping unprocessed check - worker is active");
+        }
 
         // Wait for new request file or user input
+        Logger.Debug($"[{workspace.AgentType}] Creating FileSystemWatcher for: {workspace.MessagesDirectory}");
         using var fileSystemWatcher = new FileSystemWatcher(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
         fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite;
 
@@ -393,15 +412,18 @@ public class ClaudeAgentCommand : Command
         fileSystemWatcher.Created += OnFileDetected;
         fileSystemWatcher.Changed += OnFileDetected;
         fileSystemWatcher.EnableRaisingEvents = true;
+        Logger.Debug($"[{workspace.AgentType}] FileSystemWatcher enabled and listening");
 
         // Display waiting screen
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
 
         // Wait for request file OR user ENTER
+        Logger.Debug($"[{workspace.AgentType}] Entering wait loop");
         while (true)
         {
             if (requestDetected.Task.IsCompleted)
             {
+                Logger.Debug($"[{workspace.AgentType}] FileSystemWatcher detected file, returning from wait loop");
                 return (true, await requestDetected.Task);
             }
 
@@ -410,6 +432,7 @@ public class ClaudeAgentCommand : Command
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                 {
+                    Logger.Debug($"[{workspace.AgentType}] User pressed ENTER, returning for manual control");
                     return (false, null);
                 }
 
