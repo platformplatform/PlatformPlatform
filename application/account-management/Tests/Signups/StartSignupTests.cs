@@ -100,8 +100,6 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-        await EmailClient
-            .DidNotReceive()
-            .SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
     }
 }
