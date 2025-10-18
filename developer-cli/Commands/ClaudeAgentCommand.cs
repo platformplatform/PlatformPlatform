@@ -355,16 +355,22 @@ public class ClaudeAgentCommand : Command
         }
 
         using var fileSystemWatcher = new FileSystemWatcher(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
-        fileSystemWatcher.EnableRaisingEvents = true;
+        fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite;
 
         var requestReceived = false;
         string? requestFilePath = null;
 
-        fileSystemWatcher.Created += (_, e) =>
+        void OnFileDetected(object sender, FileSystemEventArgs e)
         {
             requestReceived = true;
             requestFilePath = e.FullPath;
-        };
+            Logger.Debug($"FileSystemWatcher detected request file: {e.FullPath}");
+        }
+
+        fileSystemWatcher.Created += OnFileDetected;
+        fileSystemWatcher.Changed += OnFileDetected; // Also watch for changes (some systems fire Changed instead of Created)
+
+        fileSystemWatcher.EnableRaisingEvents = true;
 
         // Main loop: standby display with ENTER listener
         while (true)
