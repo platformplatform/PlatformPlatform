@@ -375,35 +375,6 @@ public class ClaudeAgentCommand : Command
         // Main loop: standby display with ENTER listener
         while (true)
         {
-            // Check for unprocessed request files (FileSystemWatcher backup - handles missed events)
-            if (!requestReceived && !File.Exists(workspace.WorkerProcessIdFile))
-            {
-                var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
-                var allResponses = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
-
-                // Extract task numbers from response files
-                var processedTaskNumbers = allResponses
-                    .Select(f => Regex.Match(Path.GetFileName(f), @"^(\d+)\.").Groups[1].Value)
-                    .ToHashSet();
-
-                // Find requests without responses
-                var unprocessedRequests = allRequests
-                    .Where(req =>
-                    {
-                        var taskNum = Regex.Match(Path.GetFileName(req), @"^(\d+)\.").Groups[1].Value;
-                        return !processedTaskNumbers.Contains(taskNum);
-                    })
-                    .OrderBy(File.GetCreationTime)
-                    .ToList();
-
-                if (unprocessedRequests.Count > 0)
-                {
-                    requestReceived = true;
-                    requestFilePath = unprocessedRequests[0];
-                    Logger.Debug($"Detected unprocessed request (FileSystemWatcher may have missed it): {requestFilePath}");
-                }
-            }
-
             // Show standby display and wait for ENTER key or request file
             var userPressedEnter = await WaitInStandbyMode(workspace.AgentType, workspace.Branch, () => requestReceived);
 
