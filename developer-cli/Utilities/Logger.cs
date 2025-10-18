@@ -5,7 +5,18 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 public static class Logger
 {
     private const string LogFileNameFormat = "developer-cli-{0:yyyy-MM-dd}.log";
-    private static readonly string LogDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "Logs");
+    private static readonly string LogDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "logs");
+    private static readonly AsyncLocal<string?> CurrentContext = new();
+
+    public static void SetContext(string context)
+    {
+        CurrentContext.Value = context;
+    }
+
+    public static void ClearContext()
+    {
+        CurrentContext.Value = null;
+    }
 
     public static void Info(string message)
     {
@@ -31,7 +42,8 @@ public static class Logger
     private static void WriteLog(string level, string message)
     {
         var timestamp = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm.sszzz");
-        var logEntry = $"[{timestamp}] [{level}] {message}";
+        var context = CurrentContext.Value != null ? $"[{CurrentContext.Value}] " : "";
+        var logEntry = $"[{timestamp}] [{level}] {context}{message}";
         var logFileName = string.Format(LogFileNameFormat, DateTime.Today);
         var logFilePath = Path.Combine(LogDirectory, logFileName);
 
