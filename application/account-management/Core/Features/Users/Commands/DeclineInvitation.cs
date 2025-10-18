@@ -15,7 +15,7 @@ public sealed class DeclineInvitationHandler(
     IUserRepository userRepository,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
-    [FromKeyedServices("shared")] TimeProvider timeProvider) : IRequestHandler<DeclineInvitationCommand, Result>
+    [FromPlatformServices] TimeProvider timeProvider) : IRequestHandler<DeclineInvitationCommand, Result>
 {
     public async Task<Result> Handle(DeclineInvitationCommand command, CancellationToken cancellationToken)
     {

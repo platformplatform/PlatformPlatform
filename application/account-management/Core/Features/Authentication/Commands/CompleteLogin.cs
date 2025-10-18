@@ -28,7 +28,7 @@ public sealed class CompleteLoginHandler(
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
-    [FromKeyedServices("shared")] TimeProvider timeProvider,
+    [FromPlatformServices] TimeProvider timeProvider,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
 {

@@ -112,7 +112,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
                 services.AddTransient<IEmailClient>(_ => EmailClient);
 
                 RegisterMockLoggers(services);
-                services.AddKeyedSingleton<TimeProvider>("shared", TimeProvider);
+                services.AddKeyedSingleton<TimeProvider>(FromPlatformServicesAttribute.PlatformServiceKey, TimeProvider);
 
                 services.AddScoped<IExecutionContext, HttpExecutionContext>();
             });

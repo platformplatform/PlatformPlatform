@@ -44,7 +44,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
 internal sealed class UserRepository(
     AccountManagementDbContext accountManagementDbContext,
     IExecutionContext executionContext,
-    [FromKeyedServices("shared")] TimeProvider timeProvider)
+    [FromPlatformServices] TimeProvider timeProvider)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
     /// <summary>

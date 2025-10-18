@@ -31,7 +31,7 @@ public sealed class StartEmailConfirmationHandler(
     IEmailConfirmationRepository emailConfirmationRepository,
     IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
-    [FromKeyedServices("shared")] TimeProvider timeProvider) : IRequestHandler<StartEmailConfirmationCommand, Result<StartEmailConfirmationResponse>>
+    [FromPlatformServices] TimeProvider timeProvider) : IRequestHandler<StartEmailConfirmationCommand, Result<StartEmailConfirmationResponse>>
 {
     public async Task<Result<StartEmailConfirmationResponse>> Handle(StartEmailConfirmationCommand command, CancellationToken cancellationToken)
     {

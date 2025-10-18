@@ -36,7 +36,7 @@ Carefully follow these instructions for C# backend development, including code s
 - Don't add comments unless the code is truly not expressing the intent.
 - Do add comments explains "the why" of code. In other words, never add comments that explains what code does, but explaining why code is there, what non-obvious problem it solves, is expected.
 - Never add XML comments.
-- Inject TimeProvider from keyed service "shared" and `timeProvider.GetUtcNow()` and not `DateTimeOffset.UtcNow()` in all business code. 
+- Inject TimeProvider from [FromPlatformServices] and use `timeProvider.GetUtcNow()` and not `DateTimeOffset.UtcNow()` in all business code that needs timers, current time, timezone info. 
 - Use `DateTimeOffset.UtcNow()` for code that needs timestamps and does not support/work with fake TimeProvider during testing.
 
 ## Implementation

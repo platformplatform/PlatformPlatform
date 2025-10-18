@@ -24,7 +24,7 @@ public sealed class ResendEmailConfirmationCodeHandler(
     IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events,
-    [FromKeyedServices("shared")] TimeProvider timeProvider,
+    [FromPlatformServices] TimeProvider timeProvider,
     ILogger<ResendEmailConfirmationCodeHandler> logger
 ) : IRequestHandler<ResendEmailConfirmationCodeCommand, Result<ResendEmailConfirmationCodeResponse>>
 {

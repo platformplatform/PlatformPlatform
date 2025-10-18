@@ -10,7 +10,7 @@ namespace PlatformPlatform.AppGateway.Middleware;
 public class AuthenticationCookieMiddleware(
     ITokenSigningClient tokenSigningClient,
     IHttpClientFactory httpClientFactory,
-    [FromKeyedServices("shared")] TimeProvider timeProvider,
+    [FromPlatformServices] TimeProvider timeProvider,
     ILogger<AuthenticationCookieMiddleware> logger
 )
     : IMiddleware

@@ -18,7 +18,7 @@ public sealed class CompleteEmailConfirmationHandler(
     IEmailConfirmationRepository emailConfirmationRepository,
     OneTimePasswordHelper oneTimePasswordHelper,
     ITelemetryEventsCollector events,
-    [FromKeyedServices("shared")] TimeProvider timeProvider,
+    [FromPlatformServices] TimeProvider timeProvider,
     ILogger<CompleteEmailConfirmationHandler> logger
 ) : IRequestHandler<CompleteEmailConfirmationCommand, Result<CompleteEmailConfirmationResponse>>
 {
