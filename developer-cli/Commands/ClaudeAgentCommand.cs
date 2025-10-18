@@ -191,9 +191,6 @@ public class ClaudeAgentCommand : Command
         // Create workspace and register agent
         Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);
 
-        // Setup workspace with symlink to .claude directory
-        await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
-
         // Check for existing worker-host process
         if (File.Exists(workspace.HostProcessIdFile))
         {
@@ -334,7 +331,7 @@ public class ClaudeAgentCommand : Command
             // Main loop: wait for requests or manual control
             while (true)
             {
-                Logger.Debug($"Main loop: Calling WaitForTasksOrManualControl");
+                Logger.Debug("Main loop: Calling WaitForTasksOrManualControl");
                 var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
                 Logger.Debug($"WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
 
@@ -357,7 +354,7 @@ public class ClaudeAgentCommand : Command
     // Request Watching & Handling
     private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace)
     {
-        Logger.Debug($"WaitForTasksOrManualControl: Entry");
+        Logger.Debug("WaitForTasksOrManualControl: Entry");
         Logger.Debug($"WorkerProcessIdFile exists: {File.Exists(workspace.WorkerProcessIdFile)}");
 
         // Always check for unprocessed request files first (requests without responses)
@@ -649,70 +646,6 @@ public class ClaudeAgentCommand : Command
     }
 
     // Setup & Utilities
-    internal async Task SetupAgentWorkspace(string agentWorkspaceDirectory)
-    {
-        // Note: agentWorkspaceDirectory already created by caller
-
-        // Create symlink to .claude directory for always-current commands, agents, and settings (only if doesn't exist)
-        var workerClaudeDir = Path.Combine(agentWorkspaceDirectory, ".claude");
-        var rootClaudeDir = Path.Combine(Configuration.SourceCodeFolder, ".claude");
-
-        // Only create symlink if it doesn't exist
-        if (!Directory.Exists(workerClaudeDir) && !File.Exists(workerClaudeDir) && Directory.Exists(rootClaudeDir))
-        {
-            try
-            {
-                if (Configuration.IsWindows)
-                {
-                    ProcessHelper.StartProcess($"cmd /c mklink /D \"{workerClaudeDir}\" \"{rootClaudeDir}\"");
-                }
-                else
-                {
-                    // Create relative symlink for better portability
-                    var relativePath = Path.GetRelativePath(Path.GetDirectoryName(workerClaudeDir)!, rootClaudeDir);
-                    Directory.CreateSymbolicLink(workerClaudeDir, relativePath);
-                }
-            }
-            catch
-            {
-                // Fallback to copying essential files if symlink creation fails
-                Directory.CreateDirectory(Path.Combine(workerClaudeDir, "commands"));
-
-                // Copy only essential commands
-                var commandsSource = Path.Combine(rootClaudeDir, "commands");
-                if (Directory.Exists(commandsSource))
-                {
-                    foreach (var file in Directory.GetFiles(commandsSource, "*.md"))
-                    {
-                        var fileName = Path.GetFileName(file);
-                        var destFile = Path.Combine(workerClaudeDir, "commands", fileName);
-                        await File.WriteAllTextAsync(destFile, await File.ReadAllTextAsync(file));
-                    }
-                }
-            }
-        }
-
-        // Setup .mcp.json with relative path to developer-cli
-        var rootMcpJsonPath = Path.Combine(Configuration.SourceCodeFolder, ".mcp.json");
-        var workerMcpJsonPath = Path.Combine(agentWorkspaceDirectory, ".mcp.json");
-
-        if (File.Exists(rootMcpJsonPath))
-        {
-            // Create MCP config JSON with proper formatting
-            var mcpConfigJson = """
-                                {
-                                  "mcpServers": {
-                                    "developer-cli": {
-                                      "command": "dotnet",
-                                      "args": ["run", "--project", "../../../../developer-cli", "mcp"]
-                                    }
-                                  }
-                                }
-                                """;
-
-            await File.WriteAllTextAsync(workerMcpJsonPath, mcpConfigJson);
-        }
-    }
 
     private static async Task<Process> LaunchClaudeCode(Workspace workspace, List<string> additionalArgs)
     {
@@ -761,7 +694,7 @@ public class ClaudeAgentCommand : Command
         var commandLine = string.Join(" ", args.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
         Logger.Debug($"Working directory: {workingDirectory}");
         Logger.Debug($"Command: claude {commandLine}");
-        Logger.Debug($"UseShellExecute: true");
+        Logger.Debug("UseShellExecute: true");
 
         var process = new Process
         {
