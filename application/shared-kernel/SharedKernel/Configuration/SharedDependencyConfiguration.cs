@@ -120,7 +120,7 @@ public static class SharedDependencyConfiguration
         // to control time during testing, we register our own TimeProvider using .NET Keyed Services,
         // so when we inject a fake time provider during testing. The reason for registering a keyed service
         // is that it is better to only control time/stop time during testing for services we know work correct when
-        // done so. A keyed sevice allows us to only override the TimeProvider for specific services during testing..
+        // done so. A keyed service allows us to only override the TimeProvider for specific services during testing..
         services.AddKeyedSingleton<TimeProvider>(FromPlatformServicesAttribute.PlatformServiceKey, TimeProvider.System);
         return services;
     }
