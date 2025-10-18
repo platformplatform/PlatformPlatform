@@ -12,14 +12,25 @@ public static class ClaudeAgentLifecycle
     public static async Task<string> CompleteAndExitTask(
         string agentType,
         string taskSummary,
-        string responseContent)
+        string responseContent,
+        string branch)
     {
-        var workspace = new Workspace(agentType);
+        // Validate branch matches current git branch
+        var currentGitBranch = GitHelper.GetCurrentBranch();
+        if (currentGitBranch != branch)
+        {
+            return $"ERROR: Branch mismatch detected!\n\n" +
+                   $"Task assigned for branch: '{branch}'\n" +
+                   $"Current git branch: '{currentGitBranch}'\n\n" +
+                   $"Please checkout '{branch}' or restart worker-hosts on the correct branch.";
+        }
+
+        var workspace = new Workspace(agentType, branch);
 
         // Read task number from current-task.json
         if (!File.Exists(workspace.CurrentTaskFile))
         {
-            return "Error: No active task found (current-task.json missing). Are you running as a worker agent?";
+            return $"Error: No active task found (current-task.json missing at {workspace.CurrentTaskFile}). Are you running as a worker agent?";
         }
 
         var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
@@ -80,7 +91,8 @@ public static class ClaudeAgentLifecycle
         string agentType,
         string? commitHash,
         string? rejectReason,
-        string responseContent)
+        string responseContent,
+        string branch)
     {
         if (!string.IsNullOrWhiteSpace(commitHash) && !string.IsNullOrWhiteSpace(rejectReason))
         {
@@ -92,13 +104,23 @@ public static class ClaudeAgentLifecycle
             throw new InvalidOperationException("Must provide either commitHash or rejectReason");
         }
 
+        // Validate branch matches current git branch
+        var currentGitBranch = GitHelper.GetCurrentBranch();
+        if (currentGitBranch != branch)
+        {
+            return $"ERROR: Branch mismatch detected!\n\n" +
+                   $"Task assigned for branch: '{branch}'\n" +
+                   $"Current git branch: '{currentGitBranch}'\n\n" +
+                   $"Please checkout '{branch}' or restart worker-hosts on the correct branch.";
+        }
+
         var approved = !string.IsNullOrEmpty(commitHash);
-        var workspace = new Workspace(agentType);
+        var workspace = new Workspace(agentType, branch);
 
         // Read task number from current-task.json
         if (!File.Exists(workspace.CurrentTaskFile))
         {
-            return "Error: No active task found (current-task.json missing). Are you running as a reviewer agent?";
+            return $"Error: No active task found (current-task.json missing at {workspace.CurrentTaskFile}). Are you running as a reviewer agent?";
         }
 
         var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
@@ -225,5 +247,26 @@ public static class ClaudeAgentLifecycle
 
                 If you genuinely completed THIS task already, call {methodName} again to confirm.
                 """;
+    }
+
+    public static string ExtractBranchFromPath(string workspacePath)
+    {
+        // Path format: ".../agent-workspaces/{branch}/messages/..." or
+        //              ".../agent-workspaces/{branch}/{agentType}/..."
+        var agentWorkspacesIndex = workspacePath.IndexOf("agent-workspaces/", StringComparison.Ordinal);
+        if (agentWorkspacesIndex == -1)
+        {
+            throw new InvalidOperationException($"Invalid workspace path (missing 'agent-workspaces/'): {workspacePath}");
+        }
+
+        var afterWorkspaces = workspacePath.Substring(agentWorkspacesIndex + "agent-workspaces/".Length);
+        var parts = afterWorkspaces.Split(['/', '\\'], StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 0)
+        {
+            throw new InvalidOperationException($"Invalid workspace path (no branch found): {workspacePath}");
+        }
+
+        return parts[0]; // First part after agent-workspaces/ is the branch
     }
 }
