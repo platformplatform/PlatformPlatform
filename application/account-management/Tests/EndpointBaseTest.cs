@@ -29,6 +29,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
+    protected readonly TimeProvider TimeProvider;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
 
@@ -42,6 +43,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         );
 
         Services = new ServiceCollection();
+        TimeProvider = TimeProvider.System;
 
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();

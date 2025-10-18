@@ -61,10 +61,12 @@ public static class SqliteConnectionExtensions
                     not null when valueType == typeof(byte[]) => SqliteType.Blob,
                     not null when valueType == typeof(string) => SqliteType.Text,
                     not null when valueType == typeof(DateTime) => SqliteType.Text, // SQLite stores dates as text
+                    not null when valueType == typeof(DateTimeOffset) => SqliteType.Text, // SQLite stores dates as text
                     not null when valueType == typeof(Guid) => SqliteType.Text, // Store GUIDs as text
                     null => SqliteType.Text, // Handle null values by setting SqliteType to Text
                     _ => SqliteType.Text // Default to Text if the type is unknown
                 };
+
                 var parameter = new SqliteParameter($"@{column.Item1}", sqliteType) { Value = column.Item2 ?? DBNull.Value };
                 command.Parameters.Add(parameter);
             }
@@ -106,10 +108,12 @@ public static class SqliteConnectionExtensions
                     not null when valueType == typeof(byte[]) => SqliteType.Blob,
                     not null when valueType == typeof(string) => SqliteType.Text,
                     not null when valueType == typeof(DateTime) => SqliteType.Text, // SQLite stores dates as text
+                    not null when valueType == typeof(DateTimeOffset) => SqliteType.Text, // SQLite stores dates as text
                     not null when valueType == typeof(Guid) => SqliteType.Text, // Store GUIDs as text
                     null => SqliteType.Text, // Handle null values by setting SqliteType to Text
                     _ => SqliteType.Text // Default to Text if the type is unknown
                 };
+
                 var parameter = new SqliteParameter($"@{column.Item1}", sqliteType) { Value = column.Item2 ?? DBNull.Value };
                 command.Parameters.Add(parameter);
             }

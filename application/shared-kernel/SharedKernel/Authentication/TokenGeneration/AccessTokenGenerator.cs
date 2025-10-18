@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
-public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
+public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient, TimeProvider timeProvider)
 {
     // Access tokens should only be valid for a very short time and cannot be revoked.
     // For example, if a user gets a new role, the changes will not take effect until the access token expires.
@@ -31,8 +31,10 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
             )
         };
 
+        var now = timeProvider.GetUtcNow();
         return tokenDescriptor.GenerateToken(
-            TimeProvider.System.GetUtcNow().AddMinutes(ValidForMinutes).UtcDateTime,
+            now,
+            now.AddMinutes(ValidForMinutes),
             tokenSigningClient.Issuer,
             tokenSigningClient.Audience,
             tokenSigningClient.GetSigningCredentials()

@@ -29,7 +29,8 @@ public sealed class StartEmailConfirmationValidator : AbstractValidator<StartEma
 public sealed class StartEmailConfirmationHandler(
     IEmailConfirmationRepository emailConfirmationRepository,
     IEmailClient emailClient,
-    IPasswordHasher<object> passwordHasher
+    IPasswordHasher<object> passwordHasher,
+    TimeProvider timeProvider
 ) : IRequestHandler<StartEmailConfirmationCommand, Result<StartEmailConfirmationResponse>>
 {
     public async Task<Result<StartEmailConfirmationResponse>> Handle(StartEmailConfirmationCommand command, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ public sealed class StartEmailConfirmationHandler(
         var existingConfirmations = emailConfirmationRepository.GetByEmail(command.Email).ToArray();
 
         var lockoutMinutes = command.Type == EmailConfirmationType.Signup ? -60 : -15;
-        if (existingConfirmations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddMinutes(lockoutMinutes)) >= 3)
+        if (existingConfirmations.Count(r => r.CreatedAt > timeProvider.GetUtcNow().AddMinutes(lockoutMinutes)) >= 3)
         {
             return Result<StartEmailConfirmationResponse>.TooManyRequests("Too many attempts to confirm this email address. Please try again later.");
         }

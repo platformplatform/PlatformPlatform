@@ -11,10 +11,12 @@ namespace PlatformPlatform.SharedKernel.EntityFramework;
 ///     The SharedKernelDbContext class represents the Entity Framework Core DbContext for managing data access to the
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
-public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext> options, IExecutionContext executionContext)
-    : DbContext(options) where TContext : DbContext
+public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext> options, IExecutionContext executionContext, TimeProvider timeProvider)
+    : DbContext(options), ITimeProviderSource where TContext : DbContext
 {
     protected TenantId? TenantId => executionContext.TenantId;
+
+    public TimeProvider TimeProvider => timeProvider;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

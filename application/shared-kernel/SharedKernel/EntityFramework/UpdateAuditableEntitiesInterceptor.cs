@@ -32,6 +32,10 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
     {
         var dbContext = eventData.Context ?? throw new UnreachableException("The 'eventData.Context' property is unexpectedly null.");
 
+        var timeProvider = dbContext is ITimeProviderSource timeProviderSource
+            ? timeProviderSource.TimeProvider
+            : TimeProvider.System;
+
         var audibleEntities = dbContext.ChangeTracker.Entries<IAuditableEntity>();
 
         foreach (var entityEntry in audibleEntities)
@@ -42,7 +46,7 @@ public sealed class UpdateAuditableEntitiesInterceptor : SaveChangesInterceptor
                 case EntityState.Added when entityEntry.Entity.CreatedAt == default:
                     throw new UnreachableException("CreatedAt must be set before saving.");
                 case EntityState.Modified:
-                    entityEntry.Entity.UpdateModifiedAt(DateTime.UtcNow);
+                    entityEntry.Entity.UpdateModifiedAt(timeProvider.GetUtcNow());
                     break;
             }
         }

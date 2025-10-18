@@ -40,7 +40,7 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 }
 
-internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext)
+internal sealed class UserRepository(AccountManagementDbContext accountManagementDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
     : RepositoryBase<User, UserId>(accountManagementDbContext), IUserRepository
 {
     /// <summary>
@@ -89,7 +89,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
     {
-        var thirtyDaysAgo = TimeProvider.System.GetUtcNow().AddDays(-30);
+        var thirtyDaysAgo = timeProvider.GetUtcNow().AddDays(-30);
 
         var summary = await DbSet
             .GroupBy(_ => 1) // Group all records into a single group to calculate multiple COUNT aggregates in one query

@@ -34,9 +34,9 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 
     public bool Completed { get; private set; }
 
-    public bool HasExpired()
+    public bool HasExpired(DateTimeOffset now)
     {
-        return ValidUntil < TimeProvider.System.GetUtcNow();
+        return ValidUntil < now;
     }
 
     public static EmailConfirmation Create(string email, string oneTimePasswordHash, EmailConfirmationType type)
@@ -49,9 +49,9 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
         RetryCount++;
     }
 
-    public void MarkAsCompleted()
+    public void MarkAsCompleted(DateTimeOffset now)
     {
-        if (HasExpired() || RetryCount >= MaxAttempts)
+        if (HasExpired(now) || RetryCount >= MaxAttempts)
         {
             throw new UnreachableException("This email confirmation has expired.");
         }
@@ -61,7 +61,7 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
         Completed = true;
     }
 
-    public void UpdateVerificationCode(string oneTimePasswordHash)
+    public void UpdateVerificationCode(string oneTimePasswordHash, DateTimeOffset now)
     {
         if (Completed)
         {
@@ -73,7 +73,7 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
             throw new UnreachableException("Cannot regenerate verification code for email confirmation that has been resent too many times.");
         }
 
-        ValidUntil = TimeProvider.System.GetUtcNow().AddSeconds(ValidForSeconds);
+        ValidUntil = now.AddSeconds(ValidForSeconds);
         OneTimePasswordHash = oneTimePasswordHash;
         ResendCount++;
     }

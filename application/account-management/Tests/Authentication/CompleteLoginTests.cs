@@ -159,7 +159,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
                 ("TenantId", DatabaseSeeder.Tenant1Owner.TenantId.ToString()),
                 ("UserId", DatabaseSeeder.Tenant1Owner.Id.ToString()),
                 ("Id", loginId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("EmailConfirmationId", emailConfirmationId.ToString()),
                 ("Completed", false)
@@ -167,12 +167,12 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         );
         Connection.Insert("EmailConfirmations", [
                 ("Id", emailConfirmationId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Owner.Email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)
@@ -236,7 +236,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
@@ -247,7 +247,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Owner.Email),
                 ("EmailConfirmed", true),
@@ -309,7 +309,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
