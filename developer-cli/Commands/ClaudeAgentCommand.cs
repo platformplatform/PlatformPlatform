@@ -330,9 +330,11 @@ public class ClaudeAgentCommand : Command
             RedrawWaitingDisplay(agentType, workspace.Branch);
 
             // Main loop: wait for requests or manual control
+            var checkExistingRequests = true; // Only check on first iteration
             while (true)
             {
-                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
+                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace, checkExistingRequests);
+                checkExistingRequests = false; // After first iteration, only rely on FileSystemWatcher
 
                 if (isRequest && requestPath != null)
                 {
@@ -347,10 +349,10 @@ public class ClaudeAgentCommand : Command
     }
 
     // Request Watching & Handling
-    private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace)
+    private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace, bool checkExistingRequests = false)
     {
-        // Check for unprocessed request files (requests without responses)
-        if (!File.Exists(workspace.WorkerProcessIdFile))
+        // Check for unprocessed request files (requests without responses) - only on startup
+        if (checkExistingRequests && !File.Exists(workspace.WorkerProcessIdFile))
         {
             var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
             var allResponses = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
