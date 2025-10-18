@@ -332,12 +332,10 @@ public class ClaudeAgentCommand : Command
             RedrawWaitingDisplay(agentType, workspace.Branch);
 
             // Main loop: wait for requests or manual control
-            var checkExistingRequests = true; // Only check on first iteration
             while (true)
             {
-                Logger.Debug($"Main loop: Calling WaitForTasksOrManualControl (checkExisting: {checkExistingRequests})");
-                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace, checkExistingRequests);
-                checkExistingRequests = false; // After first iteration, only rely on FileSystemWatcher
+                Logger.Debug($"Main loop: Calling WaitForTasksOrManualControl");
+                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
                 Logger.Debug($"WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
 
                 if (isRequest && requestPath != null)
@@ -357,13 +355,14 @@ public class ClaudeAgentCommand : Command
     }
 
     // Request Watching & Handling
-    private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace, bool checkExistingRequests = false)
+    private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace)
     {
-        Logger.Debug($"WaitForTasksOrManualControl: Entry (checkExisting: {checkExistingRequests})");
+        Logger.Debug($"WaitForTasksOrManualControl: Entry");
         Logger.Debug($"WorkerProcessIdFile exists: {File.Exists(workspace.WorkerProcessIdFile)}");
 
-        // Check for unprocessed request files (requests without responses) - only on first iteration
-        if (checkExistingRequests && !File.Exists(workspace.WorkerProcessIdFile))
+        // Always check for unprocessed request files first (requests without responses)
+        // This prevents race condition where MCP writes file between iterations
+        if (!File.Exists(workspace.WorkerProcessIdFile))
         {
             Logger.Debug("Scanning for unprocessed requests...");
             var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
