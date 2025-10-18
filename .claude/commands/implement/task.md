@@ -36,6 +36,14 @@ Before proceeding, verify your previous task was committed:
 
 ---
 
+## CRITICAL - Autonomous Operation
+
+You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. Work with our team to find a solution.
+
+**Token limits approaching?** Use `/compact` strategically (e.g., after being assigned a new task, but before reading task assignment, before catching up).
+
+---
+
 ## STEP 1: Create Todo List - DO THIS NOW!
 
 **CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
