@@ -544,12 +544,11 @@ public class ClaudeAgentCommand : Command
         var claudeArgs = new List<string>
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
-            "--add-dir", Configuration.SourceCodeFolder,
             "--permission-mode", "bypassPermissions",
             "--append-system-prompt", systemPromptText
         };
 
-        // Add slash command only if requested (manual sessions use --continue only)
+        // Add slash command only if requested (manual sessions may launch without slash command)
         if (useSlashCommand)
         {
             // Determine task title
@@ -586,11 +585,11 @@ public class ClaudeAgentCommand : Command
         var commandLine = $"claude {string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
         Logger.Debug("LAUNCH - Starting Claude Code");
         Logger.Debug($"Agent Type: {workspace.AgentType}");
-        Logger.Debug($"Working Directory: {workspace.AgentWorkspaceDirectory}");
+        Logger.Debug($"Working Directory: {Configuration.SourceCodeFolder}");
         Logger.Debug($"Command: {commandLine}");
 
-        // Launch with session management
-        var process = await LaunchClaudeCode(workspace.AgentWorkspaceDirectory, claudeArgs);
+        // Launch with session management from source code root
+        var process = await LaunchClaudeCode(workspace, claudeArgs);
 
         Logger.Debug($"Process started with ID: {process.Id}");
         // Verification delay to confirm process launched successfully before returning
@@ -715,80 +714,64 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private static async Task<Process> LaunchClaudeCode(string agentWorkspaceDirectory, List<string> additionalArgs, string? workingDirectory = null)
+    private static async Task<Process> LaunchClaudeCode(Workspace workspace, List<string> additionalArgs)
     {
-        workingDirectory ??= agentWorkspaceDirectory;
-        var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
+        var workingDirectory = Configuration.SourceCodeFolder;
+        var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
+        Logger.Debug($"LaunchClaudeCode - Session file path: {sessionIdFile}");
         Logger.Debug($"LaunchClaudeCode - Session file exists: {File.Exists(sessionIdFile)}");
 
-        // Try --continue if session marker exists
+        string sessionId;
+        bool isResume;
+
+        // Check if session exists
         if (File.Exists(sessionIdFile))
         {
-            Logger.Debug("Attempting --continue (session marker exists)");
-
-            var argsWithContinue = new List<string> { "--continue" };
-
-            var addDirArg = additionalArgs.IndexOf("--add-dir");
-            if (addDirArg >= 0 && addDirArg + 1 < additionalArgs.Count)
-            {
-                argsWithContinue.Add("--add-dir");
-                argsWithContinue.Add(additionalArgs[addDirArg + 1]);
-            }
-
-            argsWithContinue.Add("--permission-mode");
-            argsWithContinue.Add("bypassPermissions");
-
-            var slashCommand = additionalArgs.FirstOrDefault(arg => arg.StartsWith('/') && !arg.Substring(1).Contains('/'));
-            if (slashCommand is not null)
-            {
-                argsWithContinue.Add(slashCommand);
-            }
-
-            var process = new Process
-            {
-                StartInfo = BuildProcessStartInfo(argsWithContinue, workingDirectory)
-            };
-
-            Logger.Debug($"Starting with --continue, working directory: {workingDirectory}");
-            process.Start();
-
-            // Verification delay to determine if --continue succeeded or if Claude Code exited immediately due to no conversation to continue
-            await Task.Delay(TimeSpan.FromSeconds(2));
-
-            // If still running, --continue succeeded
-            if (!process.HasExited)
-            {
-                Logger.Debug($"--continue succeeded, process ID: {process.Id}");
-                return process; // Return LIVE process
-            }
-
-            // --continue failed (no conversation to continue), delete marker and start fresh
-            Logger.Debug($"--continue failed (process exited with code {process.ExitCode}), deleting session marker");
-            File.Delete(sessionIdFile);
+            sessionId = (await File.ReadAllTextAsync(sessionIdFile)).Trim();
+            isResume = true;
+            Logger.Debug($"Resuming existing session: {sessionId}");
+        }
+        else
+        {
+            sessionId = Guid.NewGuid().ToString();
+            await File.WriteAllTextAsync(sessionIdFile, sessionId);
+            isResume = false;
+            Logger.Debug($"Creating new session: {sessionId}");
         }
 
-        // Fresh start (no session marker or --continue failed)
-        Logger.Debug("Starting fresh session (no session marker or --continue failed)");
-        // Create session marker BEFORE starting so any exit (crash, kill, normal) leaves the file
-        await File.WriteAllTextAsync(sessionIdFile, Guid.NewGuid().ToString());
+        // Build arguments with session management
+        var args = new List<string>();
 
-        var freshArgs = new List<string>();
-        freshArgs.AddRange(additionalArgs);
-
-        var commandLine = string.Join(" ", freshArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-        Logger.Debug($"Starting fresh process - UseShellExecute: true, Working directory: {workingDirectory}");
-        Logger.Debug($"Command: claude {commandLine}");
-
-        var freshProcess = new Process
+        // Add session argument (--resume or --session-id)
+        if (isResume)
         {
-            StartInfo = BuildProcessStartInfo(freshArgs, workingDirectory)
+            args.Add("--resume");
+            args.Add(sessionId);
+        }
+        else
+        {
+            args.Add("--session-id");
+            args.Add(sessionId);
+        }
+
+        // Add all other arguments
+        args.AddRange(additionalArgs);
+
+        var commandLine = string.Join(" ", args.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
+        Logger.Debug($"Working directory: {workingDirectory}");
+        Logger.Debug($"Command: claude {commandLine}");
+        Logger.Debug($"UseShellExecute: true");
+
+        var process = new Process
+        {
+            StartInfo = BuildProcessStartInfo(args, workingDirectory)
         };
 
-        freshProcess.Start();
-        Logger.Debug($"Fresh process started with ID: {freshProcess.Id}");
+        process.Start();
+        Logger.Debug($"Process started with ID: {process.Id}");
 
-        return freshProcess;
+        return process;
     }
 
     // Display & UI
