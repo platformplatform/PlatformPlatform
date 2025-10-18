@@ -116,6 +116,7 @@ Response: [response file path]
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
 - If reviewer returns APPROVED → Proceed to completion
+- **NEVER call CompleteAndExitTask unless reviewer approved and committed your code**
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 

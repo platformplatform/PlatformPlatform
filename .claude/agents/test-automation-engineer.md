@@ -71,9 +71,11 @@ Use developer-cli MCP start_worker:
 
 **c. Wait for worker completion** (worker handles review iteration)
 
-**d. Mark task [completed]** in todo
+**d. Verify completion**: Check `git status --porcelain` shows no uncommitted files from this task
 
-**e. Move to next task**
+**e. Mark task [completed]** in todo
+
+**f. Move to next task**
 
 **Step 4: Collapse Todo**
 
