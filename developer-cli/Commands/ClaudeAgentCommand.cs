@@ -318,120 +318,106 @@ public class ClaudeAgentCommand : Command
         }
         else
         {
+            // Setup for interactive mode
+            Directory.CreateDirectory(workspace.MessagesDirectory);
+
+            if (!File.Exists(workspace.HostProcessIdFile))
+            {
+                await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+            }
+
             // Display initial waiting screen with recent activity
             RedrawWaitingDisplay(agentType, workspace.Branch);
 
-            await WaitForTasksOrManualControl(workspace);
+            // Main loop: wait for requests or manual control
+            while (true)
+            {
+                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
+
+                if (isRequest && requestPath != null)
+                {
+                    await HandleIncomingRequest(requestPath, workspace);
+                }
+                else
+                {
+                    await LaunchManualClaudeSession(workspace, useSlashCommand: false);
+                }
+            }
         }
     }
 
     // Request Watching & Handling
-    private async Task WaitForTasksOrManualControl(Workspace workspace)
+    private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace)
     {
-        // Create messages directory if it doesn't exist (needed for FileSystemWatcher)
-        Directory.CreateDirectory(workspace.MessagesDirectory);
-
-        // Ensure .host-process-id exists for MCP delegation (create if automated host exited)
-        if (!File.Exists(workspace.HostProcessIdFile))
-        {
-            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
-        }
-
-        // Check for existing request files (only if no worker currently active)
+        // Check for unprocessed request files (requests without responses)
         if (!File.Exists(workspace.WorkerProcessIdFile))
         {
-            var existingRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md")
+            var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
+            var allResponses = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
+
+            var processedTaskNumbers = allResponses
+                .Select(f => Regex.Match(Path.GetFileName(f), @"^(\d+)\.").Groups[1].Value)
+                .ToHashSet();
+
+            var unprocessedRequests = allRequests
+                .Where(req =>
+                    {
+                        var taskNum = Regex.Match(Path.GetFileName(req), @"^(\d+)\.").Groups[1].Value;
+                        return !processedTaskNumbers.Contains(taskNum);
+                    }
+                )
                 .OrderBy(File.GetCreationTime)
                 .ToList();
 
-            if (existingRequests.Count > 0)
+            if (unprocessedRequests.Count > 0)
             {
-                AnsiConsole.MarkupLine($"[yellow]Found {existingRequests.Count} pending request(s), processing...[/]");
-                foreach (var requestFile in existingRequests)
-                {
-                    await HandleIncomingRequest(requestFile, workspace);
-                }
+                Logger.Debug($"Found unprocessed request: {unprocessedRequests[0]}");
+                return (true, unprocessedRequests[0]);
             }
         }
 
+        // Wait for new request file or user input
         using var fileSystemWatcher = new FileSystemWatcher(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
         fileSystemWatcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.LastWrite;
 
-        var requestReceived = false;
-        string? requestFilePath = null;
+        var requestDetected = new TaskCompletionSource<string>();
 
         void OnFileDetected(object sender, FileSystemEventArgs e)
         {
-            requestReceived = true;
-            requestFilePath = e.FullPath;
             Logger.Debug($"FileSystemWatcher detected request file: {e.FullPath}");
+            requestDetected.TrySetResult(e.FullPath);
         }
 
         fileSystemWatcher.Created += OnFileDetected;
-        fileSystemWatcher.Changed += OnFileDetected; // Also watch for changes (some systems fire Changed instead of Created)
-
+        fileSystemWatcher.Changed += OnFileDetected;
         fileSystemWatcher.EnableRaisingEvents = true;
 
-        // Main loop: standby display with ENTER listener
+        // Display waiting screen
+        RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
+
+        // Wait for request file OR user ENTER
         while (true)
         {
-            // Show standby display and wait for ENTER key or request file
-            var userPressedEnter = await WaitInStandbyMode(workspace.AgentType, workspace.Branch, () => requestReceived);
-
-            if (requestReceived && requestFilePath != null)
+            if (requestDetected.Task.IsCompleted)
             {
-                // Request file arrived - capture path before resetting flags
-                var pathToProcess = requestFilePath;
-                requestReceived = false;
-                requestFilePath = null;
-
-                // Process request (blocking call - may take minutes)
-                await HandleIncomingRequest(pathToProcess, workspace);
-                // Note: Don't reset flags after processing - new requests arriving during processing will have already set fresh flag values
-            }
-            else if (userPressedEnter)
-            {
-                // User pressed ENTER - launch manual session and return to waiting
-                await LaunchManualClaudeSession(workspace, useSlashCommand: false);
-            }
-        }
-        // ReSharper disable once FunctionNeverReturns
-    }
-
-    private async Task<bool> WaitInStandbyMode(string agentType, string branch, Func<bool> checkForRequest)
-    {
-        // Display standby screen
-        RedrawWaitingDisplay(agentType, branch);
-
-        // Wait for ENTER key or incoming request
-        while (true)
-        {
-            // Check if request file arrived (non-blocking)
-            if (checkForRequest())
-            {
-                return false; // Request received, not user ENTER
+                return (true, await requestDetected.Task);
             }
 
-            // Check for keyboard input (non-blocking)
             if (Console.KeyAvailable)
             {
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                 {
-                    AnsiConsole.Clear();
-                    AnsiConsole.MarkupLine("[yellow]Manual control activated[/]");
-                    return true; // User pressed ENTER
+                    return (false, null);
                 }
 
                 if (key.Key == ConsoleKey.A && (key.Modifiers & ConsoleModifiers.Control) != 0)
                 {
-                    // Ctrl+A - toggle showing all activities
                     _showAllActivities = !_showAllActivities;
-                    RedrawWaitingDisplay(agentType, branch);
+                    RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
                 }
             }
 
-            // Prevent tight polling loop from consuming excessive CPU while checking for keyboard input and request files
             await Task.Delay(TimeSpan.FromMilliseconds(100));
         }
     }
