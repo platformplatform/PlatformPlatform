@@ -375,6 +375,21 @@ public class ClaudeAgentCommand : Command
         // Main loop: standby display with ENTER listener
         while (true)
         {
+            // Check for request files (FileSystemWatcher backup - handles missed events)
+            if (!requestReceived && !File.Exists(workspace.WorkerProcessIdFile))
+            {
+                var pendingRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md")
+                    .OrderBy(File.GetCreationTime)
+                    .ToList();
+
+                if (pendingRequests.Count > 0)
+                {
+                    requestReceived = true;
+                    requestFilePath = pendingRequests[0];
+                    Logger.Debug($"Detected pending request file (FileSystemWatcher may have missed it): {requestFilePath}");
+                }
+            }
+
             // Show standby display and wait for ENTER key or request file
             var userPressedEnter = await WaitInStandbyMode(workspace.AgentType, workspace.Branch, () => requestReceived);
 
