@@ -456,6 +456,7 @@ public class ClaudeAgentCommand : Command
         // Monitor process and wait for response file
         var options = new ProcessMonitoringOptions(
             TimeSpan.FromMinutes(20),
+            TimeSpan.FromMinutes(115),
             true,
             taskNumber,
             responseFilePattern,
@@ -488,7 +489,11 @@ public class ClaudeAgentCommand : Command
             ? TimeSpan.FromMinutes(62)
             : TimeSpan.FromMinutes(20);
 
-        var options = new ProcessMonitoringOptions(inactivityTimeout, false);
+        var options = new ProcessMonitoringOptions(
+            inactivityTimeout,
+            TimeSpan.FromMinutes(115),
+            false
+        );
 
         var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
 
@@ -959,12 +964,28 @@ public class ClaudeAgentCommand : Command
 
     private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(Process process, string agentType, ProcessMonitoringOptions options)
     {
-        // Wait for process to exit with inactivity timeout detection
-        var exited = process.WaitForExit(options.InactivityTimeout);
+        var startTime = DateTime.Now;
 
-        if (!exited)
+        while (true)
         {
-            // Inactivity timeout reached - check if worker made any progress
+            // Check overall timeout
+            if (DateTime.Now - startTime >= options.OverallTimeout)
+            {
+                Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached, killing process");
+                KillProcess(process);
+                return new ProcessCompletionResult(false, $"Worker killed after {options.OverallTimeout.TotalMinutes} minutes (overall timeout)");
+            }
+
+            // Wait for process to exit with inactivity timeout
+            var exited = process.WaitForExit(options.InactivityTimeout);
+
+            if (exited)
+            {
+                Logger.Debug($"Process {process.Id} exited with code: {process.ExitCode}");
+                break;
+            }
+
+            // Inactivity timeout reached - check if worker made progress
             var hasGitChanges = GitHelper.HasUncommittedChanges();
             if (!hasGitChanges)
             {
@@ -974,12 +995,9 @@ public class ClaudeAgentCommand : Command
                 return new ProcessCompletionResult(false, $"Worker killed after {options.InactivityTimeout.TotalMinutes} minutes of inactivity (no git changes detected)");
             }
 
-            // Has git changes - worker is active, wait longer
-            Logger.Debug("Git changes detected, worker is active - waiting for completion");
-            await process.WaitForExitAsync();
+            // Has git changes - worker is active, continue monitoring
+            Logger.Debug("Git changes detected, worker is active - continuing");
         }
-
-        Logger.Debug($"Process {process.Id} exited with code: {process.ExitCode}");
 
         if (!options.ExpectResponseFile)
         {
@@ -1072,6 +1090,7 @@ public record CurrentTaskInfo(
 
 public record ProcessMonitoringOptions(
     TimeSpan InactivityTimeout,
+    TimeSpan OverallTimeout,
     bool ExpectResponseFile,
     string? TaskNumber = null,
     string? ResponseFilePattern = null,
