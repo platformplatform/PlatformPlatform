@@ -7,27 +7,7 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 
 public static class ClaudeAgentLifecycle
 {
-    private static readonly Dictionary<int, WorkerSession> ActiveWorkerSessions = new();
-    private static readonly Lock WorkerSessionLock = new();
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
-    public static void AddWorkerSession(int processId, string agentType, string taskTitle, string requestFileName, Process process)
-    {
-        lock (WorkerSessionLock)
-        {
-            ActiveWorkerSessions[processId] = new WorkerSession(
-                processId, agentType, taskTitle, requestFileName, DateTime.Now, process
-            );
-        }
-    }
-
-    public static void RemoveWorkerSession(int processId)
-    {
-        lock (WorkerSessionLock)
-        {
-            ActiveWorkerSessions.Remove(processId);
-        }
-    }
 
     public static async Task<string> CompleteAndExitTask(
         string agentType,

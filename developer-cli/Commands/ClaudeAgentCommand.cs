@@ -1097,13 +1097,10 @@ public class ClaudeAgentCommand : Command
         return (true, process.Id, process, "");
     }
 
-    private void UpdateWorkerSession(int oldProcessId, int newProcessId, string agentType, string taskTitle, string requestFileName, Process newProcess)
+    private void UpdateWorkerProcessId(string agentType, int newProcessId)
     {
         var workspace = new Workspace(agentType);
         File.WriteAllText(workspace.WorkerProcessIdFile, newProcessId.ToString());
-
-        ClaudeAgentLifecycle.RemoveWorkerSession(oldProcessId);
-        ClaudeAgentLifecycle.AddWorkerSession(newProcessId, agentType, taskTitle, requestFileName, newProcess);
     }
 
     private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(
@@ -1118,157 +1115,131 @@ public class ClaudeAgentCommand : Command
         var timeoutRestartCount = 0;
         const int maxTimeoutRestarts = 3;
 
-        // Track in active sessions (for workers only, not tech-lead)
-        if (options.ExpectResponseFile)
+        while (true)
         {
-            ClaudeAgentLifecycle.AddWorkerSession(currentProcessId, agentType, options.TaskTitle, options.RequestFileName, currentProcess);
-        }
-
-        try
-        {
-            while (true)
+            // Check if overall timeout reached
+            if (DateTime.Now - startTime >= options.OverallTimeout)
             {
-                // Check if overall timeout reached
-                if (DateTime.Now - startTime >= options.OverallTimeout)
+                // Check if we've reached max timeout restarts
+                if (timeoutRestartCount >= maxTimeoutRestarts)
                 {
-                    // Check if we've reached max timeout restarts
-                    if (timeoutRestartCount >= maxTimeoutRestarts)
-                    {
-                        Logger.Debug($"Max timeout restarts ({maxTimeoutRestarts}) reached for {agentType}");
-                        if (!currentProcess.HasExited)
-                        {
-                            KillProcess(currentProcess);
-                        }
-                        return new ProcessCompletionResult(
-                            false,
-                            $"Worker failed after {maxTimeoutRestarts} timeout restarts ({options.OverallTimeout.TotalMinutes * maxTimeoutRestarts} minutes total)"
-                        );
-                    }
-
-                    // Overall timeout reached - restart agent with recovery message
-                    Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached for {agentType}");
-
+                    Logger.Debug($"Max timeout restarts ({maxTimeoutRestarts}) reached for {agentType}");
                     if (!currentProcess.HasExited)
                     {
                         KillProcess(currentProcess);
                     }
 
-                    // Restart worker with recovery message
-                    var timeoutRestartResult = await RestartWorker(agentType);
-                    if (!timeoutRestartResult.Success || timeoutRestartResult.Process == null)
-                    {
-                        return new ProcessCompletionResult(false, $"Worker restart failed after overall timeout: {timeoutRestartResult.ErrorMessage}");
-                    }
-
-                    // Update tracking
-                    if (options.ExpectResponseFile)
-                    {
-                        UpdateWorkerSession(currentProcessId, timeoutRestartResult.ProcessId, agentType, options.TaskTitle, options.RequestFileName, timeoutRestartResult.Process);
-                    }
-
-                    currentProcess = timeoutRestartResult.Process;
-                    currentProcessId = timeoutRestartResult.ProcessId;
-                    restartCount++;
-                    timeoutRestartCount++;
-
-                    // Reset start time to allow another full timeout period
-                    startTime = DateTime.Now;
-
-                    LogWorkerActivity($"WORKER RESTART: {agentType} reached overall timeout of {options.OverallTimeout.TotalMinutes} minutes, restarted with recovery message (timeout restart {timeoutRestartCount}/{maxTimeoutRestarts}, total restarts: {restartCount})");
-                    continue; // Continue monitoring the restarted process
+                    return new ProcessCompletionResult(
+                        false,
+                        $"Worker failed after {maxTimeoutRestarts} timeout restarts ({options.OverallTimeout.TotalMinutes * maxTimeoutRestarts} minutes total)"
+                    );
                 }
 
-                // Block until process exits OR inactivity timeout (no polling!)
-                var exited = currentProcess.WaitForExit(options.InactivityTimeout);
-
-                if (exited)
-                {
-                    // Process completed normally
-                    Logger.Debug($"Process {currentProcessId} exited normally");
-
-                    if (options.ExpectResponseFile)
-                    {
-                        // Allow MCP tool time to complete writing response file after process exit
-                        await Task.Delay(TimeSpan.FromMilliseconds(500));
-
-                        // Check for response file
-                        var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
-                        if (matchingFiles.Length == 0)
-                        {
-                            return new ProcessCompletionResult(
-                                false,
-                                $"Worker exited but no response file found matching: {options.ResponseFilePattern}"
-                            );
-                        }
-
-                        var responseFilePath = matchingFiles[0];
-                        var responseFileName = Path.GetFileName(responseFilePath);
-                        var responseContent = await File.ReadAllTextAsync(responseFilePath);
-
-                        ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})");
-
-                        return new ProcessCompletionResult(
-                            true,
-                            $"Task completed successfully (restarts: {restartCount})",
-                            responseContent,
-                            restartCount
-                        );
-                    }
-
-                    // Tech-lead - no response file expected
-                    return new ProcessCompletionResult(true, "Session completed", null, restartCount);
-                }
-
-                // Inactivity timeout reached - check if worker is making progress
-                Logger.Debug($"Inactivity timeout ({options.InactivityTimeout.TotalMinutes} min) reached for {agentType} process {currentProcessId}");
-
-                var hasGitChanges = HasGitChanges();
-                if (hasGitChanges)
-                {
-                    Logger.Debug("Git changes detected, worker is active - continuing");
-                    continue;
-                }
-
-                // No git changes - worker is stuck, restart it
-                Logger.Debug("No git changes detected, restarting worker");
+                // Overall timeout reached - restart agent with recovery message
+                Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached for {agentType}");
 
                 if (!currentProcess.HasExited)
                 {
                     KillProcess(currentProcess);
                 }
 
-                // Restart worker
-                var restartResult = await RestartWorker(agentType);
-                if (!restartResult.Success || restartResult.Process == null)
+                // Restart worker with recovery message
+                var timeoutRestartResult = await RestartWorker(agentType);
+                if (!timeoutRestartResult.Success || timeoutRestartResult.Process == null)
                 {
-                    return new ProcessCompletionResult(false, $"Worker restart failed: {restartResult.ErrorMessage}");
+                    return new ProcessCompletionResult(false, $"Worker restart failed after overall timeout: {timeoutRestartResult.ErrorMessage}");
                 }
 
-                // Update tracking
+                // Update worker process ID file
+                UpdateWorkerProcessId(agentType, timeoutRestartResult.ProcessId);
+
+                currentProcess = timeoutRestartResult.Process;
+                currentProcessId = timeoutRestartResult.ProcessId;
+                restartCount++;
+                timeoutRestartCount++;
+
+                // Reset start time to allow another full timeout period
+                startTime = DateTime.Now;
+
+                Logger.Debug($"WORKER RESTART: {agentType} reached overall timeout of {options.OverallTimeout.TotalMinutes} minutes, restarted with recovery message (timeout restart {timeoutRestartCount}/{maxTimeoutRestarts}, total restarts: {restartCount})");
+                continue; // Continue monitoring the restarted process
+            }
+
+            // Block until process exits OR inactivity timeout (no polling!)
+            var exited = currentProcess.WaitForExit(options.InactivityTimeout);
+
+            if (exited)
+            {
+                // Process completed normally
+                Logger.Debug($"Process {currentProcessId} exited normally");
+
                 if (options.ExpectResponseFile)
                 {
-                    UpdateWorkerSession(currentProcessId, restartResult.ProcessId, agentType, options.TaskTitle, options.RequestFileName, restartResult.Process);
+                    // Allow MCP tool time to complete writing response file after process exit
+                    await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+                    // Check for response file
+                    var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
+                    if (matchingFiles.Length == 0)
+                    {
+                        return new ProcessCompletionResult(
+                            false,
+                            $"Worker exited but no response file found matching: {options.ResponseFilePattern}"
+                        );
+                    }
+
+                    var responseFilePath = matchingFiles[0];
+                    var responseFileName = Path.GetFileName(responseFilePath);
+                    var responseContent = await File.ReadAllTextAsync(responseFilePath);
+
+                    ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}' (restarts: {restartCount})");
+
+                    return new ProcessCompletionResult(
+                        true,
+                        $"Task completed successfully (restarts: {restartCount})",
+                        responseContent,
+                        restartCount
+                    );
                 }
 
-                currentProcess = restartResult.Process;
-                currentProcessId = restartResult.ProcessId;
-                restartCount++;
-
-                LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {options.InactivityTimeout.TotalMinutes} minutes (no git changes), restarted (attempt {restartCount})");
+                // Tech-lead - no response file expected
+                return new ProcessCompletionResult(true, "Session completed", null, restartCount);
             }
-        }
-        finally
-        {
-            if (options.ExpectResponseFile)
+
+            // Inactivity timeout reached - check if worker is making progress
+            Logger.Debug($"Inactivity timeout ({options.InactivityTimeout.TotalMinutes} min) reached for {agentType} process {currentProcessId}");
+
+            var hasGitChanges = HasGitChanges();
+            if (hasGitChanges)
             {
-                ClaudeAgentLifecycle.RemoveWorkerSession(currentProcessId);
+                Logger.Debug("Git changes detected, worker is active - continuing");
+                continue;
             }
-        }
-    }
 
-    private void LogWorkerActivity(string message)
-    {
-        Logger.Debug(message);
+            // No git changes - worker is stuck, restart it
+            Logger.Debug("No git changes detected, restarting worker");
+
+            if (!currentProcess.HasExited)
+            {
+                KillProcess(currentProcess);
+            }
+
+            // Restart worker
+            var restartResult = await RestartWorker(agentType);
+            if (!restartResult.Success || restartResult.Process == null)
+            {
+                return new ProcessCompletionResult(false, $"Worker restart failed: {restartResult.ErrorMessage}");
+            }
+
+            // Update worker process ID file
+            UpdateWorkerProcessId(agentType, restartResult.ProcessId);
+
+            currentProcess = restartResult.Process;
+            currentProcessId = restartResult.ProcessId;
+            restartCount++;
+
+            Logger.Debug($"WORKER RESTART: {agentType} inactive for {options.InactivityTimeout.TotalMinutes} minutes (no git changes), restarted (attempt {restartCount})");
+        }
     }
 
     private static void KillProcess(Process process)
@@ -1324,16 +1295,6 @@ public class ClaudeAgentCommand : Command
         };
     }
 }
-
-// ReSharper disable once NotAccessedPositionalProperty.Global - RequestFileName used in ToString for debugging
-public record WorkerSession(
-    int ProcessId,
-    string AgentType,
-    string TaskTitle,
-    string RequestFileName,
-    DateTime StartTime,
-    Process Process
-);
 
 public record CurrentTaskInfo(
     string TaskNumber,
