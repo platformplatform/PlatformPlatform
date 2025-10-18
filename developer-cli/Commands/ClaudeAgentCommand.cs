@@ -442,10 +442,15 @@ public class ClaudeAgentCommand : Command
 
             if (requestReceived && requestFilePath != null)
             {
-                // Request file arrived - handle it
+                // Request file arrived - capture path before resetting flags
+                var pathToProcess = requestFilePath;
                 requestReceived = false;
-                await HandleIncomingRequest(requestFilePath, workspace);
                 requestFilePath = null;
+
+                // Process request (blocking call - may take minutes)
+                await HandleIncomingRequest(pathToProcess, workspace);
+                // Note: Don't reset flags after processing - new requests arriving during
+                // processing will have already set fresh flag values
             }
             else if (userPressedEnter)
             {
@@ -619,7 +624,7 @@ public class ClaudeAgentCommand : Command
         // Add restart nudge if this is a restart
         if (isRestart)
         {
-            claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
+            claudeArgs.Add("You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.");
         }
 
         // Add slash command only if requested (manual sessions use --continue only)
@@ -1110,6 +1115,8 @@ public class ClaudeAgentCommand : Command
         var currentProcess = process;
         var currentProcessId = process.Id;
         var restartCount = 0;
+        var timeoutRestartCount = 0;
+        const int maxTimeoutRestarts = 3;
 
         // Track in active sessions (for workers only, not tech-lead)
         if (options.ExpectResponseFile)
@@ -1119,8 +1126,58 @@ public class ClaudeAgentCommand : Command
 
         try
         {
-            while (DateTime.Now - startTime < options.OverallTimeout)
+            while (true)
             {
+                // Check if overall timeout reached
+                if (DateTime.Now - startTime >= options.OverallTimeout)
+                {
+                    // Check if we've reached max timeout restarts
+                    if (timeoutRestartCount >= maxTimeoutRestarts)
+                    {
+                        Logger.Debug($"Max timeout restarts ({maxTimeoutRestarts}) reached for {agentType}");
+                        if (!currentProcess.HasExited)
+                        {
+                            KillProcess(currentProcess);
+                        }
+                        return new ProcessCompletionResult(
+                            false,
+                            $"Worker failed after {maxTimeoutRestarts} timeout restarts ({options.OverallTimeout.TotalMinutes * maxTimeoutRestarts} minutes total)"
+                        );
+                    }
+
+                    // Overall timeout reached - restart agent with recovery message
+                    Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached for {agentType}");
+
+                    if (!currentProcess.HasExited)
+                    {
+                        KillProcess(currentProcess);
+                    }
+
+                    // Restart worker with recovery message
+                    var timeoutRestartResult = await RestartWorker(agentType);
+                    if (!timeoutRestartResult.Success || timeoutRestartResult.Process == null)
+                    {
+                        return new ProcessCompletionResult(false, $"Worker restart failed after overall timeout: {timeoutRestartResult.ErrorMessage}");
+                    }
+
+                    // Update tracking
+                    if (options.ExpectResponseFile)
+                    {
+                        UpdateWorkerSession(currentProcessId, timeoutRestartResult.ProcessId, agentType, options.TaskTitle, options.RequestFileName, timeoutRestartResult.Process);
+                    }
+
+                    currentProcess = timeoutRestartResult.Process;
+                    currentProcessId = timeoutRestartResult.ProcessId;
+                    restartCount++;
+                    timeoutRestartCount++;
+
+                    // Reset start time to allow another full timeout period
+                    startTime = DateTime.Now;
+
+                    LogWorkerActivity($"WORKER RESTART: {agentType} reached overall timeout of {options.OverallTimeout.TotalMinutes} minutes, restarted with recovery message (timeout restart {timeoutRestartCount}/{maxTimeoutRestarts}, total restarts: {restartCount})");
+                    continue; // Continue monitoring the restarted process
+                }
+
                 // Block until process exits OR inactivity timeout (no polling!)
                 var exited = currentProcess.WaitForExit(options.InactivityTimeout);
 
@@ -1199,19 +1256,6 @@ public class ClaudeAgentCommand : Command
 
                 LogWorkerActivity($"WORKER RESTART: {agentType} inactive for {options.InactivityTimeout.TotalMinutes} minutes (no git changes), restarted (attempt {restartCount})");
             }
-
-            // Overall timeout reached
-            Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached for {agentType}");
-
-            if (!currentProcess.HasExited)
-            {
-                KillProcess(currentProcess);
-            }
-
-            return new ProcessCompletionResult(
-                false,
-                $"Worker timeout after {options.OverallTimeout.TotalMinutes} minutes (restarts: {restartCount})"
-            );
         }
         finally
         {
