@@ -65,20 +65,10 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                // MCP mode - called from MCP server to delegate or spawn worker
-                if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
-                {
-                    throw new ArgumentException("--mcp mode requires agent-type, --task-title, and --markdown-content");
-                }
-
-                var result = await RunMcpMode(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
-
-                // Output to stdout for MCP to capture (use plain WriteLine for clean output)
-                await Console.Out.WriteLineAsync(result);
+                await RunMcpMode(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
             }
             else
             {
-                // Interactive mode
                 await RunInteractiveMode(agentType);
             }
         }
@@ -90,14 +80,21 @@ public class ClaudeAgentCommand : Command
     }
 
     // MCP Mode (called from MCP server to delegate or spawn worker)
-    private async Task<string> RunMcpMode(
-        string agentType,
-        string taskTitle,
-        string markdownContent,
+    private async Task RunMcpMode(
+        string? agentType,
+        string? taskTitle,
+        string? markdownContent,
         string? prdPath,
         string? productIncrementPath,
         string? taskNumber)
     {
+        // MCP mode - called from MCP server to delegate or spawn worker
+        if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
+        {
+            throw new ArgumentException("--mcp mode requires agent-type, --task-title, and --markdown-content");
+        }
+
+
         var workspace = new Workspace(agentType);
 
         // Check if interactive worker-host is already running
@@ -112,7 +109,7 @@ public class ClaudeAgentCommand : Command
                     if (!existingProcess.HasExited)
                     {
                         // Interactive worker-host is running - delegate task to it
-                        return await DelegateToInteractiveWorkerHost(workspace, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
+                        await DelegateToInteractiveWorkerHost(workspace, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
                     }
                 }
                 catch (ArgumentException)
@@ -150,9 +147,6 @@ public class ClaudeAgentCommand : Command
             // Launch worker-agent (Claude Code) in agent workspace
             var process = await LaunchWorker(workspace, taskTitle);
 
-            // Create .worker-process-id with worker-agent's process ID
-            await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
-
             ClaudeAgentLifecycle.LogWorkflowEvent($"[{counter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{requestFileName}]");
 
             // Monitor process with unified timeout/restart logic
@@ -170,19 +164,23 @@ public class ClaudeAgentCommand : Command
 
             var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
 
+            string summary;
             if (result.Success)
             {
-                return $"Task completed successfully by {workspace.AgentType}.\n" +
-                       $"Task number: {counter:D4}\n" +
-                       $"Task title: {taskTitle}\n" +
-                       $"Request file: {requestFileName}\n" +
-                       $"Restarts needed: {result.RestartCount}\n\n" +
-                       $"Response content:\n{result.ResponseContent}";
+                summary = $"Task completed successfully by {workspace.AgentType}.\n" +
+                          $"Task number: {counter:D4}\n" +
+                          $"Task title: {taskTitle}\n" +
+                          $"Request file: {requestFileName}\n" +
+                          $"Restarts needed: {result.RestartCount}\n\n" +
+                          $"Response content:\n{result.ResponseContent}";
             }
             else
             {
-                return result.Message;
+                summary = result.Message;
             }
+
+            // Output to stdout for MCP to capture (use plain WriteLine for clean output)
+            await Console.Out.WriteLineAsync(summary);
         }
         finally
         {
@@ -199,7 +197,7 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private async Task<string> DelegateToInteractiveWorkerHost(
+    private async Task DelegateToInteractiveWorkerHost(
         Workspace workspace,
         string taskTitle,
         string markdownContent,
@@ -251,11 +249,13 @@ public class ClaudeAgentCommand : Command
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]");
 
-        return $"Task delegated successfully to {workspace.AgentType}.\n" +
-               $"Task number: {taskCounter:D4}\n" +
-               $"Request file: {taskRequestFileName}\n" +
-               $"Response file: {actualResponseFileName}\n\n" +
-               $"Response content:\n{responseContent}";
+        var result = $"Task delegated successfully to {workspace.AgentType}.\n" +
+                     $"Task number: {taskCounter:D4}\n" +
+                     $"Request file: {taskRequestFileName}\n" +
+                     $"Response file: {actualResponseFileName}\n\n" +
+                     $"Response content:\n{responseContent}";
+
+        await Console.Out.WriteLineAsync(result);
     }
 
     private async Task RunInteractiveMode(string? agentType)
@@ -509,17 +509,8 @@ public class ClaudeAgentCommand : Command
         var taskContent = await File.ReadAllTextAsync(requestFile);
         var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
 
-        AnsiConsole.MarkupLine($"[dim]Task: {Markup.Escape(firstLine)}[/]");
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[dim]Launching Claude Code in 3 seconds...[/]");
-        // Countdown delay to give user time to see task details before Claude Code UI takes over
-        await Task.Delay(TimeSpan.FromSeconds(3));
-
         // Launch worker-agent (Claude Code) - task title read from current-task.json
         var claudeProcess = await LaunchWorker(workspace);
-
-        // Create .worker-process-id with worker-agent's process ID (so CompleteAndExitTask can kill it)
-        await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, claudeProcess.Id.ToString());
 
         // Extract task number from request file
         var requestFileName = Path.GetFileName(requestFile);
@@ -566,9 +557,6 @@ public class ClaudeAgentCommand : Command
         // Launch worker (slash command usage controlled by useSlashCommand parameter)
         var process = await LaunchWorker(workspace, taskTitleForSlashCommand, useSlashCommand: useSlashCommand);
 
-        // Create .worker-process-id
-        await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
-
         // Monitor process with unified timeout/restart logic
         // Tech-lead gets 62 minutes (allows 3 worker restarts @ 20 min each)
         // Workers get 20 minutes
@@ -610,8 +598,6 @@ public class ClaudeAgentCommand : Command
         bool isRestart = false,
         bool useSlashCommand = true)
     {
-        await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
-
         // Load system prompt (REQUIRED - throw if missing)
         if (!File.Exists(workspace.SystemPromptFile))
         {
@@ -633,7 +619,6 @@ public class ClaudeAgentCommand : Command
         // Add restart nudge if this is a restart
         if (isRestart)
         {
-            claudeArgs.Add("--append-system-prompt");
             claudeArgs.Add("You were restarted because you appeared stuck. Please re-read current-task.json and continue working.");
         }
 
@@ -685,6 +670,9 @@ public class ClaudeAgentCommand : Command
         // Verification delay to confirm process launched successfully before returning (longer for initial launch to allow Claude Code startup)
         await Task.Delay(TimeSpan.FromSeconds(isRestart ? 2 : 3));
         Logger.Debug($"Process alive after delay: {!process.HasExited}");
+
+        // Create .worker-process-id with worker-agent's process ID
+        await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
 
         return process;
     }
