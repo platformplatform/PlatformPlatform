@@ -156,7 +156,8 @@ public class ClaudeAgentCommand : Command
                 true,
                 $"{counter:D4}",
                 responseFilePattern,
-                workspace.MessagesDirectory
+                workspace.MessagesDirectory,
+                workspace.WorkerProcessIdFile
             );
 
             var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
@@ -283,15 +284,51 @@ public class ClaudeAgentCommand : Command
         // Setup workspace with symlink to .claude directory
         await SetupAgentWorkspace(workspace.AgentWorkspaceDirectory);
 
-        // Check for existing worker-host process
-        if (File.Exists(workspace.HostProcessIdFile))
+        var tookOverWorkerAgent = false;
+
+        // Check for active worker-agent (take over if running)
+        if (File.Exists(workspace.WorkerProcessIdFile))
         {
-            var existingPid = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
-            if (int.TryParse(existingPid, out var pid))
+            var workerProcessIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+            if (int.TryParse(workerProcessIdContent, out var workerProcessId))
             {
                 try
                 {
-                    var existingProcess = Process.GetProcessById(pid);
+                    var workerProcess = Process.GetProcessById(workerProcessId);
+                    if (!workerProcess.HasExited)
+                    {
+                        if (!AnsiConsole.Confirm($"[yellow]Worker-agent is running (PID: {workerProcessId}). Kill and take over?[/]"))
+                        {
+                            return;
+                        }
+
+                        KillProcess(workerProcess);
+                        await Task.Delay(TimeSpan.FromSeconds(2)); // Let automated host detect exit
+
+                        var newWorker = await LaunchWorker(workspace, useSlashCommand: false);
+                        await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, newWorker.Id.ToString());
+
+                        tookOverWorkerAgent = true;
+                        AnsiConsole.MarkupLine("[green]✓ Worker taken over. Automated host will monitor completion.[/]");
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // Process doesn't exist - clean up stale file
+                    File.Delete(workspace.WorkerProcessIdFile);
+                }
+            }
+        }
+
+        // Check for existing worker-host process (skip if we just took over worker-agent)
+        if (!tookOverWorkerAgent && File.Exists(workspace.HostProcessIdFile))
+        {
+            var existingProcessIdContent = await File.ReadAllTextAsync(workspace.HostProcessIdFile);
+            if (int.TryParse(existingProcessIdContent, out var existingProcessId))
+            {
+                try
+                {
+                    var existingProcess = Process.GetProcessById(existingProcessId);
                     if (!existingProcess.HasExited)
                     {
                         // Active worker-host is running - calculate how long it's been alive
@@ -302,7 +339,7 @@ public class ClaudeAgentCommand : Command
                                 ? $"{(int)processAge.TotalMinutes} minutes {(int)(processAge.TotalSeconds % 60)} seconds ago"
                                 : $"{(int)processAge.TotalHours} hours {processAge.Minutes} minutes ago";
 
-                        AnsiConsole.MarkupLine($"[yellow]⚠ Another {agentType} worker-host is currently running (PID: {pid}, Started: {ageString})[/]");
+                        AnsiConsole.MarkupLine($"[yellow]⚠ Another {agentType} worker-host is currently running (PID: {existingProcessId}, Started: {ageString})[/]");
 
                         var choice = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
@@ -331,8 +368,11 @@ public class ClaudeAgentCommand : Command
             File.Delete(workspace.HostProcessIdFile);
         }
 
-        // Create .host-process-id so MCP can detect this interactive worker-host
-        await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+        // Create .host-process-id so MCP can detect this interactive worker-host (only if not already owned by automated host)
+        if (!File.Exists(workspace.HostProcessIdFile))
+        {
+            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+        }
 
         // Ensure Ctrl+C exits cleanly and removes PID files
         Console.CancelKeyPress += (_, e) =>
@@ -418,6 +458,29 @@ public class ClaudeAgentCommand : Command
     {
         // Create messages directory if it doesn't exist (needed for FileSystemWatcher)
         Directory.CreateDirectory(workspace.MessagesDirectory);
+
+        // Ensure .host-process-id exists for MCP delegation (create if automated host exited)
+        if (!File.Exists(workspace.HostProcessIdFile))
+        {
+            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+        }
+
+        // Check for existing request files (only if no worker currently active)
+        if (!File.Exists(workspace.WorkerProcessIdFile))
+        {
+            var existingRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md")
+                .OrderBy(File.GetCreationTime)
+                .ToList();
+
+            if (existingRequests.Count > 0)
+            {
+                AnsiConsole.MarkupLine($"[yellow]Found {existingRequests.Count} pending request(s), processing...[/]");
+                foreach (var requestFile in existingRequests)
+                {
+                    await HandleIncomingRequest(requestFile, workspace);
+                }
+            }
+        }
 
         using var fileSystemWatcher = new FileSystemWatcher(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
         fileSystemWatcher.EnableRaisingEvents = true;
@@ -525,7 +588,8 @@ public class ClaudeAgentCommand : Command
             true,
             taskNumber,
             responseFilePattern,
-            workspace.MessagesDirectory
+            workspace.MessagesDirectory,
+            workspace.WorkerProcessIdFile
         );
 
         var result = await MonitorProcessWithTimeout(claudeProcess, workspace.AgentType, options);
@@ -1128,8 +1192,29 @@ public class ClaudeAgentCommand : Command
 
                 if (options.ExpectResponseFile)
                 {
-                    // Allow MCP tool time to complete writing response file after process exit
-                    await Task.Delay(TimeSpan.FromMilliseconds(500));
+                    // Give interactive mode time to replace worker-agent (handoff scenario)
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+
+                    // Check if worker was replaced by interactive mode
+                    if (options.WorkerProcessIdFile is not null && File.Exists(options.WorkerProcessIdFile))
+                    {
+                        var newProcessIdContent = await File.ReadAllTextAsync(options.WorkerProcessIdFile);
+                        if (int.TryParse(newProcessIdContent, out var newProcessId) && newProcessId != currentProcessId)
+                        {
+                            // Worker replaced - attach to new one
+                            try
+                            {
+                                currentProcess = Process.GetProcessById(newProcessId);
+                                currentProcessId = newProcessId;
+                                Logger.Debug($"WORKER HANDOFF: Detected worker replacement (new PID: {newProcessId}), continuing to monitor");
+                                continue; // Keep monitoring new worker
+                            }
+                            catch (ArgumentException)
+                            {
+                                // New process doesn't exist yet, fall through to response check
+                            }
+                        }
+                    }
 
                     // Check for response file
                     var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
@@ -1161,6 +1246,14 @@ public class ClaudeAgentCommand : Command
 
             // Inactivity timeout reached - check if worker is making progress
             Logger.Debug($"Inactivity timeout ({options.InactivityTimeout.TotalMinutes} min) reached for {agentType} process {currentProcessId}");
+
+            // Skip git activity checks for automated workers (user might take over for extended periods)
+            // The overall timeout will handle truly stuck workers
+            if (options.ExpectResponseFile)
+            {
+                Logger.Debug("Automated worker - skipping git activity check, relying on overall timeout");
+                continue;
+            }
 
             var hasGitChanges = GitHelper.HasUncommittedChanges();
             if (hasGitChanges)
@@ -1264,7 +1357,8 @@ public record ProcessMonitoringOptions(
     bool ExpectResponseFile,
     string? TaskNumber = null,
     string? ResponseFilePattern = null,
-    string? MessagesDirectory = null
+    string? MessagesDirectory = null,
+    string? WorkerProcessIdFile = null
 );
 
 public record ProcessCompletionResult(bool Success, string Message, string? ResponseContent = null, int RestartCount = 0);
