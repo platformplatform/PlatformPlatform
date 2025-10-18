@@ -24,6 +24,7 @@ public class ClaudeAgentCommand : Command
         var mcpOption = new Option<bool>("--mcp", () => false, "Run in MCP mode (called from MCP server)");
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
+        var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
         var prdPathOption = new Option<string?>("--prd-path", "PRD file path (optional)");
         var productIncrementPathOption = new Option<string?>("--product-increment-path", "Product Increment file path (optional)");
         var taskNumberOption = new Option<string?>("--task-number", "Task number (optional)");
@@ -32,6 +33,7 @@ public class ClaudeAgentCommand : Command
         AddOption(mcpOption);
         AddOption(taskTitleOption);
         AddOption(markdownContentOption);
+        AddOption(branchOption);
         AddOption(prdPathOption);
         AddOption(productIncrementPathOption);
         AddOption(taskNumberOption);
@@ -42,11 +44,12 @@ public class ClaudeAgentCommand : Command
                 var mcp = context.ParseResult.GetValueForOption(mcpOption);
                 var taskTitle = context.ParseResult.GetValueForOption(taskTitleOption);
                 var markdownContent = context.ParseResult.GetValueForOption(markdownContentOption);
+                var branch = context.ParseResult.GetValueForOption(branchOption);
                 var prdPath = context.ParseResult.GetValueForOption(prdPathOption);
                 var productIncrementPath = context.ParseResult.GetValueForOption(productIncrementPathOption);
                 var taskNumber = context.ParseResult.GetValueForOption(taskNumberOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
+                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, prdPath, productIncrementPath, taskNumber);
             }
         );
     }
@@ -57,6 +60,7 @@ public class ClaudeAgentCommand : Command
         bool mcp,
         string? taskTitle,
         string? markdownContent,
+        string? branch,
         string? prdPath,
         string? productIncrementPath,
         string? taskNumber)
@@ -65,7 +69,7 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, prdPath, productIncrementPath, taskNumber);
+                await RunMcpMode(agentType, taskTitle, markdownContent, branch, prdPath, productIncrementPath, taskNumber);
             }
             else
             {
@@ -84,22 +88,40 @@ public class ClaudeAgentCommand : Command
         string? agentType,
         string? taskTitle,
         string? markdownContent,
+        string? branch,
         string? prdPath,
         string? productIncrementPath,
         string? taskNumber)
     {
         if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
         {
-            throw new ArgumentException("--mcp mode requires agent-type, --task-title, and --markdown-content");
+            throw new ArgumentException("--mcp mode requires agent-type, --task-title, --markdown-content, and --branch");
         }
 
-        var workspace = new Workspace(agentType);
+        if (string.IsNullOrEmpty(branch))
+        {
+            throw new ArgumentException("--branch is required to ensure workspace consistency");
+        }
+
+        // Validate branch matches current git branch
+        var currentGitBranch = GitHelper.GetCurrentBranch();
+        if (currentGitBranch != branch)
+        {
+            await Console.Out.WriteLineAsync(
+                $"ERROR: Branch mismatch detected!\n\n" +
+                $"Worker requesting delegation is on branch: '{branch}'\n" +
+                $"Current git branch: '{currentGitBranch}'\n\n" +
+                $"This prevents workspace corruption. Ensure all agents are on the same branch.");
+            return;
+        }
+
+        var workspace = new Workspace(agentType, branch);
         Logger.SetContext($"mcp-{agentType}");
 
         // Check if interactive worker-host is running
         if (!File.Exists(workspace.HostProcessIdFile))
         {
-            await Console.Out.WriteLineAsync($"ERROR: No interactive '{agentType}' worker-host running. Start with: {Configuration.AliasName} claude-agent {agentType}");
+            await Console.Out.WriteLineAsync($"ERROR: No interactive '{agentType}' worker-host running on branch '{branch}'.\nStart with: {Configuration.AliasName} claude-agent {agentType}");
             return;
         }
 
@@ -187,6 +209,7 @@ public class ClaudeAgentCommand : Command
 
         var workspace = new Workspace(agentType);
         Logger.SetContext(agentType);
+        Logger.Info($"Worker-host starting for '{agentType}' on branch: {workspace.Branch}");
 
         // Create workspace and register agent
         Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);

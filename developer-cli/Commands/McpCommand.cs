@@ -283,6 +283,8 @@ public static class WorkerMcpTools
         string taskTitle,
         [Description("Task content in markdown format")]
         string markdownContent,
+        [Description("Branch name to ensure all agents work on same branch")]
+        string branch,
         [Description("PRD file path (optional, for Product Increment tasks)")]
         string? prdPath = null,
         [Description("Product Increment file path (optional, for Product Increment tasks)")]
@@ -295,7 +297,7 @@ public static class WorkerMcpTools
         string? responseFilePath = null)
     {
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
-        var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent };
+        var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
         if (prdPath != null)
         {
@@ -341,9 +343,11 @@ public static class WorkerMcpTools
         [Description("Brief task summary in sentence case (e.g., 'Api endpoints implemented')")]
         string taskSummary,
         [Description("Full response content in markdown")]
-        string responseContent)
+        string responseContent,
+        [Description("Branch name to validate workspace consistency")]
+        string branch)
     {
-        return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent);
+        return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
     }
 
     [McpServerTool]
@@ -356,9 +360,11 @@ public static class WorkerMcpTools
         [Description("Rejection reason (rejected only)")]
         string? rejectReason,
         [Description("Concise but precise review in markdown")]
-        string responseContent)
+        string responseContent,
+        [Description("Branch name to validate workspace consistency")]
+        string branch)
     {
-        return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent);
+        return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
