@@ -1,7 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
@@ -13,7 +13,7 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
 
     public string Generate(UserInfo userInfo)
     {
-        return GenerateRefreshToken(userInfo, RefreshTokenId.NewId(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
+        return GenerateRefreshToken(userInfo, RefreshTokenId.NewId(), 1, DateTimeOffset.UtcNow.AddHours(ValidForHours));
     }
 
     public string Update(UserInfo userInfo, RefreshTokenId refreshTokenId, int currentRefreshTokenVersion, DateTimeOffset expires)

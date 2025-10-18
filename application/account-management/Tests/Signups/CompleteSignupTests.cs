@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +8,8 @@ using PlatformPlatform.AccountManagement.Features.Signups.Commands;
 using PlatformPlatform.AccountManagement.Features.Tenants.EventHandlers;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
@@ -142,12 +142,12 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         var emailConfirmationId = EmailConfirmationId.NewId();
         Connection.Insert("EmailConfirmations", [
                 ("Id", emailConfirmationId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-5)),
+                ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)

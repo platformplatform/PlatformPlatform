@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -27,6 +28,7 @@ public sealed class CompleteLoginHandler(
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
+    [FromKeyedServices("shared")] TimeProvider timeProvider,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
 {
@@ -98,7 +100,7 @@ public sealed class CompleteLoginHandler(
     {
         user.ConfirmEmail();
         userRepository.Update(user);
-        var inviteAcceptedTimeInMinutes = (int)(TimeProvider.System.GetUtcNow() - user.CreatedAt).TotalMinutes;
+        var inviteAcceptedTimeInMinutes = (int)(timeProvider.GetUtcNow() - user.CreatedAt).TotalMinutes;
         events.CollectEvent(new UserInviteAccepted(user.Id, inviteAcceptedTimeInMinutes));
     }
 }

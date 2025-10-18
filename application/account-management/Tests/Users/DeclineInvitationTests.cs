@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
@@ -9,6 +6,9 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
@@ -24,7 +24,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", newTenantId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", TenantState.Trial.ToString()),
@@ -35,7 +35,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", newTenantId.ToString()),
                 ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),
@@ -94,7 +94,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", TenantState.Trial.ToString()),
@@ -104,7 +104,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", tenant3Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", TenantState.Trial.ToString()),
@@ -115,7 +115,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.ToString()),
                 ("Id", userId2.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),
@@ -131,7 +131,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", tenant3Id.ToString()),
                 ("Id", userId3.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-5)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),

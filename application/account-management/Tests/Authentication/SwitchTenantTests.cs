@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
@@ -9,6 +6,9 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Authentication;
@@ -25,7 +25,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", TenantState.Active.ToString()),
@@ -36,7 +36,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", true),
@@ -93,7 +93,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", TenantState.Active.ToString()),
@@ -104,7 +104,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("EmailConfirmed", true),
@@ -152,7 +152,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", TenantState.Active.ToString()),
@@ -163,7 +163,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false), // User's email is not confirmed
@@ -219,7 +219,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", TenantState.Active.ToString()),
@@ -231,7 +231,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false), // Unconfirmed - invitation pending
@@ -294,7 +294,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", TenantState.Active.ToString()),
@@ -305,7 +305,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", true),

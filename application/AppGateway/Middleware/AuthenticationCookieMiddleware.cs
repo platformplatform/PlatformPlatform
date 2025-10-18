@@ -1,15 +1,16 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Headers;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 
 namespace PlatformPlatform.AppGateway.Middleware;
 
 public class AuthenticationCookieMiddleware(
     ITokenSigningClient tokenSigningClient,
     IHttpClientFactory httpClientFactory,
+    [FromKeyedServices("shared")] TimeProvider timeProvider,
     ILogger<AuthenticationCookieMiddleware> logger
 )
     : IMiddleware
@@ -51,9 +52,9 @@ public class AuthenticationCookieMiddleware(
 
         try
         {
-            if (accessToken is null || ExtractExpirationFromToken(accessToken) < TimeProvider.System.GetUtcNow())
+            if (accessToken is null || ExtractExpirationFromToken(accessToken) < timeProvider.GetUtcNow())
             {
-                if (ExtractExpirationFromToken(refreshToken) < TimeProvider.System.GetUtcNow())
+                if (ExtractExpirationFromToken(refreshToken) < timeProvider.GetUtcNow())
                 {
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
@@ -114,7 +115,10 @@ public class AuthenticationCookieMiddleware(
         // having to first serve the SPA. This is only secure if iFrames are not allowed to host the site.
         var refreshTokenCookieOptions = new CookieOptions
         {
-            HttpOnly = true, Secure = true, SameSite = SameSiteMode.Lax, Expires = refreshTokenExpires
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Lax,
+            Expires = refreshTokenExpires
         };
         context.Response.Cookies.Append(AuthenticationTokenHttpKeys.RefreshTokenCookieName, refreshToken, refreshTokenCookieOptions);
 

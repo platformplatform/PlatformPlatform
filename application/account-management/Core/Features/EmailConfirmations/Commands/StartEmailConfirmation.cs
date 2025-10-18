@@ -1,6 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -29,15 +30,15 @@ public sealed class StartEmailConfirmationValidator : AbstractValidator<StartEma
 public sealed class StartEmailConfirmationHandler(
     IEmailConfirmationRepository emailConfirmationRepository,
     IEmailClient emailClient,
-    IPasswordHasher<object> passwordHasher
-) : IRequestHandler<StartEmailConfirmationCommand, Result<StartEmailConfirmationResponse>>
+    IPasswordHasher<object> passwordHasher,
+    [FromKeyedServices("shared")] TimeProvider timeProvider) : IRequestHandler<StartEmailConfirmationCommand, Result<StartEmailConfirmationResponse>>
 {
     public async Task<Result<StartEmailConfirmationResponse>> Handle(StartEmailConfirmationCommand command, CancellationToken cancellationToken)
     {
         var existingConfirmations = emailConfirmationRepository.GetByEmail(command.Email).ToArray();
 
         var lockoutMinutes = command.Type == EmailConfirmationType.Signup ? -60 : -15;
-        if (existingConfirmations.Count(r => r.CreatedAt > TimeProvider.System.GetUtcNow().AddMinutes(lockoutMinutes)) >= 3)
+        if (existingConfirmations.Count(r => r.CreatedAt > timeProvider.GetUtcNow().AddMinutes(lockoutMinutes)) >= 3)
         {
             return Result<StartEmailConfirmationResponse>.TooManyRequests("Too many attempts to confirm this email address. Please try again later.");
         }

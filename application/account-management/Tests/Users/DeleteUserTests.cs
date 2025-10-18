@@ -1,5 +1,3 @@
-using System.Net;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
@@ -8,6 +6,8 @@ using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using System.Net;
+using System.Text.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
@@ -35,7 +35,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Person.FirstName),
@@ -77,7 +77,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Person.FirstName),
@@ -97,7 +97,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", loginId.ToString()),
                 ("UserId", userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-5)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("ModifiedAt", null),
                 ("EmailConfirmationId", emailConfirmationId.ToString()),
                 ("Completed", true)
