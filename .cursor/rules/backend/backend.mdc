@@ -34,8 +34,10 @@ Carefully follow these instructions for C# backend development, including code s
 - Avoid try-catch unless we cannot fix the reason. We have global exception handling to handle unknown exceptions.
 - Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if we are running in Azure.
 - Don't add comments unless the code is truly not expressing the intent.
+- Do add comments explains "the why" of code. In other words, never add comments that explains what code does, but explaining why code is there, what non-obvious problem it solves, is expected.
 - Never add XML comments.
-- Use `TimeProvider.System.GetUtcNow()` and not `DateTime.UtcNow()`.
+- Inject TimeProvider from [FromPlatformServices] and use `timeProvider.GetUtcNow()` and not `DateTimeOffset.UtcNow()` in all business code that needs timers, current time, timezone info. 
+- Use `DateTimeOffset.UtcNow()` for code that needs timestamps and does not support/work with fake TimeProvider during testing.
 
 ## Implementation
 

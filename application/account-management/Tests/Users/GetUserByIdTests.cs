@@ -1,5 +1,3 @@
-using System.Net;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -7,6 +5,8 @@ using PlatformPlatform.AccountManagement.Features.Users.Queries;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using System.Net;
+using System.Text.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
@@ -20,7 +20,7 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountManagementDbConte
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", _userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.Email()),
                 ("FirstName", Faker.Name.FirstName()),

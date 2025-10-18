@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Azure.Security.KeyVault.Keys;
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Azure.Security.KeyVault.Secrets;
@@ -17,6 +16,7 @@ using PlatformPlatform.SharedKernel.Persistence;
 using PlatformPlatform.SharedKernel.PipelineBehaviors;
 using PlatformPlatform.SharedKernel.Platform;
 using PlatformPlatform.SharedKernel.Telemetry;
+using System.Text.Json;
 
 namespace PlatformPlatform.SharedKernel.Configuration;
 
@@ -41,6 +41,7 @@ public static class SharedDependencyConfiguration
             .AddServiceDiscovery()
             .AddSingleton(GetTokenSigningService())
             .AddSingleton(Settings.Current)
+            .AddTimeProvider()
             .AddAuthentication()
             .AddDefaultJsonSerializerOptions()
             .AddPersistenceHelpers<T>()
@@ -110,6 +111,17 @@ public static class SharedDependencyConfiguration
     {
         // Add a default liveness check to ensure the app is responsive
         services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+        return services;
+    }
+
+    private static IServiceCollection AddTimeProvider(this IServiceCollection services)
+    {
+        // A TimeProvider is already registered as a singleton by default in .NET 8 and later. However,
+        // to control time during testing, we register our own TimeProvider using .NET Keyed Services,
+        // so when we inject a fake time provider during testing. The reason for registering a keyed service
+        // is that it is better to only control time/stop time during testing for services we know work correct when
+        // done so. A keyed service allows us to only override the TimeProvider for specific services during testing..
+        services.AddKeyedSingleton<TimeProvider>(FromPlatformServicesAttribute.PlatformServiceKey, TimeProvider.System);
         return services;
     }
 

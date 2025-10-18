@@ -74,6 +74,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.11.1" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.1.13" />
     <PackageVersion Include="Scrutor" Version="6.0.1" />
+    <PackageVersion Include="TimeProviderExtensions" Version="1.0.0" />
     <PackageVersion Include="Yarp.ReverseProxy" Version="2.3.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>

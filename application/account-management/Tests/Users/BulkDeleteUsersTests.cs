@@ -1,6 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
@@ -9,6 +6,9 @@ using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Users;
@@ -27,7 +27,7 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
             Connection.Insert("Users", [
                     ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                     ("Id", userId.ToString()),
-                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
                     ("Email", Faker.Internet.Email()),
                     ("FirstName", Faker.Person.FirstName),

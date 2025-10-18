@@ -1,5 +1,3 @@
-using System.Net;
-using System.Net.Http.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
@@ -10,6 +8,8 @@ using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
+using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
@@ -78,12 +78,12 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
             Connection.Insert("EmailConfirmations", [
                     ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-i)),
                     ("ModifiedAt", null),
                     ("Email", email),
                     ("Type", EmailConfirmationType.Signup.ToString()),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
+                    ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)

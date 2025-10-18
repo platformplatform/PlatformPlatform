@@ -55,6 +55,7 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
         <PackageReference Include="Scrutor" />
+        <PackageReference Include="TimeProviderExtensions" />
     </ItemGroup>
 
     <ItemGroup>

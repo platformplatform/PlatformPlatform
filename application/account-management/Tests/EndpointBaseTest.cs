@@ -1,4 +1,3 @@
-using System.Net.Http.Headers;
 using Bogus;
 using JetBrains.Annotations;
 using Mapster;
@@ -19,6 +18,8 @@ using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Tests.Telemetry;
+using System.Net.Http.Headers;
+using TimeProviderExtensions;
 
 namespace PlatformPlatform.AccountManagement.Tests;
 
@@ -29,6 +30,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
+    protected readonly ManualTimeProvider TimeProvider;
     private ServiceProvider? _provider;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
 
@@ -42,7 +44,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         );
 
         Services = new ServiceCollection();
-
+        TimeProvider = new ManualTimeProvider();
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
@@ -96,26 +98,25 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         AccessTokenGenerator = serviceScope.ServiceProvider.GetRequiredService<AccessTokenGenerator>();
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
             {
-                builder.ConfigureTestServices(services =>
-                    {
-                        // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
-                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+                // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
+                services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
+                services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
 
-                        TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
-                        services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
+                TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
+                services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
 
-                        services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
-                        services.AddTransient<IEmailClient>(_ => EmailClient);
+                services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
+                services.AddTransient<IEmailClient>(_ => EmailClient);
 
-                        RegisterMockLoggers(services);
+                RegisterMockLoggers(services);
+                services.AddKeyedSingleton<TimeProvider>(FromPlatformServicesAttribute.PlatformServiceKey, TimeProvider);
 
-                        services.AddScoped<IExecutionContext, HttpExecutionContext>();
-                    }
-                );
-            }
-        );
+                services.AddScoped<IExecutionContext, HttpExecutionContext>();
+            });
+        });
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 

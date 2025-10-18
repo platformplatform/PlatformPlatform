@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -23,6 +24,7 @@ public sealed class ResendEmailConfirmationCodeHandler(
     IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events,
+    [FromPlatformServices] TimeProvider timeProvider,
     ILogger<ResendEmailConfirmationCodeHandler> logger
 ) : IRequestHandler<ResendEmailConfirmationCodeCommand, Result<ResendEmailConfirmationCodeResponse>>
 {
@@ -45,10 +47,10 @@ public sealed class ResendEmailConfirmationCodeHandler(
 
         var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
-        emailConfirmation.UpdateVerificationCode(oneTimePasswordHash);
+        emailConfirmation.UpdateVerificationCode(oneTimePasswordHash, timeProvider);
         emailConfirmationRepository.Update(emailConfirmation);
 
-        var secondsSinceSignupStarted = (TimeProvider.System.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
+        var secondsSinceSignupStarted = (timeProvider.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
         events.CollectEvent(new EmailConfirmationResend((int)secondsSinceSignupStarted));
 
         await emailClient.SendAsync(emailConfirmation.Email, "Your verification code (resend)",

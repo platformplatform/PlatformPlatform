@@ -1,7 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
@@ -32,7 +32,7 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient)
         };
 
         return tokenDescriptor.GenerateToken(
-            TimeProvider.System.GetUtcNow().AddMinutes(ValidForMinutes).UtcDateTime,
+            DateTimeOffset.UtcNow.AddMinutes(ValidForMinutes).UtcDateTime,
             tokenSigningClient.Issuer,
             tokenSigningClient.Audience,
             tokenSigningClient.GetSigningCredentials()
