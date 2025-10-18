@@ -114,7 +114,7 @@ public static class SharedDependencyConfiguration
         return services;
     }
 
-    private static IServiceCollection AddTimeProvider(this IServiceCollection services, string serviceKey = "shared")
+    private static IServiceCollection AddTimeProvider(this IServiceCollection services)
     {
         // A TimeProvider is already registered as a singleton by default in .NET 8 and later. However,
         // to control time during testing, we register our own TimeProvider using .NET Keyed Services,
