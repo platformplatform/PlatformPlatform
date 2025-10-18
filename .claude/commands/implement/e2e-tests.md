@@ -9,6 +9,12 @@ Feature or product increment: $ARGUMENTS
 
 If a product increment file is provided in the arguments above, read it to understand what features need testing. This workflow guides you through the process of creating comprehensive end-to-end tests for those features. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
+## CRITICAL - Autonomous Operation
+
+You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. Work with our team to find a solution.
+
+**Token limits approaching?** Use `/compact` strategically (e.g., after being assigned a new task, but before reading task assignment, before catching up).
+
 ## Workflow
 
 1. Understand the feature under test:
