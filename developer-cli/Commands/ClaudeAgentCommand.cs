@@ -94,7 +94,6 @@ public class ClaudeAgentCommand : Command
             throw new ArgumentException("--mcp mode requires agent-type, --task-title, and --markdown-content");
         }
 
-
         var workspace = new Workspace(agentType);
 
         // Check if interactive worker-host is already running
@@ -447,8 +446,7 @@ public class ClaudeAgentCommand : Command
 
                 // Process request (blocking call - may take minutes)
                 await HandleIncomingRequest(pathToProcess, workspace);
-                // Note: Don't reset flags after processing - new requests arriving during
-                // processing will have already set fresh flag values
+                // Note: Don't reset flags after processing - new requests arriving during processing will have already set fresh flag values
             }
             else if (userPressedEnter)
             {
@@ -456,6 +454,7 @@ public class ClaudeAgentCommand : Command
                 await LaunchManualClaudeSession(workspace, useSlashCommand: false);
             }
         }
+        // ReSharper disable once FunctionNeverReturns
     }
 
     private async Task<bool> WaitInStandbyMode(string agentType, string branch, Func<bool> checkForRequest)
@@ -692,7 +691,7 @@ public class ClaudeAgentCommand : Command
         return new CurrentTaskInfo(
             $"{taskCounter:D4}",
             requestFilePath,
-            DateTime.UtcNow.ToString("O"),
+            DateTime.Now.ToString("O"),
             1,
             taskTitle,
             prdPath,
@@ -772,28 +771,7 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    internal bool HasGitChanges()
-    {
-        var process = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "git",
-                Arguments = "status --porcelain",
-                WorkingDirectory = Configuration.SourceCodeFolder,
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            }
-        };
-
-        process.Start();
-        var output = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-
-        return !string.IsNullOrWhiteSpace(output);
-    }
-
-    internal async Task<Process> LaunchClaudeCode(string agentWorkspaceDirectory, List<string> additionalArgs, string? workingDirectory = null)
+    private static async Task<Process> LaunchClaudeCode(string agentWorkspaceDirectory, List<string> additionalArgs, string? workingDirectory = null)
     {
         workingDirectory ??= agentWorkspaceDirectory;
         var sessionIdFile = Path.Combine(agentWorkspaceDirectory, ".claude-session-id");
@@ -870,7 +848,7 @@ public class ClaudeAgentCommand : Command
     }
 
     // Display & UI
-    private void RedrawWaitingDisplay(string agentType, string branch)
+    private static void RedrawWaitingDisplay(string agentType, string branch)
     {
         AnsiConsole.Clear();
 
@@ -924,7 +902,7 @@ public class ClaudeAgentCommand : Command
         AnsiConsole.WriteLine();
     }
 
-    private List<string> GetRecentActivity(string agentType, string branch)
+    private static List<string> GetRecentActivity(string agentType, string branch)
     {
         var workspace = new Workspace(agentType, branch);
         var activities = new List<string>();
@@ -1021,7 +999,7 @@ public class ClaudeAgentCommand : Command
         return activities;
     }
 
-    private string GetAgentDisplayName(string agentType)
+    private static string GetAgentDisplayName(string agentType)
     {
         return agentType switch
         {
@@ -1036,7 +1014,7 @@ public class ClaudeAgentCommand : Command
         };
     }
 
-    private Color GetAgentColor(string agentType)
+    private static Color GetAgentColor(string agentType)
     {
         return agentType switch
         {
@@ -1051,7 +1029,7 @@ public class ClaudeAgentCommand : Command
         };
     }
 
-    private void SetTerminalTitle(string title)
+    private static void SetTerminalTitle(string title)
     {
         // ANSI escape sequence to set terminal title
         // Works in most modern terminals (iTerm2, Terminal.app, Windows Terminal, etc.)
@@ -1081,10 +1059,7 @@ public class ClaudeAgentCommand : Command
         File.WriteAllText(workspace.WorkerProcessIdFile, newProcessId.ToString());
     }
 
-    private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(
-        Process process,
-        string agentType,
-        ProcessMonitoringOptions options)
+    private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(Process process, string agentType, ProcessMonitoringOptions options)
     {
         var startTime = DateTime.Now;
         var currentProcess = process;
@@ -1187,7 +1162,7 @@ public class ClaudeAgentCommand : Command
             // Inactivity timeout reached - check if worker is making progress
             Logger.Debug($"Inactivity timeout ({options.InactivityTimeout.TotalMinutes} min) reached for {agentType} process {currentProcessId}");
 
-            var hasGitChanges = HasGitChanges();
+            var hasGitChanges = GitHelper.HasUncommittedChanges();
             if (hasGitChanges)
             {
                 Logger.Debug("Git changes detected, worker is active - continuing");
@@ -1262,12 +1237,10 @@ public class ClaudeAgentCommand : Command
 
     private static ProcessStartInfo BuildProcessStartInfo(List<string> claudeArgs, string workingDirectory)
     {
-        var commandLine = string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-
         return new ProcessStartInfo
         {
             FileName = "claude",
-            Arguments = commandLine,
+            Arguments = string.Join(" ", claudeArgs.Select(arg => arg.Contains(' ') ? $"\"{arg}\"" : arg)),
             WorkingDirectory = workingDirectory,
             UseShellExecute = true
         };
@@ -1294,12 +1267,7 @@ public record ProcessMonitoringOptions(
     string? MessagesDirectory = null
 );
 
-public record ProcessCompletionResult(
-    bool Success,
-    string Message,
-    string? ResponseContent = null,
-    int RestartCount = 0
-);
+public record ProcessCompletionResult(bool Success, string Message, string? ResponseContent = null, int RestartCount = 0);
 
 public class Workspace(string agentType, string? branch = null)
 {

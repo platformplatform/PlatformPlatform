@@ -205,7 +205,7 @@ public static class ClaudeAgentLifecycle
 
         var startedAt = DateTime.Parse(taskInfo.StartedAt);
         var attempt = taskInfo.Attempt;
-        var elapsedSeconds = (int)(DateTime.UtcNow - startedAt).TotalSeconds;
+        var elapsedSeconds = (int)(DateTime.Now - startedAt).TotalSeconds;
 
         if (elapsedSeconds >= 60 || attempt > 1)
         {
