@@ -155,8 +155,6 @@ public class ClaudeAgentCommand : Command
                 TimeSpan.FromMinutes(20),
                 TimeSpan.FromMinutes(115),
                 true,
-                taskTitle,
-                requestFileName,
                 $"{counter:D4}",
                 responseFilePattern,
                 workspace.MessagesDirectory
@@ -511,8 +509,6 @@ public class ClaudeAgentCommand : Command
 
         // Allow filesystem time to complete file write operation before reading to avoid partial content
         await Task.Delay(TimeSpan.FromMilliseconds(500));
-        var taskContent = await File.ReadAllTextAsync(requestFile);
-        var firstLine = taskContent.Split('\n').FirstOrDefault()?.Trim() ?? "Task";
 
         // Launch worker-agent (Claude Code) - task title read from current-task.json
         var claudeProcess = await LaunchWorker(workspace);
@@ -528,8 +524,6 @@ public class ClaudeAgentCommand : Command
             TimeSpan.FromMinutes(20),
             TimeSpan.FromMinutes(115),
             true,
-            firstLine,
-            requestFileName,
             taskNumber,
             responseFilePattern,
             workspace.MessagesDirectory
@@ -544,14 +538,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Show completion status
-        if (result.Success)
-        {
-            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
-        }
+        AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
 
         // Return to waiting display
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
@@ -572,23 +559,14 @@ public class ClaudeAgentCommand : Command
         var options = new ProcessMonitoringOptions(
             inactivityTimeout,
             TimeSpan.FromMinutes(115),
-            false, // Manual sessions don't expect response files
-            workspace.AgentType == "tech-lead" ? "Tech Lead Session" : "Manual Session",
-            "" // Not applicable for manual sessions
+            false // Not applicable for manual sessions
         );
 
         var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
 
         // Show completion status
         var agentColor = GetAgentColor(workspace.AgentType);
-        if (result.Success)
-        {
-            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ {result.Message}[/]");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine($"[red bold]✗ {result.Message}[/]");
-        }
+        AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
 
         // Clean up
         if (File.Exists(workspace.WorkerProcessIdFile))
@@ -1311,8 +1289,6 @@ public record ProcessMonitoringOptions(
     TimeSpan InactivityTimeout,
     TimeSpan OverallTimeout,
     bool ExpectResponseFile,
-    string TaskTitle,
-    string RequestFileName,
     string? TaskNumber = null,
     string? ResponseFilePattern = null,
     string? MessagesDirectory = null
