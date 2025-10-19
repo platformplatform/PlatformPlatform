@@ -19,7 +19,7 @@ Follow the steps below to create the PRD.
 
 1. Ensure `task-manager` git repository exists
 
-   Use the **init MCP tool** to initialize the task-manager directory in .workspace as a separate git repository.
+   Run `dotnet run --project developer-cli init-task-manager` from the source code folder to initialize the task-manager directory in .workspace as a separate git repository.
 
 2. Research and understand the feature
 

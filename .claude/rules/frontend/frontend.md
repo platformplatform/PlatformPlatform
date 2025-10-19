@@ -62,7 +62,7 @@ Carefully follow these instructions for frontend TypeScript and React developmen
    - Reference existing implementations to maintain consistency.
 
 4. Build and format your changes:
-   - After each minor change, use the **build MCP tool** for frontend to format your code. See [Tools](/.claude/rules/tools.md) for details.
+   - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend to format your code.
    - This ensures consistent code style across the codebase.
 
 5. Verify your changes:

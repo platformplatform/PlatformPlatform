@@ -1,7 +1,7 @@
 ---
 name: backend-engineer
-description: Dual-mode agent - coordinates Product Increment tasks OR passes through ad-hoc requests to backend workers.
-tools: mcp__developer-cli__kill_worker, mcp__developer-cli__list_active_workers, mcp__developer-cli__read_task_file, mcp__developer-cli__start_worker, TodoWrite, Read
+description: Called by tech lead for Product Increments or directly for ad-hoc backend tasks.
+tools: mcp__developer-cli__start_worker_agent, TodoWrite, Read
 model: inherit
 color: green
 ---
@@ -59,7 +59,7 @@ FOR EACH task in the Product Increment:
 
 **b. Delegate to backend-engineer worker via MCP**:
 ```
-Use developer-cli MCP start_worker:
+Use developer-cli MCP start_worker_agent:
 - agentType: "backend-engineer"
 - taskTitle: Task description
 - markdownContent: "We are implementing PRD: [prd-path]. Please implement task \"[task]\" from [product-increment-path]."
@@ -105,7 +105,7 @@ Pass request VERBATIM to backend-engineer worker via MCP. NO modifications, NO a
 
 **You delegate**:
 ```
-Use developer-cli MCP start_worker:
+Use developer-cli MCP start_worker_agent:
 - agentType: "backend-engineer"
 - taskTitle: Extract first few words from request
 - markdownContent: Pass EXACT request text unchanged

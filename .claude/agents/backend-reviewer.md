@@ -1,7 +1,7 @@
 ---
 name: backend-reviewer
-description: Use this agent when working in TECH LEAD MODE after completing backend implementation tasks with PRDs and Product Increments. When acting as tech lead, this agent MUST be called for backend code quality review to ensure proper review delegation and tracking.
-tools: mcp__developer-cli__kill_worker, mcp__developer-cli__list_active_workers, mcp__developer-cli__read_task_file, mcp__developer-cli__start_worker
+description: Called by backend engineers after implementation or directly for ad-hoc reviews of backend work.
+tools: mcp__developer-cli__start_worker_agent
 model: inherit
 color: yellow
 ---
