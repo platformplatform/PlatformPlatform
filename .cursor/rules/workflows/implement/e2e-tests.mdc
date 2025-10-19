@@ -23,19 +23,12 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
    - Understand validation rules and error handling.
    - Identify key user interactions and expected behaviors.
 
-2. Use Browser MCP to explore the webapp functionality:
-   - Navigate to the application using the `mcp__chrome-devtools__navigate_page` tool with url: "https://localhost:9000".
-   - Interact with the feature manually to understand user flows.
-   - Take snapshots to identify UI elements and their structure.
-   - Document key interactions and expected behaviors.
-   - Note any edge cases or potential issues discovered during exploration.
-
-3. Review existing test examples:
+2. Review existing test examples:
    - Read [End-to-End Tests](mdc:.cursor/rules/end-to-end-tests/e2e-tests.mdc) for detailed information.
    - Examine [signup-flows.spec.ts](mdc:application/account-management/WebApp/tests/e2e/signup-flows.spec.ts) and [login-flows.spec.ts](mdc:application/account-management/WebApp/tests/e2e/login-flows.spec.ts) for inspiration.
    - Note the structure, assertions, test organization, and the "Act & Assert:" comment format.
 
-4. Plan comprehensive test scenarios:
+3. Plan comprehensive test scenarios:
    - Identify standard user journeys through the feature.
    - Plan for complex multi-session scenarios like:
      - Concurrent sessions: What happens when a user has two tabs open?
@@ -49,7 +42,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
      - Accessibility: Keyboard navigation, screen reader compatibility.
      - Localization: Testing with different languages and formats.
 
-5. Categorize tests appropriately:
+4. Categorize tests appropriately:
    - `@smoke`: Essential functionality that will run on deployment of any system.
      - Create one comprehensive smoke.spec.ts per self-contained system.
      - Test complete user journeys: signup → profile setup → invite users → manage roles → tenant settings → logout.
@@ -59,24 +52,24 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
      - Group related scenarios to minimize test count while maximizing coverage.
    - `@slow`: Tests involving timeouts or waiting periods that will run ad-hoc, when features under test are changed.
 
-6. Create or update test structure:
+5. Create or update test structure:
    - For smoke tests: Create/update `application/[scs-name]/WebApp/tests/e2e/smoke.spec.ts`.
    - For comprehensive tests: Create feature-specific files like `user-management-flows.spec.ts`, `team-management-flows.spec.ts`.
    - Avoid creating many small, isolated tests - prefer comprehensive scenarios that test multiple aspects.
 
-7. **CRITICAL - Run watch tool to apply database migrations**:
+6. **CRITICAL - Run watch tool to apply database migrations**:
    - Use **watch MCP tool** to restart server and run migrations
    - This MUST be done before running tests if backend schema changed
    - The tool starts .NET Aspire at https://localhost:9000
 
-8. **CRITICAL - Run tests and verify they pass**:
+7. **CRITICAL - Run tests and verify they pass**:
    - Use **e2e MCP tool** to run your tests
    - Start with smoke tests: `e2e(smoke=true)`
    - Then run comprehensive tests with search terms: `e2e(searchTerms=["feature-name"])`
    - **ALL tests MUST pass** before proceeding
    - If tests fail: Fix them and run again (never proceed with failing tests)
 
-9. Call reviewer to review your tests:
+8. Call reviewer to review your tests:
    - Use Task tool to call `test-automation-reviewer` subagent
    - Provide paths to request and response files
    - Iterate with reviewer until approved

@@ -1,7 +1,7 @@
 ---
 name: test-automation-engineer
-description: Dual-mode agent - coordinates Product Increment E2E test tasks OR passes through ad-hoc requests to test automation workers.
-tools: mcp__developer-cli__kill_worker, mcp__developer-cli__list_active_workers, mcp__developer-cli__read_task_file, mcp__developer-cli__start_worker, TodoWrite, Read
+description: Called by tech lead for Product Increments or directly for ad-hoc E2E test tasks.
+tools: mcp__developer-cli__start_worker_agent, TodoWrite, Read
 model: inherit
 color: cyan
 ---
@@ -60,7 +60,7 @@ FOR EACH task in the Product Increment:
 
 **b. Delegate to test-automation-engineer worker via MCP**:
 ```
-Use developer-cli MCP start_worker:
+Use developer-cli MCP start_worker_agent:
 - agentType: "test-automation-engineer"
 - taskTitle: Task description
 - markdownContent: "We are implementing PRD: [prd-path]. Please implement task \"[task]\" from [product-increment-path]."
@@ -106,7 +106,7 @@ Pass request VERBATIM to test-automation-engineer worker via MCP. NO modificatio
 
 **You delegate**:
 ```
-Use developer-cli MCP start_worker:
+Use developer-cli MCP start_worker_agent:
 - agentType: "test-automation-engineer"
 - taskTitle: Extract first few words from request
 - markdownContent: Pass EXACT request text unchanged

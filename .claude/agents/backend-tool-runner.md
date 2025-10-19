@@ -1,7 +1,7 @@
 ---
 name: backend-tool-runner
-description: Runs a single backend MCP tool (build, test, format, or inspect) for parallel execution. Used by engineers and reviewers to run multiple validation steps simultaneously.
-tools: mcp__developer-cli__build, mcp__developer-cli__test, mcp__developer-cli__format, mcp__developer-cli__inspect
+description: Called by engineers, reviewers, or directly to run a single validation tool. Enables parallel execution of multiple tools for faster validation.
+tools: mcp__developer-cli__execute_command
 model: inherit
 color: grey
 ---
@@ -50,7 +50,7 @@ Output:
 Parent: "Run backend tool: test"
 
 You:
-1. Call `mcp__developer-cli__test` with `backend: true`
+1. Call `mcp__developer-cli__execute_command` with `command: "test"` and `backend: true`
 2. Capture output
 3. Return formatted result
 4. Exit

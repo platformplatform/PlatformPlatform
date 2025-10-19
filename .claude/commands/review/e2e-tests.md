@@ -104,13 +104,14 @@ If ANY critical check fails: **REJECT**
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
-**Call MCP CompleteAndExitReview tool**:
+**Call MCP CompleteWork tool**:
+- `mode`: "review"
 - `agentType`: test-automation-reviewer
-- `approved`: true or false
-- `reviewSummary`: Objective description (e.g., "Add E2E tests for team management", "Fix sleep statements in user tests")
+- `commitHash`: Commit hash if approved, null/empty if rejected
+- `rejectReason`: Rejection reason if rejected, null/empty if approved
 - `responseContent`: Your full review feedback
 
-⚠️ Your session terminates IMMEDIATELY after calling CompleteAndExitReview
+⚠️ Your session terminates IMMEDIATELY after calling CompleteWork
 
 ---
 

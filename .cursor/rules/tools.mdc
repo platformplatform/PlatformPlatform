@@ -84,12 +84,6 @@ Use the **watch MCP tool** to start .NET Aspire at https://localhost:9000:
 - Forces database migrations
 - Runs automatically in detached mode
 
-## Init Task Manager
-
-Use the **init MCP tool** to initialize the task-manager directory:
-- Creates task-manager as git submodule
-- Automatically excluded from main repository
-
 ## Command Optimization
 
 Using specific self-contained systems significantly reduces execution time:

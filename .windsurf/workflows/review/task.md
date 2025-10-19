@@ -134,21 +134,23 @@ Update the Product Increment file:
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
-Call MCP **CompleteAndExitReview** tool - your session terminates IMMEDIATELY after this call.
+Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates IMMEDIATELY after this call.
 
 **For APPROVED reviews**:
+- Provide: `mode: "review"`
 - Provide: `commitHash` (from `git rev-parse HEAD` in STEP 7)
-- Provide: `rejectReason` as empty string or omit parameter
+- Provide: `rejectReason` as null or empty string
 
 **For REJECTED reviews**:
-- Provide: `commitHash` as empty string or omit parameter
+- Provide: `mode: "review"`
+- Provide: `commitHash` as null or empty string
 - Provide: `rejectReason` (sentence case, imperative mood)
 
 ---
 
 ## Response Format Requirements
 
-When calling CompleteAndExitReview with `responseContent`:
+When calling CompleteWork with `responseContent`:
 
 **For REJECTED reviews**:
 

@@ -38,70 +38,35 @@ public class McpCommand : Command
 public static class DeveloperCliMcpTools
 {
     [McpServerTool]
-    [Description("Build code")]
-    public static string Build(
-        [Description("Backend")]
-        bool backend = false,
-        [Description("Frontend")]
-        bool frontend = false,
-        [Description("Self-contained system, e.g., 'account-management' (optional)")]
-        string? selfContainedSystem = null)
-    {
-        return ExecuteStandardMcpCommand("build", backend, frontend, selfContainedSystem);
-    }
-
-    [McpServerTool]
-    [Description("Run backend tests")]
-    public static string Test(
+    [Description("Execute developer CLI commands: build, test, format, or inspect code")]
+    public static string ExecuteCommand(
+        [Description("Command to execute: 'build', 'test', 'format', or 'inspect'")]
+        string command,
+        [Description("Backend")] bool backend = false,
+        [Description("Frontend")] bool frontend = false,
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build")] bool noBuild = true)
+        [Description("Skip build (for test, format, inspect only)")]
+        bool noBuild = true)
     {
-        return ExecuteStandardMcpCommand("test", true, false, selfContainedSystem, args =>
+        var validCommands = new[] { "build", "test", "format", "inspect" };
+        if (!validCommands.Contains(command))
+        {
+            return $"Invalid command: '{command}'. Valid commands: {string.Join(", ", validCommands)}";
+        }
+
+        return ExecuteStandardMcpCommand(command, backend, frontend, selfContainedSystem, args =>
             {
-                if (noBuild) args.Add("--no-build");
+                if (noBuild && command != "build")
+                {
+                    args.Add("--no-build");
+                }
             }
         );
     }
 
     [McpServerTool]
-    [Description("Format code")]
-    public static string Format(
-        [Description("Backend")]
-        bool backend = false,
-        [Description("Frontend")]
-        bool frontend = false,
-        [Description("Self-contained system, e.g., 'account-management' (optional)")]
-        string? selfContainedSystem = null,
-        [Description("Skip build")] bool noBuild = true)
-    {
-        return ExecuteStandardMcpCommand("format", backend, frontend, selfContainedSystem, args =>
-            {
-                if (noBuild) args.Add("--no-build");
-            }
-        );
-    }
-
-    [McpServerTool]
-    [Description("Run code static code analsis")]
-    public static string Inspect(
-        [Description("Backend")]
-        bool backend = false,
-        [Description("Frontend")]
-        bool frontend = false,
-        [Description("Self-contained system, e.g., 'account-management' (optional)")]
-        string? selfContainedSystem = null,
-        [Description("Skip build")] bool noBuild = true)
-    {
-        return ExecuteStandardMcpCommand("inspect", backend, frontend, selfContainedSystem, args =>
-            {
-                if (noBuild) args.Add("--no-build");
-            }
-        );
-    }
-
-    [McpServerTool]
-    [Description("Restart .NET Aspire and run database migrations at https://localhost:9000")]
+    [Description("Restart .NET Aspire and run database migrations at https://localhost:9000. Runs in the background so you can continue working while it starts.")]
     public static string Watch()
     {
         // Call watch command in detached mode - don't wait for process exit
@@ -150,7 +115,7 @@ public static class DeveloperCliMcpTools
 
     [McpServerTool]
     [Description("Run E2E tests")]
-    public static string E2E(
+    public static string E2e(
         [Description("Search terms")] string[] searchTerms = null!,
         [Description("Browser")] string browser = "all",
         [Description("Smoke only")] bool smoke = false)
@@ -167,14 +132,6 @@ public static class DeveloperCliMcpTools
 
         var result = ExecuteCliCommandQuietly(args.ToArray());
         return result.Output;
-    }
-
-    [McpServerTool]
-    [Description("Initialize task-manager")]
-    public static string InitTaskManager()
-    {
-        var result = ExecuteCliCommand(["init-task-manager"]);
-        return result.Success ? "Task-manager initialized successfully" : $"Failed to initialize task-manager.\n\n{result.Output}";
     }
 
     [McpServerTool]
@@ -276,7 +233,7 @@ public static class WorkerMcpTools
 {
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
-    public static string StartWorker(
+    public static string StartWorkerAgent(
         [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
         string agentType,
         [Description("Short title for the task")]
@@ -322,49 +279,39 @@ public static class WorkerMcpTools
     }
 
     [McpServerTool]
-    [Description("View the details of a development task that was assigned to an agent. Use this to check what work was requested.")]
-    public static string ReadTaskFile([Description("Path to task file to read")] string filePath)
-    {
-        try
-        {
-            return File.Exists(filePath) ? File.ReadAllText(filePath) : $"File not found: '{filePath}'";
-        }
-        catch (Exception ex)
-        {
-            return $"Error reading file: {ex.Message}";
-        }
-    }
-
-    [McpServerTool]
-    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal task completion from worker agent. Call this when you have finished implementing a task. This will write your response file and immediately terminate your session. There is no going back after this call.")]
-    public static async Task<string> CompleteAndExitTask(
-        [Description("Agent type (backend-engineer, frontend-engineer, test-automation-engineer)")]
+    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal completion from worker agent (task or review). This will write your response file and immediately terminate your session. There is no going back after this call.")]
+    public static async Task<string> CompleteWork(
+        [Description("Completion mode: 'task' or 'review'")]
+        string mode,
+        [Description("Agent type (e.g., backend-engineer, frontend-reviewer, test-automation-engineer)")]
         string agentType,
-        [Description("Brief task summary in sentence case (e.g., 'Api endpoints implemented')")]
-        string taskSummary,
         [Description("Full response content in markdown")]
         string responseContent,
         [Description("Branch name to validate workspace consistency")]
-        string branch)
+        string branch,
+        [Description("Brief task summary in sentence case (for task mode only, e.g., 'Api endpoints implemented')")]
+        string? taskSummary = null,
+        [Description("Commit hash containing approved changes (for review mode - approved only)")]
+        string? commitHash = null,
+        [Description("Rejection reason (for review mode - rejected only)")]
+        string? rejectReason = null)
     {
-        return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
-    }
+        if (mode == "task")
+        {
+            if (string.IsNullOrEmpty(taskSummary))
+            {
+                return "Error: taskSummary is required for task mode";
+            }
 
-    [McpServerTool]
-    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal review completion. Approved: provide commitHash. Rejected: provide rejectReason. Never both.")]
-    public static async Task<string> CompleteAndExitReview(
-        [Description("Agent type (backend-reviewer, frontend-reviewer, test-automation-reviewer)")]
-        string agentType,
-        [Description("Commit hash containing approved changes (approved only)")]
-        string? commitHash,
-        [Description("Rejection reason (rejected only)")]
-        string? rejectReason,
-        [Description("Concise but precise review in markdown")]
-        string responseContent,
-        [Description("Branch name to validate workspace consistency")]
-        string branch)
-    {
-        return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
+            return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
+        }
+
+        if (mode == "review")
+        {
+            return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
+        }
+
+        return $"Invalid mode: '{mode}'. Valid modes: task, review";
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
