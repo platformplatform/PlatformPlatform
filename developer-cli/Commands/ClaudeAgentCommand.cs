@@ -968,8 +968,67 @@ public class ClaudeAgentCommand : Command
         return false; // No active delegated work
     }
 
+    private static bool HasPendingRequest(Workspace workspace)
+    {
+        // Check if any request files exist in messages directory
+        if (!Directory.Exists(workspace.MessagesDirectory)) return false;
+
+        var requestFiles = Directory.GetFiles(workspace.MessagesDirectory, "*.request.*.md");
+        return requestFiles.Length > 0;
+    }
+
     private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(Process process, string agentType, ProcessMonitoringOptions options, Workspace workspace)
     {
+        // Manual session vs MCP request session have different monitoring logic
+        if (!options.ExpectResponseFile)
+        {
+            return await MonitorManualSession(process, workspace);
+        }
+
+        return await MonitorMcpRequestSession(process, agentType, options, workspace);
+    }
+
+    private Task<ProcessCompletionResult> MonitorManualSession(Process process, Workspace workspace)
+    {
+        // Manual sessions never timeout - they run indefinitely
+        // Only interrupted if MCP request arrives AND user is AFK (no git changes in 20 min)
+        const int pollIntervalMinutes = 5;
+
+        while (true)
+        {
+            var exited = process.WaitForExit(TimeSpan.FromMinutes(pollIntervalMinutes));
+
+            if (exited)
+            {
+                Logger.Debug($"Manual session process {process.Id} exited with code: {process.ExitCode}");
+                return Task.FromResult(new ProcessCompletionResult(true, "Session completed"));
+            }
+
+            // Check if MCP request arrived
+            if (HasPendingRequest(workspace))
+            {
+                Logger.Debug("Pending MCP request detected during manual session");
+
+                // Check if user is actively working (git changes in last 20 min)
+                var hasGitChanges = GitHelper.HasUncommittedChanges();
+
+                if (!hasGitChanges)
+                {
+                    // No git activity - user is AFK, interrupt manual session for request
+                    Logger.Debug("No git changes detected, interrupting manual session for pending request");
+                    KillProcess(process);
+                    return Task.FromResult(new ProcessCompletionResult(true, "Session interrupted for pending request"));
+                }
+
+                // User is working - let them continue, request will wait
+                Logger.Debug("Git changes detected, user is working - manual session continues");
+            }
+        }
+    }
+
+    private async Task<ProcessCompletionResult> MonitorMcpRequestSession(Process process, string agentType, ProcessMonitoringOptions options, Workspace workspace)
+    {
+        // MCP request sessions have inactivity timeout with restart logic
         var currentProcess = process;
         var restartCount = 0;
         var maxRestarts = agentType == "tech-lead" ? int.MaxValue : 2;
@@ -981,7 +1040,6 @@ public class ClaudeAgentCommand : Command
 
         while (true)
         {
-            // Wait 5 minutes (or until process exits)
             var exited = currentProcess.WaitForExit(TimeSpan.FromMinutes(pollIntervalMinutes));
 
             if (exited)
@@ -1050,19 +1108,13 @@ public class ClaudeAgentCommand : Command
             }
         }
 
-        if (!options.ExpectResponseFile)
-        {
-            return new ProcessCompletionResult(true, "Session completed");
-        }
-
-        // Allow time for MCP tool to write response file
+        // MCP request session completed - check for response file
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-        // Check for response file
         var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
         if (matchingFiles.Length == 0)
         {
-            return new ProcessCompletionResult(false, $"Worker exited but no response file found matching: {options.ResponseFilePattern}");
+            return new ProcessCompletionResult(false, $"Worker exited but no response file found matching: '{options.ResponseFilePattern}'");
         }
 
         var responseFilePath = matchingFiles[0];
@@ -1072,8 +1124,6 @@ public class ClaudeAgentCommand : Command
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}'");
 
         return new ProcessCompletionResult(true, "Task completed successfully", responseContent);
-
-        // Tech-lead or manual session - no response file expected
     }
 
     private static void KillProcess(Process process)
