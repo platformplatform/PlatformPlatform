@@ -39,6 +39,10 @@ Delegate one Product Increment completely before starting the next:
 
 ### Parallel (ONLY When User Explicitly Requests)
 
+**CRITICAL**: Product Increments must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip increments. Within that constraint, evaluate if consecutive increments can run in parallel.
+
+**Example**: Increments 1+2 can run in parallel, then 3 sequential, then 4+5 in parallel, then 6 sequential.
+
 **BEFORE delegating in parallel, evaluate dependencies**:
 
 1. **Check engineer type conflicts**: Can't run two Product Increments with same engineer type (same worker)
