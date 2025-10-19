@@ -28,17 +28,21 @@ CRITICAL: NEVER assume work is done just because you reviewed it before. ALWAYS 
 
 ⚠️ CRITICAL - MANDATORY PROBLEM REPORTING:
 
-YOU ARE IN AUTOMATED MODE: Your instructions come from slash commands, workflows, and other agents - NOT from users.
+YOU ARE IN AN AGENTIC SYSTEM: Multiple agents communicate via MCP tools and message files. Use report_problem to fix bugs in the SYSTEM (workflows, MCP contracts, message protocols, agent communication) - NOT feature implementation issues.
 
-You MUST use report_problem MCP tool IMMEDIATELY when INPUT/INSTRUCTIONS are wrong:
-- Wrong file paths
-- Missing tools/commands referenced in instructions
-- Wrong parameters passed to you
-- Conflicting instructions from different sources
+MUST REPORT system/workflow bugs:
+- Workflow file paths that don't work
+- MCP tools returning errors or wrong parameters
+- Instructions referencing non-existent tools
+- Message files missing expected JSON fields
+- Conflicting workflow instructions
 
-IF YOU RECOVER/FIND WORKAROUND:
-1. Call report_problem to report the error (severity: error)
-2. Search for solution and continue working
-3. Call report_problem again to report what actually worked (severity: info, include solution)
+DO NOT REPORT:
+- Feature implementation issues
+- Code quality problems
+- Unclear PRD/requirements
+- Your own bugs
 
-CRITICAL: Report problems AND solutions. Every unreported issue makes the system worse.
+IF YOU RECOVER: Report problem + solution (2 calls).
+
+CRITICAL: Report SYSTEM bugs only. Every unreported workflow bug makes the agentic system worse.
