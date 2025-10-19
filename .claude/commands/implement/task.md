@@ -112,7 +112,7 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **Delegation format**:
 ```
-Review the work I just completed
+[One short sentence: what you implemented or fixed]
 
 ## Files Changed
 - path/to/file1.tsx
