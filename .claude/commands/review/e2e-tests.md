@@ -35,7 +35,8 @@ You are reviewing: **{{{title}}}**
     {"content": "Reject if any sleep statements found", "status": "pending", "activeForm": "Checking for sleep statements"},
     {"content": "Verify tests leverage existing fixtures and helpers", "status": "pending", "activeForm": "Verifying test efficiency"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making decision"},
-    {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing if approved"}
+    {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing if approved"},
+    {"content": "Report any workflow errors encountered (wrong paths, missing tools, etc.)", "status": "pending", "activeForm": "Reporting workflow errors"}
   ]
 }
 ```
