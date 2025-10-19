@@ -65,8 +65,7 @@ Carefully follow these instructions for frontend TypeScript and React developmen
    - This ensures consistent code style across the codebase.
 
 5. Verify your changes:
-   - When a feature is complete, use the **check MCP tool** for frontend to verify your changes.
-   - This runs build, format, and check in that order.
+   - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**.
    - Fix any compiler warnings or test failures before proceeding.
 
 ## Examples

@@ -85,7 +85,7 @@ IMPORTANT: Always follow these steps very carefully when implementing changes:
 2. Build and test your changes:
    - Use the **build MCP tool** for backend. See [Tools](/.windsurf/rules/tools.md) for details.
    - Use the **test MCP tool** to run all tests.
-   - If you change API contracts (endpoints, DTOs), use the **check MCP tool** for frontend to ensure it still compiles.
+   - If you change API contracts (endpoints, DTOs), use the **build MCP tool** for frontend to ensure it still compiles.
 3. Format your code:
    - When all tests are passing and you think you are feature complete, use the **format MCP tool** for backend.
    - The format tool will automatically fix code style issues according to our conventions.
