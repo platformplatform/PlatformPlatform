@@ -124,6 +124,7 @@ Response: [response file path]
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
 - If reviewer returns APPROVED → Proceed to completion
 - **NEVER call CompleteWork unless reviewer approved and committed your code**
+- ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP and wait. Do NOT proceed to next task. Do NOT make up workarounds.
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 
