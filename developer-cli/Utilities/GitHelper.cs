@@ -25,6 +25,23 @@ public static class GitHelper
         return !string.IsNullOrWhiteSpace(status);
     }
 
+    public static bool HasRecentGitActivity(TimeSpan withinTimespan)
+    {
+        var threshold = DateTime.Now - withinTimespan;
+        var status = ProcessHelper.StartProcess("git status --porcelain", Configuration.SourceCodeFolder, true);
+
+        if (string.IsNullOrWhiteSpace(status)) return false;
+
+        var files = status
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Length > 3 ? line[3..].Trim() : string.Empty)
+            .Where(f => !string.IsNullOrEmpty(f))
+            .Select(f => Path.Combine(Configuration.SourceCodeFolder, f))
+            .Where(File.Exists);
+
+        return files.Any(file => File.GetLastWriteTime(file) > threshold);
+    }
+
     public static void DiscardAllChanges()
     {
         ProcessHelper.StartProcess("git reset --hard", Configuration.SourceCodeFolder);

@@ -1070,10 +1070,10 @@ public class ClaudeAgentCommand : Command
                 break;
             }
 
-            // Check if git changes exist
-            var hasGitChanges = GitHelper.HasUncommittedChanges();
+            // Check if git changes exist and were recently modified
+            var hasRecentActivity = GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5));
 
-            if (hasGitChanges)
+            if (hasRecentActivity)
             {
                 // Changes detected - update timestamp and continue
                 lastGitChangeDetected = DateTime.Now;
