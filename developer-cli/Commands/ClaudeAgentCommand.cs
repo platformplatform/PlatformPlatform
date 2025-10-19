@@ -111,7 +111,8 @@ public class ClaudeAgentCommand : Command
                 $"ERROR: Branch mismatch detected!\n\n" +
                 $"Worker requesting delegation is on branch: '{branch}'\n" +
                 $"Current git branch: '{currentGitBranch}'\n\n" +
-                $"This prevents workspace corruption. Ensure all agents are on the same branch.");
+                $"This prevents workspace corruption. Ensure all agents are on the same branch."
+            );
             return;
         }
 
@@ -331,45 +332,49 @@ public class ClaudeAgentCommand : Command
         // Tech-lead launches immediately, other agents wait for requests
         if (agentType == "tech-lead")
         {
-            // Check if session exists - if yes, use --continue only, otherwise use slash command
-            var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
-            var useSlashCommand = !File.Exists(sessionIdFile);
-
-            await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
-            AnsiConsole.MarkupLine($"[{agentColor} bold]✓ Tech Lead session ended[/]");
-        }
-        else
-        {
-            // Setup for interactive mode
-            Directory.CreateDirectory(workspace.MessagesDirectory);
-
-            if (!File.Exists(workspace.HostProcessIdFile))
-            {
-                await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
-            }
-
-            // Display initial waiting screen with recent activity
-            RedrawWaitingDisplay(agentType, workspace.Branch);
-
-            // Main loop: wait for requests or manual control
+            // Main loop: tech-lead runs infinitely, relaunching after each session
             while (true)
             {
-                Logger.Debug("Main loop: Calling WaitForTasksOrManualControl");
-                var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
-                Logger.Debug($"WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
+                // Check if session exists - if yes, use --continue only, otherwise use slash command
+                var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
+                var useSlashCommand = !File.Exists(sessionIdFile);
 
-                if (isRequest && requestPath != null)
-                {
-                    Logger.Debug($"Processing request: {requestPath}");
-                    await HandleIncomingRequest(requestPath, workspace);
-                    Logger.Debug($"Finished processing request: {requestPath}");
-                }
-                else
-                {
-                    Logger.Debug("Launching manual session");
-                    await LaunchManualClaudeSession(workspace, useSlashCommand: false);
-                    Logger.Debug("Manual session ended");
-                }
+                await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
+
+                // Session ended (normally or after restarts), relaunch immediately
+                Logger.Debug("Tech-lead session ended, relaunching");
+            }
+        }
+
+        // Setup for interactive mode
+        Directory.CreateDirectory(workspace.MessagesDirectory);
+
+        if (!File.Exists(workspace.HostProcessIdFile))
+        {
+            await File.WriteAllTextAsync(workspace.HostProcessIdFile, Process.GetCurrentProcess().Id.ToString());
+        }
+
+        // Display initial waiting screen with recent activity
+        RedrawWaitingDisplay(agentType, workspace.Branch);
+
+        // Main loop: wait for requests or manual control
+        while (true)
+        {
+            Logger.Debug("Main loop: Calling WaitForTasksOrManualControl");
+            var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
+            Logger.Debug($"WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
+
+            if (isRequest && requestPath != null)
+            {
+                Logger.Debug($"Processing request: {requestPath}");
+                await HandleIncomingRequest(requestPath, workspace);
+                Logger.Debug($"Finished processing request: {requestPath}");
+            }
+            else
+            {
+                Logger.Debug("Launching manual session");
+                await LaunchManualClaudeSession(workspace, useSlashCommand: false);
+                Logger.Debug("Manual session ended");
             }
         }
     }
@@ -494,14 +499,13 @@ public class ClaudeAgentCommand : Command
         // Monitor process and wait for response file
         var options = new ProcessMonitoringOptions(
             TimeSpan.FromMinutes(20),
-            TimeSpan.FromMinutes(115),
             true,
             taskNumber,
             responseFilePattern,
             workspace.MessagesDirectory
         );
 
-        var result = await MonitorProcessWithTimeout(claudeProcess, workspace.AgentType, options);
+        var result = await MonitorProcessWithTimeout(claudeProcess, workspace.AgentType, options, workspace);
 
         // Clean up .worker-process-id after worker exits
         if (File.Exists(workspace.WorkerProcessIdFile))
@@ -529,11 +533,10 @@ public class ClaudeAgentCommand : Command
 
         var options = new ProcessMonitoringOptions(
             inactivityTimeout,
-            TimeSpan.FromMinutes(115),
             false
         );
 
-        var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options);
+        var result = await MonitorProcessWithTimeout(process, workspace.AgentType, options, workspace);
 
         // Show completion status
         var agentColor = GetAgentColor(workspace.AgentType);
@@ -549,7 +552,8 @@ public class ClaudeAgentCommand : Command
     private async Task<Process> LaunchWorker(
         Workspace workspace,
         string? taskTitle = null,
-        bool useSlashCommand = true)
+        bool useSlashCommand = true,
+        string? recoveryMessage = null)
     {
         // Load system prompt (REQUIRED - throw if missing)
         if (!File.Exists(workspace.SystemPromptFile))
@@ -567,6 +571,12 @@ public class ClaudeAgentCommand : Command
             "--permission-mode", "bypassPermissions",
             "--append-system-prompt", systemPromptText
         };
+
+        // Add recovery message if this is a restart
+        if (recoveryMessage != null)
+        {
+            claudeArgs.Add(recoveryMessage);
+        }
 
         // Add slash command only if requested (manual sessions may launch without slash command)
         if (useSlashCommand)
@@ -919,41 +929,125 @@ public class ClaudeAgentCommand : Command
         Console.Write($"\x1b]0;{title}\x07");
     }
 
-    private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(Process process, string agentType, ProcessMonitoringOptions options)
+    private static bool HasActiveDelegatedWork(string branch)
     {
-        var startTime = DateTime.Now;
+        // Check if tech-lead has any active delegated work by checking worker-process-id files
+        var proxyAgentTypes = new[]
+        {
+            "backend-engineer",
+            "frontend-engineer",
+            "test-automation-engineer",
+            "backend-reviewer",
+            "frontend-reviewer",
+            "test-automation-reviewer"
+        };
+
+        foreach (var agentType in proxyAgentTypes)
+        {
+            var workspace = new Workspace(agentType, branch);
+
+            if (!File.Exists(workspace.WorkerProcessIdFile)) continue;
+
+            var pidText = File.ReadAllText(workspace.WorkerProcessIdFile);
+            if (!int.TryParse(pidText, out var pid)) continue;
+
+            try
+            {
+                var process = Process.GetProcessById(pid);
+                if (!process.HasExited)
+                {
+                    return true; // Found active delegated work
+                }
+            }
+            catch (ArgumentException)
+            {
+                // Process doesn't exist - stale PID file
+            }
+        }
+
+        return false; // No active delegated work
+    }
+
+    private async Task<ProcessCompletionResult> MonitorProcessWithTimeout(Process process, string agentType, ProcessMonitoringOptions options, Workspace workspace)
+    {
+        var currentProcess = process;
+        var restartCount = 0;
+        var maxRestarts = agentType == "tech-lead" ? int.MaxValue : 2;
+        var inactivityThreshold = agentType == "tech-lead"
+            ? TimeSpan.FromMinutes(60)
+            : TimeSpan.FromMinutes(20);
+        var lastGitChangeDetected = DateTime.Now;
+        const int pollIntervalMinutes = 5;
 
         while (true)
         {
-            // Check overall timeout
-            if (DateTime.Now - startTime >= options.OverallTimeout)
-            {
-                Logger.Debug($"Overall timeout ({options.OverallTimeout.TotalMinutes} minutes) reached, killing process");
-                KillProcess(process);
-                return new ProcessCompletionResult(false, $"Worker killed after {options.OverallTimeout.TotalMinutes} minutes (overall timeout)");
-            }
-
-            // Wait for process to exit with inactivity timeout
-            var exited = process.WaitForExit(options.InactivityTimeout);
+            // Wait 5 minutes (or until process exits)
+            var exited = currentProcess.WaitForExit(TimeSpan.FromMinutes(pollIntervalMinutes));
 
             if (exited)
             {
-                Logger.Debug($"Process {process.Id} exited with code: {process.ExitCode}");
+                Logger.Debug($"Process {currentProcess.Id} exited with code: {currentProcess.ExitCode}");
                 break;
             }
 
-            // Inactivity timeout reached - check if worker made progress
+            // Check if git changes exist
             var hasGitChanges = GitHelper.HasUncommittedChanges();
-            if (!hasGitChanges)
-            {
-                // No git changes - worker is stuck, kill it
-                Logger.Debug($"Worker inactive for {options.InactivityTimeout.TotalMinutes} minutes with no git changes, killing process");
-                KillProcess(process);
-                return new ProcessCompletionResult(false, $"Worker killed after {options.InactivityTimeout.TotalMinutes} minutes of inactivity (no git changes detected)");
-            }
 
-            // Has git changes - worker is active, continue monitoring
-            Logger.Debug("Git changes detected, worker is active - continuing");
+            if (hasGitChanges)
+            {
+                // Changes detected - update timestamp and continue
+                lastGitChangeDetected = DateTime.Now;
+                Logger.Debug("Git changes detected, worker is active - continuing");
+            }
+            else
+            {
+                // No changes - check if exceeded inactivity threshold
+                var timeSinceLastChange = DateTime.Now - lastGitChangeDetected;
+
+                if (timeSinceLastChange >= inactivityThreshold)
+                {
+                    // Worker is stuck - need to restart
+                    Logger.Debug($"Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes with no git changes");
+
+                    // Check restart limits
+                    if (restartCount >= maxRestarts)
+                    {
+                        Logger.Debug($"Max restarts ({maxRestarts}) reached, giving up");
+                        KillProcess(currentProcess);
+                        return new ProcessCompletionResult(false, $"Worker exhausted {maxRestarts} restarts without making progress");
+                    }
+
+                    // For tech-lead, check if has delegated work
+                    if (agentType == "tech-lead")
+                    {
+                        if (!HasActiveDelegatedWork(workspace.Branch))
+                        {
+                            // Tech-lead is idle (user is reading/thinking), don't restart
+                            Logger.Debug("Tech-lead idle (no active delegated work), session completed normally");
+                            return new ProcessCompletionResult(true, "Session completed");
+                        }
+                    }
+
+                    // Kill current process
+                    KillProcess(currentProcess);
+
+                    // Launch new worker with recovery message
+                    var recoveryMessage = "You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.";
+
+                    Logger.Debug($"Restarting worker (attempt {restartCount + 1})");
+                    var newProcess = await LaunchWorker(workspace, null, false, recoveryMessage);
+
+                    // Update tracking
+                    currentProcess = newProcess;
+                    restartCount++;
+                    lastGitChangeDetected = DateTime.Now; // Reset timestamp
+
+                    Logger.Debug($"Worker restarted with PID '{newProcess.Id}'");
+                    continue;
+                }
+
+                Logger.Debug($"No git changes detected, but only {timeSinceLastChange.TotalMinutes:F1} minutes since last change - continuing");
+            }
         }
 
         if (!options.ExpectResponseFile)
@@ -1047,7 +1141,6 @@ public record CurrentTaskInfo(
 
 public record ProcessMonitoringOptions(
     TimeSpan InactivityTimeout,
-    TimeSpan OverallTimeout,
     bool ExpectResponseFile,
     string? TaskNumber = null,
     string? ResponseFilePattern = null,
