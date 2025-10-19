@@ -122,9 +122,10 @@ Response: [response file path]
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
-- If reviewer returns APPROVED → Proceed to completion
+- If reviewer returns APPROVED → Check YOUR files (not parallel engineers' files) are committed → Proceed to completion
 - **NEVER call CompleteWork unless reviewer approved and committed your code**
-- ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP and wait. Do NOT proceed to next task. Do NOT make up workarounds.
+- **NEVER commit code yourself** - only the reviewer commits
+- ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
 **STEP 9**: Re-read Product Increment, update plan if needed
 
