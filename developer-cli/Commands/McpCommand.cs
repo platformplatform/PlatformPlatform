@@ -142,6 +142,111 @@ public static class DeveloperCliMcpTools
         return result.Success ? "AI rules synced successfully to .windsurf and .cursor" : $"Failed to sync AI rules.\n\n{result.Output}";
     }
 
+    [McpServerTool]
+    [Description(@"⚠️ MANDATORY: Report ANY incorrect input (paths, files, tools, parameters, instructions) you receive.
+
+MUST REPORT when input/instructions are WRONG:
+✓ Told to read file at wrong path - REPORT IT
+✓ Told to call tool that doesn't exist - REPORT IT
+✓ Given parameters that don't match your interface - REPORT IT
+✓ Receive conflicting instructions - REPORT IT
+
+DO NOT REPORT your own implementation bugs - only incorrect INPUT/INSTRUCTIONS.
+
+IF YOU RECOVER/FIND WORKAROUND - REPORT BOTH PROBLEM AND SOLUTION:
+1. First call: Report the problem (severity: error or warning)
+   Example - title: Instructions say read current-task.json from workspace root but file not found
+
+2. Then find workaround and continue working
+
+3. Second call: Report your solution (severity: info)
+   Example - title: Solution - current-task.json location
+   Example - description: Found current-task.json at .workspace/agent-workspaces/branch/agent/current-task.json
+   Example - suggestedFix: Update workflow to specify full path
+
+CRITICAL: Reporting both problems AND solutions helps fix the system permanently.
+
+Reports saved to: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md")]
+    public static string ReportProblem(
+        [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
+        string reporter,
+        [Description("Category: 'dead-reference', 'invalid-parameters', 'contradictory-instructions', 'unclear-instructions'")]
+        string category,
+        [Description("Severity: 'error' (blocking issue), 'warning' (should fix), 'info' (suggestion)")]
+        string severity,
+        [Description("Short title describing the problem")]
+        string title,
+        [Description("Detailed explanation of what went wrong and what you were trying to do")]
+        string description,
+        [Description("Where the issue occurred (file path:line or context)")]
+        string location,
+        [Description("Optional: Your suggestion for how to fix this issue")]
+        string? suggestedFix = null)
+    {
+        // Validate inputs
+        var validCategories = new[] { "dead-reference", "invalid-parameters", "contradictory-instructions", "unclear-instructions" };
+        var validSeverities = new[] { "error", "warning", "info" };
+
+        if (!validCategories.Contains(category))
+        {
+            return $"Invalid category: '{category}'. Valid categories: {string.Join(", ", validCategories)}";
+        }
+
+        if (!validSeverities.Contains(severity))
+        {
+            return $"Invalid severity: '{severity}'. Valid severities: {string.Join(", ", validSeverities)}";
+        }
+
+        try
+        {
+            // Generate timestamp and report ID
+            var now = DateTime.UtcNow;
+            var dateFolder = now.ToString("yyyy-MM-dd");
+            var timeStamp = now.ToString("HH-mm-ss");
+            var reportId = $"{dateFolder}-{timeStamp}-{severity}-{category}";
+            var fileName = $"{timeStamp}-{severity}-{category}.md";
+
+            // Create directory structure
+            var reportsDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports", dateFolder);
+            Directory.CreateDirectory(reportsDir);
+
+            // Build report content
+            var reportContent = $@"---
+report-id: {reportId}
+timestamp: {now:yyyy-MM-ddTHH:mm:ssZ}
+reporter: {reporter}
+category: {category}
+severity: {severity}
+location: {location}
+status: open
+---
+
+# {title}
+
+## Description
+{description}
+
+## Context
+{location}
+{(suggestedFix != null ? $"\n## Suggested Fix\n{suggestedFix}" : "")}
+";
+
+            // Write report file
+            var reportPath = Path.Combine(reportsDir, fileName);
+            File.WriteAllText(reportPath, reportContent);
+
+            return $@"✓ Problem reported successfully
+Report ID: {reportId}
+Location: .workspace/problem-reports/{dateFolder}/{fileName}
+
+You can continue working. This issue will be reviewed.";
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to write problem report: {ex.Message}";
+        }
+    }
+
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
     {
         var outputLines = new List<string>();
