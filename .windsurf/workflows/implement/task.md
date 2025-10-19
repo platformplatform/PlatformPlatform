@@ -57,6 +57,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Validate translations (frontend tasks only)", "status": "pending", "activeForm": "Validating translations"},
     {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
     {"content": "Call reviewer subagent to review and commit your code", "status": "pending", "activeForm": "Calling reviewer subagent"},
+    {"content": "Report any workflow errors encountered (wrong paths, missing tools, etc.)", "status": "pending", "activeForm": "Reporting workflow errors"},
     {"content": "Critically evaluate remaining tasks and update plan", "status": "pending", "activeForm": "Evaluating remaining tasks"}
   ]
 }
