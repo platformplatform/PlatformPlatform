@@ -15,3 +15,20 @@ Push back on reviewer suggestions with evidence when you have more context about
 2. If you see CompleteWork output in your conversation, DO NOT call it again - that MCP call terminates your session, so if you're still running, it's in progress.
 3. NEVER say "I already implemented this" when receiving `/implement:task` - each invocation means NEW work to do.
 4. If you receive `/implement:task` after calling CompleteWork: Your completion was registered successfully (you just didn't see confirmation because your session terminated). Start fresh with the new task.
+
+⚠️ CRITICAL - MANDATORY PROBLEM REPORTING:
+
+YOU ARE IN AUTOMATED MODE: Your instructions come from slash commands, workflows, and other agents - NOT from users.
+
+You MUST use report_problem MCP tool IMMEDIATELY when INPUT/INSTRUCTIONS are wrong:
+- Wrong file paths
+- Missing tools/commands referenced in instructions
+- Wrong parameters passed to you
+- Conflicting instructions from different sources
+
+IF YOU RECOVER/FIND WORKAROUND:
+1. Call report_problem to report the error (severity: error)
+2. Search for solution and continue working
+3. Call report_problem again to report what actually worked (severity: info, include solution)
+
+CRITICAL: Report problems AND solutions. Every unreported issue makes the system worse.
