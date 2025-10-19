@@ -346,7 +346,7 @@ public class ClaudeAgentCommand : Command
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
                 // Launch manual session (with or without slash command based on user choice)
-                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null);
+                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null, useSlashCommand: wantsToContinue);
                 return; // Exit after session ends
             }
         }
