@@ -12,7 +12,7 @@ You are implementing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 
-**Read `current-task.json` in your workspace root** to get:
+**Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Full path to your request file
 - `prdPath`: Path to PRD (if Product Increment task)
 - `productIncrementPath`: Path to Product Increment (if applicable)
@@ -25,6 +25,7 @@ You are implementing: **{{{title}}}**
 1. Read PRD from the path in `prdPath`
 2. Read Product Increment plan from the path in `productIncrementPath`
 3. Understand your task (`taskNumberInIncrement`) within the larger feature context
+4. **Mark your task as `[In Progress]`**: Edit the Product Increment file and change your task status from `[Pending]` to `[In Progress]`
 
 **CRITICAL - Verify Previous Work Committed**:
 
