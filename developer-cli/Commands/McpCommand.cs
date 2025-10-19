@@ -143,30 +143,34 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description(@"⚠️ MANDATORY: Report ANY incorrect input (paths, files, tools, parameters, instructions) you receive.
+    [Description(@"⚠️ MANDATORY: Report bugs in the AGENTIC SYSTEM (workflows, MCP tools, message protocols, agent communication).
 
-MUST REPORT when input/instructions are WRONG:
-✓ Told to read file at wrong path - REPORT IT
-✓ Told to call tool that doesn't exist - REPORT IT
-✓ Given parameters that don't match your interface - REPORT IT
-✓ Receive conflicting instructions - REPORT IT
+YOU ARE PART OF AN AGENTIC SYSTEM:
+- Multiple agents communicate via MCP tools and message files
+- This tool is for fixing bugs in: MCP tool contracts, /commands workflows, system prompts, message file protocols, agent communication patterns
 
-DO NOT REPORT your own implementation bugs - only incorrect INPUT/INSTRUCTIONS.
+MUST REPORT system/workflow bugs:
+✓ Workflow says read file at path X but file doesn't exist there
+✓ MCP tool returns errors or has wrong parameter descriptions
+✓ Instructions reference non-existent tools or commands
+✓ Message file missing expected JSON fields
+✓ Agent called with parameters that don't match interface
+✓ Conflicting instructions in different workflow files
 
-IF YOU RECOVER/FIND WORKAROUND - REPORT BOTH PROBLEM AND SOLUTION:
-1. First call: Report the problem (severity: error or warning)
-   Example - title: Instructions say read current-task.json from workspace root but file not found
+DO NOT REPORT:
+✗ Feature implementation issues (wrong business logic, missing validation)
+✗ Code quality problems (bad patterns, missing tests)
+✗ User's PRD or requirements unclear
+✗ Your own implementation bugs
 
-2. Then find workaround and continue working
+IF YOU RECOVER - REPORT PROBLEM + SOLUTION:
+1. Report the system bug (severity: error/warning)
+2. Find workaround and continue
+3. Report what actually worked (severity: info, include solution)
 
-3. Second call: Report your solution (severity: info)
-   Example - title: Solution - current-task.json location
-   Example - description: Found current-task.json at .workspace/agent-workspaces/branch/agent/current-task.json
-   Example - suggestedFix: Update workflow to specify full path
+Example: Workflow says read current-task.json from workspace root, but actual path is .workspace/agent-workspaces/branch/agent/current-task.json - report BOTH.
 
-CRITICAL: Reporting both problems AND solutions helps fix the system permanently.
-
-Reports saved to: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md")]
+Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md")]
     public static string ReportProblem(
         [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
         string reporter,
