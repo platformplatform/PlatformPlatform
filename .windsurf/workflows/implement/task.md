@@ -102,7 +102,9 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 1. Run `git status --porcelain` to see ALL changed files
 2. Identify YOUR files (files you created/modified for THIS task):
-   - Include ALL your changes (don't forget .po files, generated files, etc.)
+   - Backend: Include *.Api.json files (even though in WebApp folder - generated from your API changes)
+   - Frontend: Exclude *.Api.json files (these belong to backend, not you)
+   - Don't forget .po translation files
    - Exclude files from parallel engineers (different agent types)
    - If you changed files outside your scope: `git restore <file>` to revert
 3. List YOUR files in "Files Changed" section (one per line with status)
@@ -134,6 +136,8 @@ Response: [response file path]
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
 After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
+
+ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a Product Increment.
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed
