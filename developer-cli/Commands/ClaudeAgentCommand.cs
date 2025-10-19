@@ -212,6 +212,28 @@ public class ClaudeAgentCommand : Command
         Logger.SetContext(agentType);
         Logger.Info($"Worker-host starting for '{agentType}' on branch: {workspace.Branch}");
 
+        // Tech-lead specific: Check for existing session and offer clean workspace option
+        if (agentType == "tech-lead")
+        {
+            var branchWorkspacePath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", workspace.Branch);
+
+            if (Directory.Exists(branchWorkspacePath))
+            {
+                var activeWorkers = DetectActiveWorkers(branchWorkspacePath);
+                var deadWorkers = DetectDeadWorkers(branchWorkspacePath);
+
+                if (activeWorkers.Count > 0 || deadWorkers.Count > 0)
+                {
+                    var choice = PromptCleanWorkspace(activeWorkers, deadWorkers);
+
+                    if (choice == "Clean restart (kill workers, wipe workspace)")
+                    {
+                        CleanBranchWorkspace(branchWorkspacePath, activeWorkers);
+                    }
+                }
+            }
+        }
+
         // Create workspace and register agent
         Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);
 
@@ -1175,6 +1197,97 @@ public class ClaudeAgentCommand : Command
             WorkingDirectory = workingDirectory,
             UseShellExecute = true
         };
+    }
+
+    private static List<(string AgentType, int Pid, DateTime StartTime)> DetectActiveWorkers(string branchWorkspacePath)
+    {
+        var active = new List<(string, int, DateTime)>();
+        if (!Directory.Exists(branchWorkspacePath)) return active;
+
+        foreach (var dir in Directory.GetDirectories(branchWorkspacePath).Where(d => Path.GetFileName(d) != "messages"))
+        {
+            var pidFile = Path.Combine(dir, ".host-process-id");
+            if (File.Exists(pidFile) && int.TryParse(File.ReadAllText(pidFile), out var pid))
+            {
+                try
+                {
+                    var proc = Process.GetProcessById(pid);
+                    if (!proc.HasExited) active.Add((Path.GetFileName(dir), pid, proc.StartTime));
+                }
+                catch (ArgumentException) { }
+            }
+        }
+        return active;
+    }
+
+    private static List<string> DetectDeadWorkers(string branchWorkspacePath)
+    {
+        var dead = new List<string>();
+        if (!Directory.Exists(branchWorkspacePath)) return dead;
+
+        foreach (var dir in Directory.GetDirectories(branchWorkspacePath).Where(d => Path.GetFileName(d) != "messages"))
+        {
+            var pidFile = Path.Combine(dir, ".host-process-id");
+            if (File.Exists(pidFile) && int.TryParse(File.ReadAllText(pidFile), out var pid))
+            {
+                try { if (Process.GetProcessById(pid).HasExited) dead.Add(Path.GetFileName(dir)); }
+                catch (ArgumentException) { dead.Add(Path.GetFileName(dir)); }
+            }
+        }
+        return dead;
+    }
+
+    private static string PromptCleanWorkspace(List<(string AgentType, int Pid, DateTime StartTime)> active, List<string> dead)
+    {
+        AnsiConsole.MarkupLine("[yellow]⚠️ Existing session detected[/]\n");
+
+        if (active.Count > 0)
+        {
+            AnsiConsole.MarkupLine("[green]Active:[/]");
+            foreach (var (type, pid, start) in active)
+            {
+                var age = $"{(int)(DateTime.Now - start).TotalMinutes}m ago";
+                AnsiConsole.MarkupLine($"  • {type} [dim](PID {pid}, {age})[/]");
+            }
+        }
+
+        if (dead.Count > 0)
+        {
+            AnsiConsole.MarkupLine("\n[red]Dead:[/]");
+            foreach (var type in dead) AnsiConsole.MarkupLine($"  • {type}");
+        }
+
+        return AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("\nWhat would you like to do?")
+                .AddChoices("Continue existing session", "Clean restart (kill workers, wipe workspace)")
+        );
+    }
+
+    private static void CleanBranchWorkspace(string branchPath, List<(string AgentType, int Pid, DateTime StartTime)> active)
+    {
+        // Kill active workers
+        foreach (var (type, pid, _) in active)
+        {
+            try
+            {
+                KillProcess(Process.GetProcessById(pid));
+                AnsiConsole.MarkupLine($"[yellow]Killed {type} (PID {pid})[/]");
+            }
+            catch { }
+        }
+        if (active.Count > 0) Thread.Sleep(TimeSpan.FromSeconds(1));
+
+        // Delete directories
+        foreach (var path in new[] { branchPath, Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports"), Path.Combine(Configuration.SourceCodeFolder, ".workspace", "logs") })
+        {
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, true);
+                AnsiConsole.MarkupLine($"[green]Deleted {Path.GetFileName(path)}/[/]");
+            }
+        }
+        AnsiConsole.WriteLine();
     }
 }
 
