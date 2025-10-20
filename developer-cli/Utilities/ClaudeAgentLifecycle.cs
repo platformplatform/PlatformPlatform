@@ -59,32 +59,39 @@ public static class ClaudeAgentLifecycle
         // Log completion
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]");
 
-        // Wait for Claude Code to persist session state before killing process
-        await Task.Delay(TimeSpan.FromSeconds(10));
+        // Return success message immediately so it's saved in conversation
+        var successMessage = $"✅ Task completed successfully!\n\nResponse file: {responseFileName}\nSummary: {taskSummary}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds...";
 
-        // Read .worker-process-id file to find worker-agent process
-        if (File.Exists(workspace.WorkerProcessIdFile))
+        // Schedule termination after delay (fire and forget)
+        _ = Task.Run(async () =>
         {
-            var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
-            if (int.TryParse(processIdContent, out var workerProcessId))
+            // Wait for Claude Code to persist session state
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            // Read .worker-process-id file to find worker-agent process
+            if (File.Exists(workspace.WorkerProcessIdFile))
             {
-                try
+                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                if (int.TryParse(processIdContent, out var workerProcessId))
                 {
-                    // Kill the worker-agent Claude Code process (self-destruct)
-                    var workerProcess = Process.GetProcessById(workerProcessId);
-                    if (!workerProcess.HasExited)
+                    try
                     {
-                        workerProcess.Kill();
+                        // Kill the worker-agent Claude Code process (self-destruct)
+                        var workerProcess = Process.GetProcessById(workerProcessId);
+                        if (!workerProcess.HasExited)
+                        {
+                            workerProcess.Kill();
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // Process already exited, that's fine
                     }
                 }
-                catch (ArgumentException)
-                {
-                    // Process already exited, that's fine
-                }
             }
-        }
+        });
 
-        return $"Task completed. Response file: {responseFileName}";
+        return successMessage;
     }
 
     public static async Task<string> CompleteAndExitReview(
@@ -176,34 +183,41 @@ public static class ClaudeAgentLifecycle
             : $"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}): '{reviewSummary}' -> [{responseFileName}]";
         LogWorkflowEvent(logMessage);
 
-        // Wait for Claude Code to persist session state before killing process
-        await Task.Delay(TimeSpan.FromSeconds(10));
+        // Return success message immediately so it's saved in conversation
+        var successMessage = approved
+            ? $"✅ Review completed: Code APPROVED!\n\nCommit: {commitHash}\nResponse file: {responseFileName}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds..."
+            : $"❌ Review completed: REJECTED\n\nReason: {rejectReason}\nResponse file: {responseFileName}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds...";
 
-        // Read .worker-process-id file to find worker-agent process
-        if (File.Exists(workspace.WorkerProcessIdFile))
+        // Schedule termination after delay (fire and forget)
+        _ = Task.Run(async () =>
         {
-            var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
-            if (int.TryParse(processIdContent, out var reviewerProcessId))
+            // Wait for Claude Code to persist session state
+            await Task.Delay(TimeSpan.FromSeconds(5));
+
+            // Read .worker-process-id file to find worker-agent process
+            if (File.Exists(workspace.WorkerProcessIdFile))
             {
-                try
+                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                if (int.TryParse(processIdContent, out var reviewerProcessId))
                 {
-                    // Kill the reviewer-agent Claude Code process (self-destruct)
-                    var reviewerProcess = Process.GetProcessById(reviewerProcessId);
-                    if (!reviewerProcess.HasExited)
+                    try
                     {
-                        reviewerProcess.Kill();
+                        // Kill the reviewer-agent Claude Code process (self-destruct)
+                        var reviewerProcess = Process.GetProcessById(reviewerProcessId);
+                        if (!reviewerProcess.HasExited)
+                        {
+                            reviewerProcess.Kill();
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // Process already exited, that's fine
                     }
                 }
-                catch (ArgumentException)
-                {
-                    // Process already exited, that's fine
-                }
             }
-        }
+        });
 
-        return approved
-            ? $"Review completed ({statusPrefix}, commit: {commitHash}). Response file: {responseFileName}"
-            : $"Review completed ({statusPrefix}). Response file: {responseFileName}";
+        return successMessage;
     }
 
     public static void LogWorkflowEvent(string message)
