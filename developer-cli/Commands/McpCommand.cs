@@ -388,7 +388,7 @@ public static class WorkerMcpTools
     }
 
     [McpServerTool]
-    [Description("⚠️ TERMINATES SESSION IMMEDIATELY ⚠️ Signal completion from worker agent (task or review). This will write your response file and immediately terminate your session. There is no going back after this call.")]
+    [Description("Signal completion from worker agent (task or review). Returns success confirmation that will be saved in your conversation history, then terminates session after 5 seconds. This gives you time to see the confirmation before session ends.")]
     public static async Task<string> CompleteWork(
         [Description("Completion mode: 'task' or 'review'")]
         string mode,
