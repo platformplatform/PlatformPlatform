@@ -500,6 +500,7 @@ public class ClaudeAgentCommand : Command
     private async Task HandleIncomingRequest(string requestFile, Workspace workspace)
     {
         var agentColor = GetAgentColor(workspace.AgentType);
+        var displayName = GetAgentDisplayName(workspace.AgentType);
 
         // Clear the waiting display
         AnsiConsole.Clear();
@@ -510,6 +511,19 @@ public class ClaudeAgentCommand : Command
 
         // Allow filesystem time to complete file write operation before reading to avoid partial content
         await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+        // Update terminal title to show task title
+        string? taskTitle = null;
+        if (File.Exists(workspace.CurrentTaskFile))
+        {
+            var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
+            var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+            if (taskInfo is not null)
+            {
+                taskTitle = taskInfo.Title;
+                SetTerminalTitle($"{displayName} - {taskTitle}");
+            }
+        }
 
         // Launch worker-agent (Claude Code) - task title read from current-task.json
         var claudeProcess = await LaunchWorker(workspace);
@@ -539,6 +553,9 @@ public class ClaudeAgentCommand : Command
 
         // Show completion status
         AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
+
+        // Restore terminal title to show branch name
+        SetTerminalTitle($"{displayName} - {workspace.Branch}");
 
         // Return to waiting display
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
