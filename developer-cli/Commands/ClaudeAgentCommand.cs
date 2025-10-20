@@ -512,16 +512,20 @@ public class ClaudeAgentCommand : Command
         // Allow filesystem time to complete file write operation before reading to avoid partial content
         await Task.Delay(TimeSpan.FromMilliseconds(500));
 
-        // Update terminal title to show task title
-        string? taskTitle = null;
+        // Update terminal title to show task context
         if (File.Exists(workspace.CurrentTaskFile))
         {
             var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
             var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
             if (taskInfo is not null)
             {
-                taskTitle = taskInfo.Title;
-                SetTerminalTitle($"{displayName} - {taskTitle}");
+                // Format: "AgentName - Task {N} - Title (0013)" when part of Product Increment
+                // Or: "AgentName - Task 0013 - Title" for ad-hoc tasks
+                var title = !string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement)
+                    ? $"{displayName} - Task {taskInfo.TaskNumberInIncrement} - {taskInfo.Title} ({taskInfo.TaskNumber})"
+                    : $"{displayName} - Task {taskInfo.TaskNumber} - {taskInfo.Title}";
+
+                SetTerminalTitle(title);
             }
         }
 
