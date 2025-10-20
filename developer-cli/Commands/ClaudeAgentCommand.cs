@@ -12,6 +12,8 @@ public class ClaudeAgentCommand : Command
 {
     private static bool _showAllActivities;
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    private static DateTime? _lastTechLeadRestartTime = null;
+    private const int MinRestartIntervalMinutes = 20;
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -1010,7 +1012,7 @@ public class ClaudeAgentCommand : Command
         return await MonitorMcpRequestSession(process, agentType, options, workspace);
     }
 
-    private Task<ProcessCompletionResult> MonitorManualSession(Process process, Workspace workspace)
+    private async Task<ProcessCompletionResult> MonitorManualSession(Process process, Workspace workspace)
     {
         // Manual sessions never timeout - they run indefinitely
         // Only interrupted if MCP request arrives AND user is AFK (no git changes in 20 min)
@@ -1023,11 +1025,11 @@ public class ClaudeAgentCommand : Command
             if (exited)
             {
                 Logger.Debug($"Manual session process {process.Id} exited with code: {process.ExitCode}");
-                return Task.FromResult(new ProcessCompletionResult(true, "Session completed"));
+                return new ProcessCompletionResult(true, "Session completed");
             }
 
-            // Check if MCP request arrived
-            if (HasPendingRequest(workspace))
+            // Check if MCP request arrived (but not for tech-lead which never receives requests)
+            if (workspace.AgentType != "tech-lead" && HasPendingRequest(workspace))
             {
                 Logger.Debug("Pending MCP request detected during manual session");
 
@@ -1039,11 +1041,39 @@ public class ClaudeAgentCommand : Command
                     // No git activity - user is AFK, interrupt manual session for request
                     Logger.Debug("No git changes detected, interrupting manual session for pending request");
                     KillProcess(process);
-                    return Task.FromResult(new ProcessCompletionResult(true, "Session interrupted for pending request"));
+                    return new ProcessCompletionResult(true, "Session interrupted for pending request");
                 }
 
                 // User is working - let them continue, request will wait
                 Logger.Debug("Git changes detected, user is working - manual session continues");
+            }
+
+            // For tech-lead, check for extended inactivity and restart if needed
+            if (workspace.AgentType == "tech-lead")
+            {
+                // Check if the entire system is inactive (no git activity for 60 minutes)
+                if (!GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(60)))
+                {
+                    // Check minimum restart interval
+                    if (_lastTechLeadRestartTime.HasValue)
+                    {
+                        var timeSinceRestart = DateTime.Now - _lastTechLeadRestartTime.Value;
+                        if (timeSinceRestart < TimeSpan.FromMinutes(MinRestartIntervalMinutes))
+                        {
+                            Logger.Debug($"Tech-lead inactive but only {timeSinceRestart.TotalMinutes:F1} minutes since last restart - continuing");
+                            continue; // Too soon to restart
+                        }
+                    }
+
+                    Logger.Debug("Tech-lead inactive for 60+ minutes, restarting with recovery message");
+                    _lastTechLeadRestartTime = DateTime.Now;
+
+                    // Kill and restart with recovery message
+                    KillProcess(process);
+                    var recoveryMessage = "You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.";
+                    var newProcess = await LaunchWorker(workspace, recoveryMessage: recoveryMessage, useSlashCommand: false);
+                    return await MonitorManualSession(newProcess, workspace);
+                }
             }
         }
     }
@@ -1058,6 +1088,7 @@ public class ClaudeAgentCommand : Command
             ? TimeSpan.FromMinutes(60)
             : TimeSpan.FromMinutes(20);
         var lastGitChangeDetected = DateTime.Now;
+        var lastRestartTime = DateTime.Now;
         const int pollIntervalMinutes = 5;
 
         while (true)
@@ -1097,6 +1128,17 @@ public class ClaudeAgentCommand : Command
                         return new ProcessCompletionResult(false, $"Worker exhausted {maxRestarts} restarts without making progress");
                     }
 
+                    // Check minimum time between restarts
+                    if (restartCount > 0)
+                    {
+                        var timeSinceLastRestart = DateTime.Now - lastRestartTime;
+                        if (timeSinceLastRestart < TimeSpan.FromMinutes(MinRestartIntervalMinutes))
+                        {
+                            Logger.Debug($"Worker inactive but only {timeSinceLastRestart.TotalMinutes:F1} minutes since last restart - waiting");
+                            continue;
+                        }
+                    }
+
                     // For tech-lead, check if has delegated work
                     if (agentType == "tech-lead")
                     {
@@ -1121,6 +1163,7 @@ public class ClaudeAgentCommand : Command
                     currentProcess = newProcess;
                     restartCount++;
                     lastGitChangeDetected = DateTime.Now; // Reset timestamp
+                    lastRestartTime = DateTime.Now; // Track restart time
 
                     Logger.Debug($"Worker restarted with PID '{newProcess.Id}'");
                     continue;
