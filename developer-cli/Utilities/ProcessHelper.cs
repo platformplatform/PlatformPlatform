@@ -199,6 +199,19 @@ public static class ProcessHelper
         return Process.GetProcessesByName(process).Length > 0;
     }
 
+    public static string FormatFileSize(string filePath)
+    {
+        var fileInfo = new FileInfo(filePath);
+        var sizeInBytes = fileInfo.Length;
+
+        return sizeInBytes switch
+        {
+            < 1024 => $"{sizeInBytes} bytes",
+            < 1024 * 1024 => $"{sizeInBytes / 1024.0:F1} KB",
+            _ => $"{sizeInBytes / (1024.0 * 1024):F1} MB"
+        };
+    }
+
     private static string? FindFullPathFromPath(string command)
     {
         string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
@@ -236,6 +249,8 @@ public record ProcessResult(int ExitCode, string StdOut, string StdErr, string T
 
     public string CombinedOutput => $"{StdOut}\n{StdErr}";
 
+    public string TempFilePathWithSize => $"{TempFilePath} ({ProcessHelper.FormatFileSize(TempFilePath)})";
+
     public string GetErrorSummary(string operation)
     {
         var errorLines = CombinedOutput
@@ -254,9 +269,9 @@ public record ProcessResult(int ExitCode, string StdOut, string StdErr, string T
 
         if (errorLines.Length > 3)
         {
-            outputBuilder.Append("  ... and ").Append(errorLines.Length - 3).AppendLine(" more line(s)");
+            outputBuilder.Append("  ... and ").Append(errorLines.Length - 3).AppendLine(" more lines");
             outputBuilder.AppendLine();
-            outputBuilder.Append("Full output: ").Append(TempFilePath);
+            outputBuilder.Append("Full output: ").Append(TempFilePath).Append(" (").Append(ProcessHelper.FormatFileSize(TempFilePath)).Append(')');
         }
 
         return outputBuilder.ToString();

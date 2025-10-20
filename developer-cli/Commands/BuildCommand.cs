@@ -91,7 +91,7 @@ public class BuildCommand : Command
 
                 if (!result.Success)
                 {
-                    Console.WriteLine($"Build failed. See: {result.TempFilePath}");
+                    Console.WriteLine($"Build failed. See: {result.TempFilePathWithSize}");
                     Environment.Exit(1);
                 }
             }
@@ -101,7 +101,7 @@ public class BuildCommand : Command
                 var installResult = ProcessHelper.ExecuteQuietly("npm install --silent", Configuration.ApplicationFolder);
                 if (!installResult.Success)
                 {
-                    Console.WriteLine($"npm install failed. See: {installResult.TempFilePath}");
+                    Console.WriteLine($"npm install failed. See: {installResult.TempFilePathWithSize}");
                     Environment.Exit(1);
                 }
 
@@ -123,7 +123,7 @@ public class BuildCommand : Command
                     }
 
                     Console.WriteLine();
-                    Console.WriteLine($"Full output: {buildResult.TempFilePath}");
+                    Console.WriteLine($"Full output: {buildResult.TempFilePathWithSize}");
                     Environment.Exit(1);
                 }
             }
