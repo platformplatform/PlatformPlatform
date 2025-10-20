@@ -27,6 +27,13 @@ public static class GitHelper
 
     public static bool HasRecentGitActivity(TimeSpan withinTimespan)
     {
+        // Check 1: Recent commits
+        if (HasRecentCommits(withinTimespan))
+        {
+            return true;
+        }
+
+        // Check 2: Uncommitted changes with recent modifications
         var threshold = DateTime.Now - withinTimespan;
         var status = ProcessHelper.StartProcess("git status --porcelain", Configuration.SourceCodeFolder, true);
 
@@ -40,6 +47,21 @@ public static class GitHelper
             .Where(File.Exists);
 
         return files.Any(file => File.GetLastWriteTime(file) > threshold);
+    }
+
+    public static bool HasRecentCommits(TimeSpan withinTimespan)
+    {
+        var minutesAgo = (int)Math.Ceiling(withinTimespan.TotalMinutes);
+        // Get commits from the last N minutes using git log with --since
+        var result = ProcessHelper.StartProcess(
+            $"git log --since=\"{minutesAgo} minutes ago\" --oneline -1",
+            Configuration.SourceCodeFolder,
+            true,
+            exitOnError: false
+        );
+
+        // If there's any output, there are recent commits
+        return !string.IsNullOrWhiteSpace(result);
     }
 
     public static void DiscardAllChanges()
