@@ -7,6 +7,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
@@ -16,42 +17,71 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { getInitials } from "@repo/utils/string/getInitials";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { api, type components } from "@/shared/lib/api/client";
 import type { TeamMemberDetails } from "../-data/mockTeamMembers";
 import type { TeamDetails } from "../-data/mockTeams";
 import type { TenantUser } from "../-data/mockTenantUsers";
 import { mockTenantUsers } from "../-data/mockTenantUsers";
+
+type TeamMemberRole = components["schemas"]["TeamMemberRole"];
 
 interface EditTeamMembersDialogProps {
   team: TeamDetails | null;
   currentMembers: TeamMemberDetails[];
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onMembersUpdated: (members: TeamMemberDetails[]) => void;
 }
 
-interface TeamMemberWithRole extends TenantUser {
+interface TeamMemberWithRole {
+  userId: string;
   memberId?: string;
-  role: "Admin" | "Member";
+  name: string;
+  email: string;
+  title: string;
+  avatarUrl: string | null;
+  role: TeamMemberRole;
 }
 
 export function EditTeamMembersDialog({
   team,
   currentMembers,
   isOpen,
-  onOpenChange,
-  onMembersUpdated
+  onOpenChange
 }: Readonly<EditTeamMembersDialogProps>) {
   const userInfo = useUserInfo();
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [teamMembers, setTeamMembers] = useState<TeamMemberWithRole[]>([]);
   const [selectedAvailableUsers, setSelectedAvailableUsers] = useState<Set<string>>(new Set());
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [changedRoles, setChangedRoles] = useState<Set<string>>(new Set());
+  const [changedRoles, setChangedRoles] = useState<Map<string, "Admin" | "Member">>(new Map());
   const [memberToRemove, setMemberToRemove] = useState<TeamMemberWithRole | null>(null);
+
+  const updateTeamMembersMutation = api.useMutation("put", "/api/account-management/teams/{teamId}/members", {
+    onSuccess: () => {
+      if (team?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ["/api/account-management/teams/{teamId}/members", { teamId: team.id }]
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["/api/account-management/teams"]
+        });
+      }
+
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Team members updated successfully`,
+        variant: "success"
+      });
+
+      onOpenChange(false);
+    }
+  });
 
   useEffect(() => {
     if (isOpen && team) {
@@ -62,13 +92,13 @@ export function EditTeamMembersDialog({
         email: member.email,
         title: member.title,
         avatarUrl: member.avatarUrl,
-        role: member.role
+        role: member.role as TeamMemberRole
       }));
       setTeamMembers(membersWithRole);
       setSelectedAvailableUsers(new Set());
       setSelectedTeamMembers(new Set());
       setSearchQuery("");
-      setChangedRoles(new Set());
+      setChangedRoles(new Map());
     }
   }, [isOpen, team, currentMembers]);
 
@@ -103,11 +133,15 @@ export function EditTeamMembersDialog({
   const isCurrentUserAdmin = currentUserMember?.role === "Admin";
 
   const handleAddMembers = () => {
-    const usersToAdd = mockTenantUsers
+    const usersToAdd: TeamMemberWithRole[] = mockTenantUsers
       .filter((user) => selectedAvailableUsers.has(user.userId))
       .map((user) => ({
-        ...user,
-        role: "Member" as const
+        userId: user.userId,
+        name: user.name,
+        email: user.email,
+        title: user.title,
+        avatarUrl: user.avatarUrl,
+        role: "Member" as TeamMemberRole
       }));
 
     setTeamMembers((prev) => [...prev, ...usersToAdd]);
@@ -120,15 +154,9 @@ export function EditTeamMembersDialog({
     setSelectedTeamMembers(new Set());
   };
 
-  const handleRoleChange = (userId: string, newRole: "Admin" | "Member") => {
+  const handleRoleChange = (userId: string, newRole: TeamMemberRole) => {
     setTeamMembers((prev) => prev.map((member) => (member.userId === userId ? { ...member, role: newRole } : member)));
-    setChangedRoles((prev) => new Set(prev).add(userId));
-
-    toastQueue.add({
-      title: t`Success`,
-      description: t`Role changed successfully`,
-      variant: "success"
-    });
+    setChangedRoles((prev) => new Map(prev).set(userId, newRole));
   };
 
   const handleRemoveMemberClick = (member: TeamMemberWithRole) => {
@@ -142,12 +170,6 @@ export function EditTeamMembersDialog({
 
     setTeamMembers((prev) => prev.filter((member) => member.userId !== memberToRemove.userId));
     setMemberToRemove(null);
-
-    toastQueue.add({
-      title: t`Success`,
-      description: t`Member removed successfully`,
-      variant: "success"
-    });
   };
 
   const canRemove = (userId: string) => {
@@ -177,36 +199,31 @@ export function EditTeamMembersDialog({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    setIsSubmitting(true);
+    if (!team?.id) {
+      return;
+    }
 
-    setTimeout(() => {
-      const updatedMembers: TeamMemberDetails[] = teamMembers.map((member) => ({
-        id: member.memberId || `member-${Date.now()}-${member.userId}`,
-        userId: member.userId,
-        name: member.name,
-        email: member.email,
-        title: member.title,
-        avatarUrl: member.avatarUrl,
-        role: member.role
-      }));
+    const membersToAdd = Array.from(selectedAvailableUsers).map((userId) => ({
+      userId,
+      role: "Member" as TeamMemberRole
+    }));
 
-      onMembersUpdated(updatedMembers);
+    const memberIdsToRemove = Array.from(selectedTeamMembers);
 
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Team members updated successfully`,
-        variant: "success"
-      });
-
-      setIsSubmitting(false);
-      onOpenChange(false);
-    }, 300);
+    updateTeamMembersMutation.mutate({
+      params: { path: { teamId: team.id } },
+      body: {
+        membersToAdd,
+        memberIdsToRemove
+      }
+    });
   };
 
   const handleCancel = () => {
     setSearchQuery("");
     setSelectedAvailableUsers(new Set());
     setSelectedTeamMembers(new Set());
+    setChangedRoles(new Map());
     onOpenChange(false);
   };
 
@@ -307,7 +324,7 @@ export function EditTeamMembersDialog({
                   type="button"
                   variant="outline"
                   onPress={handleAddMembers}
-                  isDisabled={selectedAvailableUsers.size === 0 || isSubmitting}
+                  isDisabled={selectedAvailableUsers.size === 0 || updateTeamMembersMutation.isPending}
                   className="w-10 p-0"
                   aria-label={t`Add selected users to team`}
                 >
@@ -317,7 +334,7 @@ export function EditTeamMembersDialog({
                   type="button"
                   variant="outline"
                   onPress={handleRemoveMembers}
-                  isDisabled={selectedTeamMembers.size === 0 || isSubmitting}
+                  isDisabled={selectedTeamMembers.size === 0 || updateTeamMembersMutation.isPending}
                   className="w-10 p-0"
                   aria-label={t`Remove selected members from team`}
                 >
@@ -370,8 +387,8 @@ export function EditTeamMembersDialog({
                             <Select
                               aria-label={t`Role for ${member.name}`}
                               selectedKey={member.role}
-                              onSelectionChange={(key) => handleRoleChange(member.userId, key as "Admin" | "Member")}
-                              isDisabled={!canChangeRole(member.userId) || isSubmitting}
+                              onSelectionChange={(key) => handleRoleChange(member.userId, key as TeamMemberRole)}
+                              isDisabled={!canChangeRole(member.userId) || updateTeamMembersMutation.isPending}
                               className={`w-28 ${changedRoles.has(member.userId) ? "ring-2 ring-success ring-offset-2" : ""}`}
                             >
                               <SelectItem id="Member">
@@ -381,7 +398,7 @@ export function EditTeamMembersDialog({
                                 <Trans>Admin</Trans>
                               </SelectItem>
                             </Select>
-                            {!canChangeRole(member.userId) && !isSubmitting && (
+                            {!canChangeRole(member.userId) && !updateTeamMembersMutation.isPending && (
                               <Tooltip>
                                 <Trans>Team Admins cannot change their own role</Trans>
                               </Tooltip>
@@ -391,13 +408,13 @@ export function EditTeamMembersDialog({
                             <button
                               type="button"
                               onClick={() => handleRemoveMemberClick(member)}
-                              disabled={!canRemove(member.userId) || isSubmitting}
+                              disabled={!canRemove(member.userId) || updateTeamMembersMutation.isPending}
                               className="rounded p-1 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
                               aria-label={t`Remove ${member.name} from team`}
                             >
                               <XIcon className="h-4 w-4 text-destructive" />
                             </button>
-                            {!canRemove(member.userId) && !isSubmitting && (
+                            {!canRemove(member.userId) && !updateTeamMembersMutation.isPending && (
                               <Tooltip>
                                 <Trans>Team Admins cannot remove themselves</Trans>
                               </Tooltip>
@@ -411,12 +428,22 @@ export function EditTeamMembersDialog({
               </div>
             </div>
           </DialogContent>
+          {updateTeamMembersMutation.error && (
+            <div className="px-4 py-3">
+              <FormErrorMessage error={updateTeamMembersMutation.error} />
+            </div>
+          )}
           <DialogFooter>
-            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={isSubmitting}>
+            <Button
+              type="reset"
+              onPress={handleCancel}
+              variant="secondary"
+              isDisabled={updateTeamMembersMutation.isPending}
+            >
               <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit" isDisabled={isSubmitting}>
-              <Trans>Save Changes</Trans>
+            <Button type="submit" isDisabled={updateTeamMembersMutation.isPending}>
+              {updateTeamMembersMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save Changes</Trans>}
             </Button>
           </DialogFooter>
         </Form>

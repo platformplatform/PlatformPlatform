@@ -387,9 +387,6 @@ msgstr "medlem"
 msgid "Member"
 msgstr "Medlem"
 
-msgid "Member removed successfully"
-msgstr "Medlem fjernet"
-
 msgid "members"
 msgstr "medlemmer"
 
@@ -507,9 +504,6 @@ msgstr "Anmod om en ny kode"
 
 msgid "Role"
 msgstr "Rolle"
-
-msgid "Role changed successfully"
-msgstr "Rolle ændret med succes"
 
 #. placeholder {0}: member.name
 msgid "Role for {0}"

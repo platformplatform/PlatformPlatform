@@ -387,9 +387,6 @@ msgstr "lid"
 msgid "Member"
 msgstr "Lid"
 
-msgid "Member removed successfully"
-msgstr "Lid succesvol verwijderd"
-
 msgid "members"
 msgstr "leden"
 
@@ -507,9 +504,6 @@ msgstr "Vraag een nieuwe code aan"
 
 msgid "Role"
 msgstr "Rol"
-
-msgid "Role changed successfully"
-msgstr "Rol succesvol gewijzigd"
 
 #. placeholder {0}: member.name
 msgid "Role for {0}"

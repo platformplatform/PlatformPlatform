@@ -13,30 +13,12 @@ import { EditIcon, Trash2Icon, UsersIcon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
+import type { TeamMemberDetails } from "../-data/mockTeamMembers";
 import type { TeamDetails } from "../-data/mockTeams";
 import { EditTeamMembersDialog } from "./EditTeamMembersDialog";
 
 type TeamSummary = components["schemas"]["TeamSummary"];
 type TeamResponse = components["schemas"]["TeamResponse"];
-
-// Local type definition for TeamMemberDetails since it's not exported by OpenAPI schema
-interface TeamMemberDetails {
-  teamMemberId: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  userTitle: string;
-  userAvatar: {
-    url: string | null;
-  };
-  role: "Admin" | "Member";
-  // Component expected fields
-  name?: string;
-  email?: string;
-  title?: string;
-  avatarUrl?: string | null;
-  id?: string;
-}
 
 interface TeamDetailsSidePaneProps {
   team: TeamSummary | null;
@@ -65,8 +47,8 @@ function TeamDetailsContent({
 }>) {
   const sortedMembers = [...members].sort((a, b) => {
     if (a.role === b.role) {
-      const nameA = a.name || a.userName || "";
-      const nameB = b.name || b.userName || "";
+      const nameA = a.name || "";
+      const nameB = b.name || "";
       return nameA.localeCompare(nameB);
     }
     return a.role === "Admin" ? -1 : 1;
@@ -131,15 +113,15 @@ function TeamDetailsContent({
         ) : (
           <div className="space-y-3">
             {sortedMembers.map((member) => {
-              const memberName = member.name || member.userName || "";
-              const memberEmail = member.email || member.userEmail || "";
-              const memberTitle = member.title || member.userTitle || "";
+              const memberName = member.name || "";
+              const memberEmail = member.email || "";
+              const memberTitle = member.title || "";
               const nameParts = memberName.split(" ");
               return (
                 <div key={member.id || member.userId} className="flex items-center gap-3">
                   <Avatar
                     initials={getInitials(nameParts[0], nameParts[1], memberEmail)}
-                    avatarUrl={member.avatarUrl || member.userAvatar?.url || null}
+                    avatarUrl={member.avatarUrl || null}
                     size="sm"
                     isRound={true}
                   />
@@ -297,23 +279,15 @@ export function TeamDetailsSidePane({
   const membersData = (membersResponse as MembersResponse | undefined)?.members || [];
   const isTenantOwner = userInfo?.role === "Owner";
 
-  // Transform API response to component format
-  const transformedMembers: Array<
-    TeamMemberDetails & { name: string; email: string; title: string; avatarUrl: string | null }
-  > = membersData.map((m) => ({
-    teamMemberId: m.teamMemberId,
+  // Transform API response to mock data format
+  const transformedMembers: TeamMemberDetails[] = membersData.map((m) => ({
+    id: m.teamMemberId,
     userId: m.userId,
-    role: m.role,
-    userName: m.userName,
-    userEmail: m.userEmail,
-    userTitle: m.userTitle,
-    userAvatar: m.userAvatar,
-    // Map to component's expected fields
     name: m.userName,
     email: m.userEmail,
     title: m.userTitle,
     avatarUrl: m.userAvatar?.url || null,
-    id: m.teamMemberId
+    role: m.role
   }));
 
   const isUserTeamMember = transformedMembers.some((member) => member.email === userInfo?.email);
@@ -344,11 +318,6 @@ export function TeamDetailsSidePane({
 
   const handleEditMembers = () => {
     setIsEditMembersDialogOpen(true);
-  };
-
-  const handleMembersUpdated = () => {
-    // Refresh the members query after update
-    // The API query will automatically re-fetch
   };
 
   useEffect(() => {
@@ -448,14 +417,9 @@ export function TeamDetailsSidePane({
               memberCount: transformedMembers.length
             } as TeamDetails
           }
-          currentMembers={
-            transformedMembers as Array<
-              TeamMemberDetails & { name: string; email: string; title: string; avatarUrl: string | null }
-            >
-          }
+          currentMembers={transformedMembers}
           isOpen={isEditMembersDialogOpen}
           onOpenChange={setIsEditMembersDialogOpen}
-          onMembersUpdated={handleMembersUpdated}
         />
       )}
     </>

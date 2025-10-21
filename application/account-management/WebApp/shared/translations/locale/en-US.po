@@ -387,9 +387,6 @@ msgstr "member"
 msgid "Member"
 msgstr "Member"
 
-msgid "Member removed successfully"
-msgstr "Member removed successfully"
-
 msgid "members"
 msgstr "members"
 
@@ -507,9 +504,6 @@ msgstr "Request a new code"
 
 msgid "Role"
 msgstr "Role"
-
-msgid "Role changed successfully"
-msgstr "Role changed successfully"
 
 #. placeholder {0}: member.name
 msgid "Role for {0}"
