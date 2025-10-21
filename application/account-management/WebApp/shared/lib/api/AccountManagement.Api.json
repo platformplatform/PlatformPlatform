@@ -381,6 +381,34 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "operationId": "GetApiAccountManagementTeams",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamsResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/account-management/teams/{id}": {
@@ -388,7 +416,7 @@
         "tags": [
           "Teams"
         ],
-        "operationId": "GetApiAccountManagementTeams",
+        "operationId": "GetApiAccountManagementTeams2",
         "parameters": [
           {
             "name": "id",
@@ -1347,6 +1375,37 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "TeamsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "teams": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamSummary"
+            }
+          }
+        }
+      },
+      "TeamSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TeamId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "memberCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

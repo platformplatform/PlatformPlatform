@@ -18,6 +18,10 @@ public sealed class TeamEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<TeamId>(StatusCodes.Status201Created);
 
+        group.MapGet("/", async Task<ApiResult<TeamsResponse>> ([AsParameters] GetTeamsQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<TeamsResponse>();
+
         group.MapGet("/{id}", async Task<ApiResult<TeamResponse>> (TeamId id, IMediator mediator)
             => await mediator.Send(new GetTeamQuery(id))
         ).Produces<TeamResponse>();
