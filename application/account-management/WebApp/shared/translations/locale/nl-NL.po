@@ -60,6 +60,9 @@ msgstr "Actieve gebruikers"
 msgid "Active users in the past 30 days"
 msgstr "Actieve gebruikers in de afgelopen 30 dagen"
 
+msgid "Add members to get started"
+msgstr "Voeg leden toe om te beginnen"
+
 msgid "Add more in the Users menu"
 msgstr "Nieuwe toevoegen via het Gebruikers menu"
 

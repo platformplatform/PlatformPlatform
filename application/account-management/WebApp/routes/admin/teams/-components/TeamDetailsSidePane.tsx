@@ -9,7 +9,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { EditIcon, Trash2Icon, XIcon } from "lucide-react";
+import { EditIcon, Trash2Icon, UsersIcon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
@@ -33,13 +33,15 @@ function TeamDetailsContent({
   members,
   canViewMembers,
   canEditMembers,
-  onEditMembers
+  onEditMembers,
+  isLoadingMembers
 }: Readonly<{
   team: TeamResponse;
   members: TeamMemberDetails[];
   canViewMembers: boolean;
   canEditMembers: boolean;
   onEditMembers: () => void;
+  isLoadingMembers: boolean;
 }>) {
   const sortedMembers = [...members].sort((a, b) => {
     if (a.role === b.role) {
@@ -76,10 +78,32 @@ function TeamDetailsContent({
           <Text className="text-muted-foreground text-sm">
             <Trans>You must be a team member to view members</Trans>
           </Text>
+        ) : isLoadingMembers ? (
+          <div className="space-y-3">
+            {["skeleton-1", "skeleton-2", "skeleton-3"].map((skeletonId) => (
+              <div key={skeletonId} className="flex items-center gap-3">
+                <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+                    <div className="h-5 w-16 animate-pulse rounded bg-muted" />
+                  </div>
+                  <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-28 animate-pulse rounded bg-muted" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : members.length === 0 ? (
-          <Text className="text-muted-foreground text-sm">
-            <Trans>No members yet</Trans>
-          </Text>
+          <div className="flex flex-col items-center py-8 text-center">
+            <UsersIcon className="mb-3 h-12 w-12 text-muted-foreground/50" />
+            <Text className="mb-1 font-medium text-sm">
+              <Trans>No members yet</Trans>
+            </Text>
+            <Text className="text-muted-foreground text-xs">
+              <Trans>Add members to get started</Trans>
+            </Text>
+          </div>
         ) : (
           <div className="space-y-3">
             {sortedMembers.map((member) => (
@@ -199,6 +223,7 @@ export function TeamDetailsSidePane({
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isEditMembersDialogOpen, setIsEditMembersDialogOpen] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMemberDetails[]>([]);
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
 
   const {
     data: teamDetails,
@@ -215,7 +240,12 @@ export function TeamDetailsSidePane({
 
   useEffect(() => {
     if (team?.id) {
-      setTeamMembers(mockTeamMembers[team.id] || []);
+      setIsLoadingMembers(true);
+      const timer = setTimeout(() => {
+        setTeamMembers(mockTeamMembers[team.id] || []);
+        setIsLoadingMembers(false);
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [team?.id]);
 
@@ -302,6 +332,7 @@ export function TeamDetailsSidePane({
                 canViewMembers={canViewMembers}
                 canEditMembers={canEditMembers}
                 onEditMembers={handleEditMembers}
+                isLoadingMembers={isLoadingMembers}
               />
             )}
           </div>

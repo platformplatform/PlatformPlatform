@@ -60,6 +60,9 @@ msgstr "Active users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
+msgid "Add members to get started"
+msgstr "Add members to get started"
+
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
