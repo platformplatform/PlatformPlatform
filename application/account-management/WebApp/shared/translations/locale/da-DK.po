@@ -111,6 +111,10 @@ msgstr "Er du sikker på, at du vil slette <0>{0}</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
+#. placeholder {0}: memberToRemove.name
+msgid "Are you sure you want to remove <0>{0}</0> from this team?"
+msgstr "Er du sikker på, at du vil fjerne <0>{0}</0> fra dette team?"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Autentificering deles på tværs af alle faner."
 
@@ -380,6 +384,9 @@ msgstr "medlem"
 msgid "Member"
 msgstr "Medlem"
 
+msgid "Member removed successfully"
+msgstr "Medlem fjernet"
+
 msgid "members"
 msgstr "medlemmer"
 
@@ -470,8 +477,18 @@ msgstr "Region"
 msgid "Reload"
 msgstr "Genindlæs"
 
+msgid "Remove"
+msgstr "Fjern"
+
+#. placeholder {0}: member.name
+msgid "Remove {0} from team"
+msgstr "Fjern {0} fra team"
+
 msgid "Remove logo"
 msgstr "Fjern logo"
+
+msgid "Remove member"
+msgstr "Fjern medlem"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
@@ -549,6 +566,9 @@ msgstr "System"
 
 msgid "Team Admins cannot change their own role"
 msgstr "Team-administratorer kan ikke ændre deres egen rolle"
+
+msgid "Team Admins cannot remove themselves"
+msgstr "Team-administratorer kan ikke fjerne sig selv"
 
 msgid "Team created successfully"
 msgstr "Team oprettet"

@@ -111,6 +111,10 @@ msgstr "Are you sure you want to delete <0>{0}</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+#. placeholder {0}: memberToRemove.name
+msgid "Are you sure you want to remove <0>{0}</0> from this team?"
+msgstr "Are you sure you want to remove <0>{0}</0> from this team?"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Authentication is shared across all tabs."
 
@@ -380,6 +384,9 @@ msgstr "member"
 msgid "Member"
 msgstr "Member"
 
+msgid "Member removed successfully"
+msgstr "Member removed successfully"
+
 msgid "members"
 msgstr "members"
 
@@ -470,8 +477,18 @@ msgstr "Region"
 msgid "Reload"
 msgstr "Reload"
 
+msgid "Remove"
+msgstr "Remove"
+
+#. placeholder {0}: member.name
+msgid "Remove {0} from team"
+msgstr "Remove {0} from team"
+
 msgid "Remove logo"
 msgstr "Remove logo"
+
+msgid "Remove member"
+msgstr "Remove member"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
@@ -549,6 +566,9 @@ msgstr "System"
 
 msgid "Team Admins cannot change their own role"
 msgstr "Team Admins cannot change their own role"
+
+msgid "Team Admins cannot remove themselves"
+msgstr "Team Admins cannot remove themselves"
 
 msgid "Team created successfully"
 msgstr "Team created successfully"

@@ -111,6 +111,10 @@ msgstr "Weet je zeker dat je <0>{0}</0> wilt verwijderen?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Weet je zeker dat je <0>{userDisplayName}</0> wilt verwijderen?"
 
+#. placeholder {0}: memberToRemove.name
+msgid "Are you sure you want to remove <0>{0}</0> from this team?"
+msgstr "Weet je zeker dat je <0>{0}</0> uit dit team wilt verwijderen?"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Authenticatie wordt gedeeld over alle tabbladen."
 
@@ -380,6 +384,9 @@ msgstr "lid"
 msgid "Member"
 msgstr "Lid"
 
+msgid "Member removed successfully"
+msgstr "Lid succesvol verwijderd"
+
 msgid "members"
 msgstr "leden"
 
@@ -470,8 +477,18 @@ msgstr "Regio"
 msgid "Reload"
 msgstr "Herladen"
 
+msgid "Remove"
+msgstr "Verwijderen"
+
+#. placeholder {0}: member.name
+msgid "Remove {0} from team"
+msgstr "Verwijder {0} uit team"
+
 msgid "Remove logo"
 msgstr "Logo verwijderen"
+
+msgid "Remove member"
+msgstr "Lid verwijderen"
 
 msgid "Remove profile picture"
 msgstr "Profielfoto verwijderen"
@@ -549,6 +566,9 @@ msgstr "Systeem"
 
 msgid "Team Admins cannot change their own role"
 msgstr "Teambeheerders kunnen hun eigen rol niet wijzigen"
+
+msgid "Team Admins cannot remove themselves"
+msgstr "Teambeheerders kunnen zichzelf niet verwijderen"
 
 msgid "Team created successfully"
 msgstr "Team aangemaakt"

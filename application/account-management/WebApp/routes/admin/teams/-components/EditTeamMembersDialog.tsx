@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
@@ -48,6 +49,7 @@ export function EditTeamMembersDialog({
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [changedRoles, setChangedRoles] = useState<Set<string>>(new Set());
+  const [memberToRemove, setMemberToRemove] = useState<TeamMemberWithRole | null>(null);
 
   useEffect(() => {
     if (isOpen && team) {
@@ -127,12 +129,39 @@ export function EditTeamMembersDialog({
     });
   };
 
+  const handleRemoveMemberClick = (member: TeamMemberWithRole) => {
+    setMemberToRemove(member);
+  };
+
+  const handleRemoveMemberConfirm = () => {
+    if (!memberToRemove) {
+      return;
+    }
+
+    setTeamMembers((prev) => prev.filter((member) => member.userId !== memberToRemove.userId));
+    setMemberToRemove(null);
+
+    toastQueue.add({
+      title: t`Success`,
+      description: t`Member removed successfully`,
+      variant: "success"
+    });
+  };
+
   const canRemove = (userId: string) => {
+    const isTenantOwner = userInfo?.role === "Owner";
+    const member = teamMembers.find((m) => m.userId === userId);
+    const isCurrentUser = member?.email === userInfo?.email;
+
+    if (isTenantOwner) {
+      return true;
+    }
+
     if (!isCurrentUserAdmin) {
       return false;
     }
-    const member = teamMembers.find((m) => m.userId === userId);
-    return member?.email !== userInfo?.email;
+
+    return !isCurrentUser;
   };
 
   const canChangeRole = (userId: string) => {
@@ -350,6 +379,22 @@ export function EditTeamMembersDialog({
                               </Tooltip>
                             )}
                           </TooltipTrigger>
+                          <TooltipTrigger>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveMemberClick(member)}
+                              disabled={!canRemove(member.userId) || isSubmitting}
+                              className="rounded p-1 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
+                              aria-label={t`Remove ${member.name} from team`}
+                            >
+                              <XIcon className="h-4 w-4 text-destructive" />
+                            </button>
+                            {!canRemove(member.userId) && !isSubmitting && (
+                              <Tooltip>
+                                <Trans>Team Admins cannot remove themselves</Trans>
+                              </Tooltip>
+                            )}
+                          </TooltipTrigger>
                         </div>
                       ))}
                     </div>
@@ -368,6 +413,22 @@ export function EditTeamMembersDialog({
           </DialogFooter>
         </Form>
       </Dialog>
+
+      <Modal isOpen={!!memberToRemove} onOpenChange={() => setMemberToRemove(null)} blur={false} isDismissable={true}>
+        <AlertDialog
+          title={t`Remove member`}
+          variant="destructive"
+          actionLabel={t`Remove`}
+          cancelLabel={t`Cancel`}
+          onAction={handleRemoveMemberConfirm}
+        >
+          {memberToRemove && (
+            <Trans>
+              Are you sure you want to remove <b>{memberToRemove.name}</b> from this team?
+            </Trans>
+          )}
+        </AlertDialog>
+      </Modal>
     </Modal>
   );
 }
