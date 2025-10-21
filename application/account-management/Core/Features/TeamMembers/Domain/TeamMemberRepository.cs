@@ -17,6 +17,8 @@ public interface ITeamMemberRepository : ICrudRepository<TeamMember, TeamMemberI
     Task<bool> IsUserTeamAdminAsync(TeamId teamId, UserId userId, CancellationToken cancellationToken);
 
     Task BulkAddAsync(TeamMember[] members, CancellationToken cancellationToken);
+
+    Task<TeamMember[]> GetAllAsync(CancellationToken cancellationToken);
 }
 
 public sealed class TeamMemberRepository(AccountManagementDbContext accountManagementDbContext)
@@ -49,5 +51,10 @@ public sealed class TeamMemberRepository(AccountManagementDbContext accountManag
     public async Task BulkAddAsync(TeamMember[] members, CancellationToken cancellationToken)
     {
         await DbSet.AddRangeAsync(members, cancellationToken);
+    }
+
+    public async Task<TeamMember[]> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.ToArrayAsync(cancellationToken);
     }
 }

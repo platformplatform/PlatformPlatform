@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using PlatformPlatform.AccountManagement.Features.TeamMembers.Domain;
 using PlatformPlatform.AccountManagement.Features.Teams.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 
@@ -18,16 +19,29 @@ public sealed record TeamSummary(
     int MemberCount
 );
 
-public sealed class GetTeamsHandler(ITeamRepository teamRepository)
-    : IRequestHandler<GetTeamsQuery, Result<TeamsResponse>>
+public sealed class GetTeamsHandler(
+    ITeamRepository teamRepository,
+    ITeamMemberRepository teamMemberRepository
+) : IRequestHandler<GetTeamsQuery, Result<TeamsResponse>>
 {
     public async Task<Result<TeamsResponse>> Handle(GetTeamsQuery query, CancellationToken cancellationToken)
     {
         var teams = await teamRepository.GetAllAsync(cancellationToken);
+        var allTeamMembers = await teamMemberRepository.GetAllAsync(cancellationToken);
+
+        var memberCountByTeam = allTeamMembers
+            .GroupBy(m => m.TeamId)
+            .ToDictionary(g => g.Key, g => g.Count());
 
         var teamSummaries = teams
             .OrderBy(t => t.Name)
-            .Select(t => new TeamSummary(t.Id, t.Name, t.Description, 0))
+            .Select(t => new TeamSummary(
+                    t.Id,
+                    t.Name,
+                    t.Description,
+                    memberCountByTeam.TryGetValue(t.Id, out var count) ? count : 0
+                )
+            )
             .ToArray();
 
         return new TeamsResponse(teamSummaries);
