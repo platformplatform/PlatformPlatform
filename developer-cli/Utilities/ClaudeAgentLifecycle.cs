@@ -30,7 +30,7 @@ public static class ClaudeAgentLifecycle
         // Read task number from current-task.json
         if (!File.Exists(workspace.CurrentTaskFile))
         {
-            return $"Error: No active task found (current-task.json missing at {workspace.CurrentTaskFile}). Are you running as a worker agent?";
+            return TerminateSession(workspace);
         }
 
         var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
@@ -146,7 +146,7 @@ public static class ClaudeAgentLifecycle
         // Read task number from current-task.json
         if (!File.Exists(workspace.CurrentTaskFile))
         {
-            return $"Error: No active task found (current-task.json missing at {workspace.CurrentTaskFile}). Are you running as a reviewer agent?";
+            return TerminateSession(workspace);
         }
 
         var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
@@ -275,6 +275,39 @@ public static class ClaudeAgentLifecycle
     public static void LogWorkflowEvent(string message)
     {
         Logger.Debug(message);
+    }
+
+    private static string TerminateSession(Workspace workspace)
+    {
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            if (File.Exists(workspace.WorkerProcessIdFile))
+            {
+                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                if (int.TryParse(processIdContent, out var processId))
+                {
+                    try
+                    {
+                        var process = Process.GetProcessById(processId);
+                        if (!process.HasExited) process.Kill();
+                    }
+                    catch (ArgumentException) { }
+                }
+            }
+        });
+
+        return """
+            ⚠️ CompleteWork called but current-task.json is missing.
+
+            This means CompleteWork was already successfully called for this task.
+            The task has been completed and the response file has been written.
+
+            ✓ DO NOT call CompleteWork again
+            ✓ Your work is done - session will terminate in 5 seconds
+
+            You will be reactivated with a new task assignment if needed.
+            """;
     }
 
     private static async Task<string?> ValidateTaskTiming(string agentWorkspaceDirectory, string methodName)
