@@ -637,33 +637,34 @@ public class ClaudeAgentCommand : Command
         if (useSlashCommand)
         {
             // Build formatted title: {taskNumberInIncrement} - {title} - {messageId} - {timestamp}
-            var effectiveTaskTitle = taskTitle;
+            var effectiveTaskTitle = taskTitle ?? "task";
             var taskNumberInIncrement = "";
             var messageId = "";
             var timestamp = "";
 
-            if (effectiveTaskTitle == null)
+            // Always read current-task.json for formatting info (messageId, timestamp, etc.)
+            if (File.Exists(workspace.CurrentTaskFile))
             {
-                // Read from current-task.json
-                effectiveTaskTitle = "task";
-                if (File.Exists(workspace.CurrentTaskFile))
+                var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
+                var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+                if (taskInfo is not null)
                 {
-                    var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
-                    var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
-                    if (taskInfo is not null)
+                    // Use title from current-task.json if not provided
+                    if (taskTitle == null)
                     {
                         effectiveTaskTitle = taskInfo.Title;
-                        messageId = taskInfo.TaskNumber;
+                    }
 
-                        if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
-                        {
-                            taskNumberInIncrement = $"{taskInfo.TaskNumberInIncrement} - ";
-                        }
+                    messageId = taskInfo.TaskNumber;
 
-                        if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
-                        {
-                            timestamp = $" - {startedAt:HH:mm:ss}";
-                        }
+                    if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
+                    {
+                        taskNumberInIncrement = $"{taskInfo.TaskNumberInIncrement} - ";
+                    }
+
+                    if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
+                    {
+                        timestamp = $" - {startedAt:HH:mm:ss}";
                     }
                 }
             }
