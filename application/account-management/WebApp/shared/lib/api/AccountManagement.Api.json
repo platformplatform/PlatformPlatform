@@ -563,6 +563,35 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Team Members"
+        ],
+        "operationId": "GetApiAccountManagementTeamsMembers",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeamId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/account-management/teams/{teamId}/members/{userId}/role": {
