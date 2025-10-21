@@ -71,7 +71,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes if approved"},
     {"content": "Update Product Increment status with [Completed] or [Changes Required]", "status": "pending", "activeForm": "Updating Product Increment status"},
-    {"content": "Report any workflow errors encountered (wrong paths, missing tools, etc.)", "status": "pending", "activeForm": "Reporting workflow errors"}
+    {"content": "MANDATORY: Call CompleteWork (approved or rejected) to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }
 ```
