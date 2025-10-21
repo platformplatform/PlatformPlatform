@@ -636,8 +636,12 @@ public class ClaudeAgentCommand : Command
         // Add slash command only if requested (manual sessions may launch without slash command)
         if (useSlashCommand)
         {
-            // Determine task title
+            // Build formatted title: {taskNumberInIncrement} - {title} - {messageId} - {timestamp}
             var effectiveTaskTitle = taskTitle;
+            var taskNumberInIncrement = "";
+            var messageId = "";
+            var timestamp = "";
+
             if (effectiveTaskTitle == null)
             {
                 // Read from current-task.json
@@ -649,19 +653,34 @@ public class ClaudeAgentCommand : Command
                     if (taskInfo is not null)
                     {
                         effectiveTaskTitle = taskInfo.Title;
+                        messageId = taskInfo.TaskNumber;
+
+                        if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
+                        {
+                            taskNumberInIncrement = $"{taskInfo.TaskNumberInIncrement} - ";
+                        }
+
+                        if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
+                        {
+                            timestamp = $" - {startedAt:HH:mm:ss}";
+                        }
                     }
                 }
             }
+
+            var formattedTitle = string.IsNullOrEmpty(messageId)
+                ? effectiveTaskTitle
+                : $"{taskNumberInIncrement}{effectiveTaskTitle} - {messageId}{timestamp}";
 
             // Add slash command to trigger workflow
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/orchestrate:tech-lead",
-                "test-automation-engineer" => $"/implement:e2e-tests {effectiveTaskTitle}",
-                "test-automation-reviewer" => $"/review:e2e-tests {effectiveTaskTitle}",
+                "test-automation-engineer" => $"/implement:e2e-tests {formattedTitle}",
+                "test-automation-reviewer" => $"/review:e2e-tests {formattedTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
-                    ? $"/review:task {effectiveTaskTitle}"
-                    : $"/implement:task {effectiveTaskTitle}"
+                    ? $"/review:task {formattedTitle}"
+                    : $"/implement:task {formattedTitle}"
             };
             claudeArgs.Add(slashCommand);
         }
