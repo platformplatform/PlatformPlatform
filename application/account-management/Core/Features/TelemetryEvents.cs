@@ -1,4 +1,5 @@
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.Teams.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
@@ -44,6 +45,9 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 
 public sealed class SignupStarted
     : TelemetryEvent;
+
+public sealed class TeamCreated(TeamId teamId)
+    : TelemetryEvent(("team_id", teamId));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

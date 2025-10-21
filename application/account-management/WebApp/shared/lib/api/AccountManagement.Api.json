@@ -341,6 +341,48 @@
         }
       }
     },
+    "/api/account-management/teams": {
+      "post": {
+        "tags": [
+          "Teams"
+        ],
+        "operationId": "PostApiAccountManagementTeams",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTeamCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamId"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/current": {
       "get": {
         "tags": [
@@ -1223,6 +1265,46 @@
             "type": "string"
           },
           "preferredLocale": {
+            "type": "string"
+          }
+        }
+      },
+      "TeamId": {
+        "type": "string",
+        "format": "team_{string}"
+      },
+      "StronglyTypedUlidOfTeamId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndTeamId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndTeamId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateTeamCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
             "type": "string"
           }
         }
