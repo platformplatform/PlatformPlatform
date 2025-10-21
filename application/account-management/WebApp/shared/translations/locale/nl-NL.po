@@ -155,6 +155,9 @@ msgstr "Filters wissen"
 msgid "Close"
 msgstr "Sluiten"
 
+msgid "Close team details"
+msgstr "Sluit teamdetails"
+
 msgid "Close user profile"
 msgstr "Gebruikersprofiel sluiten"
 
@@ -195,6 +198,9 @@ msgstr "Verwijder {0} gebruikers"
 msgid "Delete account"
 msgstr "Account verwijderen"
 
+msgid "Delete Team"
+msgstr "Verwijder team"
+
 msgid "Delete user"
 msgstr "Gebruiker verwijderen"
 
@@ -230,6 +236,12 @@ msgstr "Bewerken"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
+
+msgid "Edit Team"
+msgstr "Bewerk team"
+
+msgid "Edit Team Members"
+msgstr "Bewerk teamleden"
 
 msgid "Email"
 msgstr "E-mailadres"
@@ -471,6 +483,9 @@ msgstr "Account wisselen..."
 
 msgid "System"
 msgstr "Systeem"
+
+msgid "Team details"
+msgstr "Teamdetails"
 
 msgid "Teams"
 msgstr "Teams"
