@@ -69,6 +69,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
     {"content": "Study rules relevant for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
+    {"content": "Verify translations are complete and use consistent domain terminology (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
@@ -107,13 +108,17 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 3**: Study rules
 
-**STEP 4**: Review each file line-by-line
+**STEP 4**: Frontend only - verify translations in `*.po` files
 
-**STEP 5**: Review architecture
+Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain terminology. Reject if translations are missing or terminology differs from established usage elsewhere.
 
-**STEP 6**: Decide - APPROVED or NOT APPROVED
+**STEP 5**: Review each file line-by-line
 
-**STEP 7**: If APPROVED, commit changes and get commit hash
+**STEP 6**: Review architecture
+
+**STEP 7**: Decide - APPROVED or NOT APPROVED
+
+**STEP 8**: If APPROVED, commit changes and get commit hash
 
 1. Extract "Files Changed" from engineer's request
 2. Verify scope: Backend → `Api/Core/Tests`, Frontend → `WebApp`, E2E → `Tests`. If wrong: REJECT
@@ -128,13 +133,15 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 🚨 **NEVER use `git add -A` or `git add .`**
 🚨 **Execute git commands immediately** - no other work between staging and committing
 
-**STEP 8**: Edit Product Increment status
+**Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
+
+**STEP 9**: Edit Product Increment status
 
 Update the Product Increment file:
 - If APPROVED: Change status to `[Completed]`
 - If REJECTED: Change status to `[Changes Required]`
 
-**STEP 9**: Signal completion and exit
+**STEP 10**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
@@ -142,7 +149,7 @@ Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates I
 
 **For APPROVED reviews**:
 - Provide: `mode: "review"`
-- Provide: `commitHash` (from `git rev-parse HEAD` in STEP 7)
+- Provide: `commitHash` (from `git rev-parse HEAD` in STEP 8)
 - Provide: `rejectReason` as null or empty string
 
 **For REJECTED reviews**:

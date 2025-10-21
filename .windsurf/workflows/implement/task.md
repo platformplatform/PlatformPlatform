@@ -54,7 +54,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
     {"content": "Validate implementation builds and fix all static code analysis warnings", "status": "pending", "activeForm": "Validating implementation"},
-    {"content": "Validate translations (frontend tasks only)", "status": "pending", "activeForm": "Validating translations"},
+    {"content": "Translate all missing entries in *.po files for all supported languages (frontend-engineer only)", "status": "pending", "activeForm": "Translating missing entries in *.po files"},
     {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
     {"content": "Call reviewer subagent to review and commit your code", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
@@ -91,7 +91,9 @@ In a single message, use Task tool twice:
 
 For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
-**STEP 6**: Frontend only - validate translations
+**STEP 6**: Frontend only - translate all missing entries in *.po files
+
+After build, translate all empty `msgstr ""` entries in `*.po` files for all supported languages. Use consistent domain terminology - check existing translations for guidance.
 
 **STEP 7**: Edit Product Increment file: `[In Progress]` → `[Ready for Review]`
 

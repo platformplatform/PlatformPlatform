@@ -9,7 +9,7 @@ You are reviewing: **{{{title}}}**
 
 ## STEP 0: Read Task Assignment
 
-**Read `current-task.json` in your workspace root** to get:
+**Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `request_file_path`: Full path to engineer's request file
 - `product_increment_path`: Path to Product Increment (if applicable)
 - `title`: Task title
