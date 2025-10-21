@@ -229,6 +229,9 @@ msgstr "Delete users"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
+msgid "Deleting..."
+msgstr "Deleting..."
+
 msgid "Description"
 msgstr "Description"
 

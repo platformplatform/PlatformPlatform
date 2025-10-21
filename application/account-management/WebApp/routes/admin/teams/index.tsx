@@ -66,6 +66,10 @@ export default function TeamsPage() {
     setIsDeleteDialogOpen(true);
   };
 
+  const handleTeamDeleted = () => {
+    handleCloseTeamDetails();
+  };
+
   return (
     <>
       <FederatedSideMenu currentSystem="account-management" />
@@ -110,7 +114,12 @@ export default function TeamsPage() {
 
       <EditTeamDialog team={selectedTeam} isOpen={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} />
 
-      <DeleteTeamDialog team={selectedTeam} isOpen={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen} />
+      <DeleteTeamDialog
+        team={selectedTeam}
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onTeamDeleted={handleTeamDeleted}
+      />
     </>
   );
 }
