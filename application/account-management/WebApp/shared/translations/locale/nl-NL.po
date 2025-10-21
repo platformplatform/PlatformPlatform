@@ -167,6 +167,9 @@ msgstr "Ondersteuning contacteren"
 msgid "Continue"
 msgstr "Verder"
 
+msgid "Create Team"
+msgstr "Team aanmaken"
+
 msgid "Create your account"
 msgstr "Maak je account aan"
 
@@ -483,6 +486,9 @@ msgstr "Account wisselen..."
 
 msgid "System"
 msgstr "Systeem"
+
+msgid "Team created successfully"
+msgstr "Team aangemaakt"
 
 msgid "Team details"
 msgstr "Teamdetails"

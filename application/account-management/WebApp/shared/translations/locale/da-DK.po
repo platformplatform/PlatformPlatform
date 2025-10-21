@@ -167,6 +167,9 @@ msgstr "Kontakt support"
 msgid "Continue"
 msgstr "Fortsæt"
 
+msgid "Create Team"
+msgstr "Opret team"
+
 msgid "Create your account"
 msgstr "Opret din konto"
 
@@ -483,6 +486,9 @@ msgstr "Skifter konto..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Team created successfully"
+msgstr "Team oprettet"
 
 msgid "Team details"
 msgstr "Teamdetaljer"

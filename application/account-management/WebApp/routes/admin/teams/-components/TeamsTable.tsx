@@ -8,22 +8,27 @@ import { useCallback, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { TableBody } from "react-aria-components";
 import type { TeamDetails } from "../-data/mockTeams";
-import { mockTeams } from "../-data/mockTeams";
 
 interface TeamsTableProps {
+  teams: TeamDetails[];
   selectedTeam: TeamDetails | null;
   onSelectedTeamChange: (team: TeamDetails | null) => void;
   isTeamDetailsPaneOpen?: boolean;
 }
 
-export function TeamsTable({ selectedTeam, onSelectedTeamChange, isTeamDetailsPaneOpen }: Readonly<TeamsTableProps>) {
+export function TeamsTable({
+  teams,
+  selectedTeam,
+  onSelectedTeamChange,
+  isTeamDetailsPaneOpen
+}: Readonly<TeamsTableProps>) {
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
     column: "name",
     direction: "ascending"
   });
   const isMobile = useViewportResize();
 
-  const sortedTeams = [...mockTeams].sort((a, b) => {
+  const sortedTeams = [...teams].sort((a, b) => {
     const column = sortDescriptor.column as keyof TeamDetails;
     const direction = sortDescriptor.direction === "ascending" ? 1 : -1;
 

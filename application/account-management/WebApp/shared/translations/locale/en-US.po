@@ -167,6 +167,9 @@ msgstr "Contact support"
 msgid "Continue"
 msgstr "Continue"
 
+msgid "Create Team"
+msgstr "Create Team"
+
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -483,6 +486,9 @@ msgstr "Switching account..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Team created successfully"
+msgstr "Team created successfully"
 
 msgid "Team details"
 msgstr "Team details"
