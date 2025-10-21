@@ -9,11 +9,13 @@ public sealed class DatabaseSeeder
     public readonly Tenant Tenant1;
     public readonly User Tenant1Member;
     public readonly User Tenant1Owner;
+    public readonly Tenant Tenant2;
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
         Tenant1 = Tenant.Create("owner@tenant-1.com");
-        accountManagementDbContext.Set<Tenant>().AddRange(Tenant1);
+        Tenant2 = Tenant.Create("owner@tenant-2.com");
+        accountManagementDbContext.Set<Tenant>().AddRange(Tenant1, Tenant2);
 
         Tenant1Owner = User.Create(Tenant1.Id, "owner@tenant-1.com", UserRole.Owner, true, null);
         accountManagementDbContext.Set<User>().AddRange(Tenant1Owner);

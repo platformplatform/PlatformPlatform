@@ -1,5 +1,6 @@
 using PlatformPlatform.AccountManagement.Features.Teams.Commands;
 using PlatformPlatform.AccountManagement.Features.Teams.Domain;
+using PlatformPlatform.AccountManagement.Features.Teams.Queries;
 using PlatformPlatform.SharedKernel.ApiResults;
 using PlatformPlatform.SharedKernel.Endpoints;
 
@@ -16,5 +17,9 @@ public sealed class TeamEndpoints : IEndpoints
         group.MapPost("/", async Task<ApiResult<TeamId>> (CreateTeamCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<TeamId>(StatusCodes.Status201Created);
+
+        group.MapGet("/{id}", async Task<ApiResult<TeamResponse>> (TeamId id, IMediator mediator)
+            => await mediator.Send(new GetTeamQuery(id))
+        ).Produces<TeamResponse>();
     }
 }

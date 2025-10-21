@@ -383,6 +383,47 @@
         }
       }
     },
+    "/api/account-management/teams/{id}": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "operationId": "GetApiAccountManagementTeams",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeamId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/current": {
       "get": {
         "tags": [
@@ -1306,6 +1347,33 @@
           },
           "name": {
             "type": "string"
+          }
+        }
+      },
+      "TeamResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TeamId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
           }
         }
       },
