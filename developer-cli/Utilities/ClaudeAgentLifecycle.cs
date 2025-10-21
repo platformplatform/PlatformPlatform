@@ -66,7 +66,20 @@ public static class ClaudeAgentLifecycle
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]");
 
         // Return success message immediately so it's saved in conversation
-        var successMessage = $"✅ Task completed successfully!\n\nResponse file: {responseFileName}\nSummary: {taskSummary}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds...";
+        var successMessage = $"""
+            ✅ Task {taskId} completed successfully!
+
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            Summary:
+            {taskSummary}
+            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+            ✓ CompleteWork has been called for task {taskId}
+            ✓ DO NOT call CompleteWork again - this task is finished
+
+            ⏰ Session will terminate in 5 seconds...
+            📝  Please clear your todo list now
+            """;
 
         // Schedule termination after delay (fire and forget)
         _ = Task.Run(async () =>
@@ -197,8 +210,35 @@ public static class ClaudeAgentLifecycle
 
         // Return success message immediately so it's saved in conversation
         var successMessage = approved
-            ? $"✅ Review completed: Code APPROVED!\n\nCommit: {commitHash}\nResponse file: {responseFileName}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds..."
-            : $"❌ Review completed: REJECTED\n\nReason: {rejectReason}\nResponse file: {responseFileName}\n\n📝 This confirmation is saved in your conversation history.\n⏰ Session will terminate in 5 seconds...";
+            ? $"""
+                ✅ Review of task {taskId} completed: Code APPROVED!
+
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                Commit: {commitHash}
+                🎯 Summary:
+                {reviewSummary}
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                ✓ CompleteWork has been called for task {taskId}
+                ✓ DO NOT call CompleteWork again - this task is finished
+
+                ⏰ Session will terminate in 5 seconds...
+                📝 Please clear your todo list now
+                """
+            : $"""
+                ❌ Review of task {taskId} completed: REJECTED
+
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                🎯 Rejection Reason:
+                {rejectReason}
+                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                ✓ CompleteWork has been called for task {taskId}
+                ✓ DO NOT call CompleteWork again - this task is finished
+
+                ⏰ Session will terminate in 5 seconds...
+                📝 Please clear your todo list now
+                """;
 
         // Schedule termination after delay (fire and forget)
         _ = Task.Run(async () =>
