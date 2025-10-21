@@ -131,6 +131,17 @@ Request: [path from current-task.json: requestFilePath]
 Response: [response file path]
 ```
 
+**MCP call parameters**:
+- `agentType`: backend-reviewer, frontend-reviewer, or test-automation-reviewer
+- `taskTitle`: Short description (e.g., "Review create teams table")
+- `markdownContent`: Your delegation message above
+- `branch`: From current-task.json
+- `prdPath`: From current-task.json (if exists)
+- `productIncrementPath`: From current-task.json (if exists)
+- `taskNumber`: **IMPORTANT** - Pass `taskNumberInIncrement` from current-task.json (not TaskNumber)
+- `requestFilePath`: Engineer's request file path
+- `responseFilePath`: Where reviewer should write response
+
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
 - If reviewer returns APPROVED → Check YOUR files (not parallel engineers' files) are committed → Proceed to completion
