@@ -1,15 +1,21 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
+import { getInitials } from "@repo/utils/string/getInitials";
 import { EditIcon, Trash2Icon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
+import { mockTeamMembers, type TeamMemberDetails } from "../-data/mockTeamMembers";
+import type { TeamDetails } from "../-data/mockTeams";
+import { EditTeamMembersDialog } from "./EditTeamMembersDialog";
 
 type TeamSummary = components["schemas"]["TeamSummary"];
 type TeamResponse = components["schemas"]["TeamResponse"];
@@ -22,7 +28,26 @@ interface TeamDetailsSidePaneProps {
   onDeleteTeam: () => void;
 }
 
-function TeamDetailsContent({ team }: Readonly<{ team: TeamResponse }>) {
+function TeamDetailsContent({
+  team,
+  members,
+  canViewMembers,
+  canEditMembers,
+  onEditMembers
+}: Readonly<{
+  team: TeamResponse;
+  members: TeamMemberDetails[];
+  canViewMembers: boolean;
+  canEditMembers: boolean;
+  onEditMembers: () => void;
+}>) {
+  const sortedMembers = [...members].sort((a, b) => {
+    if (a.role === b.role) {
+      return a.name.localeCompare(b.name);
+    }
+    return a.role === "Admin" ? -1 : 1;
+  });
+
   return (
     <>
       <div className="mb-6">
@@ -37,13 +62,48 @@ function TeamDetailsContent({ team }: Readonly<{ team: TeamResponse }>) {
       <div className="mb-4">
         <div className="mb-3 flex items-center justify-between">
           <Heading level={4} className="font-medium text-sm">
-            <Trans>Members</Trans> (0)
+            <Trans>Members</Trans> ({members.length})
           </Heading>
+          {canEditMembers && (
+            <Button variant="ghost" className="h-auto p-0 text-xs" onPress={onEditMembers}>
+              <EditIcon className="h-3 w-3" />
+              <Trans>Edit Members</Trans>
+            </Button>
+          )}
         </div>
 
-        <Text className="text-muted-foreground text-sm">
-          <Trans>No members yet</Trans>
-        </Text>
+        {!canViewMembers ? (
+          <Text className="text-muted-foreground text-sm">
+            <Trans>You must be a team member to view members</Trans>
+          </Text>
+        ) : members.length === 0 ? (
+          <Text className="text-muted-foreground text-sm">
+            <Trans>No members yet</Trans>
+          </Text>
+        ) : (
+          <div className="space-y-3">
+            {sortedMembers.map((member) => (
+              <div key={member.id} className="flex items-center gap-3">
+                <Avatar
+                  initials={getInitials(member.name.split(" ")[0], member.name.split(" ")[1], member.email)}
+                  avatarUrl={member.avatarUrl}
+                  size="sm"
+                  isRound={true}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Text className="truncate font-medium text-sm">{member.name}</Text>
+                    <Badge variant={member.role === "Admin" ? "primary" : "outline"} className="text-xs">
+                      <Trans>{member.role}</Trans>
+                    </Badge>
+                  </div>
+                  <Text className="truncate text-muted-foreground text-xs">{member.email}</Text>
+                  {member.title && <Text className="truncate text-muted-foreground text-xs">{member.title}</Text>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
@@ -137,6 +197,8 @@ export function TeamDetailsSidePane({
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [isEditMembersDialogOpen, setIsEditMembersDialogOpen] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<TeamMemberDetails[]>([]);
 
   const {
     data: teamDetails,
@@ -150,6 +212,29 @@ export function TeamDetailsSidePane({
     },
     enabled: !!team?.id
   });
+
+  useEffect(() => {
+    if (team?.id) {
+      setTeamMembers(mockTeamMembers[team.id] || []);
+    }
+  }, [team?.id]);
+
+  const isUserTeamMember = teamMembers.some((member) => member.email === userInfo?.email);
+  const isTenantOwner = userInfo?.role === "Owner";
+  const canViewMembers = isUserTeamMember || isTenantOwner;
+
+  const currentUserMember = teamMembers.find((m) => m.email === userInfo?.email);
+  const isCurrentUserMember = !!currentUserMember;
+  const isCurrentUserAdmin = currentUserMember?.role === "Admin";
+  const canEditMembers = (isCurrentUserAdmin || isTenantOwner) && isCurrentUserMember;
+
+  const handleEditMembers = () => {
+    setIsEditMembersDialogOpen(true);
+  };
+
+  const handleMembersUpdated = (updatedMembers: TeamMemberDetails[]) => {
+    setTeamMembers(updatedMembers);
+  };
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -210,7 +295,15 @@ export function TeamDetailsSidePane({
               </div>
             )}
 
-            {teamDetails && <TeamDetailsContent team={teamDetails} />}
+            {teamDetails && (
+              <TeamDetailsContent
+                team={teamDetails}
+                members={teamMembers}
+                canViewMembers={canViewMembers}
+                canEditMembers={canEditMembers}
+                onEditMembers={handleEditMembers}
+              />
+            )}
           </div>
         </div>
 
@@ -227,6 +320,23 @@ export function TeamDetailsSidePane({
           </div>
         )}
       </section>
+
+      {teamDetails && (
+        <EditTeamMembersDialog
+          team={
+            {
+              id: teamDetails.id,
+              name: teamDetails.name,
+              description: teamDetails.description,
+              memberCount: teamMembers.length
+            } as TeamDetails
+          }
+          currentMembers={teamMembers}
+          isOpen={isEditMembersDialogOpen}
+          onOpenChange={setIsEditMembersDialogOpen}
+          onMembersUpdated={handleMembersUpdated}
+        />
+      )}
     </>
   );
 }

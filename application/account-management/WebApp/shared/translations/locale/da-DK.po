@@ -13,6 +13,10 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: member.role
+msgid "{0}"
+msgstr ""
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
@@ -255,6 +259,9 @@ msgstr "F.eks. Taylor"
 
 msgid "Edit"
 msgstr "Rediger"
+
+msgid "Edit Members"
+msgstr "Rediger medlemmer"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -670,6 +677,9 @@ msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, t
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You must be a team member to view members"
+msgstr "Du skal være medlem af holdet for at se medlemmer"
 
 msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."

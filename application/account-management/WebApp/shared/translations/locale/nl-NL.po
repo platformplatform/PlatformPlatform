@@ -13,6 +13,10 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: member.role
+msgid "{0}"
+msgstr ""
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} gebruikers succesvol verwijderd"
@@ -255,6 +259,9 @@ msgstr "Bijv. Taylor"
 
 msgid "Edit"
 msgstr "Bewerken"
+
+msgid "Edit Members"
+msgstr "Bewerk leden"
 
 msgid "Edit profile"
 msgstr "Profiel bewerken"
@@ -670,6 +677,9 @@ msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam,
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
+
+msgid "You must be a team member to view members"
+msgstr "Je moet een teamlid zijn om leden te bekijken"
 
 msgid "You were logged out from another browser tab."
 msgstr "Je bent uitgelogd vanuit een ander browsertabblad."
