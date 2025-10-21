@@ -529,12 +529,23 @@ public class ClaudeAgentCommand : Command
             var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
             if (taskInfo is not null)
             {
-                // Format: "AgentName - Task {N} - Title (0013)" when part of Product Increment
-                // Or: "AgentName - Task 0013 - Title" for ad-hoc tasks
-                var title = !string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement)
-                    ? $"{displayName} - Task {taskInfo.TaskNumberInIncrement} - {taskInfo.Title} ({taskInfo.TaskNumber})"
-                    : $"{displayName} - Task {taskInfo.TaskNumber} - {taskInfo.Title}";
+                // Format: "AgentName - {TaskNumberInIncrement} - Title - MessageId - HH:mm:ss"
+                var titleParts = new List<string> { displayName };
 
+                if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
+                {
+                    titleParts.Add(taskInfo.TaskNumberInIncrement);
+                }
+
+                titleParts.Add(taskInfo.Title);
+                titleParts.Add(taskInfo.TaskNumber);
+
+                if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
+                {
+                    titleParts.Add(startedAt.ToString("HH:mm:ss"));
+                }
+
+                var title = string.Join(" - ", titleParts);
                 SetTerminalTitle(title);
             }
         }
@@ -636,52 +647,31 @@ public class ClaudeAgentCommand : Command
         // Add slash command only if requested (manual sessions may launch without slash command)
         if (useSlashCommand)
         {
-            // Build formatted title: {taskNumberInIncrement} - {title} - {messageId} - {timestamp}
-            var effectiveTaskTitle = taskTitle ?? "task";
-            var taskNumberInIncrement = "";
-            var messageId = "";
-            var timestamp = "";
-
-            // Always read current-task.json for formatting info (messageId, timestamp, etc.)
-            if (File.Exists(workspace.CurrentTaskFile))
+            // Determine task title for slash command (keep it simple - just the title)
+            var effectiveTaskTitle = taskTitle;
+            if (effectiveTaskTitle == null)
             {
-                var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
-                var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
-                if (taskInfo is not null)
+                effectiveTaskTitle = "task";
+                if (File.Exists(workspace.CurrentTaskFile))
                 {
-                    // Use title from current-task.json if not provided
-                    if (taskTitle == null)
+                    var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
+                    var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
+                    if (taskInfo is not null)
                     {
                         effectiveTaskTitle = taskInfo.Title;
                     }
-
-                    messageId = taskInfo.TaskNumber;
-
-                    if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
-                    {
-                        taskNumberInIncrement = $"{taskInfo.TaskNumberInIncrement} - ";
-                    }
-
-                    if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
-                    {
-                        timestamp = $" - {startedAt:HH:mm:ss}";
-                    }
                 }
             }
-
-            var formattedTitle = string.IsNullOrEmpty(messageId)
-                ? effectiveTaskTitle
-                : $"{taskNumberInIncrement}{effectiveTaskTitle} - {messageId}{timestamp}";
 
             // Add slash command to trigger workflow
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/orchestrate:tech-lead",
-                "test-automation-engineer" => $"/implement:e2e-tests {formattedTitle}",
-                "test-automation-reviewer" => $"/review:e2e-tests {formattedTitle}",
+                "test-automation-engineer" => $"/implement:e2e-tests {effectiveTaskTitle}",
+                "test-automation-reviewer" => $"/review:e2e-tests {effectiveTaskTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
-                    ? $"/review:task {formattedTitle}"
-                    : $"/implement:task {formattedTitle}"
+                    ? $"/review:task {effectiveTaskTitle}"
+                    : $"/implement:task {effectiveTaskTitle}"
             };
             claudeArgs.Add(slashCommand);
         }
