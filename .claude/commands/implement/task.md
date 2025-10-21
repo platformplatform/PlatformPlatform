@@ -53,7 +53,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 {
   "todos": [
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
-    {"content": "Study relevant rules for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
+    {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
     {"content": "Build frontend, translate missing *.po entries (frontend-engineer only)", "status": "pending", "activeForm": "Building and translating"},
@@ -71,7 +71,11 @@ After creating base todo, expand "Implement task" with subtasks from Product Inc
 
 ## Workflow Steps
 
-**STEP 2**: Study rules (`.claude/rules/backend/` or `.claude/rules/frontend/`)
+**STEP 2**: Study ALL rules for your role (read files or recall from memory)
+
+- **Backend engineer**: ALL files in `.claude/rules/backend/`
+- **Frontend engineer**: ALL files in `.claude/rules/frontend/`
+- **Test automation engineer**: ALL files in `.claude/rules/end-to-end-tests/`
 
 **STEP 3**: Research similar implementations in codebase
 
