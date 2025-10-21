@@ -47,7 +47,9 @@ public static class DeveloperCliMcpTools
         [Description("Self-contained system, e.g., 'account-management' (optional)")]
         string? selfContainedSystem = null,
         [Description("Skip build (for test, format, inspect only)")]
-        bool noBuild = true)
+        bool noBuild = true,
+        [Description("Filter tests by name (test command only)")]
+        string? filter = null)
     {
         var validCommands = new[] { "build", "test", "format", "inspect" };
         if (!validCommands.Contains(command))
@@ -60,6 +62,12 @@ public static class DeveloperCliMcpTools
                 if (noBuild && command != "build")
                 {
                     args.Add("--no-build");
+                }
+
+                if (filter != null && command == "test")
+                {
+                    args.Add("--filter");
+                    args.Add(filter);
                 }
             }
         );
