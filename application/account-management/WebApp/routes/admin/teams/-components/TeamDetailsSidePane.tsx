@@ -1,37 +1,28 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Avatar } from "@repo/ui/components/Avatar";
-import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
-import { getInitials } from "@repo/utils/string/getInitials";
 import { EditIcon, Trash2Icon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import type { components } from "@/shared/lib/api/client";
-import type { TeamMemberDetails } from "../-data/mockTeamMembers";
+import { api, type components } from "@/shared/lib/api/client";
 
 type TeamSummary = components["schemas"]["TeamSummary"];
+type TeamResponse = components["schemas"]["TeamResponse"];
 
 interface TeamDetailsSidePaneProps {
   team: TeamSummary | null;
-  teamMembers: TeamMemberDetails[];
   isOpen: boolean;
   onClose: () => void;
   onEditTeam: () => void;
   onDeleteTeam: () => void;
-  onEditMembers: () => void;
 }
 
-function TeamDetailsContent({
-  team,
-  members,
-  onEditMembers
-}: Readonly<{ team: TeamSummary; members: TeamMemberDetails[]; onEditMembers: () => void }>) {
+function TeamDetailsContent({ team }: Readonly<{ team: TeamResponse }>) {
   return (
     <>
       <div className="mb-6">
@@ -46,35 +37,13 @@ function TeamDetailsContent({
       <div className="mb-4">
         <div className="mb-3 flex items-center justify-between">
           <Heading level={4} className="font-medium text-sm">
-            <Trans>Members</Trans> ({members.length})
+            <Trans>Members</Trans> (0)
           </Heading>
-          <Button variant="ghost" className="h-auto p-0 text-xs" onPress={onEditMembers}>
-            <Trans>Edit Team Members</Trans>
-          </Button>
         </div>
 
-        <div className="space-y-3">
-          {members.map((member) => (
-            <div key={member.id} className="flex items-center gap-3">
-              <Avatar
-                initials={getInitials(member.name.split(" ")[0], member.name.split(" ")[1], member.email)}
-                avatarUrl={member.avatarUrl}
-                size="sm"
-                isRound={true}
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <Text className="truncate text-sm">{member.name}</Text>
-                  <Badge variant={member.role === "Admin" ? "primary" : "outline"} className="shrink-0 text-xs">
-                    {member.role}
-                  </Badge>
-                </div>
-                <Text className="truncate text-muted-foreground text-xs">{member.email}</Text>
-                <Text className="truncate text-muted-foreground text-xs">{member.title}</Text>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Text className="text-muted-foreground text-sm">
+          <Trans>No members yet</Trans>
+        </Text>
       </div>
     </>
   );
@@ -159,17 +128,28 @@ function useSidePaneAccessibility(
 
 export function TeamDetailsSidePane({
   team,
-  teamMembers,
   isOpen,
   onClose,
   onEditTeam,
-  onDeleteTeam,
-  onEditMembers
+  onDeleteTeam
 }: Readonly<TeamDetailsSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  const {
+    data: teamDetails,
+    isLoading,
+    error
+  } = api.useQuery("get", "/api/account-management/teams/{id}", {
+    params: {
+      path: {
+        id: team?.id || ""
+      }
+    },
+    enabled: !!team?.id
+  });
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -213,14 +193,28 @@ export function TeamDetailsSidePane({
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          {team && (
-            <div className="p-4">
-              <TeamDetailsContent team={team} members={teamMembers} onEditMembers={onEditMembers} />
-            </div>
-          )}
+          <div className="p-4">
+            {isLoading && (
+              <div className="flex items-center justify-center py-8">
+                <Text className="text-muted-foreground text-sm">
+                  <Trans>Loading...</Trans>
+                </Text>
+              </div>
+            )}
+
+            {error && (
+              <div className="py-8 text-center">
+                <Text className="text-destructive text-sm">
+                  <Trans>Failed to load team details</Trans>
+                </Text>
+              </div>
+            )}
+
+            {teamDetails && <TeamDetailsContent team={teamDetails} />}
+          </div>
         </div>
 
-        {canModifyTeam && team && (
+        {canModifyTeam && teamDetails && (
           <div className="relative mt-auto space-y-2 border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button variant="outline" className="w-full justify-center text-sm" onPress={onEditTeam}>
               <EditIcon className="h-4 w-4" />

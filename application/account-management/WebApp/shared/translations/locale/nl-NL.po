@@ -277,6 +277,9 @@ msgstr "Fout: Er is iets misgegaan!"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Failed to load team details"
+msgstr "Kon teamdetails niet laden"
+
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Voel je vrij om contact op te nemen met vragen of problemen die je hebt."
 
@@ -324,6 +327,9 @@ msgstr "Achternaam"
 
 msgid "Light"
 msgstr "Licht"
+
+msgid "Loading..."
+msgstr "Laden..."
 
 msgid "Log in"
 msgstr "Inloggen"
@@ -387,6 +393,9 @@ msgstr "Volgende"
 
 msgid "No available users"
 msgstr "Geen beschikbare gebruikers"
+
+msgid "No members yet"
+msgstr "Nog geen leden"
 
 msgid "No team members"
 msgstr "Geen teamleden"

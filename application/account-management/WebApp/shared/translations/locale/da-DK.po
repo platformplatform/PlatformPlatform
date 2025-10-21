@@ -277,6 +277,9 @@ msgstr "Fejl: Noget gik galt!"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Failed to load team details"
+msgstr "Kunne ikke indlæse teamdetaljer"
+
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
 
@@ -324,6 +327,9 @@ msgstr "Efternavn"
 
 msgid "Light"
 msgstr "Lys"
+
+msgid "Loading..."
+msgstr "Indlæser..."
 
 msgid "Log in"
 msgstr "Log ind"
@@ -387,6 +393,9 @@ msgstr "Næste"
 
 msgid "No available users"
 msgstr "Ingen tilgængelige brugere"
+
+msgid "No members yet"
+msgstr "Ingen medlemmer endnu"
 
 msgid "No team members"
 msgstr "Ingen teammedlemmer"
