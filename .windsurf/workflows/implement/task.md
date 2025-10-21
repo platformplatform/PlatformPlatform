@@ -53,10 +53,10 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Study relevant rules for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
-    {"content": "Validate implementation builds and fix all static code analysis warnings", "status": "pending", "activeForm": "Validating implementation"},
-    {"content": "Translate all missing entries in *.po files for all supported languages (frontend-engineer only)", "status": "pending", "activeForm": "Translating missing entries in *.po files"},
+    {"content": "Build frontend, translate missing *.po entries (frontend-engineer only)", "status": "pending", "activeForm": "Building and translating"},
+    {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
     {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
-    {"content": "Call reviewer subagent to review and commit your code", "status": "pending", "activeForm": "Calling reviewer subagent"},
+    {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }
@@ -72,28 +72,29 @@ After creating base todo, expand "Implement task" with subtasks from Product Inc
 
 **STEP 3**: Research similar implementations in codebase
 
-**STEP 4**: Implement each subtask, use **build** and **test** MCP tools
+**STEP 4**: Implement each subtask, use **build** and **test** MCP tools continously
 
-**STEP 5**: Run validation tools in parallel (backend tasks only)
+**STEP 5**: Frontend only - build and translate missing *.po entries
 
-For **backend tasks**, run **test** and **inspect** in parallel using the Task tool:
-- Spawn two `backend-tool-runner` subagents simultaneously
-- One runs `test`, the other runs `inspect`
-- Wait for both to complete
-- Fix any failures or warnings (both must pass)
+Run build to generate updated `*.po` files, then translate all empty `msgstr ""` entries for all supported languages. Use consistent domain terminology.
+
+**STEP 6**: Run validation tools and fix all failures/warnings
+
+For **backend tasks**, first run **build**, then run **format**, **test**, and **inspect** in parallel using the Task tool:
+- Spawn three `backend-tool-runner` subagents simultaneously
+- One runs `format`, one runs `test`, one runs `inspect`
+- Wait for all three to complete
+- Fix any failures or warnings (all must pass)
 
 **Parallel execution example**:
 ```
-In a single message, use Task tool twice:
-1. Task tool → backend-tool-runner: "Run backend tool: test"
-2. Task tool → backend-tool-runner: "Run backend tool: inspect"
+In a single message, use Task tool three times:
+1. Task tool → backend-tool-runner: "Run backend tool: format"
+2. Task tool → backend-tool-runner: "Run backend tool: test"
+3. Task tool → backend-tool-runner: "Run backend tool: inspect"
 ```
 
-For **frontend tasks**, use **test** and **inspect** MCP tools directly.
-
-**STEP 6**: Frontend only - translate all missing entries in *.po files
-
-After build, translate all empty `msgstr ""` entries in `*.po` files for all supported languages. Use consistent domain terminology - check existing translations for guidance.
+For **frontend tasks**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
 
 **STEP 7**: Edit Product Increment file: `[In Progress]` → `[Ready for Review]`
 
