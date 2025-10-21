@@ -56,6 +56,12 @@ public static class ClaudeAgentLifecycle
         // Write response file directly to messages directory
         await File.WriteAllTextAsync(responseFilePath, responseContent);
 
+        // Delete current-task.json now that response is written
+        if (File.Exists(workspace.CurrentTaskFile))
+        {
+            File.Delete(workspace.CurrentTaskFile);
+        }
+
         // Log completion
         LogWorkflowEvent($"[{taskId}.{agentType}.response] Completed via MCP: '{taskSummary}' -> [{responseFileName}]");
 
@@ -177,6 +183,12 @@ public static class ClaudeAgentLifecycle
         // Write response file directly to messages directory
         await File.WriteAllTextAsync(responseFilePath, responseContent);
 
+        // Delete current-task.json now that response is written
+        if (File.Exists(workspace.CurrentTaskFile))
+        {
+            File.Delete(workspace.CurrentTaskFile);
+        }
+
         // Log completion
         var logMessage = approved
             ? $"[{taskId}.{agentType}.response] Review completed via MCP ({statusPrefix}, commit: {commitHash}): '{reviewSummary}' -> [{responseFileName}]"
@@ -245,7 +257,7 @@ public static class ClaudeAgentLifecycle
 
         if (elapsedSeconds >= 60 || attempt > 1)
         {
-            File.Delete(currentTaskFile);
+            // Don't delete current-task.json here - it will be deleted after response file is written
             return null;
         }
 
