@@ -565,6 +565,58 @@
         }
       }
     },
+    "/api/account-management/teams/{teamId}/members/{userId}/role": {
+      "put": {
+        "tags": [
+          "Team Members"
+        ],
+        "operationId": "PutApiAccountManagementTeamsMembersRole",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeamId"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 2
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeTeamMemberRoleCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 3
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/current": {
       "get": {
         "tags": [
@@ -1630,6 +1682,15 @@
           "Member",
           "Admin"
         ]
+      },
+      "ChangeTeamMemberRoleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/TeamMemberRole"
+          }
+        }
       },
       "TenantResponse": {
         "type": "object",

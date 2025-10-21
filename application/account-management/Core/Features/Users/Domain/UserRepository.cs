@@ -22,6 +22,8 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
 
     Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
+    Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken);
+
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
         string? search,
         UserRole? userRole,
@@ -85,6 +87,14 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
     public async Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(u => ids.Contains(u.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters()
+            .Where(u => ids.Contains(u.Id))
+            .ToArrayAsync(cancellationToken);
     }
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)

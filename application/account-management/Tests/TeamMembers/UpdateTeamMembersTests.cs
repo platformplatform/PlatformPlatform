@@ -93,7 +93,7 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
                 ("ModifiedAt", null),
                 ("TeamId", _teamId.ToString()),
                 ("UserId", _adminUserId.ToString()),
-                ("Role", (int)TeamMemberRole.Admin)
+                ("Role", nameof(TeamMemberRole.Admin))
             ]
         );
 
@@ -106,7 +106,7 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
                 ("ModifiedAt", null),
                 ("TeamId", _teamId.ToString()),
                 ("UserId", _memberUserId.ToString()),
-                ("Role", (int)TeamMemberRole.Member)
+                ("Role", nameof(TeamMemberRole.Member))
             ]
         );
     }
@@ -144,10 +144,10 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = newUserId.ToString() }
         ).Should().Be(1);
-        Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = _memberUserId.ToString() }
         ).Should().Be(0);
 
@@ -171,7 +171,7 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = _nonMemberUserId.ToString() }
         ).Should().Be(1);
     }
@@ -228,12 +228,12 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<int>("SELECT Role FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        Connection.ExecuteScalar<string>("SELECT Role FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = newAdmin.ToString() }
-        ).Should().Be((int)TeamMemberRole.Admin);
-        Connection.ExecuteScalar<int>("SELECT Role FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        ).Should().Be(nameof(TeamMemberRole.Admin));
+        Connection.ExecuteScalar<string>("SELECT Role FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = newMember.ToString() }
-        ).Should().Be((int)TeamMemberRole.Member);
+        ).Should().Be(nameof(TeamMemberRole.Member));
     }
 
     [Fact]
@@ -286,7 +286,7 @@ public sealed class UpdateTeamMembersTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<int>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TeamMembers WHERE TeamId = @teamId AND UserId = @userId",
             new { teamId = _teamId.ToString(), userId = _memberUserId.ToString() }
         ).Should().Be(1); // Still only 1 record
 

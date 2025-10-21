@@ -16,9 +16,6 @@ public sealed class TeamMemberConfiguration : IEntityTypeConfiguration<TeamMembe
         builder.MapStronglyTypedUuid<TeamMember, UserId>(tm => tm.UserId);
         builder.MapStronglyTypedLongId<TeamMember, TenantId>(tm => tm.TenantId);
 
-        builder.Property(tm => tm.Role)
-            .HasConversion<int>();
-
         builder.HasIndex(tm => new { tm.TeamId, tm.UserId }).IsUnique();
         builder.HasIndex(tm => tm.UserId);
         builder.HasIndex(tm => tm.TenantId);
