@@ -121,7 +121,13 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 **STEP 8**: If APPROVED, commit changes and get commit hash
 
 1. Extract "Files Changed" from engineer's request
-2. Verify scope: Backend → `Api/Core/Tests`, Frontend → `WebApp`, E2E → `Tests`. If wrong: REJECT
+2. Verify scope completeness:
+   - Run `git status --porcelain` to see all changed files
+   - Filter to YOUR scope only:
+     - **Backend reviewer**: Api/Core/Tests files + *.Api.json files (even in WebApp folder)
+     - **Frontend reviewer**: WebApp files EXCEPT *.Api.json files
+   - Verify engineer's list matches filtered git status EXACTLY (no missing files, no extra files)
+   - If mismatch: REJECT with specific files missing or wrongly included
 
 **Execute steps 3-6 immediately without delay (minimize race conditions)**:
 
