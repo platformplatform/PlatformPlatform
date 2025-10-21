@@ -21,6 +21,12 @@ Carefully follow these instructions when implementing translations and internati
    - **CRITICAL**: After auto-generation updates the `*.po` files, you MUST translate all new/updated entries in the `*.po` files for all supported languages
    - Only translate the `msgstr` values; never change `msgid` values
 7. Be careful not to translate fully dynamic content, such as variable values or dynamic text.
+8. **Domain terminology consistency**:
+   - Use consistent terminology throughout the application
+   - Before translating, check existing `*.po` files to understand established domain terms
+   - If "Tenant" is used, always use "Tenant" (not "Customer", "Client", "Organization", etc.)
+   - The same English term must always translate to the same term in each target language
+   - Example: "Team" in English should consistently translate to "Hold" in Danish (da-DK.po), not "Team", "Gruppe", etc.
 
 ## Examples
 
