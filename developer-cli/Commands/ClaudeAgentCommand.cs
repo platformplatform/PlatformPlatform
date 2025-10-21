@@ -359,7 +359,7 @@ public class ClaudeAgentCommand : Command
 
                 // Launch manual session (with or without slash command based on user choice)
                 await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null, wantsToContinue);
-                return; // Exit after session ends
+                // After recovery session ends, continue to main loop to wait for MCP requests
             }
         }
 
