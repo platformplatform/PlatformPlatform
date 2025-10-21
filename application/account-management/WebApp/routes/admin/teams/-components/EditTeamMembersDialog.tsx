@@ -12,6 +12,7 @@ import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Text } from "@repo/ui/components/Text";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
+import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -46,6 +47,7 @@ export function EditTeamMembersDialog({
   const [selectedAvailableUsers, setSelectedAvailableUsers] = useState<Set<string>>(new Set());
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [changedRoles, setChangedRoles] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (isOpen && team) {
@@ -62,6 +64,7 @@ export function EditTeamMembersDialog({
       setSelectedAvailableUsers(new Set());
       setSelectedTeamMembers(new Set());
       setSearchQuery("");
+      setChangedRoles(new Set());
     }
   }, [isOpen, team, currentMembers]);
 
@@ -115,6 +118,13 @@ export function EditTeamMembersDialog({
 
   const handleRoleChange = (userId: string, newRole: "Admin" | "Member") => {
     setTeamMembers((prev) => prev.map((member) => (member.userId === userId ? { ...member, role: newRole } : member)));
+    setChangedRoles((prev) => new Set(prev).add(userId));
+
+    toastQueue.add({
+      title: t`Success`,
+      description: t`Role changed successfully`,
+      variant: "success"
+    });
   };
 
   const canRemove = (userId: string) => {
@@ -319,20 +329,27 @@ export function EditTeamMembersDialog({
                               <Text className="truncate text-xs opacity-80">{member.title}</Text>
                             </div>
                           </button>
-                          <Select
-                            aria-label={t`Role for ${member.name}`}
-                            selectedKey={member.role}
-                            onSelectionChange={(key) => handleRoleChange(member.userId, key as "Admin" | "Member")}
-                            isDisabled={!canChangeRole(member.userId) || isSubmitting}
-                            className="w-28"
-                          >
-                            <SelectItem id="Member">
-                              <Trans>Member</Trans>
-                            </SelectItem>
-                            <SelectItem id="Admin">
-                              <Trans>Admin</Trans>
-                            </SelectItem>
-                          </Select>
+                          <TooltipTrigger>
+                            <Select
+                              aria-label={t`Role for ${member.name}`}
+                              selectedKey={member.role}
+                              onSelectionChange={(key) => handleRoleChange(member.userId, key as "Admin" | "Member")}
+                              isDisabled={!canChangeRole(member.userId) || isSubmitting}
+                              className={`w-28 ${changedRoles.has(member.userId) ? "ring-2 ring-success ring-offset-2" : ""}`}
+                            >
+                              <SelectItem id="Member">
+                                <Trans>Member</Trans>
+                              </SelectItem>
+                              <SelectItem id="Admin">
+                                <Trans>Admin</Trans>
+                              </SelectItem>
+                            </Select>
+                            {!canChangeRole(member.userId) && !isSubmitting && (
+                              <Tooltip>
+                                <Trans>Team Admins cannot change their own role</Trans>
+                              </Tooltip>
+                            )}
+                          </TooltipTrigger>
                         </div>
                       ))}
                     </div>

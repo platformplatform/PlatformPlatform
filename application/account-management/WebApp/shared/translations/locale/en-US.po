@@ -485,6 +485,9 @@ msgstr "Request a new code"
 msgid "Role"
 msgstr "Role"
 
+msgid "Role changed successfully"
+msgstr "Role changed successfully"
+
 #. placeholder {0}: member.name
 msgid "Role for {0}"
 msgstr "Role for {0}"
@@ -543,6 +546,9 @@ msgstr "Switching account..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Team Admins cannot change their own role"
+msgstr "Team Admins cannot change their own role"
 
 msgid "Team created successfully"
 msgstr "Team created successfully"

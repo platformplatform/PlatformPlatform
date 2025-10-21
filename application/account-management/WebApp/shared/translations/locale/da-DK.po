@@ -485,6 +485,9 @@ msgstr "Anmod om en ny kode"
 msgid "Role"
 msgstr "Rolle"
 
+msgid "Role changed successfully"
+msgstr "Rolle ændret med succes"
+
 #. placeholder {0}: member.name
 msgid "Role for {0}"
 msgstr "Rolle for {0}"
@@ -543,6 +546,9 @@ msgstr "Skifter konto..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Team Admins cannot change their own role"
+msgstr "Team-administratorer kan ikke ændre deres egen rolle"
 
 msgid "Team created successfully"
 msgstr "Team oprettet"
