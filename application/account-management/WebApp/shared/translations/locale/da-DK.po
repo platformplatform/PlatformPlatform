@@ -417,6 +417,9 @@ msgstr "Ingen tilgængelige brugere"
 msgid "No members yet"
 msgstr "Ingen medlemmer endnu"
 
+msgid "No results found"
+msgstr "Ingen resultater fundet"
+
 msgid "No team members"
 msgstr "Ingen teammedlemmer"
 

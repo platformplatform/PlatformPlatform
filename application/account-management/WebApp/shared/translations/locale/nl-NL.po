@@ -417,6 +417,9 @@ msgstr "Geen beschikbare gebruikers"
 msgid "No members yet"
 msgstr "Nog geen leden"
 
+msgid "No results found"
+msgstr "Geen resultaten gevonden"
+
 msgid "No team members"
 msgstr "Geen teamleden"
 

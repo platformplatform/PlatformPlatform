@@ -9,11 +9,12 @@ import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/D
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
+import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Text } from "@repo/ui/components/Text";
-import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -44,6 +45,7 @@ export function EditTeamMembersDialog({
 }: Readonly<EditTeamMembersDialogProps>) {
   const userInfo = useUserInfo();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [teamMembers, setTeamMembers] = useState<TeamMemberWithRole[]>([]);
   const [selectedAvailableUsers, setSelectedAvailableUsers] = useState<Set<string>>(new Set());
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
@@ -88,13 +90,13 @@ export function EditTeamMembersDialog({
   };
 
   const filteredAvailableUsers = useMemo(
-    () => availableUsers.filter((user) => filterUser(user, searchQuery)),
-    [availableUsers, searchQuery]
+    () => availableUsers.filter((user) => filterUser(user, debouncedSearchQuery)),
+    [availableUsers, debouncedSearchQuery]
   );
 
   const filteredTeamMembers = useMemo(
-    () => teamMembers.filter((member) => filterUser(member, searchQuery)),
-    [teamMembers, searchQuery]
+    () => teamMembers.filter((member) => filterUser(member, debouncedSearchQuery)),
+    [teamMembers, debouncedSearchQuery]
   );
 
   const currentUserMember = teamMembers.find((m) => m.email === userInfo?.email);
@@ -247,7 +249,7 @@ export function EditTeamMembersDialog({
 
         <Form onSubmit={handleSubmit} className="flex flex-col max-sm:h-full">
           <DialogContent className="flex flex-col gap-4">
-            <TextField
+            <SearchField
               label={t`Search`}
               placeholder={t`Search by name, email, or title`}
               value={searchQuery}
@@ -257,13 +259,16 @@ export function EditTeamMembersDialog({
             <div className="grid grid-cols-[1fr_auto_1fr] gap-4">
               <div className="flex flex-col gap-2">
                 <Heading level={4} className="font-medium text-sm">
-                  <Trans>Available Users</Trans> ({filteredAvailableUsers.length})
+                  <Trans>Available Users</Trans>{" "}
+                  {debouncedSearchQuery && filteredAvailableUsers.length !== availableUsers.length
+                    ? `(${filteredAvailableUsers.length} of ${availableUsers.length})`
+                    : `(${availableUsers.length})`}
                 </Heading>
                 <div className="h-80 overflow-y-auto rounded-md border border-border bg-background">
                   {filteredAvailableUsers.length === 0 ? (
                     <div className="flex h-full items-center justify-center p-4">
                       <Text className="text-muted-foreground text-sm">
-                        <Trans>No available users</Trans>
+                        {debouncedSearchQuery ? <Trans>No results found</Trans> : <Trans>No available users</Trans>}
                       </Text>
                     </div>
                   ) : (
@@ -322,13 +327,16 @@ export function EditTeamMembersDialog({
 
               <div className="flex flex-col gap-2">
                 <Heading level={4} className="font-medium text-sm">
-                  <Trans>Team Members</Trans> ({filteredTeamMembers.length})
+                  <Trans>Team Members</Trans>{" "}
+                  {debouncedSearchQuery && filteredTeamMembers.length !== teamMembers.length
+                    ? `(${filteredTeamMembers.length} of ${teamMembers.length})`
+                    : `(${teamMembers.length})`}
                 </Heading>
                 <div className="h-80 overflow-y-auto rounded-md border border-border bg-background">
                   {filteredTeamMembers.length === 0 ? (
                     <div className="flex h-full items-center justify-center p-4">
                       <Text className="text-muted-foreground text-sm">
-                        <Trans>No team members</Trans>
+                        {debouncedSearchQuery ? <Trans>No results found</Trans> : <Trans>No team members</Trans>}
                       </Text>
                     </div>
                   ) : (
