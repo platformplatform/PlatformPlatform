@@ -1,4 +1,5 @@
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.TeamMembers.Domain;
 using PlatformPlatform.AccountManagement.Features.Teams.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -54,6 +55,18 @@ public sealed class TeamUpdated(TeamId teamId)
 
 public sealed class TeamDeleted(TeamId teamId)
     : TelemetryEvent(("team_id", teamId));
+
+public sealed class TeamMemberAdded(TeamMemberId teamMemberId, TeamId teamId, UserId userId, TeamMemberRole role)
+    : TelemetryEvent(("team_member_id", teamMemberId), ("team_id", teamId), ("user_id", userId), ("role", role));
+
+public sealed class TeamMemberRemoved(TeamMemberId teamMemberId, TeamId teamId, UserId userId)
+    : TelemetryEvent(("team_member_id", teamMemberId), ("team_id", teamId), ("user_id", userId));
+
+public sealed class TeamMemberRoleChanged(TeamMemberId teamMemberId, TeamId teamId, UserId userId, TeamMemberRole oldRole, TeamMemberRole newRole)
+    : TelemetryEvent(("team_member_id", teamMemberId), ("team_id", teamId), ("user_id", userId), ("old_role", oldRole), ("new_role", newRole));
+
+public sealed class TeamMembersUpdated(TeamId teamId, int addedCount, int removedCount)
+    : TelemetryEvent(("team_id", teamId), ("added_count", addedCount), ("removed_count", removedCount));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

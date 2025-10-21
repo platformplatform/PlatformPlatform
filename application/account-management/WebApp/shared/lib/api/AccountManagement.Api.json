@@ -522,6 +522,49 @@
         }
       }
     },
+    "/api/account-management/teams/{teamId}/members": {
+      "put": {
+        "tags": [
+          "Team Members"
+        ],
+        "operationId": "PutApiAccountManagementTeamsMembers",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeamId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTeamMembersCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/current": {
       "get": {
         "tags": [
@@ -1519,6 +1562,75 @@
           }
         }
       },
+      "UpdateTeamMembersCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "membersToAdd": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemberToAdd"
+            }
+          },
+          "memberIdsToRemove": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        }
+      },
+      "MemberToAdd": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "role": {
+            "$ref": "#/components/schemas/TeamMemberRole"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TeamMemberRole": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Member",
+          "Admin"
+        ],
+        "enum": [
+          "Member",
+          "Admin"
+        ]
+      },
       "TenantResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -1602,33 +1714,6 @@
           },
           "isNew": {
             "type": "boolean"
-          }
-        }
-      },
-      "UserId": {
-        "type": "string",
-        "format": "usr_{string}"
-      },
-      "StronglyTypedUlidOfUserId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndUserId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
           }
         }
       },

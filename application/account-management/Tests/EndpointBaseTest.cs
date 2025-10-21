@@ -158,6 +158,14 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         GC.SuppressFinalize(this);
     }
 
+    protected HttpClient CreateAuthenticatedClient(UserInfo userInfo)
+    {
+        var accessToken = AccessTokenGenerator.Generate(userInfo);
+        var client = _webApplicationFactory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        return client;
+    }
+
     protected virtual void RegisterMockLoggers(IServiceCollection services)
     {
     }
