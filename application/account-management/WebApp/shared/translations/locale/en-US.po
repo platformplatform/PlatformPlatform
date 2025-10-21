@@ -68,6 +68,9 @@ msgstr "Add your account name"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All teams"
+msgstr "All teams"
+
 msgid "All users"
 msgstr "All users"
 
@@ -312,6 +315,9 @@ msgstr "Logo uploaded successfully"
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
+msgid "Manage your teams and team members here."
+msgstr "Manage your teams and team members here."
+
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
 
@@ -453,6 +459,9 @@ msgstr "Switching account..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Teams"
+msgstr "Teams"
 
 msgid "Terms of use"
 msgstr "Terms of use"

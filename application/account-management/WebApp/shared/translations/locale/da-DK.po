@@ -68,6 +68,9 @@ msgstr "Tilføj dit kontonavn"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "All teams"
+msgstr "Alle teams"
+
 msgid "All users"
 msgstr "Alle brugere"
 
@@ -312,6 +315,9 @@ msgstr "Logo uploadet succesfuldt"
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
+msgid "Manage your teams and team members here."
+msgstr "Administrer dine teams og teammedlemmer her."
+
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
 
@@ -453,6 +459,9 @@ msgstr "Skifter konto..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Teams"
+msgstr "Teams"
 
 msgid "Terms of use"
 msgstr "Brugsvilkår"

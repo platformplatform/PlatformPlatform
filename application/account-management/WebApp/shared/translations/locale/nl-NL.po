@@ -68,6 +68,9 @@ msgstr "Voeg je accountnaam toe"
 msgid "Admin"
 msgstr "Beheerder"
 
+msgid "All teams"
+msgstr "Alle teams"
+
 msgid "All users"
 msgstr "Alle gebruikers"
 
@@ -312,6 +315,9 @@ msgstr "Logo succesvol geüpload"
 msgid "Manage your account here."
 msgstr "Beheer je account hier."
 
+msgid "Manage your teams and team members here."
+msgstr "Beheer hier uw teams en teamleden."
+
 msgid "Manage your users and permissions here."
 msgstr "Beheer je gebruikers en rechten hier."
 
@@ -453,6 +459,9 @@ msgstr "Account wisselen..."
 
 msgid "System"
 msgstr "Systeem"
+
+msgid "Teams"
+msgstr "Teams"
 
 msgid "Terms of use"
 msgstr "Gebruiksvoorwaarden"
