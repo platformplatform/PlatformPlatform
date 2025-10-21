@@ -53,7 +53,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Study ALL rules in .cursor/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
-    {"content": "Build frontend, translate missing *.po entries (frontend-engineer only)", "status": "pending", "activeForm": "Building and translating"},
+    {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
     {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
@@ -78,9 +78,12 @@ After creating base todo, expand "Implement task" with subtasks from Product Inc
 
 **STEP 4**: Implement each subtask, use **build** and **test** MCP tools continously
 
-**STEP 5**: Frontend only - build and translate missing *.po entries
+**STEP 5**: Frontend only - build and verify ALL translations complete
 
-Run build to generate updated `*.po` files, then translate all empty `msgstr ""` entries for all supported languages. Use consistent domain terminology.
+1. Run build to extract new translation strings to `*.po` files
+2. Find ALL empty translations: `grep -r 'msgstr ""' */WebApp/shared/translations/locale/*.po`
+3. Translate EVERY empty msgstr found (all languages: da-DK, nl-NL, etc.)
+4. Use consistent domain terminology (check existing translations for guidance)
 
 **STEP 6**: Run validation tools and fix all failures/warnings
 
