@@ -10,10 +10,20 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public class ClaudeAgentCommand : Command
 {
+    private const int MinRestartIntervalMinutes = 20;
     private static bool _showAllActivities;
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-    private static DateTime? _lastTechLeadRestartTime = null;
-    private const int MinRestartIntervalMinutes = 20;
+    private static DateTime? _lastTechLeadRestartTime;
+
+    private static readonly string[] WorkerAgentTypes =
+    [
+        "backend-engineer",
+        "frontend-engineer",
+        "test-automation-engineer",
+        "backend-reviewer",
+        "frontend-reviewer",
+        "test-automation-reviewer"
+    ];
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
@@ -348,7 +358,7 @@ public class ClaudeAgentCommand : Command
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
                 // Launch manual session (with or without slash command based on user choice)
-                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null, useSlashCommand: wantsToContinue);
+                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null, wantsToContinue);
                 return; // Exit after session ends
             }
         }
@@ -1122,19 +1132,22 @@ public class ClaudeAgentCommand : Command
                 break;
             }
 
-            // Check if git changes exist and were recently modified
-            var hasRecentActivity = GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5));
+            var (hasRecentActivity, idleTime) = agentType switch
+            {
+                var type when type.EndsWith("-reviewer") => CheckReviewerActivity(workspace),
+                var type when type.EndsWith("-engineer") => CheckEngineerActivity(workspace, lastGitChangeDetected),
+                "tech-lead" => CheckTechLeadActivity(workspace, lastGitChangeDetected),
+                _ => (GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5)), DateTime.Now - lastGitChangeDetected)
+            };
 
             if (hasRecentActivity)
             {
-                // Changes detected - update timestamp and continue
                 lastGitChangeDetected = DateTime.Now;
-                Logger.Debug("Git changes detected, worker is active - continuing");
+                Logger.Debug("Worker is active - continuing");
             }
             else
             {
-                // No changes - check if exceeded inactivity threshold
-                var timeSinceLastChange = DateTime.Now - lastGitChangeDetected;
+                var timeSinceLastChange = idleTime;
 
                 if (timeSinceLastChange >= inactivityThreshold)
                 {
@@ -1157,17 +1170,6 @@ public class ClaudeAgentCommand : Command
                         {
                             Logger.Debug($"Worker inactive but only {timeSinceLastRestart.TotalMinutes:F1} minutes since last restart - waiting");
                             continue;
-                        }
-                    }
-
-                    // For tech-lead, check if has delegated work
-                    if (agentType == "tech-lead")
-                    {
-                        if (!HasActiveDelegatedWork(workspace.Branch))
-                        {
-                            // Tech-lead is idle (user is reading/thinking), don't restart
-                            Logger.Debug("Tech-lead idle (no active delegated work), session completed normally");
-                            return new ProcessCompletionResult(true, "Session completed");
                         }
                     }
 
@@ -1278,9 +1280,12 @@ public class ClaudeAgentCommand : Command
                     var proc = Process.GetProcessById(pid);
                     if (!proc.HasExited) active.Add((Path.GetFileName(dir), pid, proc.StartTime));
                 }
-                catch (ArgumentException) { }
+                catch (ArgumentException)
+                {
+                }
             }
         }
+
         return active;
     }
 
@@ -1294,10 +1299,17 @@ public class ClaudeAgentCommand : Command
             var pidFile = Path.Combine(dir, ".host-process-id");
             if (File.Exists(pidFile) && int.TryParse(File.ReadAllText(pidFile), out var pid))
             {
-                try { if (Process.GetProcessById(pid).HasExited) dead.Add(Path.GetFileName(dir)); }
-                catch (ArgumentException) { dead.Add(Path.GetFileName(dir)); }
+                try
+                {
+                    if (Process.GetProcessById(pid).HasExited) dead.Add(Path.GetFileName(dir));
+                }
+                catch (ArgumentException)
+                {
+                    dead.Add(Path.GetFileName(dir));
+                }
             }
         }
+
         return dead;
     }
 
@@ -1318,7 +1330,10 @@ public class ClaudeAgentCommand : Command
         if (dead.Count > 0)
         {
             AnsiConsole.MarkupLine("\n[red]Dead:[/]");
-            foreach (var type in dead) AnsiConsole.MarkupLine($"  • {type}");
+            foreach (var type in dead)
+            {
+                AnsiConsole.MarkupLine($"  • {type}");
+            }
         }
 
         return AnsiConsole.Prompt(
@@ -1338,8 +1353,11 @@ public class ClaudeAgentCommand : Command
                 KillProcess(Process.GetProcessById(pid));
                 AnsiConsole.MarkupLine($"[yellow]Killed {type} (PID {pid})[/]");
             }
-            catch { }
+            catch
+            {
+            }
         }
+
         if (active.Count > 0) Thread.Sleep(TimeSpan.FromSeconds(1));
 
         // Delete directories
@@ -1351,7 +1369,178 @@ public class ClaudeAgentCommand : Command
                 AnsiConsole.MarkupLine($"[green]Deleted {Path.GetFileName(path)}/[/]");
             }
         }
+
         AnsiConsole.WriteLine();
+    }
+
+    private static (bool HasRecentActivity, TimeSpan IdleTime) CheckReviewerActivity(Workspace workspace)
+    {
+        var sessionIdleTime = GetSessionIdleTime(workspace);
+        if (sessionIdleTime.HasValue)
+        {
+            var isActive = sessionIdleTime.Value < TimeSpan.FromMinutes(5);
+            if (isActive) Logger.Debug($"Reviewer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
+            return (isActive, sessionIdleTime.Value);
+        }
+
+        return (GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5)), TimeSpan.Zero);
+    }
+
+    private static (bool HasRecentActivity, TimeSpan IdleTime) CheckEngineerActivity(Workspace workspace, DateTime lastGitChange)
+    {
+        var sessionIdleTime = GetSessionIdleTime(workspace);
+        if (sessionIdleTime.HasValue)
+        {
+            if (CheckLastActionWasDelegation(workspace))
+            {
+                if (sessionIdleTime.Value < TimeSpan.FromMinutes(30))
+                {
+                    Logger.Debug($"Engineer waiting for reviewer ({sessionIdleTime.Value.TotalMinutes:F1} min ago) - expected");
+                    return (true, TimeSpan.Zero);
+                }
+
+                Logger.Debug($"Engineer waited {sessionIdleTime.Value.TotalMinutes:F1} min - likely deadlock");
+                return (false, sessionIdleTime.Value);
+            }
+
+            var isActive = sessionIdleTime.Value < TimeSpan.FromMinutes(5);
+            if (isActive) Logger.Debug($"Engineer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
+            return (isActive, sessionIdleTime.Value);
+        }
+
+        return (GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5)), DateTime.Now - lastGitChange);
+    }
+
+    private static (bool HasRecentActivity, TimeSpan IdleTime) CheckTechLeadActivity(Workspace workspace, DateTime lastGitChange)
+    {
+        var (hasActiveWorkers, crashedHosts) = CheckWorkerProcessStatus(workspace.Branch);
+
+        if (crashedHosts.Count > 0)
+        {
+            var alert = $"\n⚠️⚠️⚠️ CRITICAL SYSTEM ERROR ⚠️⚠️⚠️\n\nWorker-host(s) crashed:\n{string.Join("\n", crashedHosts.Select(h => $"  - {h}"))}\n\nPlease manually restart:\n{string.Join("\n", crashedHosts.Select(h => $"  developer-cli agent {h}"))}\n";
+            Logger.Error(alert);
+            AnsiConsole.MarkupLine($"[red]{alert.Replace("[", "[[").Replace("]", "]]")}[/]");
+            Thread.Sleep(TimeSpan.FromMinutes(5));
+            return (true, TimeSpan.Zero);
+        }
+
+        if (hasActiveWorkers)
+        {
+            Logger.Debug("Tech-lead idle but workers active - expected");
+            return (true, TimeSpan.Zero);
+        }
+
+        var sessionIdleTime = GetSessionIdleTime(workspace);
+        if (sessionIdleTime.HasValue)
+        {
+            var isActive = sessionIdleTime.Value < TimeSpan.FromMinutes(10);
+            if (!isActive) Logger.Debug($"Tech-lead idle ({sessionIdleTime.Value.TotalMinutes:F1} min) with no active workers - likely stuck");
+            return (isActive, sessionIdleTime.Value);
+        }
+
+        return (GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(5)), DateTime.Now - lastGitChange);
+    }
+
+    private static (bool HasActiveWorkers, List<string> CrashedHosts) CheckWorkerProcessStatus(string branch)
+    {
+        var activeWorkers = false;
+        var crashedHosts = new List<string>();
+
+        foreach (var agentType in WorkerAgentTypes)
+        {
+            var workspace = new Workspace(agentType, branch);
+
+            var hostAlive = IsProcessAlive(workspace.HostProcessIdFile);
+            var workerAlive = IsProcessAlive(workspace.WorkerProcessIdFile);
+
+            if (workerAlive) activeWorkers = true;
+            if (File.Exists(workspace.HostProcessIdFile) && !hostAlive) crashedHosts.Add(agentType);
+        }
+
+        return (activeWorkers, crashedHosts);
+    }
+
+    private static bool IsProcessAlive(string processIdFile)
+    {
+        if (!File.Exists(processIdFile)) return false;
+        if (!int.TryParse(File.ReadAllText(processIdFile), out var processId)) return false;
+        try
+        {
+            return !Process.GetProcessById(processId).HasExited;
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+    }
+
+    private static bool CheckLastActionWasDelegation(Workspace workspace)
+    {
+        try
+        {
+            var lastLine = GetLastSessionLine(workspace);
+            if (lastLine == null) return false;
+
+            using var document = JsonDocument.Parse(lastLine);
+            if (!document.RootElement.TryGetProperty("message", out var message)) return false;
+            if (!message.TryGetProperty("content", out var content)) return false;
+
+            foreach (var item in content.EnumerateArray())
+            {
+                if (item.TryGetProperty("name", out var name) && name.GetString() == "mcp__developer-cli__start_worker_agent")
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static TimeSpan? GetSessionIdleTime(Workspace workspace)
+    {
+        try
+        {
+            var lastLine = GetLastSessionLine(workspace);
+            if (lastLine == null) return null;
+
+            using var document = JsonDocument.Parse(lastLine);
+            if (!document.RootElement.TryGetProperty("timestamp", out var timestamp)) return null;
+
+            var lastActivity = DateTime.Parse(timestamp.GetString()!);
+            return DateTime.Now - lastActivity;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? GetLastSessionLine(Workspace workspace)
+    {
+        if (!File.Exists(workspace.SessionIdFile)) return null;
+
+        var sessionId = File.ReadAllText(workspace.SessionIdFile).Trim();
+        var claudeProjectsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".claude", "projects");
+
+        if (!Directory.Exists(claudeProjectsDir)) return null;
+
+        foreach (var projectDir in Directory.GetDirectories(claudeProjectsDir))
+        {
+            var sessionFile = Path.Combine(projectDir, $"{sessionId}.jsonl");
+            if (File.Exists(sessionFile))
+            {
+                // ReadLines().LastOrDefault() reads entire file but is pragmatic for our use case (~10-50ms for 10-50MB files read every 5 minutes)
+                try { return File.ReadLines(sessionFile).LastOrDefault(); }
+                catch (IOException) { return null; }
+            }
+        }
+
+        return null;
     }
 }
 
@@ -1397,4 +1586,6 @@ public class Workspace(string agentType, string? branch = null)
     public string TaskCounterFile => Path.Combine(MessagesDirectory, ".task-counter");
 
     public string SystemPromptFile => Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{AgentType}.txt");
+
+    public string SessionIdFile => Path.Combine(AgentWorkspaceDirectory, ".claude-session-id");
 }
