@@ -297,6 +297,9 @@ msgstr "Europe"
 msgid "Failed to load team details"
 msgstr "Failed to load team details"
 
+msgid "Failed to load team members"
+msgstr "Failed to load team members"
+
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
 
@@ -587,6 +590,9 @@ msgstr "Team Members"
 
 msgid "Team members updated successfully"
 msgstr "Team members updated successfully"
+
+msgid "Team not found"
+msgstr "Team not found"
 
 msgid "Team updated successfully"
 msgstr "Team updated successfully"

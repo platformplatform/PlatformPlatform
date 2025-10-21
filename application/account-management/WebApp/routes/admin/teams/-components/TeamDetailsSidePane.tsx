@@ -13,12 +13,30 @@ import { EditIcon, Trash2Icon, UsersIcon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
-import { mockTeamMembers, type TeamMemberDetails } from "../-data/mockTeamMembers";
 import type { TeamDetails } from "../-data/mockTeams";
 import { EditTeamMembersDialog } from "./EditTeamMembersDialog";
 
 type TeamSummary = components["schemas"]["TeamSummary"];
 type TeamResponse = components["schemas"]["TeamResponse"];
+
+// Local type definition for TeamMemberDetails since it's not exported by OpenAPI schema
+interface TeamMemberDetails {
+  teamMemberId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  userTitle: string;
+  userAvatar: {
+    url: string | null;
+  };
+  role: "Admin" | "Member";
+  // Component expected fields
+  name?: string;
+  email?: string;
+  title?: string;
+  avatarUrl?: string | null;
+  id?: string;
+}
 
 interface TeamDetailsSidePaneProps {
   team: TeamSummary | null;
@@ -34,7 +52,8 @@ function TeamDetailsContent({
   canViewMembers,
   canEditMembers,
   onEditMembers,
-  isLoadingMembers
+  isLoadingMembers,
+  memberError
 }: Readonly<{
   team: TeamResponse;
   members: TeamMemberDetails[];
@@ -42,10 +61,13 @@ function TeamDetailsContent({
   canEditMembers: boolean;
   onEditMembers: () => void;
   isLoadingMembers: boolean;
+  memberError?: string;
 }>) {
   const sortedMembers = [...members].sort((a, b) => {
     if (a.role === b.role) {
-      return a.name.localeCompare(b.name);
+      const nameA = a.name || a.userName || "";
+      const nameB = b.name || b.userName || "";
+      return nameA.localeCompare(nameB);
     }
     return a.role === "Admin" ? -1 : 1;
   });
@@ -74,7 +96,9 @@ function TeamDetailsContent({
           )}
         </div>
 
-        {!canViewMembers ? (
+        {memberError && memberError !== null ? (
+          <Text className="text-destructive text-sm">{memberError}</Text>
+        ) : !canViewMembers ? (
           <Text className="text-muted-foreground text-sm">
             <Trans>You must be a team member to view members</Trans>
           </Text>
@@ -106,26 +130,32 @@ function TeamDetailsContent({
           </div>
         ) : (
           <div className="space-y-3">
-            {sortedMembers.map((member) => (
-              <div key={member.id} className="flex items-center gap-3">
-                <Avatar
-                  initials={getInitials(member.name.split(" ")[0], member.name.split(" ")[1], member.email)}
-                  avatarUrl={member.avatarUrl}
-                  size="sm"
-                  isRound={true}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Text className="truncate font-medium text-sm">{member.name}</Text>
-                    <Badge variant={member.role === "Admin" ? "primary" : "outline"} className="text-xs">
-                      <Trans>{member.role}</Trans>
-                    </Badge>
+            {sortedMembers.map((member) => {
+              const memberName = member.name || member.userName || "";
+              const memberEmail = member.email || member.userEmail || "";
+              const memberTitle = member.title || member.userTitle || "";
+              const nameParts = memberName.split(" ");
+              return (
+                <div key={member.id || member.userId} className="flex items-center gap-3">
+                  <Avatar
+                    initials={getInitials(nameParts[0], nameParts[1], memberEmail)}
+                    avatarUrl={member.avatarUrl || member.userAvatar?.url || null}
+                    size="sm"
+                    isRound={true}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <Text className="truncate font-medium text-sm">{memberName}</Text>
+                      <Badge variant={member.role === "Admin" ? "primary" : "outline"} className="text-xs">
+                        <Trans>{member.role}</Trans>
+                      </Badge>
+                    </div>
+                    <Text className="truncate text-muted-foreground text-xs">{memberEmail}</Text>
+                    {memberTitle && <Text className="truncate text-muted-foreground text-xs">{memberTitle}</Text>}
                   </div>
-                  <Text className="truncate text-muted-foreground text-xs">{member.email}</Text>
-                  {member.title && <Text className="truncate text-muted-foreground text-xs">{member.title}</Text>}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -222,8 +252,7 @@ export function TeamDetailsSidePane({
   const closeButtonRef = useRef<SVGSVGElement>(null);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [isEditMembersDialogOpen, setIsEditMembersDialogOpen] = useState(false);
-  const [teamMembers, setTeamMembers] = useState<TeamMemberDetails[]>([]);
-  const [isLoadingMembers, setIsLoadingMembers] = useState(false);
+  const [memberError, setMemberError] = useState<string | undefined>(undefined);
 
   const {
     data: teamDetails,
@@ -238,32 +267,88 @@ export function TeamDetailsSidePane({
     enabled: !!team?.id
   });
 
-  useEffect(() => {
-    if (team?.id) {
-      setIsLoadingMembers(true);
-      const timer = setTimeout(() => {
-        setTeamMembers(mockTeamMembers[team.id] || []);
-        setIsLoadingMembers(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [team?.id]);
+  const {
+    data: membersResponse,
+    isLoading: isLoadingMembers,
+    error: membersError
+  } = api.useQuery("get", "/api/account-management/teams/{teamId}/members", {
+    params: {
+      path: {
+        teamId: team?.id || ""
+      }
+    },
+    enabled: !!team?.id
+  });
 
-  const isUserTeamMember = teamMembers.some((member) => member.email === userInfo?.email);
+  interface MembersResponse {
+    members: Array<{
+      teamMemberId: string;
+      userId: string;
+      userName: string;
+      userEmail: string;
+      userTitle: string;
+      userAvatar?: {
+        url: string | null;
+      } | null;
+      role: "Admin" | "Member";
+    }>;
+  }
+
+  const membersData = (membersResponse as MembersResponse | undefined)?.members || [];
   const isTenantOwner = userInfo?.role === "Owner";
+
+  // Transform API response to component format
+  const transformedMembers: Array<
+    TeamMemberDetails & { name: string; email: string; title: string; avatarUrl: string | null }
+  > = membersData.map((m) => ({
+    teamMemberId: m.teamMemberId,
+    userId: m.userId,
+    role: m.role,
+    userName: m.userName,
+    userEmail: m.userEmail,
+    userTitle: m.userTitle,
+    userAvatar: m.userAvatar,
+    // Map to component's expected fields
+    name: m.userName,
+    email: m.userEmail,
+    title: m.userTitle,
+    avatarUrl: m.userAvatar?.url || null,
+    id: m.teamMemberId
+  }));
+
+  const isUserTeamMember = transformedMembers.some((member) => member.email === userInfo?.email);
+
+  useEffect(() => {
+    if (!membersError) {
+      setMemberError(undefined);
+      return;
+    }
+
+    const statusCode = (membersError as { status?: number } | undefined)?.status;
+    if (statusCode === 403) {
+      setMemberError(t`You must be a team member to view members`);
+    } else if (statusCode === 404) {
+      setMemberError(t`Team not found`);
+    } else {
+      setMemberError(t`Failed to load team members`);
+      console.error("Failed to load team members:", membersError);
+    }
+  }, [membersError]);
+
   const canViewMembers = isUserTeamMember || isTenantOwner;
 
-  const currentUserMember = teamMembers.find((m) => m.email === userInfo?.email);
+  const currentUserMember = transformedMembers.find((m) => m.email === userInfo?.email);
   const isCurrentUserMember = !!currentUserMember;
   const isCurrentUserAdmin = currentUserMember?.role === "Admin";
-  const canEditMembers = (isCurrentUserAdmin || isTenantOwner) && isCurrentUserMember;
+  const canEditMembers = isTenantOwner || (isCurrentUserAdmin && isCurrentUserMember);
 
   const handleEditMembers = () => {
     setIsEditMembersDialogOpen(true);
   };
 
-  const handleMembersUpdated = (updatedMembers: TeamMemberDetails[]) => {
-    setTeamMembers(updatedMembers);
+  const handleMembersUpdated = () => {
+    // Refresh the members query after update
+    // The API query will automatically re-fetch
   };
 
   useEffect(() => {
@@ -328,11 +413,12 @@ export function TeamDetailsSidePane({
             {teamDetails && (
               <TeamDetailsContent
                 team={teamDetails}
-                members={teamMembers}
+                members={transformedMembers}
                 canViewMembers={canViewMembers}
                 canEditMembers={canEditMembers}
                 onEditMembers={handleEditMembers}
                 isLoadingMembers={isLoadingMembers}
+                memberError={memberError}
               />
             )}
           </div>
@@ -359,10 +445,14 @@ export function TeamDetailsSidePane({
               id: teamDetails.id,
               name: teamDetails.name,
               description: teamDetails.description,
-              memberCount: teamMembers.length
+              memberCount: transformedMembers.length
             } as TeamDetails
           }
-          currentMembers={teamMembers}
+          currentMembers={
+            transformedMembers as Array<
+              TeamMemberDetails & { name: string; email: string; title: string; avatarUrl: string | null }
+            >
+          }
           isOpen={isEditMembersDialogOpen}
           onOpenChange={setIsEditMembersDialogOpen}
           onMembersUpdated={handleMembersUpdated}
