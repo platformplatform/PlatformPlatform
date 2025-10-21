@@ -4,53 +4,28 @@ import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextArea } from "@repo/ui/components/TextArea";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useQueryClient } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
-import { useState } from "react";
+import { api } from "@/shared/lib/api/client";
 
 interface CreateTeamDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTeamCreated?: (team: { id: string; name: string; description: string; memberCount: number }) => void;
 }
 
-export function CreateTeamDialog({ isOpen, onOpenChange, onTeamCreated }: Readonly<CreateTeamDialogProps>) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function CreateTeamDialog({ isOpen, onOpenChange }: Readonly<CreateTeamDialogProps>) {
+  const queryClient = useQueryClient();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!name.trim()) {
-      return;
-    }
-
-    if (name.length > 100) {
-      return;
-    }
-
-    if (description.length > 500) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      const newTeam = {
-        id: `team-${Date.now()}`,
-        name: name.trim(),
-        description: description.trim(),
-        memberCount: 0
-      };
-
-      if (onTeamCreated) {
-        onTeamCreated(newTeam);
-      }
+  const createTeamMutation = api.useMutation("post", "/api/account-management/teams", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/account-management/teams"] });
 
       toastQueue.add({
         title: t`Success`,
@@ -58,16 +33,11 @@ export function CreateTeamDialog({ isOpen, onOpenChange, onTeamCreated }: Readon
         variant: "success"
       });
 
-      setName("");
-      setDescription("");
-      setIsSubmitting(false);
       onOpenChange(false);
-    }, 300);
-  };
+    }
+  });
 
   const handleCancel = () => {
-    setName("");
-    setDescription("");
     onOpenChange(false);
   };
 
@@ -81,33 +51,30 @@ export function CreateTeamDialog({ isOpen, onOpenChange, onTeamCreated }: Readon
           </Heading>
         </DialogHeader>
 
-        <Form onSubmit={handleSubmit} validationBehavior="native" className="flex flex-col max-sm:h-full">
+        <Form
+          onSubmit={mutationSubmitter(createTeamMutation)}
+          validationBehavior="aria"
+          validationErrors={createTeamMutation.error?.errors}
+          className="flex flex-col max-sm:h-full"
+        >
           <DialogContent className="flex flex-col gap-4">
             <TextField
               autoFocus={true}
               isRequired={true}
               name="name"
               label={t`Name`}
-              value={name}
-              onChange={setName}
               maxLength={100}
               className="flex-grow"
             />
-            <TextArea
-              name="description"
-              label={t`Description`}
-              value={description}
-              onChange={setDescription}
-              maxLength={500}
-              className="flex-grow"
-            />
+            <TextArea name="description" label={t`Description`} maxLength={500} className="flex-grow" />
           </DialogContent>
           <DialogFooter>
-            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={isSubmitting}>
+            <FormErrorMessage error={createTeamMutation.error} />
+            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={createTeamMutation.isPending}>
               <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit" isDisabled={isSubmitting}>
-              <Trans>Create Team</Trans>
+            <Button type="submit" isDisabled={createTeamMutation.isPending}>
+              {createTeamMutation.isPending ? <Trans>Creating...</Trans> : <Trans>Create Team</Trans>}
             </Button>
           </DialogFooter>
         </Form>

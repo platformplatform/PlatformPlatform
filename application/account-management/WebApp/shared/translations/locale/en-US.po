@@ -186,6 +186,9 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
+msgid "Creating..."
+msgstr "Creating..."
+
 msgid "Danger zone"
 msgstr "Danger zone"
 

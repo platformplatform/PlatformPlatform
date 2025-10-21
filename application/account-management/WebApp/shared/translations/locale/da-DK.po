@@ -186,6 +186,9 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
+msgid "Creating..."
+msgstr "Opretter..."
+
 msgid "Danger zone"
 msgstr "Farezone"
 

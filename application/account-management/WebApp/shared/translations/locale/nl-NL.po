@@ -186,6 +186,9 @@ msgstr "Maak je account aan"
 msgid "Created"
 msgstr "Aangemaakt"
 
+msgid "Creating..."
+msgstr "Maken..."
+
 msgid "Danger zone"
 msgstr "Gevaarzone"
 
