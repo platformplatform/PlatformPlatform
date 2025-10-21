@@ -14,11 +14,12 @@ public class TestCommand : Command
         AddOption(new Option<bool>(["--backend", "-b"], "Run only backend tests"));
         AddOption(new Option<bool>(["--frontend", "-f"], "Run only frontend tests"));
         AddOption(new Option<bool>(["--quiet", "-q"], "Minimal output mode"));
+        AddOption(new Option<string?>(["--filter"], "Filter tests by name (dotnet test --filter)"));
 
-        Handler = CommandHandler.Create<string?, bool, bool, bool, bool>(Execute);
+        Handler = CommandHandler.Create<string?, bool, bool, bool, bool, string?>(Execute);
     }
 
-    private void Execute(string? selfContainedSystem, bool noBuild, bool backend, bool frontend, bool quiet)
+    private void Execute(string? selfContainedSystem, bool noBuild, bool backend, bool frontend, bool quiet, string? filter)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
@@ -27,15 +28,15 @@ public class TestCommand : Command
 
         if (quiet)
         {
-            ExecuteQuiet(selfContainedSystem, noBuild, testBackend, testFrontend);
+            ExecuteQuiet(selfContainedSystem, noBuild, testBackend, testFrontend, filter);
         }
         else
         {
-            ExecuteVerbose(selfContainedSystem, noBuild, testBackend, testFrontend);
+            ExecuteVerbose(selfContainedSystem, noBuild, testBackend, testFrontend, filter);
         }
     }
 
-    private void ExecuteVerbose(string? selfContainedSystem, bool noBuild, bool testBackend, bool testFrontend)
+    private void ExecuteVerbose(string? selfContainedSystem, bool noBuild, bool testBackend, bool testFrontend, string? filter)
     {
         if (testBackend)
         {
@@ -46,7 +47,8 @@ public class TestCommand : Command
                 ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
             }
 
-            ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+            var filterArg = filter != null ? $" --filter \"{filter}\"" : "";
+            ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore{filterArg}", solutionFile.Directory?.FullName);
         }
 
         if (testFrontend)
@@ -55,7 +57,7 @@ public class TestCommand : Command
         }
     }
 
-    private void ExecuteQuiet(string? selfContainedSystem, bool noBuild, bool testBackend, bool testFrontend)
+    private void ExecuteQuiet(string? selfContainedSystem, bool noBuild, bool testBackend, bool testFrontend, string? filter)
     {
         try
         {
@@ -73,7 +75,10 @@ public class TestCommand : Command
                     }
                 }
 
-                var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+                var filterArg = filter != null ? $" --filter \"{filter}\"" : "";
+                // Add detailed console logger to capture EF Core and ASP.NET diagnostic logs (fail: messages)
+                var loggerArg = " --logger \"console;verbosity=detailed\"";
+                var testResult = ProcessHelper.ExecuteQuietly($"dotnet test {solutionFile.Name} --no-build --no-restore{filterArg}{loggerArg}", solutionFile.Directory?.FullName);
                 if (!testResult.Success)
                 {
                     Console.WriteLine(testResult.GetErrorSummary("Tests"));

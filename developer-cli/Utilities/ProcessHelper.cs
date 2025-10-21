@@ -119,6 +119,9 @@ public static class ProcessHelper
 
         process.WaitForExit();
 
+        // Ensure async stream reads complete (WaitForExit can return before streams finish)
+        Task.WaitAll(stdoutTask, stderrTask);
+
         var stdout = stdoutTask.Result;
         var stderr = stderrTask.Result;
 
