@@ -4,14 +4,17 @@ import { Button } from "@repo/ui/components/Button";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
+import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { TextArea } from "@repo/ui/components/TextArea";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
+import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useQueryClient } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { components } from "@/shared/lib/api/client";
+import { useEffect } from "react";
+import { api, type components } from "@/shared/lib/api/client";
 
 type TeamSummary = components["schemas"]["TeamSummary"];
 
@@ -19,47 +22,16 @@ interface EditTeamDialogProps {
   team: TeamSummary | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTeamUpdated?: (team: TeamSummary) => void;
 }
 
-export function EditTeamDialog({ team, isOpen, onOpenChange, onTeamUpdated }: Readonly<EditTeamDialogProps>) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function EditTeamDialog({ team, isOpen, onOpenChange }: Readonly<EditTeamDialogProps>) {
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (team && isOpen) {
-      setName(team.name);
-      setDescription(team.description);
-    }
-  }, [team, isOpen]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!name.trim() || !team) {
-      return;
-    }
-
-    if (name.length > 100) {
-      return;
-    }
-
-    if (description.length > 500) {
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    setTimeout(() => {
-      const updatedTeam: TeamSummary = {
-        ...team,
-        name: name.trim(),
-        description: description.trim()
-      };
-
-      if (onTeamUpdated) {
-        onTeamUpdated(updatedTeam);
+  const updateTeamMutation = api.useMutation("put", "/api/account-management/teams/{id}", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/account-management/teams"] });
+      if (team?.id) {
+        queryClient.invalidateQueries({ queryKey: ["/api/account-management/teams/{id}", { id: team.id }] });
       }
 
       toastQueue.add({
@@ -68,16 +40,17 @@ export function EditTeamDialog({ team, isOpen, onOpenChange, onTeamUpdated }: Re
         variant: "success"
       });
 
-      setIsSubmitting(false);
       onOpenChange(false);
-    }, 300);
-  };
+    }
+  });
+
+  useEffect(() => {
+    if (!isOpen) {
+      updateTeamMutation.reset();
+    }
+  }, [isOpen, updateTeamMutation]);
 
   const handleCancel = () => {
-    if (team) {
-      setName(team.name);
-      setDescription(team.description);
-    }
     onOpenChange(false);
   };
 
@@ -91,33 +64,39 @@ export function EditTeamDialog({ team, isOpen, onOpenChange, onTeamUpdated }: Re
           </Heading>
         </DialogHeader>
 
-        <Form onSubmit={handleSubmit} validationBehavior="native" className="flex flex-col max-sm:h-full">
+        <Form
+          onSubmit={mutationSubmitter(updateTeamMutation, {
+            path: { id: team?.id || "" }
+          })}
+          validationBehavior="aria"
+          validationErrors={updateTeamMutation.error?.errors}
+          className="flex flex-col max-sm:h-full"
+        >
           <DialogContent className="flex flex-col gap-4">
             <TextField
               autoFocus={true}
               isRequired={true}
               name="name"
               label={t`Name`}
-              value={name}
-              onChange={setName}
+              defaultValue={team?.name}
               maxLength={100}
               className="flex-grow"
             />
             <TextArea
               name="description"
               label={t`Description`}
-              value={description}
-              onChange={setDescription}
+              defaultValue={team?.description}
               maxLength={500}
               className="flex-grow"
             />
           </DialogContent>
           <DialogFooter>
-            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={isSubmitting}>
+            <FormErrorMessage error={updateTeamMutation.error} />
+            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={updateTeamMutation.isPending}>
               <Trans>Cancel</Trans>
             </Button>
-            <Button type="submit" isDisabled={isSubmitting}>
-              <Trans>Save Changes</Trans>
+            <Button type="submit" isDisabled={updateTeamMutation.isPending}>
+              {updateTeamMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save Changes</Trans>}
             </Button>
           </DialogFooter>
         </Form>
