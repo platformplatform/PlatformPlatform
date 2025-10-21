@@ -68,7 +68,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
   "todos": [
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
-    {"content": "Study rules relevant for the task at hand", "status": "pending", "activeForm": "Studying relevant rules"},
+    {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Verify translations are complete and use consistent domain terminology (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
@@ -106,7 +106,11 @@ In a single message, use Task tool three times:
 
 For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
-**STEP 3**: Study rules
+**STEP 3**: Study ALL rules for your role (read files or recall from memory)
+
+- **Backend reviewer**: ALL files in `.claude/rules/backend/`
+- **Frontend reviewer**: ALL files in `.claude/rules/frontend/`
+- **Test automation reviewer**: ALL files in `.claude/rules/end-to-end-tests/`
 
 **STEP 4**: Frontend only - verify translations in `*.po` files
 
