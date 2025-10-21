@@ -62,6 +62,9 @@ msgstr "Nieuwe toevoegen via het Gebruikers menu"
 msgid "Add profile picture"
 msgstr "Profielfoto toevoegen"
 
+msgid "Add selected users to team"
+msgstr "Geselecteerde gebruikers toevoegen aan team"
+
 msgid "Add your account name"
 msgstr "Voeg je accountnaam toe"
 
@@ -106,6 +109,9 @@ msgstr "Authenticatie wordt gedeeld over alle tabbladen."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Authenticatie wordt gedeeld over alle tabbladen. Gebruik verschillende browsers om meerdere accounts tegelijk te gebruiken."
+
+msgid "Available Users"
+msgstr "Beschikbare gebruikers"
 
 msgid "Back Office"
 msgstr "Backoffice"
@@ -376,6 +382,12 @@ msgstr "Hulp nodig? Ons ondersteuningsteam staat voor je klaar."
 msgid "Next"
 msgstr "Volgende"
 
+msgid "No available users"
+msgstr "Geen beschikbare gebruikers"
+
+msgid "No team members"
+msgstr "Geen teamleden"
+
 msgid "OK"
 msgstr "OK"
 
@@ -439,11 +451,18 @@ msgstr "Logo verwijderen"
 msgid "Remove profile picture"
 msgstr "Profielfoto verwijderen"
 
+msgid "Remove selected members from team"
+msgstr "Geselecteerde leden verwijderen van team"
+
 msgid "Request a new code"
 msgstr "Vraag een nieuwe code aan"
 
 msgid "Role"
 msgstr "Rol"
+
+#. placeholder {0}: member.name
+msgid "Role for {0}"
+msgstr "Rol voor {0}"
 
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
@@ -459,6 +478,9 @@ msgstr "Schermafbeeldingen van het dashboardproject met desktop en mobiele versi
 
 msgid "Search"
 msgstr "Zoeken"
+
+msgid "Search by name, email, or title"
+msgstr "Zoeken op naam, e-mail of functie"
 
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
@@ -505,6 +527,12 @@ msgstr "Team verwijderd"
 
 msgid "Team details"
 msgstr "Teamdetails"
+
+msgid "Team Members"
+msgstr "Teamleden"
+
+msgid "Team members updated successfully"
+msgstr "Teamleden bijgewerkt"
 
 msgid "Team updated successfully"
 msgstr "Team bijgewerkt"

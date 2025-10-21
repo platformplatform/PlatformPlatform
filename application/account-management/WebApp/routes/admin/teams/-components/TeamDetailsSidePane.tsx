@@ -12,20 +12,24 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { EditIcon, Trash2Icon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
-import { mockTeamMembers } from "../-data/mockTeamMembers";
+import type { TeamMemberDetails } from "../-data/mockTeamMembers";
 import type { TeamDetails } from "../-data/mockTeams";
 
 interface TeamDetailsSidePaneProps {
   team: TeamDetails | null;
+  teamMembers: TeamMemberDetails[];
   isOpen: boolean;
   onClose: () => void;
   onEditTeam: () => void;
   onDeleteTeam: () => void;
+  onEditMembers: () => void;
 }
 
-function TeamDetailsContent({ team }: Readonly<{ team: TeamDetails }>) {
-  const members = mockTeamMembers[team.id] || [];
-
+function TeamDetailsContent({
+  team,
+  members,
+  onEditMembers
+}: Readonly<{ team: TeamDetails; members: TeamMemberDetails[]; onEditMembers: () => void }>) {
   return (
     <>
       <div className="mb-6">
@@ -42,7 +46,7 @@ function TeamDetailsContent({ team }: Readonly<{ team: TeamDetails }>) {
           <Heading level={4} className="font-medium text-sm">
             <Trans>Members</Trans> ({members.length})
           </Heading>
-          <Button variant="ghost" className="h-auto p-0 text-xs">
+          <Button variant="ghost" className="h-auto p-0 text-xs" onPress={onEditMembers}>
             <Trans>Edit Team Members</Trans>
           </Button>
         </div>
@@ -153,10 +157,12 @@ function useSidePaneAccessibility(
 
 export function TeamDetailsSidePane({
   team,
+  teamMembers,
   isOpen,
   onClose,
   onEditTeam,
-  onDeleteTeam
+  onDeleteTeam,
+  onEditMembers
 }: Readonly<TeamDetailsSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
@@ -207,7 +213,7 @@ export function TeamDetailsSidePane({
         <div className="flex-1 overflow-y-auto">
           {team && (
             <div className="p-4">
-              <TeamDetailsContent team={team} />
+              <TeamDetailsContent team={team} members={teamMembers} onEditMembers={onEditMembers} />
             </div>
           )}
         </div>

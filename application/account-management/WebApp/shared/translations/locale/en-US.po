@@ -62,6 +62,9 @@ msgstr "Add more in the Users menu"
 msgid "Add profile picture"
 msgstr "Add profile picture"
 
+msgid "Add selected users to team"
+msgstr "Add selected users to team"
+
 msgid "Add your account name"
 msgstr "Add your account name"
 
@@ -106,6 +109,9 @@ msgstr "Authentication is shared across all tabs."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+
+msgid "Available Users"
+msgstr "Available Users"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -376,6 +382,12 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
+msgid "No available users"
+msgstr "No available users"
+
+msgid "No team members"
+msgstr "No team members"
+
 msgid "OK"
 msgstr "OK"
 
@@ -439,11 +451,18 @@ msgstr "Remove logo"
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
 
+msgid "Remove selected members from team"
+msgstr "Remove selected members from team"
+
 msgid "Request a new code"
 msgstr "Request a new code"
 
 msgid "Role"
 msgstr "Role"
+
+#. placeholder {0}: member.name
+msgid "Role for {0}"
+msgstr "Role for {0}"
 
 msgid "Save changes"
 msgstr "Save changes"
@@ -459,6 +478,9 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 
 msgid "Search"
 msgstr "Search"
+
+msgid "Search by name, email, or title"
+msgstr "Search by name, email, or title"
 
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
@@ -505,6 +527,12 @@ msgstr "Team deleted successfully"
 
 msgid "Team details"
 msgstr "Team details"
+
+msgid "Team Members"
+msgstr "Team Members"
+
+msgid "Team members updated successfully"
+msgstr "Team members updated successfully"
 
 msgid "Team updated successfully"
 msgstr "Team updated successfully"

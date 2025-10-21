@@ -1,0 +1,356 @@
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { Avatar } from "@repo/ui/components/Avatar";
+import { Button } from "@repo/ui/components/Button";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import { Form } from "@repo/ui/components/Form";
+import { Heading } from "@repo/ui/components/Heading";
+import { Modal } from "@repo/ui/components/Modal";
+import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Text } from "@repo/ui/components/Text";
+import { TextField } from "@repo/ui/components/TextField";
+import { toastQueue } from "@repo/ui/components/Toast";
+import { getInitials } from "@repo/utils/string/getInitials";
+import { ArrowLeftIcon, ArrowRightIcon, XIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import type { TeamMemberDetails } from "../-data/mockTeamMembers";
+import type { TeamDetails } from "../-data/mockTeams";
+import type { TenantUser } from "../-data/mockTenantUsers";
+import { mockTenantUsers } from "../-data/mockTenantUsers";
+
+interface EditTeamMembersDialogProps {
+  team: TeamDetails | null;
+  currentMembers: TeamMemberDetails[];
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  onMembersUpdated: (members: TeamMemberDetails[]) => void;
+}
+
+interface TeamMemberWithRole extends TenantUser {
+  memberId?: string;
+  role: "Admin" | "Member";
+}
+
+export function EditTeamMembersDialog({
+  team,
+  currentMembers,
+  isOpen,
+  onOpenChange,
+  onMembersUpdated
+}: Readonly<EditTeamMembersDialogProps>) {
+  const userInfo = useUserInfo();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [teamMembers, setTeamMembers] = useState<TeamMemberWithRole[]>([]);
+  const [selectedAvailableUsers, setSelectedAvailableUsers] = useState<Set<string>>(new Set());
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && team) {
+      const membersWithRole: TeamMemberWithRole[] = currentMembers.map((member) => ({
+        userId: member.userId,
+        memberId: member.id,
+        name: member.name,
+        email: member.email,
+        title: member.title,
+        avatarUrl: member.avatarUrl,
+        role: member.role
+      }));
+      setTeamMembers(membersWithRole);
+      setSelectedAvailableUsers(new Set());
+      setSelectedTeamMembers(new Set());
+      setSearchQuery("");
+    }
+  }, [isOpen, team, currentMembers]);
+
+  const availableUsers = useMemo(() => {
+    const memberUserIds = new Set(teamMembers.map((m) => m.userId));
+    return mockTenantUsers.filter((user) => !memberUserIds.has(user.userId));
+  }, [teamMembers]);
+
+  const filterUser = (user: TenantUser | TeamMemberWithRole, query: string) => {
+    if (!query) {
+      return true;
+    }
+    const lowerQuery = query.toLowerCase();
+    return (
+      user.name.toLowerCase().includes(lowerQuery) ||
+      user.email.toLowerCase().includes(lowerQuery) ||
+      user.title.toLowerCase().includes(lowerQuery)
+    );
+  };
+
+  const filteredAvailableUsers = useMemo(
+    () => availableUsers.filter((user) => filterUser(user, searchQuery)),
+    [availableUsers, searchQuery]
+  );
+
+  const filteredTeamMembers = useMemo(
+    () => teamMembers.filter((member) => filterUser(member, searchQuery)),
+    [teamMembers, searchQuery]
+  );
+
+  const currentUserMember = teamMembers.find((m) => m.email === userInfo?.email);
+  const isCurrentUserAdmin = currentUserMember?.role === "Admin";
+
+  const handleAddMembers = () => {
+    const usersToAdd = mockTenantUsers
+      .filter((user) => selectedAvailableUsers.has(user.userId))
+      .map((user) => ({
+        ...user,
+        role: "Member" as const
+      }));
+
+    setTeamMembers((prev) => [...prev, ...usersToAdd]);
+    setSelectedAvailableUsers(new Set());
+  };
+
+  const handleRemoveMembers = () => {
+    const userIdsToRemove = new Set(selectedTeamMembers);
+    setTeamMembers((prev) => prev.filter((member) => !userIdsToRemove.has(member.userId)));
+    setSelectedTeamMembers(new Set());
+  };
+
+  const handleRoleChange = (userId: string, newRole: "Admin" | "Member") => {
+    setTeamMembers((prev) => prev.map((member) => (member.userId === userId ? { ...member, role: newRole } : member)));
+  };
+
+  const canRemove = (userId: string) => {
+    if (!isCurrentUserAdmin) {
+      return false;
+    }
+    const member = teamMembers.find((m) => m.userId === userId);
+    return member?.email !== userInfo?.email;
+  };
+
+  const canChangeRole = (userId: string) => {
+    if (!isCurrentUserAdmin) {
+      return false;
+    }
+    const member = teamMembers.find((m) => m.userId === userId);
+    return member?.email !== userInfo?.email;
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+
+    setTimeout(() => {
+      const updatedMembers: TeamMemberDetails[] = teamMembers.map((member) => ({
+        id: member.memberId || `member-${Date.now()}-${member.userId}`,
+        userId: member.userId,
+        name: member.name,
+        email: member.email,
+        title: member.title,
+        avatarUrl: member.avatarUrl,
+        role: member.role
+      }));
+
+      onMembersUpdated(updatedMembers);
+
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Team members updated successfully`,
+        variant: "success"
+      });
+
+      setIsSubmitting(false);
+      onOpenChange(false);
+    }, 300);
+  };
+
+  const handleCancel = () => {
+    setSearchQuery("");
+    setSelectedAvailableUsers(new Set());
+    setSelectedTeamMembers(new Set());
+    onOpenChange(false);
+  };
+
+  const toggleAvailableUser = (userId: string) => {
+    setSelectedAvailableUsers((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleTeamMember = (userId: string) => {
+    if (!canRemove(userId)) {
+      return;
+    }
+    setSelectedTeamMembers((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
+  };
+
+  return (
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
+      <Dialog className="sm:w-dialog-lg">
+        <XIcon onClick={handleCancel} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
+        <DialogHeader>
+          <Heading slot="title" className="text-2xl">
+            <Trans>Edit Team Members</Trans>
+          </Heading>
+        </DialogHeader>
+
+        <Form onSubmit={handleSubmit} className="flex flex-col max-sm:h-full">
+          <DialogContent className="flex flex-col gap-4">
+            <TextField
+              label={t`Search`}
+              placeholder={t`Search by name, email, or title`}
+              value={searchQuery}
+              onChange={setSearchQuery}
+            />
+
+            <div className="grid grid-cols-[1fr_auto_1fr] gap-4">
+              <div className="flex flex-col gap-2">
+                <Heading level={4} className="font-medium text-sm">
+                  <Trans>Available Users</Trans> ({filteredAvailableUsers.length})
+                </Heading>
+                <div className="h-80 overflow-y-auto rounded-md border border-border bg-background">
+                  {filteredAvailableUsers.length === 0 ? (
+                    <div className="flex h-full items-center justify-center p-4">
+                      <Text className="text-muted-foreground text-sm">
+                        <Trans>No available users</Trans>
+                      </Text>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 p-2">
+                      {filteredAvailableUsers.map((user) => (
+                        <button
+                          key={user.userId}
+                          type="button"
+                          onClick={() => toggleAvailableUser(user.userId)}
+                          className={`flex w-full items-center gap-3 rounded-md p-2 text-left transition-colors ${
+                            selectedAvailableUsers.has(user.userId)
+                              ? "bg-primary text-primary-foreground"
+                              : "hover:bg-muted"
+                          }`}
+                        >
+                          <Avatar
+                            initials={getInitials(user.name.split(" ")[0], user.name.split(" ")[1], user.email)}
+                            avatarUrl={user.avatarUrl}
+                            size="sm"
+                            isRound={true}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <Text className="truncate text-sm">{user.name}</Text>
+                            <Text className="truncate text-xs opacity-80">{user.email}</Text>
+                            <Text className="truncate text-xs opacity-80">{user.title}</Text>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onPress={handleAddMembers}
+                  isDisabled={selectedAvailableUsers.size === 0 || isSubmitting}
+                  className="w-10 p-0"
+                  aria-label={t`Add selected users to team`}
+                >
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onPress={handleRemoveMembers}
+                  isDisabled={selectedTeamMembers.size === 0 || isSubmitting}
+                  className="w-10 p-0"
+                  aria-label={t`Remove selected members from team`}
+                >
+                  <ArrowLeftIcon className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Heading level={4} className="font-medium text-sm">
+                  <Trans>Team Members</Trans> ({filteredTeamMembers.length})
+                </Heading>
+                <div className="h-80 overflow-y-auto rounded-md border border-border bg-background">
+                  {filteredTeamMembers.length === 0 ? (
+                    <div className="flex h-full items-center justify-center p-4">
+                      <Text className="text-muted-foreground text-sm">
+                        <Trans>No team members</Trans>
+                      </Text>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 p-2">
+                      {filteredTeamMembers.map((member) => (
+                        <div
+                          key={member.userId}
+                          className={`flex w-full items-center gap-3 rounded-md p-2 ${
+                            selectedTeamMembers.has(member.userId) ? "bg-primary text-primary-foreground" : ""
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => toggleTeamMember(member.userId)}
+                            disabled={!canRemove(member.userId)}
+                            className="flex min-w-0 flex-1 items-center gap-3 text-left disabled:cursor-not-allowed"
+                          >
+                            <Avatar
+                              initials={getInitials(member.name.split(" ")[0], member.name.split(" ")[1], member.email)}
+                              avatarUrl={member.avatarUrl}
+                              size="sm"
+                              isRound={true}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <Text className="truncate text-sm">{member.name}</Text>
+                              <Text className="truncate text-xs opacity-80">{member.email}</Text>
+                              <Text className="truncate text-xs opacity-80">{member.title}</Text>
+                            </div>
+                          </button>
+                          <Select
+                            aria-label={t`Role for ${member.name}`}
+                            selectedKey={member.role}
+                            onSelectionChange={(key) => handleRoleChange(member.userId, key as "Admin" | "Member")}
+                            isDisabled={!canChangeRole(member.userId) || isSubmitting}
+                            className="w-28"
+                          >
+                            <SelectItem id="Member">
+                              <Trans>Member</Trans>
+                            </SelectItem>
+                            <SelectItem id="Admin">
+                              <Trans>Admin</Trans>
+                            </SelectItem>
+                          </Select>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+          <DialogFooter>
+            <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={isSubmitting}>
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button type="submit" isDisabled={isSubmitting}>
+              <Trans>Save Changes</Trans>
+            </Button>
+          </DialogFooter>
+        </Form>
+      </Dialog>
+    </Modal>
+  );
+}

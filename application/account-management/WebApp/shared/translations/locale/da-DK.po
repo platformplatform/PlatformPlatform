@@ -62,6 +62,9 @@ msgstr "Tilføj flere i Brugere menuen"
 msgid "Add profile picture"
 msgstr "Tilføj profilbillede"
 
+msgid "Add selected users to team"
+msgstr "Tilføj valgte brugere til team"
+
 msgid "Add your account name"
 msgstr "Tilføj dit kontonavn"
 
@@ -106,6 +109,9 @@ msgstr "Autentificering deles på tværs af alle faner."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti samtidigt, brug venligst forskellige browsere."
+
+msgid "Available Users"
+msgstr "Tilgængelige brugere"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -376,6 +382,12 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
+msgid "No available users"
+msgstr "Ingen tilgængelige brugere"
+
+msgid "No team members"
+msgstr "Ingen teammedlemmer"
+
 msgid "OK"
 msgstr "OK"
 
@@ -439,11 +451,18 @@ msgstr "Fjern logo"
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
 
+msgid "Remove selected members from team"
+msgstr "Fjern valgte medlemmer fra team"
+
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
 
 msgid "Role"
 msgstr "Rolle"
+
+#. placeholder {0}: member.name
+msgid "Role for {0}"
+msgstr "Rolle for {0}"
 
 msgid "Save changes"
 msgstr "Gem ændringer"
@@ -459,6 +478,9 @@ msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 
 msgid "Search"
 msgstr "Søg"
+
+msgid "Search by name, email, or title"
+msgstr "Søg efter navn, e-mail eller titel"
 
 #. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
 msgid "Select a new role for <0>{0}</0>"
@@ -505,6 +527,12 @@ msgstr "Team slettet"
 
 msgid "Team details"
 msgstr "Teamdetaljer"
+
+msgid "Team Members"
+msgstr "Teammedlemmer"
+
+msgid "Team members updated successfully"
+msgstr "Teammedlemmer opdateret"
 
 msgid "Team updated successfully"
 msgstr "Team opdateret"
