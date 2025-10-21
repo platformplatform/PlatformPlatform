@@ -94,6 +94,10 @@ msgstr "Any status"
 msgid "Are you sure you want to delete <0>{0} users</0>?"
 msgstr "Are you sure you want to delete <0>{0} users</0>?"
 
+#. placeholder {0}: team.name
+msgid "Are you sure you want to delete <0>{0}</0>?"
+msgstr "Are you sure you want to delete <0>{0}</0>?"
+
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
@@ -200,6 +204,9 @@ msgstr "Delete {0} users"
 
 msgid "Delete account"
 msgstr "Delete account"
+
+msgid "Delete team"
+msgstr "Delete team"
 
 msgid "Delete Team"
 msgstr "Delete Team"
@@ -441,6 +448,9 @@ msgstr "Role"
 msgid "Save changes"
 msgstr "Save changes"
 
+msgid "Save Changes"
+msgstr "Save Changes"
+
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -490,8 +500,14 @@ msgstr "System"
 msgid "Team created successfully"
 msgstr "Team created successfully"
 
+msgid "Team deleted successfully"
+msgstr "Team deleted successfully"
+
 msgid "Team details"
 msgstr "Team details"
+
+msgid "Team updated successfully"
+msgstr "Team updated successfully"
 
 msgid "Teams"
 msgstr "Teams"

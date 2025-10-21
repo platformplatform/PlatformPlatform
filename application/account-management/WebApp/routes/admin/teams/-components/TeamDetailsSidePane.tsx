@@ -19,6 +19,8 @@ interface TeamDetailsSidePaneProps {
   team: TeamDetails | null;
   isOpen: boolean;
   onClose: () => void;
+  onEditTeam: () => void;
+  onDeleteTeam: () => void;
 }
 
 function TeamDetailsContent({ team }: Readonly<{ team: TeamDetails }>) {
@@ -149,7 +151,13 @@ function useSidePaneAccessibility(
   }, [isOpen, sidePaneRef]);
 }
 
-export function TeamDetailsSidePane({ team, isOpen, onClose }: Readonly<TeamDetailsSidePaneProps>) {
+export function TeamDetailsSidePane({
+  team,
+  isOpen,
+  onClose,
+  onEditTeam,
+  onDeleteTeam
+}: Readonly<TeamDetailsSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<SVGSVGElement>(null);
@@ -206,11 +214,11 @@ export function TeamDetailsSidePane({ team, isOpen, onClose }: Readonly<TeamDeta
 
         {canModifyTeam && team && (
           <div className="relative mt-auto space-y-2 border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <Button variant="outline" className="w-full justify-center text-sm">
+            <Button variant="outline" className="w-full justify-center text-sm" onPress={onEditTeam}>
               <EditIcon className="h-4 w-4" />
               <Trans>Edit Team</Trans>
             </Button>
-            <Button variant="destructive" className="w-full justify-center text-sm">
+            <Button variant="destructive" className="w-full justify-center text-sm" onPress={onDeleteTeam}>
               <Trash2Icon className="h-4 w-4" />
               <Trans>Delete Team</Trans>
             </Button>

@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
+import { DeleteTeamDialog } from "./-components/DeleteTeamDialog";
+import { EditTeamDialog } from "./-components/EditTeamDialog";
 import { TeamDetailsSidePane } from "./-components/TeamDetailsSidePane";
 import { TeamsTable } from "./-components/TeamsTable";
 import { TeamsToolbar } from "./-components/TeamsToolbar";
@@ -25,6 +27,8 @@ export const Route = createFileRoute("/admin/teams/")({
 export default function TeamsPage() {
   const [teams, setTeams] = useState<TeamDetails[]>(mockTeams);
   const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const navigate = useNavigate({ from: Route.fullPath });
   const { teamId } = Route.useSearch();
 
@@ -55,13 +59,39 @@ export default function TeamsPage() {
     setTeams((previousTeams) => [...previousTeams, team]);
   };
 
+  const handleTeamUpdated = (updatedTeam: TeamDetails) => {
+    setTeams((previousTeams) => previousTeams.map((team) => (team.id === updatedTeam.id ? updatedTeam : team)));
+    setSelectedTeam(updatedTeam);
+  };
+
+  const handleTeamDeleted = () => {
+    if (selectedTeam) {
+      setTeams((previousTeams) => previousTeams.filter((team) => team.id !== selectedTeam.id));
+      handleCloseTeamDetails();
+    }
+  };
+
+  const handleEditTeam = () => {
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDeleteTeam = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
   return (
     <>
       <FederatedSideMenu currentSystem="account-management" />
       <AppLayout
         sidePane={
           selectedTeam ? (
-            <TeamDetailsSidePane team={selectedTeam} isOpen={!!selectedTeam} onClose={handleCloseTeamDetails} />
+            <TeamDetailsSidePane
+              team={selectedTeam}
+              isOpen={!!selectedTeam}
+              onClose={handleCloseTeamDetails}
+              onEditTeam={handleEditTeam}
+              onDeleteTeam={handleDeleteTeam}
+            />
           ) : undefined
         }
         topMenu={
@@ -90,6 +120,20 @@ export default function TeamsPage() {
           />
         </div>
       </AppLayout>
+
+      <EditTeamDialog
+        team={selectedTeam}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onTeamUpdated={handleTeamUpdated}
+      />
+
+      <DeleteTeamDialog
+        team={selectedTeam}
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onTeamDeleted={handleTeamDeleted}
+      />
     </>
   );
 }
