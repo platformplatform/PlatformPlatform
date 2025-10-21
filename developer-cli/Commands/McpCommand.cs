@@ -207,8 +207,8 @@ Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md")]
             var now = DateTime.UtcNow;
             var dateFolder = now.ToString("yyyy-MM-dd");
             var timeStamp = now.ToString("HH-mm-ss");
-            var reportId = $"{dateFolder}-{timeStamp}-{severity}-{category}";
-            var fileName = $"{timeStamp}-{severity}-{category}.md";
+            var reportId = $"{dateFolder}-{timeStamp}-{reporter}-{severity}-{category}";
+            var fileName = $"{timeStamp}-{reporter}-{severity}-{category}.md";
 
             // Create directory structure
             var reportsDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports", dateFolder);
