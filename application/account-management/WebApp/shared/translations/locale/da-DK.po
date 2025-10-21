@@ -99,7 +99,7 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
 #. placeholder {0}: team.name
 msgid "Are you sure you want to delete <0>{0}</0>?"
-msgstr ""
+msgstr "Er du sikker på, at du vil slette <0>{0}</0>?"
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
@@ -227,7 +227,7 @@ msgid "Delete your account and all data. This action is irreversible—proceed w
 msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
 msgid "Description"
-msgstr ""
+msgstr "Beskrivelse"
 
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"

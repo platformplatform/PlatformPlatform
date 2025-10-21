@@ -4,13 +4,15 @@ import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Modal } from "@repo/ui/components/Modal";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useCallback } from "react";
-import type { TeamDetails } from "../-data/mockTeams";
+import type { components } from "@/shared/lib/api/client";
+
+type TeamSummary = components["schemas"]["TeamSummary"];
 
 interface DeleteTeamDialogProps {
-  team: TeamDetails | null;
+  team: TeamSummary | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTeamDeleted: () => void;
+  onTeamDeleted?: () => void;
 }
 
 export function DeleteTeamDialog({ team, isOpen, onOpenChange, onTeamDeleted }: Readonly<DeleteTeamDialogProps>) {
@@ -26,7 +28,9 @@ export function DeleteTeamDialog({ team, isOpen, onOpenChange, onTeamDeleted }: 
         variant: "success"
       });
 
-      onTeamDeleted();
+      if (onTeamDeleted) {
+        onTeamDeleted();
+      }
       onOpenChange(false);
     }, 300);
   }, [team, onTeamDeleted, onOpenChange]);

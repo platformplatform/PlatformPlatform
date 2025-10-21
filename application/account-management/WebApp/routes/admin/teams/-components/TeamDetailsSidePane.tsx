@@ -12,11 +12,13 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { EditIcon, Trash2Icon, XIcon } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import type { components } from "@/shared/lib/api/client";
 import type { TeamMemberDetails } from "../-data/mockTeamMembers";
-import type { TeamDetails } from "../-data/mockTeams";
+
+type TeamSummary = components["schemas"]["TeamSummary"];
 
 interface TeamDetailsSidePaneProps {
-  team: TeamDetails | null;
+  team: TeamSummary | null;
   teamMembers: TeamMemberDetails[];
   isOpen: boolean;
   onClose: () => void;
@@ -29,7 +31,7 @@ function TeamDetailsContent({
   team,
   members,
   onEditMembers
-}: Readonly<{ team: TeamDetails; members: TeamMemberDetails[]; onEditMembers: () => void }>) {
+}: Readonly<{ team: TeamSummary; members: TeamMemberDetails[]; onEditMembers: () => void }>) {
   return (
     <>
       <div className="mb-6">

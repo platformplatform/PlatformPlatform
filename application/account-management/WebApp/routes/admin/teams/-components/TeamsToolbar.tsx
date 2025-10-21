@@ -4,14 +4,9 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { PlusIcon } from "lucide-react";
 import { useState } from "react";
-import type { TeamDetails } from "../-data/mockTeams";
 import { CreateTeamDialog } from "./CreateTeamDialog";
 
-interface TeamsToolbarProps {
-  onTeamCreated: (team: TeamDetails) => void;
-}
-
-export function TeamsToolbar({ onTeamCreated }: Readonly<TeamsToolbarProps>) {
+export function TeamsToolbar() {
   const userInfo = useUserInfo();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
@@ -34,11 +29,7 @@ export function TeamsToolbar({ onTeamCreated }: Readonly<TeamsToolbarProps>) {
         </div>
       </div>
 
-      <CreateTeamDialog
-        isOpen={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onTeamCreated={onTeamCreated}
-      />
+      <CreateTeamDialog isOpen={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
     </>
   );
 }

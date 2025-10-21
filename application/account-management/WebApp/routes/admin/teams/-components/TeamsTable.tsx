@@ -7,12 +7,14 @@ import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from
 import { useCallback, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { TableBody } from "react-aria-components";
-import type { TeamDetails } from "../-data/mockTeams";
+import type { components } from "@/shared/lib/api/client";
+
+type TeamSummary = components["schemas"]["TeamSummary"];
 
 interface TeamsTableProps {
-  teams: TeamDetails[];
-  selectedTeam: TeamDetails | null;
-  onSelectedTeamChange: (team: TeamDetails | null) => void;
+  teams: TeamSummary[];
+  selectedTeam: TeamSummary | null;
+  onSelectedTeamChange: (team: TeamSummary | null) => void;
   isTeamDetailsPaneOpen?: boolean;
 }
 
@@ -29,7 +31,7 @@ export function TeamsTable({
   const isMobile = useViewportResize();
 
   const sortedTeams = [...teams].sort((a, b) => {
-    const column = sortDescriptor.column as keyof TeamDetails;
+    const column = sortDescriptor.column as keyof TeamSummary;
     const direction = sortDescriptor.direction === "ascending" ? 1 : -1;
 
     if (column === "name" || column === "description") {

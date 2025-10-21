@@ -11,13 +11,15 @@ import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { TeamDetails } from "../-data/mockTeams";
+import type { components } from "@/shared/lib/api/client";
+
+type TeamSummary = components["schemas"]["TeamSummary"];
 
 interface EditTeamDialogProps {
-  team: TeamDetails | null;
+  team: TeamSummary | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTeamUpdated: (team: TeamDetails) => void;
+  onTeamUpdated?: (team: TeamSummary) => void;
 }
 
 export function EditTeamDialog({ team, isOpen, onOpenChange, onTeamUpdated }: Readonly<EditTeamDialogProps>) {
@@ -50,13 +52,15 @@ export function EditTeamDialog({ team, isOpen, onOpenChange, onTeamUpdated }: Re
     setIsSubmitting(true);
 
     setTimeout(() => {
-      const updatedTeam: TeamDetails = {
+      const updatedTeam: TeamSummary = {
         ...team,
         name: name.trim(),
         description: description.trim()
       };
 
-      onTeamUpdated(updatedTeam);
+      if (onTeamUpdated) {
+        onTeamUpdated(updatedTeam);
+      }
 
       toastQueue.add({
         title: t`Success`,

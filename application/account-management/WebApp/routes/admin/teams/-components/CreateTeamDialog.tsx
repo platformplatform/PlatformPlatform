@@ -15,7 +15,7 @@ import { useState } from "react";
 interface CreateTeamDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onTeamCreated: (team: { id: string; name: string; description: string; memberCount: number }) => void;
+  onTeamCreated?: (team: { id: string; name: string; description: string; memberCount: number }) => void;
 }
 
 export function CreateTeamDialog({ isOpen, onOpenChange, onTeamCreated }: Readonly<CreateTeamDialogProps>) {
@@ -48,7 +48,9 @@ export function CreateTeamDialog({ isOpen, onOpenChange, onTeamCreated }: Readon
         memberCount: 0
       };
 
-      onTeamCreated(newTeam);
+      if (onTeamCreated) {
+        onTeamCreated(newTeam);
+      }
 
       toastQueue.add({
         title: t`Success`,

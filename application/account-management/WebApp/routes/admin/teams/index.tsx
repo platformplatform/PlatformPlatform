@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
+import { api, type components } from "@/shared/lib/api/client";
 import { DeleteTeamDialog } from "./-components/DeleteTeamDialog";
 import { EditTeamDialog } from "./-components/EditTeamDialog";
 import { EditTeamMembersDialog } from "./-components/EditTeamMembersDialog";
@@ -15,8 +16,8 @@ import { TeamsTable } from "./-components/TeamsTable";
 import { TeamsToolbar } from "./-components/TeamsToolbar";
 import type { TeamMemberDetails } from "./-data/mockTeamMembers";
 import { mockTeamMembers } from "./-data/mockTeamMembers";
-import type { TeamDetails } from "./-data/mockTeams";
-import { mockTeams } from "./-data/mockTeams";
+
+type TeamSummary = components["schemas"]["TeamSummary"];
 
 const teamsPageSearchSchema = z.object({
   teamId: z.string().optional()
@@ -28,14 +29,16 @@ export const Route = createFileRoute("/admin/teams/")({
 });
 
 export default function TeamsPage() {
-  const [teams, setTeams] = useState<TeamDetails[]>(mockTeams);
-  const [selectedTeam, setSelectedTeam] = useState<TeamDetails | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<TeamSummary | null>(null);
   const [teamMembers, setTeamMembers] = useState<Record<string, TeamMemberDetails[]>>(mockTeamMembers);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isEditMembersDialogOpen, setIsEditMembersDialogOpen] = useState(false);
   const navigate = useNavigate({ from: Route.fullPath });
   const { teamId } = Route.useSearch();
+
+  const { data: teamsData } = api.useQuery("get", "/api/account-management/teams");
+  const teams = teamsData?.teams || [];
 
   useEffect(() => {
     if (teamId) {
@@ -46,7 +49,7 @@ export default function TeamsPage() {
     }
   }, [teamId, teams]);
 
-  const handleSelectedTeamChange = (team: TeamDetails | null) => {
+  const handleSelectedTeamChange = (team: TeamSummary | null) => {
     setSelectedTeam(team);
     if (team) {
       navigate({ search: (previous) => ({ ...previous, teamId: team.id }) });
@@ -58,22 +61,6 @@ export default function TeamsPage() {
   const handleCloseTeamDetails = () => {
     setSelectedTeam(null);
     navigate({ search: (previous) => ({ ...previous, teamId: undefined }) });
-  };
-
-  const handleTeamCreated = (team: TeamDetails) => {
-    setTeams((previousTeams) => [...previousTeams, team]);
-  };
-
-  const handleTeamUpdated = (updatedTeam: TeamDetails) => {
-    setTeams((previousTeams) => previousTeams.map((team) => (team.id === updatedTeam.id ? updatedTeam : team)));
-    setSelectedTeam(updatedTeam);
-  };
-
-  const handleTeamDeleted = () => {
-    if (selectedTeam) {
-      setTeams((previousTeams) => previousTeams.filter((team) => team.id !== selectedTeam.id));
-      handleCloseTeamDetails();
-    }
   };
 
   const handleEditTeam = () => {
@@ -94,9 +81,6 @@ export default function TeamsPage() {
         ...prev,
         [selectedTeam.id]: members
       }));
-      setTeams((previousTeams) =>
-        previousTeams.map((team) => (team.id === selectedTeam.id ? { ...team, memberCount: members.length } : team))
-      );
     }
   };
 
@@ -132,7 +116,7 @@ export default function TeamsPage() {
         scrollAwayHeader={true}
       >
         <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
-          <TeamsToolbar onTeamCreated={handleTeamCreated} />
+          <TeamsToolbar />
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <TeamsTable
@@ -144,19 +128,9 @@ export default function TeamsPage() {
         </div>
       </AppLayout>
 
-      <EditTeamDialog
-        team={selectedTeam}
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onTeamUpdated={handleTeamUpdated}
-      />
+      <EditTeamDialog team={selectedTeam} isOpen={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} />
 
-      <DeleteTeamDialog
-        team={selectedTeam}
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onTeamDeleted={handleTeamDeleted}
-      />
+      <DeleteTeamDialog team={selectedTeam} isOpen={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen} />
 
       <EditTeamMembersDialog
         team={selectedTeam}
