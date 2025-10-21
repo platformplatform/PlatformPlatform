@@ -25,5 +25,9 @@ public sealed class TeamEndpoints : IEndpoints
         group.MapGet("/{id}", async Task<ApiResult<TeamResponse>> (TeamId id, IMediator mediator)
             => await mediator.Send(new GetTeamQuery(id))
         ).Produces<TeamResponse>();
+
+        group.MapPut("/{id}", async Task<ApiResult> (TeamId id, UpdateTeamCommand command, IMediator mediator)
+            => await mediator.Send(command with { Id = id })
+        );
     }
 }

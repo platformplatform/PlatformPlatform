@@ -49,6 +49,9 @@ public sealed class SignupStarted
 public sealed class TeamCreated(TeamId teamId)
     : TelemetryEvent(("team_id", teamId));
 
+public sealed class TeamUpdated(TeamId teamId)
+    : TelemetryEvent(("team_id", teamId));
+
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
