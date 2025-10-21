@@ -204,6 +204,9 @@ msgstr "Slet brugere"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
 
+msgid "Description"
+msgstr ""
+
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
 
@@ -321,8 +324,17 @@ msgstr "Administrer dine teams og teammedlemmer her."
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
 
+msgid "member"
+msgstr "medlem"
+
 msgid "Member"
 msgstr "Medlem"
+
+msgid "members"
+msgstr "medlemmer"
+
+msgid "Members"
+msgstr "Medlemmer"
 
 msgid "Modified"
 msgstr "Ændret"

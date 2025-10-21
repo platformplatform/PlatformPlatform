@@ -204,6 +204,9 @@ msgstr "Delete users"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
 
+msgid "Description"
+msgstr "Description"
+
 msgid "Different user logged in"
 msgstr "Different user logged in"
 
@@ -321,8 +324,17 @@ msgstr "Manage your teams and team members here."
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
 
+msgid "member"
+msgstr "member"
+
 msgid "Member"
 msgstr "Member"
+
+msgid "members"
+msgstr "members"
+
+msgid "Members"
+msgstr "Members"
 
 msgid "Modified"
 msgstr "Modified"

@@ -204,6 +204,9 @@ msgstr "Gebruikers verwijderen"
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Verwijder je account en alle gegevens. Deze actie is onomkeerbaar—ga zorgvuldig te werk."
 
+msgid "Description"
+msgstr ""
+
 msgid "Different user logged in"
 msgstr "Andere gebruiker ingelogd"
 
@@ -321,8 +324,17 @@ msgstr "Beheer hier uw teams en teamleden."
 msgid "Manage your users and permissions here."
 msgstr "Beheer je gebruikers en rechten hier."
 
+msgid "member"
+msgstr "lid"
+
 msgid "Member"
 msgstr "Lid"
+
+msgid "members"
+msgstr "leden"
+
+msgid "Members"
+msgstr "Leden"
 
 msgid "Modified"
 msgstr "Gewijzigd"
