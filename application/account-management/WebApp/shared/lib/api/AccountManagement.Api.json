@@ -491,6 +491,35 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Teams"
+        ],
+        "operationId": "DeleteApiAccountManagementTeams",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TeamId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/account-management/tenants/current": {

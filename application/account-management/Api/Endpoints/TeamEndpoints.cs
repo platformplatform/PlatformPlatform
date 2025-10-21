@@ -29,5 +29,9 @@ public sealed class TeamEndpoints : IEndpoints
         group.MapPut("/{id}", async Task<ApiResult> (TeamId id, UpdateTeamCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         );
+
+        group.MapDelete("/{id}", async Task<ApiResult> (TeamId id, IMediator mediator)
+            => await mediator.Send(new DeleteTeamCommand(id))
+        );
     }
 }
