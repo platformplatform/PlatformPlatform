@@ -58,8 +58,10 @@ export function EditTeamMembersDialog({
   const [teamMembers, setTeamMembers] = useState<TeamMemberWithRole[]>([]);
   const [selectedAvailableUsers, setSelectedAvailableUsers] = useState<Set<string>>(new Set());
   const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
-  const [changedRoles, setChangedRoles] = useState<Map<string, "Admin" | "Member">>(new Map());
+  const [_changedRoles, setChangedRoles] = useState<Map<string, "Admin" | "Member">>(new Map());
   const [memberToRemove, setMemberToRemove] = useState<TeamMemberWithRole | null>(null);
+  const [memberUpdatingRoleId, setMemberUpdatingRoleId] = useState<string | null>(null);
+  const [previousRoles, setPreviousRoles] = useState<Map<string, TeamMemberRole>>(new Map());
 
   const updateTeamMembersMutation = api.useMutation("put", "/api/account-management/teams/{teamId}/members", {
     onSuccess: () => {
@@ -80,6 +82,69 @@ export function EditTeamMembersDialog({
       });
 
       onOpenChange(false);
+    }
+  });
+
+  const changeRoleMutation = api.useMutation("put", "/api/account-management/teams/{teamId}/members/{userId}/role", {
+    onSuccess: (_data, variables) => {
+      if (team?.id) {
+        queryClient.invalidateQueries({
+          queryKey: ["/api/account-management/teams/{teamId}/members", { teamId: team.id }]
+        });
+      }
+
+      const member = teamMembers.find((m) => m.userId === variables.params.path.userId);
+      const memberName = member?.name || variables.params.path.userId;
+      const newRole = variables.body.role === "Admin" ? t`Admin` : t`Member`;
+
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Role updated to ${newRole} for ${memberName}`,
+        variant: "success"
+      });
+
+      setMemberUpdatingRoleId(null);
+      setPreviousRoles((prev) => {
+        const newMap = new Map(prev);
+        newMap.delete(variables.params.path.userId);
+        return newMap;
+      });
+    },
+    onError: (error, variables) => {
+      const userId = variables.params.path.userId;
+      const _member = teamMembers.find((m) => m.userId === userId);
+      const previousRole = previousRoles.get(userId);
+
+      if (previousRole) {
+        setTeamMembers((prev) => prev.map((m) => (m.userId === userId ? { ...m, role: previousRole } : m)));
+      }
+
+      const statusCode = (error as { status?: number } | undefined)?.status;
+      let errorMessage = t`Failed to update role`;
+
+      if (statusCode === 400) {
+        const detail = (error as { detail?: string } | undefined)?.detail;
+        if (detail?.includes("cannot demote")) {
+          errorMessage = t`Team Admins cannot demote themselves`;
+        } else if (detail?.includes("Invalid role")) {
+          errorMessage = t`Invalid role specified`;
+        } else {
+          errorMessage = t`${detail || t`Failed to update role`}`;
+        }
+      } else if (statusCode === 403) {
+        errorMessage = t`You don't have permission to change member roles`;
+      } else if (statusCode === 404) {
+        errorMessage = t`Member not found`;
+      }
+
+      toastQueue.add({
+        title: t`Error`,
+        description: errorMessage,
+        variant: "error"
+      });
+
+      console.error("Failed to change member role:", error);
+      setMemberUpdatingRoleId(null);
     }
   });
 
@@ -155,8 +220,24 @@ export function EditTeamMembersDialog({
   };
 
   const handleRoleChange = (userId: string, newRole: TeamMemberRole) => {
+    if (!team?.id) {
+      return;
+    }
+
+    const currentMember = teamMembers.find((m) => m.userId === userId);
+    if (!currentMember) {
+      return;
+    }
+
+    setMemberUpdatingRoleId(userId);
+    setPreviousRoles((prev) => new Map(prev).set(userId, currentMember.role));
+
     setTeamMembers((prev) => prev.map((member) => (member.userId === userId ? { ...member, role: newRole } : member)));
-    setChangedRoles((prev) => new Map(prev).set(userId, newRole));
+
+    changeRoleMutation.mutate({
+      params: { path: { teamId: team.id, userId } },
+      body: { role: newRole }
+    });
   };
 
   const handleRemoveMemberClick = (member: TeamMemberWithRole) => {
@@ -189,11 +270,19 @@ export function EditTeamMembersDialog({
   };
 
   const canChangeRole = (userId: string) => {
+    const isTenantOwner = userInfo?.role === "Owner";
+    const member = teamMembers.find((m) => m.userId === userId);
+    const isCurrentUser = member?.email === userInfo?.email;
+
+    if (isTenantOwner) {
+      return true;
+    }
+
     if (!isCurrentUserAdmin) {
       return false;
     }
-    const member = teamMembers.find((m) => m.userId === userId);
-    return member?.email !== userInfo?.email;
+
+    return !isCurrentUser;
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -384,25 +473,38 @@ export function EditTeamMembersDialog({
                             </div>
                           </button>
                           <TooltipTrigger>
-                            <Select
-                              aria-label={t`Role for ${member.name}`}
-                              selectedKey={member.role}
-                              onSelectionChange={(key) => handleRoleChange(member.userId, key as TeamMemberRole)}
-                              isDisabled={!canChangeRole(member.userId) || updateTeamMembersMutation.isPending}
-                              className={`w-28 ${changedRoles.has(member.userId) ? "ring-2 ring-success ring-offset-2" : ""}`}
-                            >
-                              <SelectItem id="Member">
-                                <Trans>Member</Trans>
-                              </SelectItem>
-                              <SelectItem id="Admin">
-                                <Trans>Admin</Trans>
-                              </SelectItem>
-                            </Select>
-                            {!canChangeRole(member.userId) && !updateTeamMembersMutation.isPending && (
-                              <Tooltip>
-                                <Trans>Team Admins cannot change their own role</Trans>
-                              </Tooltip>
-                            )}
+                            <div className="relative">
+                              <Select
+                                aria-label={t`Role for ${member.name}`}
+                                selectedKey={member.role}
+                                onSelectionChange={(key) => handleRoleChange(member.userId, key as TeamMemberRole)}
+                                isDisabled={
+                                  !canChangeRole(member.userId) ||
+                                  updateTeamMembersMutation.isPending ||
+                                  memberUpdatingRoleId === member.userId
+                                }
+                                className={`w-28 ${memberUpdatingRoleId === member.userId ? "opacity-50" : ""}`}
+                              >
+                                <SelectItem id="Member">
+                                  <Trans>Member</Trans>
+                                </SelectItem>
+                                <SelectItem id="Admin">
+                                  <Trans>Admin</Trans>
+                                </SelectItem>
+                              </Select>
+                              {memberUpdatingRoleId === member.userId && (
+                                <div className="absolute inset-0 flex items-center justify-center rounded bg-black bg-opacity-5">
+                                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-r-transparent" />
+                                </div>
+                              )}
+                            </div>
+                            {!canChangeRole(member.userId) &&
+                              !updateTeamMembersMutation.isPending &&
+                              memberUpdatingRoleId !== member.userId && (
+                                <Tooltip>
+                                  <Trans>Team Admins cannot change their own role</Trans>
+                                </Tooltip>
+                              )}
                           </TooltipTrigger>
                           <TooltipTrigger>
                             <button

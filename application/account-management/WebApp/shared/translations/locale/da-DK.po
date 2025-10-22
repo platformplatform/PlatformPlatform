@@ -14,6 +14,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. placeholder {0}: member.role
+#. placeholder {0}: detail || t`Failed to update role`
 msgid "{0}"
 msgstr ""
 
@@ -288,6 +289,9 @@ msgstr "Indtast din e-mail nedenfor for at logge ind"
 msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
 
+msgid "Error"
+msgstr "Fejl"
+
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
 
@@ -299,6 +303,9 @@ msgstr "Kunne ikke indlæse teamdetaljer"
 
 msgid "Failed to load team members"
 msgstr "Kunne ikke indlæse teammedlemmer"
+
+msgid "Failed to update role"
+msgstr "Fejl ved opdatering af rolle"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
@@ -329,6 +336,9 @@ msgstr "Hjem"
 
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
+
+msgid "Invalid role specified"
+msgstr "Ugyldig rolle angivet"
 
 msgid "Invitation pending"
 msgstr "Invitation afventer"
@@ -386,6 +396,9 @@ msgstr "medlem"
 
 msgid "Member"
 msgstr "Medlem"
+
+msgid "Member not found"
+msgstr "Medlem ikke fundet"
 
 msgid "members"
 msgstr "medlemmer"
@@ -509,6 +522,9 @@ msgstr "Rolle"
 msgid "Role for {0}"
 msgstr "Rolle for {0}"
 
+msgid "Role updated to {newRole} for {memberName}"
+msgstr "Rolle opdateret til {newRole} for {memberName}"
+
 msgid "Save changes"
 msgstr "Gem ændringer"
 
@@ -566,6 +582,9 @@ msgstr "System"
 
 msgid "Team Admins cannot change their own role"
 msgstr "Team-administratorer kan ikke ændre deres egen rolle"
+
+msgid "Team Admins cannot demote themselves"
+msgstr "Team-administratorer kan ikke nedgradere sig selv"
 
 msgid "Team Admins cannot remove themselves"
 msgstr "Team-administratorer kan ikke fjerne sig selv"
@@ -705,6 +724,9 @@ msgstr "Velkommen hjem, {0}"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+msgid "You don't have permission to change member roles"
+msgstr "Du har ikke tilladelse til at ændre medlemmernes roller"
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."

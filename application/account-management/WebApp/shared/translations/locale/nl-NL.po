@@ -14,6 +14,7 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 
 #. placeholder {0}: member.role
+#. placeholder {0}: detail || t`Failed to update role`
 msgid "{0}"
 msgstr ""
 
@@ -288,6 +289,9 @@ msgstr "Voer je e-mailadres hieronder in om in te loggen"
 msgid "Enter your verification code"
 msgstr "Voer je verificatiecode in"
 
+msgid "Error"
+msgstr "Fout"
+
 msgid "Error: Something went wrong!"
 msgstr "Fout: Er is iets misgegaan!"
 
@@ -299,6 +303,9 @@ msgstr "Kon teamdetails niet laden"
 
 msgid "Failed to load team members"
 msgstr "Kon teamleden niet laden"
+
+msgid "Failed to update role"
+msgstr "Fout bij het bijwerken van de rol"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Voel je vrij om contact op te nemen met vragen of problemen die je hebt."
@@ -329,6 +336,9 @@ msgstr "Home"
 
 msgid "Image must be smaller than 1 MB."
 msgstr "Afbeelding moet kleiner zijn dan 1 MB."
+
+msgid "Invalid role specified"
+msgstr "Ongeldige rol opgegeven"
 
 msgid "Invitation pending"
 msgstr "Uitnodiging in behandeling"
@@ -386,6 +396,9 @@ msgstr "lid"
 
 msgid "Member"
 msgstr "Lid"
+
+msgid "Member not found"
+msgstr "Lid niet gevonden"
 
 msgid "members"
 msgstr "leden"
@@ -509,6 +522,9 @@ msgstr "Rol"
 msgid "Role for {0}"
 msgstr "Rol voor {0}"
 
+msgid "Role updated to {newRole} for {memberName}"
+msgstr "Rol bijgewerkt naar {newRole} voor {memberName}"
+
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
 
@@ -566,6 +582,9 @@ msgstr "Systeem"
 
 msgid "Team Admins cannot change their own role"
 msgstr "Teambeheerders kunnen hun eigen rol niet wijzigen"
+
+msgid "Team Admins cannot demote themselves"
+msgstr "Team-administratoren kunnen zichzelf niet degraderen"
 
 msgid "Team Admins cannot remove themselves"
 msgstr "Teambeheerders kunnen zichzelf niet verwijderen"
@@ -705,6 +724,9 @@ msgstr "Welkom home, {0}"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Wanneer je deze uitnodiging accepteert, worden je profielgegevens (naam, titel en avatar) van je huidige account gekopieerd naar het nieuwe account."
+
+msgid "You don't have permission to change member roles"
+msgstr "Je hebt geen toestemming om de rollen van leden te wijzigen"
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
