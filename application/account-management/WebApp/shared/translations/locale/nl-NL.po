@@ -250,6 +250,12 @@ msgstr "Beschrijving"
 msgid "Different user logged in"
 msgstr "Andere gebruiker ingelogd"
 
+msgid "Discard"
+msgstr ""
+
+msgid "Discard changes"
+msgstr ""
+
 msgid "Do you already have an account?"
 msgstr "Heb je al een account?"
 
@@ -291,6 +297,9 @@ msgstr "Voer je verificatiecode in"
 
 msgid "Error"
 msgstr "Fout"
+
+msgid "Error loading users"
+msgstr ""
 
 msgid "Error: Something went wrong!"
 msgstr "Fout: Er is iets misgegaan!"
@@ -348,6 +357,9 @@ msgstr "Gebruiker uitnodigen"
 
 msgid "Invited users"
 msgstr "Uitgenodigde gebruikers"
+
+msgid "Keep editing"
+msgstr ""
 
 msgid "Language"
 msgstr "Taal"
@@ -731,6 +743,9 @@ msgstr "Je hebt geen toestemming om de rollen van leden te wijzigen"
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Je bent uitgenodigd om lid te worden van <0>{0}</0>."
+
+msgid "You have unsaved changes. Are you sure you want to discard them?"
+msgstr ""
 
 msgid "You must be a team member to view members"
 msgstr "Je moet een teamlid zijn om leden te bekijken"

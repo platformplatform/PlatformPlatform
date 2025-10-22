@@ -23,8 +23,6 @@ import { useEffect, useMemo, useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
 import type { TeamMemberDetails } from "../-data/mockTeamMembers";
 import type { TeamDetails } from "../-data/mockTeams";
-import type { TenantUser } from "../-data/mockTenantUsers";
-import { mockTenantUsers } from "../-data/mockTenantUsers";
 
 type TeamMemberRole = components["schemas"]["TeamMemberRole"];
 
@@ -62,6 +60,19 @@ export function EditTeamMembersDialog({
   const [memberToRemove, setMemberToRemove] = useState<TeamMemberWithRole | null>(null);
   const [memberUpdatingRoleId, setMemberUpdatingRoleId] = useState<string | null>(null);
   const [previousRoles, setPreviousRoles] = useState<Map<string, TeamMemberRole>>(new Map());
+
+  const {
+    data: allUsers = { users: [] },
+    isLoading: isUsersLoading,
+    error: usersError
+  } = api.useQuery("get", "/api/account-management/users", {
+    params: {
+      query: {
+        Search: debouncedSearchQuery
+      }
+    },
+    enabled: isOpen
+  });
 
   const updateTeamMembersMutation = api.useMutation("put", "/api/account-management/teams/{teamId}/members", {
     onSuccess: () => {
@@ -169,10 +180,29 @@ export function EditTeamMembersDialog({
 
   const availableUsers = useMemo(() => {
     const memberUserIds = new Set(teamMembers.map((m) => m.userId));
-    return mockTenantUsers.filter((user) => !memberUserIds.has(user.userId));
-  }, [teamMembers]);
+    return (allUsers.users || [])
+      .filter((user) => !memberUserIds.has(user.id))
+      .map((user) => {
+        const fullName = [user.firstName, user.lastName].filter(Boolean).join(" ");
+        return {
+          userId: user.id,
+          name: fullName || user.email,
+          email: user.email || "",
+          title: user.title || "",
+          avatarUrl: user.avatarUrl || null
+        };
+      });
+  }, [teamMembers, allUsers]);
 
-  const filterUser = (user: TenantUser | TeamMemberWithRole, query: string) => {
+  interface AvailableUser {
+    userId: string;
+    name: string;
+    email: string;
+    title: string;
+    avatarUrl: string | null;
+  }
+
+  const filterUser = (user: AvailableUser | TeamMemberWithRole, query: string) => {
     if (!query) {
       return true;
     }
@@ -198,7 +228,7 @@ export function EditTeamMembersDialog({
   const isCurrentUserAdmin = currentUserMember?.role === "Admin";
 
   const handleAddMembers = () => {
-    const usersToAdd: TeamMemberWithRole[] = mockTenantUsers
+    const usersToAdd: TeamMemberWithRole[] = availableUsers
       .filter((user) => selectedAvailableUsers.has(user.userId))
       .map((user) => ({
         userId: user.userId,
@@ -308,11 +338,32 @@ export function EditTeamMembersDialog({
     });
   };
 
+  const hasUnsavedChanges = useMemo(() => {
+    const hasAddedUsers = selectedAvailableUsers.size > 0;
+    const hasRemovedUsers = selectedTeamMembers.size > 0;
+    return hasAddedUsers || hasRemovedUsers;
+  }, [selectedAvailableUsers, selectedTeamMembers]);
+
+  const [isConfirmingClose, setIsConfirmingClose] = useState(false);
+
   const handleCancel = () => {
+    if (hasUnsavedChanges) {
+      setIsConfirmingClose(true);
+    } else {
+      setSearchQuery("");
+      setSelectedAvailableUsers(new Set());
+      setSelectedTeamMembers(new Set());
+      setChangedRoles(new Map());
+      onOpenChange(false);
+    }
+  };
+
+  const handleConfirmClose = () => {
     setSearchQuery("");
     setSelectedAvailableUsers(new Set());
     setSelectedTeamMembers(new Set());
     setChangedRoles(new Map());
+    setIsConfirmingClose(false);
     onOpenChange(false);
   };
 
@@ -344,7 +395,7 @@ export function EditTeamMembersDialog({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!hasUnsavedChanges}>
       <Dialog className="sm:w-dialog-lg">
         <XIcon onClick={handleCancel} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
         <DialogHeader>
@@ -371,7 +422,25 @@ export function EditTeamMembersDialog({
                     : `(${availableUsers.length})`}
                 </Heading>
                 <div className="h-80 overflow-y-auto rounded-md border border-border bg-background">
-                  {filteredAvailableUsers.length === 0 ? (
+                  {isUsersLoading ? (
+                    <div className="space-y-2 p-2">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex animate-pulse items-center gap-3 rounded-md p-2">
+                          <div className="h-8 w-8 rounded-full bg-muted" />
+                          <div className="flex-1 space-y-1">
+                            <div className="h-3 w-24 rounded bg-muted" />
+                            <div className="h-3 w-32 rounded bg-muted" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : usersError ? (
+                    <div className="flex h-full items-center justify-center p-4">
+                      <Text className="text-destructive text-sm">
+                        <Trans>Error loading users</Trans>
+                      </Text>
+                    </div>
+                  ) : filteredAvailableUsers.length === 0 ? (
                     <div className="flex h-full items-center justify-center p-4">
                       <Text className="text-muted-foreground text-sm">
                         {debouncedSearchQuery ? <Trans>No results found</Trans> : <Trans>No available users</Trans>}
@@ -564,6 +633,23 @@ export function EditTeamMembersDialog({
               Are you sure you want to remove <b>{memberToRemove.name}</b> from this team?
             </Trans>
           )}
+        </AlertDialog>
+      </Modal>
+
+      <Modal
+        isOpen={isConfirmingClose}
+        onOpenChange={(open) => !open && setIsConfirmingClose(false)}
+        blur={false}
+        isDismissable={true}
+      >
+        <AlertDialog
+          title={t`Discard changes`}
+          variant="destructive"
+          actionLabel={t`Discard`}
+          cancelLabel={t`Keep editing`}
+          onAction={handleConfirmClose}
+        >
+          <Trans>You have unsaved changes. Are you sure you want to discard them?</Trans>
         </AlertDialog>
       </Modal>
     </Modal>

@@ -250,6 +250,12 @@ msgstr "Beskrivelse"
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
 
+msgid "Discard"
+msgstr ""
+
+msgid "Discard changes"
+msgstr ""
+
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
 
@@ -291,6 +297,9 @@ msgstr "Indtast din bekræftelseskode"
 
 msgid "Error"
 msgstr "Fejl"
+
+msgid "Error loading users"
+msgstr ""
 
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
@@ -348,6 +357,9 @@ msgstr "Inviter bruger"
 
 msgid "Invited users"
 msgstr "Inviterede brugere"
+
+msgid "Keep editing"
+msgstr ""
 
 msgid "Language"
 msgstr "Sprog"
@@ -731,6 +743,9 @@ msgstr "Du har ikke tilladelse til at ændre medlemmernes roller"
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You have unsaved changes. Are you sure you want to discard them?"
+msgstr ""
 
 msgid "You must be a team member to view members"
 msgstr "Du skal være medlem af holdet for at se medlemmer"
