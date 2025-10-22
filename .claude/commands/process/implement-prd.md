@@ -7,11 +7,26 @@ argument-hint: Path to PRD (yyyy-MM-dd-feature/prd.md) and/or paths to Product I
 
 PRD and/or Product Increment file(s): $ARGUMENTS
 
+## Step 0: Read PRD and Determine Execution Mode
+
 If you only get the PRD:
 1. Read the PRD file using: `Read(file_path: "/path/to/prd.md")`
 2. Find all Product Increment files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
 3. Filter out prd.md from the glob results
-4. Orchestrate implementation of all found Product Increment files
+
+**Automatically determine if parallel execution is appropriate:**
+
+Read the PRD and look for indicators that product increments are designed for parallel work:
+- PRD mentions "parallel" or "simultaneously" in Product Increments section
+- Product Increment descriptions mention "can work in parallel with" or "independent"
+- Product Increment descriptions mention "mocked dependencies" or "mocks"
+- Product Increments are explicitly structured to suggest parallel execution
+
+**Decision:**
+- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized product increments")
+- **Otherwise**: Use Sequential Mode (default, safer - inform user: "Using sequential execution")
+
+Continue with orchestrating implementation of all found Product Increment files.
 
 ## Your Role: Task-Level Coordination
 
