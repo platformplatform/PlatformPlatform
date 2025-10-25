@@ -6,7 +6,7 @@ description: Create a product requirement description (PRD) for a new feature
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a PRD with all product increments in EITHER `[PRODUCT_MANAGEMENT_TOOL]` OR Markdown files (user's choice).
 
-**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/.claude/rules/main.md#product-management-terminology-mapping).
+**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
 
 ## Workflow
 
@@ -21,7 +21,7 @@ Ask "Do you want to use `[PRODUCT_MANAGEMENT_TOOL]` or Markdown files for tracki
 
 **If user chooses `[PRODUCT_MANAGEMENT_TOOL]`:**
 - Call any MCP command to check if `[PRODUCT_MANAGEMENT_TOOL]` is authenticated
-- If not available or authentication fails: Stop workflow, tell user to check `[PRODUCT_MANAGEMENT_TOOL]` configuration in [Product management tool](/.claude/rules/main.md#product-management-tool)
+- If not available or authentication fails: Stop workflow, tell user to check `[PRODUCT_MANAGEMENT_TOOL]` configuration in [Product management tool](/AGENTS.md#product-management-tool)
 
 ### Step 2: Ask for feature description
 

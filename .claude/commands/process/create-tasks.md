@@ -9,7 +9,7 @@ PRD file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
 
 Read the PRD provided in the arguments above and identify ALL product increments listed in it. Your job is to create technical tasks for each product increment.
 
-**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/.claude/rules/main.md#product-management-terminology-mapping).
+**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
 
 ## Workflow
 

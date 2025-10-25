@@ -21,7 +21,7 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Search by test tags: smoke, comprehensive
    - Search by test content: find tests containing specific text
    - Search by filename: find specific test files
-   - See [Main Rules](/.windsurf/rules/main.md) for **e2e MCP tool** usage
+   - See [Main Rules](/AGENTS.md) for **e2e MCP tool** usage
    - Multiple search terms: `e2e(searchTerms=["user", "management"])`
    - The tool automatically detects which self-contained systems contain matching tests and only runs those
 
