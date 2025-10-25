@@ -4,17 +4,28 @@ description: Create a product requirement description (PRD) for a new feature
 
 # Create PRD Workflow
 
-Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people.
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a PRD with all product increments in EITHER `[PRODUCT_MANAGEMENT_TOOL]` OR Markdown files (user's choice).
 
-The output will be a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with the high-level PRD description and overview of product increments needed to implement the feature. Use a tool to get today's date in yyyy-MM-dd format for the directory name.
+**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/.claude/rules/main.md#product-management-terminology-mapping).
 
 ## Workflow
 
 Follow the steps below to create the PRD.
 
-### Step 1: Ask for feature description
+### Step 1: Choose your product management tool
 
-**Use the AskUserQuestion tool to ask the user what feature they want to build:**
+Ask "Do you want to use `[PRODUCT_MANAGEMENT_TOOL]` or Markdown files for tracking this PRD?" (`[PRODUCT_MANAGEMENT_TOOL]`/Markdown files)
+
+**If user chooses Markdown files:**
+- If `.workspace/task-manager` does not exist, run: `dotnet run --project developer-cli -- init-task-manager`
+
+**If user chooses `[PRODUCT_MANAGEMENT_TOOL]`:**
+- Call any MCP command to check if `[PRODUCT_MANAGEMENT_TOOL]` is authenticated
+- If not available or authentication fails: Stop workflow, tell user to check `[PRODUCT_MANAGEMENT_TOOL]` configuration in [Product management tool](/.claude/rules/main.md#product-management-tool)
+
+### Step 2: Ask for feature description
+
+Use the AskUserQuestion tool to ask the user what feature they want to build:
 
 ```
 AskUserQuestion with:
@@ -26,40 +37,36 @@ AskUserQuestion with:
   - label: "Enhancement", description: "Enhance existing functionality"
 ```
 
-**Note**: Users will typically use the custom text option to describe their actual feature.
+Users will typically use the custom text option to describe their actual feature.
 
-**If the user's answer comes back empty**: Tell the user to enable Plan Mode and try again. STOP the workflow.
+**If the user's answer comes back empty:**
+- Tell the user to enable Plan Mode and try again
+- STOP the workflow
 
 **If you receive a valid answer:**
 - Use the text they entered as the feature description
-- Continue to Step 2
-
-### Step 2: Ensure `task-manager` git repository exists
-
-Run `dotnet run --project developer-cli init-task-manager` from the source code folder to initialize the task-manager directory in .workspace as a separate git repository.
 
 ### Step 3: Research and understand the feature
 
-Conduct deep research for a feasible solution that takes the existing codebase and features into consideration. This includes:
-- Understanding the user's requirements and business context
-- Investigating the current state and implementation in the codebase:
+Conduct deep research for a feasible solution that takes the existing codebase and features into consideration:
+- Understand the user's requirements and business context
+- Investigate the current state and implementation in the codebase:
   - Specify which self-contained system (e.g., `account-management`, `back-office`) the feature belongs to
   - Respect the multi-tenant nature: design features to work for one tenant by default, unless otherwise specified
-- Using MCP tools (like context7 for library docs) or web research for best practices and technologies
-- Reading relevant code files and rule files to understand patterns and conventions
-- **DO NOT ask the user clarifying questions yet** - save them for Step 4
+- Use MCP tools (like context7 for library docs), Perplexity for online research, or web research for best practices and technologies
+- Read relevant code files and rule files to understand patterns and conventions
 
 ### Step 4: Interactive requirements wizard
 
-**Now that you've done research, ask the user ALL relevant questions to understand their requirements.**
+Now that you've done research, ask the user ALL relevant questions to understand their requirements.
 
-You should ask as many questions as make sense for the feature. Create thoughtful questions based on your research. **Be creative and comprehensive** - the goal is to gather all the insights needed to create an excellent PRD.
+You should ask as many questions as make sense for the feature. Create thoughtful questions based on your research. Be creative and comprehensive - the goal is to gather all the insights needed to create an excellent PRD.
 
-**At minimum, ask these questions using AskUserQuestion:**
+**Ask these required questions using AskUserQuestion:**
 
-**Question 1 - Self-contained system:**
+**Self-contained system:**
 ```
-AskUserQuestion with:
+AskUserQuestion with (put the most likely SCS first):
 - question: "Which self-contained system (SCS) should this feature belong to?"
 - header: "SCS"
 - multiSelect: false
@@ -67,13 +74,21 @@ AskUserQuestion with:
   - label: "account-management", description: "Tenant and user management system"
   - label: "back-office", description: "Support and system admin tools"
   - label: "[Suggested SCS based on research]", description: "Based on my analysis"
-  - label: "New SCS", description: "This feature needs a new self-contained system"
 ```
 
-**Question 2 - E2E tests:**
+**IMPORTANT:** Based on your research and the nature of the feature, ask 2-6 additional relevant questions that would help you create a better PRD. Examples:
+- "What user roles should have access to this feature?"
+- "Should this be tenant-specific or system-wide?"
+- "Are there any specific performance requirements?"
+- "Should this integrate with existing [X] functionality?"
+- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
+
+Use your judgment to ask additional questions using AskUserQuestion.
+
+**E2E tests:**
 ```
 AskUserQuestion with:
-- question: "Should this PRD include end-to-end tests?"
+- question: "Should this PRD include Playwright end-to-end tests?"
 - header: "E2E Tests"
 - multiSelect: false
 - options:
@@ -81,10 +96,10 @@ AskUserQuestion with:
   - label: "No", description: "Skip E2E tests for now"
 ```
 
-**Question 3 - Parallel optimization:**
+**Parallel optimization:**
 ```
 AskUserQuestion with:
-- question: "Should product increments be optimized for parallel work?"
+- question: "Should product increments be optimized for parallel work of backend and frontend?"
 - header: "Parallel"
 - multiSelect: false
 - options:
@@ -92,7 +107,7 @@ AskUserQuestion with:
   - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
 
-**Question 4 - Frontend-first approach:**
+**Frontend-first approach (only ask if user selected "No" for parallel optimization):**
 ```
 AskUserQuestion with:
 - question: "Should we create frontend mockups first for UI/UX exploration?"
@@ -101,85 +116,117 @@ AskUserQuestion with:
 - options:
   - label: "Yes", description: "Frontend mockups first to validate UI/UX before backend"
   - label: "No", description: "Backend-first approach"
-  - label: "Standard", description: "Backend then frontend (typical flow)"
 ```
 
-**IMPORTANT**: Based on your research and the nature of the feature, **ask additional questions** that would help you create a better PRD. Examples:
-- "What user roles should have access to this feature?"
-- "Should this be tenant-specific or system-wide?"
-- "Are there any specific performance requirements?"
-- "Should this integrate with existing [X] functionality?"
-- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
+### Step 5: Draft the complete PRD and get approval
 
-Use your judgment to ask 2-6 additional relevant questions using AskUserQuestion.
+Based on all the research and user answers, draft the complete PRD.
 
-### Step 5: Create the complete PRD automatically
+**Create the PRD content following the [example PRD structure](/.claude/samples/example-prd.md):**
 
-**Based on all the research and user answers, automatically create the complete PRD.**
-
-Create a `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md` file with:
-
-1. **High-level PRD description** following the [example PRD structure](/.claude/samples/example-prd.md):
+1. **High-level PRD description:**
    - Use sentence case for level-1 headers
    - Stay at a high level—no implementation details or code examples
    - Use correct domain terminology: multi-tenant, self-contained system, shared kernel, tenant, user, etc.
    - Specify which self-contained system(s) are in scope
    - Avoid repetition
 
-2. **Product Increments section** structured based on wizard answers:
+2. **Product increments section** structured based on wizard answers:
 
-   **If user selected "Parallel optimization = Yes":**
-   - Product Increment 1: Backend implementation with real data
-   - Product Increment 2: Frontend with mocked API responses (can work in parallel with PI 1)
-   - Product Increment 3: Integration (connect frontend to real backend, remove mocks)
-   - Product Increment 4: E2E tests (if user selected "Yes" for E2E tests)
+   **Examples based on common patterns:**
 
-   **If user selected "Frontend-first = Yes":**
-   - Product Increment 1: Frontend mockups/prototypes with static data
-   - Product Increment 2: Backend implementation based on frontend contract
-   - Product Increment 3: Integration (connect frontend to backend)
-   - Product Increment 4: E2E tests (if user selected "Yes" for E2E tests)
+   **Example 1 - Parallel optimization (small feature):**
+   - Frontend with mocked API responses
+   - Backend implementation with real data (can work in parallel)
+   - Integration (connect frontend to real backend, remove mocks)
+   - E2E tests (if E2E tests selected)
 
-   **If user selected "Standard" or "No" to both:**
-   - Product Increment 1: Backend implementation
-   - Product Increment 2: Frontend implementation
-   - Product Increment 3: E2E tests (if user selected "Yes" for E2E tests)
+   **Example 2 - Frontend-first approach:**
+   - Frontend mockups/prototypes with static data
+   - Backend implementation based on frontend contract
+   - Integration (connect frontend to backend)
+   - E2E tests (if E2E tests selected)
 
-3. **Product Increment guidelines:**
+   **Example 3 - Backend-first approach:**
+   - Backend implementation
+   - Frontend implementation
+   - E2E tests (if E2E tests selected)
+
+   **Example 4 - Backend-only feature:**
+   - Backend implementation (API endpoints, commands, queries, migrations, tests)
+
+   **Example 5 - Large feature with multiple cycles:**
+   - Frontend core UI with mocks
+   - Backend core functionality
+   - Integration frontend with backend
+   - Frontend advanced features with mocks
+   - Backend advanced functionality
+   - Integration frontend with backend
+   - E2E tests (if E2E tests selected)
+
+   **Note:** These are examples only. Adapt the product increment structure to match the actual feature requirements, scope, and user answers.
+
+3. **Product increment guidelines:**
    - Each product increment should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
    - Keep product increments small enough to review effectively
    - Write a clear paragraph describing what each product increment delivers
    - Each task = one commit = one vertical slice
    - All tasks in an increment work together to deliver a coherent feature
 
-**Save the PRD** to `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/prd.md`.
+Show the complete PRD to the user - display the full content including all product increments with their descriptions.
 
-**Present the PRD to the user** - show them what was created but **DO NOT ask for approval**. The PRD is now complete.
+**Ask for approval:** "Does this PRD look good?" (Yes/No)
+- If No: Ask what to change, update the PRD content, show again, repeat approval
+- If Yes: Continue to Step 6
 
-### Step 6: Ask about creating tasks
+### Step 6: Confirm PRD name and details
 
-**Use the AskUserQuestion tool:**
+Extract PRD name from feature description, remove imperative verbs ("Create", "Add", "Implement"), convert to sentence case:
+- Examples: "Redesign user interface" → "Userinterface redesign", "Implement SSO Authentication" → "SSO authentication"
 
-```
-AskUserQuestion with:
-- question: "Should I create detailed tasks now using /process:create-tasks?"
-- header: "Create Tasks"
-- multiSelect: false
-- options:
-  - label: "Yes", description: "Automatically create detailed tasks for all product increments"
-  - label: "No", description: "I'll create tasks manually later"
-```
+Ask "PRD name: '[name]' - correct?" (Yes/Custom)
+
+**If user chose `[PRODUCT_MANAGEMENT_TOOL]` in Step 1:**
+- Ask "Move to active work?" (Yes (Now)/No (Later))
+
+### Step 7: Create PRD in product management tool
+
+**If user chose `[PRODUCT_MANAGEMENT_TOOL]` in Step 1:**
+
+1. **Create PRD:**
+   - Name: [confirmed PRD name]
+   - Assign to: "me"
+
+2. **Create product increments:**
+   - For each product increment: Create with title=[product increment title], description=[product increment description]
+   - Link to PRD, assign to "me"
+
+3. **If "Move to active work" was "Yes (Now)" in Step 6:**
+   - Update PRD and all product increments to active work
+
+**If user chose Markdown files in Step 1:**
+
+1. **Create directory:**
+   - Path: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
+   - Use today's date in yyyy-MM-dd format
+   - Use PRD title in kebab-case
+   - Example: `./.workspace/task-manager/2025-10-25-user-management/`
+
+2. **Create PRD file:**
+   - Filename: `prd.md` (always this exact name)
+   - Content: Complete approved PRD content
+
+**Inform user:** The PRD has been created.
+
+### Step 8: Ask about creating tasks
+
+Ask "Should I create detailed tasks now?" (Yes/No)
 
 **If user selects "Yes":**
-- Use the SlashCommand tool to call: `/process:create-tasks [full-path-to-prd.md]`
-- Wait for task creation to complete
+- Use the SlashCommand tool to call: `/process:create-tasks`
 
 **If user selects "No":**
-- Inform the user they can run `/process:create-tasks [prd-path]` later when ready
-
-### Step 7: Create a backlog item (if configured)
-
-If [PRODUCT_MANAGEMENT_TOOL] is configured, use the MCP tool to create a backlog item named after the PRD with the markdown description.
+- Inform the user they can run `/process:create-tasks` later when ready
 
 ## Guidelines
 
@@ -190,7 +237,7 @@ If [PRODUCT_MANAGEMENT_TOOL] is configured, use the MCP tool to create a backlog
 - Respect multi-tenant design by default
 - Keep the PRD high level without code snippets
 - Ask comprehensive questions in Step 4 to gather all requirements
-- Automatically create the final PRD without asking for approval
+- Show PRD for approval (Step 5) before creating anything
 - Use the AskUserQuestion tool for all wizard questions in Plan Mode
 
 ❌ DON'T:
@@ -200,7 +247,7 @@ If [PRODUCT_MANAGEMENT_TOOL] is configured, use the MCP tool to create a backlog
 - Ignore rule files
 - Repeat information across sections
 - Write titles in Title Case—use sentence case
-- Ask for PRD approval—create it automatically after gathering requirements
+- Create `[PRODUCT_MANAGEMENT_TOOL]` entities before getting PRD approval in Step 5
 - Rename the file—must be `prd.md`
 - Save questions in the PRD file
 - Create product increments that split tests, implementation, and migrations across separate increments

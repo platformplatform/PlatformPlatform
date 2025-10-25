@@ -19,8 +19,38 @@ When working on tasks, follow any specific workflow instructions provided for yo
 4. Follow established patterns and conventions.
 5. Use MCP tools for building, testing, and formatting.
    - Use the **build**, **test**, **format**, **inspect**, **watch**, and **e2e** MCP tools
-   - **Important**: Always use the MCP **execute** tool instead of running `dotnet` or `npm` commands directly
+   - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
    - **Important**: The **watch** MCP tool restarts the application server and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
+
+## MCP Servers
+
+* `[PRODUCT_MANAGEMENT_TOOL]`: Use this MCP tool to create and manage product backlog items.
+
+If an MCP Server is not responding, instruct the user to activate them.
+
+## Product management tool
+
+**Update this section to match your product management tool of choice in ONE place:**
+
+```
+PRODUCT_MANAGEMENT_TOOL="Linear"
+```
+
+Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the variable.
+
+**MCP Configuration:**
+- Setup: `claude mcp add --transport sse linear-server --scope [user|project] https://mcp.linear.app/sse`
+
+### Product management terminology mapping
+
+All workflows use generic terminology. Use this table to translate to MCP Server operations:
+
+| Generic Term | [PRODUCT_MANAGEMENT_TOOL] | Markdown Files |
+|--------------|--------|----------------|
+| PRD | Project | PRD markdown file |
+| Product increment | Issue | Product increment markdown file |
+| Product increment task | Sub-issue | Task header in product increment file |
+| Product increment subtask | Checklist item on sub-issue | Checkbox bullet in task section |
 
 ## Rules for implementing changes
 
