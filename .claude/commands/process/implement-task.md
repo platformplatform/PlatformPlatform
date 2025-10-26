@@ -14,7 +14,7 @@ You are implementing: **{{{title}}}**
 
 ## Mandatory Preparation
 
-**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 ## STEP 1: Read Task Assignment
 
@@ -29,7 +29,7 @@ You are implementing: **{{{title}}}**
 **If `sliceId` exists in current-task.json:**
 1. Read slice from `sliceId`
 2. Understand your task (`taskId`) within the slice context
-3. **Update task status to "Active"** in `[PRODUCT_MANAGEMENT_TOOL]`
+3. **Update task status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -56,14 +56,14 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 ```json
 {
   "todos": [
-    {"content": "Update task status to Active", "status": "pending", "activeForm": "Updating task status to Active"},
+    {"content": "Update task status to [Active]", "status": "pending", "activeForm": "Updating task status to [Active]"},
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
-    {"content": "Update task status to Review", "status": "pending", "activeForm": "Updating task status to Review"},
+    {"content": "Update task status to [Review]", "status": "pending", "activeForm": "Updating task status to [Review]"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
@@ -117,7 +117,7 @@ For **frontend tasks**, first run **build**, then run **format** and **inspect**
    - If implemented exactly as described: Check off all subtask checkboxes `[x]`
    - If deviated from plan: Update description to document what was actually done
 
-2. **Update task status to "Review"** in `[PRODUCT_MANAGEMENT_TOOL]`
+2. **Update task status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **STEP 8**: Delegate to reviewer subagent to review and commit your code
 

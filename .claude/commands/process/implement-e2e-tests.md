@@ -11,7 +11,7 @@ If a feature ID is provided in the arguments above, read the feature to understa
 
 ## Mandatory Preparation
 
-**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then read the feature from `[PRODUCT_MANAGEMENT_TOOL]` if provided.
+Read the feature from `[PRODUCT_MANAGEMENT_TOOL]` if provided.
 
 ## CRITICAL - Autonomous Operation
 

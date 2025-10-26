@@ -5,11 +5,11 @@ alwaysApply: false
 ---
 # Create PRD Workflow
 
-Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a feature with all slices in `[PRODUCT_MANAGEMENT_TOOL]`.
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [slices] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
 
 ## Mandatory Preparation
 
-**Read [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.cursor/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 ## Workflow
 
@@ -17,11 +17,11 @@ Follow the steps below to create the PRD.
 
 ### Step 1: Initialize `[PRODUCT_MANAGEMENT_TOOL]`
 
-Follow initialization steps in [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc#initialization).
+Follow initialization steps in `/.cursor/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
-### Step 2: Ask for feature description
+### Step 2: Ask what [feature] to build
 
-Use the AskUserQuestion tool to ask the user what feature they want to build:
+Use the AskUserQuestion tool to ask the user what [feature] they want to build:
 
 ```
 AskUserQuestion with:
@@ -33,14 +33,14 @@ AskUserQuestion with:
   - label: "Enhancement", description: "Enhance existing functionality"
 ```
 
-Users will typically use the custom text option to describe their actual feature.
+Users will typically use the custom text option to describe their [feature].
 
 **If the user's answer comes back empty:**
 - Tell the user to enable Plan Mode and try again
 - STOP the workflow
 
 **If you receive a valid answer:**
-- Use the text they entered as the feature description
+- Use the text they entered as the feature description for the PRD
 
 ### Step 3: Research and understand the feature
 
@@ -168,6 +168,9 @@ Based on all the research and user answers, draft the complete PRD.
    - Write a clear paragraph describing what each slice delivers
    - Each task = one commit = one vertical slice
    - All tasks in a slice work together to deliver a coherent feature
+   - **List slices in implementation order** (the order they should be implemented)
+   - E2E tests should typically be the final slice
+   - **Important:** When using MCP-based `[PRODUCT_MANAGEMENT_TOOL]`, create slices in the same order they appear in the PRD—this defines the implementation sequence
 
 Show the complete PRD to the user - display the full content including all slices with their descriptions.
 
@@ -182,33 +185,16 @@ Extract PRD name from feature description, remove imperative verbs ("Create", "A
 
 Ask "PRD name: '[name]' - correct?" (Yes/Custom)
 
-If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP:
-- Ask "Move to active work?" (Yes (Now)/No (Later))
+### Step 7: Create [feature] in [PRODUCT_MANAGEMENT_TOOL]
 
-### Step 7: Create PRD in `[PRODUCT_MANAGEMENT_TOOL]`
+Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.cursor/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
 
-Create feature:
-- Name: [confirmed feature name]
-- Assign to: "me"
+Create:
+- [feature] with name=[confirmed feature name], assign to "me"
+- [slice] for each slice with title=[slice title], description=[slice description], link to [feature], assign to "me"
+- Initialize all items in [Planned] status
 
-Create slices:
-- For each slice: Create with title=[slice title], description=[slice description]
-- Link to `[feature]`, assign to: "me"
-- All `[slice]`s start in `[Planned]` status
-
-**IMPORTANT - Status handling:**
-- If "Move to active work" was "Yes (Now)": Update ONLY the `[feature]` to `[Planned]` status
-- All `[slice]`s remain in `[Planned]` status regardless of choice
-
-**If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
-- Create directory: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/`
-  - Use today's date in yyyy-MM-dd format
-  - Use feature title in kebab-case
-  - Example: `./.workspace/task-manager/2025-10-25-user-management/`
-- Create feature file: `prd.md` (always this exact name)
-  - Content: Complete approved PRD content
-
-**Inform user:** The PRD has been created. Use `/process:plan-slices` to break down slices into detailed tasks.
+**Inform user:** The [feature] has been created from the PRD. Use `/process:plan-slices` to break down [slices] into detailed [tasks].
 
 ## Guidelines
 
@@ -229,10 +215,10 @@ Create slices:
 - Ignore rule files
 - Repeat information across sections
 - Write titles in Title Case—use sentence case
-- Create feature or slices in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
+- Create [feature] or [slices] in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
 - Rename the file—must be `prd.md`
 - Save questions in the PRD file
-- Create slices that split tests, implementation, and migrations across separate slices
+- Create [slices] that split tests, implementation, and migrations across separate [slices]
 - Ask the user clarifying questions before Step 4
 
 **SERIOUSLY:**

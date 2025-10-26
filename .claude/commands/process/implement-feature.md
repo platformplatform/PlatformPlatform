@@ -9,7 +9,9 @@ Feature ID and/or slice ID(s): $ARGUMENTS
 
 ## Mandatory Preparation
 
-**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then load feature and slice data from `[PRODUCT_MANAGEMENT_TOOL]`.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+
+2. **Load feature and slice data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
 
 **Automatically determine if parallel execution is appropriate:**
 

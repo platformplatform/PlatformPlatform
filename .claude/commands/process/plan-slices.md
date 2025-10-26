@@ -11,7 +11,7 @@ Read the feature provided in the arguments above and identify ALL slices listed 
 
 ## Mandatory Preparation
 
-**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then read the feature from `[PRODUCT_MANAGEMENT_TOOL]`.
+Read the feature from `[PRODUCT_MANAGEMENT_TOOL]`.
 
 ## Workflow
 
@@ -24,9 +24,10 @@ Read the feature to identify all slices.
 ### Step 2: Research and plan tasks for all slices
 
 - Read codebase, rule files, and existing patterns
-- Break down each slice into tasks (numbered headers) and subtasks (checkbox bullets)
+- Break down each slice into tasks and subtasks (checkbox bullets)
 - Each task = one commit = one vertical slice
 - Follow existing naming conventions and structure
+- For tool-specific task naming conventions, see your tool guide (Linear, Markdown, Azure DevOps, or Jira)
 
 **CRITICAL: A task = one commit = one complete vertical slice**
 
@@ -65,8 +66,8 @@ Since we prefer API tests, a commit with tests is a full vertical slice.
 - Keep CRUD operations separate: Create in one task, Read in another, Update in another, Delete in another
 - Never have multiple commands or queries in one task
 - Never have multiple API endpoints in one task
-- Prefix each task with a level-2 header followed by [Planned], for example `## 1 Create GetUser query [Planned]`
 - Use "Sentence case" not "Title Case" for task headers
+- For tool-specific formatting (e.g., whether to include numbers in headers), see your tool guide
 
 > Note: Each task must result in code that compiles, runs, and can be tested independently
 
@@ -74,25 +75,27 @@ Since we prefer API tests, a commit with tests is a full vertical slice.
 
 Display ALL slices with their tasks and subtasks.
 
-Format: Slice labels, numbered tasks with markdown headers, and bullet subtasks (no status tags)
+Format: Slice labels, tasks with descriptive titles, and bullet subtasks (no status tags)
+
+**Note:** Task formatting varies by tool - see your tool guide for specifics (Markdown uses numbers, Linear/Azure DevOps/Jira do not).
 
 Example format:
 ```
 Slice 1: Frontend UI skeleton for user management
 
-## 1 Create Users page with navigation and route
+Create Users page with navigation and route
 - Add Users navigation menu item
 - Create Users page route file
 - Create UsersPage component structure
 
-## 2 Create users table with mock data
+Create users table with mock data
 - Create mock users data
 - Create UsersTable component
 - Add table to Users page
 
 Slice 2: Backend for user CRUD operations
 
-## 1 Create user aggregate, command, endpoint, migration, and tests
+Create user aggregate, command, endpoint, migration, and tests
 - Create `UserId` strongly typed ID
 - Create `User` aggregate
 - Create `IUserRepository` interface and implementation
@@ -114,10 +117,11 @@ For each slice:
 
 For each slice task:
 - Create in `[PRODUCT_MANAGEMENT_TOOL]` with:
-  - Title: "[Task title]" (e.g., "1 Create Users page with navigation and route")
+  - Title: "[Task title]" (e.g., "Create Users page with navigation and route")
   - Description: Detailed implementation notes with checkbox list of slice subtasks
   - Link to parent slice
   - Assign to: "me"
+  - **Note:** For Markdown, titles include task numbers (## 1, ## 2). For Linear/Azure DevOps/Jira, do not add numbers - the tool provides IDs.
 
 **Note:** If any required information is unclear (team, state, etc.), ask the user.
 

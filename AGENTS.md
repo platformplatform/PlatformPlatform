@@ -22,9 +22,13 @@ When working on tasks, follow any specific workflow instructions provided for yo
    - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
    - **Important**: The **watch** MCP tool restarts the application server and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
 
-## Product management tool
+## Product Management Tool
 
-For product management configuration, terminology mapping, and status flow, see [Product management guide](/.claude/rules/product-management/guide.md).
+Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the configured value.
+
+```
+PRODUCT_MANAGEMENT_TOOL="Linear"
+```
 
 
 ## Rules for implementing changes

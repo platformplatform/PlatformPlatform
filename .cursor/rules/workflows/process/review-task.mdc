@@ -9,7 +9,7 @@ You are reviewing: **{{{title}}}**
 
 ## Mandatory Preparation
 
-**Read [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.cursor/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 ## STEP 1: Read Task Assignment
 
@@ -148,8 +148,8 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **STEP 9**: Update task status in `[PRODUCT_MANAGEMENT_TOOL]`
 
-- If APPROVED: Update task status to "Completed"
-- If REJECTED: Update task status back to "Active"
+- If APPROVED: Update task status to [Completed]
+- If REJECTED: Update task status back to [Active]
 
 **STEP 10**: Signal completion and exit
 

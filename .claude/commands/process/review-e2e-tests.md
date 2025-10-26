@@ -12,7 +12,7 @@ You are reviewing: **{{{title}}}**
 
 ## Mandatory Preparation
 
-**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+No preparation needed for this review.
 
 ## STEP 1: Read Task Assignment
 
