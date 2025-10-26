@@ -22,37 +22,10 @@ When working on tasks, follow any specific workflow instructions provided for yo
    - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
    - **Important**: The **watch** MCP tool restarts the application server and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
 
-## MCP Servers
-
-* `[PRODUCT_MANAGEMENT_TOOL]`: Use this MCP tool to create and manage product backlog items.
-
-If an MCP Server is not responding, instruct the user to activate them.
-
 ## Product management tool
 
-**Update this section to match your product management tool of choice in ONE place:**
+For product management configuration, terminology mapping, and status flow, see [Product management guide](/.claude/rules/product-management/guide.md).
 
-```
-PRODUCT_MANAGEMENT_TOOL="Linear"
-```
-
-Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the variable.
-
-### Product management terminology mapping
-
-All workflows use generic terminology. A PRD describes a complete feature solution. Use this table to translate to tool-specific entities:
-
-| Generic Term | Markdown | Linear | Azure DevOps | Jira |
-|--------------|----------------|--------|--------------|------|
-| `[feature]` | Feature markdown file | Project | Feature | Epic |
-| `[slice]` | Slice markdown file | Issue | User Story | Story |
-| `[task]` | Task header (## 1 Title) | Sub-issue | Task | Sub-task |
-| `[checklist]` | Checkbox bullet (- [ ]) | Checklist item | Checklist item | Checklist item |
-
-**MCP Configuration by tool:**
-- **Linear:** `claude mcp add --transport sse linear-server --scope [user|project] https://mcp.linear.app/sse`
-- **Azure DevOps:** Configure via `.mcp.json` (see Azure DevOps MCP documentation)
-- **Jira:** Configure via `.mcp.json` (see Jira MCP documentation)
 
 ## Rules for implementing changes
 

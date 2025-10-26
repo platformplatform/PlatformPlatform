@@ -10,6 +10,8 @@ args:
 
 You are reviewing: **{{{title}}}**
 
+**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+
 ## Review Principles
 
 **Devil's Advocate Mindset**: Your job is to validate the engineer's work by actively searching for problems. Look for inconsistencies, deviations, and potential issues.

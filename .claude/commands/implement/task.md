@@ -10,6 +10,8 @@ args:
 
 You are implementing: **{{{title}}}**
 
+**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:

@@ -6,7 +6,7 @@ description: Create a product requirement description (PRD) for a new feature
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a feature with all slices in `[PRODUCT_MANAGEMENT_TOOL]`.
 
-**Note:** For terminology mapping between generic terms (feature, slice, task, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
+**Note:** For terminology mapping and tool configuration, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
 
 ## Workflow
 
@@ -14,12 +14,7 @@ Follow the steps below to create the PRD.
 
 ### Step 1: Initialize `[PRODUCT_MANAGEMENT_TOOL]`
 
-If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":
-- If `.workspace/task-manager` does not exist, run: `dotnet run --project developer-cli -- init-task-manager`
-
-If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP:
-- Call any MCP command to check authentication
-- If not available or authentication fails: Stop workflow, tell user to check `[PRODUCT_MANAGEMENT_TOOL]` configuration in [Product management tool](/AGENTS.md#product-management-tool)
+Follow initialization steps in [Product management guide](/.claude/rules/product-management/product-management-guide.md#initialization).
 
 ### Step 2: Ask for feature description
 

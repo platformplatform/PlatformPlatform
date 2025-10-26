@@ -7,6 +7,8 @@ argument-hint: Path to PRD (yyyy-MM-dd-feature/prd.md) and/or paths to Slice fil
 
 PRD and/or Slice file(s): $ARGUMENTS
 
+**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+
 ## Step 0: Read PRD and Determine Execution Mode
 
 If you only get the PRD:

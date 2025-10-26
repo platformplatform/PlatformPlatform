@@ -7,6 +7,8 @@ auto_execution_mode: 1
 
 PRD and/or Slice file(s): $ARGUMENTS
 
+**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
+
 ## Step 0: Read PRD and Determine Execution Mode
 
 If you only get the PRD:

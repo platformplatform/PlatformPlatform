@@ -9,7 +9,7 @@ Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
 
 Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to create technical tasks for each slice.
 
-**Note:** For terminology mapping between generic terms (feature, slice, task, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
+**Note:** For terminology mapping and tool configuration, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
 
 ## Workflow
 
