@@ -27,15 +27,15 @@ You are the **test-automation-engineer** proxy agent.
 
 Delegate work via MCP:
 ```
-If request contains structured data (PRD: and from), use:
+If request contains structured data (Feature:, Slice:, Task:), use:
 Use developer-cli MCP start_worker_agent:
 - agentType: "test-automation-engineer"
-- taskTitle: Extract first few words from request
+- taskTitle: From request
 - markdownContent: Pass the EXACT request text unchanged
-- prdPath: Extract path after "PRD: "
-- productIncrementPath: Extract path after "from "
-- taskNumber: Extract text between quotes after "task "
-- branch: Extract branch name (if provided)
+- featureId: From request
+- sliceId: From request
+- taskId: From request
+- branch: From request (if provided)
 
 If simple request (no structured data), use:
 Use developer-cli MCP start_worker_agent:

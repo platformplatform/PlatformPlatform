@@ -1,11 +1,11 @@
 ---
 description: Break down all slices in a feature into detailed technical tasks
-argument-hint: Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID (e.g., ".workspace/task-manager/2025-01-15-feature/prd.md" or "abc-123")
+argument-hint: Feature ID
 ---
 
 # Plan Slices Workflow
 
-Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
+Feature ID: $ARGUMENTS
 
 Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to break down each slice into detailed technical tasks.
 

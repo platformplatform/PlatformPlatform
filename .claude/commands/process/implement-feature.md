@@ -1,11 +1,11 @@
 ---
 description: Orchestrate implementation of a feature through task-level delegation to engineer subagents
-argument-hint: Path to feature file (yyyy-MM-dd-feature/prd.md) and/or paths to slice files (e.g., .workspace/task-manager/2025-01-15-feature/1-backend.md)
+argument-hint: Feature ID and/or slice IDs (e.g., "yyyy-MM-dd-feature/prd.md" or "1-backend.md" for Markdown, project/issue IDs for MCP tools)
 ---
 
 # Orchestrate Feature Implementation
 
-Feature file and/or slice file(s): $ARGUMENTS
+Feature ID and/or slice ID(s): $ARGUMENTS
 
 **Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
 
@@ -80,13 +80,13 @@ Delegate one task completely before starting the next:
 
 **Example** (interleaving independent tasks):
 ```
-In a SINGLE message, use Task tool multiple times:
-1. Task tool → backend-engineer: "We are implementing PRD: /path/prd.md. Please implement task \"1. Create user API endpoints\" from /path/1-backend.md."
-2. Task tool → frontend-engineer: "We are implementing PRD: /path/prd.md. Please implement task \"1. Create user management UI\" from /path/2-frontend.md."
+In a SINGLE message, delegate multiple tasks:
+1. backend-engineer: Feature: {featureId}, Slice: {slice1Id}, Task: {task1Id} - "Create user API endpoints"
+2. frontend-engineer: Feature: {featureId}, Slice: {slice2Id}, Task: {task1Id} - "Create user management UI"
 
 Wait for both to complete, then delegate next batch:
-3. Task tool → backend-engineer: "We are implementing PRD: /path/prd.md. Please implement task \"2. Add validation\" from /path/1-backend.md."
-4. Task tool → frontend-engineer: "We are implementing PRD: /path/prd.md. Please implement task \"2. Add form validation\" from /path/2-frontend.md."
+3. backend-engineer: Feature: {featureId}, Slice: {slice1Id}, Task: {task2Id} - "Add validation"
+4. frontend-engineer: Feature: {featureId}, Slice: {slice2Id}, Task: {task2Id} - "Add form validation"
 ```
 
 **CRITICAL**: If you're unsure about dependencies, use Sequential mode (safer default).
@@ -135,7 +135,11 @@ FOR EACH Slice (in numerical order):
 
     **Delegation format**:
     ```
-    We are implementing feature: /path/to/prd.md. Please implement task "[task number and description]" from /path/to/N-slice.md.
+    Feature: {featureId} ({featureTitle})
+    Slice: {sliceId} ({sliceTitle})
+    Task: {taskId} ({taskTitle})
+
+    Please implement this task.
     ```
 
     **c. Wait for engineer proxy to complete**:

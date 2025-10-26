@@ -5,7 +5,7 @@ auto_execution_mode: 1
 
 # Plan Slices Workflow
 
-Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
+Feature ID: $ARGUMENTS
 
 Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to break down each slice into detailed technical tasks.
 

@@ -67,6 +67,14 @@ Configure via `.mcp.json` (see Jira MCP documentation)
 - Call any MCP command to check authentication
 - If not available or authentication fails: Stop workflow, tell user to check configuration above
 
+## ID Mapping
+
+| Generic ID | Markdown | Linear | Azure DevOps | Jira |
+|------------|----------|--------|--------------|------|
+| featureId | File path to prd.mdc | Project ID/name | Feature ID | Epic ID/key |
+| sliceId | File path to slice.mdc | Issue ID (e.g. PP-445) | User Story ID | Story ID/key |
+| taskId | Task number (1, 2, 3) | Sub-issue ID | Task ID | Sub-task ID/key |
+
 ## File Structure
 
 **For Markdown mode:**

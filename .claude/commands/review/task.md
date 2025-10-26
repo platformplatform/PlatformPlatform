@@ -36,18 +36,18 @@ Avoid subjective personal preferences.
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
-- `requestFilePath`: Full path to your request file
-- `prdPath`: Path to PRD (if slice task)
-- `productIncrementPath`: Path to slice file (if applicable)
-- `taskNumberInIncrement`: Task number in the slice (if applicable)
+- `requestFilePath`: Request file path
+- `featureId`: Feature ID (if slice task)
+- `sliceId`: Slice ID (if applicable)
+- `taskId`: Task ID (if applicable)
 - `title`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `prdPath` exists in current-task.json:**
-1. Read PRD from the path in `prdPath`
-2. Read slice plan from the path in `productIncrementPath`
-3. Understand the task (`taskNumberInIncrement`) within the larger feature context
+**If `featureId` exists in current-task.json:**
+1. Read feature from `featureId`
+2. Read slice plan from `sliceId`
+3. Understand the task (`taskId`) within the larger feature context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
@@ -76,7 +76,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes if approved"},
-    {"content": "Update slice status with [Completed] or [Changes Required]", "status": "pending", "activeForm": "Updating slice status"},
+    {"content": "Update slice status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating slice status"},
     {"content": "MANDATORY: Call CompleteWork (approved or rejected) to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }

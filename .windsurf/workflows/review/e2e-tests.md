@@ -10,8 +10,8 @@ You are reviewing: **{{{title}}}**
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
-- `request_file_path`: Full path to engineer's request file
-- `slice_path`: Path to slice (if applicable)
+- `requestFilePath`: Request file path
+- `sliceId`: Slice ID (if applicable)
 - `title`: Task title
 
 **Then read the request and response files** to understand what was implemented.

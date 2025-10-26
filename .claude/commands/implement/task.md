@@ -15,18 +15,18 @@ You are implementing: **{{{title}}}**
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
-- `requestFilePath`: Full path to your request file
-- `prdPath`: Path to PRD (if slice task)
-- `productIncrementPath`: Path to slice file (if applicable)
-- `taskNumberInIncrement`: Your task number in the slice (if applicable)
+- `requestFilePath`: Request file path
+- `featureId`: Feature ID (if slice task)
+- `sliceId`: Slice ID (if applicable)
+- `taskId`: Task ID (if applicable)
 - `title`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `prdPath` exists in current-task.json:**
-1. Read PRD from the path in `prdPath`
-2. Read slice plan from the path in `productIncrementPath`
-3. Understand your task (`taskNumberInIncrement`) within the larger feature context
+**If `featureId` exists in current-task.json:**
+1. Read feature from `featureId`
+2. Read slice plan from `sliceId`
+3. Understand your task (`taskId`) within the larger feature context
 4. **Update task status to "Active"**: Change status from "Planned" to "Active" in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
@@ -67,7 +67,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 }
 ```
 
-After creating base todo, expand "Implement task" with subtasks from slice file (if applicable).
+After creating base todo, expand "Implement task" with subtasks from slice (if applicable).
 
 ---
 
@@ -131,6 +131,10 @@ For **frontend tasks**, first run **build**, then run **format** and **inspect**
 
 **Delegation format**:
 ```
+Feature: {featureId} ({featureTitle})
+Slice: {sliceId} ({sliceTitle})
+Task: {taskId} ({taskTitle})
+
 [One short sentence: what you implemented or fixed]
 
 ## Files Changed
@@ -138,8 +142,8 @@ For **frontend tasks**, first run **build**, then run **format** and **inspect**
 - path/to/file2.cs
 - path/to/translations.po
 
-Request: [path from current-task.json: requestFilePath]
-Response: [response file path]
+Request: {requestFilePath}
+Response: {responseFilePath}
 ```
 
 **MCP call parameters**:
@@ -147,11 +151,11 @@ Response: [response file path]
 - `taskTitle`: Short description (e.g., "Review create users table")
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
-- `prdPath`: From current-task.json (if exists)
-- `productIncrementPath`: From current-task.json (if exists)
-- `taskNumber`: **IMPORTANT** - Pass `taskNumberInIncrement` from current-task.json (not TaskNumber)
-- `requestFilePath`: Engineer's request file path
-- `responseFilePath`: Where reviewer should write response
+- `featureId`: From current-task.json
+- `sliceId`: From current-task.json
+- `taskId`: From current-task.json
+- `requestFilePath`: From current-task.json
+- `responseFilePath`: From current-task.json
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again

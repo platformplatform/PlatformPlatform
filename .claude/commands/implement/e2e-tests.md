@@ -1,13 +1,13 @@
 ---
 description: Create comprehensive end-to-end tests for a feature
-argument-hint: Feature name or path to feature file (prd.md) (optional)
+argument-hint: Feature ID (optional)
 ---
 
 # E2E Testing Workflow
 
-Feature name or feature file: $ARGUMENTS
+Feature ID: $ARGUMENTS
 
-If a feature file is provided in the arguments above, read it to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+If a feature ID is provided in the arguments above, read the feature to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## CRITICAL - Autonomous Operation
 

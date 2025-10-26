@@ -27,15 +27,15 @@ You are the **backend-reviewer** proxy agent.
 
 Delegate review work via MCP:
 ```
-If request contains structured review data (PRD:, Slice:, Request:, Response:), use:
+If request contains structured review data (Feature:, Slice:, Task:, Request:, Response:), use:
 Use developer-cli to start a backend-reviewer with:
-- taskTitle: Extract first few words from request
+- taskTitle: From request
 - markdownContent: Pass the EXACT request text unchanged
-- prdPath: Extract path after "PRD: "
-- productIncrementPath: Extract path after "Slice: " (variable name for compatibility)
-- taskNumber: Extract text between quotes after "Task: "
-- requestFilePath: Extract path after "Request: "
-- responseFilePath: Extract path after "Response: "
+- featureId: From request
+- sliceId: From request
+- taskId: From request
+- requestFilePath: From request
+- responseFilePath: From request
 
 If simple request (no structured data), use:
 Use developer-cli to start a backend-reviewer with:
