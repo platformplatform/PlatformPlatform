@@ -42,17 +42,17 @@ A brief high-level introduction: The Teams management feature enables tenants to
 - Confirmation dialogs for sensitive actions like removing members or deleting teams.
 - All operations strictly scoped to the current tenant to maintain isolation.
 
-## Product increments overview
-This is a very high-level overview of the product increments needed to implement the feature.
+## Slices overview
+This is a very high-level overview of the slices needed to implement the feature.
 
 ### 1. Backend for team management
-This increment implements the core team functionality including team aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, and deleting teams with proper validation and permission checks.
+This slice implements the core team functionality including team aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, and deleting teams with proper validation and permission checks.
 
 ### 2. Frontend for team management
-This increment implements the Teams page UI with the ability to list, create, edit, and delete teams using the API from the first increment. It includes the navigation menu item and basic team management interface.
+This slice implements the Teams page UI with the ability to list, create, edit, and delete teams using the API from the first increment. It includes the navigation menu item and basic team management interface.
 
 ### 3. Backend for team membership management
-This increment implements team membership functionality including the team member entity, domain model, database migration, CRUD operations for managing team members and admins, API endpoints, and tests. It enforces the permission rules for who can manage team membership.
+This slice implements team membership functionality including the team member entity, domain model, database migration, CRUD operations for managing team members and admins, API endpoints, and tests. It enforces the permission rules for who can manage team membership.
 
 ### 4. Frontend for team membership management
-This increment implements the UI for managing team members, including viewing team member lists, adding and removing members, and promoting members to admin status. It respects the visibility rules so users only see appropriate information based on their permissions.
+This slice implements the UI for managing team members, including viewing team member lists, adding and removing members, and promoting members to admin status. It respects the visibility rules so users only see appropriate information based on their permissions.

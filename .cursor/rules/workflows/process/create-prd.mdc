@@ -5,9 +5,9 @@ alwaysApply: false
 ---
 # Create PRD Workflow
 
-Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a PRD with all product increments in `[PRODUCT_MANAGEMENT_TOOL]`.
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a feature with all slices in `[PRODUCT_MANAGEMENT_TOOL]`.
 
-**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](mdc:AGENTS.mdc#product-management-terminology-mapping).
+**Note:** For terminology mapping between generic terms (feature, slice, task, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](mdc:AGENTS.mdc#product-management-terminology-mapping).
 
 ## Workflow
 
@@ -91,14 +91,14 @@ AskUserQuestion with:
 - header: "E2E Tests"
 - multiSelect: false
 - options:
-  - label: "Yes", description: "Include E2E tests as a separate product increment"
+  - label: "Yes", description: "Include E2E tests as a separate slice"
   - label: "No", description: "Skip E2E tests for now"
 ```
 
 **Parallel optimization:**
 ```
 AskUserQuestion with:
-- question: "Should product increments be optimized for parallel work of backend and frontend?"
+- question: "Should slices be optimized for parallel work of backend and frontend?"
 - header: "Parallel"
 - multiSelect: false
 - options:
@@ -130,7 +130,7 @@ Based on all the research and user answers, draft the complete PRD.
    - Specify which self-contained system(s) are in scope
    - Avoid repetition
 
-2. **Product increments section** structured based on wizard answers:
+2. **Slices section** structured based on wizard answers:
 
    **Examples based on common patterns:**
 
@@ -163,16 +163,16 @@ Based on all the research and user answers, draft the complete PRD.
    - Integration frontend with backend
    - E2E tests (if E2E tests selected)
 
-   **Note:** These are examples only. Adapt the product increment structure to match the actual feature requirements, scope, and user answers.
+   **Note:** These are examples only. Adapt the slice structure to match the actual feature requirements, scope, and user answers.
 
-3. **Product increment guidelines:**
-   - Each product increment should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
-   - Keep product increments small enough to review effectively
-   - Write a clear paragraph describing what each product increment delivers
+3. **Slice guidelines:**
+   - Each slice should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
+   - Keep slices small enough to review effectively
+   - Write a clear paragraph describing what each slice delivers
    - Each task = one commit = one vertical slice
-   - All tasks in an increment work together to deliver a coherent feature
+   - All tasks in a slice work together to deliver a coherent feature
 
-Show the complete PRD to the user - display the full content including all product increments with their descriptions.
+Show the complete PRD to the user - display the full content including all slices with their descriptions.
 
 **Ask for approval:** "Does this PRD look good?" (Yes/No)
 - If No: Ask what to change, update the PRD content, show again, repeat approval
@@ -190,16 +190,16 @@ If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP:
 
 ### Step 7: Create PRD in `[PRODUCT_MANAGEMENT_TOOL]`
 
-Create PRD:
-- Name: [confirmed PRD name]
+Create feature:
+- Name: [confirmed feature name]
 - Assign to: "me"
 
-Create product increments:
-- For each product increment: Create with title=[product increment title], description=[product increment description]
-- Link to PRD, assign to: "me"
+Create slices:
+- For each slice: Create with title=[slice title], description=[slice description]
+- Link to feature, assign to: "me"
 
 If "Move to active work" was "Yes (Now)" in Step 6:
-- Update PRD and all product increments to active work
+- Update feature and all slices to active work
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 - Create directory: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
@@ -230,10 +230,10 @@ If "Move to active work" was "Yes (Now)" in Step 6:
 - Ignore rule files
 - Repeat information across sections
 - Write titles in Title Case—use sentence case
-- Create `[PRODUCT_MANAGEMENT_TOOL]` entities before getting PRD approval in Step 5
+- Create feature or slices in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
 - Rename the file—must be `prd.md`
 - Save questions in the PRD file
-- Create product increments that split tests, implementation, and migrations across separate increments
+- Create slices that split tests, implementation, and migrations across separate slices
 - Ask the user clarifying questions before Step 4
 
 **SERIOUSLY:**
