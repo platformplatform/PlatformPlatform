@@ -1,28 +1,28 @@
 ---
-description: Workflow for create technical tasks for all product increments in a prd
+description: Workflow for create technical tasks for all slices in a prd
 auto_execution_mode: 1
 ---
 
 # Create Tasks Workflow
 
-PRD file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
+Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
 
-Read the PRD provided in the arguments above and identify ALL product increments listed in it. Your job is to create technical tasks for each product increment.
+Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to create technical tasks for each slice.
 
-**Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
+**Note:** For terminology mapping between generic terms (feature, slice, task, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
 
 ## Workflow
 
-Follow the steps below to create tasks for all product increments.
+Follow the steps below to create tasks for all slices.
 
 ### Step 1: Read PRD
 
-Read the PRD to identify all product increments.
+Read the PRD to identify all slices.
 
-### Step 2: Research and plan tasks for all product increments
+### Step 2: Research and plan tasks for all slices
 
 - Read codebase, rule files, and existing patterns
-- Break down each product increment into tasks (numbered headers) and subtasks (checkbox bullets)
+- Break down each slice into tasks (numbered headers) and subtasks (checkbox bullets)
 - Each task = one commit = one vertical slice
 - Follow existing naming conventions and structure
 
@@ -70,13 +70,13 @@ Since we prefer API tests, a commit with tests is a full vertical slice.
 
 ### Step 3: Show task structure to user for approval
 
-Display ALL product increments with their tasks and subtasks.
+Display ALL slices with their tasks and subtasks.
 
-Format: Product increment labels, numbered tasks with markdown headers, and bullet subtasks (no status tags)
+Format: Slice labels, numbered tasks with markdown headers, and bullet subtasks (no status tags)
 
 Example format:
 ```
-Product increment 1: Frontend UI skeleton for user management
+Slice 1: Frontend UI skeleton for user management
 
 ## 1 Create Users page with navigation and route
 - Add Users navigation menu item
@@ -88,7 +88,7 @@ Product increment 1: Frontend UI skeleton for user management
 - Create UsersTable component
 - Add table to Users page
 
-Product increment 2: Backend for user CRUD operations
+Slice 2: Backend for user CRUD operations
 
 ## 1 Create user aggregate, command, endpoint, migration, and tests
 - Create `UserId` strongly typed ID
@@ -107,36 +107,36 @@ Ask "Does this task structure look good?" (Yes/No)
 
 ### Step 4: Create detailed tasks in `[PRODUCT_MANAGEMENT_TOOL]`
 
-For each product increment:
-- Get the product increment from `[PRODUCT_MANAGEMENT_TOOL]` (created in create-prd workflow Step 7)
+For each slice:
+- Get the slice from `[PRODUCT_MANAGEMENT_TOOL]` (created in create-prd workflow Step 7)
 
-For each product increment task:
+For each slice task:
 - Create in `[PRODUCT_MANAGEMENT_TOOL]` with:
   - Title: "[Task title]" (e.g., "1 Create Users page with navigation and route")
-  - Description: Detailed implementation notes with checkbox list of product increment subtasks
-  - Link to parent product increment
+  - Description: Detailed implementation notes with checkbox list of slice subtasks
+  - Link to parent slice
   - Assign to: "me"
 
 **Note:** If any required information is unclear (team, state, etc.), ask the user.
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 
-For each product increment:
+For each slice:
 
-1. **Create product increment file:**
-   - Path: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/[#]-[product-increment-title].md`
+1. **Create slice file:**
+   - Path: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/[#]-[slice-title].md`
    - Example: `1-backend-for-user-management.md`, `2-frontend-for-user-management.md`
 
-2. **Add product increment header and description:**
-   - Level 1 header: Product increment title from the PRD (e.g., "Backend for user management")
-   - **Purpose:** Short description of what this product increment delivers
+2. **Add slice header and description:**
+   - Level 1 header: Slice title from the PRD (e.g., "Backend for user management")
+   - **Purpose:** Short description of what this slice delivers
    - **NOT included:** Out-of-scope items
-   - **Dependencies:** Previous product increments or external requirements
+   - **Dependencies:** Previous slices or external requirements
    - **IMPORTANT:** Warning not to work outside this scope
 
 3. **Add tasks:**
-   - Add product increment task headers with [Planned] status (format: `## 1 Task title [Planned]`)
-   - Add detailed implementation notes with checkbox product increment subtasks (format: `- [ ] Subtask description`)
+   - Add slice task headers with [Planned] status (format: `## 1 Task title [Planned]`)
+   - Add detailed implementation notes with checkbox slice subtasks (format: `- [ ] Subtask description`)
 
 ### Subtask guidelines:
 
@@ -186,7 +186,7 @@ Inform the user: Tasks have been created successfully.
 
 ## Examples
 
-Using these examples to understand how to write tasks and subtasks for product increments:
+Using these examples to understand how to write tasks and subtasks for slices:
 
 - [Backend for user management](/.windsurf/samples/1-backend-sample.md)
 - [Frontend for user management](/.windsurf/samples/2-frontend-sample.md)
