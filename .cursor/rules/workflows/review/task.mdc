@@ -32,16 +32,16 @@ Avoid subjective personal preferences.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Full path to your request file
-- `prdPath`: Path to PRD (if Product Increment task)
-- `productIncrementPath`: Path to Product Increment (if applicable)
-- `taskNumberInIncrement`: Task number in the increment (if applicable)
+- `prdPath`: Path to PRD (if slice task)
+- `productIncrementPath`: Path to slice file (if applicable)
+- `taskNumberInIncrement`: Task number in the slice (if applicable)
 - `title`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
 **If `prdPath` exists in current-task.json:**
 1. Read PRD from the path in `prdPath`
-2. Read Product Increment plan from the path in `productIncrementPath`
+2. Read slice plan from the path in `productIncrementPath`
 3. Understand the task (`taskNumberInIncrement`) within the larger feature context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
