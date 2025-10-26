@@ -5,36 +5,36 @@ auto_execution_mode: 1
 
 # Orchestrate PRD Implementation
 
-PRD and/or Product Increment file(s): $ARGUMENTS
+PRD and/or Slice file(s): $ARGUMENTS
 
 ## Step 0: Read PRD and Determine Execution Mode
 
 If you only get the PRD:
 1. Read the PRD file using: `Read(file_path: "/path/to/prd.md")`
-2. Find all Product Increment files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
+2. Find all Slice files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
 3. Filter out prd.md from the glob results
 
 **Automatically determine if parallel execution is appropriate:**
 
-Read the PRD and look for indicators that product increments are designed for parallel work:
-- PRD mentions "parallel" or "simultaneously" in Product Increments section
-- Product Increment descriptions mention "can work in parallel with" or "independent"
-- Product Increment descriptions mention "mocked dependencies" or "mocks"
-- Product Increments are explicitly structured to suggest parallel execution
+Read the PRD and look for indicators that slices are designed for parallel work:
+- PRD mentions "parallel" or "simultaneously" in Slices section
+- Slice descriptions mention "can work in parallel with" or "independent"
+- Slice descriptions mention "mocked dependencies" or "mocks"
+- Slices are explicitly structured to suggest parallel execution
 
 **Decision:**
-- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized product increments")
+- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized slices")
 - **Otherwise**: Use Sequential Mode (default, safer - inform user: "Using sequential execution")
 
-Continue with orchestrating implementation of all found Product Increment files.
+Continue with orchestrating implementation of all found Slice files.
 
 ## Your Role: Task-Level Coordination
 
 🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT PRODUCT INCREMENTS** 🚨
 
 Your job as Tech Lead:
-- Read ALL Product Increment files and extract tasks
-- Create expanded todo with ALL Product Increments and ALL tasks
+- Read ALL Slice files and extract tasks
+- Create expanded todo with ALL Slices and ALL tasks
 - Delegate individual tasks to engineer proxy agents
 - Engineer proxy agents are pure passthroughs - they just forward your request to workers
 - Track progress and mark tasks complete
@@ -46,17 +46,17 @@ Your job as Tech Lead:
 
 Delegate one task completely before starting the next:
 
-1. Delegate Task 1 from Product Increment 1 → Wait for completion
-2. Delegate Task 2 from Product Increment 1 → Wait for completion
-3. Continue with Product Increment 1 until all tasks complete
-4. Move to Product Increment 2, delegate Task 1 → Wait for completion
-5. Continue until all tasks in all Product Increments complete
+1. Delegate Task 1 from Slice 1 → Wait for completion
+2. Delegate Task 2 from Slice 1 → Wait for completion
+3. Continue with Slice 1 until all tasks complete
+4. Move to Slice 2, delegate Task 1 → Wait for completion
+5. Continue until all tasks in all Slices complete
 
 **CRITICAL**: Only use parallel mode if the USER explicitly says "in parallel" or "simultaneously". DO NOT decide this yourself.
 
 ### Parallel (ONLY When User Explicitly Requests)
 
-**CRITICAL**: Product Increments must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip increments. Within that constraint, you can interleave tasks from multiple Product Increments.
+**CRITICAL**: Slices must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip increments. Within that constraint, you can interleave tasks from multiple Slices.
 
 **Example**: Task 1 from PI 1 + Task 1 from PI 2 simultaneously, then Task 2 from PI 1 + Task 2 from PI 2 simultaneously.
 
@@ -91,26 +91,26 @@ Wait for both to complete, then delegate next batch:
 
 ## Mandatory Workflow
 
-### Step 1: Read Product Increment Files
+### Step 1: Read Slice Files
 
-Read each Product Increment file to extract:
+Read each Slice file to extract:
 - The file number (from filename: 1-backend.md, 2-frontend.md, 3-e2e-tests.md)
-- The Product Increment title (first heading in the file)
+- The Slice title (first heading in the file)
 - ALL tasks listed in the file
 
 ### Step 2: Create Expanded Todo List
 
-Use TodoWrite to create fully expanded todo with ALL Product Increments numbered and ALL tasks as subtasks:
+Use TodoWrite to create fully expanded todo with ALL Slices numbered and ALL tasks as subtasks:
 
 ```
-Product Increment 1: Backend user management [pending]
+Slice 1: Backend user management [pending]
 ├─ 1. Create user API endpoints [pending]
 ├─ 2. Add validation logic [pending]
 ├─ 3. Implement user repository [pending]
-Product Increment 2: Frontend user management [pending]
+Slice 2: Frontend user management [pending]
 ├─ 1. Create user management UI [pending]
 ├─ 2. Add form validation [pending]
-Product Increment 3: End-to-end testing [pending]
+Slice 3: End-to-end testing [pending]
 ├─ 1. Create smoke tests [pending]
 ```
 
@@ -120,8 +120,8 @@ Product Increment 3: End-to-end testing [pending]
 
 **Sequential Mode (default)**:
 
-FOR EACH Product Increment (in numerical order):
-  FOR EACH task in that Product Increment:
+FOR EACH Slice (in numerical order):
+  FOR EACH task in that Slice:
     **a. Mark task [in_progress]** in todo
 
     **b. Delegate to engineer proxy agent**:
@@ -156,33 +156,33 @@ FOR EACH batch:
 
   Move to next batch
 
-### Step 4: Collapse Product Increments as Complete
+### Step 4: Collapse Slices as Complete
 
-When ALL tasks in a Product Increment are [completed]:
+When ALL tasks in a Slice are [completed]:
 1. Remove all subtask lines (├─ lines)
-2. Keep only Product Increment line
-3. Mark Product Increment [completed]
+2. Keep only Slice line
+3. Mark Slice [completed]
 
 ```
-Product Increment 1: Backend user management [completed]
-Product Increment 2: Frontend user management [in_progress]
+Slice 1: Backend user management [completed]
+Slice 2: Frontend user management [in_progress]
 ├─ 2. Add form validation [in_progress]
-Product Increment 3: End-to-end testing [pending]
+Slice 3: End-to-end testing [pending]
 ├─ 1. Create smoke tests [pending]
 ```
 
 ### Step 5: Finish When Complete
 
 Stop ONLY when:
-- ALL Product Increments are [completed] in todo
+- ALL Slices are [completed] in todo
 - ALL tasks have been delegated and completed
 
 ## Critical Rules
 
 **NEVER**:
 - Stop before completion - Continue until everything is done
-- Delegate entire Product Increments - Delegate individual tasks
-- Skip reading Product Increment files - Must read to extract tasks
+- Delegate entire Slices - Delegate individual tasks
+- Skip reading Slice files - Must read to extract tasks
 - Keep todo collapsed - Must expand to show all tasks
 - Change code or commit yourself
 - Use `developer_cli` MCP tool directly
@@ -191,9 +191,9 @@ Stop ONLY when:
 
 **ALWAYS**:
 - Use Task tool with subagent_type to delegate tasks
-- Create expanded todo (Product Increments with all task subtasks)
-- Read Product Increment files first to extract numbering and tasks
-- Keep todo expanded until Product Increment is fully complete
+- Create expanded todo (Slices with all task subtasks)
+- Read Slice files first to extract numbering and tasks
+- Keep todo expanded until Slice is fully complete
 - Use Sequential mode by default
 - In parallel mode, ensure each task in a batch uses DIFFERENT engineer type
 
@@ -217,8 +217,8 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 **Sequential Mode**:
 ```
-1. Read all 3 Product Increment files, extract 11 tasks total
-2. Create expanded todo with 3 Product Increments and 11 tasks
+1. Read all 3 Slice files, extract 11 tasks total
+2. Create expanded todo with 3 Slices and 11 tasks
 3. Delegate task "1. Create user API endpoints" from PI 1 to backend-engineer
 4. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
 5. Mark task 1 complete, delegate task "2. Add validation logic" from PI 1
@@ -226,13 +226,13 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 7. Continue through all 5 tasks in PI 1
 8. Collapse PI 1 (remove subtasks, mark [completed])
 9. Start PI 2, delegate task "1. Create user management UI" to frontend-engineer
-10. Continue until all Product Increments collapsed and [completed]
+10. Continue until all Slices collapsed and [completed]
 ```
 
 **Parallel Mode** (user explicitly requested):
 ```
-1. Read all 3 Product Increment files, extract 11 tasks total
-2. Create expanded todo with 3 Product Increments and 11 tasks
+1. Read all 3 Slice files, extract 11 tasks total
+2. Create expanded todo with 3 Slices and 11 tasks
 3. Identify tasks that can run in parallel:
    - Batch 1: PI 1 Task 1 (backend) + PI 2 Task 1 (frontend)
    - Batch 2: PI 1 Task 2 (backend) + PI 2 Task 2 (frontend)
@@ -243,13 +243,13 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 5. Wait for BOTH to complete
 6. Mark both tasks [completed]
 7. In SINGLE message, delegate both tasks in Batch 2
-8. Continue batching until Product Increments complete
-9. Collapse completed Product Increments
+8. Continue batching until Slices complete
+9. Collapse completed Slices
 ```
 
 ## Remember
 
-- You delegate tasks, not Product Increments
+- You delegate tasks, not Slices
 - Engineer proxies are passthroughs, not coordinators
 - You manage the todo list, not the proxies
 - Your job: Read files, expand todo, delegate tasks, track completion
