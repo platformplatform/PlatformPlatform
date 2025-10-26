@@ -25,7 +25,7 @@ You are implementing: **{{{title}}}**
 1. Read PRD from the path in `prdPath`
 2. Read Product Increment plan from the path in `productIncrementPath`
 3. Understand your task (`taskNumberInIncrement`) within the larger feature context
-4. **Mark your task as `[In Progress]`**: Edit the Product Increment file and change your task status from `[Pending]` to `[In Progress]`
+4. **Update task status to "Active"**: Change status from "Planned" to "Active" in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -106,7 +106,13 @@ In a single message, use Task tool three times:
 
 For **frontend tasks**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
 
-**STEP 7**: Edit Product Increment file: `[In Progress]` → `[Ready for Review]`
+**STEP 7**: Update task for review
+
+1. **Update task description** to reflect what was actually implemented:
+   - If implemented exactly as described: Check off all subtask checkboxes `[x]`
+   - If deviated from plan: Update description to document what was actually done
+
+2. **Update task status to "Review"** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **STEP 8**: Delegate to reviewer subagent to review and commit your code
 

@@ -15,11 +15,9 @@ Read the PRD provided in the arguments above and identify ALL product increments
 
 Follow the steps below to create tasks for all product increments.
 
-### Step 1: Read PRD and determine product management tool
+### Step 1: Read PRD
 
-Read the PRD to identify all product increments:
-- If `$ARGUMENTS` is a file path: Read the PRD file, using Markdown files
-- If `$ARGUMENTS` is an ID: Get the PRD from `[PRODUCT_MANAGEMENT_TOOL]`
+Read the PRD to identify all product increments.
 
 ### Step 2: Research and plan tasks for all product increments
 
@@ -80,19 +78,19 @@ Example format:
 ```
 Product increment 1: Frontend UI skeleton for user management
 
-## 1. Create Users page with navigation and route
+## 1 Create Users page with navigation and route
 - Add Users navigation menu item
 - Create Users page route file
 - Create UsersPage component structure
 
-## 2. Create users table with mock data
+## 2 Create users table with mock data
 - Create mock users data
 - Create UsersTable component
 - Add table to Users page
 
 Product increment 2: Backend for user CRUD operations
 
-## 1. Create user aggregate, command, endpoint, migration, and tests
+## 1 Create user aggregate, command, endpoint, migration, and tests
 - Create `UserId` strongly typed ID
 - Create `User` aggregate
 - Create `IUserRepository` interface and implementation
@@ -107,23 +105,21 @@ Ask "Does this task structure look good?" (Yes/No)
 - If No: Ask what to change, update task structure, show again, repeat approval
 - If Yes: Continue to Step 4
 
-### Step 4: Create detailed tasks with full descriptions
-
-**If using `[PRODUCT_MANAGEMENT_TOOL]` (determined in Step 1):**
+### Step 4: Create detailed tasks in `[PRODUCT_MANAGEMENT_TOOL]`
 
 For each product increment:
 - Get the product increment from `[PRODUCT_MANAGEMENT_TOOL]` (created in create-prd workflow Step 7)
 
 For each product increment task:
 - Create in `[PRODUCT_MANAGEMENT_TOOL]` with:
-  - Title: "[Task title]" (e.g., "1. Create Users page with navigation and route")
+  - Title: "[Task title]" (e.g., "1 Create Users page with navigation and route")
   - Description: Detailed implementation notes with checkbox list of product increment subtasks
   - Link to parent product increment
   - Assign to: "me"
 
 **Note:** If any required information is unclear (team, state, etc.), ask the user.
 
-**If using Markdown files (determined in Step 1):**
+**If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 
 For each product increment:
 
@@ -197,7 +193,6 @@ Using these examples to understand how to write tasks and subtasks for product i
 
 ## ✅ DO:
 
-- Create one file per product increment under `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/` (if using Markdown files)
 - Keep tasks focused on the smallest vertical slices with API tests and one commit per task
 - Show task structure to user for approval before creating detailed descriptions
 
@@ -210,7 +205,6 @@ Using these examples to understand how to write tasks and subtasks for product i
 - Include implementation details that cannot be built or tested in one commit
 - Create tasks that depend on details that will be implemented later
 - Modify `shared-kernel` or `shared-webapp` without explicit agreement
-- Create or delete product increment files outside `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
 - Write titles in Title Case. Instead always use sentence case
 
 **SERIOUSLY:**
