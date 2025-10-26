@@ -27,15 +27,13 @@ You are the **test-automation-engineer** proxy agent.
 
 Delegate work via MCP:
 ```
-If request contains structured data (Feature:, Slice:, Task:), use:
 Use developer-cli MCP start_worker_agent:
 - agentType: "test-automation-engineer"
-- taskTitle: From request
+- taskTitle: From tech lead
 - markdownContent: Pass the EXACT request text unchanged
-- featureId: From request
-- sliceId: From request
-- taskId: From request
-- branch: From request (if provided)
+- sliceId: From tech lead (for Markdown only)
+- taskId: From tech lead
+- branch: From tech lead
 
 If simple request (no structured data), use:
 Use developer-cli MCP start_worker_agent:

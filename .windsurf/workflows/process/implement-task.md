@@ -1,32 +1,27 @@
 ---
-description: Implement a specific task from a slice following the systematic workflow
-args:
-  - name: title
-    description: Task title to implement (e.g., "Add user filtering")
-    required: false
+description: Workflow for task title to implement (e.g., "add user filtering")
+auto_execution_mode: 1
 ---
 
 # Implement Task Workflow
 
 You are implementing: **{{{title}}}**
 
-**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
 
 ## STEP 0: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `featureId`: Feature ID (if slice task)
-- `sliceId`: Slice ID (if applicable)
-- `taskId`: Task ID (if applicable)
-- `title`: Task title
+- `sliceId`: Slice ID (for Markdown only)
+- `taskId`: Task ID
+- `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `featureId` exists in current-task.json:**
-1. Read feature from `featureId`
-2. Read slice plan from `sliceId`
-3. Understand your task (`taskId`) within the larger feature context
+**If `sliceId` exists in current-task.json:**
+1. Read slice from `sliceId`
+2. Understand your task (`taskId`) within the slice context
 4. **Update task status to "Active"**: Change status from "Planned" to "Active" in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
@@ -131,10 +126,6 @@ For **frontend tasks**, first run **build**, then run **format** and **inspect**
 
 **Delegation format**:
 ```
-Feature: {featureId} ({featureTitle})
-Slice: {sliceId} ({sliceTitle})
-Task: {taskId} ({taskTitle})
-
 [One short sentence: what you implemented or fixed]
 
 ## Files Changed
@@ -148,11 +139,10 @@ Response: {responseFilePath}
 
 **MCP call parameters**:
 - `agentType`: backend-reviewer, frontend-reviewer, or test-automation-reviewer
-- `taskTitle`: Short description (e.g., "Review create users table")
+- `taskTitle`: From current-task.json
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
-- `featureId`: From current-task.json
-- `sliceId`: From current-task.json
+- `sliceId`: From current-task.json (for Markdown only)
 - `taskId`: From current-task.json
 - `requestFilePath`: From current-task.json
 - `responseFilePath`: From current-task.json

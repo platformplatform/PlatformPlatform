@@ -1,13 +1,13 @@
 ---
 description: Workflow for task title to review (e.g., "add user filtering")
-globs: 
-alwaysApply: false
+auto_execution_mode: 1
 ---
+
 # Review Task Workflow
 
 You are reviewing: **{{{title}}}**
 
-**Note:** For terminology and status mapping, see [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc).
+**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
 
 ## Review Principles
 
@@ -16,7 +16,7 @@ You are reviewing: **{{{title}}}**
 **Zero Tolerance**: ALL findings must be fixed, regardless of severity. Never dismiss issues as "minor" or "not worth fixing". Every deviation from rules or established patterns must be addressed.
 
 **Evidence-Based Reviews**: Every finding must be backed by:
-1. Explicit rules from `.cursor/rules/` files, OR
+1. Explicit rules from `.claude/rules/` files, OR
 2. Established patterns found elsewhere in the codebase (cite specific file:line examples), OR
 3. Well-established ecosystem conventions (e.g., .NET interfaces prefixed with `I`)
 
@@ -34,17 +34,15 @@ Avoid subjective personal preferences.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `featureId`: Feature ID (if slice task)
-- `sliceId`: Slice ID (if applicable)
-- `taskId`: Task ID (if applicable)
-- `title`: Task title
+- `sliceId`: Slice ID (for Markdown only)
+- `taskId`: Task ID
+- `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `featureId` exists in current-task.json:**
-1. Read feature from `featureId`
-2. Read slice plan from `sliceId`
-3. Understand the task (`taskId`) within the larger feature context
+**If `sliceId` exists in current-task.json:**
+1. Read slice from `sliceId`
+2. Understand the task (`taskId`) within the slice context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
@@ -67,7 +65,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
   "todos": [
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
-    {"content": "Study ALL rules in .cursor/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
+    {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Verify translations are complete and use consistent domain terminology (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
@@ -107,9 +105,9 @@ For **frontend tasks**, use **test** and **inspect** MCP tools directly.
 
 **STEP 3**: Study ALL rules for your role (read files or recall from memory)
 
-- **Backend reviewer**: ALL files in `.cursor/rules/backend/`
-- **Frontend reviewer**: ALL files in `.cursor/rules/frontend/`
-- **Test automation reviewer**: ALL files in `.cursor/rules/end-to-end-tests/`
+- **Backend reviewer**: ALL files in `.claude/rules/backend/`
+- **Frontend reviewer**: ALL files in `.claude/rules/frontend/`
+- **Test automation reviewer**: ALL files in `.claude/rules/end-to-end-tests/`
 
 **STEP 4**: Frontend only - verify translations in `*.po` files
 
@@ -180,7 +178,7 @@ When calling CompleteWork with `responseContent`:
 
 ### File.cs:Line
 [Objective description of problem]
-- **Rule/Pattern**: [Reference to .cursor/rules/X.mdc or pattern from codebase]
+- **Rule/Pattern**: [Reference to .claude/rules/X.md or pattern from codebase]
 - **Fix**: [Optional: Suggest specific change]
 
 ### AnotherFile.cs:Line

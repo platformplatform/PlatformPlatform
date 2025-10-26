@@ -37,17 +37,15 @@ Avoid subjective personal preferences.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `featureId`: Feature ID (if slice task)
-- `sliceId`: Slice ID (if applicable)
-- `taskId`: Task ID (if applicable)
-- `title`: Task title
+- `sliceId`: Slice ID (for Markdown only)
+- `taskId`: Task ID
+- `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `featureId` exists in current-task.json:**
-1. Read feature from `featureId`
-2. Read slice plan from `sliceId`
-3. Understand the task (`taskId`) within the larger feature context
+**If `sliceId` exists in current-task.json:**
+1. Read slice from `sliceId`
+2. Understand the task (`taskId`) within the slice context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
