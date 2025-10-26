@@ -11,16 +11,16 @@ You are implementing: **{{{title}}}**
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Full path to your request file
-- `prdPath`: Path to PRD (if Product Increment task)
-- `productIncrementPath`: Path to Product Increment (if applicable)
-- `taskNumberInIncrement`: Your task number in the increment (if applicable)
+- `prdPath`: Path to PRD (if slice task)
+- `productIncrementPath`: Path to slice file (if applicable)
+- `taskNumberInIncrement`: Your task number in the slice (if applicable)
 - `title`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
 **If `prdPath` exists in current-task.json:**
 1. Read PRD from the path in `prdPath`
-2. Read Product Increment plan from the path in `productIncrementPath`
+2. Read slice plan from the path in `productIncrementPath`
 3. Understand your task (`taskNumberInIncrement`) within the larger feature context
 4. **Update task status to "Active"**: Change status from "Planned" to "Active" in `[PRODUCT_MANAGEMENT_TOOL]`
 
@@ -62,7 +62,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 }
 ```
 
-After creating base todo, expand "Implement task" with subtasks from Product Increment file (if applicable).
+After creating base todo, expand "Implement task" with subtasks from slice file (if applicable).
 
 ---
 
@@ -155,7 +155,7 @@ Response: [response file path]
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 9**: Re-read Product Increment, update plan if needed
+**STEP 9**: Re-read slice, update plan if needed
 
 **STEP 10**: Signal completion and exit
 
@@ -163,7 +163,7 @@ Response: [response file path]
 
 After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
 
-ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a Product Increment.
+ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a slice.
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed
