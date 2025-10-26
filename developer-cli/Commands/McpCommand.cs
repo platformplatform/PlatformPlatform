@@ -178,13 +178,11 @@ IF YOU RECOVER - REPORT PROBLEM + SOLUTION:
 
 Example: Workflow says read current-task.json from workspace root, but actual path is .workspace/agent-workspaces/branch/agent/current-task.json - report BOTH.
 
-Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md"
+Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-title.md"
     )]
     public static string ReportProblem(
         [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
         string reporter,
-        [Description("Category: 'dead-reference', 'invalid-parameters', 'contradictory-instructions', 'unclear-instructions'")]
-        string category,
         [Description("Severity: 'error' (blocking issue), 'warning' (should fix), 'info' (suggestion)")]
         string severity,
         [Description("Short title describing the problem")]
@@ -196,14 +194,8 @@ Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md"
         [Description("Optional: Your suggestion for how to fix this issue")]
         string? suggestedFix = null)
     {
-        // Validate inputs
-        var validCategories = new[] { "dead-reference", "invalid-parameters", "contradictory-instructions", "unclear-instructions" };
+        // Validate severity
         var validSeverities = new[] { "error", "warning", "info" };
-
-        if (!validCategories.Contains(category))
-        {
-            return $"Invalid category: '{category}'. Valid categories: {string.Join(", ", validCategories)}";
-        }
 
         if (!validSeverities.Contains(severity))
         {
@@ -212,12 +204,18 @@ Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md"
 
         try
         {
+            // Sanitize title for filename (same as ClaudeAgentCommand.cs)
+            var sanitizedTitle = string.Join("-", title.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                .ToLowerInvariant();
+            // Remove all special characters, keep only alphanumeric and hyphens
+            sanitizedTitle = System.Text.RegularExpressions.Regex.Replace(sanitizedTitle, @"[^a-z0-9-]", "");
+
             // Generate timestamp and report ID
             var now = DateTime.UtcNow;
             var dateFolder = now.ToString("yyyy-MM-dd");
             var timeStamp = now.ToString("HH-mm-ss");
-            var reportId = $"{dateFolder}-{timeStamp}-{reporter}-{severity}-{category}";
-            var fileName = $"{timeStamp}-{reporter}-{severity}-{category}.md";
+            var reportId = $"{dateFolder}-{timeStamp}-{reporter}-{severity}-{sanitizedTitle}";
+            var fileName = $"{timeStamp}-{severity}-{sanitizedTitle}.md";
 
             // Create directory structure
             var reportsDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports", dateFolder);
@@ -228,7 +226,6 @@ Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md"
 report-id: {reportId}
 timestamp: {now:yyyy-MM-ddTHH:mm:ssZ}
 reporter: {reporter}
-category: {category}
 severity: {severity}
 location: {location}
 status: open
