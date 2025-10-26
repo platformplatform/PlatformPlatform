@@ -1,5 +1,5 @@
 ---
-description: Review a specific task implementation from a slice following the systematic review workflow
+description: Review a specific [task] implementation from a [story] following the systematic review workflow
 args:
   - name: title
     description: Task title to review (e.g., "Add user filtering")
@@ -41,15 +41,15 @@ Avoid subjective personal preferences.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `sliceId`: Slice ID (for Markdown only)
+- `storyId`: Story ID (for Markdown only)
 - `taskId`: Task ID
 - `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `sliceId` exists in current-task.json:**
-1. Read slice from `sliceId`
-2. Understand the task (`taskId`) within the slice context
+**If `storyId` exists in current-task.json:**
+1. Read [story] from `storyId`
+2. Understand the [task] (`taskId`) within the [story] context
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
@@ -78,7 +78,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes if approved"},
-    {"content": "Update slice status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating slice status"},
+    {"content": "Update [story] status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating [story] status"},
     {"content": "MANDATORY: Call CompleteWork (approved or rejected) to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }
@@ -92,9 +92,9 @@ After creating base todo, expand "Review each changed file" with files from `git
 
 **STEP 1**: Read all context files
 
-**STEP 2**: Run validation tools in parallel (backend tasks only)
+**STEP 2**: Run validation tools in parallel (backend [tasks] only)
 
-For **backend tasks**, run **format**, **test**, and **inspect** in parallel using the Task tool:
+For **backend [tasks]**, run **format**, **test**, and **inspect** in parallel using the Task tool:
 - Spawn three `backend-tool-runner` subagents simultaneously
 - One runs `format`, one runs `test`, one runs `inspect`
 - Wait for all three to complete
@@ -108,7 +108,7 @@ In a single message, use Task tool three times:
 3. Task tool → backend-tool-runner: "Run backend tool: inspect"
 ```
 
-For **frontend tasks**, use **test** and **inspect** MCP tools directly.
+For **frontend [tasks]**, use **test** and **inspect** MCP tools directly.
 
 **STEP 3**: Study ALL rules for your role (read files or recall from memory)
 
@@ -149,10 +149,10 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
 
-**STEP 9**: Update task status in `[PRODUCT_MANAGEMENT_TOOL]`
+**STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
-- If APPROVED: Update task status to [Completed]
-- If REJECTED: Update task status back to [Active]
+- If APPROVED: Update [task] status to [Completed]
+- If REJECTED: Update [task] status back to [Active]
 
 **STEP 10**: Signal completion and exit
 

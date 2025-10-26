@@ -1,5 +1,5 @@
 ---
-description: Review E2E test implementation for a slice task
+description: Review E2E test implementation for a story task
 args:
   - name: title
     description: Task title to review (e.g., "End-to-end tests for user management")
@@ -18,7 +18,7 @@ No preparation needed for this review.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `sliceId`: Slice ID (if applicable)
+- `storyId`: Story ID (if applicable)
 - `title`: Task title
 
 **Then read the request and response files** to understand what was implemented.

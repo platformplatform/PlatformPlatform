@@ -11,7 +11,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 | Generic Term | Jira |
 |---|---|
 | `[Feature]` | Epic |
-| `[Slice]` | Story |
+| `[Story]` | Story |
 | `[Task]` | Sub-task |
 | `[Checklist]` | Checklist item |
 
@@ -42,7 +42,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 | Generic ID | Jira |
 |---|---|
 | `featureId` | Epic ID/key |
-| `sliceId` | Story ID/key |
+| `storyId` | Story ID/key |
 | `taskId` | Sub-task ID/key |
 
 ## Critical Rules

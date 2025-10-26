@@ -37,7 +37,7 @@ public class ClaudeAgentCommand : Command
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
-        var sliceIdOption = new Option<string?>("--slice-id", "Slice ID (optional, for Markdown)");
+        var storyIdOption = new Option<string?>("--story-id", "Story ID (optional, for Markdown)");
         var taskIdOption = new Option<string?>("--task-id", "Task ID (optional)");
         var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
@@ -47,7 +47,7 @@ public class ClaudeAgentCommand : Command
         AddOption(taskTitleOption);
         AddOption(markdownContentOption);
         AddOption(branchOption);
-        AddOption(sliceIdOption);
+        AddOption(storyIdOption);
         AddOption(taskIdOption);
         AddOption(requestFilePathOption);
         AddOption(responseFilePathOption);
@@ -59,12 +59,12 @@ public class ClaudeAgentCommand : Command
                 var taskTitle = context.ParseResult.GetValueForOption(taskTitleOption);
                 var markdownContent = context.ParseResult.GetValueForOption(markdownContentOption);
                 var branch = context.ParseResult.GetValueForOption(branchOption);
-                var sliceId = context.ParseResult.GetValueForOption(sliceIdOption);
+                var storyId = context.ParseResult.GetValueForOption(storyIdOption);
                 var taskId = context.ParseResult.GetValueForOption(taskIdOption);
                 var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
                 var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, sliceId, taskId, requestFilePath, responseFilePath);
+                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, requestFilePath, responseFilePath);
             }
         );
     }
@@ -76,7 +76,7 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? sliceId,
+        string? storyId,
         string? taskId,
         string? requestFilePath,
         string? responseFilePath)
@@ -85,7 +85,7 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, branch, sliceId, taskId, requestFilePath, responseFilePath);
+                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, requestFilePath, responseFilePath);
             }
             else
             {
@@ -105,7 +105,7 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? sliceId,
+        string? storyId,
         string? taskId,
         string? requestFilePath,
         string? responseFilePath)
@@ -162,7 +162,7 @@ public class ClaudeAgentCommand : Command
         await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
 
         // Save task metadata
-        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, sliceId, taskId ?? "");
+        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "");
         await WriteTaskMetadata(workspace, taskInfo);
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
@@ -731,7 +731,7 @@ public class ClaudeAgentCommand : Command
         int taskCounter,
         string requestFilePath,
         string taskTitle,
-        string? sliceId,
+        string? storyId,
         string taskId)
     {
         return new CurrentTaskInfo(
@@ -739,7 +739,7 @@ public class ClaudeAgentCommand : Command
             requestFilePath,
             DateTime.Now.ToString("O"),
             1,
-            sliceId,
+            storyId,
             taskId,
             taskTitle
         );
@@ -1572,7 +1572,7 @@ public record CurrentTaskInfo(
     string RequestFilePath,
     string StartedAt,
     int Attempt,
-    string? SliceId,
+    string? StoryId,
     string TaskId,
     string TaskTitle
 );

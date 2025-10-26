@@ -2,7 +2,7 @@
 
 **Purpose:**
 
-This slice implements the core user functionality including:
+This story implements the core user functionality including:
 - User aggregate and domain model
 - Database migration for the Users table
 - CRUD operations for users
@@ -10,16 +10,16 @@ This slice implements the core user functionality including:
 - API tests for all operations with proper validation and permission checks
 
 **NOT included:**
-- Frontend implementation (next slice)
-- User role management (separate slice)
+- Frontend implementation (next story)
+- User role management (separate story)
 - User interface components
 - Authentication/authorization UI
 
 **Dependencies:**
-- None (this is the first slice)
+- None (this is the first story)
 
 **IMPORTANT:**
-Do not implement frontend components or user role functionality in this slice.
+Do not implement frontend components or user role functionality in this story.
 
 ## CRITICAL: Vertical slice requirements
 

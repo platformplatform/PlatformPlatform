@@ -11,7 +11,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 | Generic Term | Azure DevOps |
 |---|---|
 | `[Feature]` | Feature |
-| `[Slice]` | User Story |
+| `[Story]` | User Story |
 | `[Task]` | Task |
 | `[Checklist]` | Checklist item |
 
@@ -46,7 +46,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 | Generic ID | Azure DevOps |
 |---|---|
 | `featureId` | Feature ID |
-| `sliceId` | User Story ID |
+| `storyId` | User Story ID |
 | `taskId` | Task ID |
 
 ## Critical Rules

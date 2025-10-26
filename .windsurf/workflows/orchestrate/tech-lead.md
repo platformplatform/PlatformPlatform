@@ -15,11 +15,11 @@ Create PRDs and feature descriptions using:
 - Read for exploring codebase
 - Edit/Write for planning documents ONLY (`.workspace/task-manager/*.md`)
 - Available commands:
-  - `/process:create-prd` - Create Product Requirement Document (PRD)
-  - `/process:plan-slices` - Break down slices into detailed technical tasks
+  - `/process:create-prd` - Create a PRD defining a [feature] with all [stories]
+  - `/process:create-tasks` - Break down [stories] into [tasks]
 
-### 2. Feature implementation coordination
-Use `/process:implement-feature` to orchestrate implementation of all slices in a feature.
+### 2. [Feature] implementation coordination
+Use `/process:implement-feature` to orchestrate implementation of all [stories] in a [feature].
 See that command for full workflow details.
 
 ### 3. Ad-hoc Work

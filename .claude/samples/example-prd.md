@@ -43,17 +43,17 @@ A brief high-level introduction: The User management feature enables tenants to 
 - Confirmation dialogs for sensitive actions like deactivating or deleting users.
 - All operations strictly scoped to the current tenant to maintain isolation.
 
-## Slices overview
-This is a very high-level overview of the slices needed to implement the feature.
+## Stories overview
+This is a very high-level overview of the stories needed to implement the feature.
 
 ### 1. Backend for user management
-This slice implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, deactivating, and deleting users with proper validation and permission checks.
+This story implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, deactivating, and deleting users with proper validation and permission checks.
 
 ### 2. Frontend for user management
-This slice implements the Users page UI with the ability to list, create, edit, and deactivate users using the API from the first slice. It includes the navigation menu item and user management interface with role assignment.
+This story implements the Users page UI with the ability to list, create, edit, and deactivate users using the API from the first story. It includes the navigation menu item and user management interface with role assignment.
 
 ### 3. User invitation and email notifications
-This slice implements the email invitation system for new users and password reset functionality. It includes email templates, invitation token generation, and notification delivery.
+This story implements the email invitation system for new users and password reset functionality. It includes email templates, invitation token generation, and notification delivery.
 
 ### 4. End-to-end tests
-This slice implements comprehensive Playwright tests covering user creation, editing, deletion, role changes, and permission validation across different user roles.
+This story implements comprehensive Playwright tests covering user creation, editing, deletion, role changes, and permission validation across different user roles.

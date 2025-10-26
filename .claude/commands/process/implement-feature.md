@@ -1,39 +1,39 @@
 ---
 description: Orchestrate implementation of a feature through task-level delegation to engineer subagents
-argument-hint: Feature ID and/or slice IDs (e.g., "yyyy-MM-dd-feature/prd.md" or "1-backend.md" for Markdown, project/issue IDs for MCP tools)
+argument-hint: Feature ID and/or story IDs (e.g., "yyyy-MM-dd-feature/prd.md" or "1-backend.md" for Markdown, project/issue IDs for MCP tools)
 ---
 
 # Orchestrate Feature Implementation
 
-Feature ID and/or slice ID(s): $ARGUMENTS
+Feature ID and/or story ID(s): $ARGUMENTS
 
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
-2. **Load feature and slice data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
+2. **Load feature and story data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
 
 **Automatically determine if parallel execution is appropriate:**
 
-Read the PRD and look for indicators that slices are designed for parallel work:
-- PRD mentions "parallel" or "simultaneously" in Slices section
-- Slice descriptions mention "can work in parallel with" or "independent"
-- Slice descriptions mention "mocked dependencies" or "mocks"
-- Slices are explicitly structured to suggest parallel execution
+Read the PRD and look for indicators that stories are designed for parallel work:
+- PRD mentions "parallel" or "simultaneously" in Stories section
+- Story descriptions mention "can work in parallel with" or "independent"
+- Story descriptions mention "mocked dependencies" or "mocks"
+- Stories are explicitly structured to suggest parallel execution
 
 **Decision:**
-- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized slices")
+- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized stories")
 - **Otherwise**: Use Sequential Mode (default, safer - inform user: "Using sequential execution")
 
-Continue with orchestrating implementation of all found Slice files.
+Continue with orchestrating implementation of all found Story files.
 
 ## Your Role: Task-Level Coordination
 
-🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT SLICES** 🚨
+🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT STORIES** 🚨
 
 Your job as Tech Lead:
-- Read ALL Slice files and extract tasks
-- Create expanded todo with ALL Slices and ALL tasks
+- Read ALL Story files and extract tasks
+- Create expanded todo with ALL Stories and ALL tasks
 - Delegate individual tasks to engineer proxy agents
 - Engineer proxy agents are pure passthroughs - they just forward your request to workers
 - Track progress and mark tasks complete
@@ -45,19 +45,19 @@ Your job as Tech Lead:
 
 Delegate one task completely before starting the next:
 
-1. Delegate Task 1 from Slice 1 → Wait for completion
-2. Delegate Task 2 from Slice 1 → Wait for completion
-3. Continue with Slice 1 until all tasks complete
-4. Move to Slice 2, delegate Task 1 → Wait for completion
-5. Continue until all tasks in all Slices complete
+1. Delegate Task 1 from Story 1 → Wait for completion
+2. Delegate Task 2 from Story 1 → Wait for completion
+3. Continue with Story 1 until all tasks complete
+4. Move to Story 2, delegate Task 1 → Wait for completion
+5. Continue until all tasks in all Stories complete
 
 **CRITICAL**: Only use parallel mode if the USER explicitly says "in parallel" or "simultaneously". DO NOT decide this yourself.
 
 ### Parallel (ONLY When User Explicitly Requests)
 
-**CRITICAL**: Slices must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip slices. Within that constraint, you can interleave tasks from multiple slices.
+**CRITICAL**: Stories must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip stories. Within that constraint, you can interleave tasks from multiple stories.
 
-**Example**: Task 1 from Slice 1 + Task 1 from Slice 2 simultaneously, then Task 2 from Slice 1 + Task 2 from Slice 2 simultaneously.
+**Example**: Task 1 from Story 1 + Task 1 from Story 2 simultaneously, then Task 2 from Story 1 + Task 2 from Story 2 simultaneously.
 
 **BEFORE delegating in parallel, evaluate dependencies**:
 
@@ -78,38 +78,38 @@ Delegate one task completely before starting the next:
 **Example** (interleaving independent tasks):
 ```
 In a SINGLE message, delegate multiple tasks:
-1. backend-engineer: Feature: {featureId}, Slice: {slice1Id}, Task: {task1Id} - "Create user API endpoints"
-2. frontend-engineer: Feature: {featureId}, Slice: {slice2Id}, Task: {task1Id} - "Create user management UI"
+1. backend-engineer: Feature: {featureId}, Story: {story1Id}, Task: {task1Id} - "Create user API endpoints"
+2. frontend-engineer: Feature: {featureId}, Story: {story2Id}, Task: {task1Id} - "Create user management UI"
 
 Wait for both to complete, then delegate next batch:
-3. backend-engineer: Feature: {featureId}, Slice: {slice1Id}, Task: {task2Id} - "Add validation"
-4. frontend-engineer: Feature: {featureId}, Slice: {slice2Id}, Task: {task2Id} - "Add form validation"
+3. backend-engineer: Feature: {featureId}, Story: {story1Id}, Task: {task2Id} - "Add validation"
+4. frontend-engineer: Feature: {featureId}, Story: {story2Id}, Task: {task2Id} - "Add form validation"
 ```
 
 **CRITICAL**: If you're unsure about dependencies, use Sequential mode (safer default).
 
 ## Mandatory Workflow
 
-### Step 1: Read Slice Files
+### Step 1: Read Story Files
 
-Read each Slice file to extract:
+Read each Story file to extract:
 - The file number (from filename: 1-backend.md, 2-frontend.md, 3-e2e-tests.md)
-- The Slice title (first heading in the file)
+- The Story title (first heading in the file)
 - ALL tasks listed in the file
 
 ### Step 2: Create Expanded Todo List
 
-Use TodoWrite to create fully expanded todo with ALL Slices numbered and ALL tasks as subtasks:
+Use TodoWrite to create fully expanded todo with ALL Stories numbered and ALL tasks as subtasks:
 
 ```
-Slice 1: Backend user management [pending]
+Story 1: Backend user management [pending]
 ├─ 1. Create user API endpoints [pending]
 ├─ 2. Add validation logic [pending]
 ├─ 3. Implement user repository [pending]
-Slice 2: Frontend user management [pending]
+Story 2: Frontend user management [pending]
 ├─ 1. Create user management UI [pending]
 ├─ 2. Add form validation [pending]
-Slice 3: End-to-end testing [pending]
+Story 3: End-to-end testing [pending]
 ├─ 1. Create smoke tests [pending]
 ```
 
@@ -119,8 +119,8 @@ Slice 3: End-to-end testing [pending]
 
 **Sequential Mode (default)**:
 
-FOR EACH Slice (in numerical order):
-  FOR EACH task in that Slice:
+FOR EACH Story (in numerical order):
+  FOR EACH task in that Story:
     **a. Mark task [in_progress]** in todo
 
     **b. Delegate to engineer proxy agent**:
@@ -133,7 +133,7 @@ FOR EACH Slice (in numerical order):
     **Delegation format**:
     ```
     Feature: {featureId} ({featureTitle})
-    Slice: {sliceId} ({sliceTitle})
+    Story: {storyId} ({storyTitle})
     Task: {taskId} ({taskTitle})
 
     Please implement this task.
@@ -159,33 +159,33 @@ FOR EACH batch:
 
   Move to next batch
 
-### Step 4: Collapse Slices as Complete
+### Step 4: Collapse Stories as Complete
 
-When ALL tasks in a Slice are [completed]:
+When ALL tasks in a Story are [completed]:
 1. Remove all subtask lines (├─ lines)
-2. Keep only Slice line
-3. Mark Slice [completed]
+2. Keep only Story line
+3. Mark Story [completed]
 
 ```
-Slice 1: Backend user management [completed]
-Slice 2: Frontend user management [in_progress]
+Story 1: Backend user management [completed]
+Story 2: Frontend user management [in_progress]
 ├─ 2. Add form validation [in_progress]
-Slice 3: End-to-end testing [pending]
+Story 3: End-to-end testing [pending]
 ├─ 1. Create smoke tests [pending]
 ```
 
 ### Step 5: Finish When Complete
 
 Stop ONLY when:
-- ALL Slices are [completed] in todo
+- ALL Stories are [completed] in todo
 - ALL tasks have been delegated and completed
 
 ## Critical Rules
 
 **NEVER**:
 - Stop before completion - Continue until everything is done
-- Delegate entire Slices - Delegate individual tasks
-- Skip reading Slice files - Must read to extract tasks
+- Delegate entire Stories - Delegate individual tasks
+- Skip reading Story files - Must read to extract tasks
 - Keep todo collapsed - Must expand to show all tasks
 - Change code or commit yourself
 - Use `developer_cli` MCP tool directly
@@ -194,9 +194,9 @@ Stop ONLY when:
 
 **ALWAYS**:
 - Use Task tool with subagent_type to delegate tasks
-- Create expanded todo (Slices with all task subtasks)
-- Read Slice files first to extract numbering and tasks
-- Keep todo expanded until Slice is fully complete
+- Create expanded todo (Stories with all task subtasks)
+- Read Story files first to extract numbering and tasks
+- Keep todo expanded until Story is fully complete
 - Use Sequential mode by default
 - In parallel mode, ensure each task in a batch uses DIFFERENT engineer type
 
@@ -220,39 +220,39 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 **Sequential Mode**:
 ```
-1. Read all 3 Slice files, extract 11 tasks total
-2. Create expanded todo with 3 Slices and 11 tasks
-3. Delegate task "1. Create user API endpoints" from Slice 1 to backend-engineer
+1. Read all 3 Story files, extract 11 tasks total
+2. Create expanded todo with 3 Stories and 11 tasks
+3. Delegate task "1. Create user API endpoints" from Story 1 to backend-engineer
 4. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
-5. Mark task 1 complete, delegate task "2. Add validation logic" from Slice 1
+5. Mark task 1 complete, delegate task "2. Add validation logic" from Story 1
 6. Wait and mark complete
-7. Continue through all 5 tasks in Slice 1
-8. Collapse Slice 1 (remove subtasks, mark [completed])
-9. Start Slice 2, delegate task "1. Create user management UI" to frontend-engineer
-10. Continue until all Slices collapsed and [completed]
+7. Continue through all 5 tasks in Story 1
+8. Collapse Story 1 (remove subtasks, mark [completed])
+9. Start Story 2, delegate task "1. Create user management UI" to frontend-engineer
+10. Continue until all Stories collapsed and [completed]
 ```
 
 **Parallel Mode** (user explicitly requested):
 ```
-1. Read all 3 Slice files, extract 11 tasks total
-2. Create expanded todo with 3 Slices and 11 tasks
+1. Read all 3 Story files, extract 11 tasks total
+2. Create expanded todo with 3 Stories and 11 tasks
 3. Identify tasks that can run in parallel:
-   - Batch 1: Slice 1 Task 1 (backend) + Slice 2 Task 1 (frontend)
-   - Batch 2: Slice 1 Task 2 (backend) + Slice 2 Task 2 (frontend)
+   - Batch 1: Story 1 Task 1 (backend) + Story 2 Task 1 (frontend)
+   - Batch 2: Story 1 Task 2 (backend) + Story 2 Task 2 (frontend)
    - ...
 4. In SINGLE message, delegate both tasks in Batch 1:
-   - Task tool → backend-engineer for Slice 1 Task 1
-   - Task tool → frontend-engineer for Slice 2 Task 1
+   - Task tool → backend-engineer for Story 1 Task 1
+   - Task tool → frontend-engineer for Story 2 Task 1
 5. Wait for BOTH to complete
 6. Mark both tasks [completed]
 7. In SINGLE message, delegate both tasks in Batch 2
-8. Continue batching until Slices complete
-9. Collapse completed Slices
+8. Continue batching until Stories complete
+9. Collapse completed Stories
 ```
 
 ## Remember
 
-- You delegate tasks, not Slices
+- You delegate tasks, not Stories
 - Engineer proxies are passthroughs, not coordinators
 - You manage the todo list, not the proxies
 - Your job: Read files, expand todo, delegate tasks, track completion

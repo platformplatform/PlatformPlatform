@@ -2,8 +2,8 @@
 
 **Purpose:**
 
-This slice implements the Users page UI with the ability to:
-- List, create, edit, and delete users using the API from the first slice
+This story implements the Users page UI with the ability to:
+- List, create, edit, and delete users using the API from the first story
 - Display users in a table with user data
 - Create new users via modal dialog
 - View and edit user details in a side pane
@@ -12,16 +12,16 @@ This slice implements the Users page UI with the ability to:
 - Add Users menu item to the Organization section of navigation
 
 **NOT included:**
-- Backend implementation (previous slice)
-- User role management (separate slice)
+- Backend implementation (previous story)
+- User role management (separate story)
 - Advanced filtering/sorting
 - Pagination and search functionality
 
 **Dependencies:**
-- Backend for user management slice must be completed first
+- Backend for user management story must be completed first
 
 **IMPORTANT:**
-Do not modify any backend code or implement user role functionality in this slice.
+Do not modify any backend code or implement user role functionality in this story.
 
 ## CRITICAL: Frontend vertical slice requirements
 

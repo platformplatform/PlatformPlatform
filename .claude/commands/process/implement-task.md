@@ -1,5 +1,5 @@
 ---
-description: Implement a specific task from a slice following the systematic workflow
+description: Implement a specific [task] from a [story] following the systematic workflow
 args:
   - name: title
     description: Task title (passed from CLI, matches taskTitle in current-task.json)
@@ -10,7 +10,7 @@ args:
 
 You are implementing: **{{{title}}}**
 
-**Note:** The taskId and sliceId come from current-task.json, not from command arguments. The CLI passes only the taskTitle as the slash command argument.
+**Note:** The taskId and storyId come from current-task.json, not from command arguments. The CLI passes only the taskTitle as the slash command argument.
 
 ## Mandatory Preparation
 
@@ -20,16 +20,16 @@ You are implementing: **{{{title}}}**
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `sliceId`: Slice ID (for Markdown only)
+- `storyId`: Story ID (for Markdown only)
 - `taskId`: Task ID
 - `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `sliceId` exists in current-task.json:**
-1. Read slice from `sliceId`
-2. Understand your task (`taskId`) within the slice context
-3. **Update task status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
+**If `storyId` exists in current-task.json:**
+1. Read [story] from `storyId`
+2. Understand your [task] (`taskId`) within the [story] context
+3. **Update [task] status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -56,21 +56,21 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 ```json
 {
   "todos": [
-    {"content": "Update task status to [Active]", "status": "pending", "activeForm": "Updating task status to [Active]"},
+    {"content": "Update [task] status to [Active]", "status": "pending", "activeForm": "Updating [task] status to [Active]"},
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
-    {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
-    {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
+    {"content": "Research existing patterns for this [task] type", "status": "pending", "activeForm": "Researching existing patterns"},
+    {"content": "Implement [task] [name of the [task] from request file]", "status": "pending", "activeForm": "Implementing [task]"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
-    {"content": "Update task status to [Review]", "status": "pending", "activeForm": "Updating task status to [Review]"},
+    {"content": "Update [task] status to [Review]", "status": "pending", "activeForm": "Updating [task] status to [Review]"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }
 ```
 
-After creating base todo, expand "Implement task" with subtasks from slice (if applicable).
+After creating base todo, expand "Implement [task]" with subtasks from [story] (if applicable).
 
 ---
 
@@ -95,7 +95,7 @@ After creating base todo, expand "Implement task" with subtasks from slice (if a
 
 **STEP 6**: Run validation tools and fix all failures/warnings
 
-For **backend tasks**, first run **build**, then run **format**, **test**, and **inspect** in parallel using the Task tool:
+For **backend [tasks]**, first run **build**, then run **format**, **test**, and **inspect** in parallel using the Task tool:
 - Spawn three `backend-tool-runner` subagents simultaneously
 - One runs `format`, one runs `test`, one runs `inspect`
 - Wait for all three to complete
@@ -109,15 +109,15 @@ In a single message, use Task tool three times:
 3. Task tool → backend-tool-runner: "Run backend tool: inspect"
 ```
 
-For **frontend tasks**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
+For **frontend [tasks]**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
 
-**STEP 7**: Update task for review
+**STEP 7**: Update [task] for review
 
-1. **Update task description** to reflect what was actually implemented:
+1. **Update [task] description** to reflect what was actually implemented:
    - If implemented exactly as described: Check off all subtask checkboxes `[x]`
    - If deviated from plan: Update description to document what was actually done
 
-2. **Update task status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`
+2. **Update [task] status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **STEP 8**: Delegate to reviewer subagent to review and commit your code
 
@@ -150,7 +150,7 @@ Response: {responseFilePath}
 - `taskTitle`: From current-task.json
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
-- `sliceId`: From current-task.json (for Markdown only)
+- `storyId`: From current-task.json (for Markdown only)
 - `taskId`: From current-task.json
 - `requestFilePath`: From current-task.json
 - `responseFilePath`: From current-task.json
@@ -162,7 +162,7 @@ Response: {responseFilePath}
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 9**: Re-read slice, update plan if needed
+**STEP 9**: Re-read [story], update plan if needed
 
 **STEP 10**: Signal completion and exit
 
@@ -170,7 +170,7 @@ Response: {responseFilePath}
 
 After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
 
-ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a slice.
+ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a story.
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed

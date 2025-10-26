@@ -357,8 +357,8 @@ public static class WorkerMcpTools
         string markdownContent,
         [Description("Branch name to ensure all agents work on same branch")]
         string branch,
-        [Description("Slice ID (required for Markdown, optional for MCP tools)")]
-        string? sliceId = null,
+        [Description("Story ID (required for Markdown, optional for MCP tools)")]
+        string? storyId = null,
         [Description("Task ID (required)")] string? taskId = null,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
@@ -368,10 +368,10 @@ public static class WorkerMcpTools
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
-        if (sliceId != null)
+        if (storyId != null)
         {
-            args.Add("--slice-id");
-            args.Add(sliceId);
+            args.Add("--story-id");
+            args.Add(storyId);
         }
 
         if (taskId != null)

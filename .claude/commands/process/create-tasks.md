@@ -1,35 +1,35 @@
 ---
-description: Break down all slices in a feature into detailed technical tasks
+description: Break down all [stories] in a [feature] into [tasks]
 argument-hint: Feature ID
 ---
 
-# Plan Slices Workflow
+# Create Tasks Workflow
 
 Feature ID: $ARGUMENTS
 
-Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to break down each slice into detailed technical tasks.
+Read the [feature] provided in the arguments above and identify ALL [stories] listed in it. Your job is to break down each [story] into [tasks].
 
 ## Mandatory Preparation
 
-Read the feature from `[PRODUCT_MANAGEMENT_TOOL]`.
+Read the [feature] from `[PRODUCT_MANAGEMENT_TOOL]`.
 
 ## Workflow
 
-Follow the steps below to create tasks for all slices.
+Follow the steps below to create [tasks] for all [stories].
 
-### Step 1: Read feature
+### Step 1: Read [feature]
 
-Read the feature to identify all slices.
+Read the [feature] to identify all [stories].
 
-### Step 2: Research and plan tasks for all slices
+### Step 2: Research and plan [tasks] for all [stories]
 
 - Read codebase, rule files, and existing patterns
-- Break down each slice into tasks and subtasks (checkbox bullets)
-- Each task = one commit = one vertical slice
+- Break down each [story] into [tasks] and subtasks (checkbox bullets)
+- Each [task] = one commit = one vertical slice
 - Follow existing naming conventions and structure
-- For tool-specific task naming conventions, see your tool guide (Linear, Markdown, Azure DevOps, or Jira)
+- For tool-specific [task] naming conventions, see your tool guide (Linear, Markdown, Azure DevOps, or Jira)
 
-**CRITICAL: A task = one commit = one complete vertical slice**
+**CRITICAL: A [task] = one commit = one complete vertical slice**
 
 ### Vertical slice definition:
 
@@ -46,42 +46,42 @@ Read the feature to identify all slices.
 - API integration (TanStack Query)
 - State management
 - User interactions
-- All in ONE task that results in ONE commit
+- All in ONE [task] that results in ONE commit
 
-**WRONG approach (multiple tasks/commits):**
-- Task 1: Add database field ❌
-- Task 2: Update domain model ❌
-- Task 3: Create command ❌
-- Task 4: Add API endpoint ❌
-- Task 5: Write tests ❌
+**WRONG approach (multiple [tasks]/commits):**
+- [Task] 1: Add database field ❌
+- [Task] 2: Update domain model ❌
+- [Task] 3: Create command ❌
+- [Task] 4: Add API endpoint ❌
+- [Task] 5: Write tests ❌
 
 **RIGHT approach (vertical slice):**
-- Task 1: Create complete GetUser query with repository method, query handler, API endpoint, and tests ✅
+- [Task] 1: Create complete GetUser query with repository method, query handler, API endpoint, and tests ✅
 
 Since we prefer API tests, a commit with tests is a full vertical slice.
 
-### Task guidelines:
-- The first task for a new feature is often larger (includes migration, aggregate, command, endpoint, tests)
-- Subsequent tasks can be smaller (e.g., just adding a query with its endpoint and tests)
-- Keep CRUD operations separate: Create in one task, Read in another, Update in another, Delete in another
-- Never have multiple commands or queries in one task
-- Never have multiple API endpoints in one task
-- Use "Sentence case" not "Title Case" for task headers
+### [Task] guidelines:
+- The first [task] for a new [feature] is often larger (includes migration, aggregate, command, endpoint, tests)
+- Subsequent [tasks] can be smaller (e.g., just adding a query with its endpoint and tests)
+- Keep CRUD operations separate: Create in one [task], Read in another, Update in another, Delete in another
+- Never have multiple commands or queries in one [task]
+- Never have multiple API endpoints in one [task]
+- Use "Sentence case" not "Title Case" for [task] headers
 - For tool-specific formatting (e.g., whether to include numbers in headers), see your tool guide
 
-> Note: Each task must result in code that compiles, runs, and can be tested independently
+> Note: Each [task] must result in code that compiles, runs, and can be tested independently
 
-### Step 3: Show task structure to user for approval
+### Step 3: Show [task] structure to user for approval
 
-Display ALL slices with their tasks and subtasks.
+Display ALL [stories] with their [tasks] and subtasks.
 
-Format: Slice labels, tasks with descriptive titles, and bullet subtasks (no status tags)
+Format: [Story] labels, [tasks] with descriptive titles, and bullet subtasks (no status tags)
 
-**Note:** Task formatting varies by tool - see your tool guide for specifics (Markdown uses numbers, Linear/Azure DevOps/Jira do not).
+**Note:** [Task] formatting varies by tool - see your tool guide for specifics (Markdown uses numbers, Linear/Azure DevOps/Jira do not).
 
 Example format:
 ```
-Slice 1: Frontend UI skeleton for user management
+[Story] 1: Frontend UI skeleton for user management
 
 Create Users page with navigation and route
 - Add Users navigation menu item
@@ -93,7 +93,7 @@ Create users table with mock data
 - Create UsersTable component
 - Add table to Users page
 
-Slice 2: Backend for user CRUD operations
+[Story] 2: Backend for user CRUD operations
 
 Create user aggregate, command, endpoint, migration, and tests
 - Create `UserId` strongly typed ID
@@ -110,39 +110,39 @@ Ask "Does this task structure look good?" (Yes/No)
 - If No: Ask what to change, update task structure, show again, repeat approval
 - If Yes: Continue to Step 4
 
-### Step 4: Create detailed tasks in `[PRODUCT_MANAGEMENT_TOOL]`
+### Step 4: Create detailed [tasks] in `[PRODUCT_MANAGEMENT_TOOL]`
 
-For each slice:
-- Get the slice from `[PRODUCT_MANAGEMENT_TOOL]` (created in create-prd workflow Step 7)
+For each [story]:
+- Get the [story] from `[PRODUCT_MANAGEMENT_TOOL]` (created in create-prd workflow Step 7)
 
-For each slice task:
+For each [story] [task]:
 - Create in `[PRODUCT_MANAGEMENT_TOOL]` with:
   - Title: "[Task title]" (e.g., "Create Users page with navigation and route")
-  - Description: Detailed implementation notes with checkbox list of slice subtasks
-  - Link to parent slice
+  - Description: Detailed implementation notes with checkbox list of [story] subtasks
+  - Link to parent [story]
   - Assign to: "me"
-  - **Note:** For Markdown, titles include task numbers (## 1, ## 2). For Linear/Azure DevOps/Jira, do not add numbers - the tool provides IDs.
+  - **Note:** For Markdown, titles include [task] numbers (## 1, ## 2). For Linear/Azure DevOps/Jira, do not add numbers - the tool provides IDs.
 
 **Note:** If any required information is unclear (team, state, etc.), ask the user.
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 
-For each slice:
+For each [story]:
 
-1. **Create slice file:**
-   - Path: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/[#]-[slice-title].md`
+1. **Create [story] file:**
+   - Path: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/[#]-[story-title].md`
    - Example: `1-backend-for-user-management.md`, `2-frontend-for-user-management.md`
 
-2. **Add slice header and description:**
-   - Level 1 header: Slice title from the PRD (e.g., "Backend for user management")
-   - **Purpose:** Short description of what this slice delivers
+2. **Add [story] header and description:**
+   - Level 1 header: [Story] title from the PRD (e.g., "Backend for user management")
+   - **Purpose:** Short description of what this story delivers
    - **NOT included:** Out-of-scope items
-   - **Dependencies:** Previous slices or external requirements
+   - **Dependencies:** Previous stories or external requirements
    - **IMPORTANT:** Warning not to work outside this scope
 
-3. **Add tasks:**
-   - Add slice task headers with [Planned] status (format: `## 1 Task title [Planned]`)
-   - Add detailed implementation notes with checkbox slice subtasks (format: `- [ ] Subtask description`)
+3. **Add [tasks]:**
+   - Add [story] [task] headers with [Planned] status (format: `## 1 [Task] title [Planned]`)
+   - Add detailed implementation notes with checkbox [story] subtasks (format: `- [ ] Subtask description`)
 
 ### Subtask guidelines:
 
@@ -192,24 +192,24 @@ Inform the user: Tasks have been created successfully.
 
 ## Examples
 
-Using these examples to understand how to write tasks and subtasks for slices:
+Using these examples to understand how to write tasks and subtasks for stories:
 
 - [Backend for user management](/.claude/samples/1-backend-sample.md)
 - [Frontend for user management](/.claude/samples/2-frontend-sample.md)
 
 ## ✅ DO:
 
-- Keep tasks focused on the smallest vertical slices with API tests and one commit per task
-- Show task structure to user for approval before creating detailed descriptions
+- Keep [tasks] focused on the smallest vertical slices with API tests and one commit per [task]
+- Show [task] structure to user for approval before creating detailed descriptions
 
 ## ❌ DON'T:
 
-- Skip research – always read existing code and rules before writing tasks and subtasks
-- Combine multiple commands or queries into one task or combine frontend and backend tasks into one
-- Create separate tasks for tests. Tests should be part of the task
-- Create tasks that cannot be tested in isolation (for example, a command without an API endpoint)
+- Skip research – always read existing code and rules before writing [tasks] and subtasks
+- Combine multiple commands or queries into one [task] or combine frontend and backend [tasks] into one
+- Create separate [tasks] for tests. Tests should be part of the [task]
+- Create [tasks] that cannot be tested in isolation (for example, a command without an API endpoint)
 - Include implementation details that cannot be built or tested in one commit
-- Create tasks that depend on details that will be implemented later
+- Create [tasks] that depend on details that will be implemented later
 - Modify `shared-kernel` or `shared-webapp` without explicit agreement
 - Write titles in Title Case. Instead always use sentence case
 

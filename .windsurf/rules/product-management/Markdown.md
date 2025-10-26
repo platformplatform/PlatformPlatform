@@ -6,7 +6,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 
 # Markdown
 
-Markdown is a file-based product management tool that does NOT use MCP. Instead, [features], [slices], and [tasks] are stored as markdown files in `.workspace/task-manager/`, simulating the same structure as tools like Jira, Azure DevOps, and Linear using local files.
+Markdown is a file-based product management tool that does NOT use MCP. Instead, [features], [stories], and [tasks] are stored as markdown files in `.workspace/task-manager/`, simulating the same structure as tools like Jira, Azure DevOps, and Linear using local files.
 
 ## Terminology Mapping
 
@@ -31,7 +31,7 @@ Markdown is a file-based product management tool that does NOT use MCP. Instead,
 | Generic ID | Markdown |
 |---|---|
 | `featureId` | File path to prd.md |
-| `sliceId` | File path to slice.md |
+| `storyId` | File path to story.md |
 | `taskId` | Task number (1, 2, 3) |
 
 ## Initialization
@@ -44,17 +44,17 @@ If `.workspace/task-manager` does not exist, run: `dotnet run --project develope
 .workspace/task-manager/
   └─ yyyy-MM-dd-[feature-title]/
       ├─ prd.md (feature description)
-      ├─ 1-[slice-title].md (first slice with tasks)
-      ├─ 2-[slice-title].md (second slice with tasks)
+      ├─ 1-[story-title].md (first story with tasks)
+      ├─ 2-[story-title].md (second story with tasks)
       └─ ...
 ```
 
-## Task format in slice files
+## Task format in story files
 
 ```markdown
-# Slice Title
+# Story Title
 
-**Purpose:** What this slice delivers
+**Purpose:** What this story delivers
 **NOT included:** Out of scope items
 **Dependencies:** Prerequisites
 **IMPORTANT:** Scope warning
@@ -69,6 +69,6 @@ If `.workspace/task-manager` does not exist, run: `dotnet run --project develope
 
 ## Critical Rules
 
-- sliceId is a file path (e.g., ".workspace/task-manager/2025-10-25-feature-title/1-backend.md")
+- storyId is a file path (e.g., ".workspace/task-manager/2025-10-25-feature-title/1-backend.md")
 - taskId is a task number (e.g., "1", "2", "3")
 - Update status by editing markdown file headers

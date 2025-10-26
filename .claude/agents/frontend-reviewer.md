@@ -31,7 +31,7 @@ If request contains structured review data (Request:, Response:), use:
 Use developer-cli to start a frontend-reviewer with:
 - taskTitle: From request
 - markdownContent: Pass the EXACT request text unchanged
-- sliceId: From tech lead (for Markdown only)
+- storyId: From tech lead (for Markdown only)
 - taskId: From tech lead
 - requestFilePath: From request
 - responseFilePath: From request

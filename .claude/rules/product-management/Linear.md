@@ -17,7 +17,7 @@ DEFAULT_TEAM=null
 | Generic Term | Linear |
 |---|---|
 | `[Feature]` | Project |
-| `[Slice]` | Issue |
+| `[Story]` | Issue |
 | `[Task]` | Sub-issue |
 | `[Checklist]` | Checklist item |
 
@@ -48,7 +48,7 @@ DEFAULT_TEAM=null
 | Generic ID | Linear |
 |---|---|
 | `featureId` | Project ID/name |
-| `sliceId` | Issue ID (e.g. PP-445) |
+| `storyId` | Issue ID (e.g. PP-445) |
 | `taskId` | Sub-issue ID (e.g. PP-484) |
 
 ## Critical Rules
@@ -57,7 +57,7 @@ DEFAULT_TEAM=null
 - If ANY MCP call fails: STOP immediately and call report_problem with severity: error
 - NEVER skip status updates
 - NEVER work around MCP failures
-- sliceId will be an issue ID (e.g., "PP-445")
+- storyId will be an issue ID (e.g., "PP-445")
 - taskId will be a sub-issue ID (e.g., "PP-484")
 
 ## Initialization
