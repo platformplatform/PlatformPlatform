@@ -1,25 +1,25 @@
-# Backend for team management
+# Backend for user management
 
 **Purpose:**
 
-This increment implements the core team functionality including:
-- Team aggregate and domain model
-- Database migration for the Teams table
-- CRUD operations for teams
-- API endpoints for team management
+This slice implements the core user functionality including:
+- User aggregate and domain model
+- Database migration for the Users table
+- CRUD operations for users
+- API endpoints for user management
 - API tests for all operations with proper validation and permission checks
 
 **NOT included:**
-- Frontend implementation (next increment)
-- Team member management (separate increment)
+- Frontend implementation (next slice)
+- User role management (separate slice)
 - User interface components
 - Authentication/authorization UI
 
 **Dependencies:**
-- None (this is the first increment)
+- None (this is the first slice)
 
 **IMPORTANT:**
-Do not implement frontend components or team membership functionality in this increment.
+Do not implement frontend components or user role functionality in this slice.
 
 ## CRITICAL: Vertical slice requirements
 
@@ -32,12 +32,12 @@ A vertical slice means:
 
 **Example of WRONG approach (multiple commits):**
 - Task 1: Create database migration ❌
-- Task 2: Create Team aggregate ❌  
-- Task 3: Create CreateTeam command ❌
+- Task 2: Create User aggregate ❌
+- Task 3: Create CreateUser command ❌
 - Task 4: Create API endpoint ❌
 - Task 5: Create tests ❌
 
 **Example of RIGHT approach (vertical slice):**
-- Task 1: Create team aggregate, command, endpoint, migration and tests ✅
-  (Everything needed to create a team in ONE commit)
+- Task 1: Create user aggregate, command, endpoint, migration and tests ✅
+  (Everything needed to create a user in ONE commit)
 

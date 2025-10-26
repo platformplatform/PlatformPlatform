@@ -1,27 +1,27 @@
-# Frontend for team management
+# Frontend for user management
 
 **Purpose:**
 
-This increment implements the Teams page UI with the ability to:
-- List, create, edit, and delete teams using the API from the first increment
-- Display teams in a table with team data
-- Create new teams via modal dialog
-- View and edit team details in a side pane
+This slice implements the Users page UI with the ability to:
+- List, create, edit, and delete users using the API from the first slice
+- Display users in a table with user data
+- Create new users via modal dialog
+- View and edit user details in a side pane
 - Implement appropriate loading and empty states
 - Apply permission-based UI controls
-- Add Teams menu item to the Organization section of navigation
+- Add Users menu item to the Organization section of navigation
 
 **NOT included:**
-- Backend implementation (previous increment)
-- Team membership management (separate increment)
+- Backend implementation (previous slice)
+- User role management (separate slice)
 - Advanced filtering/sorting
 - Pagination and search functionality
 
 **Dependencies:**
-- Backend for team management increment must be completed first
+- Backend for user management slice must be completed first
 
 **IMPORTANT:**
-Do not modify any backend code or implement team membership functionality in this increment.
+Do not modify any backend code or implement user role functionality in this slice.
 
 ## CRITICAL: Frontend vertical slice requirements
 
@@ -40,5 +40,5 @@ A vertical slice in frontend means:
 - Task 5: Add error handling ❌
 
 **Example of RIGHT approach (vertical slice):**
-- Task 1: Create teams table with data fetching and loading states ✅
+- Task 1: Create users table with data fetching and loading states ✅
   (Complete working table in ONE commit)
