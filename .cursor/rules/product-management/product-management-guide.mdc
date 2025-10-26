@@ -75,6 +75,10 @@ Configure via `.mcp.json` (see Jira MCP documentation)
 | sliceId | File path to slice.mdc | Issue ID (e.g. PP-445) | User Story ID | Story ID/key |
 | taskId | Task number (1, 2, 3) | Sub-issue ID | Task ID | Sub-task ID/key |
 
+## Slice Ordering
+
+**Critical:** When fetching slices from `[PRODUCT_MANAGEMENT_TOOL]`, always sort by manual order (sortOrder/position ascending). This respects the user's manual drag-and-drop ordering in the tool's UI. If slices appear in wrong order, the user can reorder them by dragging in `[PRODUCT_MANAGEMENT_TOOL]`, and the order will be consistent on the next read.
+
 ## Critical Rules for MCP Tools
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP (Linear, Azure DevOps, Jira):**
@@ -85,6 +89,7 @@ Configure via `.mcp.json` (see Jira MCP documentation)
 - NEVER work around MCP failures
 - sliceId will be an issue ID (e.g., "PP-445")
 - taskId will be a sub-issue ID (e.g., "PP-484")
+- **Always fetch slices sorted by sortOrder/position ascending** (see Slice Ordering section above)
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 - sliceId is a file path (e.g., ".workspace/task-manager/2025-10-25-feature/1-backend.md")
