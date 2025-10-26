@@ -145,11 +145,10 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
 
-**STEP 9**: Edit Product Increment status
+**STEP 9**: Update task status in `[PRODUCT_MANAGEMENT_TOOL]`
 
-Update the Product Increment file:
-- If APPROVED: Change status to `[Completed]`
-- If REJECTED: Change status to `[Changes Required]`
+- If APPROVED: Update task status to "Completed"
+- If REJECTED: Update task status back to "Active"
 
 **STEP 10**: Signal completion and exit
 

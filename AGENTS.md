@@ -40,14 +40,14 @@ Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the v
 
 ### Product management terminology mapping
 
-All workflows use generic terminology. Use this table to translate operations for different tools:
+All workflows use generic terminology. A PRD describes a complete feature solution. Use this table to translate to tool-specific entities:
 
 | Generic Term | Markdown | Linear | Azure DevOps | Jira |
 |--------------|----------------|--------|--------------|------|
-| PRD | PRD markdown file | Project | Epic | Epic |
-| Product increment | Product increment markdown file | Issue | Feature | Story |
-| Product increment task | Task header (## 1 Title) | Sub-issue | Task | Sub-task |
-| Product increment subtask | Checkbox bullet (- [ ]) | Checklist item | Checklist item | Checklist item |
+| `[feature]` | Feature markdown file | Project | Feature | Epic |
+| `[slice]` | Slice markdown file | Issue | User Story | Story |
+| `[task]` | Task header (## 1 Title) | Sub-issue | Task | Sub-task |
+| `[checklist]` | Checkbox bullet (- [ ]) | Checklist item | Checklist item | Checklist item |
 
 **MCP Configuration by tool:**
 - **Linear:** `claude mcp add --transport sse linear-server --scope [user|project] https://mcp.linear.app/sse`
