@@ -7,14 +7,9 @@ argument-hint: Feature ID and/or slice IDs (e.g., "yyyy-MM-dd-feature/prd.md" or
 
 Feature ID and/or slice ID(s): $ARGUMENTS
 
-**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+## Mandatory Preparation
 
-## Step 0: Read feature and determine execution mode
-
-If you only get the feature file:
-1. Read the feature file using: `Read(file_path: "/path/to/prd.md")`
-2. Find all Slice files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
-3. Filter out prd.md from the glob results
+**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then load feature and slice data from `[PRODUCT_MANAGEMENT_TOOL]`.
 
 **Automatically determine if parallel execution is appropriate:**
 

@@ -7,7 +7,11 @@ auto_execution_mode: 1
 
 You are reviewing: **{{{title}}}**
 
-## STEP 0: Read Task Assignment
+## Mandatory Preparation
+
+**Read [Product management guide](/.windsurf/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+
+## STEP 1: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path

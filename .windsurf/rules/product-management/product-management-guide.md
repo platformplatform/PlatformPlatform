@@ -76,6 +76,22 @@ Configure via `.mcp.json` (see Jira MCP documentation)
 | sliceId | File path to slice.md | Issue ID (e.g. PP-445) | User Story ID | Story ID/key |
 | taskId | Task number (1, 2, 3) | Sub-issue ID | Task ID | Sub-task ID/key |
 
+## Critical Rules for MCP Tools
+
+**If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP (Linear, Azure DevOps, Jira):**
+- ALL operations MUST use MCP tools
+- If ANY MCP call fails: STOP immediately and call report_problem with severity: error
+- NEVER fall back to Markdown when `[PRODUCT_MANAGEMENT_TOOL]` is not available
+- NEVER skip status updates
+- NEVER work around MCP failures
+- sliceId will be an issue ID (e.g., "PP-445")
+- taskId will be a sub-issue ID (e.g., "PP-484")
+
+**If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
+- sliceId is a file path (e.g., ".workspace/task-manager/2025-10-25-feature/1-backend.md")
+- taskId is a task number (e.g., "1", "2", "3")
+- Update status by editing markdown file headers
+
 ## File Structure
 
 **For Markdown mode:**

@@ -7,7 +7,11 @@ alwaysApply: false
 
 You are reviewing: **{{{title}}}**
 
-**Note:** For terminology and status mapping, see [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc).
+## Mandatory Preparation
+
+**Read [Product management guide](mdc:.cursor/rules/product-management/product-management-guide.mdc)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+
+## STEP 1: Read Task Assignment
 
 ## Review Principles
 

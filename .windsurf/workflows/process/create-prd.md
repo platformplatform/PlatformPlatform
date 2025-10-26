@@ -7,7 +7,9 @@ auto_execution_mode: 1
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a feature with all slices in `[PRODUCT_MANAGEMENT_TOOL]`.
 
-**Note:** For terminology mapping and tool configuration, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
+## Mandatory Preparation
+
+**Read [Product management guide](/.windsurf/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
 
 ## Workflow
 

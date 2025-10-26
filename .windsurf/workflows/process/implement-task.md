@@ -9,9 +9,11 @@ You are implementing: **{{{title}}}**
 
 **Note:** The taskId and sliceId come from current-task.json, not from command arguments. The CLI passes only the taskTitle as the slash command argument.
 
-**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
+## Mandatory Preparation
 
-## STEP 0: Read Task Assignment
+**Read [Product management guide](/.windsurf/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+
+## STEP 1: Read Task Assignment
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path

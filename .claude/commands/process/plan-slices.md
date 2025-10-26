@@ -9,7 +9,9 @@ Feature ID: $ARGUMENTS
 
 Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to break down each slice into detailed technical tasks.
 
-**Note:** For terminology mapping and tool configuration, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+## Mandatory Preparation
+
+**Read [Product management guide](/.claude/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then read the feature from `[PRODUCT_MANAGEMENT_TOOL]`.
 
 ## Workflow
 

@@ -7,7 +7,11 @@ auto_execution_mode: 1
 
 You are reviewing: **{{{title}}}**
 
-**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
+## Mandatory Preparation
+
+**Read [Product management guide](/.windsurf/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`.
+
+## STEP 1: Read Task Assignment
 
 ## Review Principles
 

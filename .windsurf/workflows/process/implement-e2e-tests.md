@@ -9,6 +9,10 @@ Feature ID: $ARGUMENTS
 
 If a feature ID is provided in the arguments above, read the feature to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
+## Mandatory Preparation
+
+**Read [Product management guide](/.windsurf/rules/product-management/product-management-guide.md)** to understand your `PRODUCT_MANAGEMENT_TOOL`, `Terminology Mapping`, and `Status Mapping`. Then read the feature from `[PRODUCT_MANAGEMENT_TOOL]` if provided.
+
 ## CRITICAL - Autonomous Operation
 
 You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. Work with our team to find a solution.
