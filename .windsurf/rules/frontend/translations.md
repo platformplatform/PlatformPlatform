@@ -26,7 +26,7 @@ Carefully follow these instructions when implementing translations and internati
    - Before translating, check existing `*.po` files to understand established domain terms
    - If "Tenant" is used, always use "Tenant" (not "Customer", "Client", "Organization", etc.)
    - The same English term must always translate to the same term in each target language
-   - Example: "Team" in English should consistently translate to "Hold" in Danish (da-DK.po), not "Team", "Gruppe", etc.
+   - Example: "Role" in English should consistently translate to "Rolle" in Danish (da-DK.po), not "Funktion", "Stilling", etc.
 
 ## Examples
 

@@ -1,8 +1,8 @@
 ---
-description: Review E2E test implementation for a Product Increment task
+description: Review E2E test implementation for a slice task
 args:
   - name: title
-    description: Task title to review (e.g., "End-to-end tests for team management")
+    description: Task title to review (e.g., "End-to-end tests for user management")
     required: false
 ---
 
@@ -14,7 +14,7 @@ You are reviewing: **{{{title}}}**
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `request_file_path`: Full path to engineer's request file
-- `product_increment_path`: Path to Product Increment (if applicable)
+- `slice_path`: Path to slice (if applicable)
 - `title`: Task title
 
 **Then read the request and response files** to understand what was implemented.

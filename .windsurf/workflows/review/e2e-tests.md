@@ -1,5 +1,5 @@
 ---
-description: Workflow for task title to review (e.g., "end-to-end tests for team management")
+description: Workflow for task title to review (e.g., "end-to-end tests for user management")
 auto_execution_mode: 1
 ---
 
@@ -11,7 +11,7 @@ You are reviewing: **{{{title}}}**
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `request_file_path`: Full path to engineer's request file
-- `product_increment_path`: Path to Product Increment (if applicable)
+- `slice_path`: Path to slice (if applicable)
 - `title`: Task title
 
 **Then read the request and response files** to understand what was implemented.

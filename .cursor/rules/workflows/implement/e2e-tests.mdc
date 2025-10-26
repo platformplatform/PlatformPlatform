@@ -54,7 +54,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 
 5. Create or update test structure:
    - For smoke tests: Create/update `application/[scs-name]/WebApp/tests/e2e/smoke.spec.ts`.
-   - For comprehensive tests: Create feature-specific files like `user-management-flows.spec.ts`, `team-management-flows.spec.ts`.
+   - For comprehensive tests: Create feature-specific files like `user-management-flows.spec.ts`, `role-management-flows.spec.ts`.
    - Avoid creating many small, isolated tests - prefer comprehensive scenarios that test multiple aspects.
 
 6. **CRITICAL - Run watch tool to apply database migrations**:

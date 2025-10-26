@@ -144,7 +144,7 @@ Response: [response file path]
 
 **MCP call parameters**:
 - `agentType`: backend-reviewer, frontend-reviewer, or test-automation-reviewer
-- `taskTitle`: Short description (e.g., "Review create teams table")
+- `taskTitle`: Short description (e.g., "Review create users table")
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
 - `prdPath`: From current-task.json (if exists)
@@ -178,7 +178,7 @@ ALWAYS call CompleteWork after reviewer approval, even if this is the last task 
 **Call MCP CompleteWork tool**:
 - `mode`: "task"
 - `agentType`: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
-- `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add team member endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
+- `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add user role endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
 - `responseContent`: Your full response in markdown
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteWork

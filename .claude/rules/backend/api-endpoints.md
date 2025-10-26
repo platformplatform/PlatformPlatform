@@ -96,7 +96,7 @@ public sealed class BadUserEndpoints : IEndpoints
         // ❌ DON'T: Use MVC [FromBody] attribute
         group.MapPost("/bulk-delete", async Task<ApiResult> ([FromBody] BulkDeleteUsersCommand command, IMediator mediator)
             => await mediator.Send(command)
-        ).Produces<TeamId>(StatusCodes.Status201Created) // ❌ DON'T: Don't add produces status code
+        ).Produces<UserId>(StatusCodes.Status201Created) // ❌ DON'T: Don't add produces status code
          .ProducesProblem(StatusCodes.Status403Forbidden) // ❌ DON'T: Don't add produces status code
          .ProducesProblem(StatusCodes.Status409Conflict);
 
