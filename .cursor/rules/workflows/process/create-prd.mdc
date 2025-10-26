@@ -191,10 +191,12 @@ Create feature:
 
 Create slices:
 - For each slice: Create with title=[slice title], description=[slice description]
-- Link to feature, assign to: "me"
+- Link to `[feature]`, assign to: "me"
+- All `[slice]`s start in `[Planned]` status
 
-If "Move to active work" was "Yes (Now)" in Step 6:
-- Update feature and all slices to active work
+**IMPORTANT - Status handling:**
+- If "Move to active work" was "Yes (Now)": Update ONLY the `[feature]` to `[Planned]` status
+- All `[slice]`s remain in `[Planned]` status regardless of choice
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
 - Create directory: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/`
