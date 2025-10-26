@@ -37,18 +37,20 @@ public class ClaudeAgentCommand : Command
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
-        var prdPathOption = new Option<string?>("--prd-path", "PRD file path (optional)");
-        var productIncrementPathOption = new Option<string?>("--product-increment-path", "Product Increment file path (optional)");
-        var taskNumberOption = new Option<string?>("--task-number", "Task number (optional)");
+        var sliceIdOption = new Option<string?>("--slice-id", "Slice ID (optional, for Markdown)");
+        var taskIdOption = new Option<string?>("--task-id", "Task ID (optional)");
+        var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
+        var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
 
         AddArgument(agentTypeArgument);
         AddOption(mcpOption);
         AddOption(taskTitleOption);
         AddOption(markdownContentOption);
         AddOption(branchOption);
-        AddOption(prdPathOption);
-        AddOption(productIncrementPathOption);
-        AddOption(taskNumberOption);
+        AddOption(sliceIdOption);
+        AddOption(taskIdOption);
+        AddOption(requestFilePathOption);
+        AddOption(responseFilePathOption);
 
         this.SetHandler(async context =>
             {
@@ -57,11 +59,12 @@ public class ClaudeAgentCommand : Command
                 var taskTitle = context.ParseResult.GetValueForOption(taskTitleOption);
                 var markdownContent = context.ParseResult.GetValueForOption(markdownContentOption);
                 var branch = context.ParseResult.GetValueForOption(branchOption);
-                var prdPath = context.ParseResult.GetValueForOption(prdPathOption);
-                var productIncrementPath = context.ParseResult.GetValueForOption(productIncrementPathOption);
-                var taskNumber = context.ParseResult.GetValueForOption(taskNumberOption);
+                var sliceId = context.ParseResult.GetValueForOption(sliceIdOption);
+                var taskId = context.ParseResult.GetValueForOption(taskIdOption);
+                var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
+                var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, prdPath, productIncrementPath, taskNumber);
+                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, sliceId, taskId, requestFilePath, responseFilePath);
             }
         );
     }
@@ -73,15 +76,16 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? prdPath,
-        string? productIncrementPath,
-        string? taskNumber)
+        string? sliceId,
+        string? taskId,
+        string? requestFilePath,
+        string? responseFilePath)
     {
         try
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, branch, prdPath, productIncrementPath, taskNumber);
+                await RunMcpMode(agentType, taskTitle, markdownContent, branch, sliceId, taskId, requestFilePath, responseFilePath);
             }
             else
             {
@@ -101,9 +105,10 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? prdPath,
-        string? productIncrementPath,
-        string? taskNumber)
+        string? sliceId,
+        string? taskId,
+        string? requestFilePath,
+        string? responseFilePath)
     {
         if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
         {
@@ -156,8 +161,8 @@ public class ClaudeAgentCommand : Command
         var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
         await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
 
-        // Save task metadata with full paths
-        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle, prdPath, productIncrementPath, taskNumber);
+        // Save task metadata
+        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, sliceId, taskId ?? "");
         await WriteTaskMetadata(workspace, taskInfo);
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
@@ -348,7 +353,7 @@ public class ClaudeAgentCommand : Command
             {
                 // Show incomplete task prompt
                 AnsiConsole.MarkupLine($"[{agentColor} bold]⚠️ INCOMPLETE TASK DETECTED[/]");
-                AnsiConsole.MarkupLine($"[dim]Task {taskInfo.TaskNumber} - '{Markup.Escape(taskInfo.Title)}' is currently in development.[/]");
+                AnsiConsole.MarkupLine($"[dim]Task {taskInfo.TaskNumber} - '{Markup.Escape(taskInfo.TaskTitle)}' is currently in development.[/]");
                 AnsiConsole.WriteLine();
 
                 var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?");
@@ -358,7 +363,7 @@ public class ClaudeAgentCommand : Command
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
                 // Launch manual session (with or without slash command based on user choice)
-                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.Title : null, wantsToContinue);
+                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.TaskTitle : null, wantsToContinue);
                 // After recovery session ends, continue to main loop to wait for MCP requests
             }
         }
@@ -529,15 +534,15 @@ public class ClaudeAgentCommand : Command
             var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
             if (taskInfo is not null)
             {
-                // Format: "AgentName - {TaskNumberInIncrement} - Title - MessageId - HH:mm:ss"
+                // Format: "AgentName - TaskId - Title - MessageId - HH:mm:ss"
                 var titleParts = new List<string> { displayName };
 
-                if (!string.IsNullOrEmpty(taskInfo.TaskNumberInIncrement))
+                if (!string.IsNullOrEmpty(taskInfo.TaskId))
                 {
-                    titleParts.Add(taskInfo.TaskNumberInIncrement);
+                    titleParts.Add(taskInfo.TaskId);
                 }
 
-                titleParts.Add(taskInfo.Title);
+                titleParts.Add(taskInfo.TaskTitle);
                 titleParts.Add(taskInfo.TaskNumber);
 
                 if (DateTime.TryParse(taskInfo.StartedAt, out var startedAt))
@@ -658,7 +663,7 @@ public class ClaudeAgentCommand : Command
                     var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, JsonOptions);
                     if (taskInfo is not null)
                     {
-                        effectiveTaskTitle = taskInfo.Title;
+                        effectiveTaskTitle = taskInfo.TaskTitle;
                     }
                 }
             }
@@ -667,11 +672,11 @@ public class ClaudeAgentCommand : Command
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/orchestrate:tech-lead",
-                "test-automation-engineer" => $"/implement:e2e-tests {effectiveTaskTitle}",
-                "test-automation-reviewer" => $"/review:e2e-tests {effectiveTaskTitle}",
+                "test-automation-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
+                "test-automation-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
-                    ? $"/review:task {effectiveTaskTitle}"
-                    : $"/implement:task {effectiveTaskTitle}"
+                    ? $"/process:review-task {effectiveTaskTitle}"
+                    : $"/process:implement-task {effectiveTaskTitle}"
             };
             claudeArgs.Add(slashCommand);
         }
@@ -713,8 +718,12 @@ public class ClaudeAgentCommand : Command
 
     private static string CreateRequestFileName(int taskCounter, string agentType, string taskTitle)
     {
-        var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(3))
-            .ToLowerInvariant().Replace(".", "").Replace(",", "");
+        var shortTitle = string.Join("-", taskTitle.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            .ToLowerInvariant();
+
+        // Remove all special characters, keep only alphanumeric and hyphens
+        shortTitle = Regex.Replace(shortTitle, @"[^a-z0-9-]", "");
+
         return $"{taskCounter:D4}.{agentType}.request.{shortTitle}.md";
     }
 
@@ -722,19 +731,17 @@ public class ClaudeAgentCommand : Command
         int taskCounter,
         string requestFilePath,
         string taskTitle,
-        string? prdPath,
-        string? productIncrementPath,
-        string? taskNumber)
+        string? sliceId,
+        string taskId)
     {
         return new CurrentTaskInfo(
             $"{taskCounter:D4}",
             requestFilePath,
             DateTime.Now.ToString("O"),
             1,
-            taskTitle,
-            prdPath,
-            productIncrementPath,
-            taskNumber
+            sliceId,
+            taskId,
+            taskTitle
         );
     }
 
@@ -1545,8 +1552,14 @@ public class ClaudeAgentCommand : Command
             if (File.Exists(sessionFile))
             {
                 // ReadLines().LastOrDefault() reads entire file but is pragmatic for our use case (~10-50ms for 10-50MB files read every 5 minutes)
-                try { return File.ReadLines(sessionFile).LastOrDefault(); }
-                catch (IOException) { return null; }
+                try
+                {
+                    return File.ReadLines(sessionFile).LastOrDefault();
+                }
+                catch (IOException)
+                {
+                    return null;
+                }
             }
         }
 
@@ -1559,10 +1572,9 @@ public record CurrentTaskInfo(
     string RequestFilePath,
     string StartedAt,
     int Attempt,
-    string Title,
-    string? PrdPath,
-    string? ProductIncrementPath,
-    string? TaskNumberInIncrement
+    string? SliceId,
+    string TaskId,
+    string TaskTitle
 );
 
 public record ProcessMonitoringOptions(

@@ -178,7 +178,8 @@ IF YOU RECOVER - REPORT PROBLEM + SOLUTION:
 
 Example: Workflow says read current-task.json from workspace root, but actual path is .workspace/agent-workspaces/branch/agent/current-task.json - report BOTH.
 
-Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md")]
+Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-category.md"
+    )]
     public static string ReportProblem(
         [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
         string reporter,
@@ -359,12 +360,9 @@ public static class WorkerMcpTools
         string markdownContent,
         [Description("Branch name to ensure all agents work on same branch")]
         string branch,
-        [Description("PRD file path (optional, for Product Increment tasks)")]
-        string? prdPath = null,
-        [Description("Product Increment file path (optional, for Product Increment tasks)")]
-        string? productIncrementPath = null,
-        [Description("Task number or title (optional, for Product Increment tasks)")]
-        string? taskNumber = null,
+        [Description("Slice ID (required for Markdown, optional for MCP tools)")]
+        string? sliceId = null,
+        [Description("Task ID (required)")] string? taskId = null,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
         [Description("Engineer's response file path (optional, for review tasks)")]
@@ -373,22 +371,28 @@ public static class WorkerMcpTools
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
-        if (prdPath != null)
+        if (sliceId != null)
         {
-            args.Add("--prd-path");
-            args.Add(prdPath);
+            args.Add("--slice-id");
+            args.Add(sliceId);
         }
 
-        if (productIncrementPath != null)
+        if (taskId != null)
         {
-            args.Add("--product-increment-path");
-            args.Add(productIncrementPath);
+            args.Add("--task-id");
+            args.Add(taskId);
         }
 
-        if (taskNumber != null)
+        if (requestFilePath != null)
         {
-            args.Add("--task-number");
-            args.Add(taskNumber);
+            args.Add("--request-file-path");
+            args.Add(requestFilePath);
+        }
+
+        if (responseFilePath != null)
+        {
+            args.Add("--response-file-path");
+            args.Add(responseFilePath);
         }
 
         var result = ExecuteCliCommand(args.ToArray());
