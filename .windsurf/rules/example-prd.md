@@ -49,7 +49,7 @@ This is a very high-level overview of the slices needed to implement the feature
 This slice implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, and deleting users with proper validation and permission checks.
 
 ### 2. Frontend for user management
-This slice implements the Users page UI with the ability to list, create, edit, and delete users using the API from the first increment. It includes the navigation menu item and basic user management interface.
+This slice implements the Users page UI with the ability to list, create, edit, and delete users using the API from the first slice. It includes the navigation menu item and basic user management interface.
 
 ### 3. Backend for user membership management
 This slice implements user membership functionality including the user member entity, domain model, database migration, CRUD operations for managing user members and admins, API endpoints, and tests. It enforces the permission rules for who can manage user membership.

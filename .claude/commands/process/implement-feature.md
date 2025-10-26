@@ -32,7 +32,7 @@ Continue with orchestrating implementation of all found Slice files.
 
 ## Your Role: Task-Level Coordination
 
-🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT PRODUCT INCREMENTS** 🚨
+🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT SLICES** 🚨
 
 Your job as Tech Lead:
 - Read ALL Slice files and extract tasks
@@ -58,9 +58,9 @@ Delegate one task completely before starting the next:
 
 ### Parallel (ONLY When User Explicitly Requests)
 
-**CRITICAL**: Slices must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip increments. Within that constraint, you can interleave tasks from multiple Slices.
+**CRITICAL**: Slices must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip slices. Within that constraint, you can interleave tasks from multiple slices.
 
-**Example**: Task 1 from PI 1 + Task 1 from PI 2 simultaneously, then Task 2 from PI 1 + Task 2 from PI 2 simultaneously.
+**Example**: Task 1 from Slice 1 + Task 1 from Slice 2 simultaneously, then Task 2 from Slice 1 + Task 2 from Slice 2 simultaneously.
 
 **BEFORE delegating in parallel, evaluate dependencies**:
 
@@ -135,7 +135,7 @@ FOR EACH Slice (in numerical order):
 
     **Delegation format**:
     ```
-    We are implementing PRD: /path/to/prd.md. Please implement task "[task number and description]" from /path/to/N-productincrement.md.
+    We are implementing feature: /path/to/prd.md. Please implement task "[task number and description]" from /path/to/N-slice.md.
     ```
 
     **c. Wait for engineer proxy to complete**:
@@ -221,13 +221,13 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 ```
 1. Read all 3 Slice files, extract 11 tasks total
 2. Create expanded todo with 3 Slices and 11 tasks
-3. Delegate task "1. Create user API endpoints" from PI 1 to backend-engineer
+3. Delegate task "1. Create user API endpoints" from Slice 1 to backend-engineer
 4. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
-5. Mark task 1 complete, delegate task "2. Add validation logic" from PI 1
+5. Mark task 1 complete, delegate task "2. Add validation logic" from Slice 1
 6. Wait and mark complete
-7. Continue through all 5 tasks in PI 1
-8. Collapse PI 1 (remove subtasks, mark [completed])
-9. Start PI 2, delegate task "1. Create user management UI" to frontend-engineer
+7. Continue through all 5 tasks in Slice 1
+8. Collapse Slice 1 (remove subtasks, mark [completed])
+9. Start Slice 2, delegate task "1. Create user management UI" to frontend-engineer
 10. Continue until all Slices collapsed and [completed]
 ```
 
@@ -236,12 +236,12 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 1. Read all 3 Slice files, extract 11 tasks total
 2. Create expanded todo with 3 Slices and 11 tasks
 3. Identify tasks that can run in parallel:
-   - Batch 1: PI 1 Task 1 (backend) + PI 2 Task 1 (frontend)
-   - Batch 2: PI 1 Task 2 (backend) + PI 2 Task 2 (frontend)
+   - Batch 1: Slice 1 Task 1 (backend) + Slice 2 Task 1 (frontend)
+   - Batch 2: Slice 1 Task 2 (backend) + Slice 2 Task 2 (frontend)
    - ...
 4. In SINGLE message, delegate both tasks in Batch 1:
-   - Task tool → backend-engineer for PI 1 Task 1
-   - Task tool → frontend-engineer for PI 2 Task 1
+   - Task tool → backend-engineer for Slice 1 Task 1
+   - Task tool → frontend-engineer for Slice 2 Task 1
 5. Wait for BOTH to complete
 6. Mark both tasks [completed]
 7. In SINGLE message, delegate both tasks in Batch 2
