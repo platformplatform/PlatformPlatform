@@ -197,14 +197,14 @@ If "Move to active work" was "Yes (Now)" in Step 6:
 - Update feature and all slices to active work
 
 **If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
-- Create directory: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
+- Create directory: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/`
   - Use today's date in yyyy-MM-dd format
-  - Use PRD title in kebab-case
+  - Use feature title in kebab-case
   - Example: `./.workspace/task-manager/2025-10-25-user-management/`
-- Create PRD file: `prd.md` (always this exact name)
+- Create feature file: `prd.md` (always this exact name)
   - Content: Complete approved PRD content
 
-**Inform user:** The PRD has been created. Use `/process:create-tasks` to create detailed tasks.
+**Inform user:** The PRD has been created. Use `/process:plan-slices` to break down slices into detailed tasks.
 
 ## Guidelines
 

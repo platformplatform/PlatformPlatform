@@ -1,13 +1,13 @@
 ---
-description: Workflow for create comprehensive end-to-end tests for features
+description: Workflow for create comprehensive end-to-end tests for a feature
 auto_execution_mode: 1
 ---
 
 # E2E Testing Workflow
 
-Feature or product increment: $ARGUMENTS
+Feature name or feature file: $ARGUMENTS
 
-If a product increment file is provided in the arguments above, read it to understand what features need testing. This workflow guides you through the process of creating comprehensive end-to-end tests for those features. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+If a feature file is provided in the arguments above, read it to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## CRITICAL - Autonomous Operation
 

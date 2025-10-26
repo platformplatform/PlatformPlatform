@@ -1,23 +1,23 @@
 ---
-description: Create technical tasks for all slices in a PRD
-argument-hint: Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID (e.g., ".workspace/task-manager/2025-01-15-feature/prd.md" or "abc-123")
+description: Workflow for break down all slices in a feature into detailed technical tasks
+auto_execution_mode: 1
 ---
 
-# Create Tasks Workflow
+# Plan Slices Workflow
 
 Feature file path or `[PRODUCT_MANAGEMENT_TOOL]` ID: $ARGUMENTS
 
-Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to create technical tasks for each slice.
+Read the feature provided in the arguments above and identify ALL slices listed in it. Your job is to break down each slice into detailed technical tasks.
 
-**Note:** For terminology mapping and tool configuration, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+**Note:** For terminology mapping and tool configuration, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
 
 ## Workflow
 
 Follow the steps below to create tasks for all slices.
 
-### Step 1: Read PRD
+### Step 1: Read feature
 
-Read the PRD to identify all slices.
+Read the feature to identify all slices.
 
 ### Step 2: Research and plan tasks for all slices
 
@@ -188,8 +188,8 @@ Inform the user: Tasks have been created successfully.
 
 Using these examples to understand how to write tasks and subtasks for slices:
 
-- [Backend for user management](/.claude/samples/1-backend-sample.md)
-- [Frontend for user management](/.claude/samples/2-frontend-sample.md)
+- [Backend for user management](/.windsurf/samples/1-backend-sample.md)
+- [Frontend for user management](/.windsurf/samples/2-frontend-sample.md)
 
 ## ✅ DO:
 

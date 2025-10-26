@@ -1,13 +1,13 @@
 ---
-description: Create comprehensive end-to-end tests for features
-argument-hint: Feature name or path to product increment plan (optional)
+description: Create comprehensive end-to-end tests for a feature
+argument-hint: Feature name or path to feature file (prd.md) (optional)
 ---
 
 # E2E Testing Workflow
 
-Feature or product increment: $ARGUMENTS
+Feature name or feature file: $ARGUMENTS
 
-If a product increment file is provided in the arguments above, read it to understand what features need testing. This workflow guides you through the process of creating comprehensive end-to-end tests for those features. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+If a feature file is provided in the arguments above, read it to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## CRITICAL - Autonomous Operation
 

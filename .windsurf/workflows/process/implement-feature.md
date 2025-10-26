@@ -1,18 +1,18 @@
 ---
-description: Orchestrate implementation of all tasks in a PRD through task-level delegation to engineer subagents
-argument-hint: Path to PRD (yyyy-MM-dd-feature/prd.md) and/or paths to Slice files (e.g., .workspace/task-manager/2025-01-15-feature/1-backend.md)
+description: Workflow for orchestrate implementation of a feature through task-level delegation to engineer subagents
+auto_execution_mode: 1
 ---
 
-# Orchestrate PRD Implementation
+# Orchestrate Feature Implementation
 
-PRD and/or Slice file(s): $ARGUMENTS
+Feature file and/or slice file(s): $ARGUMENTS
 
-**Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
+**Note:** For terminology and status mapping, see [Product management guide](/.windsurf/rules/product-management/product-management-guide.md).
 
-## Step 0: Read PRD and Determine Execution Mode
+## Step 0: Read feature and determine execution mode
 
-If you only get the PRD:
-1. Read the PRD file using: `Read(file_path: "/path/to/prd.md")`
+If you only get the feature file:
+1. Read the feature file using: `Read(file_path: "/path/to/prd.md")`
 2. Find all Slice files using: `Glob(pattern: "*.md", path: "/path/to/prd-directory")`
 3. Filter out prd.md from the glob results
 
