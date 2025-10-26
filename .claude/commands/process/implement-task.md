@@ -2,13 +2,15 @@
 description: Implement a specific task from a slice following the systematic workflow
 args:
   - name: title
-    description: Task title to implement (e.g., "Add user filtering")
+    description: Task title (passed from CLI, matches taskTitle in current-task.json)
     required: false
 ---
 
 # Implement Task Workflow
 
 You are implementing: **{{{title}}}**
+
+**Note:** The taskId and sliceId come from current-task.json, not from command arguments. The CLI passes only the taskTitle as the slash command argument.
 
 **Note:** For terminology and status mapping, see [Product management guide](/.claude/rules/product-management/product-management-guide.md).
 
@@ -25,7 +27,7 @@ You are implementing: **{{{title}}}**
 **If `sliceId` exists in current-task.json:**
 1. Read slice from `sliceId`
 2. Understand your task (`taskId`) within the slice context
-4. **Update task status to "Active"**: Change status from "Planned" to "Active" in `[PRODUCT_MANAGEMENT_TOOL]`
+3. **Update task status to "Active"** in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -52,13 +54,14 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 ```json
 {
   "todos": [
+    {"content": "Update task status to Active", "status": "pending", "activeForm": "Updating task status to Active"},
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Research existing patterns for this task type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement task [name of the task from request file]", "status": "pending", "activeForm": "Implementing task"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
-    {"content": "Mark task as Ready for Review", "status": "pending", "activeForm": "Marking task as Ready for Review"},
+    {"content": "Update task status to Review", "status": "pending", "activeForm": "Updating task status to Review"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
