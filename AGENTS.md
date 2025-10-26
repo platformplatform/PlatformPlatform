@@ -38,19 +38,21 @@ PRODUCT_MANAGEMENT_TOOL="Linear"
 
 Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the value of the variable.
 
-**MCP Configuration:**
-- Setup: `claude mcp add --transport sse linear-server --scope [user|project] https://mcp.linear.app/sse`
-
 ### Product management terminology mapping
 
-All workflows use generic terminology. Use this table to translate to MCP Server operations:
+All workflows use generic terminology. Use this table to translate operations for different tools:
 
-| Generic Term | [PRODUCT_MANAGEMENT_TOOL] | Markdown Files |
-|--------------|--------|----------------|
-| PRD | Project | PRD markdown file |
-| Product increment | Issue | Product increment markdown file |
-| Product increment task | Sub-issue | Task header in product increment file |
-| Product increment subtask | Checklist item on sub-issue | Checkbox bullet in task section |
+| Generic Term | Markdown | Linear | Azure DevOps | Jira |
+|--------------|----------------|--------|--------------|------|
+| PRD | PRD markdown file | Project | Epic | Epic |
+| Product increment | Product increment markdown file | Issue | Feature | Story |
+| Product increment task | Task header (## 1 Title) | Sub-issue | Task | Sub-task |
+| Product increment subtask | Checkbox bullet (- [ ]) | Checklist item | Checklist item | Checklist item |
+
+**MCP Configuration by tool:**
+- **Linear:** `claude mcp add --transport sse linear-server --scope [user|project] https://mcp.linear.app/sse`
+- **Azure DevOps:** Configure via `.mcp.json` (see Azure DevOps MCP documentation)
+- **Jira:** Configure via `.mcp.json` (see Jira MCP documentation)
 
 ## Rules for implementing changes
 

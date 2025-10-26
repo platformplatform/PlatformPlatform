@@ -4,7 +4,7 @@ description: Create a product requirement description (PRD) for a new feature
 
 # Create PRD Workflow
 
-Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a PRD with all product increments in EITHER `[PRODUCT_MANAGEMENT_TOOL]` OR Markdown files (user's choice).
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The workflow creates a PRD with all product increments in `[PRODUCT_MANAGEMENT_TOOL]`.
 
 **Note:** For terminology mapping between generic terms (PRD, product increment, etc.) and `[PRODUCT_MANAGEMENT_TOOL]`, see [Product management terminology mapping](/AGENTS.md#product-management-terminology-mapping).
 
@@ -12,15 +12,13 @@ Your job is to work with the user through an interactive wizard to create a high
 
 Follow the steps below to create the PRD.
 
-### Step 1: Choose your product management tool
+### Step 1: Initialize `[PRODUCT_MANAGEMENT_TOOL]`
 
-Ask "Do you want to use `[PRODUCT_MANAGEMENT_TOOL]` or Markdown files for tracking this PRD?" (`[PRODUCT_MANAGEMENT_TOOL]`/Markdown files)
-
-**If user chooses Markdown files:**
+If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":
 - If `.workspace/task-manager` does not exist, run: `dotnet run --project developer-cli -- init-task-manager`
 
-**If user chooses `[PRODUCT_MANAGEMENT_TOOL]`:**
-- Call any MCP command to check if `[PRODUCT_MANAGEMENT_TOOL]` is authenticated
+If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP:
+- Call any MCP command to check authentication
 - If not available or authentication fails: Stop workflow, tell user to check `[PRODUCT_MANAGEMENT_TOOL]` configuration in [Product management tool](/AGENTS.md#product-management-tool)
 
 ### Step 2: Ask for feature description
@@ -182,51 +180,35 @@ Show the complete PRD to the user - display the full content including all produ
 ### Step 6: Confirm PRD name and details
 
 Extract PRD name from feature description, remove imperative verbs ("Create", "Add", "Implement"), convert to sentence case:
-- Examples: "Redesign user interface" → "Userinterface redesign", "Implement SSO Authentication" → "SSO authentication"
+- Examples: "Redesign user interface" → "User interface redesign", "Implement SSO Authentication" → "SSO authentication"
 
 Ask "PRD name: '[name]' - correct?" (Yes/Custom)
 
-**If user chose `[PRODUCT_MANAGEMENT_TOOL]` in Step 1:**
+If `[PRODUCT_MANAGEMENT_TOOL]` uses MCP:
 - Ask "Move to active work?" (Yes (Now)/No (Later))
 
-### Step 7: Create PRD in product management tool
+### Step 7: Create PRD in `[PRODUCT_MANAGEMENT_TOOL]`
 
-**If user chose `[PRODUCT_MANAGEMENT_TOOL]` in Step 1:**
+Create PRD:
+- Name: [confirmed PRD name]
+- Assign to: "me"
 
-1. **Create PRD:**
-   - Name: [confirmed PRD name]
-   - Assign to: "me"
+Create product increments:
+- For each product increment: Create with title=[product increment title], description=[product increment description]
+- Link to PRD, assign to: "me"
 
-2. **Create product increments:**
-   - For each product increment: Create with title=[product increment title], description=[product increment description]
-   - Link to PRD, assign to "me"
+If "Move to active work" was "Yes (Now)" in Step 6:
+- Update PRD and all product increments to active work
 
-3. **If "Move to active work" was "Yes (Now)" in Step 6:**
-   - Update PRD and all product increments to active work
+**If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
+- Create directory: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
+  - Use today's date in yyyy-MM-dd format
+  - Use PRD title in kebab-case
+  - Example: `./.workspace/task-manager/2025-10-25-user-management/`
+- Create PRD file: `prd.md` (always this exact name)
+  - Content: Complete approved PRD content
 
-**If user chose Markdown files in Step 1:**
-
-1. **Create directory:**
-   - Path: `./.workspace/task-manager/yyyy-MM-dd-[prd-title]/`
-   - Use today's date in yyyy-MM-dd format
-   - Use PRD title in kebab-case
-   - Example: `./.workspace/task-manager/2025-10-25-user-management/`
-
-2. **Create PRD file:**
-   - Filename: `prd.md` (always this exact name)
-   - Content: Complete approved PRD content
-
-**Inform user:** The PRD has been created.
-
-### Step 8: Ask about creating tasks
-
-Ask "Should I create detailed tasks now?" (Yes/No)
-
-**If user selects "Yes":**
-- Use the SlashCommand tool to call: `/process:create-tasks`
-
-**If user selects "No":**
-- Inform the user they can run `/process:create-tasks` later when ready
+**Inform user:** The PRD has been created. Use `/process:create-tasks` to create detailed tasks.
 
 ## Guidelines
 
