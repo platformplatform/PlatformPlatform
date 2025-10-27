@@ -74,7 +74,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
    - If tests fail: Fix them and run again (never proceed with failing tests)
 
 8. Call reviewer to review your tests:
-   - Use Task tool to call `test-automation-reviewer` subagent
+   - Use Task tool to call `qa-reviewer` subagent
    - Provide paths to request and response files
    - Iterate with reviewer until approved
 

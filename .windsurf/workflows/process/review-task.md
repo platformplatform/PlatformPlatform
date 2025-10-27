@@ -116,7 +116,7 @@ For **frontend [tasks]**, use **test** and **inspect** MCP tools directly.
 
 - **Backend reviewer**: ALL files in `.claude/rules/backend/`
 - **Frontend reviewer**: ALL files in `.claude/rules/frontend/`
-- **Test automation reviewer**: ALL files in `.claude/rules/end-to-end-tests/`
+- **QA reviewer**: ALL files in `.claude/rules/end-to-end-tests/`
 
 **STEP 4**: Frontend only - verify translations in `*.po` files
 

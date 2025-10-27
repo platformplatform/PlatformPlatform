@@ -19,17 +19,17 @@ public class ClaudeAgentCommand : Command
     [
         "backend-engineer",
         "frontend-engineer",
-        "test-automation-engineer",
+        "qa-engineer",
         "backend-reviewer",
         "frontend-reviewer",
-        "test-automation-reviewer"
+        "qa-reviewer"
     ];
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
         var agentTypeArgument = new Argument<string?>("agent-type", () => null)
         {
-            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)",
+            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)",
             Arity = ArgumentArity.ZeroOrOne
         };
 
@@ -236,8 +236,8 @@ public class ClaudeAgentCommand : Command
                         "backend-reviewer",
                         "frontend-engineer",
                         "frontend-reviewer",
-                        "test-automation-engineer",
-                        "test-automation-reviewer"
+                        "qa-engineer",
+                        "qa-reviewer"
                     )
             );
         }
@@ -643,11 +643,11 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
-        // Add Chrome DevTools MCP for frontend and test-automation agents
+        // Add Chrome DevTools MCP for frontend and QA agents
         if (workspace.AgentType == "frontend-engineer" ||
             workspace.AgentType == "frontend-reviewer" ||
-            workspace.AgentType == "test-automation-engineer" ||
-            workspace.AgentType == "test-automation-reviewer")
+            workspace.AgentType == "qa-engineer" ||
+            workspace.AgentType == "qa-reviewer")
         {
             claudeArgs.Add("--mcp-config");
             claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "chrome-devtools.json"));
@@ -686,8 +686,8 @@ public class ClaudeAgentCommand : Command
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/orchestrate:tech-lead",
-                "test-automation-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
-                "test-automation-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
+                "qa-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
+                "qa-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
                     ? $"/process:review-task {effectiveTaskTitle}"
                     : $"/process:implement-task {effectiveTaskTitle}"
@@ -974,8 +974,8 @@ public class ClaudeAgentCommand : Command
             "frontend-engineer" => "Frontend Engineer",
             "backend-reviewer" => "Backend Reviewer",
             "frontend-reviewer" => "Frontend Reviewer",
-            "test-automation-engineer" => "Test Automation Engineer",
-            "test-automation-reviewer" => "Test Automation Reviewer",
+            "qa-engineer" => "QA Engineer",
+            "qa-reviewer" => "QA Reviewer",
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }
@@ -989,8 +989,8 @@ public class ClaudeAgentCommand : Command
             "frontend-engineer" => Color.Blue,
             "backend-reviewer" => Color.Yellow,
             "frontend-reviewer" => Color.Orange3,
-            "test-automation-engineer" => Color.Cyan1,
-            "test-automation-reviewer" => Color.Purple,
+            "qa-engineer" => Color.Cyan1,
+            "qa-reviewer" => Color.Purple,
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }
@@ -1009,10 +1009,10 @@ public class ClaudeAgentCommand : Command
         {
             "backend-engineer",
             "frontend-engineer",
-            "test-automation-engineer",
+            "qa-engineer",
             "backend-reviewer",
             "frontend-reviewer",
-            "test-automation-reviewer"
+            "qa-reviewer"
         };
 
         foreach (var agentType in proxyAgentTypes)

@@ -82,7 +82,7 @@ After creating base todo, expand "Implement [task]" with subtasks from [story] (
 
 - **Backend engineer**: ALL files in `.claude/rules/backend/`
 - **Frontend engineer**: ALL files in `.claude/rules/frontend/`
-- **Test automation engineer**: ALL files in `.claude/rules/end-to-end-tests/`
+- **QA engineer**: ALL files in `.claude/rules/end-to-end-tests/`
 
 **STEP 3**: Research similar implementations in codebase
 
@@ -180,7 +180,7 @@ Response: {responseFilePath}
 ```
 
 **MCP call parameters**:
-- `agentType`: backend-reviewer, frontend-reviewer, or test-automation-reviewer
+- `agentType`: backend-reviewer, frontend-reviewer, or qa-reviewer
 - `taskTitle`: From current-task.json
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
@@ -231,7 +231,7 @@ ALWAYS call CompleteWork after reviewer approval, even if this is the last task 
 
 **Call MCP CompleteWork tool**:
 - `mode`: "task"
-- `agentType`: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
+- `agentType`: Your agent type (backend-engineer, frontend-engineer, or qa-engineer)
 - `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add user role endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
 - `responseContent`: Your full response in markdown
 - `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes as described above

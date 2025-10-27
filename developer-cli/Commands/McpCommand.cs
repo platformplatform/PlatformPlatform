@@ -351,9 +351,9 @@ You can continue working. This issue will be reviewed.";
 public static class WorkerMcpTools
 {
     [McpServerTool]
-    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, test automation, or code review. The agent will work autonomously and return results.")]
+    [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, E2E testing, or code review. The agent will work autonomously and return results.")]
     public static string StartWorkerAgent(
-        [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, test-automation-engineer, test-automation-reviewer)")]
+        [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)")]
         string agentType,
         [Description("Short title for the task")]
         string taskTitle,
@@ -447,7 +447,7 @@ public static class WorkerMcpTools
     public static async Task<string> CompleteWork(
         [Description("Completion mode: 'task' or 'review'")]
         string mode,
-        [Description("Agent type (e.g., backend-engineer, frontend-reviewer, test-automation-engineer)")]
+        [Description("Agent type (e.g., backend-engineer, frontend-reviewer, qa-engineer)")]
         string agentType,
         [Description("Full response content in markdown")]
         string responseContent,

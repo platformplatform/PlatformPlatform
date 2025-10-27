@@ -111,7 +111,7 @@ If ANY critical check fails: **REJECT**
 
 **Call MCP CompleteWork tool**:
 - `mode`: "review"
-- `agentType`: test-automation-reviewer
+- `agentType`: qa-reviewer
 - `commitHash`: Commit hash if approved, null/empty if rejected
 - `rejectReason`: Rejection reason if rejected, null/empty if approved
 - `responseContent`: Your full review feedback

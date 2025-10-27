@@ -138,7 +138,7 @@ FOR EACH [story]:
     Use Task tool with appropriate engineer subagent:
     - Backend [task] → `backend-engineer` subagent
     - Frontend [task] → `frontend-engineer` subagent
-    - E2E test [task] → `test-automation-engineer` subagent
+    - E2E test [task] → `qa-engineer` subagent
     - Branch: Use current git branch
 
     **Delegation format**:
@@ -253,7 +253,7 @@ Stop ONLY when:
 
 ## Engineer Proxy Agent Responsibilities
 
-Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engineer) are PURE PASSTHROUGHS:
+Engineer proxy agents (backend-engineer, frontend-engineer, qa-engineer) are PURE PASSTHROUGHS:
 - They receive your delegation message
 - They pass it VERBATIM to the worker via MCP
 - They wait for worker to complete (implement + review + commit)

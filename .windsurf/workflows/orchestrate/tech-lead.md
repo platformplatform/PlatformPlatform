@@ -34,10 +34,10 @@ Handle one-off requests:
 Discover available subagents in `.claude/agents/`:
 - **backend-engineer** - Backend development
 - **frontend-engineer** - Frontend development
-- **test-automation-engineer** - End-to-end test creation
+- **qa-engineer** - End-to-end test creation
 - **backend-reviewer** - Backend code review and commit
 - **frontend-reviewer** - Frontend code review and commit
-- **test-automation-reviewer** - End-to-end test review and commit
+- **qa-reviewer** - End-to-end test review and commit
 
 **How Subagents Work:**
 - Subagents are **proxy agents** that run in YOUR process
