@@ -39,6 +39,7 @@ public class ClaudeAgentCommand : Command
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
         var storyIdOption = new Option<string?>("--story-id", "Story ID (optional, for Markdown)");
         var taskIdOption = new Option<string?>("--task-id", "Task ID (optional)");
+        var resetMemoryOption = new Option<bool>("--reset-memory", () => false, "Reset Claude Code session memory (true for first [task] of new [story])");
         var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
 
@@ -49,6 +50,7 @@ public class ClaudeAgentCommand : Command
         AddOption(branchOption);
         AddOption(storyIdOption);
         AddOption(taskIdOption);
+        AddOption(resetMemoryOption);
         AddOption(requestFilePathOption);
         AddOption(responseFilePathOption);
 
@@ -61,10 +63,11 @@ public class ClaudeAgentCommand : Command
                 var branch = context.ParseResult.GetValueForOption(branchOption);
                 var storyId = context.ParseResult.GetValueForOption(storyIdOption);
                 var taskId = context.ParseResult.GetValueForOption(taskIdOption);
+                var resetMemory = context.ParseResult.GetValueForOption(resetMemoryOption);
                 var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
                 var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, requestFilePath, responseFilePath);
+                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath);
             }
         );
     }
@@ -78,6 +81,7 @@ public class ClaudeAgentCommand : Command
         string? branch,
         string? storyId,
         string? taskId,
+        bool resetMemory,
         string? requestFilePath,
         string? responseFilePath)
     {
@@ -85,7 +89,7 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, requestFilePath, responseFilePath);
+                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath);
             }
             else
             {
@@ -107,6 +111,7 @@ public class ClaudeAgentCommand : Command
         string? branch,
         string? storyId,
         string? taskId,
+        bool resetMemory,
         string? requestFilePath,
         string? responseFilePath)
     {
@@ -135,6 +140,17 @@ public class ClaudeAgentCommand : Command
 
         var workspace = new Workspace(agentType, branch);
         Logger.SetContext($"mcp-{agentType}");
+
+        // Reset Claude Code session memory if this is the first [task] of a new [story]
+        if (resetMemory)
+        {
+            var sessionFile = workspace.SessionIdFile;
+            if (File.Exists(sessionFile))
+            {
+                File.Delete(sessionFile);
+                ClaudeAgentLifecycle.LogWorkflowEvent($"Deleted .claude-session-id to reset memory for new [story]");
+            }
+        }
 
         // Check if interactive worker-host is running
         if (!File.Exists(workspace.HostProcessIdFile))

@@ -137,7 +137,11 @@ FOR EACH [story]:
   FOR EACH [task] in that [story]:
     **1. Mark [task] [in_progress]** in todo
 
-    **2. Delegate to engineer proxy agent**:
+    **2. Determine resetMemory value**:
+    - First [task] of this [story]: `resetMemory=true` (clear context, start fresh)
+    - Subsequent [tasks] of same [story]: `resetMemory=false` (continue accumulating context)
+
+    **3. Delegate to engineer proxy agent**:
 
     Use Task tool with appropriate engineer subagent:
     - Backend [task] → `backend-engineer` subagent
@@ -149,18 +153,19 @@ FOR EACH [story]:
     Feature: {featureId} ({featureTitle})
     Story: {storyId} ({storyTitle})
     Task: {taskId} ({taskTitle})
+    Reset memory: {resetMemory}
 
     Please implement this [task].
     ```
 
-    **3. Wait for engineer proxy to complete**:
+    **4. Wait for engineer proxy to complete**:
     - Engineer proxy passes your exact request to worker
     - Worker implements, gets reviewed, commits
     - Engineer proxy returns completion
 
-    **4. Mark task [completed]** in todo
+    **5. Mark [task] [completed]** in todo
 
-    **5. Move to next task**
+    **6. Move to next [task]**
 
 **Parallel Mode** (only if user explicitly requests):
 
@@ -245,15 +250,15 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 2. Create expanded todo with 3 [stories] and 11 [tasks]
 3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
 4. Update [Story] 1 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
-5. Delegate [task] "1. Create user API endpoints" from [Story] 1 to backend-engineer
+5. Delegate [task] "1. Create user API endpoints" from [Story] 1 to backend-engineer (resetMemory=true)
 6. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
-7. Mark [task] 1 complete, delegate [task] "2. Add validation logic" from [Story] 1
+7. Mark [task] 1 complete, delegate [task] "2. Add validation logic" from [Story] 1 (resetMemory=false)
 8. Wait and mark complete
-9. Continue through all 5 [tasks] in [Story] 1
+9. Continue through all 5 [tasks] in [Story] 1 (resetMemory=false for all)
 10. Update [Story] 1 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
 11. Collapse [Story] 1 (remove subtasks, mark [completed])
 12. Update [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
-13. Delegate [task] "1. Create user management UI" from [Story] 2 to frontend-engineer
+13. Delegate [task] "1. Create user management UI" from [Story] 2 to frontend-engineer (resetMemory=true)
 14. Continue until all [stories] collapsed and [completed]
 ```
 
@@ -267,13 +272,15 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
    - Batch 1: [Story] 1 [Task] 1 (backend) + [Story] 2 [Task] 1 (frontend)
    - Batch 2: [Story] 1 [Task] 2 (backend) + [Story] 2 [Task] 2 (frontend)
    - ...
-6. In SINGLE message, delegate both [tasks] in Batch 1:
-   - Task tool → backend-engineer for [Story] 1 [Task] 1
-   - Task tool → frontend-engineer for [Story] 2 [Task] 1
+6. In SINGLE message, delegate both [tasks] in Batch 1 (both resetMemory=true):
+   - Task tool → backend-engineer for [Story] 1 [Task] 1 (resetMemory=true)
+   - Task tool → frontend-engineer for [Story] 2 [Task] 1 (resetMemory=true)
 7. Wait for BOTH to complete
 8. Mark both [tasks] [completed]
-9. In SINGLE message, delegate both [tasks] in Batch 2
-10. Continue batching until [stories] complete
+9. In SINGLE message, delegate both [tasks] in Batch 2 (both resetMemory=false):
+   - Task tool → backend-engineer for [Story] 1 [Task] 2 (resetMemory=false)
+   - Task tool → frontend-engineer for [Story] 2 [Task] 2 (resetMemory=false)
+10. Continue batching until [stories] complete (resetMemory=false for remaining [tasks])
 11. Update [Story] 1 status to [Review], then [Story] 2 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
 12. Collapse completed [stories]
 ```

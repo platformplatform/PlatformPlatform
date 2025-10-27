@@ -361,6 +361,8 @@ public static class WorkerMcpTools
         string taskId,
         [Description("Identifier for [story] in [PRODUCT_MANAGEMENT_TOOL] (required)")]
         string storyId,
+        [Description("Reset Claude Code session memory (true for first [task] of new [story], false for subsequent [tasks])")]
+        bool resetMemory,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
         [Description("Engineer's response file path (optional, for review tasks)")]
@@ -380,6 +382,9 @@ public static class WorkerMcpTools
 
         args.Add("--task-id");
         args.Add(taskId);
+
+        args.Add("--reset-memory");
+        args.Add(resetMemory.ToString().ToLower());
 
         if (requestFilePath != null)
         {
