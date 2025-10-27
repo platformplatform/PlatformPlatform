@@ -154,9 +154,19 @@ FOR EACH [story]:
     **4. Wait for engineer proxy to complete**:
     - Engineer proxy passes your exact request to worker
     - Worker implements, gets reviewed, commits
-    - Engineer proxy returns completion
+    - Engineer proxy returns response
 
-    **5. Mark [task] [completed]** in todo
+    **5. Verify [task] completion**:
+    - Check if response contains "✅ Task {taskId} completed successfully!"
+    - **If SUCCESS marker found**:
+      - Mark [task] [completed] in todo
+      - Move to next [task]
+    - **If NO success marker found (task FAILED)**:
+      - Keep [task] status as [Active] in [PRODUCT_MANAGEMENT_TOOL]
+      - DO NOT mark [task] as [completed] in todo
+      - Attempt to find alternative solution if possible
+      - If task is blocking: Ask user for guidance
+      - If task is non-blocking: Leave [Active], continue with other [tasks]
 
     **6. Move to next [task]**
 
@@ -169,18 +179,28 @@ FOR EACH batch:
 
   Wait for ALL tasks in batch to complete
 
+  Verify each task completion:
+  - Check if each response contains "✅ Task {taskId} completed successfully!"
+  - Mark tasks with success marker as [completed]
+  - For tasks without success marker: Keep as [Active], handle per sequential mode rules
+
   Move to next batch
 
 ### Step 4: Collapse Stories and Update Status
 
 When ALL [tasks] in a [story] are [completed]:
 
-1. **Update [story] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL]:
+1. **Verify all [tasks] genuinely completed**:
+   - Check that ALL [tasks] in todo are marked [completed]
+   - If any [task] is NOT [completed]: DO NOT proceed with status update
+   - [Story] remains [Active] until all [tasks] genuinely complete
+
+2. **Update [story] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL]:
    - All [tasks] are complete
    - [Story] is ready for final review
    - Status signals completion of implementation phase
 
-2. Update todo:
+3. Update todo:
    - Remove all subtask lines (├─ lines)
    - Keep only [story] line
    - Mark [story] [completed]
