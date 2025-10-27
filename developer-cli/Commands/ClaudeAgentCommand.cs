@@ -1119,7 +1119,8 @@ public class ClaudeAgentCommand : Command
 
                     // Kill and restart with recovery message
                     KillProcess(process);
-                    var recoveryMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.";
+                    var relativeTaskPath = Path.GetRelativePath(Configuration.SourceCodeFolder, workspace.CurrentTaskFile);
+                    var recoveryMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] You appear to have been interrupted or stuck. Please analyze the current state, check your current-task.json at {relativeTaskPath} for context, review recent git history to see what's been completed, and continue from where you left off.";
                     var newProcess = await LaunchWorker(workspace, recoveryMessage: recoveryMessage, useSlashCommand: false);
                     return await MonitorManualSession(newProcess, workspace);
                 }
@@ -1193,7 +1194,8 @@ public class ClaudeAgentCommand : Command
                     KillProcess(currentProcess);
 
                     // Launch new worker with recovery message
-                    var recoveryMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.";
+                    var relativeTaskPath = Path.GetRelativePath(Configuration.SourceCodeFolder, workspace.CurrentTaskFile);
+                    var recoveryMessage = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] You appear to have been interrupted or stuck. Please analyze the current state, check your current-task.json at {relativeTaskPath} for context, review recent git history to see what's been completed, and continue from where you left off.";
 
                     Logger.Debug($"RECOVERY RESTART - Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes with no git changes - restarting (attempt {restartCount + 1}/{maxRestarts})");
                     var newProcess = await LaunchWorker(workspace, null, false, recoveryMessage);

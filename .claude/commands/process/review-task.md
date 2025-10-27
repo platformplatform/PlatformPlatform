@@ -39,7 +39,7 @@ Avoid subjective personal preferences.
 
 ## STEP 0: Read Task Assignment
 
-**Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
+**Read your `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{your-agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
 - `storyId`: [StoryId]
 - `taskId`: [TaskId]
