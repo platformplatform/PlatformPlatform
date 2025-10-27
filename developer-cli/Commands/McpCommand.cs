@@ -1,6 +1,8 @@
 using System.CommandLine;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -211,7 +213,7 @@ Reports: .workspace/agent-workspaces/{branch}/feedback-reports/problems/HH-MM-SS
             var sanitizedTitle = string.Join("-", title.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .ToLowerInvariant();
             // Remove all special characters, keep only alphanumeric and hyphens
-            sanitizedTitle = System.Text.RegularExpressions.Regex.Replace(sanitizedTitle, @"[^a-z0-9-]", "");
+            sanitizedTitle = Regex.Replace(sanitizedTitle, @"[^a-z0-9-]", "");
 
             // Generate timestamp and report ID (use local time)
             var now = DateTime.Now;
@@ -385,7 +387,7 @@ public static class WorkerMcpTools
                 try
                 {
                     var taskJson = File.ReadAllText(targetWorkspace.CurrentTaskFile);
-                    var taskInfo = System.Text.Json.JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
+                    var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
                     if (taskInfo != null)
                     {
@@ -396,12 +398,12 @@ public static class WorkerMcpTools
                             : $"{elapsed.Seconds}s";
 
                         return $"""
-                            Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy.
+                                Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy.
 
-                            The {agentType} has been working on task "{taskInfo.TaskTitle}" for {elapsedFormatted}.
+                                The {agentType} has been working on task "{taskInfo.TaskTitle}" for {elapsedFormatted}.
 
-                            Please try again in a few minutes (e.g., use a sleep function). You can call it again when it's done.
-                            """;
+                                Please try again in a few minutes (e.g., use a sleep function). You can call it again when it's done.
+                                """;
                     }
                 }
                 catch (Exception ex)
@@ -451,6 +453,8 @@ public static class WorkerMcpTools
         string responseContent,
         [Description("Branch name to validate workspace consistency")]
         string branch,
+        [Description("Mandatory feedback using category prefixes. Use [system] for workflow/MCP tools/agent coordination issues. Use [requirements] for requirements/acceptance criteria clarity. Use [code] for code patterns/rules/architecture guidance. Examples: '[system] CompleteWork returned errors until title was less than 100 characters - consider adding format description' or '[requirements] Task mentioned Admin but unclear if TenantAdmin or WorkspaceAdmin'. Can provide multiple categorized items.")]
+        string feedback,
         [Description("Brief task summary in sentence case (for task mode only, e.g., 'Api endpoints implemented')")]
         string? taskSummary = null,
         [Description("Commit hash containing approved changes (for review mode - approved only)")]
@@ -458,7 +462,66 @@ public static class WorkerMcpTools
         [Description("Rejection reason (for review mode - rejected only)")]
         string? rejectReason = null)
     {
-        if (mode == "task")
+        if (string.IsNullOrWhiteSpace(feedback))
+        {
+            return "Error: feedback is required. Use category prefixes: [system] for workflow/MCP tools, [requirements] for requirements clarity, [code] for code guidance. Example: '[system] StartWorkerAgent unclear error when busy'";
+        }
+
+        try
+        {
+            var workspace = new Workspace(agentType, branch);
+
+            if (!File.Exists(workspace.CurrentTaskFile))
+            {
+                return "Error: current-task.json not found. Cannot determine task number for feedback.";
+            }
+
+            var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);
+            var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+            if (taskInfo is null)
+            {
+                return "Error: Failed to parse current-task.json for feedback.";
+            }
+
+            var feedbackDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "evaluations");
+            Directory.CreateDirectory(feedbackDirectory);
+
+            var now = DateTime.Now;
+
+            // Sanitize task summary for filename (same logic as ReportProblem)
+            var sanitizedSummary = mode is "task" && !string.IsNullOrEmpty(taskSummary)
+                ? string.Join("-", taskSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries)).ToLowerInvariant()
+                : mode is "review"
+                    ? string.IsNullOrEmpty(rejectReason) ? "approved" : "rejected"
+                    : "feedback";
+            sanitizedSummary = Regex.Replace(sanitizedSummary, @"[^a-z0-9-]", "");
+
+            var feedbackContent = $"""
+                                   ---
+                                   task-number: {taskInfo.TaskNumber}
+                                   task-id: {taskInfo.TaskId}
+                                   story-id: {taskInfo.StoryId}
+                                   timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+                                   agent-type: {agentType}
+                                   mode: {mode}
+                                   ---
+
+                                   # Task Feedback
+
+                                   {feedback}
+                                   """;
+
+            var feedbackFileName = $"{taskInfo.TaskNumber}.{agentType}.feedback.{sanitizedSummary}.md";
+            var feedbackFilePath = Path.Combine(feedbackDirectory, feedbackFileName);
+            await File.WriteAllTextAsync(feedbackFilePath, feedbackContent);
+        }
+        catch (Exception ex)
+        {
+            return $"Error: Failed to save feedback: {ex.Message}";
+        }
+
+        if (mode is "task")
         {
             if (string.IsNullOrEmpty(taskSummary))
             {
@@ -468,7 +531,7 @@ public static class WorkerMcpTools
             return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
         }
 
-        if (mode == "review")
+        if (mode is "review")
         {
             return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
         }

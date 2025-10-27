@@ -115,6 +115,12 @@ If ANY critical check fails: **REJECT**
 - `commitHash`: Commit hash if approved, null/empty if rejected
 - `rejectReason`: Rejection reason if rejected, null/empty if approved
 - `responseContent`: Your full review feedback
+- `feedback`: Mandatory categorized feedback using prefixes:
+  - `[system]` - Workflow, MCP tools, agent coordination, message handling
+  - `[requirements]` - Requirements clarity, acceptance criteria, task description
+  - `[code]` - Code patterns, rules, architecture guidance
+
+  Examples: `[system] e2e MCP tool reported test passed but it actually failed` or `[requirements] Feature requirements didn't specify mobile viewport testing`
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteWork
 

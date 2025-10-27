@@ -196,15 +196,28 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates IMMEDIATELY after this call.
 
+**Categorized Feedback Required**:
+Use category prefixes for all feedback:
+- `[system]` - Workflow, MCP tools, agent coordination, message handling
+- `[requirements]` - Requirements clarity, acceptance criteria, task description
+- `[code]` - Code patterns, rules, architecture guidance
+
+Examples:
+- `[system] Validation tools reported stale results from previous run`
+- `[requirements] Engineer's file list didn't match git status - unclear which files were in scope`
+- `[code] Missing examples for implementing telemetry in this pattern`
+
 **For APPROVED reviews**:
 - Provide: `mode: "review"`
 - Provide: `commitHash` (from `git rev-parse HEAD` in STEP 9)
 - Provide: `rejectReason` as null or empty string
+- Provide: `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes
 
 **For REJECTED reviews**:
 - Provide: `mode: "review"`
 - Provide: `commitHash` as null or empty string
 - Provide: `rejectReason` (sentence case, imperative mood)
+- Provide: `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes
 
 ---
 

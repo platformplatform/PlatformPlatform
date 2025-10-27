@@ -220,12 +220,24 @@ ALWAYS call CompleteWork after reviewer approval, even if this is the last task 
 1. Ensure all work is complete and all todos are marked as completed
 2. Write a comprehensive response (what you accomplished, notes for Tech Lead)
 3. Create an objective technical summary in sentence case (like a commit message)
+4. Reflect on your experience and write categorized feedback using prefixes:
+   - `[system]` - Workflow, MCP tools, agent coordination, message handling
+   - `[requirements]` - Requirements clarity, acceptance criteria, task description
+   - `[code]` - Code patterns, rules, architecture guidance
+
+   Examples:
+   - `[system] CompleteWork returned errors until title was less than 100 characters - consider adding format description`
+   - `[requirements] Task mentioned Admin but unclear if TenantAdmin or WorkspaceAdmin`
+   - `[code] No existing examples found for implementing audit logging in this context`
+
+   You can provide multiple categorized items. Use report_problem for urgent system bugs during work.
 
 **Call MCP CompleteWork tool**:
 - `mode`: "task"
 - `agentType`: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
 - `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add user role endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
 - `responseContent`: Your full response in markdown
+- `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes as described above
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteWork
 
