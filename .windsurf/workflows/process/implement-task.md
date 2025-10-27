@@ -23,10 +23,14 @@ You are implementing: **{{{title}}}**
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `storyId` exists in current-task.json:**
+**If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
 1. Read [story] from `storyId`
 2. Understand your [task] (`taskId`) within the [story] context
 3. **Update [task] status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
+
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Still follow full engineer → reviewer → commit cycle
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -60,6 +64,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Implement [task] [name of the [task] from request file]", "status": "pending", "activeForm": "Implementing [task]"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
+    {"content": "Test changes in Chrome DevTools and fix ALL network warnings and console errors with zero tolerance (frontend-engineer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and fixing all issues"},
     {"content": "Update [task] status to [Review]", "status": "pending", "activeForm": "Updating [task] status to [Review]"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
@@ -108,15 +113,47 @@ In a single message, use Task tool three times:
 
 For **frontend [tasks]**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
 
-**STEP 7**: Update [task] for review
+**STEP 7**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
+**MANDATORY FOR FRONTEND ENGINEER - DO NOT SKIP**
+
+1. **Navigate to https://localhost:9000** and test the changes:
+   - Test all functionality that was implemented
+   - Verify UI components render correctly
+   - Test user interactions (clicks, forms, navigation, etc.)
+   - If the website is not responding, use the **watch** MCP tool to restart the server (restarts .NET Aspire and runs database migrations in background)
+
+2. **Monitor Network tab** - Fix ALL issues:
+   - **Zero tolerance**: No failed requests, no 4xx/5xx errors
+   - No slow requests without explanation
+   - Fix ANY network warnings or errors (even if pre-existing per Boy Scout rule)
+
+3. **Monitor Console tab** - Fix ALL issues:
+   - **Zero tolerance**: No console errors, no warnings
+   - Fix ANY console errors or warnings (even if pre-existing per Boy Scout rule)
+   - Clear console and verify it stays clean during all interactions
+
+4. **Login instructions**:
+   - Username: `admin@platformplatform.local`
+   - Use `UNLOCK` for verification code (works on localhost only)
+   - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code
+
+**Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, FIX THEM. Zero tolerance means ZERO - not "only for my changes".
+
+**STEP 8**: Update [task] for review
+
+**If `storyId` is not "ad-hoc":**
 1. **Update [task] description** to reflect what was actually implemented:
    - If implemented exactly as described: Check off all subtask checkboxes `[x]`
    - If deviated from plan: Update description to document what was actually done
 
 2. **Update [task] status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
-**STEP 8**: Delegate to reviewer subagent to review and commit your code
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Proceed directly to calling reviewer
+
+**STEP 9**: Delegate to reviewer subagent to review and commit your code
 
 **CRITICAL - Before calling reviewer**:
 
@@ -159,9 +196,16 @@ Response: {responseFilePath}
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 9**: Re-read [story], update plan if needed
+**STEP 10**: Re-read [story], update plan if needed
 
-**STEP 10**: Signal completion and exit
+**If `storyId` is not "ad-hoc":**
+- Re-read [story] to check if there are more [tasks]
+- Update plan if needed
+
+**If `storyId` is "ad-hoc":**
+- Skip (no [story] to re-read)
+
+**STEP 11**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
@@ -173,12 +217,24 @@ ALWAYS call CompleteWork after reviewer approval, even if this is the last task 
 1. Ensure all work is complete and all todos are marked as completed
 2. Write a comprehensive response (what you accomplished, notes for Tech Lead)
 3. Create an objective technical summary in sentence case (like a commit message)
+4. Reflect on your experience and write categorized feedback using prefixes:
+   - `[system]` - Workflow, MCP tools, agent coordination, message handling
+   - `[requirements]` - Requirements clarity, acceptance criteria, task description
+   - `[code]` - Code patterns, rules, architecture guidance
+
+   Examples:
+   - `[system] CompleteWork returned errors until title was less than 100 characters - consider adding format description`
+   - `[requirements] Task mentioned Admin but unclear if TenantAdmin or WorkspaceAdmin`
+   - `[code] No existing examples found for implementing audit logging in this context`
+
+   You can provide multiple categorized items. Use report_problem for urgent system bugs during work.
 
 **Call MCP CompleteWork tool**:
 - `mode`: "task"
 - `agentType`: Your agent type (backend-engineer, frontend-engineer, or test-automation-engineer)
 - `taskSummary`: Objective technical description of what was implemented (imperative mood, sentence case). Examples: "Add user role endpoints with authorization", "Implement user avatar upload", "Fix null reference in payment processor". NEVER use subjective evaluations like "Excellent implementation" or "Clean code".
 - `responseContent`: Your full response in markdown
+- `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes as described above
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteWork
 

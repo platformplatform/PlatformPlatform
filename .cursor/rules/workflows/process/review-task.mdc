@@ -44,9 +44,13 @@ Avoid subjective personal preferences.
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `storyId` exists in current-task.json:**
+**If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
 1. Read [story] from `storyId`
 2. Understand the [task] (`taskId`) within the [story] context
+
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Review and commit exactly like regular [tasks]
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
@@ -71,6 +75,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
     {"content": "Study ALL rules in .cursor/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Verify translations are complete and use consistent domain terminology (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
+    {"content": "Test changes in Chrome DevTools and verify zero network warnings and console errors (frontend-reviewer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and verifying no issues"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
     {"content": "Review high level architecture (make a very high level review)", "status": "pending", "activeForm": "Reviewing high level architecture"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making binary decision"},
@@ -117,13 +122,40 @@ For **frontend [tasks]**, use **test** and **inspect** MCP tools directly.
 
 Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain terminology. Reject if translations are missing or terminology differs from established usage elsewhere.
 
-**STEP 5**: Review each file line-by-line
+**STEP 5**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
-**STEP 6**: Review architecture
+**MANDATORY FOR FRONTEND REVIEWER - DO NOT SKIP**
 
-**STEP 7**: Decide - APPROVED or NOT APPROVED
+1. **Navigate to https://localhost:9000** and test the changes:
+   - Test all functionality that was implemented
+   - Verify UI components render correctly
+   - Test user interactions (clicks, forms, navigation, etc.)
+   - If the website is not responding, use the **watch** MCP tool to restart the server (restarts .NET Aspire and runs database migrations in background)
 
-**STEP 8**: If APPROVED, commit changes and get commit hash
+2. **Monitor Network tab** - Document ALL issues:
+   - **Zero tolerance**: No failed requests, no 4xx/5xx errors
+   - No slow requests without explanation
+   - Document ANY network warnings or errors (even if pre-existing per Boy Scout rule)
+
+3. **Monitor Console tab** - Document ALL issues:
+   - **Zero tolerance**: No console errors, no warnings
+   - Document ANY console errors or warnings (even if pre-existing per Boy Scout rule)
+   - Clear console and verify it stays clean during all interactions
+
+4. **Login instructions**:
+   - Username: `admin@platformplatform.local`
+   - Use `UNLOCK` for verification code (works on localhost only)
+   - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code
+
+**Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, DOCUMENT THEM. Zero tolerance means ZERO - not "only for my changes".
+
+**STEP 6**: Review each file line-by-line
+
+**STEP 7**: Review architecture
+
+**STEP 8**: Decide - APPROVED or NOT APPROVED
+
+**STEP 9**: If APPROVED, commit changes and get commit hash
 
 1. Extract "Files Changed" from engineer's request
 2. Verify scope completeness:
@@ -146,26 +178,43 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
 
-**STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
+**STEP 10**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
+**If `storyId` is not "ad-hoc":**
 - If APPROVED: Update [task] status to [Completed]
 - If REJECTED: Update [task] status back to [Active]
 
-**STEP 10**: Signal completion and exit
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] status updates
+
+**STEP 11**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
 Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates IMMEDIATELY after this call.
 
+**Categorized Feedback Required**:
+Use category prefixes for all feedback:
+- `[system]` - Workflow, MCP tools, agent coordination, message handling
+- `[requirements]` - Requirements clarity, acceptance criteria, task description
+- `[code]` - Code patterns, rules, architecture guidance
+
+Examples:
+- `[system] Validation tools reported stale results from previous run`
+- `[requirements] Engineer's file list didn't match git status - unclear which files were in scope`
+- `[code] Missing examples for implementing telemetry in this pattern`
+
 **For APPROVED reviews**:
 - Provide: `mode: "review"`
-- Provide: `commitHash` (from `git rev-parse HEAD` in STEP 8)
+- Provide: `commitHash` (from `git rev-parse HEAD` in STEP 9)
 - Provide: `rejectReason` as null or empty string
+- Provide: `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes
 
 **For REJECTED reviews**:
 - Provide: `mode: "review"`
 - Provide: `commitHash` as null or empty string
 - Provide: `rejectReason` (sentence case, imperative mood)
+- Provide: `feedback`: Mandatory categorized feedback using [system], [requirements], or [code] prefixes
 
 ---
 
