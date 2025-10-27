@@ -361,7 +361,7 @@ public static class WorkerMcpTools
         string taskId,
         [Description("Identifier for [story] in [PRODUCT_MANAGEMENT_TOOL] (required)")]
         string storyId,
-        [Description("Reset Claude Code session memory (true for first [task] of new [story], false for subsequent [tasks])")]
+        [Description("Set resetMemory to true only on your first delegation to a downstream agent when working on a new story. Set to false for all re-delegations and for peer-to-peer messages to other engineers.")]
         bool resetMemory,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
