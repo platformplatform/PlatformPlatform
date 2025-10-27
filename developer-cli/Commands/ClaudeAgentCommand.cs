@@ -652,6 +652,9 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add("--mcp-config");
             claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "chrome-devtools.json"));
             // NOTE: Not using --strict-mcp-config so it merges with user config
+
+            // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
+            claudeArgs.Add("--");
         }
 
         // Add recovery message if this is a restart
