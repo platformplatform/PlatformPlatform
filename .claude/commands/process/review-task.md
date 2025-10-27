@@ -47,9 +47,13 @@ Avoid subjective personal preferences.
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `storyId` exists in current-task.json:**
+**If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
 1. Read [story] from `storyId`
 2. Understand the [task] (`taskId`) within the [story] context
+
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Review and commit exactly like regular [tasks]
 
 **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
@@ -179,8 +183,12 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **STEP 10**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
+**If `storyId` is not "ad-hoc":**
 - If APPROVED: Update [task] status to [Completed]
 - If REJECTED: Update [task] status back to [Active]
+
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] status updates
 
 **STEP 11**: Signal completion and exit
 

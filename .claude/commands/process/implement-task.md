@@ -26,10 +26,14 @@ You are implementing: **{{{title}}}**
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `storyId` exists in current-task.json:**
+**If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
 1. Read [story] from `storyId`
 2. Understand your [task] (`taskId`) within the [story] context
 3. **Update [task] status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
+
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Still follow full engineer → reviewer → commit cycle
 
 **CRITICAL - Verify Previous Work Committed**:
 
@@ -141,13 +145,18 @@ For **frontend [tasks]**, first run **build**, then run **format** and **inspect
 
 **STEP 8**: Update [task] for review
 
+**If `storyId` is not "ad-hoc":**
 1. **Update [task] description** to reflect what was actually implemented:
    - If implemented exactly as described: Check off all subtask checkboxes `[x]`
    - If deviated from plan: Update description to document what was actually done
 
 2. **Update [task] status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`
 
-**STEP 8**: Delegate to reviewer subagent to review and commit your code
+**If `storyId` is "ad-hoc":**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Proceed directly to calling reviewer
+
+**STEP 9**: Delegate to reviewer subagent to review and commit your code
 
 **CRITICAL - Before calling reviewer**:
 
@@ -190,9 +199,16 @@ Response: {responseFilePath}
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 9**: Re-read [story], update plan if needed
+**STEP 10**: Re-read [story], update plan if needed
 
-**STEP 10**: Signal completion and exit
+**If `storyId` is not "ad-hoc":**
+- Re-read [story] to check if there are more [tasks]
+- Update plan if needed
+
+**If `storyId` is "ad-hoc":**
+- Skip (no [story] to re-read)
+
+**STEP 11**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 

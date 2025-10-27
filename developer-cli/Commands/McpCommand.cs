@@ -376,6 +376,42 @@ public static class WorkerMcpTools
             throw new ArgumentException("Parameter `taskId` is required and must not be empty. `taskId` must match the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL] and must be distinct from `storyId`.");
         }
 
+        // For ad-hoc work, check if target engineer is busy
+        if (taskId.StartsWith("ad-hoc-"))
+        {
+            var targetWorkspace = new Workspace(agentType, branch);
+            if (File.Exists(targetWorkspace.CurrentTaskFile))
+            {
+                try
+                {
+                    var taskJson = File.ReadAllText(targetWorkspace.CurrentTaskFile);
+                    var taskInfo = System.Text.Json.JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase });
+
+                    if (taskInfo != null)
+                    {
+                        var startedAt = DateTime.Parse(taskInfo.StartedAt);
+                        var elapsed = DateTime.Now - startedAt;
+                        var elapsedFormatted = elapsed.TotalMinutes >= 1
+                            ? $"{(int)elapsed.TotalMinutes}m{elapsed.Seconds}s"
+                            : $"{elapsed.Seconds}s";
+
+                        return $"""
+                            Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy.
+
+                            The {agentType} has been working on task "{taskInfo.TaskTitle}" for {elapsedFormatted}.
+
+                            Please try again in a few minutes (e.g., use a sleep function). You can call it again when it's done.
+                            """;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Fallback if we can't read/parse the file
+                    return $"Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy with another task. Please try again in a few minutes. Error: {ex.Message}";
+                }
+            }
+        }
+
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
