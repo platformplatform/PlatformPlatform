@@ -63,6 +63,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Implement [task] [name of the [task] from request file]", "status": "pending", "activeForm": "Implementing [task]"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
+    {"content": "Test changes in Chrome DevTools and fix ALL network warnings and console errors with zero tolerance (frontend-engineer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and fixing all issues"},
     {"content": "Update [task] status to [Review]", "status": "pending", "activeForm": "Updating [task] status to [Review]"},
     {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
@@ -111,7 +112,34 @@ In a single message, use Task tool three times:
 
 For **frontend [tasks]**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
 
-**STEP 7**: Update [task] for review
+**STEP 7**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
+
+**MANDATORY FOR FRONTEND ENGINEER - DO NOT SKIP**
+
+1. **Navigate to https://localhost:9000** and test the changes:
+   - Test all functionality that was implemented
+   - Verify UI components render correctly
+   - Test user interactions (clicks, forms, navigation, etc.)
+   - If the website is not responding, use the **watch** MCP tool to restart the server (restarts .NET Aspire and runs database migrations in background)
+
+2. **Monitor Network tab** - Fix ALL issues:
+   - **Zero tolerance**: No failed requests, no 4xx/5xx errors
+   - No slow requests without explanation
+   - Fix ANY network warnings or errors (even if pre-existing per Boy Scout rule)
+
+3. **Monitor Console tab** - Fix ALL issues:
+   - **Zero tolerance**: No console errors, no warnings
+   - Fix ANY console errors or warnings (even if pre-existing per Boy Scout rule)
+   - Clear console and verify it stays clean during all interactions
+
+4. **Login instructions**:
+   - Username: `admin@platformplatform.local`
+   - Use `UNLOCK` for verification code (works on localhost only)
+   - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code
+
+**Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, FIX THEM. Zero tolerance means ZERO - not "only for my changes".
+
+**STEP 8**: Update [task] for review
 
 1. **Update [task] description** to reflect what was actually implemented:
    - If implemented exactly as described: Check off all subtask checkboxes `[x]`
