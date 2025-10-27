@@ -80,6 +80,13 @@ public class InspectCommand : Command
             ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName);
         }
 
+        // Delete existing result.json to prevent reading stale results
+        var resultJsonPath = Path.Combine(solutionFile.Directory!.FullName, "result.json");
+        if (File.Exists(resultJsonPath))
+        {
+            File.Delete(resultJsonPath);
+        }
+
         ProcessHelper.StartProcess(
             $"dotnet jb inspectcode {solutionFile.Name} --no-build --no-restore --output=result.json --severity=SUGGESTION",
             solutionFile.Directory!.FullName
@@ -128,6 +135,13 @@ public class InspectCommand : Command
                         Console.WriteLine(buildResult.GetErrorSummary("Build"));
                         Environment.Exit(1);
                     }
+                }
+
+                // Delete existing result.json to prevent reading stale results
+                var resultJsonPath = Path.Combine(solutionFile.Directory!.FullName, "result.json");
+                if (File.Exists(resultJsonPath))
+                {
+                    File.Delete(resultJsonPath);
                 }
 
                 var inspectResult = ProcessHelper.ExecuteQuietly(
