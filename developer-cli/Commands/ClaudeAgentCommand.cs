@@ -643,6 +643,17 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
+        // Add Chrome DevTools MCP for frontend and test-automation agents
+        if (workspace.AgentType == "frontend-engineer" ||
+            workspace.AgentType == "frontend-reviewer" ||
+            workspace.AgentType == "test-automation-engineer" ||
+            workspace.AgentType == "test-automation-reviewer")
+        {
+            claudeArgs.Add("--mcp-config");
+            claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "chrome-devtools.json"));
+            // NOTE: Not using --strict-mcp-config so it merges with user config
+        }
+
         // Add recovery message if this is a restart
         if (recoveryMessage != null)
         {
