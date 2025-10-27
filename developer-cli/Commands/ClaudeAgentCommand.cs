@@ -1100,8 +1100,16 @@ public class ClaudeAgentCommand : Command
             // For tech-lead, check for extended inactivity and restart if needed
             if (workspace.AgentType == "tech-lead")
             {
-                // Check if the entire system is inactive (no git activity for 60 minutes)
-                if (!GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(60)))
+                // Check all activity signals: workers, conversation, git
+                var (hasActiveWorkers, _) = CheckWorkerProcessStatus(workspace.Branch);
+                var conversationIdleTime = GetSessionIdleTime(workspace);
+                var hasRecentGitActivity = GitHelper.HasRecentGitActivity(TimeSpan.FromMinutes(60));
+
+                // Only restart if ALL signals show 60+ min inactivity
+                var conversationIdle = conversationIdleTime.HasValue && conversationIdleTime >= TimeSpan.FromMinutes(60);
+                var gitIdle = !hasRecentGitActivity;
+
+                if (!hasActiveWorkers && gitIdle && conversationIdle)
                 {
                     // Check minimum restart interval
                     if (_lastTechLeadRestartTime.HasValue)
@@ -1114,7 +1122,7 @@ public class ClaudeAgentCommand : Command
                         }
                     }
 
-                    Logger.Debug("Tech-lead inactive for 60+ minutes, restarting with recovery message");
+                    Logger.Debug("Tech-lead inactive for 60+ minutes (no workers, no git, no conversation), restarting with recovery message");
                     _lastTechLeadRestartTime = DateTime.Now;
 
                     // Kill and restart with recovery message
