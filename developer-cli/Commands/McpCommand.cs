@@ -357,14 +357,21 @@ public static class WorkerMcpTools
         string markdownContent,
         [Description("Branch name to ensure all agents work on same branch")]
         string branch,
-        [Description("Story ID (required for Markdown, optional for MCP tools)")]
+        [Description("Identifier for [task] in [PRODUCT_MANAGEMENT_TOOL] (required, must be distinct from storyId)")]
+        string taskId,
+        [Description("Identifier for [story] in [PRODUCT_MANAGEMENT_TOOL] (required for Markdown, optional for MCP tools)")]
         string? storyId = null,
-        [Description("Task ID (required)")] string? taskId = null,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
         [Description("Engineer's response file path (optional, for review tasks)")]
         string? responseFilePath = null)
     {
+        // Validate required parameters
+        if (string.IsNullOrWhiteSpace(taskId))
+        {
+            throw new ArgumentException("Parameter `taskId` is required and must not be empty. `taskId` must match the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL] and must be distinct from `storyId`.");
+        }
+
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
@@ -374,11 +381,8 @@ public static class WorkerMcpTools
             args.Add(storyId);
         }
 
-        if (taskId != null)
-        {
-            args.Add("--task-id");
-            args.Add(taskId);
-        }
+        args.Add("--task-id");
+        args.Add(taskId);
 
         if (requestFilePath != null)
         {
