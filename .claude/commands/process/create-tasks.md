@@ -27,7 +27,7 @@ Read the [feature] to identify all [stories].
 - Break down each [story] into [tasks] and subtasks (checkbox bullets)
 - Each [task] = one commit = one vertical slice
 - Follow existing naming conventions and structure
-- For tool-specific [task] naming conventions, see your tool guide (Linear, Markdown, Azure DevOps, or Jira)
+- For tool-specific [task] naming conventions, consult `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`
 
 **CRITICAL: A [task] = one commit = one complete vertical slice**
 
@@ -77,7 +77,7 @@ Display ALL [stories] with their [tasks] and subtasks.
 
 Format: [Story] labels, [tasks] with descriptive titles, and bullet subtasks (no status tags)
 
-**Note:** [Task] formatting varies by tool - see your tool guide for specifics (Markdown uses numbers, Linear/Azure DevOps/Jira do not).
+**Note:** [Task] formatting varies by tool - consult `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for specifics.
 
 Example format:
 ```
@@ -121,28 +121,10 @@ For each [story] [task]:
   - Description: Detailed implementation notes with checkbox list of [story] subtasks
   - Link to parent [story]
   - Assign to: "me"
-  - **Note:** For Markdown, titles include [task] numbers (## 1, ## 2). For Linear/Azure DevOps/Jira, do not add numbers - the tool provides IDs.
 
 **Note:** If any required information is unclear (team, state, etc.), ask the user.
 
-**If `[PRODUCT_MANAGEMENT_TOOL]` is "Markdown":**
-
-For each [story]:
-
-1. **Create [story] file:**
-   - Path: `./.workspace/task-manager/yyyy-MM-dd-[feature-title]/[#]-[story-title].md`
-   - Example: `1-backend-for-user-management.md`, `2-frontend-for-user-management.md`
-
-2. **Add [story] header and description:**
-   - Level 1 header: [Story] title from the PRD (e.g., "Backend for user management")
-   - **Purpose:** Short description of what this story delivers
-   - **NOT included:** Out-of-scope items
-   - **Dependencies:** Previous stories or external requirements
-   - **IMPORTANT:** Warning not to work outside this scope
-
-3. **Add [tasks]:**
-   - Add [story] [task] headers with [Planned] status (format: `## 1 [Task] title [Planned]`)
-   - Add detailed implementation notes with checkbox [story] subtasks (format: `- [ ] Subtask description`)
+**For tool-specific creation steps**, consult `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
 ### Subtask guidelines:
 

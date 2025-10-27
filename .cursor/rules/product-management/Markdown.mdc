@@ -12,7 +12,7 @@ Markdown is a file-based product management tool that does NOT use MCP. Instead,
 | Generic Term | Markdown |
 |---|---|
 | `[Feature]` | Feature markdown file |
-| `[Slice]` | Slice markdown file |
+| `[Story]` | Story markdown file |
 | `[Task]` | Task header (## 1 Title) |
 | `[Checklist]` | Checkbox bullet (- [ ]) |
 
@@ -65,6 +65,12 @@ If `.workspace/task-manager` does not exist, run: `dotnet run --project develope
 ## 2 Another task title [Planned]
 - [ ] Checklist item
 ```
+
+## Task Identification
+
+- [Task] identifiers are numeric (1, 2, 3, ...)
+- [Task] numbers are sequential within each [story] file
+- [Task] headers include numbers: `## 1 Task title [Status]`
 
 ## Critical Rules
 

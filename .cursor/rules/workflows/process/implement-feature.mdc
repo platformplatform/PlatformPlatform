@@ -25,18 +25,18 @@ Read the PRD and look for indicators that stories are designed for parallel work
 - **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized stories")
 - **Otherwise**: Use Sequential Mode (default, safer - inform user: "Using sequential execution")
 
-Continue with orchestrating implementation of all found Story files.
+Continue with orchestrating implementation of all found [stories].
 
 ## Your Role: Task-Level Coordination
 
 🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT STORIES** 🚨
 
 Your job as Tech Lead:
-- Read ALL Story files and extract tasks
-- Create expanded todo with ALL Stories and ALL tasks
-- Delegate individual tasks to engineer proxy agents
+- Load ALL [stories] and extract [tasks]
+- Create expanded todo with ALL [stories] and ALL [tasks]
+- Delegate individual [tasks] to engineer proxy agents
 - Engineer proxy agents are pure passthroughs - they just forward your request to workers
-- Track progress and mark tasks complete
+- Track progress and mark [tasks] complete
 - NEVER change code, commit, or use MCP tools yourself
 
 ## Execution Modes
@@ -90,12 +90,14 @@ Wait for both to complete, then delegate next batch:
 
 ## Mandatory Workflow
 
-### Step 1: Read Story Files
+### Step 1: Load Stories and Tasks
 
-Read each Story file to extract:
-- The file number (from filename: 1-backend.md, 2-frontend.md, 3-e2e-tests.md)
-- The Story title (first heading in the file)
-- ALL tasks listed in the file
+For each [story] loaded in Mandatory Preparation, extract all [tasks].
+
+Refer to `/.cursor/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
+- Query for [tasks] within each [story]
+- Extract [task] titles and IDs
+- Determine [task] ordering
 
 ### Step 2: Create Expanded Todo List
 
@@ -210,21 +212,21 @@ Stop ONLY when:
 
 **NEVER**:
 - Stop before completion - Continue until everything is done
-- Delegate entire Stories - Delegate individual tasks
-- Skip reading Story files - Must read to extract tasks
-- Keep todo collapsed - Must expand to show all tasks
+- Delegate entire [stories] - Delegate individual [tasks]
+- Skip loading [stories] - Must load to extract [tasks]
+- Keep todo collapsed - Must expand to show all [tasks]
 - Change code or commit yourself
 - Use `developer_cli` MCP tool directly
 - Decide on parallel mode yourself - Only use if user explicitly requests
-- Delegate multiple tasks to same engineer type in parallel
+- Delegate multiple [tasks] to same engineer type in parallel
 
 **ALWAYS**:
-- Use Task tool with subagent_type to delegate tasks
-- Create expanded todo (Stories with all task subtasks)
-- Read Story files first to extract numbering and tasks
-- Keep todo expanded until Story is fully complete
+- Use Task tool with subagent_type to delegate [tasks]
+- Create expanded todo ([stories] with all [task] subtasks)
+- Load [stories] first to extract numbering and [tasks]
+- Keep todo expanded until [story] is fully complete
 - Use Sequential mode by default
-- In parallel mode, ensure each task in a batch uses DIFFERENT engineer type
+- In parallel mode, ensure each [task] in a batch uses DIFFERENT engineer type
 
 ## Engineer Proxy Agent Responsibilities
 
@@ -236,17 +238,17 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 **Engineer proxies do NOT**:
 - Expand/collapse todos
-- Read files
+- Load data
 - Make decisions
 - Coordinate anything
 
-**You handle ALL coordination** - reading files, tracking tasks, managing todo.
+**You handle ALL coordination** - loading data, tracking [tasks], managing todo.
 
 ## Examples
 
 **Sequential Mode**:
 ```
-1. Read all 3 [story] files, extract 11 [tasks] total
+1. Load all 3 [stories], extract 11 [tasks] total
 2. Create expanded todo with 3 [stories] and 11 [tasks]
 3. Extract [taskId] values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
 4. Update [Story] 1 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
@@ -264,7 +266,7 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 **Parallel Mode** (user explicitly requested):
 ```
-1. Read all 3 [story] files, extract 11 [tasks] total
+1. Load all 3 [stories], extract 11 [tasks] total
 2. Create expanded todo with 3 [stories] and 11 [tasks]
 3. Extract [taskId] values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
 4. Update [Story] 1 and [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
@@ -287,9 +289,9 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 ## Remember
 
-- You delegate tasks, not Stories
+- You delegate [tasks], not [stories]
 - Engineer proxies are passthroughs, not coordinators
 - You manage the todo list, not the proxies
-- Your job: Read files, expand todo, delegate tasks, track completion
+- Your job: Load data, expand todo, delegate [tasks], track completion
 - Sequential is default - parallel only when user explicitly requests
 - Keep todo expanded to show progress
