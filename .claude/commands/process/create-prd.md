@@ -150,7 +150,7 @@ Based on all the research and user answers, draft the complete PRD.
    **Example 4 - Backend-only [feature]:**
    - Backend implementation (API endpoints, commands, queries, migrations, tests)
 
-   **Example 5 - Large [feature] with multiple cycles:**
+   **Example 5 - Large complex [feature]:**
    - Frontend core UI with mocks
    - Backend core functionality
    - Integration frontend with backend
@@ -191,7 +191,7 @@ Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/rules/product-
 Create:
 - [feature] with name=[confirmed feature name], assign to "me"
 - [story] for each [story] with title=[story title], description=[story description], link to [feature], assign to "me"
-- Initialize all items in [Planned] status
+- Initialize all items in [Planned] status, in the current iteration.
 
 **Inform user:** The [feature] has been created from the PRD. Use `/process:create-tasks` to break down each [story] into [tasks].
 
