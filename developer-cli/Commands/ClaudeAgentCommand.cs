@@ -140,6 +140,7 @@ public class ClaudeAgentCommand : Command
 
         var workspace = new Workspace(agentType, branch);
         Logger.SetContext($"mcp-{agentType}");
+        Logger.SetBranch(branch);
 
         // Reset Claude Code session memory if this is the first [task] of a new [story]
         if (resetMemory)
@@ -243,6 +244,7 @@ public class ClaudeAgentCommand : Command
 
         var workspace = new Workspace(agentType);
         Logger.SetContext(agentType);
+        Logger.SetBranch(workspace.Branch);
         Logger.Info($"Worker-host starting for '{agentType}' on branch: {workspace.Branch}");
 
         // Tech-lead specific: Check for existing session and offer clean workspace option
@@ -415,21 +417,15 @@ public class ClaudeAgentCommand : Command
         // Main loop: wait for requests or manual control
         while (true)
         {
-            Logger.Debug("Main loop: Calling WaitForTasksOrManualControl");
             var (isRequest, requestPath) = await WaitForTasksOrManualControl(workspace);
-            Logger.Debug($"WaitForTasksOrManualControl returned: isRequest={isRequest}, requestPath={requestPath}");
 
             if (isRequest && requestPath != null)
             {
-                Logger.Debug($"Processing request: {requestPath}");
                 await HandleIncomingRequest(requestPath, workspace);
-                Logger.Debug($"Finished processing request: {requestPath}");
             }
             else
             {
-                Logger.Debug("Launching manual session");
                 await LaunchManualClaudeSession(workspace, useSlashCommand: false);
-                Logger.Debug("Manual session ended");
             }
         }
     }
@@ -437,18 +433,12 @@ public class ClaudeAgentCommand : Command
     // Request Watching & Handling
     private async Task<(bool IsRequest, string? RequestPath)> WaitForTasksOrManualControl(Workspace workspace)
     {
-        Logger.Debug("WaitForTasksOrManualControl: Entry");
-        Logger.Debug($"WorkerProcessIdFile exists: {File.Exists(workspace.WorkerProcessIdFile)}");
-
         // Always check for unprocessed request files first (requests without responses)
         // This prevents race condition where MCP writes file between iterations
         if (!File.Exists(workspace.WorkerProcessIdFile))
         {
-            Logger.Debug("Scanning for unprocessed requests...");
             var allRequests = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.request.*.md");
             var allResponses = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
-
-            Logger.Debug($"Found {allRequests.Length} request files, {allResponses.Length} response files");
 
             var processedTaskNumbers = allResponses
                 .Select(f => Regex.Match(Path.GetFileName(f), @"^(\d+)\.").Groups[1].Value)
@@ -464,17 +454,11 @@ public class ClaudeAgentCommand : Command
                 .OrderBy(File.GetCreationTime)
                 .ToList();
 
-            Logger.Debug($"Found {unprocessedRequests.Count} unprocessed requests");
-
             if (unprocessedRequests.Count > 0)
             {
-                Logger.Debug($"Returning unprocessed request: {unprocessedRequests[0]}");
+                Logger.Debug($"Found {unprocessedRequests.Count} unprocessed requests - processing oldest");
                 return (true, unprocessedRequests[0]);
             }
-        }
-        else
-        {
-            Logger.Debug("Skipping unprocessed check - worker is active");
         }
 
         // Wait for new request file or user input
@@ -493,18 +477,15 @@ public class ClaudeAgentCommand : Command
         fileSystemWatcher.Created += OnFileDetected;
         fileSystemWatcher.Changed += OnFileDetected;
         fileSystemWatcher.EnableRaisingEvents = true;
-        Logger.Debug("FileSystemWatcher enabled and listening");
 
         // Display waiting screen
         RedrawWaitingDisplay(workspace.AgentType, workspace.Branch);
 
         // Wait for request file OR user ENTER
-        Logger.Debug("Entering wait loop");
         while (true)
         {
             if (requestDetected.Task.IsCompleted)
             {
-                Logger.Debug("FileSystemWatcher detected file, returning from wait loop");
                 return (true, await requestDetected.Task);
             }
 
@@ -513,7 +494,7 @@ public class ClaudeAgentCommand : Command
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                 {
-                    Logger.Debug("User pressed ENTER, returning for manual control");
+                    Logger.Debug("User pressed ENTER - launching manual session");
                     return (false, null);
                 }
 
@@ -530,6 +511,7 @@ public class ClaudeAgentCommand : Command
 
     private async Task HandleIncomingRequest(string requestFile, Workspace workspace)
     {
+        Logger.Debug($"Processing request: {Path.GetFileName(requestFile)}");
         var agentColor = GetAgentColor(workspace.AgentType);
         var displayName = GetAgentDisplayName(workspace.AgentType);
 
@@ -599,6 +581,7 @@ public class ClaudeAgentCommand : Command
 
         // Show completion status
         AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
+        Logger.Debug($"Request completed: {Path.GetFileName(requestFile)} - {result.Message}");
 
         // Restore terminal title to show branch name
         SetTerminalTitle($"{displayName} - {workspace.Branch}");
@@ -628,6 +611,7 @@ public class ClaudeAgentCommand : Command
         // Show completion status
         var agentColor = GetAgentColor(workspace.AgentType);
         AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
+        Logger.Debug($"Manual session completed - {result.Message}");
 
         // Clean up
         if (File.Exists(workspace.WorkerProcessIdFile))
@@ -697,20 +681,13 @@ public class ClaudeAgentCommand : Command
             claudeArgs.Add(slashCommand);
         }
 
-        // DEBUG: Log the exact command being executed
-        var commandLine = $"claude {string.Join(" ", claudeArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
-        Logger.Debug("LAUNCH - Starting Claude Code");
-        Logger.Debug($"Agent Type: {workspace.AgentType}");
-        Logger.Debug($"Working Directory: {Configuration.SourceCodeFolder}");
-        Logger.Debug($"Command: {commandLine}");
-
         // Launch with session management from source code root
+        Logger.Debug($"LAUNCH - Starting Claude Code for {workspace.AgentType}");
         var process = await LaunchClaudeCode(workspace, claudeArgs);
 
-        Logger.Debug($"Process started with ID: {process.Id}");
         // Verification delay to confirm process launched successfully before returning
         await Task.Delay(TimeSpan.FromSeconds(3));
-        Logger.Debug($"Process alive after delay: {!process.HasExited}");
+        Logger.Debug($"Process launched successfully with PID {process.Id}");
 
         // Create .worker-process-id with worker-agent's process ID
         await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
@@ -773,9 +750,6 @@ public class ClaudeAgentCommand : Command
         var workingDirectory = Configuration.SourceCodeFolder;
         var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
-        Logger.Debug($"LaunchClaudeCode - Session file path: {sessionIdFile}");
-        Logger.Debug($"LaunchClaudeCode - Session file exists: {File.Exists(sessionIdFile)}");
-
         string sessionId;
         bool isResume;
 
@@ -813,9 +787,7 @@ public class ClaudeAgentCommand : Command
         args.AddRange(additionalArgs);
 
         var commandLine = string.Join(" ", args.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg));
-        Logger.Debug($"Working directory: {workingDirectory}");
         Logger.Debug($"Command: claude {commandLine}");
-        Logger.Debug("UseShellExecute: true");
 
         var process = new Process
         {
@@ -823,7 +795,6 @@ public class ClaudeAgentCommand : Command
         };
 
         process.Start();
-        Logger.Debug($"Process started with ID: {process.Id}");
 
         return process;
     }
@@ -1088,7 +1059,7 @@ public class ClaudeAgentCommand : Command
 
             if (exited)
             {
-                Logger.Debug($"Manual session process {process.Id} exited with code: {process.ExitCode}");
+                Logger.Debug($"Manual session process {process.Id} exited normally - exit code: {process.ExitCode}");
                 return new ProcessCompletionResult(true, "Session completed");
             }
 
@@ -1161,7 +1132,7 @@ public class ClaudeAgentCommand : Command
 
             if (exited)
             {
-                Logger.Debug($"Process {currentProcess.Id} exited with code: {currentProcess.ExitCode}");
+                Logger.Debug($"MCP request session process {currentProcess.Id} exited - exit code: {currentProcess.ExitCode}");
                 break;
             }
 
@@ -1176,7 +1147,6 @@ public class ClaudeAgentCommand : Command
             if (hasRecentActivity)
             {
                 lastGitChangeDetected = DateTime.Now;
-                Logger.Debug("Worker is active - continuing");
             }
             else
             {
@@ -1185,14 +1155,13 @@ public class ClaudeAgentCommand : Command
                 if (timeSinceLastChange >= inactivityThreshold)
                 {
                     // Worker is stuck - need to restart
-                    Logger.Debug($"Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes with no git changes");
-
                     // Check restart limits
                     if (restartCount >= maxRestarts)
                     {
-                        Logger.Debug($"Max restarts ({maxRestarts}) reached, giving up");
+                        var failMsg = $"Worker exhausted {maxRestarts} restarts without making progress";
+                        Logger.Debug($"RECOVERY FAILED - Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes, max restarts ({maxRestarts}) reached - {failMsg}");
                         KillProcess(currentProcess);
-                        return new ProcessCompletionResult(false, $"Worker exhausted {maxRestarts} restarts without making progress");
+                        return new ProcessCompletionResult(false, failMsg);
                     }
 
                     // Check minimum time between restarts
@@ -1201,7 +1170,7 @@ public class ClaudeAgentCommand : Command
                         var timeSinceLastRestart = DateTime.Now - lastRestartTime;
                         if (timeSinceLastRestart < TimeSpan.FromMinutes(MinRestartIntervalMinutes))
                         {
-                            Logger.Debug($"Worker inactive but only {timeSinceLastRestart.TotalMinutes:F1} minutes since last restart - waiting");
+                            Logger.Debug($"Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes but only {timeSinceLastRestart.TotalMinutes:F1} minutes since last restart - waiting before retry");
                             continue;
                         }
                     }
@@ -1212,7 +1181,7 @@ public class ClaudeAgentCommand : Command
                     // Launch new worker with recovery message
                     var recoveryMessage = "You appear to have been interrupted or stuck. Please analyze the current state, check current-task.json for context, review recent git history to see what's been completed, and continue from where you left off.";
 
-                    Logger.Debug($"Restarting worker (attempt {restartCount + 1})");
+                    Logger.Debug($"RECOVERY RESTART - Worker inactive for {timeSinceLastChange.TotalMinutes:F1} minutes with no git changes - restarting (attempt {restartCount + 1}/{maxRestarts})");
                     var newProcess = await LaunchWorker(workspace, null, false, recoveryMessage);
 
                     // Update tracking
@@ -1221,7 +1190,7 @@ public class ClaudeAgentCommand : Command
                     lastGitChangeDetected = DateTime.Now; // Reset timestamp
                     lastRestartTime = DateTime.Now; // Track restart time
 
-                    Logger.Debug($"Worker restarted with PID '{newProcess.Id}'");
+                    Logger.Debug($"Worker restarted successfully with PID {newProcess.Id}");
                     continue;
                 }
 
@@ -1235,7 +1204,9 @@ public class ClaudeAgentCommand : Command
         var matchingFiles = Directory.GetFiles(options.MessagesDirectory!, options.ResponseFilePattern!);
         if (matchingFiles.Length == 0)
         {
-            return new ProcessCompletionResult(false, $"Worker exited but no response file found matching: '{options.ResponseFilePattern}'");
+            var errorMsg = $"Worker exited but no response file found matching: '{options.ResponseFilePattern}'";
+            Logger.Debug($"MCP request session FAILED - {errorMsg}");
+            return new ProcessCompletionResult(false, errorMsg);
         }
 
         var responseFilePath = matchingFiles[0];
@@ -1243,6 +1214,7 @@ public class ClaudeAgentCommand : Command
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}'");
+        Logger.Debug($"MCP request session SUCCESS - Task completed, response file: {responseFileName}");
 
         return new ProcessCompletionResult(true, "Task completed successfully", responseContent);
     }
@@ -1393,14 +1365,11 @@ public class ClaudeAgentCommand : Command
 
         if (active.Count > 0) Thread.Sleep(TimeSpan.FromSeconds(1));
 
-        // Delete directories
-        foreach (var path in new[] { branchPath, Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports"), Path.Combine(Configuration.SourceCodeFolder, ".workspace", "logs") })
+        // Delete branch workspace directory (contains logs, feedback-reports, and all agent workspaces)
+        if (Directory.Exists(branchPath))
         {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, true);
-                AnsiConsole.MarkupLine($"[green]Deleted {Path.GetFileName(path)}/[/]");
-            }
+            Directory.Delete(branchPath, true);
+            AnsiConsole.MarkupLine($"[green]Deleted branch workspace: {Path.GetFileName(branchPath)}/[/]");
         }
 
         AnsiConsole.WriteLine();

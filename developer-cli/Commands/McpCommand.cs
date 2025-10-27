@@ -178,7 +178,7 @@ IF YOU RECOVER - REPORT PROBLEM + SOLUTION:
 
 Example: Workflow says read current-task.json from workspace root, but actual path is .workspace/agent-workspaces/branch/agent/current-task.json - report BOTH.
 
-Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-title.md"
+Reports: .workspace/agent-workspaces/{branch}/feedback-reports/problems/HH-MM-SS-severity-title.md"
     )]
     public static string ReportProblem(
         [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
@@ -204,27 +204,29 @@ Reports: .workspace/problem-reports/YYYY-MM-DD/HH-MM-SS-severity-title.md"
 
         try
         {
+            // Get current branch
+            var branch = GitHelper.GetCurrentBranch();
+
             // Sanitize title for filename (same as ClaudeAgentCommand.cs)
             var sanitizedTitle = string.Join("-", title.Split(' ', StringSplitOptions.RemoveEmptyEntries))
                 .ToLowerInvariant();
             // Remove all special characters, keep only alphanumeric and hyphens
             sanitizedTitle = System.Text.RegularExpressions.Regex.Replace(sanitizedTitle, @"[^a-z0-9-]", "");
 
-            // Generate timestamp and report ID
-            var now = DateTime.UtcNow;
-            var dateFolder = now.ToString("yyyy-MM-dd");
+            // Generate timestamp and report ID (use local time)
+            var now = DateTime.Now;
             var timeStamp = now.ToString("HH-mm-ss");
-            var reportId = $"{dateFolder}-{timeStamp}-{reporter}-{severity}-{sanitizedTitle}";
+            var reportId = $"{now:yyyy-MM-dd}-{timeStamp}-{reporter}-{severity}-{sanitizedTitle}";
             var fileName = $"{timeStamp}-{severity}-{sanitizedTitle}.md";
 
             // Create directory structure
-            var reportsDir = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "problem-reports", dateFolder);
-            Directory.CreateDirectory(reportsDir);
+            var reportsDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "problems");
+            Directory.CreateDirectory(reportsDirectory);
 
             // Build report content
             var reportContent = $@"---
 report-id: {reportId}
-timestamp: {now:yyyy-MM-ddTHH:mm:ssZ}
+timestamp: {now:yyyy-MM-ddTHH:mm:ss}
 reporter: {reporter}
 severity: {severity}
 location: {location}
@@ -242,12 +244,12 @@ status: open
 ";
 
             // Write report file
-            var reportPath = Path.Combine(reportsDir, fileName);
+            var reportPath = Path.Combine(reportsDirectory, fileName);
             File.WriteAllText(reportPath, reportContent);
 
             return $@"✓ Problem reported successfully
 Report ID: {reportId}
-Location: .workspace/problem-reports/{dateFolder}/{fileName}
+Location: .workspace/agent-workspaces/{branch}/feedback-reports/problems/{fileName}
 
 You can continue working. This issue will be reviewed.";
         }

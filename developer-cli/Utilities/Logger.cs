@@ -5,12 +5,23 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 public static class Logger
 {
     private const string LogFileNameFormat = "developer-cli-{0:yyyy-MM-dd}.log";
-    private static readonly string LogDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "logs");
     private static readonly AsyncLocal<string?> CurrentContext = new();
+    private static readonly AsyncLocal<string?> CurrentBranch = new();
+
+    private static string GetLogDirectory()
+    {
+        var branch = CurrentBranch.Value ?? GitHelper.GetCurrentBranch();
+        return Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch);
+    }
 
     public static void SetContext(string context)
     {
         CurrentContext.Value = context;
+    }
+
+    public static void SetBranch(string branch)
+    {
+        CurrentBranch.Value = branch;
     }
 
     public static void ClearContext()
@@ -45,16 +56,21 @@ public static class Logger
         var context = CurrentContext.Value != null ? $"[{CurrentContext.Value}] " : "";
         var logEntry = $"[{timestamp}] [{level}] {context}{message}";
         var logFileName = string.Format(LogFileNameFormat, DateTime.Today);
-        var logFilePath = Path.Combine(LogDirectory, logFileName);
+        var logDirectory = GetLogDirectory();
+        var logFilePath = Path.Combine(logDirectory, logFileName);
 
-        Directory.CreateDirectory(LogDirectory);
+        Directory.CreateDirectory(logDirectory);
         File.AppendAllText(logFilePath, logEntry + Environment.NewLine);
     }
 
     public static void CleanupOldLogs()
     {
         var cutoffDate = DateTime.Today.AddDays(30);
-        var logFiles = Directory.GetFiles(LogDirectory, "developer-cli-*.log");
+        var logDirectory = GetLogDirectory();
+
+        if (!Directory.Exists(logDirectory)) return;
+
+        var logFiles = Directory.GetFiles(logDirectory, "developer-cli-*.log");
 
         var filesToDelete = logFiles
             .Select(f => new FileInfo(f))
