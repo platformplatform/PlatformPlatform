@@ -58,6 +58,7 @@ DEFAULT_TEAM=null
 - NEVER work around MCP failures
 - storyId will be an issue ID (e.g., "PP-445")
 - taskId will be a sub-issue ID (e.g., "PP-484")
+- To query sub-issues: use `list_issues` with `query: "parent:<parent-issue-uuid>"` (use UUID, not identifier)
 
 ## Initialization
 
