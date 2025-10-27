@@ -1603,7 +1603,7 @@ public class Workspace(string agentType, string? branch = null)
 
     public string TaskCounterFile => Path.Combine(MessagesDirectory, ".task-counter");
 
-    public string SystemPromptFile => Path.Combine(Configuration.SourceCodeFolder, ".claude", "worker-agent-system-prompts", $"{AgentType}.txt");
+    public string SystemPromptFile => Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "system-prompts", $"{AgentType}.txt");
 
     public string SessionIdFile => Path.Combine(AgentWorkspaceDirectory, ".claude-session-id");
 }
