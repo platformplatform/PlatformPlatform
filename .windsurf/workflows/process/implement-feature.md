@@ -5,7 +5,7 @@ auto_execution_mode: 1
 
 # Orchestrate Feature Implementation
 
-Feature ID and/or story ID(s): $ARGUMENTS
+[FeatureId] and/or [StoryIds]: $ARGUMENTS
 
 ## Mandatory Preparation
 
@@ -248,7 +248,7 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 ```
 1. Read all 3 [story] files, extract 11 [tasks] total
 2. Create expanded todo with 3 [stories] and 11 [tasks]
-3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
+3. Extract [taskId] values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
 4. Update [Story] 1 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
 5. Delegate [task] "1. Create user API endpoints" from [Story] 1 to backend-engineer (resetMemory=true)
 6. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
@@ -266,7 +266,7 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 ```
 1. Read all 3 [story] files, extract 11 [tasks] total
 2. Create expanded todo with 3 [stories] and 11 [tasks]
-3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
+3. Extract [taskId] values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
 4. Update [Story] 1 and [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
 5. Identify [tasks] that can run in parallel:
    - Batch 1: [Story] 1 [Task] 1 (backend) + [Story] 2 [Task] 1 (frontend)

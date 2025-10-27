@@ -38,8 +38,8 @@ Avoid subjective personal preferences.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `storyId`: Story ID (for Markdown only)
-- `taskId`: Task ID
+- `storyId`: [StoryId]
+- `taskId`: [TaskId]
 - `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.

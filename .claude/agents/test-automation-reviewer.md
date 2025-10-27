@@ -31,7 +31,7 @@ If request contains structured review data (Request:, Response:), use:
 Use developer-cli to start a test-automation-reviewer with:
 - taskTitle: From request
 - markdownContent: Pass the EXACT request text unchanged
-- storyId: From tech lead (for Markdown only)
+- storyId: From tech lead
 - taskId: From tech lead
 - requestFilePath: From request
 - responseFilePath: From request

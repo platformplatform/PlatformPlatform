@@ -1,13 +1,13 @@
 ---
 description: Create comprehensive end-to-end tests for a feature
-argument-hint: Feature ID (optional)
+argument-hint: [FeatureId] (optional)
 ---
 
 # E2E Testing Workflow
 
-Feature ID: $ARGUMENTS
+[FeatureId]: $ARGUMENTS
 
-If a feature ID is provided in the arguments above, read the feature to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the feature. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
+If a [FeatureId] is provided in the arguments above, read the [feature] to understand what needs testing. This workflow guides you through creating comprehensive end-to-end tests for the [feature]. It focuses on identifying what tests to write, planning complex scenarios, and ensuring tests follow the established conventions.
 
 ## Mandatory Preparation
 

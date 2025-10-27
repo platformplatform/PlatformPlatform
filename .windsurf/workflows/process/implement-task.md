@@ -7,7 +7,7 @@ auto_execution_mode: 1
 
 You are implementing: **{{{title}}}**
 
-**Note:** The taskId and storyId come from current-task.json, not from command arguments. The CLI passes only the taskTitle as the slash command argument.
+**Note:** The [taskId] and [storyId] come from current-task.json, not from command arguments. The CLI passes only the [taskTitle] as the slash command argument.
 
 ## Mandatory Preparation
 
@@ -17,8 +17,8 @@ You are implementing: **{{{title}}}**
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `storyId`: Story ID (for Markdown only)
-- `taskId`: Task ID
+- `storyId`: [StoryId]
+- `taskId`: [TaskId]
 - `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
@@ -147,7 +147,7 @@ Response: {responseFilePath}
 - `taskTitle`: From current-task.json
 - `markdownContent`: Your delegation message above
 - `branch`: From current-task.json
-- `storyId`: From current-task.json (for Markdown only)
+- `storyId`: From current-task.json
 - `taskId`: From current-task.json
 - `requestFilePath`: From current-task.json
 - `responseFilePath`: From current-task.json

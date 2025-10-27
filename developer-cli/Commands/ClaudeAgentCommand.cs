@@ -37,8 +37,8 @@ public class ClaudeAgentCommand : Command
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
-        var storyIdOption = new Option<string?>("--story-id", "Story ID (optional, for Markdown)");
-        var taskIdOption = new Option<string?>("--task-id", "Task ID (optional)");
+        var storyIdOption = new Option<string?>("--story-id", "[StoryId]");
+        var taskIdOption = new Option<string?>("--task-id", "[TaskId]");
         var resetMemoryOption = new Option<bool>("--reset-memory", () => false, "Reset Claude Code session memory (true for first [task] of new [story])");
         var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");

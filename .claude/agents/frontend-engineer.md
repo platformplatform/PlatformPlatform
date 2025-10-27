@@ -31,7 +31,7 @@ Use developer-cli MCP start_worker_agent:
 - agentType: "frontend-engineer"
 - taskTitle: From tech lead
 - markdownContent: Pass the EXACT request text unchanged
-- storyId: From tech lead (for Markdown only)
+- storyId: From tech lead
 - taskId: From tech lead
 - branch: From tech lead
 

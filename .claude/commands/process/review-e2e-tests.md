@@ -18,7 +18,7 @@ No preparation needed for this review.
 
 **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `storyId`: Story ID (if applicable)
+- `storyId`: [StoryId] (if applicable)
 - `title`: Task title
 
 **Then read the request and response files** to understand what was implemented.

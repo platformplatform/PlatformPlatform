@@ -1,11 +1,11 @@
 ---
 description: Break down all [stories] in a [feature] into [tasks]
-argument-hint: Feature ID
+argument-hint: [FeatureId]
 ---
 
 # Create Tasks Workflow
 
-Feature ID: $ARGUMENTS
+[FeatureId]: $ARGUMENTS
 
 Read the [feature] provided in the arguments above and identify ALL [stories] listed in it. Your job is to break down each [story] into [tasks].
 
