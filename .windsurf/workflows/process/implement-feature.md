@@ -43,21 +43,21 @@ Your job as Tech Lead:
 
 ### Sequential (Default - ALWAYS Use Unless User Explicitly Requests Parallel)
 
-Delegate one task completely before starting the next:
+Delegate one [task] completely before starting the next:
 
-1. Delegate Task 1 from Story 1 → Wait for completion
-2. Delegate Task 2 from Story 1 → Wait for completion
-3. Continue with Story 1 until all tasks complete
-4. Move to Story 2, delegate Task 1 → Wait for completion
-5. Continue until all tasks in all Stories complete
+1. Delegate [Task] 1 from [Story] 1 → Wait for completion
+2. Delegate [Task] 2 from [Story] 1 → Wait for completion
+3. Continue with [Story] 1 until all [tasks] complete
+4. Move to [Story] 2, delegate [Task] 1 → Wait for completion
+5. Continue until all [tasks] in all [Stories] complete
 
 **CRITICAL**: Only use parallel mode if the USER explicitly says "in parallel" or "simultaneously". DO NOT decide this yourself.
 
 ### Parallel (ONLY When User Explicitly Requests)
 
-**CRITICAL**: Stories must ALWAYS be implemented in numerical order (1, 2, 3, 4, 5, 6...). NEVER skip stories. Within that constraint, you can interleave tasks from multiple stories.
+**CRITICAL**: [Stories] must ALWAYS be implemented in the order they appear in [PRODUCT_MANAGEMENT_TOOL]. NEVER skip [stories]. Within that constraint, you can interleave [tasks] from multiple [stories].
 
-**Example**: Task 1 from Story 1 + Task 1 from Story 2 simultaneously, then Task 2 from Story 1 + Task 2 from Story 2 simultaneously.
+**Example**: [Task] 1 from [Story] 1 + [Task] 1 from [Story] 2 simultaneously, then [Task] 2 from [Story] 1 + [Task] 2 from [Story] 2 simultaneously.
 
 **BEFORE delegating in parallel, evaluate dependencies**:
 
@@ -117,10 +117,10 @@ Story 3: End-to-end testing [pending]
 
 ### Step 3: Extract [Task] Identifiers from [PRODUCT_MANAGEMENT_TOOL]
 
-For EACH Story (in numerical order):
+For EACH [story]:
   1. Read the [story] from [PRODUCT_MANAGEMENT_TOOL]
   2. Get ALL [tasks] under that [story]
-  3. For EACH [task] title in your Story file, match it to the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL]
+  3. For EACH [task] title in your [story], match it to the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL]
   4. Record the mapping: `{taskTitle}` → `{taskId}`
 
 **Critical**: Do not proceed to delegation until you have confirmed `taskId` values for ALL [tasks]. `taskId` must be distinct from `storyId`.
@@ -129,9 +129,13 @@ For EACH Story (in numerical order):
 
 **Sequential Mode (default)**:
 
-FOR EACH Story (in numerical order):
-  FOR EACH task in that Story:
-    **1. Mark task [in_progress]** in todo
+FOR EACH [story]:
+  **0. Update [story] status to [Active]** in [PRODUCT_MANAGEMENT_TOOL]:
+    - [Story] is starting work
+    - This signals that implementation has begun
+
+  FOR EACH [task] in that [story]:
+    **1. Mark [task] [in_progress]** in todo
 
     **2. Delegate to engineer proxy agent**:
 
@@ -169,12 +173,19 @@ FOR EACH batch:
 
   Move to next batch
 
-### Step 5: Collapse Stories as Complete
+### Step 5: Collapse Stories and Update Status
 
-When ALL tasks in a Story are [completed]:
-1. Remove all subtask lines (├─ lines)
-2. Keep only Story line
-3. Mark Story [completed]
+When ALL [tasks] in a [story] are [completed]:
+
+1. **Update [story] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL]:
+   - All [tasks] are complete
+   - [Story] is ready for final review
+   - Status signals completion of implementation phase
+
+2. Update todo:
+   - Remove all subtask lines (├─ lines)
+   - Keep only [story] line
+   - Mark [story] [completed]
 
 ```
 Story 1: Backend user management [completed]
@@ -230,36 +241,41 @@ Engineer proxy agents (backend-engineer, frontend-engineer, test-automation-engi
 
 **Sequential Mode**:
 ```
-1. Read all 3 Story files, extract 11 tasks total
-2. Create expanded todo with 3 Stories and 11 tasks
-3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all tasks
-4. Delegate task "1. Create user API endpoints" from Story 1 to backend-engineer
-5. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
-6. Mark task 1 complete, delegate task "2. Add validation logic" from Story 1
-7. Wait and mark complete
-8. Continue through all 5 tasks in Story 1
-9. Collapse Story 1 (remove subtasks, mark [completed])
-10. Start Story 2, delegate task "1. Create user management UI" to frontend-engineer
-11. Continue until all Stories collapsed and [completed]
+1. Read all 3 [story] files, extract 11 [tasks] total
+2. Create expanded todo with 3 [stories] and 11 [tasks]
+3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
+4. Update [Story] 1 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
+5. Delegate [task] "1. Create user API endpoints" from [Story] 1 to backend-engineer
+6. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
+7. Mark [task] 1 complete, delegate [task] "2. Add validation logic" from [Story] 1
+8. Wait and mark complete
+9. Continue through all 5 [tasks] in [Story] 1
+10. Update [Story] 1 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
+11. Collapse [Story] 1 (remove subtasks, mark [completed])
+12. Update [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
+13. Delegate [task] "1. Create user management UI" from [Story] 2 to frontend-engineer
+14. Continue until all [stories] collapsed and [completed]
 ```
 
 **Parallel Mode** (user explicitly requested):
 ```
-1. Read all 3 Story files, extract 11 tasks total
-2. Create expanded todo with 3 Stories and 11 tasks
-3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all tasks
-4. Identify tasks that can run in parallel:
-   - Batch 1: Story 1 Task 1 (backend) + Story 2 Task 1 (frontend)
-   - Batch 2: Story 1 Task 2 (backend) + Story 2 Task 2 (frontend)
+1. Read all 3 [story] files, extract 11 [tasks] total
+2. Create expanded todo with 3 [stories] and 11 [tasks]
+3. Extract taskId values from [PRODUCT_MANAGEMENT_TOOL] for all [tasks]
+4. Update [Story] 1 and [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
+5. Identify [tasks] that can run in parallel:
+   - Batch 1: [Story] 1 [Task] 1 (backend) + [Story] 2 [Task] 1 (frontend)
+   - Batch 2: [Story] 1 [Task] 2 (backend) + [Story] 2 [Task] 2 (frontend)
    - ...
-5. In SINGLE message, delegate both tasks in Batch 1:
-   - Task tool → backend-engineer for Story 1 Task 1
-   - Task tool → frontend-engineer for Story 2 Task 1
-6. Wait for BOTH to complete
-7. Mark both tasks [completed]
-8. In SINGLE message, delegate both tasks in Batch 2
-9. Continue batching until Stories complete
-10. Collapse completed Stories
+6. In SINGLE message, delegate both [tasks] in Batch 1:
+   - Task tool → backend-engineer for [Story] 1 [Task] 1
+   - Task tool → frontend-engineer for [Story] 2 [Task] 1
+7. Wait for BOTH to complete
+8. Mark both [tasks] [completed]
+9. In SINGLE message, delegate both [tasks] in Batch 2
+10. Continue batching until [stories] complete
+11. Update [Story] 1 status to [Review], then [Story] 2 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
+12. Collapse completed [stories]
 ```
 
 ## Remember
