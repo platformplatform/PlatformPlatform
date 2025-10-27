@@ -67,48 +67,49 @@ public static class ClaudeAgentLifecycle
 
         // Return success message immediately so it's saved in conversation
         var successMessage = $"""
-            ✅ Task {taskId} completed successfully!
+                              ✅ Task {taskId} completed successfully!
 
-            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            Summary:
-            {taskSummary}
-            ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                              Summary:
+                              {taskSummary}
+                              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-            ✓ CompleteWork has been called for task {taskId}
-            ✓ DO NOT call CompleteWork again - this task is finished
+                              ✓ CompleteWork has been called for task {taskId}
+                              ✓ DO NOT call CompleteWork again - this task is finished
 
-            ⏰ Session will terminate in 5 seconds...
-            📝  Please clear your todo list now
-            """;
+                              ⏰ Session will terminate in 5 seconds...
+                              📝  Please clear your todo list now
+                              """;
 
         // Schedule termination after delay (fire and forget)
         _ = Task.Run(async () =>
-        {
-            // Wait for Claude Code to persist session state
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            // Read .worker-process-id file to find worker-agent process
-            if (File.Exists(workspace.WorkerProcessIdFile))
             {
-                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
-                if (int.TryParse(processIdContent, out var workerProcessId))
+                // Wait for Claude Code to persist session state
+                await Task.Delay(TimeSpan.FromSeconds(5));
+
+                // Read .worker-process-id file to find worker-agent process
+                if (File.Exists(workspace.WorkerProcessIdFile))
                 {
-                    try
+                    var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                    if (int.TryParse(processIdContent, out var workerProcessId))
                     {
-                        // Kill the worker-agent Claude Code process (self-destruct)
-                        var workerProcess = Process.GetProcessById(workerProcessId);
-                        if (!workerProcess.HasExited)
+                        try
                         {
-                            workerProcess.Kill();
+                            // Kill the worker-agent Claude Code process (self-destruct)
+                            var workerProcess = Process.GetProcessById(workerProcessId);
+                            if (!workerProcess.HasExited)
+                            {
+                                workerProcess.Kill();
+                            }
                         }
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Process already exited, that's fine
+                        catch (ArgumentException)
+                        {
+                            // Process already exited, that's fine
+                        }
                     }
                 }
             }
-        });
+        );
 
         return successMessage;
     }
@@ -211,63 +212,64 @@ public static class ClaudeAgentLifecycle
         // Return success message immediately so it's saved in conversation
         var successMessage = approved
             ? $"""
-                ✅ Review of task {taskId} completed: Code APPROVED!
+               ✅ Review of task {taskId} completed: Code APPROVED!
 
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                Commit: {commitHash}
-                🎯 Summary:
-                {reviewSummary}
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               Commit: {commitHash}
+               🎯 Summary:
+               {reviewSummary}
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-                ✓ CompleteWork has been called for task {taskId}
-                ✓ DO NOT call CompleteWork again - this task is finished
+               ✓ CompleteWork has been called for task {taskId}
+               ✓ DO NOT call CompleteWork again - this task is finished
 
-                ⏰ Session will terminate in 5 seconds...
-                📝 Please clear your todo list now
-                """
+               ⏰ Session will terminate in 5 seconds...
+               📝 Please clear your todo list now
+               """
             : $"""
-                ❌ Review of task {taskId} completed: REJECTED
+               ❌ Review of task {taskId} completed: REJECTED
 
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                🎯 Rejection Reason:
-                {rejectReason}
-                ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               🎯 Rejection Reason:
+               {rejectReason}
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-                ✓ CompleteWork has been called for task {taskId}
-                ✓ DO NOT call CompleteWork again - this task is finished
+               ✓ CompleteWork has been called for task {taskId}
+               ✓ DO NOT call CompleteWork again - this task is finished
 
-                ⏰ Session will terminate in 5 seconds...
-                📝 Please clear your todo list now
-                """;
+               ⏰ Session will terminate in 5 seconds...
+               📝 Please clear your todo list now
+               """;
 
         // Schedule termination after delay (fire and forget)
         _ = Task.Run(async () =>
-        {
-            // Wait for Claude Code to persist session state
-            await Task.Delay(TimeSpan.FromSeconds(5));
-
-            // Read .worker-process-id file to find worker-agent process
-            if (File.Exists(workspace.WorkerProcessIdFile))
             {
-                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
-                if (int.TryParse(processIdContent, out var reviewerProcessId))
+                // Wait for Claude Code to persist session state
+                await Task.Delay(TimeSpan.FromSeconds(5));
+
+                // Read .worker-process-id file to find worker-agent process
+                if (File.Exists(workspace.WorkerProcessIdFile))
                 {
-                    try
+                    var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                    if (int.TryParse(processIdContent, out var reviewerProcessId))
                     {
-                        // Kill the reviewer-agent Claude Code process (self-destruct)
-                        var reviewerProcess = Process.GetProcessById(reviewerProcessId);
-                        if (!reviewerProcess.HasExited)
+                        try
                         {
-                            reviewerProcess.Kill();
+                            // Kill the reviewer-agent Claude Code process (self-destruct)
+                            var reviewerProcess = Process.GetProcessById(reviewerProcessId);
+                            if (!reviewerProcess.HasExited)
+                            {
+                                reviewerProcess.Kill();
+                            }
                         }
-                    }
-                    catch (ArgumentException)
-                    {
-                        // Process already exited, that's fine
+                        catch (ArgumentException)
+                        {
+                            // Process already exited, that's fine
+                        }
                     }
                 }
             }
-        });
+        );
 
         return successMessage;
     }
@@ -280,34 +282,37 @@ public static class ClaudeAgentLifecycle
     private static string TerminateSession(Workspace workspace)
     {
         _ = Task.Run(async () =>
-        {
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            if (File.Exists(workspace.WorkerProcessIdFile))
             {
-                var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
-                if (int.TryParse(processIdContent, out var processId))
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                if (File.Exists(workspace.WorkerProcessIdFile))
                 {
-                    try
+                    var processIdContent = await File.ReadAllTextAsync(workspace.WorkerProcessIdFile);
+                    if (int.TryParse(processIdContent, out var processId))
                     {
-                        var process = Process.GetProcessById(processId);
-                        if (!process.HasExited) process.Kill();
+                        try
+                        {
+                            var process = Process.GetProcessById(processId);
+                            if (!process.HasExited) process.Kill();
+                        }
+                        catch (ArgumentException)
+                        {
+                        }
                     }
-                    catch (ArgumentException) { }
                 }
             }
-        });
+        );
 
         return """
-            ⚠️ CompleteWork called but current-task.json is missing.
+               ⚠️ CompleteWork called but current-task.json is missing.
 
-            This means CompleteWork was already successfully called for this task.
-            The task has been completed and the response file has been written.
+               This means CompleteWork was already successfully called for this task.
+               The task has been completed and the response file has been written.
 
-            ✓ DO NOT call CompleteWork again
-            ✓ Your work is done - session will terminate in 5 seconds
+               ✓ DO NOT call CompleteWork again
+               ✓ Your work is done - session will terminate in 5 seconds
 
-            You will be reactivated with a new task assignment if needed.
-            """;
+               You will be reactivated with a new task assignment if needed.
+               """;
     }
 
     private static async Task<string?> ValidateTaskTiming(string agentWorkspaceDirectory, string methodName)

@@ -149,7 +149,7 @@ public class ClaudeAgentCommand : Command
             if (File.Exists(sessionFile))
             {
                 File.Delete(sessionFile);
-                ClaudeAgentLifecycle.LogWorkflowEvent($"Deleted .claude-session-id to reset memory for new [story]");
+                ClaudeAgentLifecycle.LogWorkflowEvent("Deleted .claude-session-id to reset memory for new [story]");
             }
         }
 
