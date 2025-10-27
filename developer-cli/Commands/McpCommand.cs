@@ -528,12 +528,45 @@ public static class WorkerMcpTools
                 return "Error: taskSummary is required for task mode";
             }
 
-            return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
+            try
+            {
+                return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary, responseContent, branch);
+            }
+            catch (Exception ex)
+            {
+                return $"""
+                        Error: Failed to complete task.
+
+                        Mode: {mode}
+                        Agent: {agentType}
+                        Summary: {taskSummary}
+                        Branch: {branch}
+
+                        Details: {ex.Message}
+                        """;
+            }
         }
 
         if (mode is "review")
         {
-            return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
+            try
+            {
+                return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
+            }
+            catch (Exception ex)
+            {
+                return $"""
+                        Error: Failed to complete review.
+
+                        Mode: {mode}
+                        Agent: {agentType}
+                        Commit: {commitHash ?? "(none)"}
+                        Reject Reason: {rejectReason ?? "(none)"}
+                        Branch: {branch}
+
+                        Details: {ex.Message}
+                        """;
+            }
         }
 
         return $"Invalid mode: '{mode}'. Valid modes: task, review";
