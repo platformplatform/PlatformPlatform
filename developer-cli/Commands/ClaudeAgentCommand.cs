@@ -42,6 +42,7 @@ public class ClaudeAgentCommand : Command
         var resetMemoryOption = new Option<bool>("--reset-memory", () => false, "Reset Claude Code session memory (true for first [task] of new [story])");
         var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
+        var modelOption = new Option<string?>("--model", "Model to use (e.g., 'haiku', 'sonnet', 'sonnet[1m]')");
 
         AddArgument(agentTypeArgument);
         AddOption(mcpOption);
@@ -53,6 +54,7 @@ public class ClaudeAgentCommand : Command
         AddOption(resetMemoryOption);
         AddOption(requestFilePathOption);
         AddOption(responseFilePathOption);
+        AddOption(modelOption);
 
         this.SetHandler(async context =>
             {
@@ -66,8 +68,9 @@ public class ClaudeAgentCommand : Command
                 var resetMemory = context.ParseResult.GetValueForOption(resetMemoryOption);
                 var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
                 var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
+                var model = context.ParseResult.GetValueForOption(modelOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath);
+                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath, model);
             }
         );
     }
@@ -83,17 +86,18 @@ public class ClaudeAgentCommand : Command
         string? taskId,
         bool resetMemory,
         string? requestFilePath,
-        string? responseFilePath)
+        string? responseFilePath,
+        string? model)
     {
         try
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath);
+                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath, model);
             }
             else
             {
-                await RunInteractiveMode(agentType);
+                await RunInteractiveMode(agentType, model);
             }
         }
         catch (Exception ex)
@@ -113,7 +117,8 @@ public class ClaudeAgentCommand : Command
         string? taskId,
         bool resetMemory,
         string? requestFilePath,
-        string? responseFilePath)
+        string? responseFilePath,
+        string? model)
     {
         if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
         {
@@ -150,6 +155,14 @@ public class ClaudeAgentCommand : Command
             {
                 File.Delete(sessionFile);
                 ClaudeAgentLifecycle.LogWorkflowEvent("Deleted .claude-session-id to reset memory for new [story]");
+            }
+
+            // Set model for new story (tech-lead specifies which model to start with)
+            if (!string.IsNullOrEmpty(model))
+            {
+                var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
+                await File.WriteAllTextAsync(defaultModelFile, model);
+                ClaudeAgentLifecycle.LogWorkflowEvent($"Set .default-model to {model} for new [story]");
             }
         }
 
@@ -222,7 +235,7 @@ public class ClaudeAgentCommand : Command
         await Console.Out.WriteLineAsync(result);
     }
 
-    private async Task RunInteractiveMode(string? agentType)
+    private async Task RunInteractiveMode(string? agentType, string? model)
     {
         // If no agent type provided, prompt for selection
         if (string.IsNullOrEmpty(agentType))
@@ -246,6 +259,14 @@ public class ClaudeAgentCommand : Command
         Logger.SetContext(agentType);
         Logger.SetBranch(workspace.Branch);
         Logger.Info($"Worker-host starting for '{agentType}' on branch: {workspace.Branch}");
+
+        // Set model if specified
+        if (model is not null)
+        {
+            var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
+            await File.WriteAllTextAsync(defaultModelFile, model);
+            Logger.Info($"Set default model to: {model}");
+        }
 
         // Tech-lead specific: Check for existing session and offer clean workspace option
         if (agentType == "tech-lead")
@@ -651,6 +672,10 @@ public class ClaudeAgentCommand : Command
         var systemPromptText = await File.ReadAllTextAsync(workspace.SystemPromptFile);
         systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
 
+        // Read model from .default-model file if it exists
+        var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
+        string? model = File.Exists(defaultModelFile) ? (await File.ReadAllTextAsync(defaultModelFile)).Trim() : null;
+
         // Build standard arguments
         var claudeArgs = new List<string>
         {
@@ -658,6 +683,13 @@ public class ClaudeAgentCommand : Command
             "--permission-mode", "bypassPermissions",
             "--append-system-prompt", systemPromptText
         };
+
+        // Add model flag if specified
+        if (model is not null)
+        {
+            claudeArgs.Insert(0, model);
+            claudeArgs.Insert(0, "--model");
+        }
 
         // Add Chrome DevTools MCP for frontend and QA agents
         if (workspace.AgentType == "frontend-engineer" ||

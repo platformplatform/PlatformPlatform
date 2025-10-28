@@ -370,7 +370,9 @@ public static class WorkerMcpTools
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
         [Description("Engineer's response file path (optional, for review tasks)")]
-        string? responseFilePath = null)
+        string? responseFilePath = null,
+        [Description("Model to use (e.g., 'haiku', 'sonnet', 'sonnet[1m]'). Only used when resetMemory=true.")]
+        string? model = null)
     {
         // Validate required parameters
         if (string.IsNullOrWhiteSpace(taskId))
@@ -436,6 +438,12 @@ public static class WorkerMcpTools
         {
             args.Add("--response-file-path");
             args.Add(responseFilePath);
+        }
+
+        if (model is not null)
+        {
+            args.Add("--model");
+            args.Add(model);
         }
 
         var result = ExecuteCliCommand(args.ToArray());
@@ -570,6 +578,48 @@ public static class WorkerMcpTools
         }
 
         return $"Invalid mode: '{mode}'. Valid modes: task, review";
+    }
+
+    [McpServerTool]
+    [Description("Switch to a different Claude model. Updates .default-model file and kills current session. Worker-host will automatically restart with the new model.")]
+    public static async Task<string> SwitchModel(
+        [Description("Target model alias: 'haiku', 'sonnet', or 'sonnet[1m]' for 1M context")]
+        string modelName,
+        [Description("Agent type (e.g., backend-engineer, frontend-engineer)")]
+        string agentType)
+    {
+        try
+        {
+            var branch = GitHelper.GetCurrentBranch();
+            var workspace = new Workspace(agentType, branch);
+            var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
+            var recoveryMessageFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".model-switch-message");
+
+            // Write new model to file
+            await File.WriteAllTextAsync(defaultModelFile, modelName);
+
+            // Write recovery message for next session
+            var recoveryMessage = $"Your model was changed to {modelName}, please continue.";
+            await File.WriteAllTextAsync(recoveryMessageFile, recoveryMessage);
+
+            // Kill current process - worker-host will restart with new model
+            var processIdFile = workspace.WorkerProcessIdFile;
+            if (File.Exists(processIdFile))
+            {
+                var processId = int.Parse(await File.ReadAllTextAsync(processIdFile));
+                try
+                {
+                    Process.GetProcessById(processId).Kill();
+                }
+                catch (ArgumentException) { /* Process already dead */ }
+            }
+
+            return $"Switched to {modelName}. Restarting...";
+        }
+        catch (Exception ex)
+        {
+            return $"Error: {ex.Message}";
+        }
     }
 
     private static (bool Success, string Output) ExecuteCliCommand(string[] args)
