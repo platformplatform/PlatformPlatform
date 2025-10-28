@@ -245,7 +245,9 @@ Response: {responseFilePath}
 
 After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
 
-ALWAYS call CompleteWork after reviewer approval, even if this is the last task in a story.
+**CompleteWork requires reviewer approval and committed code - NO EXCEPTIONS**
+
+ALWAYS call CompleteWork after reviewer approval, even if this is the last [task] in a [story].
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed

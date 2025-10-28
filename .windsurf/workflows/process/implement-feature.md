@@ -159,6 +159,13 @@ FOR EACH [story]:
     **5. Verify [task] completion**:
     - Check if response contains "✅ Task {taskId} completed successfully!"
     - **If SUCCESS marker found**:
+      - Verify code was committed by checking recent commits
+      - Verify [task] marked [Done] in [PRODUCT_MANAGEMENT_TOOL]
+      - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
+        - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
+        - STOP immediately, diagnose the problem, and make a plan to get back on track
+        - Always delegate fixes to engineers - NEVER fix anything yourself
+        - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
       - Mark [task] [completed] in todo
       - Move to next [task]
     - **If NO success marker found ([task] FAILED)**:
@@ -182,7 +189,15 @@ FOR EACH round of parallel delegation:
 
   Verify each [task]:
   - Check if response contains "✅ Task {taskId} completed successfully!"
-  - If success marker found: Mark [task] [completed] in todo
+  - If success marker found:
+    - Verify code was committed by checking recent commits
+    - Verify [task] marked [Done] in [PRODUCT_MANAGEMENT_TOOL]
+    - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
+      - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
+      - STOP immediately, diagnose the problem, and make a plan to get back on track
+      - Always delegate fixes to engineers - NEVER fix anything yourself
+      - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
+    - Mark [task] [completed] in todo
   - If no success marker found:
     - Change [task] status to [Planned] in [PRODUCT_MANAGEMENT_TOOL]
     - Check git status for uncommitted changes

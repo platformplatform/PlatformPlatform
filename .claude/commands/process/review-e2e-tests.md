@@ -54,8 +54,12 @@ No preparation needed for this review.
 **STEP 2**: Run watch and e2e tools
 - Use **watch MCP tool** to restart server and run migrations
 - Use **e2e MCP tool** to run tests: `e2e(searchTerms=["feature-name"])`
-- **ALL tests MUST pass to approve**
-- If tests fail: REJECT immediately
+- **ALL tests MUST pass with ZERO failures to approve**
+- **Verify ZERO console errors** during test execution
+- **Verify ZERO network errors** (no unexpected 4xx/5xx responses)
+- If ANY test fails: REJECT
+- If ANY console errors: REJECT
+- If ANY network errors: REJECT
 
 **STEP 3**: Study E2E rules
 - Read [End-to-End Tests](/.claude/rules/end-to-end-tests/e2e-tests.md)
