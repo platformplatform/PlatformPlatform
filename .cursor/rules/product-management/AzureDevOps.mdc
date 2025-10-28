@@ -20,7 +20,7 @@ alwaysApply: false
 |---|---|
 | `[Planned]` | New |
 | `[Active]` | Active |
-| `[Review]` | Review |
+| `[Review]` | Resolved |
 | `[Completed]` | Closed |
 
 ## MCP Configuration

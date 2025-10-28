@@ -21,7 +21,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 |---|---|
 | `[Planned]` | New |
 | `[Active]` | Active |
-| `[Review]` | Review |
+| `[Review]` | Resolved |
 | `[Completed]` | Closed |
 
 ## MCP Configuration
