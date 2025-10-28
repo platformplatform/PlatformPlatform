@@ -281,7 +281,23 @@ public class ClaudeAgentCommand : Command
                 try
                 {
                     var existingProcess = Process.GetProcessById(existingProcessId);
-                    if (!existingProcess.HasExited)
+
+                    // Verify this is actually our worker-host process, not a reused PID
+                    // On Unix-like systems, PIDs can be reused, so we check the process name
+                    var isOurProcess = false;
+                    try
+                    {
+                        var processName = existingProcess.ProcessName.ToLowerInvariant();
+                        // Worker-host processes are .NET processes, so they'll be "dotnet" or "pp" (self-contained)
+                        isOurProcess = processName is "dotnet" or "pp";
+                    }
+                    catch
+                    {
+                        // If we can't access the process name, it's likely not our process or doesn't exist
+                        isOurProcess = false;
+                    }
+
+                    if (isOurProcess && !existingProcess.HasExited)
                     {
                         // Active worker-host is running - calculate how long it's been alive
                         var processAge = DateTime.Now - existingProcess.StartTime;
