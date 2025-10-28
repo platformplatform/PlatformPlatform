@@ -158,6 +158,7 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
     {
         builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ Do not configure primitive properties
         builder.Property(t => t.Description).HasMaxLength(255);  // ❌ Do not configure primitive properties
+        builder.HasIndex(u => new { u.Email }).IsUnique();  // ❌ Is Unique is a database constraint, not need by EF Core at runtime
 
     }
 }

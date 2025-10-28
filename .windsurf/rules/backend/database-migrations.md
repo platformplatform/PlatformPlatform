@@ -27,6 +27,7 @@ Carefully follow these instructions when creating database migrations.
    - For strongly typed IDs default to `varchar(32)` (a ULID is 26 characters, plus underscore and max 5 char prefix).
    - Intelligent deduct use of varchar or nvarchar based on the property type, and command validators, enum values, etc.
    - Use `datetimeoffset` (default), `datetime2` (timezone agnostic) or `date` (date only) and never use `datetime`.
+   - Use 'varchar(10)' or 'varchar(20)' for enum values.
 
 4. Create appropriate constraints and indexes:
    - Define primary keys using the `PK_TableName` naming convention.

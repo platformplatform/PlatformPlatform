@@ -21,6 +21,7 @@ Carefully follow these instructions when implementing telemetry events in the ba
 7. Use snake_case for property names in event data to align with OpenTelemetry conventions.
 8. Collect events using the `events.CollectEvent()` method in command handlers just before returning.
 9. By default, events are only collected for successful commands. To collect events for failed commands, set `commitChanges: true` in the Result object.
+10. Do not track id of many to many aggregates, but track the id of the two main aggregates.
 
 Note: Telemetry events are automatically annotated with extra data from the request, including current tenant ID, authenticated user ID, user role, application version, user's location, device type, browser, etc.
 
