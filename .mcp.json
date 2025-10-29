@@ -6,7 +6,11 @@
     },
     "azure-devops": {
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "mentum", "-d", "core", "work", "work-items"]
+      "args": ["-y", "@azure-devops/mcp", "mentum", "-d", "core", "work", "work-items", "--authentication", "azcli"],
+      "env": {
+        "AZURE_DEVOPS_ORG_URL": "https://dev.azure.com/mentum",
+        "AZURE_DEVOPS_PROJECT": "PlatformPlatform"
+      }
     }
   }
 }
