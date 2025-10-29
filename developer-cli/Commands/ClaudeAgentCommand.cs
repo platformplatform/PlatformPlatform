@@ -22,18 +22,20 @@ public class ClaudeAgentCommand : Command
         "qa-engineer",
         "backend-reviewer",
         "frontend-reviewer",
-        "qa-reviewer"
+        "qa-reviewer",
+        "tech-lead"
     ];
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
     {
-        var agentTypeArgument = new Argument<string?>("agent-type", () => null)
+        var targetAgentTypeArgument = new Argument<string?>("target-agent-type", () => null)
         {
-            Description = "Agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)",
+            Description = "Target agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)",
             Arity = ArgumentArity.ZeroOrOne
         };
 
         var mcpOption = new Option<bool>("--mcp", () => false, "Run in MCP mode (called from MCP server)");
+        var senderAgentTypeOption = new Option<string?>("--sender-agent-type", "Sender agent type (who is calling start_worker_agent)");
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
@@ -44,8 +46,9 @@ public class ClaudeAgentCommand : Command
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
         var modelOption = new Option<string?>("--model", "Model to use (e.g., 'haiku', 'sonnet', 'sonnet[1m]')");
 
-        AddArgument(agentTypeArgument);
+        AddArgument(targetAgentTypeArgument);
         AddOption(mcpOption);
+        AddOption(senderAgentTypeOption);
         AddOption(taskTitleOption);
         AddOption(markdownContentOption);
         AddOption(branchOption);
@@ -58,32 +61,34 @@ public class ClaudeAgentCommand : Command
 
         this.SetHandler(async context =>
             {
-                var agentType = context.ParseResult.GetValueForArgument(agentTypeArgument);
+                var targetAgentType = context.ParseResult.GetValueForArgument(targetAgentTypeArgument);
+                var senderAgentType = context.ParseResult.GetValueForOption(senderAgentTypeOption);
                 var mcp = context.ParseResult.GetValueForOption(mcpOption);
                 var taskTitle = context.ParseResult.GetValueForOption(taskTitleOption);
                 var markdownContent = context.ParseResult.GetValueForOption(markdownContentOption);
                 var branch = context.ParseResult.GetValueForOption(branchOption);
-                var storyId = context.ParseResult.GetValueForOption(storyIdOption);
                 var taskId = context.ParseResult.GetValueForOption(taskIdOption);
+                var storyId = context.ParseResult.GetValueForOption(storyIdOption);
                 var resetMemory = context.ParseResult.GetValueForOption(resetMemoryOption);
                 var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
                 var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
                 var model = context.ParseResult.GetValueForOption(modelOption);
 
-                await ExecuteAsync(agentType, mcp, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath, model);
+                await ExecuteAsync(targetAgentType, senderAgentType, mcp, taskTitle, markdownContent, branch, taskId, storyId, resetMemory, requestFilePath, responseFilePath, model);
             }
         );
     }
 
     // Entry Point
     private async Task ExecuteAsync(
-        string? agentType,
+        string? targetAgentType,
+        string? senderAgentType,
         bool mcp,
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? storyId,
         string? taskId,
+        string? storyId,
         bool resetMemory,
         string? requestFilePath,
         string? responseFilePath,
@@ -93,11 +98,11 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                await RunMcpMode(agentType, taskTitle, markdownContent, branch, storyId, taskId, resetMemory, requestFilePath, responseFilePath, model);
+                await RunMcpMode(targetAgentType, senderAgentType, taskTitle, markdownContent, branch, taskId, storyId, resetMemory, requestFilePath, responseFilePath, model);
             }
             else
             {
-                await RunInteractiveMode(agentType, model);
+                await RunInteractiveMode(targetAgentType, model);
             }
         }
         catch (Exception ex)
@@ -109,21 +114,24 @@ public class ClaudeAgentCommand : Command
 
     // MCP Mode (called from MCP server to delegate to interactive worker-host)
     private async Task RunMcpMode(
-        string? agentType,
+        string? targetAgentType,
+        string? senderAgentType,
         string? taskTitle,
         string? markdownContent,
         string? branch,
-        string? storyId,
         string? taskId,
+        string? storyId,
         bool resetMemory,
         string? requestFilePath,
         string? responseFilePath,
         string? model)
     {
-        if (string.IsNullOrEmpty(agentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
+        if (string.IsNullOrEmpty(targetAgentType) || string.IsNullOrEmpty(taskTitle) || string.IsNullOrEmpty(markdownContent))
         {
-            throw new ArgumentException("--mcp mode requires agent-type, --task-title, --markdown-content, and --branch");
+            throw new ArgumentException("--mcp mode requires target-agent-type, --task-title, --markdown-content, and --branch");
         }
+
+        senderAgentType ??= "";
 
         if (string.IsNullOrEmpty(branch))
         {
@@ -143,8 +151,8 @@ public class ClaudeAgentCommand : Command
             return;
         }
 
-        var workspace = new Workspace(agentType, branch);
-        Logger.SetContext($"mcp-{agentType}");
+        var workspace = new Workspace(targetAgentType, branch);
+        Logger.SetContext($"mcp-{targetAgentType}");
         Logger.SetBranch(branch);
 
         // Reset Claude Code session memory if this is the first [task] of a new [story]
@@ -169,7 +177,7 @@ public class ClaudeAgentCommand : Command
         // Check if interactive worker-host is running
         if (!File.Exists(workspace.HostProcessIdFile))
         {
-            await Console.Out.WriteLineAsync($"ERROR: No interactive '{agentType}' worker-host running on branch '{branch}'.\nStart with: {Configuration.AliasName} claude-agent {agentType}");
+            await Console.Out.WriteLineAsync($"ERROR: No interactive '{targetAgentType}' worker-host running on branch '{branch}'.\nStart with: {Configuration.AliasName} claude-agent {targetAgentType}");
             return;
         }
 
@@ -186,19 +194,34 @@ public class ClaudeAgentCommand : Command
         // Get next task counter
         var taskCounter = await GetNextTaskCounter(workspace);
 
-        // Create request file
-        var taskRequestFileName = CreateRequestFileName(taskCounter, workspace.AgentType, taskTitle);
+        // Create request file with headers
+        var now = DateTime.Now;
+        var requestContentWithHeaders =
+            $"""
+             ---
+             from: {senderAgentType}
+             to: {targetAgentType}
+             request-number: {taskCounter:D4}
+             timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             task-id: {taskId}
+             story-id: {storyId}
+             ---
+
+             {markdownContent}
+             """;
+
+        var taskRequestFileName = CreateRequestFileName(taskCounter, targetAgentType, taskTitle);
         var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
-        await File.WriteAllTextAsync(taskRequestFilePath, markdownContent);
+        await File.WriteAllTextAsync(taskRequestFilePath, requestContentWithHeaders);
 
         // Save task metadata
-        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "");
+        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "", senderAgentType);
         await WriteTaskMetadata(workspace, taskInfo);
 
-        ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
+        ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
         // Wait for response file (no polling, no timeout - worker manages its own lifecycle)
-        var responseFilePattern = $"{taskCounter:D4}.{workspace.AgentType}.response.*.md";
+        var responseFilePattern = $"{taskCounter:D4}.{targetAgentType}.response.*.md";
 
         // Check if response already exists (worker might complete before we start watching)
         var existingFiles = Directory.GetFiles(workspace.MessagesDirectory, responseFilePattern);
@@ -224,9 +247,9 @@ public class ClaudeAgentCommand : Command
         var responseContent = await File.ReadAllTextAsync(foundResponseFile);
         var actualResponseFileName = Path.GetFileName(foundResponseFile);
 
-        ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{workspace.AgentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]");
+        ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.response] Completed: '{taskTitle}' -> [{actualResponseFileName}]");
 
-        var result = $"Task delegated successfully to '{workspace.AgentType}'.\n" +
+        var result = $"Task delegated successfully to '{targetAgentType}'.\n" +
                      $"Task number: {taskCounter:D4}\n" +
                      $"Request file: {taskRequestFileName}\n" +
                      $"Response file: {actualResponseFileName}\n\n" +
@@ -235,12 +258,12 @@ public class ClaudeAgentCommand : Command
         await Console.Out.WriteLineAsync(result);
     }
 
-    private async Task RunInteractiveMode(string? agentType, string? model)
+    private async Task RunInteractiveMode(string? targetAgentType, string? model)
     {
         // If no agent type provided, prompt for selection
-        if (string.IsNullOrEmpty(agentType))
+        if (string.IsNullOrEmpty(targetAgentType))
         {
-            agentType = AnsiConsole.Prompt(
+            targetAgentType = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
@@ -255,10 +278,10 @@ public class ClaudeAgentCommand : Command
             );
         }
 
-        var workspace = new Workspace(agentType);
-        Logger.SetContext(agentType);
+        var workspace = new Workspace(targetAgentType);
+        Logger.SetContext(targetAgentType);
         Logger.SetBranch(workspace.Branch);
-        Logger.Info($"Worker-host starting for '{agentType}' on branch: {workspace.Branch}");
+        Logger.Info($"Worker-host starting for '{targetAgentType}' on branch: {workspace.Branch}");
 
         // Set model if specified
         if (model is not null)
@@ -269,7 +292,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Tech-lead specific: Check for existing session and offer clean workspace option
-        if (agentType == "tech-lead")
+        if (targetAgentType is "tech-lead")
         {
             var branchWorkspacePath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", workspace.Branch);
 
@@ -328,7 +351,7 @@ public class ClaudeAgentCommand : Command
                                 ? $"{(int)processAge.TotalMinutes} minutes {(int)(processAge.TotalSeconds % 60)} seconds ago"
                                 : $"{(int)processAge.TotalHours} hours {processAge.Minutes} minutes ago";
 
-                        AnsiConsole.MarkupLine($"[yellow]⚠ Another '{agentType}' worker-host is currently running (PID: {existingProcessId}, Started: {ageString})[/]");
+                        AnsiConsole.MarkupLine($"[yellow]⚠ Another '{targetAgentType}' worker-host is currently running (PID: {existingProcessId}, Started: {ageString})[/]");
 
                         var choice = AnsiConsole.Prompt(
                             new SelectionPrompt<string>()
@@ -383,7 +406,7 @@ public class ClaudeAgentCommand : Command
         };
 
         // Display FigletText banner for the agent
-        var displayName = GetAgentDisplayName(agentType);
+        var displayName = GetAgentDisplayName(targetAgentType);
 
         // Set terminal title
         SetTerminalTitle($"{displayName} - {workspace.Branch}");
@@ -391,10 +414,10 @@ public class ClaudeAgentCommand : Command
         // Load small Figlet font for compact banner
         var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
         var font = File.Exists(smallFontPath) ? FigletFont.Load(smallFontPath) : FigletFont.Default;
-        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(agentType));
+        var agentBanner = new FigletText(font, displayName).Color(GetAgentColor(targetAgentType));
         AnsiConsole.Write(agentBanner);
 
-        var agentColor = GetAgentColor(agentType);
+        var agentColor = GetAgentColor(targetAgentType);
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
@@ -424,7 +447,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Tech-lead launches immediately, other agents wait for requests
-        if (agentType == "tech-lead")
+        if (targetAgentType is "tech-lead")
         {
             // Main loop: tech-lead runs infinitely, relaunching after each session
             while (true)
@@ -449,7 +472,7 @@ public class ClaudeAgentCommand : Command
         }
 
         // Display initial waiting screen with recent activity
-        RedrawWaitingDisplay(agentType, workspace.Branch);
+        RedrawWaitingDisplay(targetAgentType, workspace.Branch);
 
         // Main loop: wait for requests or manual control
         while (true)
@@ -674,7 +697,7 @@ public class ClaudeAgentCommand : Command
 
         // Read model from .default-model file if it exists
         var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
-        string? model = File.Exists(defaultModelFile) ? (await File.ReadAllTextAsync(defaultModelFile)).Trim() : null;
+        var model = File.Exists(defaultModelFile) ? (await File.ReadAllTextAsync(defaultModelFile)).Trim() : null;
 
         // Build standard arguments
         var claudeArgs = new List<string>
@@ -787,7 +810,8 @@ public class ClaudeAgentCommand : Command
         string requestFilePath,
         string taskTitle,
         string? storyId,
-        string taskId)
+        string taskId,
+        string senderAgentType)
     {
         return new CurrentTaskInfo(
             $"{taskCounter:D4}",
@@ -796,7 +820,8 @@ public class ClaudeAgentCommand : Command
             1,
             storyId,
             taskId,
-            taskTitle
+            taskTitle,
+            senderAgentType
         );
     }
 
@@ -1184,13 +1209,13 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private async Task<ProcessCompletionResult> MonitorMcpRequestSession(Process process, string agentType, ProcessMonitoringOptions options, Workspace workspace)
+    private async Task<ProcessCompletionResult> MonitorMcpRequestSession(Process process, string targetAgentType, ProcessMonitoringOptions options, Workspace workspace)
     {
         // MCP request sessions have inactivity timeout with restart logic
         var currentProcess = process;
         var restartCount = 0;
-        var maxRestarts = agentType == "tech-lead" ? int.MaxValue : 2;
-        var inactivityThreshold = agentType == "tech-lead"
+        var maxRestarts = targetAgentType is "tech-lead" ? int.MaxValue : 2;
+        var inactivityThreshold = targetAgentType is "tech-lead"
             ? TimeSpan.FromMinutes(60)
             : TimeSpan.FromMinutes(20);
         var lastGitChangeDetected = DateTime.Now;
@@ -1207,7 +1232,7 @@ public class ClaudeAgentCommand : Command
                 break;
             }
 
-            var (hasRecentActivity, idleTime) = agentType switch
+            var (hasRecentActivity, idleTime) = targetAgentType switch
             {
                 var type when type.EndsWith("-reviewer") => CheckReviewerActivity(workspace),
                 var type when type.EndsWith("-engineer") => CheckEngineerActivity(workspace, lastGitChangeDetected),
@@ -1285,7 +1310,7 @@ public class ClaudeAgentCommand : Command
         var responseFileName = Path.GetFileName(responseFilePath);
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
 
-        ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{agentType}.response] Completed: '{responseFileName}'");
+        ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{targetAgentType}.response] Completed: '{responseFileName}'");
         Logger.Debug($"MCP request session SUCCESS - Task completed, response file: {responseFileName}");
 
         return new ProcessCompletionResult(true, "Task completed successfully", responseContent);
@@ -1631,7 +1656,8 @@ public record CurrentTaskInfo(
     int Attempt,
     string? StoryId,
     string TaskId,
-    string TaskTitle
+    string TaskTitle,
+    string SenderAgentType
 );
 
 public record ProcessMonitoringOptions(

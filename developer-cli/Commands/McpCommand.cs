@@ -353,8 +353,10 @@ public static class WorkerMcpTools
     [McpServerTool]
     [Description("Delegate a development task to a specialized agent. Use this when you need backend development, frontend work, E2E testing, or code review. The agent will work autonomously and return results.")]
     public static string StartWorkerAgent(
-        [Description("Worker type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)")]
-        string agentType,
+        [Description("Your agent type (who is sending this delegation)")]
+        string senderAgentType,
+        [Description("Target agent type (backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)")]
+        string targetAgentType,
         [Description("Short title for the task")]
         string taskTitle,
         [Description("Task content in markdown format")]
@@ -380,10 +382,16 @@ public static class WorkerMcpTools
             throw new ArgumentException("Parameter `taskId` is required and must not be empty. `taskId` must match the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL] and must be distinct from `storyId`.");
         }
 
+        // Prevent self-delegation: Engineers cannot delegate to themselves
+        if (senderAgentType == targetAgentType)
+        {
+            return $"Error: Cannot delegate to yourself. You ARE {targetAgentType}.";
+        }
+
         // For ad-hoc work, check if target engineer is busy
         if (taskId.StartsWith("ad-hoc-"))
         {
-            var targetWorkspace = new Workspace(agentType, branch);
+            var targetWorkspace = new Workspace(targetAgentType, branch);
             if (File.Exists(targetWorkspace.CurrentTaskFile))
             {
                 try
@@ -400,9 +408,9 @@ public static class WorkerMcpTools
                             : $"{elapsed.Seconds}s";
 
                         return $"""
-                                Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy.
+                                Error: Cannot delegate ad-hoc work to {targetAgentType} - engineer is currently busy.
 
-                                The {agentType} has been working on task "{taskInfo.TaskTitle}" for {elapsedFormatted}.
+                                The {targetAgentType} has been working on task "{taskInfo.TaskTitle}" for {elapsedFormatted}.
 
                                 Please try again in a few minutes (e.g., use a sleep function). You can call it again when it's done.
                                 """;
@@ -411,13 +419,13 @@ public static class WorkerMcpTools
                 catch (Exception ex)
                 {
                     // Fallback if we can't read/parse the file
-                    return $"Error: Cannot delegate ad-hoc work to {agentType} - engineer is currently busy with another task. Please try again in a few minutes. Error: {ex.Message}";
+                    return $"Error: Cannot delegate ad-hoc work to {targetAgentType} - engineer is currently busy with another task. Please try again in a few minutes. Error: {ex.Message}";
                 }
             }
         }
 
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
-        var args = new List<string> { "claude-agent", agentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
+        var args = new List<string> { "claude-agent", targetAgentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
         args.Add("--story-id");
         args.Add(storyId);
@@ -427,6 +435,9 @@ public static class WorkerMcpTools
 
         args.Add("--reset-memory");
         args.Add(resetMemory.ToString().ToLower());
+
+        args.Add("--sender-agent-type");
+        args.Add(senderAgentType);
 
         if (requestFilePath != null)
         {
@@ -611,7 +622,10 @@ public static class WorkerMcpTools
                 {
                     Process.GetProcessById(processId).Kill();
                 }
-                catch (ArgumentException) { /* Process already dead */ }
+                catch (ArgumentException)
+                {
+                    /* Process already dead */
+                }
             }
 
             return $"Switched to {modelName}. Restarting...";

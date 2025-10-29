@@ -53,8 +53,24 @@ public static class ClaudeAgentLifecycle
         var responseFileName = $"{taskId}.{agentType}.response.{sanitizedSummary}.md";
         var responseFilePath = Path.Combine(workspace.MessagesDirectory, responseFileName);
 
+        // Add headers to response content
+        var now = DateTime.Now;
+        var responseContentWithHeaders =
+            $"""
+             ---
+             from: {agentType}
+             to: {taskInfo.SenderAgentType}
+             request-number: {taskId}
+             timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             task-id: {taskInfo.TaskId}
+             story-id: {taskInfo.StoryId}
+             ---
+
+             {responseContent}
+             """;
+
         // Write response file directly to messages directory
-        await File.WriteAllTextAsync(responseFilePath, responseContent);
+        await File.WriteAllTextAsync(responseFilePath, responseContentWithHeaders);
 
         // Delete current-task.json now that response is written
         if (File.Exists(workspace.CurrentTaskFile))
@@ -194,8 +210,26 @@ public static class ClaudeAgentLifecycle
         var responseFileName = $"{taskId}.{agentType}.response.{statusPrefix}-{sanitizedSummary}.md";
         var responseFilePath = Path.Combine(workspace.MessagesDirectory, responseFileName);
 
+        // Add headers to response content
+        var now = DateTime.Now;
+        var responseContentWithHeaders =
+            $"""
+             ---
+             from: {agentType}
+             to: {taskInfo.SenderAgentType}
+             request-number: {taskId}
+             timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             task-id: {taskInfo.TaskId}
+             story-id: {taskInfo.StoryId}
+             approved: {approved}
+             {(approved ? $"commit-hash: {commitHash}" : $"reject-reason: {rejectReason}")}
+             ---
+
+             {responseContent}
+             """;
+
         // Write response file directly to messages directory
-        await File.WriteAllTextAsync(responseFilePath, responseContent);
+        await File.WriteAllTextAsync(responseFilePath, responseContentWithHeaders);
 
         // Delete current-task.json now that response is written
         if (File.Exists(workspace.CurrentTaskFile))
