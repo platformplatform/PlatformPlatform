@@ -119,7 +119,7 @@ Before reviewing, understand the big picture:
 
 **Collaborate with your team**: For complex problems or design questions, engage in conversation with engineers or other reviewers. Better solutions often emerge from team collaboration.
 
-**STEP 2**: Run validation tools in parallel (backend [tasks] only)
+**STEP 2**: Run validation for ALL systems (catches cross-system breakage)
 
 **CRITICAL - ZERO TOLERANCE FOR ANY ISSUES**:
 - We deploy to production after review - quality is non-negotiable
@@ -128,26 +128,23 @@ Before reviewing, understand the big picture:
 - This includes pre-existing issues unrelated to engineer's changes
 - NEVER approve code with ANY outstanding issues
 
-For **backend [tasks]**, run **format**, **test**, and **inspect** in parallel using the Task tool:
-- Spawn three `backend-tool-runner` subagents simultaneously
-- One runs `format`, one runs `test`, one runs `inspect`
-- Wait for all three to complete
-- REJECT if ANY failures, warnings, or problems found (zero tolerance)
+1. Run **build** first for ALL self-contained systems (backend AND frontend)
+   - Use execute_command MCP tool: `command: "build"`
+   - DO NOT run in parallel
 
-**If validation tools fail with errors that seem unrelated to engineer's changes**:
-- Check `git log --oneline` to see recent commits and understand what parallel engineer is working on
-- If recent commits exist: Sleep 5 minutes, re-run validation (parallel engineer may be fixing it)
-- If issue persists: REJECT and ask engineer to coordinate with parallel engineer or fix the pre-existing issue
+2. Run **format**, **test**, **inspect** in parallel for ALL self-contained systems
+   - Spawn three `parallel-tool-runner` subagents simultaneously
+   - "Run command: format"
+   - "Run command: test"
+   - "Run command: inspect"
+   - Wait for all to complete
 
-**Parallel execution example**:
-```
-In a single message, use Task tool three times:
-1. Task tool → backend-tool-runner: "Run backend tool: format"
-2. Task tool → backend-tool-runner: "Run backend tool: test"
-3. Task tool → backend-tool-runner: "Run backend tool: inspect"
-```
+3. REJECT if ANY failures found (zero tolerance)
 
-For **frontend [tasks]**, use **test** and **inspect** MCP tools directly.
+**If validation fails with errors unrelated to engineer's changes**:
+- Check `git log --oneline` for recent parallel engineer commits
+- If recent commits exist: Sleep 5 minutes, re-run validation
+- If issue persists: REJECT and ask engineer to fix pre-existing issue
 
 **STEP 3**: Study ALL rules for your role (read files or recall from memory)
 
@@ -223,6 +220,10 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
      - **Frontend reviewer**: WebApp files EXCEPT *.Api.json files
    - Verify engineer's list matches filtered git status EXACTLY (no missing files, no extra files)
    - If mismatch: REJECT with specific files missing or wrongly included
+
+**CRITICAL for backend-reviewer**: ALWAYS verify OpenAPI JSON file is included:
+- Check if `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` exists in git status
+- This *.Api.json file MUST be committed with backend changes
 
 **Execute steps 3-6 immediately without delay (minimize race conditions)**:
 

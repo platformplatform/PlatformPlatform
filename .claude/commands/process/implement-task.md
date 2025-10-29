@@ -132,21 +132,24 @@ Before implementing, understand the big picture:
 - This includes pre-existing issues unrelated to your changes
 - NEVER request review with ANY outstanding issues
 
-For **backend [tasks]**, first run **build**, then run **format**, **test**, and **inspect** in parallel using the Task tool:
-- Spawn three `backend-tool-runner` subagents simultaneously
-- One runs `format`, one runs `test`, one runs `inspect`
-- Wait for all three to complete
-- Fix ALL failures, warnings, or problems found (zero tolerance)
+For **backend [tasks]**:
+1. Run **build** for your self-contained system: `execute_command(command: "build", backend: true, selfContainedSystem: "{self-contained-system}")`
+2. Run **format**, **test**, **inspect** in parallel for your self-contained system:
+   - Spawn three `parallel-tool-runner` subagents simultaneously
+   - "Run command: format backend for {self-contained-system}"
+   - "Run command: test backend for {self-contained-system}"
+   - "Run command: inspect backend for {self-contained-system}"
+   - Wait for all to complete
+3. Fix ALL failures found (zero tolerance)
 
-**Parallel execution example**:
-```
-In a single message, use Task tool three times:
-1. Task tool → backend-tool-runner: "Run backend tool: format"
-2. Task tool → backend-tool-runner: "Run backend tool: test"
-3. Task tool → backend-tool-runner: "Run backend tool: inspect"
-```
-
-For **frontend [tasks]**, first run **build**, then run **format** and **inspect** MCP tools directly in parallel.
+For **frontend [tasks]**:
+1. Run **build** for your self-contained system: `execute_command(command: "build", frontend: true, selfContainedSystem: "{self-contained-system}")`
+2. Run **test**, **inspect** in parallel for your self-contained system:
+   - Spawn two `parallel-tool-runner` subagents simultaneously
+   - "Run command: test frontend for {self-contained-system}"
+   - "Run command: inspect frontend for {self-contained-system}"
+   - Wait for all to complete
+3. Fix ALL failures found (zero tolerance)
 
 **STEP 7**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
