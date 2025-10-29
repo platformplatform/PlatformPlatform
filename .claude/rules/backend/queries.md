@@ -39,6 +39,7 @@ Carefully follow these instructions when implementing CQRS queries, including st
    - If result messages contain values always enclose them in single quotes: `$"User with ID '{userId}' not found."`
    - Use repositories to retrieve data from the database, and never use Entity Framework directly.
    - Prefer using Mapster to map domain aggregates and entities to response DTOs. For complex mapping, map manually.
+   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
    - Queries should rarely track TelemetryEvents.
 7. After changing the API, use the **execute MCP tool** with `command: "build"` for backend to generate the OpenAPI JSON contract. Then use the **execute MCP tool** with `command: "build"` for frontend to trigger `openapi-typescript` to generate the API contract used by the frontend.
 

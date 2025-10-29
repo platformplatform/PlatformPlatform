@@ -28,6 +28,10 @@ Carefully follow these instructions when implementing DDD repositories in the ba
     - `MapStronglyTypedUuid` for ULIDs.
     - `MapStronglyTypedLongId` for long IDs.
     - `MapStronglyTypedGuid` for GUIDs.
+12. Updating entities does not belong to the repository. Use commands to fetch the aggregate and update it, and then save it using the repository.
+13. Never add `.AsTracking()` to queries. Instead, fetch aggregates through repositories and update them using repository.Update(), which handles tracking internally.
+14. Never do N+1 queries.
+15. Do not register repositories in the DI container. They are registered automatically by SharedKernel.
 
 ## Examples
 

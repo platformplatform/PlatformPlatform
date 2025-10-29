@@ -24,6 +24,8 @@ Carefully follow these instructions when implementing DDD models for aggregates,
    - Use factory methods when creating aggregates.
    - Make properties private, and use methods when changing state and enforcing business rules.
    - Make properties immutable.
+   - For many-to-many aggregates, make them Tenant scoped (ITenantScopedEntity) to include TenantId column, even if foreign key constraints already ensure tenant isolation.
+   - For many-to-many aggregates, carefully consider if cascade delete is needed. If so, use `OnDelete(DeleteBehavior.Cascade)` in the EF Core IEntityTypeConfiguration.
 5. For Entities:
    - Use public sealed classes that inherit from `Entity<TId>`.
    - Create a strongly typed ID for entities.
@@ -37,6 +39,7 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 7. Do NOT add Entity Framework not configure for primitive properties
    - We don't use Entity Framework tooling for creating migrations, so there are no need for primitive property configuration, like lenght of fields, or nullable properties.
    - Only configure Entity Framework properties for complex types, like collections, and value objects, that Entity Framework uses for generating SQL statements.
+8. When implementing a new aggregate, start with the minimum required methods for the current feature. Add additional methods as new features require them, ensuring each method maintains aggregate invariants.
 
 ## Examples
 

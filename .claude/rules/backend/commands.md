@@ -26,6 +26,7 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Only validate if the command has user input.
    - Ideally each property should only have one shared validation message for all cases (required, max length, etc.).
    - Don't inject dependencies like repositories to validators; use guards in the handler instead.
+   - Only validate user input, not route parameters, enum values, strongly typed IDs, etc., that are validated by the ASP.NET model binder.
 4. Handler:
    - Create a public sealed class with `Handler`.
    - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
@@ -35,9 +36,11 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Never throw exceptions, but always return `Result.Xxx()`.
    - Always create [Telemetry Events](/.claude/rules/backend/telemetry-events.md) for successful command results.
      - Optionally log telemetry for failed commands when it adds business value (e.g. for a failed login).
+     - Prefer tracking one event per command. For bulk operations, track a single bulk event unless single operation equivalents exist (e.g., if both AssignTag and AssignTags exist, AssignTags should emit individual TagAssigned events for consistency).
    - Save changes:
      - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.
      - Never call Entity Framework `SaveChangesAsync()` directly.
+   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
 5. Command Composition:
    - Inject MediatR to chain commands: e.g., `await mediator.Send(new CreateUserCommand(...))`.
    - Extract shared logic to separate classes and store them in `/[scs-name]/Core/Features/[Feature]/Shared` (e.g., `await avatarUpdater.UpdateAvatar(user, ...)`).
