@@ -310,7 +310,7 @@ public static class ClaudeAgentLifecycle
 
     public static void LogWorkflowEvent(string message)
     {
-        Logger.Debug(message);
+        Logger.Info(message);
     }
 
     private static string TerminateSession(Workspace workspace)

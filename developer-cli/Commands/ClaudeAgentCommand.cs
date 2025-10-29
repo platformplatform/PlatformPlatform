@@ -641,7 +641,6 @@ public class ClaudeAgentCommand : Command
 
         // Show completion status
         AnsiConsole.MarkupLine(result.Success ? $"[{agentColor} bold]✓ {result.Message}[/]" : $"[red bold]✗ {result.Message}[/]");
-        Logger.Debug($"Request completed: {Path.GetFileName(requestFile)} - {result.Message}");
 
         // Restore terminal title to show branch name
         SetTerminalTitle($"{displayName} - {workspace.Branch}");
@@ -772,7 +771,6 @@ public class ClaudeAgentCommand : Command
 
         // Verification delay to confirm process launched successfully before returning
         await Task.Delay(TimeSpan.FromSeconds(3));
-        Logger.Debug($"Process launched successfully with PID {process.Id}");
 
         // Create .worker-process-id with worker-agent's process ID
         await File.WriteAllTextAsync(workspace.WorkerProcessIdFile, process.Id.ToString());
@@ -845,14 +843,12 @@ public class ClaudeAgentCommand : Command
         {
             sessionId = (await File.ReadAllTextAsync(sessionIdFile)).Trim();
             isResume = true;
-            Logger.Debug($"Resuming existing session: {sessionId}");
         }
         else
         {
             sessionId = Guid.NewGuid().ToString();
             await File.WriteAllTextAsync(sessionIdFile, sessionId);
             isResume = false;
-            Logger.Debug($"Creating new session: {sessionId}");
         }
 
         // Build arguments with session management
@@ -1228,7 +1224,6 @@ public class ClaudeAgentCommand : Command
 
             if (exited)
             {
-                Logger.Debug($"MCP request session process {currentProcess.Id} exited - exit code: {currentProcess.ExitCode}");
                 break;
             }
 
@@ -1310,8 +1305,7 @@ public class ClaudeAgentCommand : Command
         var responseFileName = Path.GetFileName(responseFilePath);
         var responseContent = await File.ReadAllTextAsync(responseFilePath);
 
-        ClaudeAgentLifecycle.LogWorkflowEvent($"[{options.TaskNumber}.{targetAgentType}.response] Completed: '{responseFileName}'");
-        Logger.Debug($"MCP request session SUCCESS - Task completed, response file: {responseFileName}");
+        ClaudeAgentLifecycle.LogWorkflowEvent($"Completed: '{responseFileName}'");
 
         return new ProcessCompletionResult(true, "Task completed successfully", responseContent);
     }
@@ -1478,7 +1472,7 @@ public class ClaudeAgentCommand : Command
         if (sessionIdleTime.HasValue)
         {
             var isActive = sessionIdleTime.Value < TimeSpan.FromMinutes(5);
-            if (isActive) Logger.Debug($"Reviewer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
+            if (isActive) Logger.Debug($"Activity check - Reviewer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
             return (isActive, sessionIdleTime.Value);
         }
 
@@ -1494,7 +1488,7 @@ public class ClaudeAgentCommand : Command
             {
                 if (sessionIdleTime.Value < TimeSpan.FromMinutes(30))
                 {
-                    Logger.Debug($"Engineer waiting for reviewer ({sessionIdleTime.Value.TotalMinutes:F1} min ago) - expected");
+                    Logger.Debug($"Activity check - Engineer waiting for reviewer ({sessionIdleTime.Value.TotalMinutes:F1} min ago) - expected");
                     return (true, TimeSpan.Zero);
                 }
 
@@ -1503,7 +1497,7 @@ public class ClaudeAgentCommand : Command
             }
 
             var isActive = sessionIdleTime.Value < TimeSpan.FromMinutes(5);
-            if (isActive) Logger.Debug($"Engineer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
+            if (isActive) Logger.Debug($"Activity check - Engineer session active ({sessionIdleTime.Value.TotalMinutes:F1} min ago)");
             return (isActive, sessionIdleTime.Value);
         }
 
