@@ -152,30 +152,66 @@ For **frontend [tasks]**, first run **build**, then run **format** and **inspect
 
 **MANDATORY FOR FRONTEND ENGINEER - DO NOT SKIP**
 
-1. **Navigate to https://localhost:9000** and test the changes:
-   - Test all functionality that was implemented
-   - Verify UI components render correctly
-   - Test user interactions (clicks, forms, navigation, etc.)
-   - If the website is not responding, use the **watch** MCP tool to restart the server (restarts .NET Aspire and runs database migrations in background)
+1. **Navigate to https://localhost:9000** and test ALL functionality:
+   - **Test the COMPLETE happy path** of the new feature from start to finish
+   - **Test ALL edge cases**: validation errors, empty states, maximum values, special characters
+   - **Test user scenarios**: What would a user actually do with this feature?
+   - **Take screenshots** and critically examine if everything renders with expected layout and styling
+   - Test in **dark mode** and **light mode** (switch theme and verify UI renders correctly)
+   - Test **localization** (switch language if feature has translatable strings)
+   - Test **responsive behavior**: mobile size, small browser, large browser (resize and verify layout adapts)
+   - Verify UI components render correctly (spacing, alignment, colors, borders, fonts)
+   - Test all user interactions (clicks, forms, dialogs, navigation, keyboard navigation)
+   - **Document what you tested** in your response (which scenarios, which user flows, which modes tested)
+   - If website not responding, use **watch** MCP tool to restart server
 
-2. **Monitor Network tab** - Fix ALL issues:
+2. **Test with different user roles** (if applicable):
+   - Test as admin user: `admin@platformplatform.local` / `UNLOCK`
+   - Test as non-admin user if feature has role-based access
+   - Verify permissions and access controls work correctly
+
+3. **Monitor Network tab** - Fix ALL issues:
    - **Zero tolerance**: No failed requests, no 4xx/5xx errors
+   - Check ALL API calls for the new feature execute successfully
    - No slow requests without explanation
    - Fix ANY network warnings or errors (even if pre-existing per Boy Scout rule)
 
-3. **Monitor Console tab** - Fix ALL issues:
+4. **Monitor Console tab** - Fix ALL issues:
    - **Zero tolerance**: No console errors, no warnings
    - Fix ANY console errors or warnings (even if pre-existing per Boy Scout rule)
    - Clear console and verify it stays clean during all interactions
 
-4. **Login instructions**:
+5. **Login instructions**:
    - Username: `admin@platformplatform.local`
    - Use `UNLOCK` for verification code (works on localhost only)
    - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code
 
 **Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, FIX THEM. Zero tolerance means ZERO - not "only for my changes".
 
-**STEP 8**: Update [task] for review
+**STEP 8**: Fix any bugs discovered during validation/testing
+
+**CRITICAL - APPLIES TO ALL ENGINEERS**:
+
+If you discover bugs during testing or validation (API errors, broken functionality, console errors, broken UI, test failures), you MUST fix them before requesting review. NEVER request review with known bugs.
+
+**If bug is in existing code (not your changes)**:
+1. `git stash` your current changes (but don't include changes from other engineers working in parallel)
+2. Verify the bug exists on clean code
+3. Fix yourself if within your specialty OR delegate if outside your specialty (use start_worker_agent with ad-hoc taskId)
+4. Get review and commit for the fix
+5. `git stash pop` to restore your changes and continue
+
+**If you see errors that might be from parallel engineer's changes**:
+- Check `git log --oneline` to see recent commits and understand what parallel engineer is working on
+- If recent commits exist: Sleep 5 minutes, then re-test (parallel engineer may be fixing it)
+- If issue persists after 10-15 minutes: Delegate to that engineer or fix yourself if within specialty
+
+**Valid Solutions When Stuck**:
+- Fix the bug yourself if it's within your specialty (your role boundaries)
+- Delegate to appropriate engineer if bug is outside your specialty (use start_worker_agent with ad-hoc taskId)
+- **Revert your changes** if solution is too complex - revert all git changes, fix pre-existing problems first, then re-implement cleanly
+
+**STEP 9**: Update [task] for review
 
 **If `storyId` is not "ad-hoc":**
 1. **Update [task] description** to reflect what was actually implemented:
@@ -188,7 +224,7 @@ For **frontend [tasks]**, first run **build**, then run **format** and **inspect
 - Skip [PRODUCT_MANAGEMENT_TOOL] operations
 - Proceed directly to calling reviewer
 
-**STEP 9**: Delegate to reviewer subagent to review and commit your code
+**STEP 10**: Delegate to reviewer subagent to review and commit your code
 
 **CRITICAL - Before calling reviewer**:
 
@@ -233,7 +269,7 @@ Response: {responseFilePath}
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 10**: Re-read [story], update plan if needed
+**STEP 11**: Re-read [story], update plan if needed
 
 **If `storyId` is not "ad-hoc":**
 - Re-read [story] to check if there are more [tasks]
@@ -242,7 +278,7 @@ Response: {responseFilePath}
 **If `storyId` is "ad-hoc":**
 - Skip (no [story] to re-read)
 
-**STEP 11**: Signal completion and exit
+**STEP 12**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 

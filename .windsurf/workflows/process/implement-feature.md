@@ -182,6 +182,19 @@ FOR EACH [story]:
 
 Work on multiple [stories] in parallel (each [story] uses a different engineer type). In each round, delegate one [task] from each [story] simultaneously, wait for all to return, then move to the next round. Example: If backend [story] has 4 [tasks] and frontend [story] has 6 [tasks], there will be 6 rounds - rounds 1-4 delegate to both engineers, rounds 5-6 delegate only to frontend-engineer.
 
+**Delegation format for parallel mode**:
+Add parallel work notification to each task delegation:
+```
+Feature: {featureId} ({featureTitle})
+Story: {storyId} ({storyTitle})
+Task: {taskId} ({taskTitle})
+Reset memory: {resetMemory}
+
+⚠️ Parallel Work: You are working in parallel with {other-engineer} on {other-story-title}. You may see their git commits. If you encounter errors that seem related to their changes, sleep 5-10 minutes and re-test.
+
+Please implement this [task].
+```
+
 FOR EACH round of parallel delegation:
   In a SINGLE message, delegate multiple [tasks] using Task tool multiple times
 

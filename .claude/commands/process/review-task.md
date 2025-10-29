@@ -137,6 +137,11 @@ For **backend [tasks]**, run **format**, **test**, and **inspect** in parallel u
 - Wait for all three to complete
 - REJECT if ANY failures, warnings, or problems found (zero tolerance)
 
+**If validation tools fail with errors that seem unrelated to engineer's changes**:
+- Check `git log --oneline` to see recent commits and understand what parallel engineer is working on
+- If recent commits exist: Sleep 5 minutes, re-run validation (parallel engineer may be fixing it)
+- If issue persists: REJECT and ask engineer to coordinate with parallel engineer or fix the pre-existing issue
+
 **Parallel execution example**:
 ```
 In a single message, use Task tool three times:
@@ -161,28 +166,49 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **MANDATORY FOR FRONTEND REVIEWER - DO NOT SKIP**
 
-1. **Navigate to https://localhost:9000** and test the changes:
-   - Test all functionality that was implemented
-   - Verify UI components render correctly
-   - Test user interactions (clicks, forms, navigation, etc.)
-   - If the website is not responding, use the **watch** MCP tool to restart the server (restarts .NET Aspire and runs database migrations in background)
+1. **Navigate to https://localhost:9000** and test ALL functionality:
+   - **Test the COMPLETE happy path** of the new feature from start to finish
+   - **Test ALL edge cases**: validation errors, empty states, maximum values, special characters, boundary conditions
+   - **Test user scenarios**: What would a user actually do with this feature? Try to break it.
+   - **Take screenshots** and critically examine if everything renders with expected layout and styling
+   - Test in **dark mode** and **light mode** (switch theme and verify UI renders correctly)
+   - Test **localization** (switch language if feature has translatable strings)
+   - Test **responsive behavior**: mobile size, small browser, large browser (resize and verify layout adapts)
+   - Verify engineer documented what they tested - if not documented, REJECT
+   - If website not responding, use **watch** MCP tool to restart server
 
-2. **Monitor Network tab** - Document ALL issues:
+2. **Test with different user roles** (CRITICAL):
+   - Test as admin: `admin@platformplatform.local` / `UNLOCK`
+   - **Test as non-admin user** if feature has role-based behavior
+   - Verify permissions, access controls, and role-specific UI elements work correctly
+   - REJECT if role-based features not tested with appropriate roles
+
+3. **Monitor Network tab** - REJECT if ANY issues found:
    - **Zero tolerance**: No failed requests, no 4xx/5xx errors
+   - Check ALL API calls for the new feature execute successfully
    - No slow requests without explanation
-   - Document ANY network warnings or errors (even if pre-existing per Boy Scout rule)
+   - REJECT if ANY network warnings or errors found (even pre-existing per Boy Scout rule)
 
-3. **Monitor Console tab** - Document ALL issues:
+4. **Monitor Console tab** - REJECT if ANY issues found:
    - **Zero tolerance**: No console errors, no warnings
-   - Document ANY console errors or warnings (even if pre-existing per Boy Scout rule)
+   - REJECT if ANY console errors or warnings found (even pre-existing per Boy Scout rule)
    - Clear console and verify it stays clean during all interactions
 
-4. **Login instructions**:
+5. **Analyze screenshots for UI quality** (take screenshots of new UI):
+   - Check spacing, sizing, alignment, borders match design patterns
+   - Verify responsive behavior (resize browser, test mobile viewport)
+   - Check color contrast, typography, visual hierarchy
+   - REJECT if UI elements are misaligned, poorly spaced, or inconsistent
+   - AI is bad at visual design - use your human judgment on screenshots
+
+6. **Login instructions**:
    - Username: `admin@platformplatform.local`
    - Use `UNLOCK` for verification code (works on localhost only)
    - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code
 
-**Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, DOCUMENT THEM. Zero tolerance means ZERO - not "only for my changes".
+**CRITICAL**: If you discover bugs during testing (API errors, broken functionality, console errors, network errors), you MUST REJECT. Zero tolerance means REJECT on ANY issue found.
+
+**Boy Scout Rule**: If you find pre-existing issues unrelated to engineer's changes, REJECT and require engineer to fix them. Zero tolerance means ZERO - not "only for my changes".
 
 **STEP 6**: Review each file line-by-line
 
