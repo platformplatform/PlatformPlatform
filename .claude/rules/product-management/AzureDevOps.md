@@ -51,6 +51,8 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 
 ## Critical Rules
 
+- Descriptions support HTML formatting: use `<pre>` for ASCII art/code blocks, `<br/>` for line breaks, `<strong>` for bold
+
 - ALL operations MUST use MCP tools
 - If ANY MCP call fails: STOP immediately and call report_problem with severity: error
 - NEVER skip status updates
