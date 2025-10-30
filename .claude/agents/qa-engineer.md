@@ -28,7 +28,8 @@ You are the **qa-engineer** proxy agent.
 Delegate work via MCP:
 ```
 Use developer-cli MCP start_worker_agent:
-- agentType: "qa-engineer"
+- senderAgentType: "tech-lead"
+- targetAgentType: "qa-engineer"
 - taskTitle: From tech lead
 - markdownContent: Pass the EXACT request text unchanged
 - storyId: From tech lead
@@ -37,7 +38,8 @@ Use developer-cli MCP start_worker_agent:
 
 If simple request (no structured data), use:
 Use developer-cli MCP start_worker_agent:
-- agentType: "qa-engineer"
+- senderAgentType: "tech-lead"
+- targetAgentType: "qa-engineer"
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
 - branch: Extract branch name (if provided)
