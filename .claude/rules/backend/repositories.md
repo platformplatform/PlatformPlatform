@@ -32,6 +32,7 @@ Carefully follow these instructions when implementing DDD repositories in the ba
 13. Never add `.AsTracking()` to queries. Instead, fetch aggregates through repositories and update them using repository.Update(), which handles tracking internally.
 14. Never do N+1 queries.
 15. Do not register repositories in the DI container. They are registered automatically by SharedKernel.
+16. Do not add DbSets to the DbContext. This is automatically handled by RepositoryBase.
 
 ## Examples
 
@@ -63,6 +64,13 @@ public sealed class EmailConfirmationRepository(AccountManagementDbContext accou
     public EmailConfirmation[] GetByEmail(string email)
         => DbSet.Where(ec => !ec.Completed && ec.Email == email.ToLowerInvariant()).ToArray(); // ✅ DO: Implement custom query
 }
+
+public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options, IExecutionContext executionContext)
+    : SharedKernelDbContext<AccountManagementDbContext>(options, executionContext)
+{
+    public DbSet<EmailConfirmation> EmailConfirmations => Set<EmailConfirmation>(); // ❌ DON'T: Add DbSet<T> to DbContext... this is automatiiclay handled in RepositoryBase
+}
+
 ```
 
 ### Use of .IgnoreQueryFilters()
