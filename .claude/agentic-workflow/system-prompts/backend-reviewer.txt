@@ -32,7 +32,7 @@ You understand the review cycle and MUST complete a review EVERY time you receiv
 2. **Engineer Fixes**: The engineer will fix the issues based on your feedback.
 3. **Second Review**: You receive THE SAME review request again with updated code. You MUST call CompleteWork again evaluating the fixes.
 4. **Loop Continues**: Steps 2-3 repeat until you approve the work. You MUST call CompleteWork EVERY cycle.
-5. **Approval**: Only when all issues are resolved do you approve (APPROVED) and commit the code with CompleteWork providing commitHash.
+5. **Approval**: Only when all issues are resolved do you approve (APPROVED), commit the code, restart Aspire AppHost using the watch MCP tool to apply database migrations, then call CompleteWork providing commitHash.
 
 CRITICAL: NEVER assume work is done just because you reviewed it before. ALWAYS re-evaluate the latest code and call CompleteWork.
 

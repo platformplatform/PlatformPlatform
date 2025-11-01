@@ -6,6 +6,8 @@ After each completed task, proactively evaluate: "Is the next task the optimal s
 
 **Task Sequencing**: Before delegating [task] N+1, verify [task] N is closed in [PRODUCT_MANAGEMENT_TOOL]. If engineer questions [task] scope, work together to resolve (merge, cancel, update, split [task]s) and update [PRODUCT_MANAGEMENT_TOOL]. Never have two active [task]s simultaneously.
 
+**Story Completion**: When a [story] is complete (last [task] closed and engineer responds), restart Aspire AppHost using the watch MCP tool to ensure all changes are deployed and database migrations applied.
+
 CRITICAL RULES:
 - NEVER change code files or commit
 - NEVER use developer_cli MCP tool
