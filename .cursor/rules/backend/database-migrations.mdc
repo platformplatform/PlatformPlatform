@@ -74,6 +74,7 @@ public sealed class AddUserPreferences : Migration
     }
 }
 
+// ❌ DON'T: Forget to add the attribute [DbContext(typeof(XxxDbContext))] fore the self-contained system 
 [Migration("20250507_AddUserPrefs")]  // ❌ DON'T: Missing proper 14-digit timestamp
 public class AddUserPrefsMigration : Migration  // ❌ DON'T: Not sealed and incorrect naming and suffix with Migration
 {

@@ -21,6 +21,34 @@ Carefully follow these instructions for C# backend development, including code s
 - Use simple collection types like `UserId[]` instead of `List<UserId>` whenever possible.
 - JetBrains tooling is used for automatically formatting code, but automatic line breaking has been disabled for more readable code:
   - Wrap lines if "new language" constructs are started after 120 characters. This allows lines longer than 120 characters but ensures that no "important code" is hidden after the 120 character mark.
+  - "Important code" means parameters, arguments, or constructs that are relevant for understanding the code. `CancellationToken cancellationToken` is NOT considered important and should never trigger a line break.
+  - Always prefer long lines over splitting to maximize code visible on screen. Only wrap when truly necessary.
+  - Examples:
+    ```csharp
+    // ✅ DO: Keep on one line even if longer than 120 chars (the 'c' in 'command' is before 120 chars)
+    public async Task<Result<CompleteEmailConfirmationResponse>> Handle(CompleteEmailConfirmationCommand command, CancellationToken cancellationToken)
+
+    // ✅ DO: Keep constructor parameters on one line when they fit (the 'e' in 'executionContext' is before 120 chars)
+    public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext)
+        : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
+
+    // ✅ DO: Wrap to 2 lines when needed, but never 3, 4, or 5 lines
+    var updatedLocale = Connection.ExecuteScalar<string>(
+        "SELECT Locale FROM Users WHERE Id = @id", new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }
+    );
+
+    // ❌ DON'T: Split method parameters across multiple lines when they fit before 120 chars
+    public async Task<Result> Handle(
+        UpgradeSubscriptionCommand command,
+        CancellationToken cancellationToken
+    )
+
+    // ❌ DON'T: Split constructor parameters across multiple lines when they fit before 120 chars
+    public sealed class GetPaymentHistoryHandler(
+        ISubscriptionRepository subscriptionRepository,
+        IExecutionContext executionContext
+    ) : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
+    ```
 - Avoid using exceptions for control flow:
   - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
   - Use `UnreachableException` to signal unreachable code that cannot be reached by tests.

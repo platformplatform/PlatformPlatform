@@ -1,0 +1,347 @@
+---
+description: Load comprehensive knowledge about the PlatformPlatform agentic workflow system
+---
+
+# Agentic Workflow System Knowledge
+
+You now have complete knowledge of the agentic workflow system used in this codebase.
+
+## System Architecture Overview
+
+**Core Concept**: Hierarchical AI agent system where tech-lead delegates to engineers, engineers delegate to reviewers. All agents run as interactive worker-hosts that communicate via request/response files in a shared messages directory.
+
+**Agent Hierarchy**:
+```
+Tech Lead (coordinates)
+  ├─→ Backend Engineer → Backend Reviewer (commits)
+  ├─→ Frontend Engineer → Frontend Reviewer (commits)
+  └─→ QA Engineer → QA Reviewer (commits)
+```
+
+**Process Structure**: Each agent type has two processes:
+- **Worker-host** (C# CLI): Manages lifecycle, file watching, launches Claude Code workers
+- **Worker agent** (Claude Code): Does actual AI work, uses MCP tools, self-destructs when done
+
+**Key Mechanisms**:
+- Session management: Explicit GUIDs in `.claude-session-id` files
+- Request detection: FileSystemWatcher monitors `*.{agentType}.request.*.md` files
+- Process monitoring: Inactivity detection (20-62 min), restart logic (max 2 restarts)
+- Task recovery: Prompts user to continue incomplete tasks on startup
+
+## Workspace Structure
+
+All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
+
+```
+.workspace/agent-workspaces/{branch}/
+├── messages/                          # Shared request/response files
+│   ├── .task-counter                  # Increments for each task (0001, 0002, etc.)
+│   ├── NNNN.{agent}.request.{slug}.md # Delegation requests
+│   └── NNNN.{agent}.response.{slug}.md # Agent responses
+├── {agent-type}/                      # Per-agent workspace
+│   ├── .host-process-id               # Worker-host PID
+│   ├── .worker-process-id             # Claude Code PID (when active)
+│   ├── .claude-session-id             # Session GUID for persistence
+│   ├── .default-model                 # Model preference (haiku/sonnet/sonnet[1m])
+│   └── current-task.json              # Active task metadata
+├── logs/                              # Workflow event logs
+│   └── workflow-events.log
+└── feedback-reports/                  # Problem reports from agents
+    ├── problems/                      # Open issues (YAML frontmatter)
+    │   └── {timestamp}-{severity}-{slug}.md
+    └── done/                          # Resolved issues
+```
+
+## Agent Types and Responsibilities
+
+### Tech Lead (`tech-lead`)
+- Coordinates all work across the team
+- Delegates tasks to engineers via MCP `start_worker_agent` tool
+- Monitors progress through response files
+- NEVER codes or commits
+- Runs continuously, relaunching after each session ends
+- Auto-launches immediately when started
+
+### Engineers (`backend-engineer`, `frontend-engineer`, `qa-engineer`)
+- Implement code within their specialty (backend: Core/Api/Tests, frontend: WebApp, qa: e2e tests)
+- Run tests and validation tools
+- Delegate to their corresponding reviewer for approval
+- Iterate on reviewer feedback until approved
+- Session persists across tasks (via `.claude-session-id`)
+- Wait for MCP delegation from tech-lead
+
+### Reviewers (`backend-reviewer`, `frontend-reviewer`, `qa-reviewer`)
+- Review code quality, architecture, and adherence to rules
+- Run validation tools (build, test, format)
+- **Commit approved code** and provide commit hash
+- Reject with detailed feedback if issues found
+- Return control to engineer (via response file)
+- Wait for MCP delegation from their engineer
+
+### Pair Programming (`pair-programming`)
+- General-purpose engineer for direct user collaboration
+- Can work on any code (no boundaries)
+- Auto-launches immediately when started
+- User steers work directly through conversation
+- Commits directly for workflow/system fixes
+
+## Communication Protocol
+
+### Request/Response Pattern
+
+**Request file format** (`NNNN.{agent}.request.{slug}.md`):
+```yaml
+---
+from: {sender-agent-type}
+to: {target-agent-type}
+request-number: NNNN
+timestamp: 2025-11-01T14:30:00+01:00
+task-id: {task-id-from-AzureDevOps}
+story-id: {story-id-from-AzureDevOps}
+---
+
+[Markdown content with task description]
+```
+
+**Response file format** (`NNNN.{agent}.response.{slug}.md`):
+```markdown
+[Agent's response after completing work]
+```
+
+### Delegation Flow
+
+1. **Tech-lead → Engineer**:
+   - Tech-lead creates request file via MCP `start_worker_agent`
+   - Engineer's worker-host detects file via FileSystemWatcher
+   - Engineer launches Claude Code worker with `/implement:task` slash command
+   - Engineer implements code, runs tests
+
+2. **Engineer → Reviewer**:
+   - Engineer creates request file via MCP `start_worker_agent`
+   - Reviewer's worker-host detects file
+   - Reviewer launches with `/review:task` slash command
+   - Reviewer validates and either approves (commits) or rejects
+
+3. **If Rejected**:
+   - Reviewer writes response with rejection reason
+   - Engineer receives response, fixes issues
+   - Engineer delegates to reviewer again (loop continues)
+
+4. **If Approved**:
+   - Reviewer commits code, writes response with commit hash
+   - Engineer receives response with commit confirmation
+   - Engineer completes task, writes response to tech-lead
+
+5. **Tech-lead Receives Completion**:
+   - Tech-lead gets response from engineer
+   - Tech-lead proceeds to next task or story
+
+## Problem Reports System
+
+### Reading Problem Reports
+
+Agents create problem reports when encountering workflow/system bugs (NOT feature bugs).
+
+**Location**: `.workspace/agent-workspaces/{branch}/feedback-reports/problems/`
+
+**YAML Frontmatter Format**:
+```yaml
+---
+report-id: HH-MM-SS-{severity}-{slug}
+timestamp: 2025-11-01T14:30:00+01:00
+reporter: {agent-type}
+severity: error|warning|info
+location: {file-path-or-context}
+status: open|resolved
+---
+
+# Problem Title
+
+## Description
+[Detailed description of the workflow/system bug]
+
+## What Happened
+[Specific sequence of events]
+
+## Root Cause
+[Analysis of why it happened]
+
+## Suggested Fix
+[Recommendations for fixing]
+```
+
+### Processing Problem Reports
+
+When working on problem reports:
+
+1. **Read reports** with `status: open`
+2. **Prioritize**: error > warning > info
+3. **Analyze**: Read affected files to understand root cause
+4. **Fix**: Make targeted changes (system prompts, MCP tools, workflow code, agent definitions)
+5. **Validate**: Run appropriate tools (build, test, format)
+6. **Commit**: Descriptive message, optionally reference report filename
+7. **Move**: Move report file from `problems/` to `problems/done/`
+
+**Example workflow**:
+```bash
+# Read problem
+Read: .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-tool-fails.md
+
+# Fix the issue
+Edit: developer-cli/Commands/McpCommand.cs
+
+# Validate
+Use: mcp__developer-cli__execute_command (command: "build", backend: true)
+
+# Commit
+git add developer-cli/Commands/McpCommand.cs
+git commit -m "Fix MCP tool parameter validation"
+
+# Move to done
+mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-tool-fails.md \
+   .workspace/agent-workspaces/cto/feedback-reports/problems/done/
+```
+
+### Types of Problems
+
+**MUST REPORT** (workflow/system bugs):
+- MCP tool errors or incorrect parameters
+- System prompt contradictions or missing guidance
+- Agent communication failures or message format issues
+- Workflow file paths that don't exist
+- Agent definitions with wrong tool permissions
+- Slash commands with incorrect instructions
+
+**DO NOT REPORT** (feature/implementation issues):
+- Business logic bugs
+- Missing product features
+- Code quality problems in production code
+- Unclear product requirements
+- Your own implementation bugs
+
+## Session Management
+
+### Session Persistence
+
+**`.claude-session-id` file**:
+- Contains: GUID for explicit session tracking
+- Created: Before first agent launch (if not exists)
+- Used: To resume sessions with `claude --resume {guid}`
+- Never deleted: Enables conversation continuity across tasks
+- Shared across tasks: Same session ID used for all tasks in a story
+
+### Memory Reset
+
+**When to reset**:
+- Starting a new story (fresh context needed)
+- Agent stuck or producing poor quality work
+- Tech-lead triggers via MCP with `resetMemory: true`
+
+**How to reset**:
+- Delete `.claude-session-id` file
+- Next launch creates new session
+- Memory reset cascades from engineer to reviewer automatically
+
+## Commit Permissions and Protocols
+
+### Who Can Commit
+
+- ✅ **Reviewers**: Always commit approved code (their primary job)
+- ✅ **Pair-programming**: Can commit directly for workflow/system fixes
+- ❌ **Engineers**: Never commit (must go through reviewer)
+- ❌ **Tech-lead**: Never commits
+
+### Commit Protocol
+
+**Standard process** (engineers):
+1. Implement code
+2. Delegate to reviewer
+3. Reviewer commits if approved
+4. Engineer never commits directly
+
+**For workflow/system fixes** (pair-programming):
+1. Make changes to system prompts, agent definitions, MCP tools, etc.
+2. Run validation (build, test, format as appropriate)
+3. Commit directly with descriptive message
+4. Move problem report to done/ if applicable
+
+**Commit message format**:
+- Imperative mood, capital letter, no ending punctuation
+- Single line, concise description + motivation
+- Examples:
+  - "Fix MCP tool parameter validation for reviewer agents"
+  - "Add task scope guidance to all engineer system prompts"
+  - "Sanitize task titles to handle forward slashes in filenames"
+
+## Logs and Monitoring
+
+### Workflow Event Logs
+
+**Location**: `.workspace/agent-workspaces/{branch}/logs/workflow-events.log`
+
+**Format**:
+```
+[2025-11-01 14:30:00] [0001.backend-engineer.request] Started: 'Create API endpoints'
+[2025-11-01 14:45:00] [0001.backend-engineer.response] Completed: 'API endpoints implemented'
+[2025-11-01 14:46:00] [0002.backend-reviewer.request] Started: 'Review the work'
+[2025-11-01 14:50:00] [0002.backend-reviewer.response] Approved with commit: abc123def
+```
+
+**Use logs to**:
+- Understand task flow and timing
+- Debug delegation issues
+- Track agent activity and progress
+- Identify performance bottlenecks
+
+## Key Implementation Files
+
+Understanding these files helps debug workflow issues:
+
+- `developer-cli/Commands/ClaudeAgentCommand.cs` - Worker-host lifecycle, session management, process monitoring
+- `developer-cli/Commands/McpCommand.cs` - MCP server exposing `start_worker_agent` tool
+- `developer-cli/Utilities/ClaudeAgentLifecycle.cs` - Worker completion logic, file creation
+- `.claude/agentic-workflow/system-prompts/*.txt` - Agent behavior and rules
+- `.claude/agents/*.md` - Agent definitions for Task tool (proxy agents)
+- `.claude/commands/**/*.md` - Slash command workflows
+
+## Best Practices
+
+### For Problem Reports
+1. Always process in severity order (error → warning → info)
+2. Read ALL related files before making changes
+3. Make targeted, minimal fixes (no scope creep)
+4. Test changes appropriately
+5. Move reports to done/ after resolving
+
+### For Commits
+1. One logical change per commit
+2. Descriptive messages following repo conventions
+3. Never commit without user permission (check CLAUDE.md)
+4. Reference problem report IDs when applicable
+
+### For System Prompts
+1. Keep concise, avoid redundancy
+2. Follow established patterns across agents
+3. Use square brackets for terminology: `[task]`, `[story]`, `[feature]`
+4. Be token-efficient (agents read these on every launch)
+
+### For Validation
+1. Always run appropriate tools after changes:
+   - Modified .cs files: build, format, test, inspect
+   - Modified system prompts: check for contradictions
+   - Modified agent definitions: validate YAML frontmatter
+
+### For Workspace Cleanliness
+1. Move resolved reports to done/
+2. Keep problems/ directory clean
+3. Archive old message files periodically (manual process)
+4. Monitor log file size
+
+---
+
+You now have complete knowledge of the agentic workflow system. Use this knowledge to:
+- Work effectively with problem reports
+- Understand agent communication patterns
+- Make workflow improvements
+- Debug delegation issues
+- Process system bugs efficiently

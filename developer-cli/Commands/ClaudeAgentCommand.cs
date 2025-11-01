@@ -23,7 +23,8 @@ public class ClaudeAgentCommand : Command
         "backend-reviewer",
         "frontend-reviewer",
         "qa-reviewer",
-        "tech-lead"
+        "tech-lead",
+        "pair-programming"
     ];
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
@@ -287,6 +288,7 @@ public class ClaudeAgentCommand : Command
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
                         "tech-lead",
+                        "pair-programming",
                         "backend-engineer",
                         "backend-reviewer",
                         "frontend-engineer",
@@ -465,20 +467,21 @@ public class ClaudeAgentCommand : Command
             }
         }
 
-        // Tech-lead launches immediately, other agents wait for requests
-        if (targetAgentType is "tech-lead")
+        // Tech-lead and pair-programming launch immediately, other agents wait for requests
+        if (targetAgentType is "tech-lead" or "pair-programming")
         {
-            // Main loop: tech-lead runs infinitely, relaunching after each session
+            // Main loop: runs infinitely, relaunching after each session
             while (true)
             {
                 // Check if session exists - if yes, use --continue only, otherwise use slash command
                 var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
-                var useSlashCommand = !File.Exists(sessionIdFile);
+                // Tech-lead uses slash command on first launch, pair-programming never does
+                var useSlashCommand = targetAgentType == "tech-lead" && !File.Exists(sessionIdFile);
 
                 await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
 
                 // Session ended (normally or after restarts), relaunch immediately
-                Logger.Debug("Tech-lead session ended, relaunching");
+                Logger.Debug($"{targetAgentType} session ended, relaunching");
             }
         }
 
@@ -774,14 +777,18 @@ public class ClaudeAgentCommand : Command
             // Add slash command to trigger workflow
             var slashCommand = workspace.AgentType switch
             {
-                "tech-lead" => "/orchestrate:tech-lead",
+                "tech-lead" => "/modes:tech-lead",
+                "pair-programming" => null, // No slash command for pair-programming
                 "qa-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
                 "qa-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
                     ? $"/process:review-task {effectiveTaskTitle}"
                     : $"/process:implement-task {effectiveTaskTitle}"
             };
-            claudeArgs.Add(slashCommand);
+            if (slashCommand is not null)
+            {
+                claudeArgs.Add(slashCommand);
+            }
         }
 
         // Launch with session management from source code root
@@ -1064,6 +1071,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => "Frontend Reviewer",
             "qa-engineer" => "QA Engineer",
             "qa-reviewer" => "QA Reviewer",
+            "pair-programming" => "Pair Programming",
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }
@@ -1079,6 +1087,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => Color.Orange3,
             "qa-engineer" => Color.Cyan1,
             "qa-reviewer" => Color.Purple,
+            "pair-programming" => Color.DarkOrange,
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }

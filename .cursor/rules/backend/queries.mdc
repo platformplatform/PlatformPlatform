@@ -109,6 +109,14 @@ public sealed class BadUsersHandler(IUserRepository userRepository)
             throw new NotFoundException($"User with ID {query.UserId} not found"); // ❌ Throws exception, wrong message format
         }
 
+        // ❌ DON'T: Split Result returns across multiple lines
+        if (someCondition)
+        {
+            return Result<BadUsersDto>.NotFound(
+                $"User with ID {query.UserId} not found" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+            );
+        }
+
         return new BadUsersDto(user.Id, user.Email, user.Role); // ❌ Manual mapping when Mapster can be used
     }
 }

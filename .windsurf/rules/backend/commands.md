@@ -121,7 +121,15 @@ public sealed class CreateUserHandler(
             // ❌ DON'T: Forgetting to enclose values in single quotes and forgetting trailing period
             throw new ArgumentException($"Email {command.Email} must be valid"); // ❌ DON'T: Throw exceptions
         }
-               
+
+        // ❌ DON'T: Split Result returns across multiple lines
+        if (someCondition)
+        {
+            return Result.BadRequest(
+                $"User with email {command.Email} already exists" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+            );
+        }
+
         // ❌ DON'T: Call handlers directly instead of using MediatR or raise domain events
         await sendEmailHandler.Handle(new SendEmailCommand(command.Email, "Welcome!"), cancellationToken);
 
