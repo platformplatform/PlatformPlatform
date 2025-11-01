@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Commands;
 using PlatformPlatform.DeveloperCli.Installation;
 
@@ -49,7 +50,8 @@ public static class ClaudeAgentLifecycle
 
         // Create response filename
         var sanitizedSummary = string.Join("-", taskSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Replace(".", "").Replace(",", "");
+            .ToLowerInvariant();
+        sanitizedSummary = Regex.Replace(sanitizedSummary, @"[^a-z0-9-]", "");
         var responseFileName = $"{taskId}.{agentType}.response.{sanitizedSummary}.md";
         var responseFilePath = Path.Combine(workspace.MessagesDirectory, responseFileName);
 
@@ -206,7 +208,8 @@ public static class ClaudeAgentLifecycle
 
         // Create response filename with status prefix
         var sanitizedSummary = string.Join("-", reviewSummary.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Replace(".", "").Replace(",", "");
+            .ToLowerInvariant();
+        sanitizedSummary = Regex.Replace(sanitizedSummary, @"[^a-z0-9-]", "");
         var responseFileName = $"{taskId}.{agentType}.response.{statusPrefix}-{sanitizedSummary}.md";
         var responseFilePath = Path.Combine(workspace.MessagesDirectory, responseFileName);
 
