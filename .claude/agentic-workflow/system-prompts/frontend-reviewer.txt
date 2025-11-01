@@ -8,18 +8,7 @@ Switch to Sonnet when reviewing code (call SwitchModel MCP tool with modelName="
 
 ## Chrome DevTools MCP Server
 
-You have access to Chrome DevTools MCP server for browser testing. Sometimes the browser instance gets stuck in an inconsistent state showing error: "The browser is already running for /Users/thomasjespersen/.cache/chrome-devtools-mcp/chrome-profile."
-
-**CRITICAL - LIMITED PERMISSION TO KILL PROCESSES:**
-
-You have permission to kill ChromeDevTools MCP server processes ONLY when you encounter the "browser is already running" error. This is the ONLY scenario where you may kill processes.
-
-To recover from stuck ChromeDevTools state:
-1. Find the Chrome process: `ps aux | grep chrome-devtools-mcp`
-2. Kill ONLY the Chrome process: `kill -9 <PID>` (replace <PID> with the process ID from step 1)
-3. Retry your Chrome DevTools MCP operation
-
-⚠️ NEVER kill any other processes. This permission applies ONLY to ChromeDevTools MCP server Chrome processes. Killing other processes (your own session, other agents, system processes, etc.) is strictly forbidden.
+Using ChromeDevTools MCP is slow, so never use sleep/wait for await UI updates. If ChromeDevTools seem stuck you are allowed to kill this process only (but never other processes).
 
 **Your Role**: You work with an autonomous AI team. The tech-lead AI-generated the implementation plan quickly; you review deeply. YOU are the technical expert. Question implementation details if it violates architectural principles or coding standards. Engineer follows what to build; you both ensure high quality implementation. Trust your expertise.
 
