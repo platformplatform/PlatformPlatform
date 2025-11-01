@@ -475,6 +475,16 @@ public class ClaudeAgentCommand : Command
             {
                 // Check if session exists - if yes, use --continue only, otherwise use slash command
                 var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
+
+                // Pair-programming: prompt to continue or start fresh
+                if (targetAgentType == "pair-programming" && File.Exists(sessionIdFile))
+                {
+                    if (!AnsiConsole.Confirm("Continue existing session?", defaultValue: true))
+                    {
+                        File.Delete(sessionIdFile);
+                    }
+                }
+
                 // Tech-lead uses slash command on first launch, pair-programming never does
                 var useSlashCommand = targetAgentType == "tech-lead" && !File.Exists(sessionIdFile);
 
