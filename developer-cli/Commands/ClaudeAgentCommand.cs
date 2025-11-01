@@ -165,6 +165,25 @@ public class ClaudeAgentCommand : Command
                 ClaudeAgentLifecycle.LogWorkflowEvent("Deleted .claude-session-id to reset memory for new [story]");
             }
 
+            // Cascade memory reset to reviewer if not running
+            var reviewerType = targetAgentType switch
+            {
+                "backend-engineer" => "backend-reviewer",
+                "frontend-engineer" => "frontend-reviewer",
+                "qa-engineer" => "qa-reviewer",
+                _ => null
+            };
+
+            if (reviewerType is not null)
+            {
+                var reviewerWorkspace = new Workspace(reviewerType, branch);
+                if (!IsProcessAlive(reviewerWorkspace.WorkerProcessIdFile) && File.Exists(reviewerWorkspace.SessionIdFile))
+                {
+                    File.Delete(reviewerWorkspace.SessionIdFile);
+                    ClaudeAgentLifecycle.LogWorkflowEvent($"Cascaded memory reset to {reviewerType}");
+                }
+            }
+
             // Set model for new story (tech-lead specifies which model to start with)
             if (!string.IsNullOrEmpty(model))
             {
