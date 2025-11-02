@@ -492,7 +492,15 @@ public static class WorkerMcpTools
 
             if (!File.Exists(workspace.CurrentTaskFile))
             {
-                return "Error: current-task.json not found. Cannot determine task number for feedback.";
+                // Recovery mode: current-task.json missing, skip feedback and proceed to completion
+                if (mode is "task")
+                {
+                    return await ClaudeAgentLifecycle.CompleteAndExitTask(agentType, taskSummary ?? "Task recovered", responseContent, branch);
+                }
+                else
+                {
+                    return await ClaudeAgentLifecycle.CompleteAndExitReview(agentType, commitHash, rejectReason, responseContent, branch);
+                }
             }
 
             var taskJson = await File.ReadAllTextAsync(workspace.CurrentTaskFile);

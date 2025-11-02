@@ -318,6 +318,9 @@ public static class ClaudeAgentLifecycle
 
     private static string TerminateSession(Workspace workspace)
     {
+        // Close orphaned request to prevent infinite re-invocation loop
+        CreateResponseForOrphanedRequest(workspace);
+
         _ = Task.Run(async () =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(5));
@@ -350,6 +353,29 @@ public static class ClaudeAgentLifecycle
 
                You will be reactivated with a new task assignment if needed.
                """;
+    }
+
+    private static void CreateResponseForOrphanedRequest(Workspace workspace)
+    {
+        if (!Directory.Exists(workspace.MessagesDirectory)) return;
+
+        var agentType = Path.GetFileName(workspace.AgentWorkspaceDirectory);
+        var requestFiles = Directory.GetFiles(workspace.MessagesDirectory, $"*.{agentType}.request.*.md");
+
+        foreach (var requestFile in requestFiles)
+        {
+            var taskNumber = Path.GetFileNameWithoutExtension(requestFile).Split('.')[0];
+            var responseFiles = Directory.GetFiles(workspace.MessagesDirectory, $"{taskNumber}.{agentType}.response.*.md");
+
+            if (responseFiles.Length == 0)
+            {
+                var responseFileName = Path.GetFileName(requestFile).Replace(".request.", ".response.").Replace(".md", "-recovered.md");
+                var responseFilePath = Path.Combine(workspace.MessagesDirectory, responseFileName);
+                File.WriteAllText(responseFilePath, $"---\nrequest-number: {taskNumber}\ntimestamp: {DateTime.Now:yyyy-MM-ddTHH:mm:sszzz}\nrecovered: true\n---\n\n# Task recovered from system interruption\n\nAgent terminated gracefully without completing work.");
+                LogWorkflowEvent($"[{taskNumber}.{agentType}] Created recovery response for orphaned request");
+                return;
+            }
+        }
     }
 
     private static async Task<string?> ValidateTaskTiming(string agentWorkspaceDirectory, string methodName)
