@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="light" lang="%LOCALE%">
+<html lang="%LOCALE%">
 <head>
     <meta charset="UTF-8" />
     <meta content="nofollow" name="robots" />
@@ -9,7 +9,13 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="theme-color" content="#000000" />
+    <meta name="csp-nonce" content="%CSP_NONCE%" />
     <title>PlatformPlatform</title>
+    <script nonce="{{cspNonce}}">
+      globalThis.__webpack_nonce__=document.querySelector('meta[name="csp-nonce"]').content;
+      const o=document.createElement;
+      document.createElement=t=>{const e=o.call(document,t);if(t.toLowerCase()==='style') { e.setAttribute('nonce',globalThis.__webpack_nonce__); }return e};
+    </script>
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
     <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
     <link rel="manifest" href="/manifest.json">

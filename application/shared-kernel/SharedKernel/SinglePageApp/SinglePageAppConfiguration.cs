@@ -152,8 +152,10 @@ public class SinglePageAppConfiguration
 
         var contentSecurityPolicies = new[]
         {
-            $"script-src {trustedHosts} 'strict-dynamic' https:",
-            $"script-src-elem {trustedHosts}",
+            $"script-src {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}' 'strict-dynamic' https:",
+            $"script-src-elem {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
+            $"style-src {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
+            $"style-src-elem {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
             $"default-src {trustedHosts}",
             $"connect-src {trustedHosts} data:",
             $"img-src {trustedHosts} data: blob:",
