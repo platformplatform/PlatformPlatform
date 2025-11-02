@@ -29,6 +29,91 @@ Tech Lead (coordinates)
 - Process monitoring: Inactivity detection (20-62 min), restart logic (max 2 restarts)
 - Task recovery: Prompts user to continue incomplete tasks on startup
 
+## Terminology Standards (CRITICAL)
+
+**The PlatformPlatform workflow is tool-agnostic**. Users can switch between Linear, AzureDevOps, Jira, or even markdown files by simply changing `[PRODUCT_MANAGEMENT_TOOL]` in AGENTS.md.
+
+### ✅ ALWAYS Use These Standardized Terms
+
+When writing or updating `.claude/commands/process/**` files, system prompts, agent definitions, or any workflow documentation:
+
+**Work Item Hierarchy**:
+- `[feature]` / `[features]` or `[Feature]` / `[Features]` - A collection of stories
+- `[story]` / `[stories]` or `[Story]` / `[Stories]` - A user-facing capability
+- `[task]` / `[tasks]` or `[Task]` / `[Tasks]` - An implementation unit
+- `[checklist]` - Acceptance criteria or validation steps
+
+**Status Flow**:
+- `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
+
+Use capitalized forms (`[Feature]`, `[Story]`, `[Task]`) when it reads more naturally in sentences.
+
+### ❌ NEVER Use Tool-Specific Terms
+
+**Forbidden terms** (these are specific to certain tools):
+- ❌ Issue, Issues
+- ❌ User Story, User Stories
+- ❌ Epic, Epics
+- ❌ Work Item, Work Items
+- ❌ Ticket, Tickets
+- ❌ Bug, Bugs (unless specifically referring to a defect type)
+- ❌ Tool-specific status names (New, Doing, Done, In Progress, Resolved, Closed, etc.)
+
+**Why this matters**:
+- Linear uses "Issue" for everything
+- AzureDevOps uses "Work Item" with types (Epic, Feature, User Story, Task, Bug)
+- Jira uses "Issue" with types (Epic, Story, Task, Sub-task)
+- Our workflow must work with ALL of these tools without modification
+
+### Mapping Examples
+
+When the workflow runs, the underlying tool maps our generic terms:
+
+**AzureDevOps**:
+- `[feature]` → Feature work item type
+- `[story]` → User Story work item type
+- `[task]` → Task work item type
+- `[Planned]` → New state
+- `[Active]` → Active state
+- `[Review]` → Resolved state (or custom)
+- `[Completed]` → Closed state
+
+**Linear**:
+- `[feature]` → Issue with label "feature" (or Project)
+- `[story]` → Issue with label "story"
+- `[task]` → Issue (or Sub-issue)
+- `[Planned]` → Backlog status
+- `[Active]` → In Progress status
+- `[Review]` → In Review status
+- `[Completed]` → Done status
+
+**The workflow code handles these mappings**. Your job is to use ONLY the standardized terms in all documentation.
+
+### When Updating Workflow Files
+
+**Before making ANY change to `.claude/commands/process/**` files**:
+
+1. Search for tool-specific terms and replace with standardized terms
+2. Verify status flows use only `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
+3. Never add hints or examples that reference specific tool terminology
+4. Use `[PRODUCT_MANAGEMENT_TOOL]` placeholder when referring to the tool itself
+
+**Example - GOOD**:
+```markdown
+1. Retrieve the [Story] from [PRODUCT_MANAGEMENT_TOOL]
+2. Break down the [Story] into [Tasks]
+3. Move the [Story] to [Active] status
+4. For each [Task], implement and move to [Review]
+```
+
+**Example - BAD**:
+```markdown
+1. Retrieve the User Story from AzureDevOps (or Issue from Linear)
+2. Break down the Story into Task work items
+3. Move the Story to "In Progress" status
+4. For each task, implement and move to "Code Review"
+```
+
 ## Workspace Structure
 
 All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
@@ -97,8 +182,8 @@ from: {sender-agent-type}
 to: {target-agent-type}
 request-number: NNNN
 timestamp: 2025-11-01T14:30:00+01:00
-task-id: {task-id-from-AzureDevOps}
-story-id: {story-id-from-AzureDevOps}
+task-id: {task-id-from-PRODUCT_MANAGEMENT_TOOL}
+story-id: {story-id-from-PRODUCT_MANAGEMENT_TOOL}
 ---
 
 [Markdown content with task description]
@@ -323,14 +408,25 @@ Understanding these files helps debug workflow issues:
 ### For System Prompts
 1. Keep concise, avoid redundancy
 2. Follow established patterns across agents
-3. Use square brackets for terminology: `[task]`, `[story]`, `[feature]`
-4. Be token-efficient (agents read these on every launch)
+3. **CRITICAL**: Use ONLY standardized terminology: `[feature]`, `[story]`, `[task]`, `[checklist]`, `[Planned]`, `[Active]`, `[Review]`, `[Completed]`
+4. NEVER use tool-specific terms (Issue, User Story, Epic, Work Item, etc.)
+5. Be token-efficient (agents read these on every launch)
+
+### For Workflow Files (.claude/commands/process/**)
+1. **Before ANY edit**: Review the "Terminology Standards" section above
+2. Use ONLY standardized terms: `[feature]`, `[story]`, `[task]`, `[checklist]`
+3. Use ONLY standardized statuses: `[Planned]`, `[Active]`, `[Review]`, `[Completed]`
+4. Replace any tool-specific terms found (Issue, User Story, Epic, Work Item, etc.)
+5. Use `[PRODUCT_MANAGEMENT_TOOL]` when referring to the tool itself
+6. Never include tool-specific examples or hints in parentheses
+7. Keep the workflow completely tool-agnostic
 
 ### For Validation
 1. Always run appropriate tools after changes:
    - Modified .cs files: build, format, test, inspect
    - Modified system prompts: check for contradictions
    - Modified agent definitions: validate YAML frontmatter
+   - Modified workflow files: verify no tool-specific terms exist
 
 ### For Workspace Cleanliness
 1. Move resolved reports to done/
@@ -341,8 +437,11 @@ Understanding these files helps debug workflow issues:
 ---
 
 You now have complete knowledge of the agentic workflow system. Use this knowledge to:
+- **Maintain tool-agnostic terminology** in ALL workflow documentation
 - Work effectively with problem reports
 - Understand agent communication patterns
 - Make workflow improvements
 - Debug delegation issues
 - Process system bugs efficiently
+
+**Remember**: The workflow's portability across different product management tools depends on strict adherence to standardized terminology. Always use `[feature]`, `[story]`, `[task]`, `[checklist]` and status flow `[Planned]` → `[Active]` → `[Review]` → `[Completed]`. Never use tool-specific terms.
