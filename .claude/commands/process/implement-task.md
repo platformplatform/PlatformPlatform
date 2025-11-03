@@ -62,7 +62,6 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
   "todos": [
     {"content": "Update [task] status to [Active]", "status": "pending", "activeForm": "Updating [task] status to [Active]"},
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
-    {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Research existing patterns for this [task] type", "status": "pending", "activeForm": "Researching existing patterns"},
     {"content": "Implement [task] [name of the [task] from request file]", "status": "pending", "activeForm": "Implementing [task]"},
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
@@ -106,24 +105,20 @@ Before implementing, understand the big picture:
 
 **Collaborate with your team**: For complex problems or architectural decisions, engage in conversation with team members (use ad-hoc delegation to discuss with other engineers). Better solutions often emerge from team collaboration.
 
-**STEP 2**: Study ALL rules for your role (read files or recall from memory)
+**Note**: All architectural rules for your role are embedded in your system prompt and available for reference at all times.
 
-- **Backend engineer**: ALL files in `.claude/rules/backend/`
-- **Frontend engineer**: ALL files in `.claude/rules/frontend/`
-- **QA engineer**: ALL files in `.claude/rules/end-to-end-tests/`
+**STEP 2**: Research similar implementations in codebase
 
-**STEP 3**: Research similar implementations in codebase
+**STEP 3**: Implement each subtask, use **build** and **test** MCP tools continously
 
-**STEP 4**: Implement each subtask, use **build** and **test** MCP tools continously
-
-**STEP 5**: Frontend only - build and verify ALL translations complete
+**STEP 4**: Frontend only - build and verify ALL translations complete
 
 1. Run build to extract new translation strings to `*.po` files
 2. Find ALL empty translations: `grep -r 'msgstr ""' */WebApp/shared/translations/locale/*.po`
 3. Translate EVERY empty msgstr found (all languages: da-DK, nl-NL, etc.)
 4. Use consistent domain terminology (check existing translations for guidance)
 
-**STEP 6**: Run validation tools and fix all failures/warnings
+**STEP 5**: Run validation tools and fix all failures/warnings
 
 **CRITICAL - ZERO TOLERANCE FOR ANY ISSUES**:
 - We deploy to production after review - quality is non-negotiable
@@ -148,7 +143,7 @@ For **frontend [tasks]**:
 3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`
 4. Fix ALL failures found (zero tolerance)
 
-**STEP 7**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
+**STEP 6**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
 **MANDATORY FOR FRONTEND ENGINEER - DO NOT SKIP**
 
@@ -188,7 +183,7 @@ For **frontend [tasks]**:
 
 **Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, FIX THEM. Zero tolerance means ZERO - not "only for my changes".
 
-**STEP 8**: Fix any bugs discovered during validation/testing
+**STEP 7**: Fix any bugs discovered during validation/testing
 
 **CRITICAL - APPLIES TO ALL ENGINEERS**:
 
@@ -211,7 +206,7 @@ If you discover bugs during testing or validation (API errors, broken functional
 - Delegate to appropriate engineer if bug is outside your specialty (use start_worker_agent with ad-hoc taskId)
 - **Revert your changes** if solution is too complex - revert all git changes, fix pre-existing problems first, then re-implement cleanly
 
-**STEP 9**: Update [task] for review
+**STEP 8**: Update [task] for review
 
 **If `storyId` is not "ad-hoc":**
 1. **Update [task] description** to reflect what was actually implemented:
@@ -224,7 +219,7 @@ If you discover bugs during testing or validation (API errors, broken functional
 - Skip [PRODUCT_MANAGEMENT_TOOL] operations
 - Proceed directly to calling reviewer
 
-**STEP 10**: Delegate to reviewer subagent to review and commit your code
+**STEP 9**: Delegate to reviewer subagent to review and commit your code
 
 **CRITICAL - Before calling reviewer**:
 
@@ -269,7 +264,7 @@ Response: {responseFilePath}
 - **NEVER commit code yourself** - only the reviewer commits
 - ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
 
-**STEP 11**: Re-read [story], update plan if needed
+**STEP 10**: Re-read [story], update plan if needed
 
 **If `storyId` is not "ad-hoc":**
 - Re-read [story] to check if there are more [tasks]
@@ -278,7 +273,7 @@ Response: {responseFilePath}
 **If `storyId` is "ad-hoc":**
 - Skip (no [story] to re-read)
 
-**STEP 12**: Signal completion and exit
+**STEP 11**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 

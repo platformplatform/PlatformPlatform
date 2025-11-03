@@ -76,7 +76,6 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
   "todos": [
     {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools in parallel"},
-    {"content": "Study ALL rules in .claude/rules/{backend|frontend|end-to-end-tests}/", "status": "pending", "activeForm": "Studying all rules for my role"},
     {"content": "Verify translations are complete and use consistent domain terminology (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
     {"content": "Test changes in Chrome DevTools and verify zero network warnings and console errors (frontend-reviewer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and verifying no issues"},
     {"content": "Review each changed file in detail", "status": "pending", "activeForm": "Reviewing each changed file"},
@@ -169,17 +168,13 @@ Before reviewing, understand the big picture:
 - If recent commits exist: Sleep 5 minutes, re-run validation
 - If issue persists: REJECT and ask engineer to fix pre-existing issue
 
-**STEP 3**: Study ALL rules for your role (read files or recall from memory)
+**Note**: All architectural rules for your role are embedded in your system prompt and available for reference at all times.
 
-- **Backend reviewer**: ALL files in `.claude/rules/backend/`
-- **Frontend reviewer**: ALL files in `.claude/rules/frontend/`
-- **QA reviewer**: ALL files in `.claude/rules/end-to-end-tests/`
-
-**STEP 4**: Frontend only - verify translations in `*.po` files
+**STEP 3**: Frontend only - verify translations in `*.po` files
 
 Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain terminology. Reject if translations are missing or terminology differs from established usage elsewhere.
 
-**STEP 5**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
+**STEP 4**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
 **MANDATORY FOR FRONTEND REVIEWER - DO NOT SKIP**
 
@@ -227,13 +222,13 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Boy Scout Rule**: If you find pre-existing issues unrelated to engineer's changes, REJECT and require engineer to fix them. Zero tolerance means ZERO - not "only for my changes".
 
-**STEP 6**: Review each file line-by-line
+**STEP 5**: Review each file line-by-line
 
-**STEP 7**: Review architecture
+**STEP 6**: Review architecture
 
-**STEP 8**: Decide - APPROVED or NOT APPROVED
+**STEP 7**: Decide - APPROVED or NOT APPROVED
 
-**STEP 9**: If APPROVED, commit changes and get commit hash
+**STEP 8**: If APPROVED, commit changes and get commit hash
 
 1. Extract "Files Changed" from engineer's request
 2. Verify scope completeness:
@@ -260,7 +255,7 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
 
-**STEP 10**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
+**STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **If `storyId` is not "ad-hoc":**
 - If APPROVED: Update [task] status to [Completed]
@@ -269,7 +264,7 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 **If `storyId` is "ad-hoc":**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates
 
-**STEP 11**: Signal completion and exit
+**STEP 10**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
