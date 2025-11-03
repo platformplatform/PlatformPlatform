@@ -119,7 +119,7 @@ Before reviewing, understand the big picture:
 
 **Collaborate with your team**: For complex problems or design questions, engage in conversation with engineers or other reviewers. Better solutions often emerge from team collaboration.
 
-**STEP 2**: Run validation for ALL systems (catches cross-system breakage)
+**STEP 2**: Run validation (role-specific)
 
 **CRITICAL - ZERO TOLERANCE FOR ANY ISSUES**:
 - We deploy to production after review - quality is non-negotiable
@@ -128,16 +128,36 @@ Before reviewing, understand the big picture:
 - This includes pre-existing issues unrelated to engineer's changes
 - NEVER approve code with ANY outstanding issues
 
-1. Run **build** first for ALL self-contained systems (backend AND frontend)
+**For backend-reviewer** (validates all self-contained systems to catch cross-self-contained-system breakage):
+
+1. Run **build** first for all self-contained systems (backend AND frontend)
    - Use execute_command MCP tool: `command: "build"`
    - DO NOT run in parallel
 
-2. Run **format**, **test**, **inspect** in parallel for ALL self-contained systems
+2. Run **format**, **test**, **inspect** in parallel for all self-contained systems
    - Spawn three `parallel-tool-runner` subagents simultaneously
    - "Run command: format"
    - "Run command: test"
    - "Run command: inspect"
    - Wait for all to complete
+
+3. REJECT if ANY failures found (zero tolerance)
+
+**For frontend-reviewer** (validates frontend only):
+
+1. Run **build** for frontend: `execute_command(command: "build", frontend: true)`
+
+2. Run **format** for all self-contained systems: `execute_command(command: "format", frontend: true)`
+
+3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`
+
+4. REJECT if ANY failures found (zero tolerance)
+
+**For qa-reviewer** (validates e2e tests):
+
+1. Run **build** for frontend: `execute_command(command: "build", frontend: true)`
+
+2. Run **e2e** tests (run in background, monitor output)
 
 3. REJECT if ANY failures found (zero tolerance)
 

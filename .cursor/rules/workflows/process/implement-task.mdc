@@ -141,12 +141,9 @@ For **backend [tasks]**:
 
 For **frontend [tasks]**:
 1. Run **build** for your self-contained system: `execute_command(command: "build", frontend: true, selfContainedSystem: "{self-contained-system}")`
-2. Run **test**, **inspect** in parallel for your self-contained system:
-   - Spawn two `parallel-tool-runner` subagents simultaneously
-   - "Run command: test frontend for {self-contained-system}"
-   - "Run command: inspect frontend for {self-contained-system}"
-   - Wait for all to complete
-3. Fix ALL failures found (zero tolerance)
+2. Run **format** for all self-contained systems: `execute_command(command: "format", frontend: true)`
+3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`
+4. Fix ALL failures found (zero tolerance)
 
 **STEP 7**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
 
