@@ -234,9 +234,14 @@ public class ClaudeAgentCommand : Command
         var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
         await File.WriteAllTextAsync(taskRequestFilePath, requestContentWithHeaders);
 
-        // Save task metadata
-        var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "", senderAgentType);
-        await WriteTaskMetadata(workspace, taskInfo);
+        // Only write current-task.json if worker is NOT currently processing
+        // If worker is busy, the request file will be picked up after current task completes
+        // This prevents overwriting current-task.json while worker is using it
+        if (!File.Exists(workspace.WorkerProcessIdFile))
+        {
+            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "", senderAgentType);
+            await WriteTaskMetadata(workspace, taskInfo);
+        }
 
         ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
 
@@ -676,6 +681,46 @@ public class ClaudeAgentCommand : Command
 
         // Allow filesystem time to complete file write operation before reading to avoid partial content
         await Task.Delay(TimeSpan.FromMilliseconds(500));
+
+        // Create current-task.json from request file if it doesn't exist
+        // This handles the case where start_worker_agent didn't write it because worker was busy
+        if (!File.Exists(workspace.CurrentTaskFile))
+        {
+            var requestContent = await File.ReadAllTextAsync(requestFile);
+            var headerMatch = Regex.Match(requestContent, @"---\s+from:\s+(?<from>[^\n]+)\s+to:\s+(?<to>[^\n]+)\s+request-number:\s+(?<requestNumber>[^\n]+)\s+timestamp:\s+(?<timestamp>[^\n]+)\s+task-id:\s+(?<taskId>[^\n]+)\s+story-id:\s+(?<storyId>[^\n]+)\s+---");
+
+            if (headerMatch.Success)
+            {
+                var requestNumber = headerMatch.Groups["requestNumber"].Value.Trim();
+                var timestampString = headerMatch.Groups["timestamp"].Value.Trim();
+                var taskId = headerMatch.Groups["taskId"].Value.Trim();
+                var storyId = headerMatch.Groups["storyId"].Value.Trim();
+                var senderAgentType = headerMatch.Groups["from"].Value.Trim();
+
+                // Extract title from request filename
+                var fileName = Path.GetFileName(requestFile);
+                var titleMatch = Regex.Match(fileName, @"^\d+\.[^.]+\.request\.(.+)\.md$");
+                var taskTitle = titleMatch.Success ? titleMatch.Groups[1].Value.Replace("-", " ") : "task";
+
+                // Parse and normalize timestamp to ISO 8601 format (same as CreateTaskMetadata)
+                var timestamp = DateTime.TryParse(timestampString, out var parsedTime)
+                    ? parsedTime.ToString("O")
+                    : DateTime.Now.ToString("O");
+
+                // Manually construct CurrentTaskInfo to preserve original timestamp from request file
+                var taskInfo = new CurrentTaskInfo(
+                    requestNumber,
+                    requestFile,
+                    timestamp,
+                    1,
+                    storyId,
+                    taskId,
+                    taskTitle,
+                    senderAgentType
+                );
+                await WriteTaskMetadata(workspace, taskInfo);
+            }
+        }
 
         // Update terminal title to show task context
         if (File.Exists(workspace.CurrentTaskFile))
