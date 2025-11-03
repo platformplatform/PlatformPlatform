@@ -429,8 +429,11 @@ public class ClaudeAgentCommand : Command
         // Display FigletText banner for the agent
         var displayName = GetAgentDisplayName(targetAgentType);
 
-        // Set terminal title
-        SetTerminalTitle($"{displayName} - {workspace.Branch}");
+        // Set terminal title (skip for pair-programmer to let Claude Code control it)
+        if (targetAgentType != "pair-programmer")
+        {
+            SetTerminalTitle($"{displayName} - {workspace.Branch}");
+        }
 
         // Load small Figlet font for compact banner
         var smallFontPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Fonts", "small.flf");
@@ -470,27 +473,84 @@ public class ClaudeAgentCommand : Command
         // Tech-lead and pair-programmer launch immediately, other agents wait for requests
         if (targetAgentType is "tech-lead" or "pair-programmer")
         {
-            // Main loop: runs infinitely, relaunching after each session
-            while (true)
-            {
-                // Check if session exists - if yes, use --continue only, otherwise use slash command
-                var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
+            var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
-                // Pair-programming: prompt to continue or start fresh
-                if (targetAgentType == "pair-programmer" && File.Exists(sessionIdFile))
+            // Pair-programmer: single session with saved session management
+            if (targetAgentType == "pair-programmer")
+            {
+                // Build session selection menu: Continue, Start new, then saved sessions by date
+                var choices = new List<string>();
+                var currentSessionId = File.Exists(sessionIdFile) ? File.ReadAllText(sessionIdFile).Trim() : null;
+                string? continueOption = null;
+
+                if (Directory.Exists(workspace.AgentWorkspaceDirectory))
                 {
-                    if (!AnsiConsole.Confirm("Continue existing session?", defaultValue: true))
+                    var savedSessions = Directory.GetFiles(workspace.AgentWorkspaceDirectory, "*.claude-session-id")
+                        .Where(f => Path.GetFileName(f) != ".claude-session-id")
+                        .Select(f => new { Name = Path.GetFileNameWithoutExtension(f),
+                                          SessionId = File.ReadAllText(f).Trim(),
+                                          Date = File.GetLastWriteTime(f) })
+                        .OrderByDescending(s => s.Date);
+
+                    foreach (var session in savedSessions)
                     {
-                        File.Delete(sessionIdFile);
+                        if (session.SessionId == currentSessionId)
+                            continueOption = $"Continue: {session.Name} ({session.Date:yyyy-MM-dd})";
+                        else
+                            choices.Add($"Resume: {session.Name} ({session.Date:yyyy-MM-dd})");
                     }
                 }
 
-                // Tech-lead uses slash command on first launch, pair-programmer never does
+                // Build final menu: Continue, Start new, then saved sessions
+                var menu = new List<string>();
+                if (continueOption != null) menu.Add(continueOption);
+                else if (currentSessionId != null) menu.Add("Continue previous session");
+                menu.Add("Start new session");
+                menu.AddRange(choices);
+
+                if (menu.Count > 1)
+                {
+                    var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                        .Title("Select a [darkorange]session[/]:").AddChoices(menu));
+
+                    if (selection == "Start new session") File.Delete(sessionIdFile);
+                    else if (selection.StartsWith("Resume: "))
+                    {
+                        var name = selection.Split('(')[0].Substring(8).Trim();
+                        File.Copy(Path.Combine(workspace.AgentWorkspaceDirectory, $"{name}.claude-session-id"), sessionIdFile, true);
+                    }
+                }
+
+                await LaunchManualClaudeSession(workspace, useSlashCommand: false);
+
+                // On exit: rename if already saved, else offer to save with name
+                if (!File.Exists(sessionIdFile)) return;
+
+                var sessionId = (await File.ReadAllTextAsync(sessionIdFile)).Trim();
+                var existingSaved = Directory.Exists(workspace.AgentWorkspaceDirectory)
+                    ? Directory.GetFiles(workspace.AgentWorkspaceDirectory, "*.claude-session-id")
+                        .FirstOrDefault(f => f != sessionIdFile && File.ReadAllText(f).Trim() == sessionId)
+                    : null;
+
+                if (existingSaved != null && AnsiConsole.Confirm($"Rename '[darkorange]{Path.GetFileNameWithoutExtension(existingSaved)}[/]'?"))
+                {
+                    var title = AnsiConsole.Ask<string>("New title:", workspace.Branch);
+                    File.Move(existingSaved, Path.Combine(workspace.AgentWorkspaceDirectory, $"{title}.claude-session-id"), true);
+                }
+                else if (existingSaved == null && AnsiConsole.Confirm("Save this session?"))
+                {
+                    var title = AnsiConsole.Ask<string>("Session title:", workspace.Branch);
+                    File.Copy(sessionIdFile, Path.Combine(workspace.AgentWorkspaceDirectory, $"{title}.claude-session-id"), true);
+                }
+
+                return;
+            }
+
+            // Tech-lead: infinite loop, relaunching after each session
+            while (true)
+            {
                 var useSlashCommand = targetAgentType == "tech-lead" && !File.Exists(sessionIdFile);
-
                 await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
-
-                // Session ended (normally or after restarts), relaunch immediately
                 Logger.Debug($"{targetAgentType} session ended, relaunching");
             }
         }
@@ -1184,8 +1244,8 @@ public class ClaudeAgentCommand : Command
                 return new ProcessCompletionResult(true, "Session completed");
             }
 
-            // Check if MCP request arrived (but not for tech-lead which never receives requests)
-            if (workspace.AgentType != "tech-lead" && HasPendingRequest(workspace))
+            // Check if MCP request arrived (but not for tech-lead or pair-programmer which never receive requests)
+            if (workspace.AgentType is not "tech-lead" and not "pair-programmer" && HasPendingRequest(workspace))
             {
                 Logger.Debug("Pending MCP request detected during manual session");
 
