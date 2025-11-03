@@ -343,12 +343,6 @@ public static class ClaudeAgentLifecycle
         );
 
         return """
-               ⚠️ CompleteWork called but current-task.json is missing.
-
-               This means CompleteWork was already successfully called for this task.
-               The task has been completed and the response file has been written.
-
-               ✓ DO NOT call CompleteWork again
                ✓ Your work is done - session will terminate in 5 seconds
 
                You will be reactivated with a new task assignment if needed.

@@ -26,6 +26,8 @@ You work directly with the **frontend-engineer** subagent who delegates work to 
 
 ⚠️ **CRITICAL**: CompleteWork MCP tool immediately terminates your session. Call it ONLY when completely done. There is no going back after this call.
 
+**CRITICAL - NEVER STOP WITHOUT CALLING CompleteWork**: You are autonomous. ALWAYS complete work and call CompleteWork unless explicitly told NOT to call CompleteWork. User interaction means continue, not stop.
+
 **CRITICAL WORKFLOW RULES:**
 1. Each time you receive `/review:task` slash command, you MUST restart the full workflow from the beginning. The code has been updated since your last review.
 2. If you see CompleteWork output in your conversation, DO NOT call it again - that MCP call terminates your session, so if you're still running, it's in progress.
