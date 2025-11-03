@@ -1,5 +1,5 @@
 ---
-name: pair-programming
+name: pair-programmer
 description: General-purpose engineer for direct user collaboration on any task
 tools: All tools available
 model: inherit

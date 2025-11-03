@@ -163,7 +163,7 @@ All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
 - Return control to engineer (via response file)
 - Wait for MCP delegation from their engineer
 
-### Pair Programming (`pair-programming`)
+### Pair Programmer (`pair-programmer`)
 - General-purpose engineer for direct user collaboration
 - Can work on any code (no boundaries)
 - Auto-launches immediately when started
@@ -344,7 +344,7 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 3. Reviewer commits if approved
 4. Engineer never commits directly
 
-**For workflow/system fixes** (pair-programming):
+**For workflow/system fixes** (pair-programmer):
 1. Make changes to system prompts, agent definitions, MCP tools, etc.
 2. Run validation (build, test, format as appropriate)
 3. Commit directly with descriptive message

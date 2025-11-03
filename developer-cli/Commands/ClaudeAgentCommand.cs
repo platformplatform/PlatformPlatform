@@ -24,7 +24,7 @@ public class ClaudeAgentCommand : Command
         "frontend-reviewer",
         "qa-reviewer",
         "tech-lead",
-        "pair-programming"
+        "pair-programmer"
     ];
 
     public ClaudeAgentCommand() : base("claude-agent", "Interactive Worker Host for agent development")
@@ -288,7 +288,7 @@ public class ClaudeAgentCommand : Command
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
                         "tech-lead",
-                        "pair-programming",
+                        "pair-programmer",
                         "backend-engineer",
                         "backend-reviewer",
                         "frontend-engineer",
@@ -467,8 +467,8 @@ public class ClaudeAgentCommand : Command
             }
         }
 
-        // Tech-lead and pair-programming launch immediately, other agents wait for requests
-        if (targetAgentType is "tech-lead" or "pair-programming")
+        // Tech-lead and pair-programmer launch immediately, other agents wait for requests
+        if (targetAgentType is "tech-lead" or "pair-programmer")
         {
             // Main loop: runs infinitely, relaunching after each session
             while (true)
@@ -477,7 +477,7 @@ public class ClaudeAgentCommand : Command
                 var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
                 // Pair-programming: prompt to continue or start fresh
-                if (targetAgentType == "pair-programming" && File.Exists(sessionIdFile))
+                if (targetAgentType == "pair-programmer" && File.Exists(sessionIdFile))
                 {
                     if (!AnsiConsole.Confirm("Continue existing session?", defaultValue: true))
                     {
@@ -485,7 +485,7 @@ public class ClaudeAgentCommand : Command
                     }
                 }
 
-                // Tech-lead uses slash command on first launch, pair-programming never does
+                // Tech-lead uses slash command on first launch, pair-programmer never does
                 var useSlashCommand = targetAgentType == "tech-lead" && !File.Exists(sessionIdFile);
 
                 await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
@@ -788,7 +788,7 @@ public class ClaudeAgentCommand : Command
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/modes:tech-lead",
-                "pair-programming" => null, // No slash command for pair-programming
+                "pair-programmer" => null, // No slash command for pair-programmer
                 "qa-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
                 "qa-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
                 _ => workspace.AgentType.Contains("reviewer")
@@ -1081,7 +1081,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => "Frontend Reviewer",
             "qa-engineer" => "QA Engineer",
             "qa-reviewer" => "QA Reviewer",
-            "pair-programming" => "Pair Programming",
+            "pair-programmer" => "Pair Programmer",
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }
@@ -1097,7 +1097,7 @@ public class ClaudeAgentCommand : Command
             "frontend-reviewer" => Color.Orange3,
             "qa-engineer" => Color.Cyan1,
             "qa-reviewer" => Color.Purple,
-            "pair-programming" => Color.DarkOrange,
+            "pair-programmer" => Color.DarkOrange,
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
     }
