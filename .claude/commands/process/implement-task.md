@@ -129,13 +129,14 @@ Before implementing, understand the big picture:
 
 For **backend [tasks]**:
 1. Run **build** for your self-contained system: `execute_command(command: "build", backend: true, selfContainedSystem: "{self-contained-system}")`
-2. Run **format**, **test**, **inspect** in parallel for your self-contained system:
-   - Spawn three `parallel-tool-runner` subagents simultaneously
-   - "Run command: format backend for {self-contained-system}"
+2. Run **test**, **inspect** in parallel for your self-contained system:
+   - Spawn two `parallel-tool-runner` subagents simultaneously
    - "Run command: test backend for {self-contained-system}"
    - "Run command: inspect backend for {self-contained-system}"
-   - Wait for all to complete
+   - Wait for both to complete
 3. Fix ALL failures found (zero tolerance)
+
+**Note**: Backend-engineer does NOT run format - the reviewer will handle formatting before commit.
 
 For **frontend [tasks]**:
 1. Run **build** for your self-contained system: `execute_command(command: "build", frontend: true, selfContainedSystem: "{self-contained-system}")`
