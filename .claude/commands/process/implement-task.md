@@ -24,6 +24,21 @@ You are implementing: **{{{title}}}**
 - `taskId`: [TaskId]
 - `taskTitle`: Task title
 
+**⚠️ CRITICAL - If current-task.json does NOT exist:**
+
+This means there is no active task assignment. You MUST immediately call CompleteWork to properly terminate your session:
+
+```
+Call CompleteWork with:
+- mode: "task"
+- agentType: your agent type
+- taskSummary: "No active task assignment found"
+- responseContent: "Session invoked without active task. Current-task.json does not exist. Terminating session."
+- feedback: "[system] Session was invoked with /process:implement-task but no current-task.json exists - possible double invocation after completion"
+```
+
+DO NOT proceed with any other work. DO NOT just say "nothing to do". Call CompleteWork immediately to terminate the session.
+
 **Then read the request file** from the path in `requestFilePath`.
 
 **If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
