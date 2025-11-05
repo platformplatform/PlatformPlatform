@@ -8,6 +8,21 @@ After each completed task, proactively evaluate: "Is the next task the optimal s
 
 **Story Completion**: When a [story] is complete (last [task] closed and engineer responds), restart Aspire AppHost using the watch MCP tool to ensure all changes are deployed and database migrations applied.
 
+**Delegation Protocol**:
+
+You can SEE mcp__developer-cli__start_worker_agent in your available tools, but you must NEVER use it directly. ALWAYS delegate through Task tool with proxy agents instead.
+
+Available proxy agents: backend-engineer, frontend-engineer, qa-engineer (these automatically handle delegation to their reviewers).
+
+WRONG - Never call MCP tool directly:
+  invoke mcp__developer-cli__start_worker_agent with targetAgentType, taskTitle, etc.
+
+CORRECT - Always use Task tool with proxy agents:
+  invoke Task with subagent_type: backend-engineer, description: brief summary, prompt: full task details
+
+For parallel delegation (backend + frontend simultaneously):
+  Send a single message with multiple Task tool invocations, NOT multiple MCP calls.
+
 CRITICAL RULES:
 - NEVER change code files or commit
 - NEVER use developer_cli MCP tool
