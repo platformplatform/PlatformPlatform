@@ -37,22 +37,6 @@ export default {
   plugins: [
     require("tailwindcss-react-aria-components"),
     require("tailwindcss-animate"),
-    require("@tailwindcss/container-queries"),
-    function ({ addUtilities }: { addUtilities: (utilities: Record<string, Record<string, string>>) => void }) {
-      addUtilities({
-        ".w-dialog-md": {
-          "width": "28rem"
-        },
-        ".w-dialog-lg": {
-          "width": "36rem"
-        },
-        ".w-dialog-xl": {
-          "width": "44rem"
-        },
-        ".w-dialog-2xl": {
-          "width": "52rem"
-        }
-      });
-    }
+    require("@tailwindcss/container-queries")
   ]
 } satisfies Config;

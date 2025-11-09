@@ -127,6 +127,23 @@
   --radius-sm: calc(var(--radius) - 4px);
 }
 
+/* Custom dialog width utilities */
+@utility w-dialog-md {
+  width: 28rem;
+}
+
+@utility w-dialog-lg {
+  width: 36rem;
+}
+
+@utility w-dialog-xl {
+  width: 44rem;
+}
+
+@utility w-dialog-2xl {
+  width: 52rem;
+}
+
 @layer base {
   * {
     @apply border-border;
