@@ -45,8 +45,8 @@ const styles = tv({
     },
     isSelected: {
       false:
-        "bg-background text-foreground pressed:opacity-90 hover:bg-[--color] hover:text-[--text-color] hover:opacity-50",
-      true: "border-[--color] bg-[--color] text-[--text-color] pressed:opacity-80 hover:opacity-90"
+        "bg-background text-foreground pressed:opacity-90 hover:bg-(--color) hover:text-(--text-color) hover:opacity-50",
+      true: "border-(--color) bg-(--color) text-(--text-color) pressed:opacity-80 hover:opacity-90"
     }
   },
   defaultVariants: {

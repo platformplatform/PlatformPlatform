@@ -37,8 +37,8 @@ const indicatorStyles = tv({
   base: "flex h-5 w-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
   variants: {
     isSelected: {
-      false: "border-[--color] bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-[--color] border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
+      false: "border-(--color) bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-(--color) border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
       true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
