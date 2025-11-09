@@ -10,7 +10,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "sh -c 'input=$(cat); cmd=$(echo \"$input\" | sed -n \"s/.*\\\"command\\\":\\\"\\([^\\\"]*\\)\\\".*/\\1/p\"); case \"$cmd\" in *\"dotnet build\"*|*\"dotnet test\"*|*\"dotnet format\"*|*\"npm run format\"*|*\"npm test\"*|*\"npm run build\"*|*\"npx playwright test\"*) echo \"❌ BLOCKED: Use MCP tools instead.\" >&2; echo \"Command: $cmd\" >&2; echo \"\" >&2; echo \"Use these instead:\" >&2; echo \"• dotnet build → **build MCP tool**\" >&2; echo \"• dotnet test → **test MCP tool**\" >&2; echo \"• dotnet format → **format MCP tool**\" >&2; echo \"• npm run format → **format MCP tool**\" >&2; echo \"• npm test → **test MCP tool**\" >&2; echo \"• npm run build → **build MCP tool**\" >&2; echo \"• npx playwright test → **e2e MCP tool**\" >&2; echo \"\" >&2; echo \"Refer to AGENTS.md for details.\" >&2; exit 2 ;; *\"docker\"*) echo \"❌ BLOCKED: Docker commands are not allowed.\" >&2; echo \"Command: $cmd\" >&2; echo \"\" >&2; echo \"💡 To restart the application or run database migrations:\" >&2; echo \"   Use the **watch MCP tool** - it handles Aspire and database migrations\" >&2; echo \"\" >&2; echo \"Docker is managed by the user only.\" >&2; exit 2 ;; *) exit 0 ;; esac'\n"
+            "command": ".claude/hooks/pre-tool-use-bash.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/post-tool-use-bash.sh"
           }
         ]
       }
