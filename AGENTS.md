@@ -27,9 +27,7 @@ When working on tasks, follow any specific workflow instructions provided for yo
 Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the configured value.
 
 ```
-PRODUCT_MANAGEMENT_TOOL="AzureDevOps"
-AREA_PATH="AgenticFramework"
-ITERATON="Iteration 1"
+PRODUCT_MANAGEMENT_TOOL="Linear"
 ```
 
 ## Rules for implementing changes
