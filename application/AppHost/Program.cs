@@ -10,7 +10,7 @@ CheckPortAvailability();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var certificatePassword = builder.CreateSslCertificateIfNotExists();
+var certificatePassword = await builder.CreateSslCertificateIfNotExists();
 
 SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
 
@@ -122,7 +122,7 @@ void CheckPortAvailability()
     if (blocked.Any())
     {
         Console.WriteLine($"⚠️  Port conflicts: {string.Join(", ", blocked.Select(b => $"{b.Item1} ({b.Item2})"))}");
-        Console.WriteLine("   Services already running. Please run 'pp watch --stop' first.");
+        Console.WriteLine("   Services already running. Stop them first using 'watch --stop' command or the watch MCP tool with stop flag.");
         Environment.Exit(1);
     }
 

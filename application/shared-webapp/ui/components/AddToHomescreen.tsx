@@ -4,7 +4,8 @@ import { Button } from "./Button";
 import { Heading } from "./Heading";
 import { Text } from "./Text";
 
-const SESSION_COOKIE_NAME = "add_to_homescreen_dismissed";
+const STORAGE_KEY = "add-to-homescreen-dismissed";
+const DISMISS_DURATION_DAYS = 7;
 
 export function AddToHomescreen() {
   const [showPrompt, setShowPrompt] = useState(false);
@@ -28,9 +29,11 @@ export function AddToHomescreen() {
     setIsStandalone(isPwa);
 
     if (isIos && !isPwa) {
-      const hasSessionDismissed = document.cookie.includes(`${SESSION_COOKIE_NAME}=true`);
+      const dismissedUntil = localStorage.getItem(STORAGE_KEY);
+      const isPermanentlyDismissed = dismissedUntil && Number.parseInt(dismissedUntil, 10) > Date.now();
+      const isSessionDismissed = localStorage.getItem(`${STORAGE_KEY}_session`) === "true";
 
-      if (!hasSessionDismissed) {
+      if (!isPermanentlyDismissed && !isSessionDismissed) {
         setShowPrompt(true);
       }
     }
@@ -38,10 +41,9 @@ export function AddToHomescreen() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    // Set persistent cookie for 7 days when X button is clicked
-    const date = new Date();
-    date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
-    document.cookie = `${SESSION_COOKIE_NAME}=true; expires=${date.toUTCString()}; path=/`;
+    // Store dismissal timestamp for 7 days when X button is clicked
+    const dismissUntil = Date.now() + DISMISS_DURATION_DAYS * 24 * 60 * 60 * 1000;
+    localStorage.setItem(STORAGE_KEY, dismissUntil.toString());
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -66,11 +68,11 @@ export function AddToHomescreen() {
   const handleTouchEnd = () => {
     setIsDragging(false);
 
-    // If swiped up more than 50px, dismiss
+    // If swiped up more than 50px, dismiss for current session only
     if (translateY < -50) {
       setShowPrompt(false);
-      // Set session cookie - will expire when browser session ends
-      document.cookie = `${SESSION_COOKIE_NAME}=true; path=/`;
+      // Store session-only dismissal (no expiration, just for this session)
+      localStorage.setItem(`${STORAGE_KEY}_session`, "true");
     } else {
       // Snap back
       setTranslateY(0);

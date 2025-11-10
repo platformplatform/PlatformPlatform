@@ -1,6 +1,3 @@
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
-import { UserRole, api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
@@ -19,6 +16,9 @@ import { CameraIcon, Trash2, Trash2Icon } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileTrigger, Label, Separator } from "react-aria-components";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { TopMenu } from "@/shared/components/topMenu";
+import { api, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/admin/account/")({

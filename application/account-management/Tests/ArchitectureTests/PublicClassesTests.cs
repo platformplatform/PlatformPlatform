@@ -22,7 +22,7 @@ public sealed class PublicClassesTests
             .GetResult();
 
         // Assert
-        var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? Array.Empty<string>());
+        var nonSealedTypes = string.Join(", ", result.FailingTypes?.Select(t => t.Name) ?? []);
         result.IsSuccessful.Should().BeTrue($"The following are not sealed: {nonSealedTypes}");
     }
 }

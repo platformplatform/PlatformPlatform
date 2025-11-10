@@ -1,6 +1,3 @@
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
-import { SortOrder, SortableUserProperties, UserRole, UserStatus, api, type components } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
@@ -8,6 +5,9 @@ import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
+import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { TopMenu } from "@/shared/components/topMenu";
+import { api, type components, SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
 import { UserProfileSidePane } from "./-components/UserProfileSidePane";

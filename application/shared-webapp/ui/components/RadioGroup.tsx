@@ -3,13 +3,13 @@
  * ref: https://ui.shadcn.com/docs/components/radio-group
  */
 import type { ReactNode } from "react";
-import { Radio as AriaRadio, RadioGroup as AriaRadioGroup, composeRenderProps } from "react-aria-components";
 import type { RadioGroupProps as AriaRadioGroupProps, RadioProps, ValidationResult } from "react-aria-components";
+import { Radio as AriaRadio, RadioGroup as AriaRadioGroup, composeRenderProps } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface RadioGroupProps extends Omit<AriaRadioGroupProps, "children"> {
@@ -37,8 +37,8 @@ const indicatorStyles = tv({
   base: "flex h-5 w-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
   variants: {
     isSelected: {
-      false: "border-[--color] bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-[--color] border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
+      false: "border-(--color) bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-(--color) border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
       true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
@@ -70,7 +70,6 @@ export function Radio({ className, children, ...props }: Readonly<RadioProps>) {
       )}
     >
       {(renderProps) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           <div className={indicatorStyles(renderProps)} />
           {children}

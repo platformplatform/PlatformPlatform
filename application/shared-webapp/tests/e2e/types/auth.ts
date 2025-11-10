@@ -1,4 +1,3 @@
-
 /**
  * Authentication types and interfaces for E2E testing
  */
@@ -29,7 +28,6 @@ export interface Tenant {
   member: User;
 }
 
-
 /**
  * Configuration options for tenant provisioning
  */
@@ -39,5 +37,3 @@ export interface TenantProvisioningOptions {
   isolated?: boolean;
   ensureUsersExist?: boolean;
 }
-
-

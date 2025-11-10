@@ -33,7 +33,7 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
                     ("FirstName", Faker.Person.FirstName),
                     ("LastName", Faker.Person.LastName),
                     ("Title", "Test User"),
-                    ("Role", UserRole.Member.ToString()),
+                    ("Role", nameof(UserRole.Member)),
                     ("EmailConfirmed", true),
                     ("Avatar", JsonSerializer.Serialize(new Avatar())),
                     ("Locale", "en-US")

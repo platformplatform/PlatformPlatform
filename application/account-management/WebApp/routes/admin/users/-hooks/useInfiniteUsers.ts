@@ -1,12 +1,12 @@
-import {
-  type SortOrder,
-  type SortableUserProperties,
-  type UserRole,
-  type UserStatus,
-  api,
-  type components
-} from "@/shared/lib/api/client";
 import { useCallback, useEffect, useState } from "react";
+import {
+  api,
+  type components,
+  type SortableUserProperties,
+  type SortOrder,
+  type UserRole,
+  type UserStatus
+} from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
 

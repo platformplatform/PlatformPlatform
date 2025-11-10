@@ -19,10 +19,11 @@ import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
 import { FieldError } from "./FieldError";
+import { focusRing } from "./focusRing";
 import { Label } from "./Label";
 import { Popover } from "./Popover";
-import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
+
 export type { Key } from "react-aria-components";
 
 const buttonStyles = tv({
@@ -75,7 +76,7 @@ export function Select<T extends object>({
       </Button>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover className="min-w-[--trigger-width] bg-input-background">
+      <Popover className="min-w-(--trigger-width) bg-input-background">
         <ListBox
           items={items}
           className="max-h-[inherit] overflow-auto p-1 outline-none [clip-path:inset(0_0_0_0_round_.75rem)]"

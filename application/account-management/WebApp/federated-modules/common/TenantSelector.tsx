@@ -1,6 +1,3 @@
-import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
-import type { components } from "@/shared/lib/api/api.generated";
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider";
@@ -14,6 +11,9 @@ import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
+import type { components } from "@/shared/lib/api/api.generated";
+import { api } from "@/shared/lib/api/client";
 import { SwitchingAccountLoader } from "./SwitchingAccountLoader";
 import "@repo/ui/tailwind.css";
 

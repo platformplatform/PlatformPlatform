@@ -29,7 +29,9 @@ export default defineConfig({
   workers: workers,
 
   // Reporter to use. See https://playwright.dev/docs/test-reporters
-  reporter: process.env.CI ? "github" : [["list"], ["html", { open: "never", outputFolder: "test-results/playwright-report" }]],
+  reporter: process.env.CI
+    ? "github"
+    : [["list"], ["html", { open: "never", outputFolder: "test-results/playwright-report" }]],
 
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
@@ -43,7 +45,7 @@ export default defineConfig({
     // Browser launch options
     launchOptions: {
       // Slow motion delay controlled by CLI --slow-mo flag
-      slowMo: process.env.PLAYWRIGHT_SLOW_MO ? Number.parseInt(process.env.PLAYWRIGHT_SLOW_MO) : 0
+      slowMo: process.env.PLAYWRIGHT_SLOW_MO ? Number.parseInt(process.env.PLAYWRIGHT_SLOW_MO, 10) : 0
     },
 
     // Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer
@@ -57,7 +59,7 @@ export default defineConfig({
 
   // Global timeout for each test (double timeout for slow motion)
   timeout: (() => {
-    const baseTimeout = process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT) : 30000;
+    const baseTimeout = process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT, 10) : 30000;
     const isSlowMotion = !!process.env.PLAYWRIGHT_SLOW_MO;
     return isSlowMotion ? baseTimeout * 2 : baseTimeout;
   })(),
@@ -112,6 +114,6 @@ export default defineConfig({
         ignoreHTTPSErrors: isWindows
       },
       grepInvert: /@smoke/
-    },
+    }
   ]
 });

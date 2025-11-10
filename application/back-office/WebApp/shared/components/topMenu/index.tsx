@@ -1,7 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
 import type { ReactNode } from "react";
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 
 const FederatedTopMenu = lazy(() => import("account-management/FederatedTopMenu"));
 

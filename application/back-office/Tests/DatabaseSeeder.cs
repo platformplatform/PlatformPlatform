@@ -7,10 +7,10 @@ namespace PlatformPlatform.BackOffice.Tests;
 
 public sealed class DatabaseSeeder
 {
-    private readonly Faker _faker = new();
     public readonly UserInfo Tenant1Member;
     public readonly UserInfo Tenant1Owner;
     public readonly TenantId TenantId;
+    private readonly Faker _faker = new();
 
     public DatabaseSeeder(BackOfficeDbContext backOfficeDbContext)
     {

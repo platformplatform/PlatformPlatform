@@ -27,8 +27,8 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             // environment file loaded as the first entry point
             define: {
               "import.meta.build_env": JSON.stringify({
-                APPLICATION_ID,
-                BUILD_TYPE,
+                applicationId: APPLICATION_ID,
+                buildType: BUILD_TYPE,
                 ...customBuildEnv
               }),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",

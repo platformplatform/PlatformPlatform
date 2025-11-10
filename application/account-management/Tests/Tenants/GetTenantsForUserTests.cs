@@ -28,7 +28,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -44,7 +44,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("LastName", Faker.Name.LastName()),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Owner.ToString()),
+                ("Role", nameof(UserRole.Owner)),
                 ("Locale", "en-US")
             ]
         );
@@ -101,7 +101,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", "Other Tenant"),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -117,7 +117,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("LastName", Faker.Name.LastName()),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US")
             ]
         );
@@ -145,7 +145,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", "Other User Tenant"),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -161,7 +161,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("LastName", Faker.Name.LastName()),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US")
             ]
         );
@@ -190,7 +190,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
-                ("State", TenantState.Active.ToString()),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -206,7 +206,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("LastName", Faker.Name.LastName()),
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", UserRole.Member.ToString()),
+                ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US")
             ]
         );

@@ -5,11 +5,11 @@ import { Check } from "lucide-react";
 import {
   ListBoxItem as AriaListBoxItem,
   Collection,
+  composeRenderProps,
   Header,
   type ListBoxItemProps,
   Section,
-  type SectionProps,
-  composeRenderProps
+  type SectionProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 

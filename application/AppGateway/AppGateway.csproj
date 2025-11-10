@@ -10,14 +10,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.OpenApi" />
-        <PackageReference Include="Microsoft.OpenApi.Readers" />
-        <PackageReference Include="Scalar.AspNetCore" />
-        <PackageReference Include="Yarp.ReverseProxy" />
+        <PackageReference Include="Microsoft.OpenApi"/>
+        <PackageReference Include="Scalar.AspNetCore"/>
+        <PackageReference Include="Yarp.ReverseProxy"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\shared-kernel\SharedKernel\SharedKernel.csproj" />
+        <ProjectReference Include="..\shared-kernel\SharedKernel\SharedKernel.csproj"/>
     </ItemGroup>
 
 </Project>

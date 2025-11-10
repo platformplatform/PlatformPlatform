@@ -13,11 +13,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests" />
+        <InternalsVisibleTo Include="PlatformPlatform.AccountManagement.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core\AccountManagement.csproj" />
+        <ProjectReference Include="..\Core\AccountManagement.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

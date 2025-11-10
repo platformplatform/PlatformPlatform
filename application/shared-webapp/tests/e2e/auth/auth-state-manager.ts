@@ -93,7 +93,6 @@ export class AuthStateManager {
       // File might not exist, which is fine
     }
   }
-
 }
 
 /**

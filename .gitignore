@@ -407,3 +407,8 @@ playwright-report/
 **/playwright/.cache/
 **/.auth/
 
+# .NET Aspire
+**/.aspire/settings.json
+
+# PlatformPlatform agent workspace
+.workspace

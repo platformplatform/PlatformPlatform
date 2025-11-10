@@ -1,11 +1,6 @@
-import { ErrorMessage } from "@/shared/components/ErrorMessage";
-import logoMarkUrl from "@/shared/images/logo-mark.svg";
-import logoWrapUrl from "@/shared/images/logo-wrap.svg";
-import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { type UserLoggedInMessage, authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
+import { authSyncService, type UserLoggedInMessage } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
@@ -17,6 +12,11 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import logoMarkUrl from "@/shared/images/logo-mark.svg";
+import logoWrapUrl from "@/shared/images/logo-wrap.svg";
+import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
+import { api } from "@/shared/lib/api/client";
 
 import {
   clearLoginState,

@@ -108,26 +108,39 @@ public class WatchCommand : Command
 
         if (Configuration.IsWindows)
         {
-            // Step 1: Kill processes using our ports
-            var ports = new[] { AspirePort, DashboardPort, ResourceServicePort };
-            foreach (var port in ports)
+            // Kill all dotnet and rsbuild-node processes on ports 9000-9999
+            var netstatOutput = ProcessHelper.StartProcess("""cmd /c "netstat -ano | findstr LISTENING" """, redirectOutput: true, exitOnError: false);
+            if (!string.IsNullOrWhiteSpace(netstatOutput))
             {
-                ProcessHelper.StartProcess($"""cmd /c "netstat -ano | findstr :{port} | findstr LISTENING" """, redirectOutput: true, exitOnError: false);
-                ProcessHelper.StartProcess($"""cmd /c "for /f "tokens=5" %a in ('netstat -aon ^| findstr :{port} ^| findstr LISTENING') do taskkill /f /pid %a" """, redirectOutput: true, exitOnError: false);
+                var processedPids = new HashSet<string>();
+
+                foreach (var line in netstatOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length < 5) continue;
+
+                    var address = parts[1];
+                    var portIndex = address.LastIndexOf(':');
+                    if (portIndex == -1) continue;
+
+                    if (!int.TryParse(address[(portIndex + 1)..], out var port) || port < 9000 || port > 9999) continue;
+
+                    var pid = parts[^1];
+                    if (processedPids.Contains(pid)) continue;
+                    processedPids.Add(pid);
+
+                    var processName = ProcessHelper.StartProcess($"""wmic process where ProcessId={pid} get Name /format:list""", redirectOutput: true, exitOnError: false);
+
+                    if (processName.Contains("dotnet", StringComparison.OrdinalIgnoreCase) ||
+                        processName.Contains("rsbuild-node", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ProcessHelper.StartProcess($"taskkill /F /PID {pid}", redirectOutput: true, exitOnError: false);
+                    }
+                }
             }
 
-            // Step 2: Kill dotnet watch processes
-            // This approach finds all dotnet.exe processes and terminates them
-            // The key insight is that when dotnet watch is waiting, it's still a dotnet.exe process
-            ProcessHelper.StartProcess("""taskkill /F /IM dotnet.exe""", redirectOutput: true, exitOnError: false);
-
-            // Also kill any remaining Aspire-related processes by searching for command line
-            ProcessHelper.StartProcess("""wmic process where "name='dotnet.exe' and commandline like '%watch%'" delete""", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("""wmic process where "commandline like '%AppHost%'" delete""", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("""wmic process where "commandline like '%Aspire%'" delete""", redirectOutput: true, exitOnError: false);
-
-            // Step 3: Kill specific Aspire-related processes
-            var processesToKill = new[] { "PlatformPlatform.AppHost", "Aspire.Dashboard", "dcp", "dcpproc" };
+            // Kill specific Aspire-related processes
+            var processesToKill = new[] { "Aspire.Dashboard", "dcp", "dcpproc" };
             foreach (var processName in processesToKill)
             {
                 ProcessHelper.StartProcess($"taskkill /F /IM {processName}.exe", redirectOutput: true, exitOnError: false);
@@ -135,44 +148,53 @@ public class WatchCommand : Command
         }
         else
         {
-            // Kill all dotnet watch processes that are running AppHost
-            // This handles both absolute and relative paths
-            ProcessHelper.StartProcess("pkill -9 -f dotnet.*watch.*AppHost", redirectOutput: true, exitOnError: false);
+            // First, find all process command names running on SCS ports (9100, 9200, 9300, etc.)
+            var scsCommandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (var port = 9100; port <= 9900; port += 100)
+            {
+                var pids = ProcessHelper.StartProcess($"lsof -i :{port} -sTCP:LISTEN -t", redirectOutput: true, exitOnError: false);
+                if (!string.IsNullOrWhiteSpace(pids))
+                {
+                    foreach (var pid in pids.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                    {
+                        var commandName = ProcessHelper.StartProcess($"ps -p {pid} -o comm=", redirectOutput: true, exitOnError: false).Trim();
+                        if (!string.IsNullOrWhiteSpace(commandName))
+                        {
+                            scsCommandNames.Add(commandName);
+                        }
+                    }
+                }
+            }
 
-            // Kill all processes that contain our application folder path
-            // This catches any process started from our directory
-            ProcessHelper.StartProcess($"pkill -9 -f {Configuration.ApplicationFolder}", redirectOutput: true, exitOnError: false);
+            // Now kill all processes on ports 9000-9999 that match SCS commands or known Aspire processes
+            var pidsOutput = ProcessHelper.StartProcess("lsof -i :9000-9999 -sTCP:LISTEN -t", redirectOutput: true, exitOnError: false);
+            if (!string.IsNullOrWhiteSpace(pidsOutput))
+            {
+                foreach (var pid in pidsOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    var commandName = ProcessHelper.StartProcess($"ps -p {pid} -o comm=", redirectOutput: true, exitOnError: false).Trim();
+                    if (string.IsNullOrWhiteSpace(commandName)) continue;
 
-            // Kill Aspire-specific processes (Dashboard, DCP, etc.)
+                    var shouldKill = scsCommandNames.Contains(commandName) ||
+                                     commandName.Contains("AppHost", StringComparison.OrdinalIgnoreCase) ||
+                                     commandName.Contains("dcp", StringComparison.OrdinalIgnoreCase) ||
+                                     commandName.Contains("PlatformP", StringComparison.OrdinalIgnoreCase) ||
+                                     commandName.Contains("rsbuild-node", StringComparison.OrdinalIgnoreCase);
+
+                    if (shouldKill)
+                    {
+                        ProcessHelper.StartProcess($"kill -9 {pid}", redirectOutput: true, exitOnError: false);
+                    }
+                }
+            }
+
+            // Kill Aspire-specific processes
             ProcessHelper.StartProcess("pkill -9 -if aspire", redirectOutput: true, exitOnError: false);
             ProcessHelper.StartProcess("pkill -9 -f dcp", redirectOutput: true, exitOnError: false);
-
-            // Kill processes by project names in case they're running from different locations
-            // Find all subdirectories in the application folder and kill matching processes
-            var applicationProjects = Directory.GetDirectories(Configuration.ApplicationFolder)
-                .Select(Path.GetFileName)
-                .Where(name => !string.IsNullOrEmpty(name));
-
-            foreach (var projectName in applicationProjects)
-            {
-                ProcessHelper.StartProcess($"pkill -9 -f {projectName}", redirectOutput: true, exitOnError: false);
-            }
         }
 
         // Wait a moment for processes to terminate
         Thread.Sleep(TimeSpan.FromSeconds(2));
-
-        // On Windows, do one final check and cleanup of any remaining processes on our ports
-        if (Configuration.IsWindows)
-        {
-            var ports = new[] { AspirePort, DashboardPort, ResourceServicePort };
-            foreach (var port in ports)
-            {
-                ProcessHelper.StartProcess($"""cmd /c "for /f "tokens=5" %a in ('netstat -aon ^| findstr :{port} ^| findstr LISTENING') do taskkill /f /pid %a" """, redirectOutput: true, exitOnError: false);
-            }
-
-            Thread.Sleep(TimeSpan.FromSeconds(1));
-        }
 
         AnsiConsole.MarkupLine("[green]Aspire AppHost stopped successfully.[/]");
     }

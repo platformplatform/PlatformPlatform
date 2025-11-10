@@ -9,16 +9,16 @@ import {
   type TagGroupProps as AriaTagGroupProps,
   type TagProps as AriaTagProps,
   Button,
+  composeRenderProps,
   TagList,
   type TagListProps,
-  Text,
-  composeRenderProps
+  Text
 } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 
 const variants = {
   primary:
@@ -130,7 +130,6 @@ export function Tag({ children, variant, ...props }: Readonly<TagProps>) {
       )}
     >
       {({ allowsRemoving }) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           {children}
           {allowsRemoving && (

@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
-import type { Page} from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { expectToastMessage, expectNetworkErrors } from "./test-assertions";
+import { expectToastMessage } from "./test-assertions";
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
@@ -10,12 +10,11 @@ import { expectToastMessage, expectNetworkErrors } from "./test-assertions";
  */
 export function uniqueEmail(): string {
   // Compact timestamp (YY-MM-DDTHH-MM)
-  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "");
 
   const username = faker.internet.userName().toLowerCase();
   return `${username}@${timestamp}.local`;
 }
-
 
 /**
  * Generate a random first name
@@ -32,7 +31,6 @@ export function firstName(): string {
 export function lastName(): string {
   return faker.person.lastName();
 }
-
 
 /**
  * Generate a random job title
@@ -73,7 +71,7 @@ export function testUser() {
   const first = firstName();
   const last = lastName();
   // Compact timestamp (YY-MM-DDTHH-MM)
-  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, '');
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "");
   const email = `${first.toLowerCase()}.${last.toLowerCase()}@${timestamp}.local`;
 
   return {
@@ -104,10 +102,10 @@ export async function completeSignupFlow(
 ): Promise<void> {
   // Step 1: Navigate directly to signup page
   await page.goto("/signup");
-  
+
   // Wait for the page to be fully loaded
   await page.waitForLoadState("domcontentloaded");
-  
+
   await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
   // Step 2: Enter email and submit

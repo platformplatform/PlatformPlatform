@@ -12,8 +12,7 @@ var reverseProxyBuilder = builder.Services
     .AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>()
-    .AddConfigFilter<ApiExplorerRouteFilter>().AddTransforms(
-        context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
+    .AddConfigFilter<ApiExplorerRouteFilter>().AddTransforms(context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>())
     );
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
@@ -33,8 +32,7 @@ if (SharedInfrastructureConfiguration.IsRunningInAzure)
 else
 {
     builder.Services.AddSingleton<SharedAccessSignatureRequestTransform>();
-    reverseProxyBuilder.AddTransforms(
-        context => context.RequestTransforms.Add(context.Services.GetRequiredService<SharedAccessSignatureRequestTransform>())
+    reverseProxyBuilder.AddTransforms(context => context.RequestTransforms.Add(context.Services.GetRequiredService<SharedAccessSignatureRequestTransform>())
     );
 }
 
@@ -71,8 +69,7 @@ app.MapScalarApiReference("/openapi", options =>
         options
             .WithOpenApiRoutePattern("/openapi/v1.json")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-            .WithTitle("PlatformPlatform API")
-            .WithSidebar(true);
+            .WithTitle("PlatformPlatform API");
     }
 );
 

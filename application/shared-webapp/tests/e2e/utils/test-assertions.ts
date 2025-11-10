@@ -355,15 +355,16 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
         const toasts: string[] = [];
 
         // Look for ANY element that might contain toast text patterns
-        document.querySelectorAll('*').forEach(el => {
+        document.querySelectorAll("*").forEach((el) => {
           const text = el.textContent?.trim();
           if (text && text.length > 0) {
             // Check for success/deletion patterns
-            if (text.includes('deleted successfully') ||
-                text.includes('User deleted') ||
-                text.includes('Success') ||
-                (text.includes('success') && text.includes('delete'))) {
-
+            if (
+              text.includes("deleted successfully") ||
+              text.includes("User deleted") ||
+              text.includes("Success") ||
+              (text.includes("success") && text.includes("delete"))
+            ) {
               // Make sure element is visible
               const rect = el.getBoundingClientRect();
               if (rect.width > 0 && rect.height > 0) {
@@ -374,22 +375,26 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
         });
 
         // Also specifically look for common toast class patterns
-        document.querySelectorAll('[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]').forEach(el => {
-          const text = el.textContent?.trim();
-          if (text && text.length > 0) {
-            const rect = el.getBoundingClientRect();
-            if (rect.width > 0 && rect.height > 0) {
-              toasts.push(text);
+        document
+          .querySelectorAll(
+            '[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]'
+          )
+          .forEach((el) => {
+            const text = el.textContent?.trim();
+            if (text && text.length > 0) {
+              const rect = el.getBoundingClientRect();
+              if (rect.width > 0 && rect.height > 0) {
+                toasts.push(text);
+              }
             }
-          }
-        });
+          });
 
         return toasts;
       });
 
       // If we found potential toasts with alternative selectors, add them
       if (debugToasts.length > 0) {
-        debugToasts.forEach(toast => {
+        debugToasts.forEach((toast) => {
           if (!expectedMessage || !toast.includes(expectedMessage)) {
             unexpectedToasts.push(toast);
           }

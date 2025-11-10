@@ -24,13 +24,13 @@ namespace PlatformPlatform.AccountManagement.Tests;
 
 public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : DbContext
 {
-    private readonly WebApplicationFactory<Program> _webApplicationFactory;
     protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
     protected readonly ServiceCollection Services;
-    private ServiceProvider? _provider;
+    private readonly WebApplicationFactory<Program> _webApplicationFactory;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
+    private ServiceProvider? _provider;
 
     protected EndpointBaseTest()
     {

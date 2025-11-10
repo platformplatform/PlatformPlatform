@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, ImgHTMLAttributes } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface ImageLoaderOptions {
   src: string;
@@ -45,7 +45,6 @@ export function Image(props: Readonly<ImageProps>) {
   }, [handleLoad, isLoaded]);
 
   const image = (
-    // biome-ignore lint/a11y/useAltText: The alt text is provided by the user
     <img
       ref={imageRef}
       src={imageUrl}

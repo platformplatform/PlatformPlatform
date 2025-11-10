@@ -7,8 +7,8 @@ import {
   Tooltip as AriaTooltip,
   type TooltipProps as AriaTooltipProps,
   TooltipTrigger as AriaTooltipTrigger,
-  OverlayArrow,
-  composeRenderProps
+  composeRenderProps,
+  OverlayArrow
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 

@@ -41,7 +41,7 @@ public sealed class UpdateTenantLogoHandler(
 
     public async Task<Result> Handle(UpdateTenantLogoCommand command, CancellationToken cancellationToken)
     {
-        if (executionContext.UserInfo.Role != UserRole.Owner.ToString())
+        if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
             return Result.Forbidden("Only owners are allowed to update tenant logo.");
         }

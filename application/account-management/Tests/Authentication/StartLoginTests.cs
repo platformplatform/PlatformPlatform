@@ -127,7 +127,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
                     ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-i)),
                     ("ModifiedAt", null),
                     ("Email", email.ToLower()),
-                    ("Type", EmailConfirmationType.Login.ToString()),
+                    ("Type", nameof(EmailConfirmationType.Login)),
                     ("OneTimePasswordHash", oneTimePasswordHash),
                     ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),

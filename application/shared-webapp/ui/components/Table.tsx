@@ -14,12 +14,12 @@ import {
   Collection,
   type ColumnProps,
   ColumnResizer,
+  composeRenderProps,
   Group,
   ResizableTableContainer,
   type RowProps,
   type TableHeaderProps,
   type TableProps,
-  composeRenderProps,
   useTableOptions
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
@@ -66,7 +66,7 @@ const resizerStyles = tv({
   base: "column-resizer -outline-offset-2 absolute right-0 box-content h-6 w-px shrink-0 translate-x-2 cursor-col-resize rounded bg-clip-content px-2 py-1",
   variants: {
     isResizing: {
-      false: "bg-border forced-colors:bg-[ButtonBorder] ",
+      false: "bg-border forced-colors:bg-[ButtonBorder]",
       true: "bg-ring forced-colors:bg-[Highlight]"
     },
     isHovered: {

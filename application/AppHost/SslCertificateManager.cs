@@ -11,13 +11,14 @@ public static class SslCertificateManager
 {
     private static string UserSecretsId => Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
 
-    public static string CreateSslCertificateIfNotExists(this IDistributedApplicationBuilder builder)
+    public static async Task<string> CreateSslCertificateIfNotExists(this IDistributedApplicationBuilder builder, CancellationToken cancellationToken = default)
     {
         var config = new ConfigurationBuilder().AddUserSecrets(UserSecretsId).Build();
 
         const string certificatePasswordKey = "certificate-password";
         var certificatePassword = config[certificatePasswordKey]
-                                  ?? builder.CreateStablePassword(certificatePasswordKey).Resource.Value;
+                                  ?? await builder.CreateStablePassword(certificatePasswordKey).Resource.GetValueAsync(cancellationToken)
+                                  ?? throw new InvalidOperationException("Failed to retrieve or create certificate password.");
 
         var certificateLocation = GetCertificateLocation("localhost");
         try

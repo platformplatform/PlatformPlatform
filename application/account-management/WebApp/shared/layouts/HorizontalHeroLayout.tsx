@@ -1,9 +1,9 @@
+import { t } from "@lingui/core/macro";
+import type { ReactNode } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
 import { HeroImage } from "@/shared/components/HeroImage";
-import { t } from "@lingui/core/macro";
-import type { ReactNode } from "react";
 
 interface HorizontalHeroLayoutProps {
   children: ReactNode;

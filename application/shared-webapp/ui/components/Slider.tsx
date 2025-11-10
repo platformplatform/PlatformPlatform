@@ -10,8 +10,8 @@ import {
   SliderTrack
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 const trackStyles = tv({

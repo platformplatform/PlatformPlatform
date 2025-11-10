@@ -70,8 +70,7 @@ public static class SharedInfrastructureConfiguration
         if (IsRunningInAzure)
         {
             var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-            builder.Services.AddSingleton<BlobStorageClient>(
-                _ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
+            builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
             );
         }
         else

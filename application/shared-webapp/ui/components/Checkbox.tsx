@@ -9,14 +9,14 @@ import {
   CheckboxGroup as AriaCheckboxGroup,
   type CheckboxGroupProps as AriaCheckboxGroupProps,
   type CheckboxProps,
-  type ValidationResult,
-  composeRenderProps
+  composeRenderProps,
+  type ValidationResult
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
 import { focusRing } from "./focusRing";
+import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "children"> {
@@ -52,8 +52,8 @@ const boxStyles = tv({
   base: "flex h-full w-full flex-shrink-0 items-center justify-center rounded border transition",
   variants: {
     isSelected: {
-      false: "border-[--color] bg-input-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-[--color] bg-[--color] text-primary-foreground [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
+      false: "border-(--color) bg-input-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
+      true: "border-(--color) bg-(--color) text-primary-foreground [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
     },
     isInvalid: {
       true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
@@ -75,7 +75,6 @@ export function Checkbox({ className, children, ...props }: Readonly<CheckboxPro
       )}
     >
       {({ isSelected, isIndeterminate, ...renderProps }) => (
-        // @ts-ignore - TypeScript 5.7.2 doesn't recognize that render prop children can return ReactNode[]
         <>
           <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
             <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />

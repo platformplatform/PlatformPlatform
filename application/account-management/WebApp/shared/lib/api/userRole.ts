@@ -1,5 +1,5 @@
-import { UserRole } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
+import { UserRole } from "@/shared/lib/api/client";
 
 export function getUserRoleLabel(userRole: UserRole): string {
   switch (userRole) {

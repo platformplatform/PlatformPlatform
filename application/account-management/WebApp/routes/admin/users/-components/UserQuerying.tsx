@@ -1,6 +1,3 @@
-import { type SortOrder, type SortableUserProperties, UserRole, UserStatus } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 import { parseDate } from "@internationalized/date";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -13,10 +10,14 @@ import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectItem } from "@repo/ui/components/Select";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 
 // SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
@@ -51,10 +52,10 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
   const containerRef = useRef<HTMLDivElement>(null);
   const [search, setSearch] = useState<string | undefined>(searchParams.search);
+  const debouncedSearch = useDebounce(search, 500);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
-  const [searchTimeoutId, setSearchTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [, forceUpdate] = useState({});
 
@@ -87,26 +88,9 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     [navigate, onFiltersUpdated]
   );
 
-  // Debounce search updates to avoid too many URL changes while typing
   useEffect(() => {
-    // Normalize empty string and undefined to prevent unnecessary updates
-    const normalizedSearch = search || undefined;
-    const normalizedParamSearch = searchParams.search || undefined;
-
-    // Only update if search value actually changed from URL params
-    if (normalizedSearch !== normalizedParamSearch) {
-      const timeoutId = setTimeout(() => {
-        updateFilter({ search: normalizedSearch }, true);
-        setSearchTimeoutId(null);
-      }, 500);
-      setSearchTimeoutId(timeoutId);
-
-      return () => {
-        clearTimeout(timeoutId);
-        setSearchTimeoutId(null);
-      };
-    }
-  }, [search, searchParams.search, updateFilter]);
+    updateFilter({ search: debouncedSearch }, true);
+  }, [debouncedSearch, updateFilter]);
 
   // Count active filters for badge
   const getActiveFilterCount = () => {
@@ -293,20 +277,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      <SearchField
-        placeholder={t`Search`}
-        value={search}
-        onChange={setSearch}
-        onSubmit={() => {
-          if (searchTimeoutId) {
-            clearTimeout(searchTimeoutId);
-            setSearchTimeoutId(null);
-          }
-          updateFilter({ search: (search as string) || undefined }, true);
-        }}
-        label={t`Search`}
-        className="min-w-32"
-      />
+      <SearchField placeholder={t`Search`} value={search} onChange={setSearch} label={t`Search`} className="min-w-32" />
 
       {showAllFilters && (
         <>
@@ -454,13 +425,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               placeholder={t`Search`}
               value={search}
               onChange={setSearch}
-              onSubmit={() => {
-                if (searchTimeoutId) {
-                  clearTimeout(searchTimeoutId);
-                  setSearchTimeoutId(null);
-                }
-                updateFilter({ search: (search as string) || undefined }, true);
-              }}
               label={t`Search`}
               className="w-full"
             />

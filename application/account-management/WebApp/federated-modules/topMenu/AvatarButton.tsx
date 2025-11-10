@@ -1,4 +1,3 @@
-import { api } from "@/shared/lib/api/client";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
@@ -11,6 +10,7 @@ import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { api } from "@/shared/lib/api/client";
 import UserProfileModal from "../common/UserProfileModal";
 import "@repo/ui/tailwind.css";
 
