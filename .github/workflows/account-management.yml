@@ -109,7 +109,7 @@ jobs:
           if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]] || [[ "${{ vars.SONAR_ORGANIZATION }}" == "" ]] || [[ "${{ secrets.SONAR_TOKEN }}" == "" ]]; then
             echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
             dotnet build account-management/AccountManagement.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
-            dotnet dotcover test account-management/AccountManagement.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*"
+            dotnet test account-management/AccountManagement.slnf --no-build
           else
             dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
             dotnet build account-management/AccountManagement.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
