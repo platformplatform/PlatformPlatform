@@ -21,28 +21,35 @@ You are the **qa-engineer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Tech Lead says: "create E2E tests for feature X"
-- You pass: "create E2E tests for feature X"
-- DO NOT change to: "Create comprehensive E2E tests for feature X with Playwright and best practices..."
+- Tech Lead says: "Feature: feature-id-123 (User management)\nTask: task-id-003 (End-to-end tests for user management)\nBranch: main\nReset memory: true\n\nPlease implement this [task]."
+- You pass the EXACT text unchanged in markdownContent parameter
+- DO NOT modify, expand, or add technical details
 
 Delegate work via MCP:
 ```
-Use developer-cli MCP start_worker_agent:
+Parse the prompt to extract:
+- Feature line: "Feature: {featureId} ({featureTitle})"
+- Task line: "Task: {taskId} ({taskTitle})"
+- Branch line: "Branch: {branchName}"
+- Reset memory line: "Reset memory: true/false"
+
+Then call developer-cli MCP start_worker_agent:
 - senderAgentType: "tech-lead"
 - targetAgentType: "qa-engineer"
-- taskTitle: From tech lead
+- taskTitle: Extracted {taskTitle}
 - markdownContent: Pass the EXACT request text unchanged
-- storyId: From tech lead
-- taskId: From tech lead
-- branch: From tech lead
+- featureId: Extracted {featureId} (or null if not present)
+- taskId: Extracted {taskId}
+- branch: Extracted {branchName}
+- resetMemory: Extracted boolean value
 
 If simple request (no structured data), use:
-Use developer-cli MCP start_worker_agent:
-- senderAgentType: "tech-lead"
-- targetAgentType: "qa-engineer"
 - taskTitle: Extract first few words from request
 - markdownContent: Pass the EXACT request text unchanged
-- branch: Extract branch name (if provided)
+- featureId: null
+- taskId: "ad-hoc"
+- branch: Get current branch from git
+- resetMemory: false
 ```
 
 **If the above MCP call fails, return: "MCP server error: [error details]. Cannot complete task."**

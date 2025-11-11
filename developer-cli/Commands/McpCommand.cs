@@ -363,11 +363,11 @@ public static class WorkerMcpTools
         string markdownContent,
         [Description("Branch name to ensure all agents work on same branch")]
         string branch,
-        [Description("Identifier for [task] in [PRODUCT_MANAGEMENT_TOOL] (required, must be distinct from storyId)")]
+        [Description("Identifier for [feature] in [PRODUCT_MANAGEMENT_TOOL] (optional - use for regular tasks, omit for ad-hoc work)")]
+        string? featureId,
+        [Description("Identifier for [task] in [PRODUCT_MANAGEMENT_TOOL] (required)")]
         string taskId,
-        [Description("Identifier for [story] in [PRODUCT_MANAGEMENT_TOOL] (required)")]
-        string storyId,
-        [Description("Set resetMemory to true only on your first delegation to a downstream agent when working on a new story. Set to false for all re-delegations and for peer-to-peer messages to other engineers.")]
+        [Description("Set resetMemory to true only on your first delegation to a downstream agent when working on a new task. Set to false for all re-delegations and for peer-to-peer messages to other engineers.")]
         bool resetMemory,
         [Description("Engineer's request file path (optional, for review tasks)")]
         string? requestFilePath = null,
@@ -379,7 +379,7 @@ public static class WorkerMcpTools
         // Validate required parameters
         if (string.IsNullOrWhiteSpace(taskId))
         {
-            throw new ArgumentException("Parameter `taskId` is required and must not be empty. `taskId` must match the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL] and must be distinct from `storyId`.");
+            throw new ArgumentException("Parameter `taskId` is required and must not be empty. `taskId` must match the actual [task] identifier from [PRODUCT_MANAGEMENT_TOOL].");
         }
 
         // Prevent self-delegation: Engineers cannot delegate to themselves
@@ -427,8 +427,11 @@ public static class WorkerMcpTools
         // Thin wrapper - calls the claude-agent CLI command in MCP mode
         var args = new List<string> { "claude-agent", targetAgentType, "--mcp", "--task-title", taskTitle, "--markdown-content", markdownContent, "--branch", branch };
 
-        args.Add("--story-id");
-        args.Add(storyId);
+        if (!string.IsNullOrEmpty(featureId))
+        {
+            args.Add("--feature-id");
+            args.Add(featureId);
+        }
 
         args.Add("--task-id");
         args.Add(taskId);
@@ -528,7 +531,6 @@ public static class WorkerMcpTools
                                    ---
                                    task-number: {taskInfo.TaskNumber}
                                    task-id: {taskInfo.TaskId}
-                                   story-id: {taskInfo.StoryId}
                                    timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
                                    agent-type: {agentType}
                                    mode: {mode}

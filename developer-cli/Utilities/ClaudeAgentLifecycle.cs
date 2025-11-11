@@ -64,8 +64,8 @@ public static class ClaudeAgentLifecycle
              to: {taskInfo.SenderAgentType}
              request-number: {taskId}
              timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             feature-id: {taskInfo.FeatureId ?? "ad-hoc"}
              task-id: {taskInfo.TaskId}
-             story-id: {taskInfo.StoryId}
              ---
 
              {responseContent}
@@ -222,8 +222,8 @@ public static class ClaudeAgentLifecycle
              to: {taskInfo.SenderAgentType}
              request-number: {taskId}
              timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             feature-id: {taskInfo.FeatureId ?? "ad-hoc"}
              task-id: {taskInfo.TaskId}
-             story-id: {taskInfo.StoryId}
              approved: {approved}
              {(approved ? $"commit-hash: {commitHash}" : $"reject-reason: {rejectReason}")}
              ---

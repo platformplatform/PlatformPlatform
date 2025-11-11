@@ -40,9 +40,9 @@ public class ClaudeAgentCommand : Command
         var taskTitleOption = new Option<string?>("--task-title", "Task title for MCP mode");
         var markdownContentOption = new Option<string?>("--markdown-content", "Task content in markdown format");
         var branchOption = new Option<string?>("--branch", "Branch name for MCP mode");
-        var storyIdOption = new Option<string?>("--story-id", "[StoryId]");
+        var featureIdOption = new Option<string?>("--feature-id", "[FeatureId] (optional, for regular tasks)");
         var taskIdOption = new Option<string?>("--task-id", "[TaskId]");
-        var resetMemoryOption = new Option<bool>("--reset-memory", () => false, "Reset Claude Code session memory (true for first [task] of new [story])");
+        var resetMemoryOption = new Option<bool>("--reset-memory", () => false, "Reset Claude Code session memory (true for each new [task])");
         var requestFilePathOption = new Option<string?>("--request-file-path", "Request file path (optional, for review tasks)");
         var responseFilePathOption = new Option<string?>("--response-file-path", "Response file path (optional, for review tasks)");
         var modelOption = new Option<string?>("--model", "Model to use (e.g., 'haiku', 'sonnet', 'sonnet[1m]')");
@@ -53,7 +53,7 @@ public class ClaudeAgentCommand : Command
         AddOption(taskTitleOption);
         AddOption(markdownContentOption);
         AddOption(branchOption);
-        AddOption(storyIdOption);
+        AddOption(featureIdOption);
         AddOption(taskIdOption);
         AddOption(resetMemoryOption);
         AddOption(requestFilePathOption);
@@ -68,14 +68,14 @@ public class ClaudeAgentCommand : Command
                 var taskTitle = context.ParseResult.GetValueForOption(taskTitleOption);
                 var markdownContent = context.ParseResult.GetValueForOption(markdownContentOption);
                 var branch = context.ParseResult.GetValueForOption(branchOption);
+                var featureId = context.ParseResult.GetValueForOption(featureIdOption);
                 var taskId = context.ParseResult.GetValueForOption(taskIdOption);
-                var storyId = context.ParseResult.GetValueForOption(storyIdOption);
                 var resetMemory = context.ParseResult.GetValueForOption(resetMemoryOption);
                 var requestFilePath = context.ParseResult.GetValueForOption(requestFilePathOption);
                 var responseFilePath = context.ParseResult.GetValueForOption(responseFilePathOption);
                 var model = context.ParseResult.GetValueForOption(modelOption);
 
-                await ExecuteAsync(targetAgentType, senderAgentType, mcp, taskTitle, markdownContent, branch, taskId, storyId, resetMemory, requestFilePath, responseFilePath, model);
+                await ExecuteAsync(targetAgentType, senderAgentType, mcp, taskTitle, markdownContent, branch, featureId, taskId, resetMemory, requestFilePath, responseFilePath, model);
             }
         );
     }
@@ -88,8 +88,8 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
+        string? featureId,
         string? taskId,
-        string? storyId,
         bool resetMemory,
         string? requestFilePath,
         string? responseFilePath,
@@ -99,7 +99,7 @@ public class ClaudeAgentCommand : Command
         {
             if (mcp)
             {
-                await RunMcpMode(targetAgentType, senderAgentType, taskTitle, markdownContent, branch, taskId, storyId, resetMemory, requestFilePath, responseFilePath, model);
+                await RunMcpMode(targetAgentType, senderAgentType, taskTitle, markdownContent, branch, featureId, taskId, resetMemory, requestFilePath, responseFilePath, model);
             }
             else
             {
@@ -120,8 +120,8 @@ public class ClaudeAgentCommand : Command
         string? taskTitle,
         string? markdownContent,
         string? branch,
+        string? featureId,
         string? taskId,
-        string? storyId,
         bool resetMemory,
         string? requestFilePath,
         string? responseFilePath,
@@ -223,8 +223,8 @@ public class ClaudeAgentCommand : Command
              to: {targetAgentType}
              request-number: {taskCounter:D4}
              timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+             feature-id: {featureId ?? "ad-hoc"}
              task-id: {taskId}
-             story-id: {storyId}
              ---
 
              {markdownContent}
@@ -239,7 +239,7 @@ public class ClaudeAgentCommand : Command
         // This prevents overwriting current-task.json while worker is using it
         if (!File.Exists(workspace.WorkerProcessIdFile))
         {
-            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, storyId, taskId ?? "", senderAgentType);
+            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, featureId, taskId ?? "", senderAgentType);
             await WriteTaskMetadata(workspace, taskInfo);
         }
 
@@ -687,15 +687,18 @@ public class ClaudeAgentCommand : Command
         if (!File.Exists(workspace.CurrentTaskFile))
         {
             var requestContent = await File.ReadAllTextAsync(requestFile);
-            var headerMatch = Regex.Match(requestContent, @"---\s+from:\s+(?<from>[^\n]+)\s+to:\s+(?<to>[^\n]+)\s+request-number:\s+(?<requestNumber>[^\n]+)\s+timestamp:\s+(?<timestamp>[^\n]+)\s+task-id:\s+(?<taskId>[^\n]+)\s+story-id:\s+(?<storyId>[^\n]+)\s+---");
+            var headerMatch = Regex.Match(requestContent, @"---\s+from:\s+(?<from>[^\n]+)\s+to:\s+(?<to>[^\n]+)\s+request-number:\s+(?<requestNumber>[^\n]+)\s+timestamp:\s+(?<timestamp>[^\n]+)\s+feature-id:\s+(?<featureId>[^\n]+)\s+task-id:\s+(?<taskId>[^\n]+)\s+---");
 
             if (headerMatch.Success)
             {
                 var requestNumber = headerMatch.Groups["requestNumber"].Value.Trim();
                 var timestampString = headerMatch.Groups["timestamp"].Value.Trim();
+                var featureId = headerMatch.Groups["featureId"].Value.Trim();
                 var taskId = headerMatch.Groups["taskId"].Value.Trim();
-                var storyId = headerMatch.Groups["storyId"].Value.Trim();
                 var senderAgentType = headerMatch.Groups["from"].Value.Trim();
+
+                // Treat "ad-hoc" as null for featureId
+                if (featureId == "ad-hoc") featureId = null;
 
                 // Extract title from request filename
                 var fileName = Path.GetFileName(requestFile);
@@ -713,7 +716,7 @@ public class ClaudeAgentCommand : Command
                     requestFile,
                     timestamp,
                     1,
-                    storyId,
+                    featureId,
                     taskId,
                     taskTitle,
                     senderAgentType
@@ -1017,7 +1020,7 @@ public class ClaudeAgentCommand : Command
         int taskCounter,
         string requestFilePath,
         string taskTitle,
-        string? storyId,
+        string? featureId,
         string taskId,
         string senderAgentType)
     {
@@ -1026,7 +1029,7 @@ public class ClaudeAgentCommand : Command
             requestFilePath,
             DateTime.Now.ToString("O"),
             1,
-            storyId,
+            featureId,
             taskId,
             taskTitle,
             senderAgentType
@@ -1860,7 +1863,7 @@ public record CurrentTaskInfo(
     string RequestFilePath,
     string StartedAt,
     int Attempt,
-    string? StoryId,
+    string? FeatureId,
     string TaskId,
     string TaskTitle,
     string SenderAgentType

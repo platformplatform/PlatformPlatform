@@ -13,11 +13,10 @@ Create PRDs and feature descriptions using:
 - WebSearch, Perplexity, Context7, etc. for research
 - Read for exploring codebase
 - Available commands:
-  - `/process:create-prd` - Create a PRD defining a [feature] with all [stories]
-  - `/process:create-tasks` - Break down [stories] into [tasks]
+  - `/process:create-prd` - Create a PRD defining a [feature] with all [tasks]
 
 ### 2. [Feature] implementation coordination
-Use `/process:implement-feature` to orchestrate implementation of all [stories] in a [feature].
+Use `/process:implement-feature` to orchestrate implementation of all [tasks] in a [feature].
 See that command for full workflow details.
 
 ### 3. Ad-hoc Work

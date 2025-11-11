@@ -37,15 +37,16 @@ Tech Lead (coordinates)
 When writing or updating `.claude/commands/process/**` files, system prompts, agent definitions, or any workflow documentation:
 
 **Work Item Hierarchy**:
-- `[feature]` / `[features]` or `[Feature]` / `[Features]` - A collection of stories
-- `[story]` / `[stories]` or `[Story]` / `[Stories]` - A user-facing capability
-- `[task]` / `[tasks]` or `[Task]` / `[Tasks]` - An implementation unit
-- `[checklist]` - Acceptance criteria or validation steps
+- `[feature]` / `[features]` or `[Feature]` / `[Features]` - A collection of tasks
+- `[task]` / `[tasks]` or `[Task]` / `[Tasks]` - A complete vertical slice implementation unit
+- `[subtask]` / `[subtasks]` or `[Subtask]` / `[Subtasks]` - Bullet points in task descriptions (not tracked separately)
 
 **Status Flow**:
-- `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
+- For [Feature]: `[Planned]` → `[Active]` → `[Resolved]`
+- For [Task]: `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
+- For [Subtask]: No status (just bullets in description)
 
-Use capitalized forms (`[Feature]`, `[Story]`, `[Task]`) when it reads more naturally in sentences.
+Use capitalized forms (`[Feature]`, `[Task]`, `[Subtask]`) when it reads more naturally in sentences.
 
 ### ❌ NEVER Use Tool-Specific Terms
 
@@ -69,22 +70,18 @@ Use capitalized forms (`[Feature]`, `[Story]`, `[Task]`) when it reads more natu
 When the workflow runs, the underlying tool maps our generic terms:
 
 **AzureDevOps**:
-- `[feature]` → Feature work item type
-- `[story]` → User Story work item type
+- `[feature]` → User Story work item type
 - `[task]` → Task work item type
-- `[Planned]` → New state
-- `[Active]` → Active state
-- `[Review]` → Resolved state (or custom)
-- `[Completed]` → Closed state
+- `[subtask]` → Bullet point in task description
+- For [Feature]: `[Planned]` → New, `[Active]` → Active, `[Resolved]` → Resolved
+- For [Task]: `[Planned]` → New, `[Active]` → Active, `[Review]` → Resolved, `[Completed]` → Closed
 
 **Linear**:
-- `[feature]` → Issue with label "feature" (or Project)
-- `[story]` → Issue with label "story"
-- `[task]` → Issue (or Sub-issue)
-- `[Planned]` → Backlog status
-- `[Active]` → In Progress status
-- `[Review]` → In Review status
-- `[Completed]` → Done status
+- `[feature]` → Project
+- `[task]` → Issue
+- `[subtask]` → Bullet point in task description
+- For [Feature]: `[Planned]` → Todo, `[Active]` → In Progress, `[Resolved]` → In Progress
+- For [Task]: `[Planned]` → Todo, `[Active]` → In Progress, `[Review]` → In Review, `[Completed]` → Done
 
 **The workflow code handles these mappings**. Your job is to use ONLY the standardized terms in all documentation.
 
@@ -99,17 +96,17 @@ When the workflow runs, the underlying tool maps our generic terms:
 
 **Example - GOOD**:
 ```markdown
-1. Retrieve the [Story] from [PRODUCT_MANAGEMENT_TOOL]
-2. Break down the [Story] into [Tasks]
-3. Move the [Story] to [Active] status
+1. Retrieve the [Feature] from [PRODUCT_MANAGEMENT_TOOL]
+2. Load all [Tasks] from the [Feature]
+3. Move the [Feature] to [Active] status
 4. For each [Task], implement and move to [Review]
 ```
 
 **Example - BAD**:
 ```markdown
-1. Retrieve the User Story from AzureDevOps (or Issue from Linear)
-2. Break down the Story into Task work items
-3. Move the Story to "In Progress" status
+1. Retrieve the Feature from AzureDevOps (or Project from Linear)
+2. Break down the Feature into User Stories, then into Tasks
+3. Move the Feature to "In Progress" status
 4. For each task, implement and move to "Code Review"
 ```
 
@@ -407,14 +404,14 @@ Understanding these files helps debug workflow issues:
 ### For System Prompts
 1. Keep concise, avoid redundancy
 2. Follow established patterns across agents
-3. **CRITICAL**: Use ONLY standardized terminology: `[feature]`, `[story]`, `[task]`, `[checklist]`, `[Planned]`, `[Active]`, `[Review]`, `[Completed]`
+3. **CRITICAL**: Use ONLY standardized terminology: `[feature]`, `[task]`, `[subtask]`, `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`
 4. NEVER use tool-specific terms (Issue, User Story, Epic, Work Item, etc.)
 5. Be token-efficient (agents read these on every launch)
 
 ### For Workflow Files (.claude/commands/process/**)
 1. **Before ANY edit**: Review the "Terminology Standards" section above
-2. Use ONLY standardized terms: `[feature]`, `[story]`, `[task]`, `[checklist]`
-3. Use ONLY standardized statuses: `[Planned]`, `[Active]`, `[Review]`, `[Completed]`
+2. Use ONLY standardized terms: `[feature]`, `[task]`, `[subtask]`
+3. Use ONLY standardized statuses: `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`
 4. Replace any tool-specific terms found (Issue, User Story, Epic, Work Item, etc.)
 5. Use `[PRODUCT_MANAGEMENT_TOOL]` when referring to the tool itself
 6. Never include tool-specific examples or hints in parentheses
@@ -443,4 +440,4 @@ You now have complete knowledge of the agentic workflow system. Use this knowled
 - Debug delegation issues
 - Process system bugs efficiently
 
-**Remember**: The workflow's portability across different product management tools depends on strict adherence to standardized terminology. Always use `[feature]`, `[story]`, `[task]`, `[checklist]` and status flow `[Planned]` → `[Active]` → `[Review]` → `[Completed]`. Never use tool-specific terms.
+**Remember**: The workflow's portability across different product management tools depends on strict adherence to standardized terminology. Always use `[feature]`, `[task]`, `[subtask]` and status flows: For [Feature]: `[Planned]` → `[Active]` → `[Resolved]`. For [Task]: `[Planned]` → `[Active]` → `[Review]` → `[Completed]`. Never use tool-specific terms.

@@ -41,17 +41,18 @@ Avoid subjective personal preferences.
 
 **Read your `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{your-agent-type}/current-task.json`** to get:
 - `requestFilePath`: Request file path
-- `storyId`: [StoryId]
-- `taskId`: [TaskId]
+- `featureId`: [FeatureId] (the feature this task belongs to, or null for ad-hoc)
+- `taskId`: [TaskId] (the task being reviewed)
 - `taskTitle`: Task title
 
 **Then read the request file** from the path in `requestFilePath`.
 
-**If `storyId` exists in current-task.json AND `storyId` is not "ad-hoc":**
-1. Read [story] from `storyId`
-2. Understand the [task] (`taskId`) within the [story] context
+**If `featureId` is not null (regular task):**
+1. Read [feature] from `featureId` in [PRODUCT_MANAGEMENT_TOOL] to understand the full PRD context
+2. Read [task] from `taskId` in [PRODUCT_MANAGEMENT_TOOL] to understand task requirements
+3. Understand that tasks are complete vertical slices
 
-**If `storyId` is "ad-hoc":**
+**If `featureId` is null (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] operations
 - Review and commit exactly like regular [tasks]
 
@@ -143,7 +144,12 @@ Before reviewing, understand the big picture:
    - "Run command: inspect"
    - Wait for all to complete
 
-3. REJECT if ANY failures found (zero tolerance)
+3. Handle validation results:
+   - **If NO parallel work notification in request**: REJECT if ANY failures found (zero tolerance)
+   - **If parallel work notification present** (e.g., "⚠️ Parallel Work: Frontend-engineer..."):
+     - REJECT if backend failures found (Core/, Api/, Tests/, Database/)
+     - IGNORE frontend failures (WebApp/) unless caused by backend API contract changes
+     - If frontend failures seem related to backend API changes: Note in rejection that frontend-engineer may need to adapt
 
 **For frontend-reviewer** (validates frontend only):
 
@@ -153,7 +159,12 @@ Before reviewing, understand the big picture:
 
 3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`
 
-4. REJECT if ANY failures found (zero tolerance)
+4. Handle validation results:
+   - **If NO parallel work notification in request**: REJECT if ANY failures found (zero tolerance)
+   - **If parallel work notification present** (e.g., "⚠️ Parallel Work: Backend-engineer..."):
+     - REJECT if frontend failures found (WebApp/)
+     - IGNORE backend failures (Core/, Api/, Tests/) unless caused by frontend breaking the API contract
+     - If backend failures seem related to API integration: Note in rejection
 
 **For qa-reviewer** (validates e2e tests):
 
@@ -257,11 +268,11 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
-**If `storyId` is not "ad-hoc":**
+**If `featureId` is not null (regular task):**
 - If APPROVED: Update [task] status to [Completed]
 - If REJECTED: Update [task] status back to [Active]
 
-**If `storyId` is "ad-hoc":**
+**If `featureId` is null (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates
 
 **STEP 10**: Signal completion and exit
