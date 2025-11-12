@@ -1366,6 +1366,13 @@ public class ClaudeAgentCommand : Command
             {
                 Logger.Debug("Pending MCP request detected during manual session");
 
+                // Only interrupt manual sessions with active tasks (skip if current-task.json missing)
+                if (!File.Exists(workspace.CurrentTaskFile))
+                {
+                    Logger.Debug("No active task (current-task.json missing) - manual session continues");
+                    continue;
+                }
+
                 // Check if user is actively working (git changes in last 20 min)
                 var hasGitChanges = GitHelper.HasUncommittedChanges();
 
