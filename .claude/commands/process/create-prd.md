@@ -18,28 +18,28 @@ Follow the steps below to create the PRD.
 
 Follow initialization steps in `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
-### Step 2: Ask for feature name and description
+### Step 2: Ask what [feature] to build
 
-Use the AskUserQuestion tool to ask the user for the feature name:
+Use the AskUserQuestion tool to ask the user what [feature] they want to build:
 
 ```
 AskUserQuestion with:
-- question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
-- header: "Feature name"
+- question: "What feature would you like to build?"
+- header: "Feature"
 - multiSelect: false
 - options:
-  - label: "Custom name", description: "Enter your feature name"
+  - label: "New feature", description: "Create a new feature"
+  - label: "Enhancement", description: "Enhance existing functionality"
 ```
 
-Users will use the custom text option to provide the feature name.
+Users will typically use the custom text option to describe their [feature].
 
 **If the user's answer comes back empty:**
 - Tell the user to enable Plan Mode and try again
 - STOP the workflow
 
 **If you receive a valid answer:**
-- Store this as the [feature] name (will be used in Step 7)
-- Use this name as the basis for the PRD title
+- Use the text they entered as the [feature] description for research
 
 ### Step 3: Research and understand the [feature]
 
@@ -53,15 +53,19 @@ Conduct deep research for a feasible solution that takes the existing codebase a
 
 ### Step 4: Interactive requirements wizard
 
-Now that you've done research, ask the user ALL relevant questions to understand their requirements.
+Now that you've done research, ask the user ALL required questions in ONE single AskUserQuestion call:
 
-You should ask as many questions as make sense for the feature. Create thoughtful questions based on your research. Be creative and comprehensive - the goal is to gather all the insights needed to create an excellent PRD.
-
-**Ask these required questions using AskUserQuestion:**
-
-**Self-contained system:**
 ```
-AskUserQuestion with (put the most likely SCS first):
+AskUserQuestion with 4 questions:
+
+Question 1 - Feature name:
+- question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
+- header: "Feature name"
+- multiSelect: false
+- options:
+  - label: "Custom name", description: "Enter your feature name"
+
+Question 2 - Self-contained system (put the most likely SCS first based on research):
 - question: "Which self-contained system (SCS) should this feature belong to?"
 - header: "SCS"
 - multiSelect: false
@@ -69,31 +73,16 @@ AskUserQuestion with (put the most likely SCS first):
   - label: "account-management", description: "Tenant and user management system"
   - label: "back-office", description: "Support and system admin tools"
   - label: "[Suggested SCS based on research]", description: "Based on my analysis"
-```
 
-**IMPORTANT:** Based on your research and the nature of the feature, ask 2-6 additional relevant questions that would help you create a better PRD. Examples:
-- "What user roles should have access to this feature?"
-- "Should this be tenant-specific or system-wide?"
-- "Are there any specific performance requirements?"
-- "Should this integrate with existing [X] functionality?"
-- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
-
-Use your judgment to ask additional questions using AskUserQuestion.
-
-**E2E tests:**
-```
-AskUserQuestion with:
+Question 3 - E2E tests:
 - question: "Should this PRD include Playwright end-to-end tests?"
 - header: "E2E Tests"
 - multiSelect: false
 - options:
   - label: "Yes", description: "Include E2E tests as a separate [task]"
   - label: "No", description: "Skip E2E tests for now"
-```
 
-**Parallel optimization:**
-```
-AskUserQuestion with:
+Question 4 - Parallel optimization:
 - question: "Should [tasks] be optimized for parallel work of backend and frontend?"
 - header: "Parallel"
 - multiSelect: false
@@ -101,6 +90,12 @@ AskUserQuestion with:
   - label: "Yes", description: "Backend and frontend with mocks work in parallel, then integration"
   - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
+
+**OPTIONAL:** You may ask 1-3 additional relevant questions in another AskUserQuestion call if needed. Examples:
+- "What user roles should have access to this feature?"
+- "Should this be tenant-specific or system-wide?"
+- "Are there any specific performance requirements?"
+- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
 
 **Frontend-first approach (only ask if user selected "No" for parallel optimization):**
 ```
@@ -181,7 +176,7 @@ Show the complete PRD to the user - display the full content including all [task
 Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
 
 Create:
-- [feature] with name=[feature name from Step 2], assign to "me"
+- [feature] with name=[feature name from Step 4 wizard], assign to "me"
 - [task] for each [task] in the PRD with:
   - Title: [task title] (sentence case)
   - Description: [task description paragraph] + [subtask bullets] (use bullets, NOT checkboxes)
