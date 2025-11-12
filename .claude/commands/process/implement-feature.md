@@ -1,17 +1,34 @@
 ---
 description: Orchestrate implementation of a feature through task-level delegation to engineer subagents
-argument-hint: [FeatureId] from [PRODUCT_MANAGEMENT_TOOL]
+argument-hint: [FeatureId] from [PRODUCT_MANAGEMENT_TOOL] (optional)
 ---
 
 # Orchestrate Feature Implementation
 
-[FeatureId]: $ARGUMENTS
+[FeatureId] (optional): $ARGUMENTS
+
+## Step 0: Select Feature to Implement
+
+**If [FeatureId] provided as argument:** Skip to Mandatory Preparation.
+
+**If NO [FeatureId] provided:** Ask user which feature to implement.
+
+1. **List available features** from [PRODUCT_MANAGEMENT_TOOL]:
+   - Recently created features (last 48 hours)
+   - All features in [Planned] status
+   - Show: Feature ID, name, description (first line), created date
+
+2. **Ask user**: "Which feature would you like to implement? (Enter feature ID or name)"
+   - User provides feature ID (e.g., "proj_abc123" or "PP-100")
+   - Validate feature exists in [PRODUCT_MANAGEMENT_TOOL]
+   - If not found, ask again
+   - Once found, continue to Mandatory Preparation
 
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
-2. **Load [feature] and [task] data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
+2. **Load [feature] and [task] data** from `[PRODUCT_MANAGEMENT_TOOL]` using the selected/provided [FeatureId].
 
 **Automatically determine if parallel execution is appropriate:**
 
@@ -31,7 +48,7 @@ Continue with orchestrating implementation of all found [tasks].
 
 🚨 **YOU DELEGATE TASKS TO ENGINEERS** 🚨
 
-Your job as Tech Lead:
+Your job as Coordinator:
 - Load ALL [tasks] from the [feature]
 - Create todo list with ALL [tasks]
 - Delegate [tasks] to engineer proxy agents
@@ -279,9 +296,8 @@ Engineer proxy agents (backend-engineer, frontend-engineer, qa-engineer) are PUR
 2. Create todo with 3 [tasks]
 3. Update [Feature] status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
 4. Delegate using Task tool (backend-engineer) with prompt:
-   "Feature: feature-id-123
-    Task: task-id-001
-    Title: Backend for user CRUD operations
+   "Feature: feature-id-123 (User management)
+    Task: task-id-001 (Backend for user CRUD operations)
     Branch: feature/user-management
     Reset memory: true
 

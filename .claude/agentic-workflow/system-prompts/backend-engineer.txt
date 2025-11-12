@@ -14,9 +14,9 @@ Switch to Sonnet when implementing code (call SwitchModel MCP tool with modelNam
 
 **Zero Tolerance**: FIX ALL warnings before review - no exceptions. Larger tasks need MORE attention. Never request review with ANY outstanding issues. Aim for perfection.
 
-**Task Scope**: Large [task] requiring multiple commits? Use git stash to temporarily save your work, commit a working increment through reviewer (tell them "partial implementation, X of Y"), then git stash pop to restore your work and continue. Discovered the [task] scope is wrong during implementation? Stash your changes, message tech-lead suggesting to rescope, merge, or cancel the [task]. Never leave a [task] active when moving to the next [task].
+**Task Scope**: Large [task] requiring multiple commits? Use git stash to temporarily save your work, commit a working increment through reviewer (tell them "partial implementation, X of Y"), then git stash pop to restore your work and continue. Discovered the [task] scope is wrong during implementation? Stash your changes, message coordinator suggesting to rescope, merge, or cancel the [task]. Never leave a [task] active when moving to the next [task].
 
-After implementing your task, you delegate to the **backend-reviewer** subagent to review and commit your code. You iterate with the reviewer until they approve. When the reviewer approves and commits, you call the MCP **CompleteWork** tool with `mode: "task"` to signal completion to the Tech Lead.
+After implementing your task, you delegate to the **backend-reviewer** subagent to review and commit your code. You iterate with the reviewer until they approve. When the reviewer approves and commits, you call the MCP **CompleteWork** tool with `mode: "task"` to signal completion to the Coordinator.
 
 Push back on reviewer suggestions with evidence when you have more context about the actual implementation. If user gives different instructions during work, note this in your response.
 

@@ -24,6 +24,7 @@ public class ClaudeAgentCommand : Command
         "frontend-reviewer",
         "qa-reviewer",
         "tech-lead",
+        "coordinator",
         "pair-programmer"
     ];
 
@@ -31,7 +32,7 @@ public class ClaudeAgentCommand : Command
     {
         var targetAgentTypeArgument = new Argument<string?>("target-agent-type", () => null)
         {
-            Description = "Target agent type to run (tech-lead, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)",
+            Description = "Target agent type to run (tech-lead, coordinator, backend-engineer, backend-reviewer, frontend-engineer, frontend-reviewer, qa-engineer, qa-reviewer)",
             Arity = ArgumentArity.ZeroOrOne
         };
 
@@ -185,7 +186,7 @@ public class ClaudeAgentCommand : Command
                 }
             }
 
-            // Set model for new story (tech-lead specifies which model to start with)
+            // Set model for new task (coordinator specifies which model to start with)
             if (!string.IsNullOrEmpty(model))
             {
                 var defaultModelFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".default-model");
@@ -293,6 +294,7 @@ public class ClaudeAgentCommand : Command
                     .Title("Select an [green]agent type[/] to run:")
                     .AddChoices(
                         "tech-lead",
+                        "coordinator",
                         "pair-programmer",
                         "backend-engineer",
                         "backend-reviewer",
@@ -317,8 +319,8 @@ public class ClaudeAgentCommand : Command
             Logger.Info($"Set default model to: {model}");
         }
 
-        // Tech-lead specific: Check for existing session and offer clean workspace option
-        if (targetAgentType is "tech-lead")
+        // Coordinator specific: Check for existing session and offer clean workspace option
+        if (targetAgentType is "coordinator")
         {
             var branchWorkspacePath = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", workspace.Branch);
 
@@ -450,6 +452,10 @@ public class ClaudeAgentCommand : Command
 
         AnsiConsole.WriteLine(); // Extra line for spacing
 
+        // Track coordinator recovery state
+        string? coordinatorFeatureId = null;
+        bool coordinatorContinue = false;
+
         // Check for task recovery - if current-task.json exists, prompt user
         if (File.Exists(workspace.CurrentTaskFile))
         {
@@ -458,25 +464,47 @@ public class ClaudeAgentCommand : Command
 
             if (taskInfo is not null)
             {
-                // Show incomplete task prompt
-                AnsiConsole.MarkupLine($"[{agentColor} bold]⚠️ INCOMPLETE TASK DETECTED[/]");
-                AnsiConsole.MarkupLine($"[dim]Task {taskInfo.TaskNumber} - '{Markup.Escape(taskInfo.TaskTitle)}' is currently in development.[/]");
-                AnsiConsole.WriteLine();
+                // Coordinator: Show incomplete feature prompt
+                if (targetAgentType == "coordinator")
+                {
+                    AnsiConsole.MarkupLine($"[{agentColor}]Feature in progress: {Markup.Escape(taskInfo.TaskTitle)}[/]");
 
-                var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?");
+                    var wantsToContinue = AnsiConsole.Confirm("Continue this feature?");
 
-                AnsiConsole.MarkupLine($"[{agentColor}]Resuming session...[/]");
-                // Brief pause to allow user to read the resuming message before launching Claude Code
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                    if (wantsToContinue)
+                    {
+                        coordinatorFeatureId = taskInfo.FeatureId;
+                        coordinatorContinue = true;
+                    }
+                    else
+                    {
+                        File.Delete(workspace.CurrentTaskFile);
+                    }
 
-                // Launch manual session (with or without slash command based on user choice)
-                await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.TaskTitle : null, wantsToContinue);
-                // After recovery session ends, continue to main loop to wait for MCP requests
+                    // Coordinator auto-launches below with custom slash command
+                }
+                else
+                {
+                    // Engineers/reviewers: Show incomplete task prompt
+                    AnsiConsole.MarkupLine($"[{agentColor} bold]⚠️ INCOMPLETE TASK DETECTED[/]");
+                    AnsiConsole.MarkupLine($"[dim]Task {taskInfo.TaskNumber} - '{Markup.Escape(taskInfo.TaskTitle)}' is currently in development.[/]");
+                    AnsiConsole.WriteLine();
+
+                    var wantsToContinue = AnsiConsole.Confirm("Do you want to continue this task?");
+
+                    AnsiConsole.MarkupLine($"[{agentColor}]Resuming session...[/]");
+                    // Brief pause to allow user to read the resuming message before launching Claude Code
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+
+                    // Launch manual session (with or without slash command based on user choice)
+                    await LaunchManualClaudeSession(workspace, wantsToContinue ? taskInfo.TaskTitle : null, wantsToContinue);
+                    // After recovery session ends, continue to main loop to wait for MCP requests
+                }
             }
         }
 
-        // Tech-lead and pair-programmer launch immediately, other agents wait for requests
-        if (targetAgentType is "tech-lead" or "pair-programmer")
+        // Tech-lead, coordinator, and pair-programmer launch immediately, other agents wait for requests
+        if (targetAgentType is "tech-lead" or "coordinator" or "pair-programmer")
         {
             var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
@@ -551,11 +579,20 @@ public class ClaudeAgentCommand : Command
                 return;
             }
 
-            // Tech-lead: infinite loop, relaunching after each session
+            // Tech-lead and coordinator: infinite loop, relaunching after each session
             while (true)
             {
-                var useSlashCommand = targetAgentType == "tech-lead" && !File.Exists(sessionIdFile);
-                await LaunchManualClaudeSession(workspace, useSlashCommand: useSlashCommand);
+                var useSlashCommand = (targetAgentType is "tech-lead" or "coordinator") && !File.Exists(sessionIdFile);
+
+                // For coordinator continuing a feature, pass featureId as taskTitle
+                string? taskTitleForSlash = null;
+                if (targetAgentType == "coordinator" && coordinatorContinue && coordinatorFeatureId != null)
+                {
+                    taskTitleForSlash = coordinatorFeatureId;
+                    coordinatorContinue = false; // Only use once, then reset for next loop
+                }
+
+                await LaunchManualClaudeSession(workspace, taskTitleForSlash, useSlashCommand);
                 Logger.Debug($"{targetAgentType} session ended, relaunching");
             }
         }
@@ -795,8 +832,8 @@ public class ClaudeAgentCommand : Command
         var process = await LaunchWorker(workspace, taskTitleForSlashCommand, useSlashCommand);
 
         // Monitor process and wait for completion
-        // Tech-lead gets 62 minutes (user might be thinking), workers get 20 minutes
-        var inactivityTimeout = workspace.AgentType == "tech-lead"
+        // Tech-lead and coordinator get 62 minutes (user might be thinking), workers get 20 minutes
+        var inactivityTimeout = workspace.AgentType is "tech-lead" or "coordinator"
             ? TimeSpan.FromMinutes(62)
             : TimeSpan.FromMinutes(20);
 
@@ -973,6 +1010,9 @@ public class ClaudeAgentCommand : Command
             var slashCommand = workspace.AgentType switch
             {
                 "tech-lead" => "/modes:tech-lead",
+                "coordinator" => string.IsNullOrEmpty(effectiveTaskTitle) || effectiveTaskTitle == "task"
+                    ? "/process:implement-feature"
+                    : $"/process:implement-feature {effectiveTaskTitle}",
                 "pair-programmer" => null, // No slash command for pair-programmer
                 "qa-engineer" => $"/process:implement-e2e-tests {effectiveTaskTitle}",
                 "qa-reviewer" => $"/process:review-e2e-tests {effectiveTaskTitle}",
@@ -1260,6 +1300,7 @@ public class ClaudeAgentCommand : Command
         return agentType switch
         {
             "tech-lead" => "Tech Lead",
+            "coordinator" => "Coordinator",
             "backend-engineer" => "Backend Engineer",
             "frontend-engineer" => "Frontend Engineer",
             "backend-reviewer" => "Backend Reviewer",
@@ -1276,12 +1317,13 @@ public class ClaudeAgentCommand : Command
         return agentType switch
         {
             "tech-lead" => Color.Red,
+            "coordinator" => Color.Purple,
             "backend-engineer" => Color.Green,
             "frontend-engineer" => Color.Blue,
             "backend-reviewer" => Color.Yellow,
             "frontend-reviewer" => Color.Orange3,
             "qa-engineer" => Color.Cyan1,
-            "qa-reviewer" => Color.Purple,
+            "qa-reviewer" => Color.Magenta1,
             "pair-programmer" => Color.DarkOrange,
             _ => throw new ArgumentException($"Unknown agent type: '{agentType}'")
         };
@@ -1369,8 +1411,8 @@ public class ClaudeAgentCommand : Command
                 return new ProcessCompletionResult(true, "Session completed");
             }
 
-            // Check if MCP request arrived (but not for tech-lead or pair-programmer which never receive requests)
-            if (workspace.AgentType is not "tech-lead" and not "pair-programmer" && HasPendingRequest(workspace))
+            // Check if MCP request arrived (but not for tech-lead, coordinator, or pair-programmer which never receive requests)
+            if (workspace.AgentType is not "tech-lead" and not "coordinator" and not "pair-programmer" && HasPendingRequest(workspace))
             {
                 Logger.Debug("Pending MCP request detected during manual session");
 
@@ -1396,8 +1438,8 @@ public class ClaudeAgentCommand : Command
                 Logger.Debug("Git changes detected, user is working - manual session continues");
             }
 
-            // For tech-lead, check for extended inactivity and restart if needed
-            if (workspace.AgentType == "tech-lead")
+            // For tech-lead and coordinator, check for extended inactivity and restart if needed
+            if (workspace.AgentType is "tech-lead" or "coordinator")
             {
                 // Check all activity signals: workers, conversation, git
                 var (hasActiveWorkers, _) = CheckWorkerProcessStatus(workspace.Branch);

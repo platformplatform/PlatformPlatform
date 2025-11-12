@@ -254,7 +254,11 @@ Create:
 1. A paragraph explaining what the task delivers
 2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
 
-**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. Use `/process:implement-feature [FeatureId]` to start implementation.
+**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. To implement, start the coordinator:
+```
+pp claude-agent coordinator
+```
+The coordinator will prompt you to select which feature to implement.
 
 ## Guidelines
 

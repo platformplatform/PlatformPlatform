@@ -317,7 +317,7 @@ If you discover bugs during testing or validation (API errors, broken functional
 Request: {requestFilePath}
 Response: {responseFilePath}
 
-[If working in parallel: Include parallel work notification from tech-lead, e.g., "⚠️ Parallel Work: Frontend-engineer is working in parallel on {task-title}"]
+[If working in parallel: Include parallel work notification from coordinator, e.g., "⚠️ Parallel Work: Frontend-engineer is working in parallel on {task-title}"]
 ```
 
 **MCP call parameters**:
@@ -358,7 +358,7 @@ ALWAYS call CompleteWork after reviewer approval, even if this is the last [task
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed
-2. Write a comprehensive response (what you accomplished, notes for Tech Lead)
+2. Write a comprehensive response (what you accomplished, notes for Coordinator)
 3. Create an objective technical summary in sentence case (like a commit message)
 4. Reflect on your experience and write categorized feedback using prefixes:
    - `[system]` - Workflow, MCP tools, agent coordination, message handling

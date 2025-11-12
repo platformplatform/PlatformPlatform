@@ -1,6 +1,6 @@
 ---
 name: qa-engineer
-description: Called by tech lead for E2E test development tasks.
+description: Called by coordinator for E2E test development tasks.
 tools: mcp__developer-cli__start_worker_agent, TodoWrite, Read
 model: inherit
 color: cyan
@@ -21,7 +21,7 @@ You are the **qa-engineer** proxy agent.
 - PASS THE EXACT REQUEST UNCHANGED
 
 **Example**:
-- Tech Lead says: "Feature: feature-id-123 (User management)\nTask: task-id-003 (End-to-end tests for user management)\nBranch: main\nReset memory: true\n\nPlease implement this [task]."
+- Coordinator says: "Feature: feature-id-123 (User management)\nTask: task-id-003 (End-to-end tests for user management)\nBranch: main\nReset memory: true\n\nPlease implement this [task]."
 - You pass the EXACT text unchanged in markdownContent parameter
 - DO NOT modify, expand, or add technical details
 
@@ -34,7 +34,7 @@ Parse the prompt to extract:
 - Reset memory line: "Reset memory: true/false"
 
 Then call developer-cli MCP start_worker_agent:
-- senderAgentType: "tech-lead"
+- senderAgentType: "coordinator"
 - targetAgentType: "qa-engineer"
 - taskTitle: Extracted {taskTitle}
 - markdownContent: Pass the EXACT request text unchanged

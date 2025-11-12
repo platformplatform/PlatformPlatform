@@ -183,7 +183,7 @@ Example: Workflow says read current-task.json from workspace root, but actual pa
 Reports: .workspace/agent-workspaces/{branch}/feedback-reports/problems/HH-MM-SS-severity-title.md"
     )]
     public static string ReportProblem(
-        [Description("Your agent type (e.g., backend-engineer, tech-lead, backend-reviewer)")]
+        [Description("Your agent type (e.g., backend-engineer, coordinator, backend-reviewer)")]
         string reporter,
         [Description("Severity: 'error' (blocking issue), 'warning' (should fix), 'info' (suggestion)")]
         string severity,

@@ -9,11 +9,14 @@ You now have complete knowledge of the agentic workflow system used in this code
 
 ## System Architecture Overview
 
-**Core Concept**: Hierarchical AI agent system where tech-lead delegates to engineers, engineers delegate to reviewers. All agents run as interactive worker-hosts that communicate via request/response files in a shared messages directory.
+**Core Concept**: Hierarchical AI agent system where coordinator delegates to engineers, engineers delegate to reviewers. All agents run as interactive worker-hosts that communicate via request/response files in a shared messages directory.
 
 **Agent Hierarchy**:
 ```
-Tech Lead (coordinates)
+Tech Lead (creates PRDs)
+  └─→ Hands off to Coordinator
+
+Coordinator (orchestrates implementation)
   ├─→ Backend Engineer → Backend Reviewer (commits)
   ├─→ Frontend Engineer → Frontend Reviewer (commits)
   └─→ QA Engineer → QA Reviewer (commits)
@@ -138,12 +141,22 @@ All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
 ## Agent Types and Responsibilities
 
 ### Tech Lead (`tech-lead`)
-- Coordinates all work across the team
-- Delegates tasks to engineers via MCP `start_worker_agent` tool
+- Creates PRDs and defines features
+- Conducts research and discovery
+- Defines what to build, not how
+- NEVER implements features or delegates to engineers
+- Hands off to coordinator for implementation
+- Runs continuously, relaunching after each session ends
+- Auto-launches immediately when started
+
+### Coordinator (`coordinator`)
+- Orchestrates feature implementation
+- Delegates tasks to engineers via Task tool (proxy agents)
 - Monitors progress through response files
 - NEVER codes or commits
 - Runs continuously, relaunching after each session ends
 - Auto-launches immediately when started
+- Prompts user to select feature, then runs `/process:implement-feature`
 
 ### Engineers (`backend-engineer`, `frontend-engineer`, `qa-engineer`)
 - Implement code within their specialty (backend: Core/Api/Tests, frontend: WebApp, qa: e2e tests)
@@ -151,7 +164,7 @@ All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
 - Delegate to their corresponding reviewer for approval
 - Iterate on reviewer feedback until approved
 - Session persists across tasks (via `.claude-session-id`)
-- Wait for MCP delegation from tech-lead
+- Wait for MCP delegation from coordinator
 
 ### Reviewers (`backend-reviewer`, `frontend-reviewer`, `qa-reviewer`)
 - Review code quality, architecture, and adherence to rules
@@ -193,10 +206,10 @@ story-id: {story-id-from-PRODUCT_MANAGEMENT_TOOL}
 
 ### Delegation Flow
 
-1. **Tech-lead → Engineer**:
-   - Tech-lead creates request file via MCP `start_worker_agent`
+1. **Coordinator → Engineer**:
+   - Coordinator creates request file via Task tool → proxy agent → MCP `start_worker_agent`
    - Engineer's worker-host detects file via FileSystemWatcher
-   - Engineer launches Claude Code worker with `/implement:task` slash command
+   - Engineer launches Claude Code worker with `/process:implement-task` slash command
    - Engineer implements code, runs tests
 
 2. **Engineer → Reviewer**:
@@ -213,11 +226,11 @@ story-id: {story-id-from-PRODUCT_MANAGEMENT_TOOL}
 4. **If Approved**:
    - Reviewer commits code, writes response with commit hash
    - Engineer receives response with commit confirmation
-   - Engineer completes task, writes response to tech-lead
+   - Engineer completes task, writes response to coordinator
 
-5. **Tech-lead Receives Completion**:
-   - Tech-lead gets response from engineer
-   - Tech-lead proceeds to next task or story
+5. **Coordinator Receives Completion**:
+   - Coordinator gets response from engineer
+   - Coordinator proceeds to next task
 
 ## Problem Reports System
 
@@ -316,9 +329,9 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 ### Memory Reset
 
 **When to reset**:
-- Starting a new story (fresh context needed)
+- Starting a new task (fresh context needed)
 - Agent stuck or producing poor quality work
-- Tech-lead triggers via MCP with `resetMemory: true`
+- Coordinator triggers via MCP with `resetMemory: true`
 
 **How to reset**:
 - Delete `.claude-session-id` file
@@ -330,9 +343,10 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 ### Who Can Commit
 
 - ✅ **Reviewers**: Always commit approved code (their primary job)
-- ✅ **Pair-programming**: Can commit directly for workflow/system fixes
+- ✅ **Pair-programmer**: Can commit directly for workflow/system fixes
 - ❌ **Engineers**: Never commit (must go through reviewer)
 - ❌ **Tech-lead**: Never commits
+- ❌ **Coordinator**: Never commits
 
 ### Commit Protocol
 
