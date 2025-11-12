@@ -91,11 +91,19 @@ Question 4 - Parallel optimization:
   - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
 
-**OPTIONAL:** You may ask 1-3 additional relevant questions in another AskUserQuestion call if needed. Examples:
-- "What user roles should have access to this feature?"
-- "Should this be tenant-specific or system-wide?"
-- "Are there any specific performance requirements?"
-- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
+**REQUIRED - Ask additional questions:**
+
+After the first 4 questions, you MUST ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
+
+Ask as many questions as needed to understand:
+- User roles and permissions
+- Complexity level (simple CRUD, workflow-based, complex logic)
+- Integration points with existing features
+- Validation rules and constraints
+- Edge cases to consider
+- Data relationships and dependencies
+
+**The more questions you ask, the better the PRD.**
 
 **Frontend-first approach (only ask if user selected "No" for parallel optimization):**
 ```
@@ -161,9 +169,67 @@ Based on all the research and user answers, draft the complete PRD.
    - Keep [tasks] focused (one commit per [task])
    - Write a clear paragraph describing what each [task] delivers
    - Each [task] represents a complete vertical slice that can be implemented, reviewed, and committed independently
+   - **CRITICAL**: Repeat ALL relevant business rules in EACH task description (permissions, validations, constraints)
+   - Engineers/reviewers only read the task description, not the feature overview
    - **List [tasks] in implementation order** (the order they should be implemented)
    - E2E tests should typically be the final [task]
    - **Important:** When using MCP-based `[PRODUCT_MANAGEMENT_TOOL]`, create [tasks] in the same order they appear in the PRD—this defines the implementation sequence
+
+**Example of WRONG task description (missing business rules):**
+```
+### 1. Backend for team management
+
+This task implements team CRUD operations with API endpoints and tests.
+
+- Create Team aggregate
+- Create CreateTeam command
+- Create API endpoints
+- Create tests
+```
+
+**Example of CORRECT task description (includes business rules):**
+```
+### 1. Backend for team management
+
+This task implements team CRUD operations with API endpoints and tests. Teams are managed by Tenant Owners and Admins only. Team names must be unique within a tenant.
+
+- Create Team aggregate with name uniqueness validation
+- Create CreateTeam command with Owner/Admin permission guard
+- Create UpdateTeam command with Owner/Admin permission guard
+- Create DeleteTeam command with Owner/Admin permission guard
+- Create API endpoints for all operations
+- Create tests covering permissions (403 for non-owners/admins), name uniqueness, tenant isolation
+```
+
+4. **Frontend task descriptions - use ASCII art sketches:**
+
+For frontend tasks, include ASCII art fat marker sketches showing UI layout and components:
+
+```
+### 2. Frontend for user management
+
+This task implements the Users page UI. Users can only be managed by Tenant Owners or Admins.
+
+┌─────────────────────────────────────────┐
+│ Users                   [+ Invite user] │
+├─────────────────────────────────────────┤
+│ ┌─────────────────────────────────────┐ │
+│ │ Email           Name         Role   │ │
+│ ├─────────────────────────────────────┤ │
+│ │ admin@...       John Doe     Owner  │ │
+│ │ member@...      Jane Smith   Member │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+
+- Add Users navigation menu item
+- Create Users page with table
+- Create CreateUserDialog (validates email uniqueness)
+- Show/hide [+ Invite user] button based on role (Owner/Admin only)
+- Create UserDetailsSidePane
+- Integrate all API operations
+```
+
+ASCII sketches help engineers visualize the UI before coding.
 
 Show the complete PRD to the user - display the full content including all [tasks] with their descriptions.
 
