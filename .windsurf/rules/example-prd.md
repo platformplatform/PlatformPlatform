@@ -43,17 +43,59 @@ A brief high-level introduction: The User management feature enables tenants to 
 - Confirmation dialogs for sensitive actions like deactivating or deleting users.
 - All operations strictly scoped to the current tenant to maintain isolation.
 
-## Stories overview
-This is a very high-level overview of the stories needed to implement the feature.
+## Tasks overview
+This is a very high-level overview of the tasks needed to implement the feature.
 
 ### 1. Backend for user management
-This story implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, deactivating, and deleting users with proper validation and permission checks.
+
+This task implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, deactivating, and deleting users with proper validation and permission checks.
+
+- Create `UserId` strongly typed ID with `user` prefix
+- Create `User` aggregate with email, full name, role, status, and tenant ID
+- Create `IUserRepository` interface and implementation
+- Create `UserConfiguration` for EF Core mapping
+- Create database migration for Users table
+- Create `CreateUser` command and handler with validation
+- Create `UpdateUser` command and handler
+- Create `DeleteUser` command (soft delete) and handler
+- Create `GetUser` query and handler
+- Create `GetUsers` query and handler with filtering
+- Create API endpoints for all commands and queries
+- Create comprehensive API tests for all operations
 
 ### 2. Frontend for user management
-This story implements the Users page UI with the ability to list, create, edit, and deactivate users using the API from the first story. It includes the navigation menu item and user management interface with role assignment.
+
+This task implements the Users page UI with the ability to list, create, edit, and deactivate users using the API from the first task. It includes the navigation menu item and user management interface with role assignment.
+
+- Add Users navigation menu item in Organization section
+- Create Users page route at `/admin/users`
+- Create UsersPage component structure
+- Create UsersTable component with API integration
+- Create CreateUserDialog component
+- Create UserDetailsSidePane component
+- Create EditUserDialog component
+- Integrate all API endpoints using TanStack Query
+- Add loading states and error handling
+- Implement permission-based UI controls
 
 ### 3. User invitation and email notifications
-This story implements the email invitation system for new users and password reset functionality. It includes email templates, invitation token generation, and notification delivery.
 
-### 4. End-to-end tests
-This story implements comprehensive Playwright tests covering user creation, editing, deletion, role changes, and permission validation across different user roles.
+This task implements the email invitation system for new users and password reset functionality. It includes email templates, invitation token generation, and notification delivery.
+
+- Create invitation token generation logic
+- Create email templates for user invitations
+- Create SendUserInvitation command and handler
+- Create email delivery integration
+- Create API endpoint for sending invitations
+- Create API tests for invitation flow
+
+### 4. End-to-end tests for user management
+
+This task implements comprehensive Playwright tests covering user creation, editing, deletion, role changes, and permission validation across different user roles.
+
+- Create test fixtures for user management scenarios
+- Create tests for user creation flow
+- Create tests for user editing
+- Create tests for user deletion
+- Create tests for role-based permissions
+- Create smoke tests for critical paths

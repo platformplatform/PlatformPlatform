@@ -5,7 +5,7 @@ auto_execution_mode: 1
 
 # Create PRD Workflow
 
-Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [stories] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [tasks] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
 
 ## Mandatory Preparation
 
@@ -40,7 +40,7 @@ Users will typically use the custom text option to describe their [feature].
 - STOP the workflow
 
 **If you receive a valid answer:**
-- Use the text they entered as the [feature] description for the PRD
+- Use the text they entered as the [feature] description for research
 
 ### Step 3: Research and understand the [feature]
 
@@ -54,15 +54,19 @@ Conduct deep research for a feasible solution that takes the existing codebase a
 
 ### Step 4: Interactive requirements wizard
 
-Now that you've done research, ask the user ALL relevant questions to understand their requirements.
+Now that you've done research, ask the user ALL required questions in ONE single AskUserQuestion call:
 
-You should ask as many questions as make sense for the feature. Create thoughtful questions based on your research. Be creative and comprehensive - the goal is to gather all the insights needed to create an excellent PRD.
-
-**Ask these required questions using AskUserQuestion:**
-
-**Self-contained system:**
 ```
-AskUserQuestion with (put the most likely SCS first):
+AskUserQuestion with 4 questions:
+
+Question 1 - Feature name:
+- question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
+- header: "Feature name"
+- multiSelect: false
+- options:
+  - label: "Custom name", description: "Enter your feature name"
+
+Question 2 - Self-contained system (put the most likely SCS first based on research):
 - question: "Which self-contained system (SCS) should this feature belong to?"
 - header: "SCS"
 - multiSelect: false
@@ -70,38 +74,29 @@ AskUserQuestion with (put the most likely SCS first):
   - label: "account-management", description: "Tenant and user management system"
   - label: "back-office", description: "Support and system admin tools"
   - label: "[Suggested SCS based on research]", description: "Based on my analysis"
-```
 
-**IMPORTANT:** Based on your research and the nature of the feature, ask 2-6 additional relevant questions that would help you create a better PRD. Examples:
-- "What user roles should have access to this feature?"
-- "Should this be tenant-specific or system-wide?"
-- "Are there any specific performance requirements?"
-- "Should this integrate with existing [X] functionality?"
-- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
-
-Use your judgment to ask additional questions using AskUserQuestion.
-
-**E2E tests:**
-```
-AskUserQuestion with:
+Question 3 - E2E tests:
 - question: "Should this PRD include Playwright end-to-end tests?"
 - header: "E2E Tests"
 - multiSelect: false
 - options:
-  - label: "Yes", description: "Include E2E tests as a separate [story]"
+  - label: "Yes", description: "Include E2E tests as a separate [task]"
   - label: "No", description: "Skip E2E tests for now"
-```
 
-**Parallel optimization:**
-```
-AskUserQuestion with:
-- question: "Should [stories] be optimized for parallel work of backend and frontend?"
+Question 4 - Parallel optimization:
+- question: "Should [tasks] be optimized for parallel work of backend and frontend?"
 - header: "Parallel"
 - multiSelect: false
 - options:
   - label: "Yes", description: "Backend and frontend with mocks work in parallel, then integration"
   - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
+
+**OPTIONAL:** You may ask 1-3 additional relevant questions in another AskUserQuestion call if needed. Examples:
+- "What user roles should have access to this feature?"
+- "Should this be tenant-specific or system-wide?"
+- "Are there any specific performance requirements?"
+- "What level of complexity: simple CRUD, workflow-based, or complex business logic?"
 
 **Frontend-first approach (only ask if user selected "No" for parallel optimization):**
 ```
@@ -127,7 +122,7 @@ Based on all the research and user answers, draft the complete PRD.
    - Specify which self-contained system(s) are in scope
    - Avoid repetition
 
-2. **[Stories] section** structured based on wizard answers:
+2. **[Tasks] section** structured based on wizard answers:
 
    **Examples based on common patterns:**
 
@@ -160,41 +155,41 @@ Based on all the research and user answers, draft the complete PRD.
    - Integration frontend with backend
    - E2E tests (if E2E tests selected)
 
-   **Note:** These are examples only. Adapt the [story] structure to match the actual [feature] requirements, scope, and user answers.
+   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers.
 
-3. **[Story] guidelines:**
-   - Each [story] should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
-   - Keep [stories] small enough to review effectively
-   - Write a clear paragraph describing what each [story] delivers
-   - Each [task] = one commit = one vertical slice
-   - All [tasks] in a [story] work together to deliver a coherent [feature]
-   - **List [stories] in implementation order** (the order they should be implemented)
-   - E2E tests should typically be the final [story]
-   - **Important:** When using MCP-based `[PRODUCT_MANAGEMENT_TOOL]`, create [stories] in the same order they appear in the PRD—this defines the implementation sequence
+3. **[Task] guidelines:**
+   - Each [task] should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
+   - Keep [tasks] focused (one commit per [task])
+   - Write a clear paragraph describing what each [task] delivers
+   - Each [task] represents a complete vertical slice that can be implemented, reviewed, and committed independently
+   - **List [tasks] in implementation order** (the order they should be implemented)
+   - E2E tests should typically be the final [task]
+   - **Important:** When using MCP-based `[PRODUCT_MANAGEMENT_TOOL]`, create [tasks] in the same order they appear in the PRD—this defines the implementation sequence
 
-Show the complete PRD to the user - display the full content including all [stories] with their descriptions.
+Show the complete PRD to the user - display the full content including all [tasks] with their descriptions.
 
 **Ask for approval:** "Does this PRD look good?" (Yes/No)
 - If No: Ask what to change, update the PRD content, show again, repeat approval
 - If Yes: Continue to Step 6
 
-### Step 6: Confirm PRD name and details
-
-Extract PRD name from feature description, remove imperative verbs ("Create", "Add", "Implement"), convert to sentence case:
-- Examples: "Redesign user interface" → "User interface redesign", "Implement SSO Authentication" → "SSO authentication"
-
-Ask "PRD name: '[name]' - correct?" (Yes/Custom)
-
-### Step 7: Create [feature] in [PRODUCT_MANAGEMENT_TOOL]
+### Step 6: Create [feature] and [tasks] in [PRODUCT_MANAGEMENT_TOOL]
 
 Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
 
 Create:
-- [feature] with name=[confirmed feature name], assign to "me"
-- [story] for each [story] with title=[story title], description=[story description], link to [feature], assign to "me"
-- Initialize all items in [Planned] status, in the current iteration.
+- [feature] with name=[feature name from Step 4 wizard], assign to "me"
+- [task] for each [task] in the PRD with:
+  - Title: [task title] (sentence case)
+  - Description: [task description paragraph] + [subtask bullets] (use bullets, NOT checkboxes)
+  - Link to parent [feature]
+  - Assign to "me"
+- Initialize all items in [Planned] status, in the current iteration/sprint
 
-**Inform user:** The [feature] has been created from the PRD. Use `/process:create-tasks` to break down each [story] into [tasks].
+**CRITICAL:** Each [task] description must include:
+1. A paragraph explaining what the task delivers
+2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
+
+**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. Use `/process:implement-feature [FeatureId]` to start implementation.
 
 ## Guidelines
 
@@ -215,10 +210,10 @@ Create:
 - Ignore rule files
 - Repeat information across sections
 - Write titles in Title Case—use sentence case
-- Create [feature] or [stories] in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
+- Create [feature] or [tasks] in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
 - Rename the file—must be `prd.md`
 - Save questions in the PRD file
-- Create [stories] that split tests, implementation, and migrations across separate [stories]
+- Create [tasks] that split tests, implementation, and migrations across separate [tasks]—each [task] must be a complete vertical slice
 - Ask the user clarifying questions before Step 4
 
 **SERIOUSLY:**

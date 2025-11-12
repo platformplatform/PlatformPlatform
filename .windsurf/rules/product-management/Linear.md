@@ -17,12 +17,19 @@ DEFAULT_TEAM=null
 | Generic Term | Linear |
 |---|---|
 | `[Feature]` | Project |
-| `[Story]` | Issue |
-| `[Task]` | Sub-issue |
-| `[Checklist]` | Checklist item |
+| `[Task]` | Issue |
+| `[Subtask]` | Bullet point in task description |
 
 ## Status Mapping
 
+**For [Feature]:**
+| Generic Status | Linear |
+|---|---|
+| `[Planned]` | Next |
+| `[Active]` | Now |
+| `[Resolved]` | Now |
+
+**For [Task]:**
 | Generic Status | Linear |
 |---|---|
 | `[Planned]` | Todo |
@@ -48,8 +55,7 @@ DEFAULT_TEAM=null
 | Generic ID | Linear |
 |---|---|
 | `featureId` | Project ID/name |
-| `storyId` | Issue ID (e.g. PP-445) |
-| `taskId` | Sub-issue ID (e.g. PP-484) |
+| `taskId` | Issue ID (e.g. PP-445) |
 
 ## Critical Rules
 
@@ -57,9 +63,9 @@ DEFAULT_TEAM=null
 - If ANY MCP call fails: STOP immediately and call report_problem with severity: error
 - NEVER skip status updates
 - NEVER work around MCP failures
-- storyId will be an issue ID (e.g., "PP-445")
-- taskId will be a sub-issue ID (e.g., "PP-484")
-- To query sub-issues: use `list_issues` with `query: "parent:<parent-issue-uuid>"` (use UUID, not identifier)
+- featureId will be a project ID/name
+- taskId will be an issue ID (e.g., "PP-445")
+- To query tasks in a feature: use `list_issues` with `project: "<project-id>"`
 
 ## Initialization
 

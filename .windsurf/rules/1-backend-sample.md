@@ -1,42 +1,35 @@
 # Backend for user management
 
-**Purpose:**
+**This is an example of how to describe a backend [task] in the PRD.**
 
-This story implements the core user functionality including:
-- User aggregate and domain model
-- Database migration for the Users table
-- CRUD operations for users
-- API endpoints for user management
-- API tests for all operations with proper validation and permission checks
+This task implements the core user functionality including user aggregate, domain model, database migration, CRUD operations, API endpoints, and tests. It enables creating, updating, deactivating, and deleting users with proper validation and permission checks.
 
-**NOT included:**
-- Frontend implementation (next story)
-- User role management (separate story)
-- User interface components
-- Authentication/authorization UI
+## Subtasks (implementation guidance)
 
-**Dependencies:**
-- None (this is the first story)
+The following subtasks guide the engineer through implementing this complete vertical slice. These are bullets in the task description (not separately tracked items):
 
-**IMPORTANT:**
-Do not implement frontend components or user role functionality in this story.
+- Create `UserId` strongly typed ID with `user` prefix
+- Create `User` aggregate with email, full name, role, status, and tenant ID
+- Create `IUserRepository` interface and implementation
+- Create `UserConfiguration` for EF Core mapping
+- Create database migration for Users table
+- Create `CreateUser` command and handler with email uniqueness validation
+- Create `UpdateUser` command and handler with permission checks
+- Create `DeleteUser` command (soft delete) and handler
+- Create `GetUser` query and handler
+- Create `GetUsers` query and handler with filtering by name and email
+- Create API endpoints for all commands and queries
+- Create comprehensive API tests for all operations including edge cases
 
-## CRITICAL: Vertical slice requirements
+## Important notes
 
-**EACH TASK = ONE COMMIT = ONE VERTICAL SLICE**
+**This entire task = ONE commit:**
+- All subtasks implemented together
+- Code compiles, runs, and passes tests after completion
+- Engineer builds and tests incrementally after each subtask
+- Final validation before review includes format and inspect
 
-A vertical slice means:
-- Database changes + backend logic + API endpoint + tests = ONE task/commit
-- The code must compile, run, and be testable after EACH task
-- Never split database, backend, API, and tests into separate tasks
-
-**Example of WRONG approach (multiple commits):**
-- Task 1: Create database migration ❌
-- Task 2: Create User aggregate ❌
-- Task 3: Create CreateUser command ❌
-- Task 4: Create API endpoint ❌
-- Task 5: Create tests ❌
-
-**Example of RIGHT approach (vertical slice):**
-- Task 1: Create user aggregate, command, endpoint, migration and tests ✅
-  (Everything needed to create a user in ONE commit)
+**NOT included in this task:**
+- Frontend implementation (separate task)
+- User role management (separate task if needed)
+- Email invitation functionality (separate task)

@@ -10,13 +10,20 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 
 | Generic Term | Azure DevOps |
 |---|---|
-| `[Feature]` | Feature |
-| `[Story]` | User Story |
+| `[Feature]` | User Story |
 | `[Task]` | Task |
-| `[Checklist]` | Checklist item |
+| `[Subtask]` | Bullet point in task description |
 
 ## Status Mapping
 
+**For [Feature]:**
+| Generic Status | Azure DevOps |
+|---|---|
+| `[Planned]` | New |
+| `[Active]` | Active |
+| `[Resolved]` | Resolved |
+
+**For [Task]:**
 | Generic Status | Azure DevOps |
 |---|---|
 | `[Planned]` | New |
@@ -45,8 +52,7 @@ globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/comma
 
 | Generic ID | Azure DevOps |
 |---|---|
-| `featureId` | Feature ID |
-| `storyId` | User Story ID |
+| `featureId` | User Story ID |
 | `taskId` | Task ID |
 
 ## Critical Rules

@@ -1,44 +1,40 @@
 # Frontend for user management
 
-**Purpose:**
+**This is an example of how to describe a frontend [task] in the PRD.**
 
-This story implements the Users page UI with the ability to:
-- List, create, edit, and delete users using the API from the first story
-- Display users in a table with user data
-- Create new users via modal dialog
-- View and edit user details in a side pane
-- Implement appropriate loading and empty states
-- Apply permission-based UI controls
-- Add Users menu item to the Organization section of navigation
+This task implements the Users page UI with the ability to list, create, edit, and deactivate users using the API from the backend task. It includes the navigation menu item, user management interface with role assignment, and all necessary UI components.
 
-**NOT included:**
-- Backend implementation (previous story)
-- User role management (separate story)
-- Advanced filtering/sorting
-- Pagination and search functionality
+## Subtasks (implementation guidance)
 
-**Dependencies:**
-- Backend for user management story must be completed first
+The following subtasks guide the engineer through implementing this complete UI feature. These are bullets in the task description (not separately tracked items):
 
-**IMPORTANT:**
-Do not modify any backend code or implement user role functionality in this story.
+- Add Users navigation menu item in Organization section
+- Create Users page route at `/admin/users`
+- Create UsersPage component with layout structure
+- Create UsersTable component with columns for email, name, role, status
+- Integrate `GetUsers` query using TanStack Query
+- Create CreateUserDialog component with form validation
+- Integrate `CreateUser` command with optimistic updates
+- Create UserDetailsSidePane component
+- Integrate `GetUser` query for side pane data
+- Create EditUserDialog component
+- Integrate `UpdateUser` command
+- Integrate `DeleteUser` command with confirmation dialog
+- Add loading states for all async operations
+- Add error handling and toast notifications
+- Implement permission-based UI (show/hide actions based on role)
+- Test all functionality in Chrome DevTools (network, console)
+- Verify translations in all supported languages
 
-## CRITICAL: Frontend vertical slice requirements
+## Important notes
 
-**EACH TASK = ONE COMMIT = ONE COMPLETE UI FEATURE**
+**This entire task = ONE commit:**
+- All subtasks implemented together
+- UI is functional and visually complete after implementation
+- Engineer builds incrementally after each subtask
+- Final validation includes build, format, inspect, and Chrome DevTools testing
 
-A vertical slice in frontend means:
-- Component + API integration + UI state + user interaction = ONE task/commit
-- The UI must be functional and testable after EACH task
-- Never split component creation, API calls, and state management into separate tasks
-
-**Example of WRONG approach (multiple commits):**
-- Task 1: Create table component structure ❌
-- Task 2: Add API data fetching ❌
-- Task 3: Connect data to table ❌
-- Task 4: Add loading states ❌
-- Task 5: Add error handling ❌
-
-**Example of RIGHT approach (vertical slice):**
-- Task 1: Create users table with data fetching and loading states ✅
-  (Complete working table in ONE commit)
+**NOT included in this task:**
+- Backend API implementation (separate task)
+- Advanced filtering or search (separate task if needed)
+- Pagination (separate task if needed)

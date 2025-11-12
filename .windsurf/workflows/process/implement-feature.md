@@ -5,36 +5,36 @@ auto_execution_mode: 1
 
 # Orchestrate Feature Implementation
 
-[FeatureId] and/or [StoryIds]: $ARGUMENTS
+[FeatureId]: $ARGUMENTS
 
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
-2. **Load [feature] and [story] data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
+2. **Load [feature] and [task] data** from `[PRODUCT_MANAGEMENT_TOOL]` using tool-specific IDs and methods from the guide above.
 
 **Automatically determine if parallel execution is appropriate:**
 
-Read the PRD and look for indicators that [stories] are designed for parallel work:
-- PRD mentions "parallel" or "simultaneously" in Stories section
-- [Story] descriptions mention "can work in parallel with" or "independent"
-- [Story] descriptions mention "mocked dependencies" or "mocks"
-- [Stories] are explicitly structured to suggest parallel execution
+Read the PRD and look for indicators that [tasks] are designed for parallel work:
+- PRD mentions "parallel" or "simultaneously" in Tasks section
+- [Task] descriptions mention "can work in parallel with" or "independent"
+- [Task] descriptions mention "mocked dependencies" or "mocks"
+- [Tasks] are explicitly structured to suggest parallel execution
 
 **Decision:**
-- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized [stories]")
+- **If parallel indicators found**: Use Parallel Mode (inform user: "Detected parallel-optimized [tasks]")
 - **Otherwise**: Use Sequential Mode (default, safer - inform user: "Using sequential execution")
 
-Continue with orchestrating implementation of all found [stories].
+Continue with orchestrating implementation of all found [tasks].
 
 ## Your Role: Task-Level Coordination
 
-🚨 **YOU DELEGATE INDIVIDUAL TASKS - NOT STORIES** 🚨
+🚨 **YOU DELEGATE TASKS TO ENGINEERS** 🚨
 
 Your job as Tech Lead:
-- Load ALL [stories] and extract [tasks]
-- Create expanded todo with ALL [stories] and ALL [tasks]
-- Delegate individual [tasks] to engineer proxy agents
+- Load ALL [tasks] from the [feature]
+- Create todo list with ALL [tasks]
+- Delegate [tasks] to engineer proxy agents
 - Engineer proxy agents are pure passthroughs - they just forward your request to workers
 - Track progress and mark [tasks] complete
 - NEVER change code, commit, or use MCP tools yourself
@@ -45,17 +45,15 @@ Your job as Tech Lead:
 
 Delegate one [task] completely before starting the next:
 
-1. Delegate [task] 1 from [story] 1 → Wait for completion
-2. Delegate [task] 2 from [story] 1 → Wait for completion
-3. Continue with [story] 1 until all [tasks] complete
-4. Move to [story] 2, delegate [task] 1 → Wait for completion
-5. Continue until all [tasks] in all [stories] complete
+1. Delegate [task] 1 from [feature] → Wait for completion
+2. Delegate [task] 2 from [feature] → Wait for completion
+3. Continue until all [tasks] in [feature] complete
 
 ### Parallel Mode
 
-**CRITICAL**: [stories] must ALWAYS be implemented in the order they appear in [PRODUCT_MANAGEMENT_TOOL]. NEVER skip [stories]. Within that constraint, you can interleave [tasks] from multiple [stories].
+**CRITICAL**: [tasks] must ALWAYS be implemented in the order they appear in [PRODUCT_MANAGEMENT_TOOL]. NEVER skip [tasks]. Within that constraint, you can run independent [tasks] in parallel.
 
-**Example**: [task] 1 from [story] 1 + [task] 1 from [story] 2 simultaneously, then [task] 2 from [story] 1 + [task] 2 from [story] 2 simultaneously.
+**Example**: Backend [task] + Frontend [task] simultaneously (if independent).
 
 **BEFORE delegating in parallel, evaluate dependencies**:
 
@@ -73,127 +71,123 @@ Delegate one [task] completely before starting the next:
 
 **If tasks are independent AND use different engineer types**: Delegate in parallel.
 
-**Example** (interleaving independent tasks):
+**Example** (parallel independent tasks):
 ```
 In a SINGLE message, delegate multiple tasks:
-1. backend-engineer: Feature: {featureId}, Story: {story1Id}, Task: {task1Id} - "Create user API endpoints"
-2. frontend-engineer: Feature: {featureId}, Story: {story2Id}, Task: {task1Id} - "Create user management UI"
+1. backend-engineer: Feature: {featureId}, Task: {task1Id} - "Backend for user CRUD operations"
+2. frontend-engineer: Feature: {featureId}, Task: {task2Id} - "Frontend UI skeleton for user management"
 
-Wait for both to complete, then delegate next round:
-3. backend-engineer: Feature: {featureId}, Story: {story1Id}, Task: {task2Id} - "Add validation"
-4. frontend-engineer: Feature: {featureId}, Story: {story2Id}, Task: {task2Id} - "Add form validation"
+Wait for both to complete, then delegate next round (sequential):
+3. frontend-engineer: Feature: {featureId}, Task: {task3Id} - "Connect frontend to backend"
+
+Then continue with next parallel round if more independent tasks exist.
 ```
 
 **CRITICAL**: If you're unsure about dependencies, use Sequential mode (safer default).
 
 ## Mandatory Workflow
 
-### Step 1: Load Stories and Tasks
+**Note:** If you receive MCP errors about agents not running, inform the user to start the required agents (backend-engineer, frontend-engineer, qa-engineer) in separate terminals.
 
-For each [story] loaded in Mandatory Preparation, extract all [tasks].
+### Step 1: Load Tasks
+
+Load all [tasks] from the [feature] loaded in Mandatory Preparation.
 
 Refer to `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
-- Query for [tasks] within each [story]
+- Query for [tasks] within the [feature]
 - Extract [task] titles and IDs
 - Determine [task] ordering
 
-### Step 2: Create Expanded Todo List
+### Step 2: Create Todo List
 
-Use TodoWrite to create fully expanded todo with ALL [stories] numbered and ALL [tasks] as subtasks:
+Use TodoWrite to create todo list with ALL [tasks]:
 
 ```
-Story 1: Backend user management [pending]
-├─ 1. Create user API endpoints [pending]
-├─ 2. Add validation logic [pending]
-├─ 3. Implement user repository [pending]
-Story 2: Frontend user management [pending]
-├─ 1. Create user management UI [pending]
-├─ 2. Add form validation [pending]
-Story 3: End-to-end testing [pending]
-├─ 1. Create smoke tests [pending]
+1. Backend for user CRUD operations [pending]
+2. Frontend UI skeleton for user management [pending]
+3. Connect frontend to backend [pending]
+4. End-to-end tests for user management [pending]
 ```
 
-**CRITICAL**: Keep this expanded format throughout execution so you and the user can track progress.
-
-**CRITICAL**: Ensure you have confirmed [taskId] values for ALL [tasks] before proceeding. [taskId] must be distinct from [storyId].
+**CRITICAL**: Ensure you have confirmed [taskId] values for ALL [tasks] before proceeding.
 
 ### Step 3: Delegate Tasks
 
 **Sequential Mode (default)**:
 
-FOR EACH [story]:
-  **0. Update [story] status to [Active]** in [PRODUCT_MANAGEMENT_TOOL]:
-    - [Story] is starting work
-    - This signals that implementation has begun
+**0. Update [feature] status to [Active]** in [PRODUCT_MANAGEMENT_TOOL] (once at start)
 
-  FOR EACH [task] in that [story]:
-    **1. Mark [task] [in_progress]** in todo
+FOR EACH [task]:
+  **1. Mark [task] [in_progress]** in todo
 
-    **2. Determine resetMemory value**:
-    - First [task] of this [story]: `resetMemory=true` (clear context, start fresh)
-    - Subsequent [tasks] of same [story]: `resetMemory=false` (continue accumulating context)
+  **2. Determine resetMemory value**:
+  - First delegation of a [task]: `resetMemory=true` (start fresh)
+  - Re-delegation for follow-up/fix: `resetMemory=false` (maintain context)
 
-    **3. Delegate to engineer proxy agent**:
+  **3. Delegate to engineer proxy agent**:
 
-    Use Task tool with appropriate engineer subagent:
-    - Backend [task] → `backend-engineer` subagent
-    - Frontend [task] → `frontend-engineer` subagent
-    - E2E test [task] → `qa-engineer` subagent
-    - Branch: Use current git branch
+  Use Task tool with appropriate engineer subagent:
+  - Backend [task] → `backend-engineer` subagent
+  - Frontend [task] → `frontend-engineer` subagent
+  - E2E test [task] → `qa-engineer` subagent
 
-    **Delegation format**:
-    ```
-    Feature: {featureId} ({featureTitle})
-    Story: {storyId} ({storyTitle})
-    Task: {taskId} ({taskTitle})
-    Reset memory: {resetMemory}
+  **Delegation format** (include all parameters in the prompt):
+  ```
+  Feature: {featureId} ({featureTitle})
+  Task: {taskId} ({taskTitle})
+  Branch: {currentBranch}
+  Reset memory: true
 
-    Please implement this [task].
-    ```
+  Please implement this [task].
+  ```
 
-    **4. Wait for engineer proxy to complete**:
-    - Engineer proxy passes your exact request to worker
-    - Worker implements, gets reviewed, commits
-    - Engineer proxy returns response
+  The proxy agent will parse this and call the MCP start_worker_agent tool with these parameters.
 
-    **5. Verify [task] completion**:
-    - Check if response contains "✅ Task {taskId} completed successfully!"
-    - **If SUCCESS marker found**:
-      - Verify code was committed by checking recent commits
-      - Verify [task] marked [Done] in [PRODUCT_MANAGEMENT_TOOL]
-      - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
-        - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
-        - STOP immediately, diagnose the problem, and make a plan to get back on track
-        - Always delegate fixes to engineers - NEVER fix anything yourself
-        - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
-      - Mark [task] [completed] in todo
-      - Move to next [task]
-    - **If NO success marker found ([task] FAILED)**:
-      - Change [task] status to [Planned] in [PRODUCT_MANAGEMENT_TOOL]
-      - Check git status for uncommitted changes
-      - If uncommitted code exists: Stash with descriptive name (e.g., "{taskId}-failed-{sanitized-task-title}-{timestamp}")
-      - Attempt to find alternative solution if possible
-      - If [task] is blocking: Ask user for guidance
-      - If [task] is non-blocking: Continue with other [tasks]
+  **4. Wait for engineer proxy to complete**:
+  - Engineer proxy passes your exact request to worker
+  - Worker implements, gets reviewed, commits
+  - Engineer proxy returns response
 
-    **6. Move to next [task]**
+  **5. Verify [task] completion**:
+  - Check if response contains "✅ Task {taskId} completed successfully!"
+  - **If SUCCESS marker found**:
+    - Verify code was committed by checking recent commits
+    - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
+    - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
+      - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
+      - STOP immediately, diagnose the problem, and make a plan to get back on track
+      - Always delegate fixes to engineers - NEVER fix anything yourself
+      - **If you need to re-delegate to the same engineer for follow-up**: Use resetMemory=false to maintain context
+      - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
+    - Mark [task] [completed] in todo
+    - Move to next [task]
+  - **If NO success marker found ([task] FAILED)**:
+    - Change [task] status to [Planned] in [PRODUCT_MANAGEMENT_TOOL]
+    - Check git status for uncommitted changes
+    - If uncommitted code exists: Stash with descriptive name (e.g., "{taskId}-failed-{sanitized-task-title}-{timestamp}")
+    - Attempt to find alternative solution if possible
+    - If [task] is blocking: Ask user for guidance
+    - If [task] is non-blocking: Continue with other [tasks]
+
+  **6. Move to next [task]**
 
 **Parallel Mode** (only if user explicitly requests):
 
-Work on multiple [stories] in parallel (each [story] uses a different engineer type). In each round, delegate one [task] from each [story] simultaneously, wait for all to return, then move to the next round. Example: If backend [story] has 4 [tasks] and frontend [story] has 6 [tasks], there will be 6 rounds - rounds 1-4 delegate to both engineers, rounds 5-6 delegate only to frontend-engineer.
+Work on multiple [tasks] in parallel (each [task] uses a different engineer type). In each round, delegate independent [tasks] simultaneously, wait for all to return, then move to the next round.
 
-**Delegation format for parallel mode**:
-Add parallel work notification to each task delegation:
+**Delegation format for parallel mode** (include all parameters in the prompt):
 ```
 Feature: {featureId} ({featureTitle})
-Story: {storyId} ({storyTitle})
 Task: {taskId} ({taskTitle})
-Reset memory: {resetMemory}
+Branch: {currentBranch}
+Reset memory: true
 
-⚠️ Parallel Work: You are working in parallel with {other-engineer} on {other-story-title}. You may see their git commits. If you encounter errors that seem related to their changes, sleep 5-10 minutes and re-test.
+⚠️ Parallel Work: You are working in parallel with {other-engineer} on {other-task-title}. You may see their git commits. If you encounter errors that seem related to their changes, sleep 5-10 minutes and re-test.
 
 Please implement this [task].
 ```
+
+The proxy agent will parse this and call the MCP start_worker_agent tool with these parameters.
 
 FOR EACH round of parallel delegation:
   In a SINGLE message, delegate multiple [tasks] using Task tool multiple times
@@ -204,11 +198,12 @@ FOR EACH round of parallel delegation:
   - Check if response contains "✅ Task {taskId} completed successfully!"
   - If success marker found:
     - Verify code was committed by checking recent commits
-    - Verify [task] marked [Done] in [PRODUCT_MANAGEMENT_TOOL]
+    - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
       - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
       - STOP immediately, diagnose the problem, and make a plan to get back on track
       - Always delegate fixes to engineers - NEVER fix anything yourself
+      - **If you need to re-delegate to the same engineer for follow-up**: Use resetMemory=false to maintain context
       - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
     - Mark [task] [completed] in todo
   - If no success marker found:
@@ -216,56 +211,38 @@ FOR EACH round of parallel delegation:
     - Check git status for uncommitted changes
     - If uncommitted code exists: Stash with descriptive name (e.g., "{taskId}-failed-{sanitized-task-title}-{timestamp}")
     - Attempt alternative solution if possible
-    - If [task] is blocking: Continue work on other [stories] (user will be prompted later)
-    - If [task] is non-blocking: Continue
+    - If [task] is blocking: Ask user for guidance
+    - If [task] is non-blocking: Continue with other [tasks]
 
   Continue with next round of parallel [tasks]
 
-  For each [story], when its last [task] returns: Apply Step 4
+### Step 4: Update Feature Status
 
-### Step 4: Collapse Stories and Update Status
-
-After the LAST [task] delegation in a [story] returns (succeeded or failed):
+After ALL [tasks] are completed:
 
 1. **Verify all [tasks] genuinely [completed]**:
    - Check that ALL [tasks] in todo AND [PRODUCT_MANAGEMENT_TOOL] are marked [completed]
    - **If any [task] is NOT [completed]**:
      - Evaluate if there are alternative approaches to complete the [tasks]
      - If no alternatives exist: Inform user about incomplete [tasks] and ask for guidance
-     - DO NOT proceed with [story] status update
-     - [story] remains [Active] until all [tasks] are genuinely [completed]
+     - DO NOT proceed with [feature] status update
 
-2. **If all [tasks] are [completed], update [story] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL]:
+2. **If all [tasks] are [completed], update [feature] status to [Resolved]** in [PRODUCT_MANAGEMENT_TOOL]:
    - All [tasks] are [completed]
-   - [Story] is ready for final review
-   - Status signals completion of implementation phase
-
-3. Update todo:
-   - Remove all subtask lines (├─ lines)
-   - Keep only [story] line
-   - Mark [story] [completed]
-
-```
-Story 1: Backend user management [completed]
-Story 2: Frontend user management [in_progress]
-├─ 2. Add form validation [in_progress]
-Story 3: End-to-end testing [pending]
-├─ 1. Create smoke tests [pending]
-```
+   - [Feature] implementation is complete
+   - Status signals completion of implementation phase (not deployed yet)
 
 ### Step 5: Finish When Complete
 
 Stop ONLY when:
-- ALL [stories] are [completed] in todo
+- ALL [tasks] are [completed] in todo
 - ALL [tasks] have been delegated and [completed]
+- [Feature] status is [Resolved]
 
 ## Critical Rules
 
 **NEVER**:
 - Stop before completion - Continue until everything is done
-- Delegate entire [stories] - Delegate individual [tasks]
-- Skip loading [stories] - Must load to extract [tasks]
-- Keep todo collapsed - Must expand to show all [tasks]
 - Change code or commit yourself
 - Use `developer_cli` MCP tool directly
 - Decide on parallel mode yourself - Only use if user explicitly requests
@@ -273,11 +250,11 @@ Stop ONLY when:
 
 **ALWAYS**:
 - Use Task tool with subagent_type to delegate [tasks]
-- Create expanded todo ([stories] with all [task] subtasks)
-- Load [stories] first to extract numbering and [tasks]
-- Keep todo expanded until [story] is fully complete
+- Load all [tasks] from [feature]
+- Create simple todo list with [tasks]
 - Use Sequential mode by default
 - In parallel mode, ensure each [task] in a round uses DIFFERENT engineer type
+- Use resetMemory=true for first delegation, resetMemory=false for follow-ups on same task
 
 ## Engineer Proxy Agent Responsibilities
 
@@ -288,7 +265,6 @@ Engineer proxy agents (backend-engineer, frontend-engineer, qa-engineer) are PUR
 - They return worker's response to you
 
 **Engineer proxies do NOT**:
-- Expand/collapse todos
 - Load data
 - Make decisions
 - Coordinate anything
@@ -299,51 +275,75 @@ Engineer proxy agents (backend-engineer, frontend-engineer, qa-engineer) are PUR
 
 **Sequential Mode**:
 ```
-1. Load all 3 [stories], extract 11 [tasks] total (with IDs)
-2. Create expanded todo with 3 [stories] and 11 [tasks]
-3. Update [Story] 1 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
-4. Delegate [task] "1. Create user API endpoints" from [Story] 1 to backend-engineer (resetMemory=true)
+1. Load [feature] and all 3 [tasks]
+2. Create todo with 3 [tasks]
+3. Update [Feature] status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
+4. Delegate using Task tool (backend-engineer) with prompt:
+   "Feature: feature-id-123
+    Task: task-id-001
+    Title: Backend for user CRUD operations
+    Branch: feature/user-management
+    Reset memory: true
+
+    Please implement this [task]."
 5. Wait (proxy forwards to worker, worker implements+reviews+commits, proxy returns)
-6. Verify response has "✅ Task completed successfully!" → Mark [task] 1 [completed]
-7. Delegate [task] "2. Add validation logic" from [Story] 1 (resetMemory=false)
+6. Verify response has "✅ Task completed successfully!" → Mark [task] [completed]
+7. Delegate using Task tool (frontend-engineer) with similar prompt format
 8. Wait, verify, and mark complete
-9. Continue through all 5 [tasks] in [Story] 1 (verify each, resetMemory=false for all)
-10. Verify all [tasks] in todo AND [PRODUCT_MANAGEMENT_TOOL] are [completed]
-11. Update [Story] 1 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
-12. Collapse [Story] 1 (remove subtasks, mark [completed])
-13. Update [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
-14. Delegate [task] "1. Create user management UI" from [Story] 2 to frontend-engineer (resetMemory=true)
-15. Continue until all [stories] collapsed and [completed]
+9. Delegate using Task tool (qa-engineer) with similar prompt format
+10. Wait, verify, and mark complete
+11. Verify all [tasks] in todo AND [PRODUCT_MANAGEMENT_TOOL] are [completed]
+12. Update [Feature] status to [Resolved] in [PRODUCT_MANAGEMENT_TOOL]
+13. Done!
 ```
 
 **Parallel Mode**:
 ```
-1. Load all 3 [stories], extract 11 [tasks] total (with IDs)
-2. Create expanded todo with 3 [stories] and 11 [tasks]
-3. Update [Story] 1 and [Story] 2 status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
+1. Load [feature] and all 4 [tasks]
+2. Create todo with 4 [tasks]
+3. Update [Feature] status to [Active] in [PRODUCT_MANAGEMENT_TOOL]
 4. Identify [tasks] that can run in parallel:
-   - Round 1: [Story] 1 [Task] 1 (backend) + [Story] 2 [Task] 1 (frontend)
-   - Round 2: [Story] 1 [Task] 2 (backend) + [Story] 2 [Task] 2 (frontend)
-   - ...
-5. In SINGLE message, delegate both [tasks] in Round 1 (both resetMemory=true):
-   - Task tool → backend-engineer for [Story] 1 [Task] 1 (resetMemory=true)
-   - Task tool → frontend-engineer for [Story] 2 [Task] 1 (resetMemory=true)
+   - Round 1: Frontend UI skeleton (frontend) + Backend CRUD (backend) - parallel
+   - Round 2: Connect frontend to backend (frontend) - sequential after round 1
+   - Round 3: E2E tests (qa) - sequential after round 2
+5. In SINGLE message, delegate both [tasks] in Round 1 using Task tool:
+
+   Task tool → frontend-engineer with prompt:
+   "Feature: feature-id-123 (User management)
+    Task: task-id-002 (Frontend UI skeleton for user management)
+    Branch: feature/user-management
+    Reset memory: true
+
+    ⚠️ Parallel Work: You are working in parallel with backend-engineer on Backend CRUD. You may see their commits.
+
+    Please implement this [task]."
+
+   Task tool → backend-engineer with prompt:
+   "Feature: feature-id-123 (User management)
+    Task: task-id-001 (Backend for user CRUD operations)
+    Branch: feature/user-management
+    Reset memory: true
+
+    ⚠️ Parallel Work: You are working in parallel with frontend-engineer on Frontend UI skeleton. You may see their commits.
+
+    Please implement this [task]."
+
 6. Wait for BOTH to complete
-7. Verify each response has "✅ Task completed successfully!" → Mark [tasks] with success marker as [completed]
-8. In SINGLE message, delegate both [tasks] in Round 2 (both resetMemory=false):
-   - Task tool → backend-engineer for [Story] 1 [Task] 2 (resetMemory=false)
-   - Task tool → frontend-engineer for [Story] 2 [Task] 2 (resetMemory=false)
-9. Continue with next rounds until [stories] complete (verify each round, resetMemory=false for remaining [tasks])
-10. Verify all [tasks] in todo AND [PRODUCT_MANAGEMENT_TOOL] are [completed]
-11. Update [Story] 1 status to [Review], then [Story] 2 status to [Review] in [PRODUCT_MANAGEMENT_TOOL]
-12. Collapse completed [stories]
+7. Verify each response has "✅ Task completed successfully!" → Mark both [tasks] [completed]
+8. Delegate Task tool (frontend-engineer) with prompt including Feature/Task/Title/Branch
+9. Wait, verify, mark complete
+10. Delegate Task tool (qa-engineer) with prompt including Feature/Task/Title/Branch
+11. Wait, verify, mark complete
+12. Verify all [tasks] in todo AND [PRODUCT_MANAGEMENT_TOOL] are [completed]
+13. Update [Feature] status to [Resolved] in [PRODUCT_MANAGEMENT_TOOL]
+14. Done!
 ```
 
 ## Remember
 
-- You delegate [tasks], not [stories]
+- You delegate entire [tasks] (large scope - complete vertical slices)
 - Engineer proxies are passthroughs, not coordinators
 - You manage the todo list, not the proxies
-- Your job: Load data, expand todo, delegate [tasks], track completion
+- Your job: Load [tasks] from [feature], create todo, delegate [tasks], track completion
 - Sequential is default - parallel only when user explicitly requests
-- Keep todo expanded to show progress
+- Always use resetMemory=true for every [task]
