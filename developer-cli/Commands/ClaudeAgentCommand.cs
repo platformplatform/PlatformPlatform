@@ -947,6 +947,7 @@ public class ClaudeAgentCommand : Command
         {
             // Determine task title for slash command (keep it simple - just the title)
             var effectiveTaskTitle = taskTitle;
+            int attempt = 1;
             if (effectiveTaskTitle == null)
             {
                 effectiveTaskTitle = "task";
@@ -957,8 +958,15 @@ public class ClaudeAgentCommand : Command
                     if (taskInfo is not null)
                     {
                         effectiveTaskTitle = taskInfo.TaskTitle;
+                        attempt = taskInfo.Attempt;
                     }
                 }
+            }
+
+            // Add attempt number to task title for reviewers on re-reviews
+            if (workspace.AgentType.Contains("reviewer") && attempt > 1)
+            {
+                effectiveTaskTitle = $"{effectiveTaskTitle} (attempt #{attempt})";
             }
 
             // Add slash command to trigger workflow
