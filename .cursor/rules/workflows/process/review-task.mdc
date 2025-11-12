@@ -295,8 +295,17 @@ For EACH file in your unfolded todo:
    - Does it follow architectural patterns? (check similar files in codebase)
    - Are there any rule violations or pattern deviations?
    - Document findings: cite specific file:line + rule/pattern violated
-4. **Mark file [completed]** in todo
+4. **Update todo item with result and mark [completed]**:
+   - If file has issues: Change to "Read and review FileName.cs (Issues found)"
+   - If file is clean: Change to "Read and review FileName.cs (Approved)"
 5. **Move to next file**
+
+**Example todo progression:**
+```
+☒ ├─ Read and review TeamEndpoints.cs (Approved)
+☒ ├─ Read and review CreateTeam.cs (Issues found)
+☐ ├─ Read and review DeleteTeam.cs
+```
 
 **Why one-by-one:**
 - Ensures thorough review of each file
@@ -325,6 +334,10 @@ After reviewing all individual files, step back and review the overall design:
    - Are there simpler approaches?
 
 Play the devils advocate, and reject if you find ANY small thing that is objectivly not correct.
+
+**Update todo item:**
+- Change to "Review high-level architecture (Approved)" or "(Issues found)"
+- Mark as [completed]
 
 **STEP 7**: Verify all requirements met
 
@@ -357,6 +370,10 @@ Requirements verification:
 
 REJECT: Missing permission guard for create. Missing test for last-owner protection. Missing tenant isolation test.
 ```
+
+**Update todo item:**
+- Change to "Verify all requirements met with tests (Approved)" or "(Requirements missing)"
+- Mark as [completed]
 
 **STEP 8**: Decide - APPROVED or NOT APPROVED
 

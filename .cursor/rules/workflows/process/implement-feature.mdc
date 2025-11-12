@@ -22,10 +22,7 @@ alwaysApply: false
    - User provides feature ID (e.g., "proj_abc123" or "PP-100")
    - Validate feature exists in [PRODUCT_MANAGEMENT_TOOL]
    - If not found, ask again
-
-3. **Confirm selection**: Show feature name and ask "Implement '[feature name]'?" (Yes/No)
-   - If No: Ask again
-   - If Yes: Continue to Mandatory Preparation
+   - Once found, continue to Mandatory Preparation
 
 ## Mandatory Preparation
 
