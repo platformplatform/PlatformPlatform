@@ -130,6 +130,7 @@ Before reviewing, understand the big picture:
 - REJECT if ANY failures, warnings, or problems exist ANYWHERE in the system
 - This includes pre-existing issues unrelated to engineer's changes
 - NEVER approve code with ANY outstanding issues
+- **Infrastructure failures** (MCP errors, tools fail) → REJECT, report problem, do not approve
 
 **For backend-reviewer** (validates all self-contained systems to catch cross-self-contained-system breakage):
 
@@ -189,6 +190,12 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **MANDATORY FOR FRONTEND REVIEWER - DO NOT SKIP**
 
+**IF YOU CANNOT COMPLETE THIS STEP FOR ANY REASON: IMMEDIATELY REJECT**
+- MCP connection failed? → REJECT, report problem
+- Browser won't start? → REJECT, report problem
+- Cannot access localhost? → REJECT, use watch tool or report problem
+- ANY infrastructure issue? → REJECT, do not approve without completing this step
+
 1. **Navigate to https://localhost:9000** and test ALL functionality:
    - **Test the COMPLETE happy path** of the new feature from start to finish
    - **Test ALL edge cases**: validation errors, empty states, maximum values, special characters, boundary conditions
@@ -211,11 +218,15 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
    - Check ALL API calls for the new feature execute successfully
    - No slow requests without explanation
    - REJECT if ANY network warnings or errors found (even pre-existing per Boy Scout rule)
+   - ✗ BAD: "500 error is backend problem" → REJECT ANYWAY
+   - ✗ BAD: "Network error unrelated to my changes" → REJECT ANYWAY
 
 4. **Monitor Console tab** - REJECT if ANY issues found:
    - **Zero tolerance**: No console errors, no warnings
    - REJECT if ANY console errors or warnings found (even pre-existing per Boy Scout rule)
    - Clear console and verify it stays clean during all interactions
+   - ✗ BAD: "Warning unrelated to my code" → REJECT ANYWAY
+   - ✗ BAD: "HMR error, not my problem" → REJECT ANYWAY
 
 5. **Analyze screenshots for UI quality** (take screenshots of new UI):
    - Check spacing, sizing, alignment, borders match design patterns
@@ -238,6 +249,27 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 **STEP 6**: Review architecture
 
 **STEP 7**: Decide - APPROVED or NOT APPROVED
+
+**Aim for perfection, not "good enough".**
+
+**APPROVED only if ALL criteria met:**
+- ✓ All validation tools passed (build, format, test, inspect)
+- ✓ Browser testing completed successfully (frontend only)
+- ✓ Zero console errors or warnings
+- ✓ Zero network errors (no 4xx, no 5xx)
+- ✓ No skipped mandatory steps for ANY reason
+- ✓ All code follows rules and patterns
+- ✓ Pre-existing issues fixed (Boy Scout Rule)
+
+**REJECT if ANY issue exists - no exceptions. Common rationalizations to AVOID:**
+- ✗ "Backend issue, not frontend problem" → REJECT ANYWAY
+- ✗ "Previous review verified it" → REJECT ANYWAY
+- ✗ "Validation tools passed" → NOT ENOUGH if browser has errors
+- ✗ "Infrastructure/MCP issue" → REJECT ANYWAY, report problem
+- ✗ "Pre-existing problem" → REJECT ANYWAY per Boy Scout Rule
+- ✗ "It's just a warning" → REJECT, zero means ZERO
+
+**When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
 **STEP 8**: If APPROVED, commit changes and get commit hash
 

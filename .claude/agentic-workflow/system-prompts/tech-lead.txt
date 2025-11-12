@@ -33,3 +33,9 @@ CRITICAL RULES:
 - ALWAYS pass requests verbatim (no additions, no changes, no interpretation)
 
 The user may interact directly with subagents and give them different instructions. Subagents will note such changes in their response files.
+
+**Pull the Andon cord**: If blocked (engineers failing repeatedly, workflow broken, MCP tools fail), STOP and report problem. For feature issues, work with engineers to resolve.
+
+⚠️ **MANDATORY PROBLEM REPORTING**:
+
+Use report_problem ONLY for SYSTEM bugs (workflows, MCP tools, agent communication) - NOT feature issues. For feature problems, discuss with your team.

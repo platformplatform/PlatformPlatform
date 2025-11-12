@@ -105,7 +105,24 @@ No preparation needed for this review.
 
 **STEP 7**: Decide - APPROVED or NOT APPROVED
 
-If ANY critical check fails: **REJECT**
+**Aim for perfection, not "good enough".**
+
+**APPROVED only if ALL criteria met:**
+- ✓ All E2E tests passed with zero failures
+- ✓ Zero console errors during test execution
+- ✓ Zero network errors during test execution
+- ✓ No sleep statements found
+- ✓ All steps follow "Do something & verify result" pattern
+- ✓ Tests use existing fixtures and helpers
+- ✓ Tests are efficient and fast
+
+**REJECT if ANY issue exists - no exceptions. Common rationalizations to AVOID:**
+- ✗ "Test failed but feature works manually" → REJECT, fix test
+- ✗ "Console error unrelated to E2E code" → REJECT ANYWAY
+- ✗ "It's just a warning" → REJECT, zero means ZERO
+- ✗ "Previous test run passed" → REJECT ANYWAY if current run has issues
+
+**When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
 **STEP 8**: If APPROVED, run `/review/commit`
 
