@@ -413,7 +413,8 @@ public static class ClaudeAgentLifecycle
     public static string ExtractBranchFromPath(string workspacePath)
     {
         // Path format: ".../agent-workspaces/{branch}/messages/..." or
-        //              ".../agent-workspaces/{branch}/{agentType}/..."
+        //              ".../agent-workspaces/{branch}/{agentType}/..." or
+        //              ".../agent-workspaces/{agentType}/..." (for branch-agnostic agents)
         var agentWorkspacesIndex = workspacePath.IndexOf("agent-workspaces/", StringComparison.Ordinal);
         if (agentWorkspacesIndex == -1)
         {
@@ -426,6 +427,12 @@ public static class ClaudeAgentLifecycle
         if (parts.Length == 0)
         {
             throw new InvalidOperationException($"Invalid workspace path (no branch found): {workspacePath}");
+        }
+
+        // Check if first part is a branch-agnostic agent (no branch in path)
+        if (parts[0] is "pair-programmer" or "tech-lead")
+        {
+            return GitHelper.GetCurrentBranch(); // Use current git branch as logical branch
         }
 
         return parts[0]; // First part after agent-workspaces/ is the branch

@@ -116,8 +116,29 @@ When the workflow runs, the underlying tool maps our generic terms:
 
 ## Workspace Structure
 
-All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
+Agent workspaces are organized based on whether agents are branch-specific or branch-agnostic:
 
+**Branch-agnostic agents** (pair-programmer, tech-lead):
+```
+.workspace/agent-workspaces/
+├── pair-programmer/                   # Branch-agnostic workspace
+│   ├── .host-process-id               # Worker-host PID
+│   ├── .worker-process-id             # Claude Code PID (when active)
+│   ├── .claude-session-id             # Session GUID for persistence
+│   ├── .default-model                 # Model preference (haiku/sonnet/sonnet[1m])
+│   ├── current-task.json              # Active task metadata
+│   ├── *.claude-session-id            # Saved sessions
+│   ├── logs/                          # Workflow event logs
+│   │   └── developer-cli-{date}.log
+│   └── feedback-reports/              # Problem reports
+│       ├── problems/                  # Open issues
+│       │   └── {timestamp}-{severity}-{slug}.md
+│       └── done/                      # Resolved issues
+└── tech-lead/                         # Branch-agnostic workspace
+    └── (same structure as pair-programmer)
+```
+
+**Branch-specific agents** (coordinator, engineers, reviewers):
 ```
 .workspace/agent-workspaces/{branch}/
 ├── messages/                          # Shared request/response files
@@ -130,8 +151,7 @@ All agent workspaces live under `.workspace/agent-workspaces/{branch}/`:
 │   ├── .claude-session-id             # Session GUID for persistence
 │   ├── .default-model                 # Model preference (haiku/sonnet/sonnet[1m])
 │   └── current-task.json              # Active task metadata
-├── logs/                              # Workflow event logs
-│   └── workflow-events.log
+├── developer-cli-{date}.log           # Workflow event logs (at branch root)
 └── feedback-reports/                  # Problem reports from agents
     ├── problems/                      # Open issues (YAML frontmatter)
     │   └── {timestamp}-{severity}-{slug}.md
@@ -238,7 +258,9 @@ story-id: {story-id-from-PRODUCT_MANAGEMENT_TOOL}
 
 Agents create problem reports when encountering workflow/system bugs (NOT feature bugs).
 
-**Location**: `.workspace/agent-workspaces/{branch}/feedback-reports/problems/`
+**Location**:
+- Branch-specific agents: `.workspace/agent-workspaces/{branch}/feedback-reports/problems/`
+- Branch-agnostic agents: `.workspace/agent-workspaces/{agentType}/feedback-reports/problems/`
 
 **YAML Frontmatter Format**:
 ```yaml
@@ -374,7 +396,9 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 
 ### Workflow Event Logs
 
-**Location**: `.workspace/agent-workspaces/{branch}/logs/workflow-events.log`
+**Location**:
+- Branch-specific agents: `.workspace/agent-workspaces/{branch}/developer-cli-{date}.log`
+- Branch-agnostic agents: `.workspace/agent-workspaces/{agentType}/logs/developer-cli-{date}.log`
 
 **Format**:
 ```

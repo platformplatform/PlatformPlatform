@@ -2026,11 +2026,20 @@ public class Workspace(string agentType, string? branch = null)
 {
     public string AgentType { get; } = agentType;
 
+    // Define which agents are branch-agnostic
+    private static readonly HashSet<string> BranchAgnosticAgents = new() { "pair-programmer", "tech-lead" };
+
+    private bool IsBranchAgnostic => BranchAgnosticAgents.Contains(AgentType);
+
     public string Branch { get; } = branch ?? GitHelper.GetCurrentBranch();
 
-    public string BranchWorkspaceDirectory => Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", Branch);
+    public string BranchWorkspaceDirectory => IsBranchAgnostic
+        ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces")
+        : Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", Branch);
 
-    public string AgentWorkspaceDirectory => Path.Combine(BranchWorkspaceDirectory, AgentType);
+    public string AgentWorkspaceDirectory => IsBranchAgnostic
+        ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", AgentType)
+        : Path.Combine(BranchWorkspaceDirectory, AgentType);
 
     public string MessagesDirectory => Path.Combine(BranchWorkspaceDirectory, "messages");
 

@@ -10,6 +10,15 @@ public static class Logger
 
     private static string GetLogDirectory()
     {
+        var context = CurrentContext.Value;
+
+        // Branch-agnostic agents (pair-programmer, tech-lead) use logs/ subdirectory
+        if (context is "pair-programmer" or "tech-lead")
+        {
+            return Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", context, "logs");
+        }
+
+        // Branch-specific agents (coordinator, engineers, reviewers) use branch root
         var branch = CurrentBranch.Value ?? GitHelper.GetCurrentBranch();
         return Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch);
     }

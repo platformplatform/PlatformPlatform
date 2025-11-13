@@ -222,7 +222,9 @@ Reports: .workspace/agent-workspaces/{branch}/feedback-reports/problems/HH-MM-SS
             var fileName = $"{timeStamp}-{severity}-{sanitizedTitle}.md";
 
             // Create directory structure
-            var reportsDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "problems");
+            var reportsDirectory = reporter is "pair-programmer" or "tech-lead"
+                ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", reporter, "feedback-reports", "problems")
+                : Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "problems");
             Directory.CreateDirectory(reportsDirectory);
 
             // Build report content
@@ -527,7 +529,9 @@ public static class WorkerMcpTools
                 return "Error: Failed to parse current-task.json for feedback.";
             }
 
-            var feedbackDirectory = Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "evaluations");
+            var feedbackDirectory = agentType is "pair-programmer" or "tech-lead"
+                ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", agentType, "feedback-reports", "evaluations")
+                : Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", branch, "feedback-reports", "evaluations");
             Directory.CreateDirectory(feedbackDirectory);
 
             var now = DateTime.Now;
