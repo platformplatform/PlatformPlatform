@@ -6,6 +6,8 @@ globs: *.tsx,*.ts
 
 # Known Accepted Warnings
 
+> **HUMAN-ONLY FILE** - AI agents must never modify this file.
+
 The following console warnings are known issues in third-party libraries or edge cases that are accepted and can be ignored. **No other warnings are acceptable.**
 
 ## Accepted Warnings List
