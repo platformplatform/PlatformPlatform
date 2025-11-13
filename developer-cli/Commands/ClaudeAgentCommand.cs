@@ -212,55 +212,81 @@ public class ClaudeAgentCommand : Command
             return;
         }
 
-        // Get next task counter
-        var taskCounter = await GetNextTaskCounter(workspace);
+        // Check for duplicate delegation - detect if this taskId is already being worked on
+        var existingRequest = await FindRequestByTaskId(workspace, targetAgentType, taskId ?? "");
+        bool shouldCreateNewRequest = true;
+        int taskCounter = 0; // Will be set below
+        string taskRequestFileName = string.Empty; // Will be set below
 
-        // Create request file with headers
-        var now = DateTime.Now;
-        var requestContentWithHeaders =
-            $"""
-             ---
-             from: {senderAgentType}
-             to: {targetAgentType}
-             request-number: {taskCounter:D4}
-             timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
-             feature-id: {featureId ?? "ad-hoc"}
-             task-id: {taskId}
-             ---
-
-             {markdownContent}
-             """;
-
-        var taskRequestFileName = CreateRequestFileName(taskCounter, targetAgentType, taskTitle);
-        var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
-        await File.WriteAllTextAsync(taskRequestFilePath, requestContentWithHeaders);
-
-        // Only write current-task.json if worker is NOT currently processing
-        // If worker is busy, the request file will be picked up after current task completes
-        // This prevents overwriting current-task.json while worker is using it
-        if (!File.Exists(workspace.WorkerProcessIdFile))
+        if (existingRequest != null)
         {
-            // Determine attempt number by counting previous responses for this taskId (for re-reviews)
-            var attempt = 1;
-            if (Directory.Exists(workspace.MessagesDirectory) && !string.IsNullOrEmpty(taskId))
-            {
-                // Count response files from this agent with matching taskId in headers
-                var responseFiles = Directory.GetFiles(workspace.MessagesDirectory, $"*.{targetAgentType}.response.*.md");
-                foreach (var responseFile in responseFiles)
-                {
-                    var content = await File.ReadAllTextAsync(responseFile);
-                    if (content.Contains($"task-id: {taskId}"))
-                    {
-                        attempt++;
-                    }
-                }
-            }
+            // Request already exists for this taskId - check if response exists
+            var responsePattern = $"{existingRequest.Value.TaskNumber:D4}.{targetAgentType}.response.*.md";
+            var existingResponses = Directory.GetFiles(workspace.MessagesDirectory, responsePattern);
 
-            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, featureId, taskId ?? "", senderAgentType, attempt);
-            await WriteTaskMetadata(workspace, taskInfo);
+            if (existingResponses.Length == 0)
+            {
+                // Request exists WITHOUT response - monitor existing request instead of creating duplicate
+                taskCounter = existingRequest.Value.TaskNumber;
+                taskRequestFileName = Path.GetFileName(existingRequest.Value.FilePath);
+                shouldCreateNewRequest = false;
+                ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.request] Monitoring existing: '{taskTitle}' -> [{taskRequestFileName}]");
+            }
+            // If response exists, shouldCreateNewRequest remains true - will create new request below
         }
 
-        ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
+        // Create new request if needed (no existing request OR existing request already has response)
+        if (shouldCreateNewRequest)
+        {
+            taskCounter = await GetNextTaskCounter(workspace);
+
+            // Create request file with headers
+            var now = DateTime.Now;
+            var requestContentWithHeaders =
+                $"""
+                 ---
+                 from: {senderAgentType}
+                 to: {targetAgentType}
+                 request-number: {taskCounter:D4}
+                 timestamp: {now:yyyy-MM-ddTHH:mm:sszzz}
+                 feature-id: {featureId ?? "ad-hoc"}
+                 task-id: {taskId}
+                 ---
+
+                 {markdownContent}
+                 """;
+
+            taskRequestFileName = CreateRequestFileName(taskCounter, targetAgentType, taskTitle);
+            var taskRequestFilePath = Path.Combine(workspace.MessagesDirectory, taskRequestFileName);
+            await File.WriteAllTextAsync(taskRequestFilePath, requestContentWithHeaders);
+
+            // Only write current-task.json if worker is NOT currently processing
+            // If worker is busy, the request file will be picked up after current task completes
+            // This prevents overwriting current-task.json while worker is using it
+            if (!File.Exists(workspace.WorkerProcessIdFile))
+            {
+                // Determine attempt number by counting previous responses for this taskId (for re-reviews)
+                var attempt = 1;
+                if (Directory.Exists(workspace.MessagesDirectory) && !string.IsNullOrEmpty(taskId))
+                {
+                    // Count response files from this agent with matching taskId in headers
+                    var responseFiles = Directory.GetFiles(workspace.MessagesDirectory, $"*.{targetAgentType}.response.*.md");
+                    foreach (var responseFile in responseFiles)
+                    {
+                        var content = await File.ReadAllTextAsync(responseFile);
+                        if (content.Contains($"task-id: {taskId}"))
+                        {
+                            attempt++;
+                        }
+                    }
+                }
+
+                var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, featureId, taskId ?? "", senderAgentType, attempt);
+                await WriteTaskMetadata(workspace, taskInfo);
+            }
+
+            ClaudeAgentLifecycle.LogWorkflowEvent($"[{taskCounter:D4}.{targetAgentType}.request] Started: '{taskTitle}' -> [{taskRequestFileName}]");
+        }
 
         // Wait for response file (no polling, no timeout - worker manages its own lifecycle)
         var responseFilePattern = $"{taskCounter:D4}.{targetAgentType}.response.*.md";
@@ -1119,6 +1145,34 @@ public class ClaudeAgentCommand : Command
     private async Task WriteTaskMetadata(Workspace workspace, CurrentTaskInfo taskInfo)
     {
         await File.WriteAllTextAsync(workspace.CurrentTaskFile, JsonSerializer.Serialize(taskInfo, JsonOptions));
+    }
+
+    private async Task<(int TaskNumber, string FilePath)?> FindRequestByTaskId(Workspace workspace, string targetAgentType, string taskId)
+    {
+        if (!Directory.Exists(workspace.MessagesDirectory))
+        {
+            return null;
+        }
+
+        var requestPattern = $"*.{targetAgentType}.request.*.md";
+        var requestFiles = Directory.GetFiles(workspace.MessagesDirectory, requestPattern);
+
+        foreach (var file in requestFiles)
+        {
+            var content = await File.ReadAllTextAsync(file);
+            // Parse YAML frontmatter for task-id
+            if (content.Contains($"task-id: {taskId}"))
+            {
+                var fileName = Path.GetFileName(file);
+                var taskNumberStr = fileName.Split('.')[0];
+                if (int.TryParse(taskNumberStr, out var taskNumber))
+                {
+                    return (taskNumber, file);
+                }
+            }
+        }
+
+        return null;
     }
 
     // Setup & Utilities

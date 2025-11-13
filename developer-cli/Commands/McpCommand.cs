@@ -388,25 +388,32 @@ public static class WorkerMcpTools
             return $"Error: Cannot delegate to yourself. You ARE {targetAgentType}.";
         }
 
-        // For ad-hoc work, check if target engineer is busy
-        if (taskId.StartsWith("ad-hoc-"))
+        // Check if target engineer is already working on a task
+        var targetWorkspace = new Workspace(targetAgentType, branch);
+        if (File.Exists(targetWorkspace.CurrentTaskFile))
         {
-            var targetWorkspace = new Workspace(targetAgentType, branch);
-            if (File.Exists(targetWorkspace.CurrentTaskFile))
+            try
             {
-                try
+                var taskJson = File.ReadAllText(targetWorkspace.CurrentTaskFile);
+                var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+
+                if (taskInfo != null)
                 {
-                    var taskJson = File.ReadAllText(targetWorkspace.CurrentTaskFile);
-                    var taskInfo = JsonSerializer.Deserialize<CurrentTaskInfo>(taskJson, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                    var startedAt = DateTime.Parse(taskInfo.StartedAt);
+                    var elapsed = DateTime.Now - startedAt;
+                    var elapsedFormatted = elapsed.TotalMinutes >= 1
+                        ? $"{(int)elapsed.TotalMinutes}m{elapsed.Seconds}s"
+                        : $"{elapsed.Seconds}s";
 
-                    if (taskInfo != null)
+                    // If same taskId, this is recovery - allow delegation (will monitor existing request)
+                    if (taskInfo.TaskId == taskId)
                     {
-                        var startedAt = DateTime.Parse(taskInfo.StartedAt);
-                        var elapsed = DateTime.Now - startedAt;
-                        var elapsedFormatted = elapsed.TotalMinutes >= 1
-                            ? $"{(int)elapsed.TotalMinutes}m{elapsed.Seconds}s"
-                            : $"{elapsed.Seconds}s";
-
+                        Console.Error.WriteLine($"[MCP] Task {taskId} already active (request #{taskInfo.TaskNumber}). Will monitor existing request...");
+                        // Continue with delegation - ClaudeAgentCommand will detect duplicate and monitor existing
+                    }
+                    else if (taskId.StartsWith("ad-hoc-"))
+                    {
+                        // For ad-hoc work, reject if engineer is busy with different task
                         return $"""
                                 Error: Cannot delegate ad-hoc work to {targetAgentType} - engineer is currently busy.
 
@@ -415,12 +422,18 @@ public static class WorkerMcpTools
                                 Please try again in a few minutes (e.g., use a sleep function). You can call it again when it's done.
                                 """;
                     }
+                    else
+                    {
+                        // For regular tasks, warn but allow (worker-host will queue the request)
+                        Console.Error.WriteLine($"[MCP] Warning: {targetAgentType} is currently busy with task {taskInfo.TaskId} ({elapsedFormatted}). New request will be queued.");
+                        // Continue with delegation - request will be queued
+                    }
                 }
-                catch (Exception ex)
-                {
-                    // Fallback if we can't read/parse the file
-                    return $"Error: Cannot delegate ad-hoc work to {targetAgentType} - engineer is currently busy with another task. Please try again in a few minutes. Error: {ex.Message}";
-                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback if we can't read/parse the file - continue with delegation
+                Console.Error.WriteLine($"[MCP] Warning: Could not read current-task.json: {ex.Message}");
             }
         }
 
