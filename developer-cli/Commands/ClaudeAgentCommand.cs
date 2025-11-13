@@ -240,7 +240,23 @@ public class ClaudeAgentCommand : Command
         // This prevents overwriting current-task.json while worker is using it
         if (!File.Exists(workspace.WorkerProcessIdFile))
         {
-            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, featureId, taskId ?? "", senderAgentType);
+            // Determine attempt number by counting previous responses for this taskId (for re-reviews)
+            var attempt = 1;
+            if (Directory.Exists(workspace.MessagesDirectory) && !string.IsNullOrEmpty(taskId))
+            {
+                // Count response files from this agent with matching taskId in headers
+                var responseFiles = Directory.GetFiles(workspace.MessagesDirectory, $"*.{targetAgentType}.response.*.md");
+                foreach (var responseFile in responseFiles)
+                {
+                    var content = await File.ReadAllTextAsync(responseFile);
+                    if (content.Contains($"task-id: {taskId}"))
+                    {
+                        attempt++;
+                    }
+                }
+            }
+
+            var taskInfo = CreateTaskMetadata(taskCounter, taskRequestFilePath, taskTitle!, featureId, taskId ?? "", senderAgentType, attempt);
             await WriteTaskMetadata(workspace, taskInfo);
         }
 
@@ -747,12 +763,27 @@ public class ClaudeAgentCommand : Command
                     ? parsedTime.ToString("O")
                     : DateTime.Now.ToString("O");
 
+                // Determine attempt number by counting previous responses for this taskId (for re-reviews)
+                var attempt = 1;
+                if (Directory.Exists(workspace.MessagesDirectory) && !string.IsNullOrEmpty(taskId))
+                {
+                    var responseFiles = Directory.GetFiles(workspace.MessagesDirectory, $"*.{workspace.AgentType}.response.*.md");
+                    foreach (var responseFile in responseFiles)
+                    {
+                        var content = await File.ReadAllTextAsync(responseFile);
+                        if (content.Contains($"task-id: {taskId}"))
+                        {
+                            attempt++;
+                        }
+                    }
+                }
+
                 // Manually construct CurrentTaskInfo to preserve original timestamp from request file
                 var taskInfo = new CurrentTaskInfo(
                     requestNumber,
                     requestFile,
                     timestamp,
-                    1,
+                    attempt,
                     featureId,
                     taskId,
                     taskTitle,
@@ -1070,13 +1101,14 @@ public class ClaudeAgentCommand : Command
         string taskTitle,
         string? featureId,
         string taskId,
-        string senderAgentType)
+        string senderAgentType,
+        int attempt = 1)
     {
         return new CurrentTaskInfo(
             $"{taskCounter:D4}",
             requestFilePath,
             DateTime.Now.ToString("O"),
-            1,
+            attempt,
             featureId,
             taskId,
             taskTitle,
