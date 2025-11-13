@@ -78,8 +78,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Review changed files one-by-one", "status": "pending", "activeForm": "Reviewing files"},
     {"content": "Review high-level architecture", "status": "pending", "activeForm": "Reviewing architecture"},
     {"content": "Verify all requirements met with tests", "status": "pending", "activeForm": "Verifying requirements"},
-    {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making decision"},
-    {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing changes"},
+    {"content": "If approved, commit changes (or reject if any issues found)", "status": "pending", "activeForm": "Committing changes or rejecting"},
     {"content": "Update [task] status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating task status"},
     {"content": "MANDATORY: Call CompleteWork", "status": "pending", "activeForm": "Calling CompleteWork"}
   ]
@@ -375,9 +374,11 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 - Change to "Verify all requirements met with tests (Approved)" or "(Requirements missing)"
 - Mark as [completed]
 
-**STEP 8**: Decide - APPROVED or NOT APPROVED
+**STEP 8**: Decide and commit (if approved) or reject (if issues found)
 
 **Aim for perfection, not "good enough".**
+
+By this point, you've already marked each file, architecture, and requirements as "(Approved)" or "(Issues found)". Now make the final decision:
 
 **APPROVED only if ALL criteria met:**
 - ✓ All validation tools passed (build, format, test, inspect)
@@ -387,6 +388,9 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 - ✓ No skipped mandatory steps for ANY reason
 - ✓ All code follows rules and patterns
 - ✓ Pre-existing issues fixed (Boy Scout Rule)
+- ✓ All files marked "(Approved)"
+- ✓ Architecture marked "(Approved)"
+- ✓ Requirements marked "(Approved)"
 
 **REJECT if ANY issue exists - no exceptions. Common rationalizations to AVOID:**
 - ✗ "Backend issue, not frontend problem" → REJECT ANYWAY
@@ -396,9 +400,9 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 - ✗ "Pre-existing problem" → REJECT ANYWAY per Boy Scout Rule
 - ✗ "It's just a warning" → REJECT, zero means ZERO
 
-**When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
+**When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds). Skip to STEP 9 to update status, then STEP 10 to call CompleteWork.
 
-**STEP 9**: If APPROVED, commit changes and get commit hash
+**If APPROVED, proceed with commit:**
 
 1. Extract "Files Changed" from engineer's request
 2. Verify scope completeness:
@@ -425,7 +429,7 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 
 **Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
 
-**STEP 10**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
+**STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
 **If `featureId` is not null (regular task):**
 - If APPROVED: Update [task] status to [Completed]
@@ -434,7 +438,7 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 **If `featureId` is null (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates
 
-**STEP 11**: Signal completion and exit
+**STEP 10**: Signal completion and exit
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 

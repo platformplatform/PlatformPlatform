@@ -79,8 +79,7 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
     {"content": "Test changes in Chrome DevTools and fix ALL network warnings and console errors with zero tolerance (frontend-engineer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and fixing all issues"},
-    {"content": "Update [task] status to [Review]", "status": "pending", "activeForm": "Updating [task] status to [Review]"},
-    {"content": "Call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
+    {"content": "Update [task] status to [Review] and call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
     {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
   ]
 }
@@ -288,9 +287,14 @@ If you discover bugs during testing or validation (API errors, broken functional
 
 **STEP 11**: Delegate to reviewer subagent to review and commit your code
 
-**CRITICAL - Before calling reviewer**:
+**CRITICAL - Before calling reviewer (EVERY TIME, including re-reviews)**:
 
-**Zero tolerance verification**: Confirm ALL validation tools pass with ZERO failures/warnings. NEVER call reviewer with ANY outstanding issues - we deploy to production after review.
+**1. Update [task] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL] (if featureId is not null):
+   - This applies to EVERY review request, not just the first one
+   - When reviewer rejects and moves status to [Active], you MUST move it back to [Review] when requesting re-review
+   - Skip this only for ad-hoc work (featureId is null)
+
+**2. Zero tolerance verification**: Confirm ALL validation tools pass with ZERO failures/warnings. NEVER call reviewer with ANY outstanding issues - we deploy to production after review.
 
 1. Run `git status --porcelain` to see ALL changed files
 2. Identify YOUR files (files you created/modified for THIS task):
@@ -328,7 +332,7 @@ Response: {responseFilePath}
 - `responseFilePath`: From current-task.json
 
 **Review loop**:
-- If reviewer returns NOT APPROVED → Fix issues → Call reviewer subagent again
+- If reviewer returns NOT APPROVED → Fix issues → Update [task] status to [Review] → Call reviewer subagent again
 - If reviewer returns APPROVED → Check YOUR files (not parallel engineers' files) are committed → Proceed to completion
 - **NEVER call CompleteWork unless reviewer approved and committed your code**
 - **NEVER commit code yourself** - only the reviewer commits
