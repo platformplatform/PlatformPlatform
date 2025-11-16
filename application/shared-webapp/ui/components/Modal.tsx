@@ -74,7 +74,7 @@ export function Modal({ position, fullSize, blur, zIndex, ...props }: Readonly<M
       {...props}
       className={(renderProps) => overlayStyles({ position, fullSize, blur, zIndex, ...renderProps })}
     >
-      <AriaModal {...props} className={modalStyles} />
+      <AriaModal className={modalStyles}>{props.children}</AriaModal>
     </ModalOverlay>
   );
 }
