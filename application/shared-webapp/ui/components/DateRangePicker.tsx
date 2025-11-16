@@ -26,6 +26,7 @@ export interface DateRangePickerProps<T extends DateValue> extends AriaDateRange
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   placeholder?: string;
 }
 
@@ -33,6 +34,7 @@ export function DateRangePicker<T extends DateValue>({
   label,
   description,
   errorMessage,
+  tooltip,
   value,
   onChange,
   placeholder = "Select dates",
@@ -86,7 +88,7 @@ export function DateRangePicker<T extends DateValue>({
         }}
         className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
       >
-        {label && <Label>{label}</Label>}
+        {label && <Label tooltip={tooltip}>{label}</Label>}
 
         {isExpanded ? (
           // Expanded view - standard date range picker

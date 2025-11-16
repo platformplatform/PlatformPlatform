@@ -47,6 +47,7 @@ export interface MultiSelectProps<T extends MultiSelectItemShape> extends Omit<L
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   items: Iterable<T>;
   selectedKeys: Selection;
   onSelectionChange: (keys: Selection) => void;
@@ -65,12 +66,13 @@ export function MultiSelect<T extends MultiSelectItemShape>({
   label,
   description,
   errorMessage,
+  tooltip,
   className,
   placeholder = "Select options...",
   isReadOnly = false,
   name,
   ...listBoxProps
-}: MultiSelectProps<T>) {
+}: Readonly<MultiSelectProps<T>>) {
   const errors = useContext(FormValidationContext);
   const isInvalid = Boolean(name != null && name in errors ? errors?.[name] : undefined);
 
@@ -81,7 +83,7 @@ export function MultiSelect<T extends MultiSelectItemShape>({
     if (!buttonRef.current) {
       return;
     }
-    const observer = new window.ResizeObserver(() => {
+    const observer = new globalThis.ResizeObserver(() => {
       if (buttonRef.current) {
         setPopoverWidth(buttonRef.current.offsetWidth);
       }
@@ -97,7 +99,7 @@ export function MultiSelect<T extends MultiSelectItemShape>({
   return (
     <div className={`group flex flex-col gap-1 ${className || ""}`}>
       <DialogTrigger>
-        {label && <Label>{label}</Label>}
+        {label && <Label tooltip={tooltip}>{label}</Label>}
         <Button
           ref={buttonRef}
           className={(renderProps) =>
@@ -177,7 +179,7 @@ export function MultiSelectValueDisplay<T extends MultiSelectItemShape>({
   selectedKeys,
   onRemove,
   placeholder
-}: MultiSelectValueDisplayProps<T>) {
+}: Readonly<MultiSelectValueDisplayProps<T>>) {
   const itemsArr = Array.isArray(items) ? items : Array.from(items);
   const selectedItems = itemsArr.filter((item) => (selectedKeys instanceof Set ? selectedKeys.has(item.id) : false));
 

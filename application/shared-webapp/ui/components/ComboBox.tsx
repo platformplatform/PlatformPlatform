@@ -25,6 +25,7 @@ export interface ComboBoxProps<T extends object> extends Omit<AriaComboBoxProps<
   label?: string;
   description?: string | null;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   isOpen?: boolean;
   placeholder?: string;
   children: React.ReactNode | ((item: T) => React.ReactNode);
@@ -34,6 +35,7 @@ export function ComboBox<T extends object>({
   label,
   description,
   errorMessage,
+  tooltip,
   isOpen,
   children,
   items,
@@ -41,7 +43,7 @@ export function ComboBox<T extends object>({
 }: Readonly<ComboBoxProps<T>>) {
   return (
     <AriaComboBox {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <FieldGroup>
         <Input isEmbedded={true} />
         <Button variant="icon" className="-me-px h-full w-auto rounded-none rounded-e-md px-2 outline-offset-0">

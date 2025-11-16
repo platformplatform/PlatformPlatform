@@ -20,15 +20,23 @@ export interface SearchFieldProps extends AriaSearchFieldProps {
   description?: string;
   placeholder?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
 }
 
-export function SearchField({ label, description, errorMessage, placeholder, ...props }: Readonly<SearchFieldProps>) {
+export function SearchField({
+  label,
+  description,
+  errorMessage,
+  tooltip,
+  placeholder,
+  ...props
+}: Readonly<SearchFieldProps>) {
   return (
     <AriaSearchField
       {...props}
       className={composeTailwindRenderProps(props.className, "group flex min-w-[40px] flex-col gap-1")}
     >
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <FieldGroup>
         <SearchIcon
           aria-hidden={true}

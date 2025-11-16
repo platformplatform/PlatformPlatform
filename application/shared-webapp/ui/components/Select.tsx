@@ -47,6 +47,7 @@ export interface SelectProps<T extends object> extends Omit<AriaSelectProps<T>, 
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   items?: Iterable<T>;
   children: React.ReactNode | ((item: T) => React.ReactNode);
 }
@@ -56,6 +57,7 @@ export function Select<T extends object>({
   label,
   description,
   errorMessage,
+  tooltip,
   children,
   items,
   className,
@@ -66,7 +68,7 @@ export function Select<T extends object>({
 
   return (
     <AriaSelect {...props} name={name} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <Button className={(renderProps) => buttonStyles({ ...renderProps, isInvalid })}>
         <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
         <ChevronDown
