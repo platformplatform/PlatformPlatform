@@ -176,6 +176,9 @@ msgstr "Mørk"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Data storage location for privacy and compliance. This cannot be changed later."
+msgstr "Datalagringsplacering for privatliv og compliance. Dette kan ikke ændres senere."
+
 msgid "Decline"
 msgstr "Afslå"
 
@@ -457,6 +460,9 @@ msgstr "System"
 msgid "Terms of use"
 msgstr "Brugsvilkår"
 
+msgid "The name of your account, shown to users and in email notifications"
+msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
+
 msgid "Theme"
 msgstr "Tema"
 
@@ -578,6 +584,9 @@ msgstr "Din konto blev skiftet i en anden browsertab."
 
 msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 msgstr "Din konto blev skiftet til <0>{newTenantName}</0> i en anden browsertab."
+
+msgid "Your professional title or role"
+msgstr "Din professionelle titel eller rolle"
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."

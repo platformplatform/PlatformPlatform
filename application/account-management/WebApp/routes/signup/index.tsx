@@ -93,6 +93,7 @@ export function StartSignupForm() {
         name="region"
         selectedKey="europe"
         label={t`Region`}
+        tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
         description={t`This is the region where your data is stored`}
         isRequired={true}
         className="flex w-full flex-col"

@@ -240,6 +240,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
               <TextField
                 name="title"
                 label={t`Title`}
+                tooltip={t`Your professional title or role`}
                 defaultValue={user?.title}
                 placeholder={t`E.g. Software engineer`}
               />
