@@ -112,6 +112,9 @@ msgstr "Tilbage til login"
 msgid "Back to signup"
 msgstr "Tilbage til tilmelding"
 
+msgid "Built with"
+msgstr "Bygget med"
+
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
 

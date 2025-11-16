@@ -112,6 +112,9 @@ msgstr "Back to login"
 msgid "Back to signup"
 msgstr "Back to signup"
 
+msgid "Built with"
+msgstr "Built with"
+
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
 
