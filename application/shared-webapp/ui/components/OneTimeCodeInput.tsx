@@ -24,6 +24,7 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
   ref
 ) {
   const [digits, setDigits] = useState<string[]>(new Array(length).fill(""));
+  const [isLocked, setIsLocked] = useState(false);
   const id = useId();
   const digitRefs = useMemo(() => new Array(length).fill(id).map((id, i) => `${id}_${i}`), [id, length]);
   const inputValue = digits.join("");
@@ -52,6 +53,7 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
     () => ({
       reset: () => {
         setDigits(new Array(length).fill(""));
+        setIsLocked(false);
         setFocus(0);
       },
       focus: () => {
@@ -63,15 +65,23 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
     [inputValue, isComplete, length, setFocus]
   );
 
-  const onChangeHandler = (value: string, i: number): void => {
+  const onChangeHandler = (value: string, i: number, _isPaste: boolean = false): void => {
     let newDigits: string[];
 
     if (value.length > 1) {
       // If the user pastes more than one digit
       const pastedDigits = value.substring(0, length).split("");
-      newDigits = [...pastedDigits];
+      // Pad with empty strings to maintain the full length
+      newDigits = new Array(length).fill("");
+      pastedDigits.forEach((digit, index) => {
+        newDigits[index] = digit;
+      });
       setDigits(newDigits);
       setFocus(pastedDigits.length);
+      // Only lock if the pasted code is complete
+      if (pastedDigits.length === length) {
+        setIsLocked(true);
+      }
     } else {
       newDigits = [...digits];
       newDigits[i] = value;
@@ -96,7 +106,7 @@ export const OneTimeCodeInput = forwardRef<OneTimeCodeInputRef, OneTimeCodeInput
           autoComplete={i === 0 ? "one-time-code" : undefined}
           onChange={(value) => onChangeHandler(value, i)}
           autoFocus={i === inputValue.length && autoFocus}
-          disabled={disabled}
+          disabled={disabled || isLocked}
         />
       ))}
       <input type="hidden" name={name} value={inputValue} />
