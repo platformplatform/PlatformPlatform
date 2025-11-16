@@ -19,7 +19,7 @@ public class TranslateCommand : Command
     )
     {
         AddOption(new Option<string?>(["--self-contained-system", "-s"], "Translate only files in a specific self-contained system"));
-        AddOption(new Option<string?>(["--language", "-l"], "Translate only files for a specific language (e.g. da-DK, nl-NL)"));
+        AddOption(new Option<string?>(["--language", "-l"], "Translate only files for a specific language (e.g. da-DK)"));
         Handler = CommandHandler.Create<string?, string?>(Execute);
     }
 

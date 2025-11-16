@@ -17,7 +17,3 @@ declare module "account-management/translations/da-DK" {
   import type { Messages } from "@lingui/core";
   export const messages: Messages;
 }
-declare module "account-management/translations/nl-NL" {
-  import type { Messages } from "@lingui/core";
-  export const messages: Messages;
-}

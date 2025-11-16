@@ -10,11 +10,5 @@
     "label": "Dansk",
     "territory": "DK",
     "rtl": false
-  },
-  "nl-NL": {
-    "locale": "nl-NL",
-    "label": "Nederlands",
-    "territory": "NL",
-    "rtl": false
   }
 }
