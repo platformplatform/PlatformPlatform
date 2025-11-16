@@ -40,14 +40,13 @@ export function Table({ disableHorizontalScroll, ...props }: Readonly<ExtendedTa
   const isMobile = isTouchDevice();
 
   return (
-    <div className="relative h-full w-full" aria-hidden={true}>
-      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden" aria-hidden={true}>
+    <div className="relative h-full w-full">
+      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden">
         <ResizableTableContainer
           ref={scrollRef}
           className={`relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md ${
             disableHorizontalScroll && isMobile ? "overflow-x-hidden" : ""
           }`}
-          aria-hidden={true}
         >
           <AriaTable {...props} className="border-separate border-spacing-0" />
         </ResizableTableContainer>
