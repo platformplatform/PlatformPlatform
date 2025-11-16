@@ -51,8 +51,8 @@ export function UserTable({
   const userInfo = useUserInfo();
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
-    column: orderBy ?? "email",
-    direction: sortOrder === "Ascending" ? "ascending" : "descending"
+    column: orderBy ?? SortableUserProperties.Name,
+    direction: sortOrder === SortOrder.Descending ? "descending" : "ascending"
   }));
   const isKeyboardNavigation = useKeyboardNavigation();
   const isMobile = useViewportResize();
@@ -66,9 +66,9 @@ export function UserTable({
         UserStatus: userStatus,
         StartDate: startDate,
         EndDate: endDate,
-        OrderBy: orderBy,
-        SortOrder: sortOrder,
-        PageOffset: pageOffset
+        OrderBy: orderBy ?? SortableUserProperties.Name,
+        SortOrder: sortOrder ?? SortOrder.Ascending,
+        PageOffset: pageOffset ?? 0
       }
     },
     enabled: !isMobile
@@ -112,12 +112,16 @@ export function UserTable({
   const handleSortChange = useCallback(
     (newSortDescriptor: SortDescriptor) => {
       setSortDescriptor(newSortDescriptor);
+      const newOrderBy = (newSortDescriptor.column?.toString() ??
+        SortableUserProperties.Name) as SortableUserProperties;
+      const newSortOrder = newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending;
+
       navigate({
         to: "/admin/users",
         search: (prev) => ({
           ...prev,
-          orderBy: (newSortDescriptor.column?.toString() ?? "Name") as SortableUserProperties,
-          sortOrder: newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending,
+          orderBy: newOrderBy === SortableUserProperties.Name ? undefined : newOrderBy,
+          sortOrder: newSortOrder === SortOrder.Ascending ? undefined : newSortOrder,
           pageOffset: undefined
         })
       });

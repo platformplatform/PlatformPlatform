@@ -76,8 +76,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         search: (prev) => ({
           ...prev,
           ...params,
-          pageOffset: undefined,
-          userId: undefined
+          pageOffset: undefined
         })
       });
       // Only call onFiltersUpdated for actual filter changes, not search updates
@@ -89,7 +88,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   );
 
   useEffect(() => {
-    updateFilter({ search: debouncedSearch }, true);
+    updateFilter({ search: debouncedSearch || undefined }, true);
   }, [debouncedSearch, updateFilter]);
 
   // Count active filters for badge
