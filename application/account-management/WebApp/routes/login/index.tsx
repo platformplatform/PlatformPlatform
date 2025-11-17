@@ -104,9 +104,13 @@ export function LoginForm() {
           Don't have an account? <Link href={signUpPath}>Create one</Link>
         </Trans>
       </p>
+      {/*
+        Built with PlatformPlatform - https://github.com/platformplatform/PlatformPlatform
+        We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
+      */}
       <div className="flex flex-col items-center gap-1">
         <span className="text-muted-foreground text-xs">
-          <Trans>Powered by</Trans>
+          <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
           <img src={logoWrapUrl} alt={t`PlatformPlatform`} className="h-6 w-auto" />

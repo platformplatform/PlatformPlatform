@@ -141,8 +141,7 @@ public class SinglePageAppConfiguration
 
     private string GetContentSecurityPolicies()
     {
-        const string trustedCdnHost = "https://platformplatformgithub.blob.core.windows.net";
-        var trustedHosts = $"{PublicUrl} {CdnUrl} {trustedCdnHost}";
+        var trustedHosts = $"{PublicUrl} {CdnUrl}";
 
         if (_isDevelopment)
         {

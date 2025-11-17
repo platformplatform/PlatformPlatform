@@ -17,8 +17,8 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
         <SupportButton aria-label={t`Contact support`} />
         <LocaleSwitcher />
       </div>
-      <div className="flex grow flex-col gap-4 md:flex-row">
-        <div className="flex w-full flex-col items-center justify-center gap-6 bg-background p-6 md:w-1/2">
+      <div className="flex grow flex-col gap-4 lg:flex-row">
+        <div className="flex w-full flex-col items-center justify-center gap-6 bg-background p-6 lg:w-1/2">
           {children}
           {/* Mobile-only icon controls at bottom of form */}
           <div className="flex gap-4 rounded-md bg-white p-2 shadow-md sm:hidden dark:bg-gray-800">
@@ -27,7 +27,7 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
             <LocaleSwitcher />
           </div>
         </div>
-        <div className="hidden items-center justify-center bg-input-background p-6 md:flex md:w-1/2 md:px-28 md:py-12">
+        <div className="hidden items-center justify-center bg-input-background p-6 lg:flex lg:w-1/2 lg:px-28 lg:py-12">
           <HeroImage />
         </div>
       </div>

@@ -17,6 +17,9 @@ msgstr ""
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
 
+msgid "© {currentYear} PlatformPlatform. All rights reserved."
+msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
+
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
 
@@ -108,6 +111,9 @@ msgstr "Tilbage til login"
 
 msgid "Back to signup"
 msgstr "Tilbage til tilmelding"
+
+msgid "Built with"
+msgstr "Bygget med"
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
@@ -255,6 +261,12 @@ msgstr "Filtre"
 msgid "First name"
 msgstr "Fornavn"
 
+msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
+msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
+
+msgid "GitHub"
+msgstr "GitHub"
+
 msgid "Go to account settings"
 msgstr "Gå til kontoindstillinger"
 
@@ -290,6 +302,9 @@ msgstr "Efternavn"
 
 msgid "Light"
 msgstr "Lys"
+
+msgid "LinkedIn"
+msgstr "LinkedIn"
 
 msgid "Log in"
 msgstr "Log ind"
@@ -402,6 +417,9 @@ msgstr "Fjern logo"
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
 
+msgid "Replace this sample page with your own product information and branding."
+msgstr "Erstat denne eksempelsside med dine egne produktoplysninger og branding."
+
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
 
@@ -441,6 +459,9 @@ msgstr "Indstillinger"
 
 msgid "Show filters"
 msgstr "Vis filtre"
+
+msgid "Sign up"
+msgstr "Tilmeld dig"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
@@ -569,12 +590,18 @@ msgstr "Velkommen hjem"
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
 
+msgid "Welcome to PlatformPlatform"
+msgstr "Velkommen til PlatformPlatform"
+
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You successfully installed PlatformPlatform! 🎉"
+msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."
@@ -599,3 +626,6 @@ msgstr "Din bekræftelseskode er gyldig i {expiresInString}"
 
 msgid "yourname@example.com"
 msgstr "ditnavn@eksempel.com"
+
+msgid "YouTube"
+msgstr "YouTube"

@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { useState } from "react";
@@ -30,10 +31,9 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
       setIsSwitching(true);
     },
     onSuccess: () => {
-      // Keep the loader visible briefly before redirecting
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 250);
+      // Stay on the same path, but default to loggedInPath if on root
+      const targetPath = globalThis.location.pathname === "/" ? loggedInPath : globalThis.location.pathname;
+      globalThis.location.href = targetPath;
     },
     onError: () => {
       setIsSwitching(false);
