@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.AspNetCore.Antiforgery;
@@ -32,7 +33,9 @@ public static class SinglePageAppFallbackExtensions
     {
         app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
             {
-                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "application/javascript");
+                var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "application/javascript", nonce);
 
                 var javaScript = singlePageAppConfiguration.GetRemoteEntryJs();
                 return context.Response.WriteAsync(javaScript);
@@ -54,11 +57,13 @@ public static class SinglePageAppFallbackExtensions
                     return context.Response.WriteAsync("404 Not Found");
                 }
 
-                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8");
+                var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8", nonce);
 
                 var antiforgeryHttpHeaderToken = GenerateAntiforgeryTokens(antiforgery, context);
 
-                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo, antiforgeryHttpHeaderToken);
+                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo, antiforgeryHttpHeaderToken, nonce);
 
                 return context.Response.WriteAsync(html);
             }
@@ -74,7 +79,8 @@ public static class SinglePageAppFallbackExtensions
     private static void SetResponseHttpHeaders(
         SinglePageAppConfiguration singlePageAppConfiguration,
         IHeaderDictionary responseHeaders,
-        StringValues contentType
+        StringValues contentType,
+        string nonce
     )
     {
         // No cache headers
@@ -89,7 +95,8 @@ public static class SinglePageAppFallbackExtensions
         responseHeaders.Append("Permissions-Policy", singlePageAppConfiguration.PermissionPolicies);
 
         // Content security policy header
-        responseHeaders.Append("Content-Security-Policy", singlePageAppConfiguration.ContentSecurityPolicies);
+        var contentSecurityPolicy = singlePageAppConfiguration.ContentSecurityPolicies.Replace("{NONCE_PLACEHOLDER}", nonce);
+        responseHeaders.Append("Content-Security-Policy", contentSecurityPolicy);
 
         // Content type header
         responseHeaders.Append("Content-Type", contentType);
@@ -119,7 +126,8 @@ public static class SinglePageAppFallbackExtensions
     private static string GetHtmlWithEnvironment(
         SinglePageAppConfiguration singlePageAppConfiguration,
         UserInfo userInfo,
-        string antiforgeryHttpHeaderToken
+        string antiforgeryHttpHeaderToken,
+        string nonce
     )
     {
         var userInfoEncoded = JsonSerializer.Serialize(userInfo, SinglePageAppConfiguration.JsonHtmlEncodingOptions);
@@ -131,6 +139,8 @@ public static class SinglePageAppFallbackExtensions
         html = html.Replace("%ENCODED_USER_INFO_ENV%", userInfoEscaped);
         html = html.Replace("%LOCALE%", userInfo.Locale);
         html = html.Replace("%ANTIFORGERY_TOKEN%", antiforgeryHttpHeaderToken);
+        html = html.Replace("%CSP_NONCE%", nonce);
+        html = html.Replace("{{cspNonce}}", nonce);
 
         foreach (var variable in singlePageAppConfiguration.StaticRuntimeEnvironment)
         {

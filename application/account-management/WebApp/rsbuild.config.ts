@@ -11,6 +11,9 @@ import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 const customBuildEnv: CustomBuildEnv = {};
 
 export default defineConfig({
+  security: {
+    nonce: "{{cspNonce}}"
+  },
   tools: {
     rspack: {
       // Exclude tests/e2e directory from file watching to prevent hot reloading issues
