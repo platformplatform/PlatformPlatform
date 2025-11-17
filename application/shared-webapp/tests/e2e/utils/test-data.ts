@@ -12,7 +12,7 @@ export function uniqueEmail(): string {
   // Compact timestamp (YY-MM-DDTHH-MM)
   const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "");
 
-  const username = faker.internet.userName().toLowerCase();
+  const username = faker.internet.username().toLowerCase();
   return `${username}@${timestamp}.local`;
 }
 

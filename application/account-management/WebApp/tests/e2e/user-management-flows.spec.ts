@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -329,13 +329,26 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
-      // Clear the existing status filter (currently set to "Pending")
-      await page.getByLabel("User status").first().click();
-      await page.getByRole("option", { name: "Any status" }).click();
+      // Filters are in the dialog that was opened in the previous step
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
 
-      // Now filter by Owner role
-      await page.getByLabel("User role").first().click();
-      await page.getByRole("option", { name: "Owner" }).click();
+      // Clear status filter
+      await filterDialog.getByLabel("User status").click();
+      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await expect(statusListbox).toBeVisible();
+      await statusListbox.getByRole("option", { name: "Any status" }).click();
+      await blurActiveElement(page);
+
+      // Set role filter to Owner
+      await filterDialog.getByLabel("User role").click();
+      const roleListbox = page.getByRole("listbox", { name: "User role" });
+      await expect(roleListbox).toBeVisible();
+      await roleListbox.getByRole("option", { name: "Owner" }).click();
+      await blurActiveElement(page);
+
+      // Click OK to apply and close dialog
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await expect(filterDialog).not.toBeVisible();
 
       // Verify only owner is shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
@@ -345,9 +358,21 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Member role & verify only members shown")(async () => {
-      // Change filter to Member role
-      await page.getByLabel("User role").first().click();
-      await page.getByRole("option", { name: "Member" }).click();
+      // Reopen dialog
+      await page.getByRole("button", { name: "Show filters" }).click();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
+
+      // Set role filter to Member
+      await filterDialog.getByLabel("User role").click();
+      const roleListbox = page.getByRole("listbox", { name: "User role" });
+      await expect(roleListbox).toBeVisible();
+      await roleListbox.getByRole("option", { name: "Member" }).click();
+      await blurActiveElement(page);
+
+      // Click OK to apply and close dialog
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await expect(filterDialog).not.toBeVisible();
 
       // Verify only member users are shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
@@ -357,13 +382,39 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("tbody").first()).not.toContainText(owner.email);
     })();
 
-    await step("Filter by Pending status & verify only pending users shown")(async () => {
-      // Reset role filter and set status filter
-      await page.getByLabel("User role").first().click();
-      await page.getByRole("option", { name: "Any role" }).click();
+    await step("Clear all filters & verify all users are shown")(async () => {
+      // Reopen filter dialog
+      await page.getByRole("button", { name: "Show filters" }).click();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
 
-      await page.getByLabel("User status").first().click();
-      await page.getByRole("option", { name: "Pending" }).click();
+      // Click Clear button to reset all filters
+      await filterDialog.getByRole("button", { name: "Clear" }).click();
+
+      // Close dialog with Escape (OK button gets detached after Clear click due to re-render)
+      await page.keyboard.press("Escape");
+      await expect(filterDialog).not.toBeVisible();
+
+      // Verify all 4 users are shown (no filters applied)
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(4);
+    })();
+
+    await step("Filter by Pending status & verify only pending users shown")(async () => {
+      // Reopen filter dialog
+      await page.getByRole("button", { name: "Show filters" }).click();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
+
+      // Set status filter to Pending
+      await filterDialog.getByLabel("User status").click();
+      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await expect(statusListbox).toBeVisible();
+      await statusListbox.getByRole("option", { name: "Pending" }).click();
+      await blurActiveElement(page);
+
+      // Close dialog
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await expect(filterDialog).not.toBeVisible();
 
       // Verify only pending users are shown (invited users who haven't confirmed)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
@@ -374,9 +425,21 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Active status & verify only active users shown")(async () => {
-      // Change filter to Active status
-      await page.getByLabel("User status").first().click();
-      await page.getByRole("option", { name: "Active" }).click();
+      // Reopen dialog
+      await page.getByRole("button", { name: "Show filters" }).click();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
+
+      // Set status filter to Active
+      await filterDialog.getByLabel("User status").click();
+      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await expect(statusListbox).toBeVisible();
+      await statusListbox.getByRole("option", { name: "Active" }).click();
+      await blurActiveElement(page);
+
+      // Click OK to apply and close dialog
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await expect(filterDialog).not.toBeVisible();
 
       // Verify only active users are shown (owner who has confirmed email)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
@@ -385,31 +448,34 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by past date range & verify no users shown")(async () => {
-      // Reset status filter first
-      await page.getByLabel("User status").first().click();
-      await page.getByRole("option", { name: "Any status" }).click();
+      // Reopen dialog
+      await page.getByRole("button", { name: "Show filters" }).click();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
+
+      // Clear status filter
+      await filterDialog.getByLabel("User status").click();
+      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await expect(statusListbox).toBeVisible();
+      await statusListbox.getByRole("option", { name: "Any status" }).click();
+      await blurActiveElement(page);
 
       // Open date picker
-      await page.getByLabel("Modified date").first().click();
+      await filterDialog.getByLabel("Modified date").click();
 
-      // Set start date to January 1, 2024
-      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="month, Start Date, "]').type("01");
-      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="day, Start Date, "]').type("01");
-      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').type("2024");
-
-      // Set end date to December 31, 2024
-      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="month, End Date, "]').type("12");
-      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="day, End Date, "]').type("31");
-      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').clear();
-      await page.locator('[role="spinbutton"][aria-label="year, End Date, "]').type("2024");
-
-      // Close the calendar
+      // Close the calendar picker to enter keyboard mode
       await page.keyboard.press("Escape");
+
+      // Click on year field to focus it for keyboard entry
+      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').click({ force: true });
+
+      // Set dates via keyboard (auto-advances through fields)
+      await page.keyboard.type("20240101");
+      await page.keyboard.type("20241231");
+
+      // Close the filter dialog
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await expect(filterDialog).not.toBeVisible();
 
       // Verify no users are shown for the past date range (users were created in 2025)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(0);
@@ -443,7 +509,7 @@ test.describe("@comprehensive", () => {
 
       // Verify user is removed from table
       await expectToastMessage(context, `User deleted successfully: ${user1.email}`);
-      await expect(page.getByRole("alertdialog")).not.toBeVisible();
+      await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + user2 + user3
       await expect(page.getByText(user1.email)).not.toBeVisible();
       await expect(page.locator("tbody").first()).toContainText(owner.email);
@@ -520,11 +586,12 @@ test.describe("@comprehensive", () => {
     await step("Confirm bulk delete selected users & verify removal")(async () => {
       await page.getByRole("button", { name: "Delete 2 users" }).click();
 
-      await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
-      await page.getByRole("button", { name: "Delete" }).click();
+      const deleteDialog = page.getByRole("alertdialog", { name: "Delete users" });
+      await expect(deleteDialog).toBeVisible();
+      await deleteDialog.getByRole("button", { name: "Delete", exact: true }).click();
 
       await expectToastMessage(context, "2 users deleted successfully");
-      await expect(page.getByRole("alertdialog")).not.toBeVisible();
+      await expect(deleteDialog).not.toBeVisible();
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1); // Only owner left
       await expect(page.getByText(user2.email)).not.toBeVisible();
       await expect(page.getByText(user3.email)).not.toBeVisible();
