@@ -13,7 +13,7 @@ public class SinglePageAppConfiguration
     public const string CdnUrlKey = "CDN_URL";
     private const string PublicKeyPrefix = "PUBLIC_";
     private const string ApplicationVersionKey = "APPLICATION_VERSION";
-    public static readonly string[] SupportedLocalizations = ["en-US", "da-DK", "nl-NL"];
+    public static readonly string[] SupportedLocalizations = ["en-US", "da-DK"];
 
     public static readonly string BuildRootPath = GetWebAppDistRoot("WebApp", "dist");
 

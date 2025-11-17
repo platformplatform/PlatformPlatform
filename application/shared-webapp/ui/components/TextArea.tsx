@@ -38,16 +38,25 @@ export interface TextAreaProps
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   rows?: number;
 }
 
-export function TextArea({ label, description, errorMessage, className, rows, ...props }: Readonly<TextAreaProps>) {
+export function TextArea({
+  label,
+  description,
+  errorMessage,
+  tooltip,
+  className,
+  rows,
+  ...props
+}: Readonly<TextAreaProps>) {
   if (props.children) {
     return <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")} />;
   }
   return (
     <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <AriaTextArea name={props.name} className={textAreaStyles} rows={rows} />
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>

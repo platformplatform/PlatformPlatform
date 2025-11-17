@@ -22,12 +22,13 @@ export interface NumberFieldProps extends AriaNumberFieldProps {
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
 }
 
-export function NumberField({ label, description, errorMessage, ...props }: Readonly<NumberFieldProps>) {
+export function NumberField({ label, description, errorMessage, tooltip, ...props }: Readonly<NumberFieldProps>) {
   return (
     <AriaNumberField {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <FieldGroup>
         {(renderProps) => (
           <>

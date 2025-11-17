@@ -176,6 +176,9 @@ msgstr "Dark"
 msgid "Dashboard"
 msgstr "Dashboard"
 
+msgid "Data storage location for privacy and compliance. This cannot be changed later."
+msgstr "Data storage location for privacy and compliance. This cannot be changed later."
+
 msgid "Decline"
 msgstr "Decline"
 
@@ -457,6 +460,9 @@ msgstr "System"
 msgid "Terms of use"
 msgstr "Terms of use"
 
+msgid "The name of your account, shown to users and in email notifications"
+msgstr "The name of your account, shown to users and in email notifications"
+
 msgid "Theme"
 msgstr "Theme"
 
@@ -578,6 +584,9 @@ msgstr "Your account was switched in another browser tab."
 
 msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 msgstr "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+
+msgid "Your professional title or role"
+msgstr "Your professional title or role"
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."

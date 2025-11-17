@@ -54,7 +54,7 @@ export function AcceptInvitationDialog({
 
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
-      <Dialog className="sm:max-w-lg">
+      <Dialog className="sm:w-dialog-md">
         <XIcon
           onClick={() => onOpenChange(false)}
           className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"

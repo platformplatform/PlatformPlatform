@@ -12,7 +12,7 @@ export function FooterSection() {
           <div className="font-normal text-base text-muted-foreground">Technology that has your back.</div>
         </div>
         <div className="right flex flex-col items-center gap-4 md:flex-row">
-          <TextField type="email" placeholder="Enter your email" />
+          <TextField type="email" placeholder="Enter your email" aria-label="Email address" />
           {/* Button component is used to display a call to action */}
           <Button variant="primary">Subscribe</Button>
         </div>

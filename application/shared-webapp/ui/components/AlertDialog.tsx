@@ -2,6 +2,7 @@ import { AlertCircleIcon, InfoIcon } from "lucide-react";
 import { type ReactNode, useId } from "react";
 import { chain } from "react-aria";
 import type { DialogProps } from "react-aria-components";
+import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
 import { Button } from "./Button";
 /**
@@ -45,7 +46,12 @@ export function AlertDialog({
 }: Readonly<AlertDialogProps>) {
   const contentId = useId();
   return (
-    <Dialog role="alertdialog" aria-describedby={contentId} {...props}>
+    <Dialog
+      role="alertdialog"
+      aria-describedby={contentId}
+      {...props}
+      className={twMerge("sm:w-dialog-md", props.className)}
+    >
       {({ close }) => (
         <>
           <Heading slot="title">{title}</Heading>

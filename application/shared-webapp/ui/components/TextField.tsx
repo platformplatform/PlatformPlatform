@@ -31,6 +31,7 @@ export interface TextFieldProps
   label?: string;
   description?: string;
   errorMessage?: string | ((validation: ValidationResult) => string);
+  tooltip?: string;
   isDisabled?: boolean;
   isReadOnly?: boolean;
   inputClassName?: string;
@@ -41,6 +42,7 @@ export function TextField({
   label,
   description,
   errorMessage,
+  tooltip,
   className,
   isDisabled,
   isReadOnly,
@@ -54,7 +56,7 @@ export function TextField({
 
   return (
     <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
-      {label && <Label>{label}</Label>}
+      {label && <Label tooltip={tooltip}>{label}</Label>}
       <Input
         name={props.name}
         className={`${inputStyles} ${inputClassName || ""}`}
