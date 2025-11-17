@@ -179,7 +179,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin");
+      await expect(page1).toHaveURL("/admin/users");
 
       // Re-query the tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
@@ -208,7 +208,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin");
+      await expect(page1).toHaveURL("/admin/users");
 
       // Re-query tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
@@ -246,7 +246,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "User profile menu" }).click();
       await page1.getByRole("menuitem", { name: "Log out" }).click();
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("login?returnPath=%2Fadmin");
+      await expect(page1).toHaveURL("login?returnPath=%2Fadmin%2Fusers");
 
       // tab 2 also loses authentication
       await page2.goto("/admin");
@@ -261,7 +261,7 @@ test.describe("@comprehensive", () => {
 
       // Wait for navigation to complete
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin");
+      await expect(page1).toHaveURL("/admin/users");
 
       // Should login to tertiary tenant (last selected)
       const navElementAfter = page1.locator("nav").first();
@@ -305,7 +305,7 @@ test.describe("@comprehensive", () => {
       const targetMenuItem = menuItems.filter({ hasText: primaryTenantName }).first();
       await targetMenuItem.click();
 
-      await expect(page1).toHaveURL("/admin");
+      await expect(page1).toHaveURL("/admin/account");
 
       // Re-query the tenant button with the new tenant name
       const navElementAfterSwitch = page1.locator("nav").first();

@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -270,11 +271,10 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
       setIsSwitching(true);
     },
     onSuccess: () => {
-      // Keep the loader visible briefly before redirecting
+      // Stay on the same path, but default to loggedInPath if on root
       // Don't set isSwitching to false here - let the redirect handle it
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 250);
+      const targetPath = window.location.pathname === "/" ? loggedInPath : window.location.pathname;
+      window.location.href = targetPath;
     },
     onError: () => {
       // Hide the loader on error
