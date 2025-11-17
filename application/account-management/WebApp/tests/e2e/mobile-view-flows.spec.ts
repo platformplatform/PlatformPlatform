@@ -65,7 +65,7 @@ test.describe("@comprehensive", () => {
     await step("Open mobile menu & verify all navigation and settings are accessible")(async () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = page.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await expect(mobileDialog).toBeVisible();
 
       // Verify user profile section is visible
@@ -120,7 +120,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByText(newTitle)).toBeVisible();
 
       // Close mobile menu by clicking the X button
-      const mobileDialog = page.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Close menu" }).click();
       await expect(mobileDialog).not.toBeVisible();
     })();
@@ -148,7 +148,7 @@ test.describe("@comprehensive", () => {
     await step("Change language back to English & verify language updates")(async () => {
       await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
 
-      const mobileDialog = page.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Sprog" }).click();
 
       // Wait for language menu to open
@@ -168,7 +168,7 @@ test.describe("@comprehensive", () => {
     await step("Change theme through mobile menu & verify theme applies")(async () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = page.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Theme" }).click();
 
       // Wait for theme menu to open
@@ -188,7 +188,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to users page through mobile menu & verify navigation works")(async () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
-      const mobileDialog = page.getByRole("dialog");
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("link", { name: "Users" }).click();
 
       // Mobile menu should close

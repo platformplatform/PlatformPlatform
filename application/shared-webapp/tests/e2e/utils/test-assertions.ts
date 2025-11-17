@@ -216,17 +216,26 @@ export async function expectValidationError(context: TestContext, expectedMessag
  * @param expectedStatusCodes Array of expected HTTP status codes (e.g., [401, 403])
  */
 export async function expectNetworkErrors(context: TestContext, expectedStatusCodes: number[]): Promise<void> {
-  const { monitoring } = context;
+  const { monitoring, page } = context;
 
   for (const statusCode of expectedStatusCodes) {
     const expectedNetworkError = `HTTP ${statusCode}`;
 
-    // Find matching network errors
-    const matchingErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+    // Poll for the network error with a timeout (since response events may not be processed immediately)
+    const startTime = Date.now();
+    const timeout = 3000;
+    let matchingErrors: string[] = [];
+
+    while (matchingErrors.length === 0 && Date.now() - startTime < timeout) {
+      matchingErrors = monitoring.networkErrors.filter((error) => error.includes(expectedNetworkError));
+      if (matchingErrors.length === 0) {
+        await page.evaluate(() => new Promise((resolve) => setTimeout(resolve, 10)));
+      }
+    }
 
     if (matchingErrors.length === 0) {
       throw new Error(
-        `Expected network error "${expectedNetworkError}" not found. Actual errors: [${monitoring.networkErrors.join(", ")}]`
+        `Expected network error "${expectedNetworkError}" not found within ${timeout}ms. Actual errors: [${monitoring.networkErrors.join(", ")}]`
       );
     }
 

@@ -2,8 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import {
   api,
   type components,
-  type SortableUserProperties,
-  type SortOrder,
+  SortableUserProperties,
+  SortOrder,
   type UserRole,
   type UserStatus
 } from "@/shared/lib/api/client";
@@ -45,8 +45,8 @@ export function useInfiniteUsers({
         UserStatus: userStatus,
         StartDate: startDate,
         EndDate: endDate,
-        OrderBy: orderBy,
-        SortOrder: sortOrder,
+        OrderBy: orderBy ?? SortableUserProperties.Name,
+        SortOrder: sortOrder ?? SortOrder.Ascending,
         PageOffset: 0
       }
     },
@@ -65,8 +65,8 @@ export function useInfiniteUsers({
         UserStatus: userStatus,
         StartDate: startDate,
         EndDate: endDate,
-        OrderBy: orderBy,
-        SortOrder: sortOrder,
+        OrderBy: orderBy ?? SortableUserProperties.Name,
+        SortOrder: sortOrder ?? SortOrder.Ascending,
         PageOffset: nextPageToLoad
       }
     },

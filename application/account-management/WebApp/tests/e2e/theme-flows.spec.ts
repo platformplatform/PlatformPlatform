@@ -232,7 +232,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "User profile menu" }).click();
 
       // Wait for user menu to open
-      const userMenu = page.getByRole("menu");
+      const userMenu = page.getByRole("menu", { name: "User profile menu" });
       await expect(userMenu).toBeVisible();
 
       await page.getByRole("menuitem", { name: "Log out" }).click();
