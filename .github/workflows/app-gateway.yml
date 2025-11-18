@@ -118,7 +118,7 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          global-json-file: application/global.json
 
       - name: Restore .NET Tools
         working-directory: application
