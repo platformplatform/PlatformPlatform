@@ -48,7 +48,7 @@ public static class ModelBuilderExtensions
     {
         var nullConstant = Expression.Constant(null, typeof(TValue));
         var idParameter = Expression.Parameter(typeof(TId), "id");
-        var idValueProperty = Expression.Property(idParameter, nameof(StronglyTypedId<TValue, TId>.Value));
+        var idValueProperty = Expression.Property(idParameter, "Value");
         var idCoalesceExpression =
             Expression.Lambda<Func<TId, TValue>>(Expression.Coalesce(idValueProperty, nullConstant), idParameter);
 

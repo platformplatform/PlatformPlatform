@@ -59,7 +59,11 @@ public static class SharedInfrastructureConfiguration
             ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
             : builder.Configuration.GetConnectionString(connectionName);
 
-        builder.Services.AddAzureSql<T>(connectionString);
+        builder.Services.AddDbContext<T>(options =>
+            options.UseSqlServer(connectionString, sqlOptions =>
+                    sqlOptions.UseCompatibilityLevel(150) // SQL Server 2019 compatibility to avoid native JSON type
+            )
+        );
 
         return builder;
     }

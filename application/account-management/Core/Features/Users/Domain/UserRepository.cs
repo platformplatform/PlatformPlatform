@@ -84,7 +84,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
     public async Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
     {
-        return await DbSet.Where(u => ids.Contains(u.Id)).ToArrayAsync(cancellationToken);
+        return await DbSet.Where(u => ids.AsEnumerable().Contains(u.Id)).ToArrayAsync(cancellationToken);
     }
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
