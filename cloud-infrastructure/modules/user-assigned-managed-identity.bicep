@@ -6,7 +6,7 @@ param environmentResourceGroupName string
 param keyVaultName string
 param grantKeyVaultWritePermissions bool = false
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: name
   location: location
   tags: tags

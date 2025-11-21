@@ -3,7 +3,7 @@ param microsoftSqlServerName string
 param dianosticStorageAccountSubscriptionId string
 param dianosticStorageAccountBlobEndpoint string
 
-resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2023-05-01-preview' existing = {
+resource existingMicrosoftSqlServer 'Microsoft.Sql/servers@2023-08-01' existing = {
   name: microsoftSqlServerName
 }
 
@@ -17,13 +17,13 @@ module diagnosticStorageBlobDataContributorRoleAssignment './role-assignments-st
   }
 }
 
-resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2023-05-01-preview' = {
+resource microsoftSqlServerOutboundFirewallRules 'Microsoft.Sql/servers/outboundFirewallRules@2023-08-01' = {
   parent: existingMicrosoftSqlServer
   name: replace(replace(dianosticStorageAccountBlobEndpoint, 'https:', ''), '/', '')
   dependsOn: [diagnosticStorageBlobDataContributorRoleAssignment]
 }
 
-resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSettings@2023-05-01-preview' = {
+resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSettings@2023-08-01' = {
   parent: existingMicrosoftSqlServer
   name: 'default'
   properties: {
@@ -42,7 +42,7 @@ resource microsoftSqlServerAuditingSettings 'Microsoft.Sql/servers/auditingSetti
   dependsOn: [microsoftSqlServerOutboundFirewallRules]
 }
 
-resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulnerabilityAssessments@2023-05-01-preview' = {
+resource microsoftSqlServerVulnerabilityAssessment 'Microsoft.Sql/servers/vulnerabilityAssessments@2023-08-01' = {
   name: 'default'
   parent: existingMicrosoftSqlServer
   properties: {
