@@ -6,7 +6,6 @@ param environmentResourceGroupName string
 param environment string
 param containerRegistryName string
 param domainName string
-param isDomainConfigured bool
 param sqlAdminObjectId string
 param appGatewayVersion string
 param accountManagementVersion string
@@ -433,7 +432,6 @@ module appGateway '../modules/container-app.bicep' = {
     ingress: true
     hasProbesEndpoint: false
     domainName: domainName == '' ? '' : domainName
-    isDomainConfigured: domainName != '' && isDomainConfigured
     external: true
     environmentVariables: [
       {

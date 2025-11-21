@@ -7,7 +7,6 @@ param environmentResourceGroupName = readEnvironmentVariable('ENVIRONMENT_RESOUR
 param environment = readEnvironmentVariable('ENVIRONMENT')
 param containerRegistryName = readEnvironmentVariable('CONTAINER_REGISTRY_NAME')
 param domainName = readEnvironmentVariable('DOMAIN_NAME', '')
-param isDomainConfigured = bool(readEnvironmentVariable('IS_DOMAIN_CONFIGURED', 'false'))
 param sqlAdminObjectId = readEnvironmentVariable('SQL_ADMIN_OBJECT_ID')
 param appGatewayVersion = readEnvironmentVariable('APP_GATEWAY_VERSION')
 param accountManagementVersion = readEnvironmentVariable('ACCOUNT_MANAGEMENT_VERSION')

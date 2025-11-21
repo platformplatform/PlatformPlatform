@@ -15,7 +15,6 @@ param userAssignedIdentityName string
 param ingress bool
 param hasProbesEndpoint bool
 param domainName string = ''
-param isDomainConfigured bool = false
 param external bool = false
 param environmentVariables object[] = []
 param uniqueSuffix string = substring(newGuid(), 0, 4)
@@ -28,9 +27,14 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 var certificateName = '${domainName}-certificate' // Note: The `-certificate` is used to detect if a certificate in deploy-cluster.sh
 var isCustomDomainSet = domainName != ''
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2023-05-02-preview' existing = if (isCustomDomainSet) {
-  name: containerAppsEnvironmentName
-}
+var customDomainConfiguration = isCustomDomainSet
+  ? [
+      {
+        name: domainName
+        bindingType: 'Auto'
+      }
+    ]
+  : []
 
 module newManagedCertificate './managed-certificate.bicep' = if (isCustomDomainSet) {
   name: '${resourceGroupName}-${name}-managed-certificate'
@@ -45,21 +49,6 @@ module newManagedCertificate './managed-certificate.bicep' = if (isCustomDomainS
   }
 }
 
-resource existingManagedCertificate 'Microsoft.App/managedEnvironments/managedCertificates@2023-05-02-preview' existing = if (isDomainConfigured) {
-  name: certificateName
-  parent: containerAppsEnvironment
-}
-
-var customDomainConfiguration = isCustomDomainSet
-  ? [
-      {
-        bindingType: isDomainConfigured ? 'SniEnabled' : 'Disabled'
-        name: domainName
-        certificateId: isDomainConfigured ? existingManagedCertificate.id : null
-      }
-    ]
-  : []
-
 // For the initial revision, we use the container image hello world quickstart image.
 // This allows for the container app to be created before the container image is pushed to the registry.
 var useQuickStartImage = containerImageTag == 'initial'
@@ -71,7 +60,7 @@ var image = useQuickStartImage
 // Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
 var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
 
-resource containerApp 'Microsoft.App/containerApps@2024-02-02-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2025-07-01' = {
   name: name
   location: location
   tags: tags
@@ -160,11 +149,6 @@ resource containerApp 'Microsoft.App/containerApps@2024-02-02-preview' = {
           identity: userAssignedIdentity.id
         }
       ]
-      runtime: {
-        dotnet: {
-          autoConfigureDataProtection: true
-        }
-      }
       ingress: ingress
         ? {
             external: external

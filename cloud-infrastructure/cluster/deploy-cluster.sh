@@ -19,16 +19,6 @@ get_active_version()
    fi
 }
 
-function is_domain_configured() {
-  # Get details about the container apps
-  local app_details=$(az containerapp show --name "$1" --resource-group "$2" 2>&1)
-  if [[ "$app_details" == *"ResourceNotFound"* ]] || [[ "$app_details" == *"ResourceGroupNotFound"* ]] || [[ "$app_details" == *"ERROR"* ]] ; then
-    echo "false"
-  else
-    local result=$(echo "$app_details" | jq -r '.properties.configuration.ingress.customDomains')
-    [[ "$result" != "null" ]] && echo "true" || echo "false"
-  fi
-}
 
 if [[ "$DOMAIN_NAME" == "-" ]]; then
   # "-" is used to indicate that the domain is not configured
@@ -44,7 +34,6 @@ export SQL_ADMIN_OBJECT_ID
 export CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
 export ENVIRONMENT_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
 export RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$CLUSTER_LOCATION_ACRONYM"
-export IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" "$RESOURCE_GROUP_NAME")
 
 export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NAME)
 export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
@@ -65,10 +54,11 @@ DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAM
 
 . ../deploy.sh
 
-# When initially creating the Azure Container App with SSL and a custom domain, we need to run the deployment three times (see https://github.com/microsoft/azure-container-apps/tree/main/docs/templates/bicep/managedCertificates):
-# 1. On the initial run, the deployment will fail, providing instructions on how to manually create DNS TXT and CNAME records. After doing so, the workflow must be run again.
-# 2. The second time, the DNS will be configured, and a certificate will be created. However, they will not be bound together, as this is a two-step process and they cannot be created in a single deployment.
-# 3. The third deployment will bind the SSL Certificate to the Domain. This step will be triggered automatically.
+# When initially creating the Azure Container App with SSL and a custom domain, the deployment may fail if DNS records are not configured.
+# With bindingType: 'Auto' (API version 2025-07-01), certificates are created and bound in a single deployment.
+# If the deployment fails, ensure DNS records are properly configured:
+# - A TXT record: asuid.<domain> with the customDomainVerificationId value
+# - A CNAME record: <domain> pointing to the container app's default domain
 if [[ "$*" == *"--apply"* ]]
 then
   RED='\033[0;31m'
@@ -76,10 +66,10 @@ then
 
   cleaned_output=$(echo "$output" | sed '/^WARNING/d' | sed '/^\/home\/runner\/work\//d')
   # Check for the specific error message indicating that DNS Records are missing
-  if [[ $cleaned_output == *"InvalidCustomHostNameValidation"* ]] || [[ $cleaned_output == *"FailedCnameValidation"* ]] || [[ $cleaned_output == *"-certificate' under resource group '$RESOURCE_GROUP_NAME' was not found"* ]]; then
-    # Get details about the container apps environment. Although the creation of the container app fails, the verification ID on the container apps environment is consistent across all container apps.
+  if [[ $cleaned_output == *"InvalidCustomHostNameValidation"* ]] || [[ $cleaned_output == *"FailedCnameValidation"* ]]; then
+    # Get details about the container apps environment to provide DNS configuration instructions
     env_details=$(az containerapp env show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME)
-    
+
     # Extract the customDomainVerificationId and defaultDomain from the container apps environment
     custom_domain_verification_id=$(echo "$env_details" | jq -r '.properties.customDomainConfiguration.customDomainVerificationId')
     default_domain=$(echo "$env_details" | jq -r '.properties.defaultDomain')
@@ -92,24 +82,6 @@ then
   elif [[ $output == *"ERROR:"* ]]; then
     echo -e "${RED}$output${RESET}"
     exit 1
-  fi
-
-  # If the domain was not configured during the first run and we didn't receive any warnings about missing DNS entries, we trigger the deployment again to complete the binding of the SSL Certificate to the domain.
-  if [[ "$IS_DOMAIN_CONFIGURED" == "false" ]] && [[ "$DOMAIN_NAME" != "" ]]; then
-    echo "Running deployment again to finalize setting up SSL certificate for $DOMAIN_NAME"
-    export IS_DOMAIN_CONFIGURED=$(is_domain_configured "app-gateway" $RESOURCE_GROUP_NAME)
-    
-    # Rebuild parameters with updated IS_DOMAIN_CONFIGURED
-    bicep build-params ./main-cluster.bicepparam --outfile ./main-cluster.parameters.json
-    
-    DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p ./main-cluster.parameters.json"
-    . ../deploy.sh
-
-    cleaned_output=$(echo "$output" | sed '/^WARNING/d' | sed '/^\/home\/runner\/work\//d')
-    if [[ $cleaned_output == "ERROR:"* ]]; then
-      echo -e "${RED}$output"
-      exit 1
-    fi
   fi
 
   # Extract the ID of the Managed Identities, which can be used to grant access to SQL Database
