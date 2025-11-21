@@ -8,10 +8,9 @@
     <PackageVersion Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
     <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting" Version="13.0.0" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting.Azure" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.0.0" />
-    <PackageVersion Include="Aspire.Hosting.NodeJs" Version="9.5.2" />
+    <PackageVersion Include="Aspire.Hosting.JavaScript" Version="13.0.0" />
     <PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.0.0" />
     <PackageVersion Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.0.0" />
     <PackageVersion Include="Azure.Communication.Email" Version="1.1.0" />
