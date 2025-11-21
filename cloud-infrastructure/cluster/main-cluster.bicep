@@ -17,7 +17,7 @@ param mailSenderDisplayName string = 'PlatformPlatform'
 var storageAccountUniquePrefix = replace(resourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
-resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2024-11-01' = {
+resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: resourceGroupName
   location: location
   tags: tags

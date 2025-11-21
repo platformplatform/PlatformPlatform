@@ -19,7 +19,7 @@ param external bool = false
 param environmentVariables object[] = []
 param uniqueSuffix string = substring(newGuid(), 0, 4)
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
   scope: resourceGroup(resourceGroupName)
   name: userAssignedIdentityName
 }

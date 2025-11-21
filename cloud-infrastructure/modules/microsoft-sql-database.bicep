@@ -3,7 +3,7 @@ param databaseName string
 param location string
 param tags object
 
-resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2023-08-01' = {
   name: '${sqlServerName}/${databaseName}'
   location: location
   tags: tags
