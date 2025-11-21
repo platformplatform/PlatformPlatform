@@ -462,7 +462,7 @@ module appGateway '../modules/container-app.bicep' = {
   }
 }
 
-module appGatwayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
+module appGatewayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
   scope: clusterResourceGroup
   name: '${resourceGroupName}-app-gateway-account-management-blob-reader'
   params: {
