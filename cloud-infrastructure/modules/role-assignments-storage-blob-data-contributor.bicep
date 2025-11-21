@@ -16,6 +16,7 @@ var storageBlobDataContributorRoleDefinitionId = 'ba92f5b4-2d11-453d-a403-e96b00
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(existingStorageAccount.id, userAssignedIdentityName, storageBlobDataContributorRoleDefinitionId)
   properties: {
+    #disable-next-line BCP318
     principalId: userAssignedIdentityName == '' ? principalId : userAssignedIdentity.properties.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', storageBlobDataContributorRoleDefinitionId)
