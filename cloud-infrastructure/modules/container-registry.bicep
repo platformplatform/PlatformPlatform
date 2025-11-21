@@ -25,10 +25,6 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-11-01' =
       azureADAuthenticationAsArmPolicy: {
         status: 'Enabled'
       }
-      softDeletePolicy: {
-        retentionDays: 7
-        status: 'disabled'
-      }
     }
   }
 }
