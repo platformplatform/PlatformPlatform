@@ -39,8 +39,14 @@ export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NA
 export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 export BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 
-az extension add --name application-insights --allow-preview true
-export APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $UNIQUE_PREFIX-$ENVIRONMENT --query connectionString --output tsv)
+az extension add --name application-insights --allow-preview true --only-show-errors
+
+# Check if Application Insights exists before trying to get connection string
+if az group exists --name $UNIQUE_PREFIX-$ENVIRONMENT 2>/dev/null | grep -q "true"; then
+  export APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $UNIQUE_PREFIX-$ENVIRONMENT --query connectionString --output tsv)
+else
+  export APPLICATIONINSIGHTS_CONNECTION_STRING=""
+fi
 
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
 
