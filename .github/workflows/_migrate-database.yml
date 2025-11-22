@@ -190,7 +190,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Delete previous migration info comments
+            // Delete previous migration info comments for this specific database
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -198,7 +198,7 @@ jobs:
               per_page: 100
             });
 
-            const MIGRATION_HEADER = '## Approve Database Migration';
+            const MIGRATION_HEADER = '## Approve Database Migration `${{ inputs.database_name }}` database on `${{ inputs.azure_environment }}`';
 
             for (const comment of comments.data) {
               if (comment.body && comment.body.startsWith(MIGRATION_HEADER)) {
