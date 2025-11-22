@@ -2,11 +2,12 @@ param name string
 param location string
 param tags object
 param subnetId string
-param environmentResourceGroupName string
+param globalResourceGroupName string
+param logAnalyticsWorkspaceName string
 
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
-  scope: resourceGroup('${environmentResourceGroupName}')
-  name: environmentResourceGroupName
+  scope: resourceGroup('${globalResourceGroupName}')
+  name: logAnalyticsWorkspaceName
 }
 
 var logAnalyticsCustomerId = existingLogAnalyticsWorkspace.properties.customerId

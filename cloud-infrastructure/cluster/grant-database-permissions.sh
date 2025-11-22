@@ -4,9 +4,9 @@ CLUSTER_LOCATION_ACRONYM=$3
 SQL_DATABASE_NAME=$4
 MANAGEMENT_IDENTITY_CLIENT_ID=$5
 
-RESOURCE_GROUP_NAME=$UNIQUE_PREFIX-$ENVIRONMENT-$CLUSTER_LOCATION_ACRONYM
-MANAGED_IDENTITY_NAME=$RESOURCE_GROUP_NAME-$4
-SQL_SERVER_NAME=$RESOURCE_GROUP_NAME
+CLUSTER_RESOURCE_GROUP_NAME=$UNIQUE_PREFIX-$ENVIRONMENT-$CLUSTER_LOCATION_ACRONYM
+MANAGED_IDENTITY_NAME=$CLUSTER_RESOURCE_GROUP_NAME-$4
+SQL_SERVER_NAME=$CLUSTER_RESOURCE_GROUP_NAME
 SQL_SERVER=$SQL_SERVER_NAME.database.windows.net
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -26,7 +26,7 @@ SID=$(awk -v id="$SID" 'BEGIN {
     substr(id,17)
 }') # Reverse the byte order for the first three sections of the GUID and concatenate
 
-echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY_NAME (ID: $SID) in Recource group $RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE_NAME database"
+echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY_NAME (ID: $SID) in Resource group $CLUSTER_RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE_NAME database"
 
 # Execute the SQL script using mssql-scripter. Pass the script as a heredoc to sqlcmd to allow for complex SQL.
 sqlcmd -S $SQL_SERVER -d $SQL_DATABASE_NAME --authentication-method=ActiveDirectoryDefault --exit-on-error << EOF

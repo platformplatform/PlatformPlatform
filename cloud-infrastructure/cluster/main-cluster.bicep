@@ -1,8 +1,8 @@
 targetScope = 'subscription'
 
 param location string = deployment().location
-param resourceGroupName string
-param environmentResourceGroupName string
+param clusterResourceGroupName string
+param globalResourceGroupName string
 param environment string
 param containerRegistryName string
 param domainName string
@@ -14,32 +14,36 @@ param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
 
-var storageAccountUniquePrefix = replace(resourceGroupName, '-', '')
+var storageAccountUniquePrefix = replace(clusterResourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
 resource clusterResourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
-  name: resourceGroupName
+  name: clusterResourceGroupName
   location: location
   tags: tags
 }
 
+// Derive the resource name prefix by removing location suffix from cluster resource group name
+// e.g., "pxp-stage-eu" -> "pxp-stage"
+var resourceNamePrefix = substring(clusterResourceGroupName, 0, lastIndexOf(clusterResourceGroupName, '-'))
+
 resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
-  scope: resourceGroup('${environmentResourceGroupName}')
-  name: environmentResourceGroupName
+  scope: resourceGroup('${globalResourceGroupName}')
+  name: resourceNamePrefix
 }
 
 var subnetId = resourceId(
   subscription().subscriptionId,
-  resourceGroupName,
+  clusterResourceGroupName,
   'Microsoft.Network/virtualNetworks/subnets',
-  resourceGroupName,
+  clusterResourceGroupName,
   'subnet'
 )
 
 var diagnosticStorageAccountName = '${storageAccountUniquePrefix}diagnostic'
 module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-diagnostic-storage-account'
+  name: '${clusterResourceGroupName}-diagnostic-storage-account'
   params: {
     location: location
     name: diagnosticStorageAccountName
@@ -50,10 +54,10 @@ module diagnosticStorageAccount '../modules/storage-account.bicep' = {
 
 module virtualNetwork '../modules/virtual-network.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-virtual-network'
+  name: '${clusterResourceGroupName}-virtual-network'
   params: {
     location: location
-    name: resourceGroupName
+    name: clusterResourceGroupName
     tags: tags
     address: '10.0.0.0'
   }
@@ -61,23 +65,24 @@ module virtualNetwork '../modules/virtual-network.bicep' = {
 
 module containerAppsEnvironment '../modules/container-apps-environment.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-container-apps-environment'
+  name: '${clusterResourceGroupName}-container-apps-environment'
   params: {
     location: location
-    name: resourceGroupName
+    name: clusterResourceGroupName
     tags: tags
     subnetId: subnetId
-    environmentResourceGroupName: environmentResourceGroupName
+    globalResourceGroupName: globalResourceGroupName
+    logAnalyticsWorkspaceName: resourceNamePrefix
   }
   dependsOn: [virtualNetwork]
 }
 
 module keyVault '../modules/key-vault.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-key-vault'
+  name: '${clusterResourceGroupName}-key-vault'
   params: {
     location: location
-    name: resourceGroupName
+    name: clusterResourceGroupName
     tags: tags
     tenantId: subscription().tenantId
     subnetId: subnetId
@@ -89,9 +94,9 @@ module keyVault '../modules/key-vault.bicep' = {
 
 module communicationService '../modules/communication-services.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-communication-services'
+  name: '${clusterResourceGroupName}-communication-services'
   params: {
-    name: resourceGroupName
+    name: clusterResourceGroupName
     tags: tags
     dataLocation: communicationServicesDataLocation
     mailSenderDisplayName: mailSenderDisplayName
@@ -101,10 +106,10 @@ module communicationService '../modules/communication-services.bicep' = {
 
 module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-microsoft-sql-server'
+  name: '${clusterResourceGroupName}-microsoft-sql-server'
   params: {
     location: location
-    name: resourceGroupName
+    name: clusterResourceGroupName
     tags: tags
     subnetId: subnetId
     tenantId: subscription().tenantId
@@ -115,10 +120,10 @@ module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
 
 module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-microsoft-sql-server-diagnostic'
+  name: '${clusterResourceGroupName}-microsoft-sql-server-diagnostic'
   params: {
     diagnosticStorageAccountName: diagnosticStorageAccountName
-    microsoftSqlServerName: resourceGroupName
+    microsoftSqlServerName: clusterResourceGroupName
     dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
     dianosticStorageAccountSubscriptionId: subscription().subscriptionId
   }
@@ -133,26 +138,26 @@ var cdnUrl = publicUrl
 
 // Account Management
 
-var accountManagementIdentityName = '${resourceGroupName}-account-management'
+var accountManagementIdentityName = '${clusterResourceGroupName}-account-management'
 module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: '${resourceGroupName}-account-management-managed-identity'
+  name: '${clusterResourceGroupName}-account-management-managed-identity'
   scope: clusterResourceGroup
   params: {
     name: accountManagementIdentityName
     location: location
     tags: tags
     containerRegistryName: containerRegistryName
-    environmentResourceGroupName: environmentResourceGroupName
+    globalResourceGroupName: globalResourceGroupName
     keyVaultName: keyVault.outputs.name
     grantKeyVaultWritePermissions: true
   }
 }
 
 module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${resourceGroupName}-account-management-sql-database'
+  name: '${clusterResourceGroupName}-account-management-sql-database'
   scope: clusterResourceGroup
   params: {
-    sqlServerName: resourceGroupName
+    sqlServerName: clusterResourceGroupName
     databaseName: 'account-management'
     location: location
     tags: tags
@@ -163,7 +168,7 @@ module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
 var accountManagementStorageAccountName = '${storageAccountUniquePrefix}acctmgmt'
 module accountManagementStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-account-management-storage-account'
+  name: '${clusterResourceGroupName}-account-management-storage-account'
   params: {
     location: location
     name: accountManagementStorageAccountName
@@ -220,13 +225,13 @@ var accountManagementEnvironmentVariables = [
 ]
 
 module accountManagementWorkers '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-account-management-workers-container-app'
+  name: '${clusterResourceGroupName}-account-management-workers-container-app'
   scope: clusterResourceGroup
   params: {
     name: 'account-management-workers'
     location: location
     tags: tags
-    resourceGroupName: resourceGroupName
+    clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
@@ -244,13 +249,13 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
 }
 
 module accountManagementApi '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-account-management-api-container-app'
+  name: '${clusterResourceGroupName}-account-management-api-container-app'
   scope: clusterResourceGroup
   params: {
     name: 'account-management-api'
     location: location
     tags: tags
-    resourceGroupName: resourceGroupName
+    clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
@@ -270,25 +275,25 @@ module accountManagementApi '../modules/container-app.bicep' = {
 
 // Back Office
 
-var backOfficeIdentityName = '${resourceGroupName}-back-office'
+var backOfficeIdentityName = '${clusterResourceGroupName}-back-office'
 module backOfficeIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: '${resourceGroupName}-back-office-managed-identity'
+  name: '${clusterResourceGroupName}-back-office-managed-identity'
   scope: clusterResourceGroup
   params: {
     name: backOfficeIdentityName
     location: location
     tags: tags
     containerRegistryName: containerRegistryName
-    environmentResourceGroupName: environmentResourceGroupName
+    globalResourceGroupName: globalResourceGroupName
     keyVaultName: keyVault.outputs.name
   }
 }
 
 module backOfficeDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${resourceGroupName}-back-office-sql-database'
+  name: '${clusterResourceGroupName}-back-office-sql-database'
   scope: clusterResourceGroup
   params: {
-    sqlServerName: resourceGroupName
+    sqlServerName: clusterResourceGroupName
     databaseName: 'back-office'
     location: location
     tags: tags
@@ -299,7 +304,7 @@ module backOfficeDatabase '../modules/microsoft-sql-database.bicep' = {
 var backOfficeStorageAccountName = '${storageAccountUniquePrefix}backoffice'
 module backOfficeStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-back-office-storage-account'
+  name: '${clusterResourceGroupName}-back-office-storage-account'
   params: {
     location: location
     name: backOfficeStorageAccountName
@@ -346,13 +351,13 @@ var backOfficeEnvironmentVariables = [
 ]
 
 module backOfficeWorkers '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-back-office-workers-container-app'
+  name: '${clusterResourceGroupName}-back-office-workers-container-app'
   scope: clusterResourceGroup
   params: {
     name: 'back-office-workers'
     location: location
     tags: tags
-    resourceGroupName: resourceGroupName
+    clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
@@ -370,13 +375,13 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
 }
 
 module backOfficeApi '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-back-office-api-container-app'
+  name: '${clusterResourceGroupName}-back-office-api-container-app'
   scope: clusterResourceGroup
   params: {
     name: 'back-office-api'
     location: location
     tags: tags
-    resourceGroupName: resourceGroupName
+    clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
@@ -396,29 +401,29 @@ module backOfficeApi '../modules/container-app.bicep' = {
 
 // App Gateway
 
-var appGatewayIdentityName = '${resourceGroupName}-app-gateway'
+var appGatewayIdentityName = '${clusterResourceGroupName}-app-gateway'
 module appGatewayIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: '${resourceGroupName}-app-gateway-managed-identity'
+  name: '${clusterResourceGroupName}-app-gateway-managed-identity'
   scope: clusterResourceGroup
   params: {
     name: appGatewayIdentityName
     location: location
     tags: tags
     containerRegistryName: containerRegistryName
-    environmentResourceGroupName: environmentResourceGroupName
+    globalResourceGroupName: globalResourceGroupName
     keyVaultName: keyVault.outputs.name
   }
 }
 
 var appGatewayContainerAppName = 'app-gateway'
 module appGateway '../modules/container-app.bicep' = {
-  name: '${resourceGroupName}-app-gateway-container-app'
+  name: '${clusterResourceGroupName}-app-gateway-container-app'
   scope: clusterResourceGroup
   params: {
     name: appGatewayContainerAppName
     location: location
     tags: tags
-    resourceGroupName: resourceGroupName
+    clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
@@ -464,7 +469,7 @@ module appGateway '../modules/container-app.bicep' = {
 
 module appGatewayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
   scope: clusterResourceGroup
-  name: '${resourceGroupName}-app-gateway-account-management-blob-reader'
+  name: '${clusterResourceGroupName}-app-gateway-account-management-blob-reader'
   params: {
     storageAccountName: accountManagementStorageAccountName
     userAssignedIdentityName: appGatewayIdentityName
