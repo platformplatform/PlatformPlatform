@@ -13,6 +13,7 @@ param backOfficeVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
+param revisionSuffix string
 
 var storageAccountUniquePrefix = replace(clusterResourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
@@ -244,6 +245,7 @@ module accountManagementWorkers '../modules/container-app.bicep' = {
     userAssignedIdentityName: accountManagementIdentityName
     ingress: true
     hasProbesEndpoint: false
+    revisionSuffix: revisionSuffix
     environmentVariables: accountManagementEnvironmentVariables
   }
 }
@@ -268,6 +270,7 @@ module accountManagementApi '../modules/container-app.bicep' = {
     userAssignedIdentityName: accountManagementIdentityName
     ingress: true
     hasProbesEndpoint: true
+    revisionSuffix: revisionSuffix
     environmentVariables: accountManagementEnvironmentVariables
   }
   dependsOn: [accountManagementWorkers]
@@ -370,6 +373,7 @@ module backOfficeWorkers '../modules/container-app.bicep' = {
     userAssignedIdentityName: backOfficeIdentityName
     ingress: true
     hasProbesEndpoint: false
+    revisionSuffix: revisionSuffix
     environmentVariables: backOfficeEnvironmentVariables
   }
 }
@@ -394,6 +398,7 @@ module backOfficeApi '../modules/container-app.bicep' = {
     userAssignedIdentityName: backOfficeIdentityName
     ingress: true
     hasProbesEndpoint: true
+    revisionSuffix: revisionSuffix
     environmentVariables: backOfficeEnvironmentVariables
   }
   dependsOn: [backOfficeWorkers]
@@ -438,6 +443,7 @@ module appGateway '../modules/container-app.bicep' = {
     hasProbesEndpoint: false
     domainName: domainName == '' ? '' : domainName
     external: true
+    revisionSuffix: revisionSuffix
     environmentVariables: [
       {
         name: 'AZURE_CLIENT_ID'

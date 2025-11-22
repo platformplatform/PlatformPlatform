@@ -49,6 +49,7 @@ else
 fi
 
 CURRENT_DATE=$(date +'%Y-%m-%dT%H-%M')
+export REVISION_SUFFIX=$(printf "%04x" $RANDOM | head -c 4)
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
