@@ -1,7 +1,7 @@
 param name string
 param location string
 param tags object
-param resourceGroupName string
+param clusterResourceGroupName string
 param containerAppsEnvironmentId string
 param containerAppsEnvironmentName string
 param containerRegistryName string
@@ -20,7 +20,7 @@ param environmentVariables object[] = []
 param uniqueSuffix string = substring(newGuid(), 0, 4)
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
-  scope: resourceGroup(resourceGroupName)
+  scope: resourceGroup(clusterResourceGroupName)
   name: userAssignedIdentityName
 }
 
@@ -37,8 +37,8 @@ var customDomainConfiguration = isCustomDomainSet
   : []
 
 module newManagedCertificate './managed-certificate.bicep' = if (isCustomDomainSet) {
-  name: '${resourceGroupName}-${name}-managed-certificate'
-  scope: resourceGroup(resourceGroupName)
+  name: '${clusterResourceGroupName}-${name}-managed-certificate'
+  scope: resourceGroup(clusterResourceGroupName)
   dependsOn: [containerApp]
   params: {
     name: certificateName

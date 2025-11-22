@@ -32,18 +32,18 @@ export DOMAIN_NAME
 export SQL_ADMIN_OBJECT_ID
 
 export CONTAINER_REGISTRY_NAME=$UNIQUE_PREFIX$ENVIRONMENT
-export ENVIRONMENT_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT"
-export RESOURCE_GROUP_NAME="$ENVIRONMENT_RESOURCE_GROUP_NAME-$CLUSTER_LOCATION_ACRONYM"
+export GLOBAL_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT-global"
+export CLUSTER_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT-$CLUSTER_LOCATION_ACRONYM"
 
-export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $RESOURCE_GROUP_NAME)
-export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
-export BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
+export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $CLUSTER_RESOURCE_GROUP_NAME)
+export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $CLUSTER_RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
+export BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $CLUSTER_RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 
 az extension add --name application-insights --allow-preview true --only-show-errors
 
 # Check if Application Insights exists before trying to get connection string
-if az group exists --name $UNIQUE_PREFIX-$ENVIRONMENT 2>/dev/null | grep -q "true"; then
-  export APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $UNIQUE_PREFIX-$ENVIRONMENT --query connectionString --output tsv)
+if az group exists --name $GLOBAL_RESOURCE_GROUP_NAME 2>/dev/null | grep -q "true"; then
+  export APPLICATIONINSIGHTS_CONNECTION_STRING=$(az monitor app-insights component show --app $UNIQUE_PREFIX-$ENVIRONMENT --resource-group $GLOBAL_RESOURCE_GROUP_NAME --query connectionString --output tsv)
 else
   export APPLICATIONINSIGHTS_CONNECTION_STRING=""
 fi
@@ -56,7 +56,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 bicep build-params ./main-cluster.bicepparam --outfile ./main-cluster.parameters.json
 
 DEPLOYMENT_COMMAND="az deployment sub create"
-DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p ./main-cluster.parameters.json"
+DEPLOYMENT_PARAMETERS="-l $CLUSTER_LOCATION -n $CURRENT_DATE-$CLUSTER_RESOURCE_GROUP_NAME --output json -f ./main-cluster.bicep -p ./main-cluster.parameters.json"
 
 . ../deploy.sh
 
@@ -74,7 +74,7 @@ then
   # Check for the specific error message indicating that DNS Records are missing
   if [[ $cleaned_output == *"InvalidCustomHostNameValidation"* ]] || [[ $cleaned_output == *"FailedCnameValidation"* ]]; then
     # Get details about the container apps environment to provide DNS configuration instructions
-    env_details=$(az containerapp env show --name $RESOURCE_GROUP_NAME --resource-group $RESOURCE_GROUP_NAME)
+    env_details=$(az containerapp env show --name $CLUSTER_RESOURCE_GROUP_NAME --resource-group $CLUSTER_RESOURCE_GROUP_NAME)
 
     # Extract the customDomainVerificationId and defaultDomain from the container apps environment
     custom_domain_verification_id=$(echo "$env_details" | jq -r '.properties.customDomainConfiguration.customDomainVerificationId')

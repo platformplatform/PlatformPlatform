@@ -1,9 +1,9 @@
 using './main-cluster.bicep'
 
-// All parameters read from environment variables - nothing hardcoded
+// Read all parameters from environment variables
 param location = readEnvironmentVariable('LOCATION')
-param resourceGroupName = readEnvironmentVariable('RESOURCE_GROUP_NAME')
-param environmentResourceGroupName = readEnvironmentVariable('ENVIRONMENT_RESOURCE_GROUP_NAME')
+param clusterResourceGroupName = readEnvironmentVariable('CLUSTER_RESOURCE_GROUP_NAME')
+param globalResourceGroupName = readEnvironmentVariable('GLOBAL_RESOURCE_GROUP_NAME')
 param environment = readEnvironmentVariable('ENVIRONMENT')
 param containerRegistryName = readEnvironmentVariable('CONTAINER_REGISTRY_NAME')
 param domainName = readEnvironmentVariable('DOMAIN_NAME', '')
