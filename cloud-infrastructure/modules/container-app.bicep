@@ -17,7 +17,7 @@ param hasProbesEndpoint bool
 param domainName string = ''
 param external bool = false
 param environmentVariables object[] = []
-param uniqueSuffix string = substring(newGuid(), 0, 4)
+param revisionSuffix string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
   scope: resourceGroup(clusterResourceGroupName)
@@ -57,8 +57,8 @@ var image = useQuickStartImage
   ? 'ghcr.io/platformplatform/quickstart:latest'
   : '${containerRegistryServerUrl}/${containerImageName}:${containerImageTag}'
 
-// Create a revisionSuffix that contains the version but is be unique for each deployment. E.g. "2024-4-24-1557-tzyb"
-var revisionSuffix = '${replace(containerImageTag, '.', '-')}-${substring(uniqueSuffix, 0, 4)}'
+// Create a revisionSuffix that contains the version and random suffix. E.g. "2025-11-19-756-a3f2"
+var fullRevisionSuffix = '${replace(containerImageTag, '.', '-')}-${revisionSuffix}'
 
 resource containerApp 'Microsoft.App/containerApps@2025-07-01' = {
   name: name
@@ -136,7 +136,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-07-01' = {
               ]
         }
       ]
-      revisionSuffix: revisionSuffix
+      revisionSuffix: fullRevisionSuffix
       scale: {
         minReplicas: minReplicas
         maxReplicas: maxReplicas
