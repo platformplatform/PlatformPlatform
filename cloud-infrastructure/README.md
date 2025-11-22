@@ -58,7 +58,8 @@ Examples of cluster-specific resources:
 - Communication Service: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
 - Storage Accounts: `ppdemostageweuacctmgmt`, `ppdemoprodweudiagnostic`
 
-Examples of environment-specific resources:
+Examples of global resources (shared across all clusters in an environment):
+- Resource Group: `ppdemo-stage-global`, `ppdemo-prod-global`
 - Application Insights: `ppdemo-stage`, `ppdemo-prod`
 - Log Analytics workspace: `ppdemo-stage`, `ppdemo-prod`
 - Container Registry: `ppdemostage`, `ppdemoprod`

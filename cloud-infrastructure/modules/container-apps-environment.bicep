@@ -2,17 +2,18 @@ param name string
 param location string
 param tags object
 param subnetId string
-param environmentResourceGroupName string
+param globalResourceGroupName string
+param logAnalyticsWorkspaceName string
 
-resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
-  scope: resourceGroup('${environmentResourceGroupName}')
-  name: environmentResourceGroupName
+resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-07-01' existing = {
+  scope: resourceGroup('${globalResourceGroupName}')
+  name: logAnalyticsWorkspaceName
 }
 
 var logAnalyticsCustomerId = existingLogAnalyticsWorkspace.properties.customerId
 var logAnalyticsSharedKey = existingLogAnalyticsWorkspace.listKeys().primarySharedKey
 
-resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2024-03-01' = {
+resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2025-07-01' = {
   name: name
   location: location
   tags: tags
