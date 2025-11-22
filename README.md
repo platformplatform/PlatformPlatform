@@ -180,7 +180,7 @@ Run this command to automate Azure Subscription configuration and set up [GitHub
 
 ```bash
 cd developer-cli
-dotnet run configure-continuous-deployments # Tip: Add --verbose-logging to show the used CLI commands
+dotnet run deploy # Tip: Add --verbose-logging to show the used CLI commands
 ```
 
 You need to be the owner of the GitHub repository and the Azure Subscription, plus have permissions to create Service Principals and Active Directory Groups.

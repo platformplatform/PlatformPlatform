@@ -10,7 +10,7 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public class ConfigureContinuousDeploymentsCommand : Command
+public class DeployCommand : Command
 {
     private static readonly JsonSerializerOptions? JsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
 
@@ -20,8 +20,8 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
     private List<ConfigureContinuousDeployments>? _configureContinuousDeploymentsExtensions;
 
-    public ConfigureContinuousDeploymentsCommand() : base(
-        "configure-continuous-deployments",
+    public DeployCommand() : base(
+        "deploy",
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect"
     )
     {
