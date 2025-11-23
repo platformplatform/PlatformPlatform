@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -12,7 +11,7 @@ public sealed class CoAuthorCommand : Command
 
     public CoAuthorCommand() : base("coauthor", "Amends the current commit and adds you as a co-author")
     {
-        Handler = CommandHandler.Create(Execute);
+        this.SetAction(_ => Execute());
     }
 
     private static void Execute()

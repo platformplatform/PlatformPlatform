@@ -1,5 +1,5 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Invocation;
 using System.Text;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -16,12 +16,22 @@ public class PullPlatformPlatformChangesCommand : Command
 
     public PullPlatformPlatformChangesCommand() : base("pull-platformplatform-changes", "Pull new updates from PlatformPlatform into a pull-request branch")
     {
-        AddOption(new Option<bool>(["--verbose-logging"], "Show git command and output"));
-        AddOption(new Option<bool>(["--auto-confirm", "-a"], "Auto confirm picking all upstream pull-requests"));
-        AddOption(new Option<bool>(["--resume", "-r"], "Validate current branch and resume pulling updates starting with rerunning checks"));
-        AddOption(new Option<bool>(["--run-format", "-s"], "Run JetBrains format of backend code (slow)"));
+        var verboseLoggingOption = new Option<bool>("--verbose-logging") { Description = "Show git command and output" };
+        var autoConfirmOption = new Option<bool>("--auto-confirm", "-a") { Description = "Auto confirm picking all upstream pull-requests" };
+        var resumeOption = new Option<bool>("--resume", "-r") { Description = "Validate current branch and resume pulling updates starting with rerunning checks" };
+        var runFormatOption = new Option<bool>("--run-format", "-s") { Description = "Run JetBrains format of backend code (slow)" };
 
-        Handler = CommandHandler.Create<bool, bool, bool, bool>(Execute);
+        Options.Add(verboseLoggingOption);
+        Options.Add(autoConfirmOption);
+        Options.Add(resumeOption);
+        Options.Add(runFormatOption);
+
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(verboseLoggingOption),
+            parseResult.GetValue(autoConfirmOption),
+            parseResult.GetValue(resumeOption),
+            parseResult.GetValue(runFormatOption)
+        ));
     }
 
     private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeFormat)
@@ -271,7 +281,7 @@ public class PullPlatformPlatformChangesCommand : Command
                     ? new[] { "--skip-inspect" }
                     : new[] { "--skip-format", "--skip-inspect" };
 
-                checkCommand.InvokeAsync(args);
+                checkCommand.Parse(args).Invoke();
                 break;
             }
             catch (Exception)

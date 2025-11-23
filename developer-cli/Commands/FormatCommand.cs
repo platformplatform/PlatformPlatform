@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
@@ -13,11 +12,19 @@ public class FormatCommand : Command
 {
     public FormatCommand() : base("format", "Formats code to match code styling rules")
     {
-        AddOption(new Option<bool?>(["--backend", "-b"], "Only format backend code"));
-        AddOption(new Option<bool?>(["--frontend", "-f"], "Only format frontend code"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to format (only used for backend code)"));
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Only format backend code" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Only format frontend code" };
+        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to format (only used for backend code)" };
 
-        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
+        Options.Add(backendOption);
+        Options.Add(frontendOption);
+        Options.Add(solutionNameOption);
+
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(backendOption),
+            parseResult.GetValue(frontendOption),
+            parseResult.GetValue(solutionNameOption)
+        ));
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName)

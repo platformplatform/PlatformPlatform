@@ -1,6 +1,5 @@
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Parsing;
+using System.CommandLine.Invocation;
 using System.Reflection;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -49,11 +48,10 @@ if (!isDebugBuild)
     allCommands.Remove(allCommands.First(c => c.Name == "install"));
 }
 
-allCommands.ForEach(rootCommand.AddCommand);
+foreach (var command in allCommands)
+{
+    rootCommand.Subcommands.Add(command);
+}
 
-// Create a CommandLineBuilder with the root command
-var builder = new CommandLineBuilder(rootCommand);
-
-builder.UseDefaults();
-
-await builder.Build().InvokeAsync(args);
+var parseResult = rootCommand.Parse(args);
+return await parseResult.InvokeAsync();

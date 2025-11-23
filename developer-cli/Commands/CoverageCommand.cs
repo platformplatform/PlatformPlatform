@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -10,9 +9,11 @@ public class CoverageCommand : Command
 {
     public CoverageCommand() : base("coverage", "Run JetBrains Code Coverage")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build"));
+        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to build" };
 
-        Handler = CommandHandler.Create(Execute);
+        Options.Add(solutionNameOption);
+
+        this.SetAction(parseResult => Execute(parseResult.GetValue(solutionNameOption)));
     }
 
     private static void Execute(string? solutionName)

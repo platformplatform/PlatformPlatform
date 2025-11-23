@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -41,7 +40,7 @@ public class InstallCommand : Command
         $"This will register the alias {Configuration.AliasName} so it will be available everywhere"
     )
     {
-        Handler = CommandHandler.Create(Execute);
+        this.SetAction(_ => Execute());
     }
 
     private static void Execute()

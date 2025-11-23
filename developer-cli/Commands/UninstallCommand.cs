@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -9,7 +8,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base("uninstall", $"Will remove the {Configuration.AliasName} CLI alias")
     {
-        Handler = CommandHandler.Create(Execute);
+        this.SetAction(_ => Execute());
     }
 
     private void Execute()

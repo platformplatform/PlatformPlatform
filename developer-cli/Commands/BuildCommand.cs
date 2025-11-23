@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -11,13 +10,19 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds a self-contained system")
     {
-        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Run only backend build" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run only frontend build" };
+        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to build (only used for backend builds)" };
 
-        AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend build"));
-        AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend build"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to build (only used for backend builds)"));
+        Options.Add(backendOption);
+        Options.Add(frontendOption);
+        Options.Add(solutionNameOption);
 
-        Handler = CommandHandler.Create<bool, bool, string?>(Execute);
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(backendOption),
+            parseResult.GetValue(frontendOption),
+            parseResult.GetValue(solutionNameOption)
+        ));
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName)

@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -20,12 +19,25 @@ public sealed class UpdatePackagesCommand : Command
 
     public UpdatePackagesCommand() : base("update-packages", "Updates packages to their latest versions while preserving major versions for restricted packages")
     {
-        AddOption(new Option<bool>(["--backend", "-b"], "Update only backend packages (NuGet)"));
-        AddOption(new Option<bool>(["--frontend", "-f"], "Update only frontend packages (npm)"));
-        AddOption(new Option<bool>(["--dry-run", "-d"], "Show what would be updated without making changes"));
-        AddOption(new Option<string?>(["--exclude", "-e"], "Comma-separated list of packages to exclude from updates"));
-        AddOption(new Option<bool>(["--skip-update-dotnet"], "Skip updating .NET SDK version in global.json"));
-        Handler = CommandHandler.Create<bool, bool, bool, string?, bool>(Execute);
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Update only backend packages (NuGet)" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Update only frontend packages (npm)" };
+        var dryRunOption = new Option<bool>("--dry-run", "-d") { Description = "Show what would be updated without making changes" };
+        var excludeOption = new Option<string?>("--exclude", "-e") { Description = "Comma-separated list of packages to exclude from updates" };
+        var skipUpdateDotnetOption = new Option<bool>("--skip-update-dotnet") { Description = "Skip updating .NET SDK version in global.json" };
+
+        Options.Add(backendOption);
+        Options.Add(frontendOption);
+        Options.Add(dryRunOption);
+        Options.Add(excludeOption);
+        Options.Add(skipUpdateDotnetOption);
+
+        this.SetAction(async parseResult => await Execute(
+            parseResult.GetValue(backendOption),
+            parseResult.GetValue(frontendOption),
+            parseResult.GetValue(dryRunOption),
+            parseResult.GetValue(excludeOption),
+            parseResult.GetValue(skipUpdateDotnetOption)
+        ));
     }
 
     private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
