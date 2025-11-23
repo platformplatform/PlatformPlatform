@@ -161,7 +161,7 @@ We recommend you keep the commit history, which serves as a great learning and t
 
 ## 2. Run the Aspire AppHost to spin up everything on localhost
 
-Using .NET Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+Using Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 ```bash
 cd application/AppHost
@@ -205,7 +205,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
 ├─ .windsurf             # Copy of .cursor for Windsurf AI editor (synchronized by CLI)
 ├─ application           # Contains the application source code
-│  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
+│  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
 │  ├─ account-management # Self-contained system with account sign-up, user management, etc.
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
@@ -238,7 +238,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
 - [.NET 9](https://dotnet.microsoft.com) and [C# 13](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
-- [.NET Aspire](https://aka.ms/dotnet-aspire)
+- [Aspire](https://aka.ms/dotnet-aspire)
 - [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
 - [Entity Framework](https://learn.microsoft.com/en-us/ef)
