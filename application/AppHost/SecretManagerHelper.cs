@@ -12,26 +12,6 @@ public static class SecretManagerHelper
 
     private static string UserSecretsId => Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
 
-    public static IResourceBuilder<ParameterResource> CreateStablePassword(
-        this IDistributedApplicationBuilder builder,
-        string secretName
-    )
-    {
-        var password = ConfigurationRoot[secretName];
-
-        if (string.IsNullOrEmpty(password))
-        {
-            var passwordGenerator = new GenerateParameterDefault
-            {
-                MinLower = 5, MinUpper = 5, MinNumeric = 3, MinSpecial = 3
-            };
-            password = passwordGenerator.GetDefaultValue();
-            SaveSecrectToDotNetUserSecrets(secretName, password);
-        }
-
-        return builder.CreateResourceBuilder(new ParameterResource(secretName, _ => password, true));
-    }
-
     public static void GenerateAuthenticationTokenSigningKey(string secretName)
     {
         if (string.IsNullOrEmpty(ConfigurationRoot[secretName]))
@@ -55,5 +35,25 @@ public static class SecretManagerHelper
 
         using var process = Process.Start(startInfo)!;
         process.WaitForExit();
+    }
+
+    extension(IDistributedApplicationBuilder builder)
+    {
+        public IResourceBuilder<ParameterResource> CreateStablePassword(string secretName)
+        {
+            var password = ConfigurationRoot[secretName];
+
+            if (string.IsNullOrEmpty(password))
+            {
+                var passwordGenerator = new GenerateParameterDefault
+                {
+                    MinLower = 5, MinUpper = 5, MinNumeric = 3, MinSpecial = 3
+                };
+                password = passwordGenerator.GetDefaultValue();
+                SaveSecrectToDotNetUserSecrets(secretName, password);
+            }
+
+            return builder.CreateResourceBuilder(new ParameterResource(secretName, _ => password, true));
+        }
     }
 }

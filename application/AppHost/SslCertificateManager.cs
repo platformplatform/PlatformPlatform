@@ -11,33 +11,6 @@ public static class SslCertificateManager
 {
     private static string UserSecretsId => Assembly.GetEntryAssembly()!.GetCustomAttribute<UserSecretsIdAttribute>()!.UserSecretsId;
 
-    public static async Task<string> CreateSslCertificateIfNotExists(this IDistributedApplicationBuilder builder, CancellationToken cancellationToken = default)
-    {
-        var config = new ConfigurationBuilder().AddUserSecrets(UserSecretsId).Build();
-
-        const string certificatePasswordKey = "certificate-password";
-        var certificatePassword = config[certificatePasswordKey]
-                                  ?? await builder.CreateStablePassword(certificatePasswordKey).Resource.GetValueAsync(cancellationToken)
-                                  ?? throw new InvalidOperationException("Failed to retrieve or create certificate password.");
-
-        var certificateLocation = GetCertificateLocation("localhost");
-        try
-        {
-            var certificate2 = X509CertificateLoader.LoadPkcs12FromFile(certificateLocation, certificatePassword);
-            if (certificate2.NotAfter < DateTime.UtcNow)
-            {
-                Console.WriteLine($"Certificate {certificateLocation} is expired. Creating a new certificate.");
-                CreateNewSelfSignedDeveloperCertificate(certificateLocation, certificatePassword);
-            }
-        }
-        catch (CryptographicException)
-        {
-            CreateNewSelfSignedDeveloperCertificate(certificateLocation, certificatePassword);
-        }
-
-        return certificatePassword;
-    }
-
     private static string GetCertificateLocation(string domain)
     {
         var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -72,5 +45,35 @@ public static class SslCertificateManager
                 UseShellExecute = false
             }
         )!.WaitForExit();
+    }
+
+    extension(IDistributedApplicationBuilder builder)
+    {
+        public async Task<string> CreateSslCertificateIfNotExists(CancellationToken cancellationToken = default)
+        {
+            var config = new ConfigurationBuilder().AddUserSecrets(UserSecretsId).Build();
+
+            const string certificatePasswordKey = "certificate-password";
+            var certificatePassword = config[certificatePasswordKey]
+                                      ?? await builder.CreateStablePassword(certificatePasswordKey).Resource.GetValueAsync(cancellationToken)
+                                      ?? throw new InvalidOperationException("Failed to retrieve or create certificate password.");
+
+            var certificateLocation = GetCertificateLocation("localhost");
+            try
+            {
+                var certificate2 = X509CertificateLoader.LoadPkcs12FromFile(certificateLocation, certificatePassword);
+                if (certificate2.NotAfter < DateTime.UtcNow)
+                {
+                    Console.WriteLine($"Certificate {certificateLocation} is expired. Creating a new certificate.");
+                    CreateNewSelfSignedDeveloperCertificate(certificateLocation, certificatePassword);
+                }
+            }
+            catch (CryptographicException)
+            {
+                CreateNewSelfSignedDeveloperCertificate(certificateLocation, certificatePassword);
+            }
+
+            return certificatePassword;
+        }
     }
 }

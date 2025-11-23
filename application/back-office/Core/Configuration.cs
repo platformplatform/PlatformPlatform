@@ -9,14 +9,20 @@ public static class Configuration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IHostApplicationBuilder AddBackOfficeInfrastructure(this IHostApplicationBuilder builder)
+    extension(IHostApplicationBuilder builder)
     {
-        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
-        return builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
+        public IHostApplicationBuilder AddBackOfficeInfrastructure()
+        {
+            // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+            return builder.AddSharedInfrastructure<BackOfficeDbContext>("back-office-database");
+        }
     }
 
-    public static IServiceCollection AddBackOfficeServices(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        return services.AddSharedServices<BackOfficeDbContext>(Assembly);
+        public IServiceCollection AddBackOfficeServices()
+        {
+            return services.AddSharedServices<BackOfficeDbContext>(Assembly);
+        }
     }
 }
