@@ -22,7 +22,7 @@ public static class Configuration
     {
         public IServiceCollection AddBackOfficeServices()
         {
-            return services.AddSharedServices<BackOfficeDbContext>(Assembly);
+            return services.AddSharedServices<BackOfficeDbContext>([Assembly]);
         }
     }
 }

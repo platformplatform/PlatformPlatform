@@ -95,14 +95,14 @@ public static class SharedInfrastructureConfiguration
         ///     Register different storage accounts for BlobStorage using .NET Keyed services, when a service needs to access
         ///     multiple storage accounts
         /// </summary>
-        public IHostApplicationBuilder AddNamedBlobStorages(params (string ConnectionName, string EnvironmentVariable)[] connections)
+        public IHostApplicationBuilder AddNamedBlobStorages((string ConnectionName, string EnvironmentVariable)?[] connections)
         {
             if (IsRunningInAzure)
             {
                 foreach (var connection in connections)
                 {
-                    var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
-                    builder.Services.AddKeyedSingleton(connection.ConnectionName,
+                    var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection!.Value.EnvironmentVariable)!);
+                    builder.Services.AddKeyedSingleton(connection.Value.ConnectionName,
                         (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                     );
                 }
@@ -112,7 +112,7 @@ public static class SharedInfrastructureConfiguration
                 var connectionString = builder.Configuration.GetConnectionString("blob-storage");
                 foreach (var connection in connections)
                 {
-                    builder.Services.AddKeyedSingleton(connection.ConnectionName,
+                    builder.Services.AddKeyedSingleton(connection!.Value.ConnectionName,
                         (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
                     );
                 }

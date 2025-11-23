@@ -52,7 +52,7 @@ public static class SharedDependencyConfiguration
 
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddSharedServices<T>(params Assembly[] assemblies)
+        public IServiceCollection AddSharedServices<T>(Assembly[] assemblies)
             where T : DbContext
         {
             // Even though the HttpContextAccessor is not available in Worker Services, it is still registered here because
@@ -147,14 +147,14 @@ public static class SharedDependencyConfiguration
                 .AddScoped<ConcurrentCommandCounter>();
         }
 
-        private IServiceCollection RegisterMediatRRequest(params Assembly[] assemblies)
+        private IServiceCollection RegisterMediatRRequest(Assembly[] assemblies)
         {
             return services
                 .AddMediatR(configuration => configuration.RegisterServicesFromAssemblies(assemblies))
                 .AddValidatorsFromAssemblies(assemblies);
         }
 
-        private IServiceCollection RegisterRepositories(params Assembly[] assemblies)
+        private IServiceCollection RegisterRepositories(Assembly[] assemblies)
         {
             // Scrutor will scan the assembly for all classes that implement the IRepository
             // and register them as a service in the container.

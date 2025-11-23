@@ -58,7 +58,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            new { userId = userId.ToString() }
+            [new { userId = userId.ToString() }]
         ).Should().Be(0);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -154,11 +154,11 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            new { userId = userId2.ToString() }
+            [new { userId = userId2.ToString() }]
         ).Should().Be(0);
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            new { userId = userId3.ToString() }
+            [new { userId = userId3.ToString() }]
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);

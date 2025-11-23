@@ -18,7 +18,7 @@ public static class Configuration
             // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
             return builder
                 .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
-                .AddNamedBlobStorages(("account-management-storage", "BLOB_STORAGE_URL"));
+                .AddNamedBlobStorages([("account-management-storage", "BLOB_STORAGE_URL")]);
         }
     }
 
@@ -34,7 +34,7 @@ public static class Configuration
             );
 
             return services
-                .AddSharedServices<AccountManagementDbContext>(Assembly)
+                .AddSharedServices<AccountManagementDbContext>([Assembly])
                 .AddScoped<AvatarUpdater>()
                 .AddScoped<UserInfoFactory>();
         }

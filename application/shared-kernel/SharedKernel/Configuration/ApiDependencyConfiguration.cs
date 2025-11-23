@@ -55,7 +55,7 @@ public static class ApiDependencyConfiguration
 
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddApiServices(params Assembly[] assemblies)
+        public IServiceCollection AddApiServices(Assembly[] assemblies)
         {
             return services
                 .AddApiExecutionContext()
@@ -117,7 +117,7 @@ public static class ApiDependencyConfiguration
 
     extension(IServiceCollection services)
     {
-        private IServiceCollection AddApiEndpoints(params Assembly[] assemblies)
+        private IServiceCollection AddApiEndpoints(Assembly[] assemblies)
         {
             return services
                 .Scan(scan => scan
@@ -147,7 +147,7 @@ public static class ApiDependencyConfiguration
 
     extension(IServiceCollection services)
     {
-        private IServiceCollection AddOpenApiConfiguration(params Assembly[] assemblies)
+        private IServiceCollection AddOpenApiConfiguration(Assembly[] assemblies)
         {
             return services.AddOpenApiDocument((settings, _) =>
                 {

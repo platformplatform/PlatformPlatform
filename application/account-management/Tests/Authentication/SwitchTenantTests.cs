@@ -189,7 +189,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         // Verify that the user's email is now confirmed
         var emailConfirmed = Connection.ExecuteScalar<long>(
             "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
         emailConfirmed.Should().Be(1); // SQLite stores boolean as 0/1
     }
@@ -257,23 +257,23 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         // Verify profile data was copied
         var firstName = Connection.ExecuteScalar<string>(
             "SELECT FirstName FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
         var lastName = Connection.ExecuteScalar<string>(
             "SELECT LastName FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
         var title = Connection.ExecuteScalar<string>(
             "SELECT Title FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
         var locale = Connection.ExecuteScalar<string>(
             "SELECT Locale FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
         var emailConfirmed = Connection.ExecuteScalar<long>(
             "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
-            new { Id = user2Id.ToString() }
+            [new { Id = user2Id.ToString() }]
         );
 
         firstName.Should().Be(currentFirstName);

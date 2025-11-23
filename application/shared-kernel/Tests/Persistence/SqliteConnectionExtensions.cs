@@ -7,18 +7,18 @@ public static class SqliteConnectionExtensions
     extension(SqliteConnection connection)
     {
         [Obsolete("Use ExecuteScalar<long> instead")]
-        public long ExecuteScalar(string sql, params object?[] parameters)
+        public long ExecuteScalar(string sql, object[] parameters)
         {
             return connection.ExecuteScalar<long>(sql, parameters);
         }
 
-        public T ExecuteScalar<T>(string sql, params object?[] parameters)
+        public T ExecuteScalar<T>(string sql, object[] parameters)
         {
             using var command = new SqliteCommand(sql, connection);
 
             foreach (var parameter in parameters)
             {
-                foreach (var property in parameter?.GetType().GetProperties() ?? [])
+                foreach (var property in parameter.GetType().GetProperties())
                 {
                     command.Parameters.AddWithValue(property.Name, property.GetValue(parameter));
                 }
@@ -30,13 +30,13 @@ public static class SqliteConnectionExtensions
 
         public bool RowExists(string tableName, string id)
         {
-            object?[] parameters = [new { id }];
+            object[] parameters = [new { id }];
             return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", parameters) == 1;
         }
 
         public bool RowExists(string tableName, long id)
         {
-            object?[] parameters = [new { id }];
+            object[] parameters = [new { id }];
             return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", parameters) == 1;
         }
 
