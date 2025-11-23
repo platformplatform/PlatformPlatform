@@ -1,6 +1,5 @@
 using System.ClientModel;
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Text;
 using Azure.AI.OpenAI;
 using Karambolo.PO;
@@ -18,9 +17,16 @@ public class TranslateCommand : Command
         $"Update language files with missing translations powered by {OpenAiTranslationService.ModelName}"
     )
     {
-        AddOption(new Option<string?>(["--self-contained-system", "-s"], "Translate only files in a specific self-contained system"));
-        AddOption(new Option<string?>(["--language", "-l"], "Translate only files for a specific language (e.g. da-DK)"));
-        Handler = CommandHandler.Create<string?, string?>(Execute);
+        var selfContainedSystemOption = new Option<string?>("--self-contained-system", "-s") { Description = "Translate only files in a specific self-contained system" };
+        var languageOption = new Option<string?>("--language", "-l") { Description = "Translate only files for a specific language (e.g. da-DK)" };
+
+        Options.Add(selfContainedSystemOption);
+        Options.Add(languageOption);
+
+        this.SetAction(async parseResult => await Execute(
+            parseResult.GetValue(selfContainedSystemOption),
+            parseResult.GetValue(languageOption)
+        ));
     }
 
     private static async Task Execute(string? selfContainedSystem, string? language)

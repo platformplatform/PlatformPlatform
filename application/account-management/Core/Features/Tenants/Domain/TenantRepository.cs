@@ -27,6 +27,6 @@ internal sealed class TenantRepository(AccountManagementDbContext accountManagem
 
     public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
-        return await DbSet.Where(t => ids.Contains(t.Id)).ToArrayAsync(cancellationToken);
+        return await DbSet.Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 }

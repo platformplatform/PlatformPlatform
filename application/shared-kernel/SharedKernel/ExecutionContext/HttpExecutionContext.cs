@@ -8,23 +8,20 @@ namespace PlatformPlatform.SharedKernel.ExecutionContext;
 
 public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IExecutionContext
 {
-    private IPAddress? _clientIpAddress;
-    private UserInfo? _userInfo;
-
     public TenantId? TenantId => UserInfo.TenantId;
 
     public UserInfo UserInfo
     {
         get
         {
-            if (_userInfo is not null)
+            if (field is not null)
             {
-                return _userInfo;
+                return field;
             }
 
             var browserLocale = httpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
 
-            return _userInfo = UserInfo.Create(httpContextAccessor.HttpContext?.User, browserLocale);
+            return field = UserInfo.Create(httpContextAccessor.HttpContext?.User, browserLocale);
         }
     }
 
@@ -32,23 +29,23 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
     {
         get
         {
-            if (_clientIpAddress is not null)
+            if (field is not null)
             {
-                return _clientIpAddress;
+                return field;
             }
 
             if (httpContextAccessor.HttpContext == null)
             {
-                return _clientIpAddress = IPAddress.None;
+                return field = IPAddress.None;
             }
 
             var forwardedIps = httpContextAccessor.HttpContext.Request.Headers["X-Forwarded-For"].ToString().Split(',');
             if (IPAddress.TryParse(forwardedIps.LastOrDefault(), out var clientIpAddress))
             {
-                return _clientIpAddress = clientIpAddress;
+                return field = clientIpAddress;
             }
 
-            return _clientIpAddress = IPAddress.None;
+            return field = IPAddress.None;
         }
     }
 }

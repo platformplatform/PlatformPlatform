@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
@@ -17,13 +16,25 @@ public class WatchCommand : Command
 
     public WatchCommand() : base("watch", "Manages Aspire AppHost operations")
     {
-        AddOption(new Option<bool>(["--force"], "Force start a fresh Aspire AppHost instance, stopping any existing one"));
-        AddOption(new Option<bool>(["--stop"], "Stop any running Aspire AppHost instance without starting a new one"));
-        AddOption(new Option<bool>(["--attach", "-a"], "Keep the CLI process attached to the Aspire process"));
-        AddOption(new Option<bool>(["--detach", "-d"], "Run the Aspire process in detached mode (background)"));
-        AddOption(new Option<string?>(["--public-url"], "Set the PUBLIC_URL environment variable for the app (e.g., https://example.ngrok-free.app)"));
+        var forceOption = new Option<bool>("--force") { Description = "Force start a fresh Aspire AppHost instance, stopping any existing one" };
+        var stopOption = new Option<bool>("--stop") { Description = "Stop any running Aspire AppHost instance without starting a new one" };
+        var attachOption = new Option<bool>("--attach", "-a") { Description = "Keep the CLI process attached to the Aspire process" };
+        var detachOption = new Option<bool>("--detach", "-d") { Description = "Run the Aspire process in detached mode (background)" };
+        var publicUrlOption = new Option<string?>("--public-url") { Description = "Set the PUBLIC_URL environment variable for the app (e.g., https://example.ngrok-free.app)" };
 
-        Handler = CommandHandler.Create<bool, bool, bool, bool, string?>(Execute);
+        Options.Add(forceOption);
+        Options.Add(stopOption);
+        Options.Add(attachOption);
+        Options.Add(detachOption);
+        Options.Add(publicUrlOption);
+
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(forceOption),
+            parseResult.GetValue(stopOption),
+            parseResult.GetValue(attachOption),
+            parseResult.GetValue(detachOption),
+            parseResult.GetValue(publicUrlOption)
+        ));
     }
 
     private static void Execute(bool force, bool stop, bool attach, bool detach, string? publicUrl)

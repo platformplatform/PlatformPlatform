@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 
@@ -9,10 +8,16 @@ public class TestCommand : Command
 {
     public TestCommand() : base("test", "Runs tests from a solution")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the solution file containing the tests to run"));
-        AddOption(new Option<bool>(["--no-build"], () => false, "Skip building and restoring the solution before running tests"));
+        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the solution file containing the tests to run" };
+        var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running tests" };
 
-        Handler = CommandHandler.Create<string?, bool>(Execute);
+        Options.Add(solutionNameOption);
+        Options.Add(noBuildOption);
+
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(solutionNameOption),
+            parseResult.GetValue(noBuildOption)
+        ));
     }
 
     private void Execute(string? solutionName, bool noBuild)

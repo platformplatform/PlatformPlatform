@@ -30,7 +30,7 @@ public class SinglePageAppConfiguration
     private string? _htmlTemplate;
     private string? _remoteEntryJsContent;
 
-    public SinglePageAppConfiguration(bool isDevelopment, params (string Key, string Value)[] environmentVariables)
+    public SinglePageAppConfiguration(bool isDevelopment, (string Key, string Value)[] environmentVariables)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;

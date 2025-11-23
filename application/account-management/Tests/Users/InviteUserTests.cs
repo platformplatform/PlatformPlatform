@@ -51,7 +51,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         // Verify user was created
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 0",
-            new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);

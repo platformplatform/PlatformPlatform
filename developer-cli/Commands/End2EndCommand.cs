@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -16,30 +15,71 @@ public class End2EndCommand : Command
 
     public End2EndCommand() : base("e2e", "Run end-to-end tests using Playwright")
     {
-        // Add argument for search term or test file patterns
-        AddArgument(new Argument<string[]>("search-terms", () => [], "Search terms for test filtering (e.g., 'user management', '@smoke', 'smoke', 'comprehensive', 'user-management-flows.spec.ts')"));
+        var searchTermsArgument = new Argument<string[]>("search-terms") { Description = "Search terms for test filtering (e.g., 'user management', '@smoke', 'smoke', 'comprehensive', 'user-management-flows.spec.ts')", DefaultValueFactory = _ => [] };
+        var browserOption = new Option<string>("--browser", "-b") { Description = "Browser to use for tests (chromium, firefox, webkit, safari, all)", DefaultValueFactory = _ => "all" };
+        var debugOption = new Option<bool>("--debug") { Description = "Start with Playwright Inspector for debugging (automatically enables headed mode)" };
+        var debugTimingOption = new Option<bool>("--debug-timing") { Description = "Show step timing output with color coding during test execution" };
+        var headedOption = new Option<bool>("--headed") { Description = "Show browser UI while running tests (automatically enables sequential execution)" };
+        var includeSlowOption = new Option<bool>("--include-slow") { Description = "Include tests marked as @slow" };
+        var lastFailedOption = new Option<bool>("--last-failed") { Description = "Only re-run the failures" };
+        var onlyChangedOption = new Option<bool>("--only-changed") { Description = "Only run test files that have uncommitted changes" };
+        var quietOption = new Option<bool>("--quiet") { Description = "Suppress all output including terminal output and automatic report opening" };
+        var repeatEachOption = new Option<int?>("--repeat-each") { Description = "Number of times to repeat each test" };
+        var deleteArtifactsOption = new Option<bool>("--delete-artifacts") { Description = "Delete all test artifacts and exit" };
+        var retriesOption = new Option<int?>("--retries") { Description = "Maximum retry count for flaky tests, zero for no retries" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = $"The name of the self-contained system to test ({string.Join(", ", AvailableSelfContainedSystems)}, etc.)" };
+        var showReportOption = new Option<bool>("--show-report") { Description = "Always show HTML report after test run" };
+        var slowMoOption = new Option<bool>("--slow-mo") { Description = "Run tests in slow motion (automatically enables headed mode)" };
+        var smokeOption = new Option<bool>("--smoke") { Description = "Run only smoke tests" };
+        var stopOnFirstFailureOption = new Option<bool>("--stop-on-first-failure", "-x") { Description = "Stop after the first failure" };
+        var uiOption = new Option<bool>("--ui") { Description = "Run tests in interactive UI mode with time-travel debugging" };
+        var workersOption = new Option<int?>("--workers", "-w") { Description = "Number of worker processes to use for running tests" };
 
-        // All options in alphabetical order
-        AddOption(new Option<string>(["--browser", "-b"], () => "all", "Browser to use for tests (chromium, firefox, webkit, safari, all)"));
-        AddOption(new Option<bool>(["--debug"], () => false, "Start with Playwright Inspector for debugging (automatically enables headed mode)"));
-        AddOption(new Option<bool>(["--debug-timing"], () => false, "Show step timing output with color coding during test execution"));
-        AddOption(new Option<bool>(["--headed"], () => false, "Show browser UI while running tests (automatically enables sequential execution)"));
-        AddOption(new Option<bool>(["--include-slow"], () => false, "Include tests marked as @slow"));
-        AddOption(new Option<bool>(["--last-failed"], () => false, "Only re-run the failures"));
-        AddOption(new Option<bool>(["--only-changed"], () => false, "Only run test files that have uncommitted changes"));
-        AddOption(new Option<bool>(["--quiet"], () => false, "Suppress all output including terminal output and automatic report opening"));
-        AddOption(new Option<int?>(["--repeat-each"], "Number of times to repeat each test"));
-        AddOption(new Option<bool>(["--delete-artifacts"], () => false, "Delete all test artifacts and exit"));
-        AddOption(new Option<int?>(["--retries"], "Maximum retry count for flaky tests, zero for no retries"));
-        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], $"The name of the self-contained system to test ({string.Join(", ", AvailableSelfContainedSystems)}, etc.)"));
-        AddOption(new Option<bool>(["--show-report"], () => false, "Always show HTML report after test run"));
-        AddOption(new Option<bool>(["--slow-mo"], () => false, "Run tests in slow motion (automatically enables headed mode)"));
-        AddOption(new Option<bool>(["--smoke"], () => false, "Run only smoke tests"));
-        AddOption(new Option<bool>(["--stop-on-first-failure", "-x"], () => false, "Stop after the first failure"));
-        AddOption(new Option<bool>(["--ui"], () => false, "Run tests in interactive UI mode with time-travel debugging"));
-        AddOption(new Option<int?>(["--workers", "-w"], "Number of worker processes to use for running tests"));
+        Arguments.Add(searchTermsArgument);
+        Options.Add(browserOption);
+        Options.Add(debugOption);
+        Options.Add(debugTimingOption);
+        Options.Add(headedOption);
+        Options.Add(includeSlowOption);
+        Options.Add(lastFailedOption);
+        Options.Add(onlyChangedOption);
+        Options.Add(quietOption);
+        Options.Add(repeatEachOption);
+        Options.Add(deleteArtifactsOption);
+        Options.Add(retriesOption);
+        Options.Add(selfContainedSystemOption);
+        Options.Add(showReportOption);
+        Options.Add(slowMoOption);
+        Options.Add(smokeOption);
+        Options.Add(stopOnFirstFailureOption);
+        Options.Add(uiOption);
+        Options.Add(workersOption);
 
-        Handler = CommandHandler.Create(Execute);
+        // SetHandler only supports up to 8 parameters, so we use SetAction for this complex command
+        this.SetAction(parseResult =>
+        {
+            Execute(
+                parseResult.GetValue(searchTermsArgument)!,
+                parseResult.GetValue(browserOption)!,
+                parseResult.GetValue(debugOption),
+                parseResult.GetValue(debugTimingOption),
+                parseResult.GetValue(headedOption),
+                parseResult.GetValue(includeSlowOption),
+                parseResult.GetValue(lastFailedOption),
+                parseResult.GetValue(onlyChangedOption),
+                parseResult.GetValue(quietOption),
+                parseResult.GetValue(repeatEachOption),
+                parseResult.GetValue(deleteArtifactsOption),
+                parseResult.GetValue(retriesOption),
+                parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(showReportOption),
+                parseResult.GetValue(slowMoOption),
+                parseResult.GetValue(smokeOption),
+                parseResult.GetValue(stopOnFirstFailureOption),
+                parseResult.GetValue(uiOption),
+                parseResult.GetValue(workersOption)
+            );
+        });
     }
 
     private static string BaseUrl => Environment.GetEnvironmentVariable("PUBLIC_URL") ?? "https://localhost:9000";

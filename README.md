@@ -27,7 +27,7 @@ Built to demonstrate seamless flow—backend contracts feed a fully-typed React 
 
 ## What's inside
 
-* **Backend** - .NET 9 and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
+* **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
 * **Frontend** – React 19, TypeScript, TanStack Router & Query, React Aria for accessible and UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
@@ -59,7 +59,7 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 2.	From an Administrator PowerShell terminal, use [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) (preinstalled on Windows 11) to install any missing packages:
 
     ```powershell
-    winget install Microsoft.DotNet.SDK.9
+    winget install Microsoft.DotNet.SDK.10
     winget install Git.Git
     winget install Docker.DockerDesktop
     winget install OpenJS.NodeJS
@@ -125,10 +125,10 @@ Open a terminal and run the following commands (if not installed):
   sudo apt-get update
   ```
 
-- Install .NET SDK 9.0, Node, GitHub CLI
+- Install .NET SDK 10.0, Node, GitHub CLI
 
   ```bash
-  sudo apt-get install -y dotnet-sdk-9.0 nodejs gh
+  sudo apt-get install -y dotnet-sdk-10.0 nodejs gh
   ```
 
 - Install Azure CLI
@@ -161,7 +161,7 @@ We recommend you keep the commit history, which serves as a great learning and t
 
 ## 2. Run the Aspire AppHost to spin up everything on localhost
 
-Using .NET Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+Using Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 ```bash
 cd application/AppHost
@@ -205,7 +205,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
 ├─ .windsurf             # Copy of .cursor for Windsurf AI editor (synchronized by CLI)
 ├─ application           # Contains the application source code
-│  ├─ AppHost            # .NET Aspire project starting app and all dependencies in Docker
+│  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
 │  ├─ account-management # Self-contained system with account sign-up, user management, etc.
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
@@ -233,12 +233,12 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 # Technologies
 
-### .NET 9 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 10 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
-- [.NET 9](https://dotnet.microsoft.com) and [C# 13](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
-- [.NET Aspire](https://aka.ms/dotnet-aspire)
+- [.NET 10](https://dotnet.microsoft.com) and [C# 14](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [Aspire](https://aka.ms/dotnet-aspire)
 - [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
 - [Entity Framework](https://learn.microsoft.com/en-us/ef)

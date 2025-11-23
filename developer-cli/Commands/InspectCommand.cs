@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -11,12 +10,22 @@ public class InspectCommand : Command
 {
     public InspectCommand() : base("inspect", "Run code inspections for frontend and backend code")
     {
-        AddOption(new Option<bool?>(["--backend", "-b"], "Run only backend inspections"));
-        AddOption(new Option<bool?>(["--frontend", "-f"], "Run only frontend inspections"));
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The name of the self-contained system to inspect (only used for backend inspections)"));
-        AddOption(new Option<bool>(["--no-build"], () => false, "Skip building and restoring the solution before running inspections"));
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Run only backend inspections" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run only frontend inspections" };
+        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to inspect (only used for backend inspections)" };
+        var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running inspections" };
 
-        Handler = CommandHandler.Create<bool, bool, string?, bool>(Execute);
+        Options.Add(backendOption);
+        Options.Add(frontendOption);
+        Options.Add(solutionNameOption);
+        Options.Add(noBuildOption);
+
+        this.SetAction(parseResult => Execute(
+            parseResult.GetValue(backendOption),
+            parseResult.GetValue(frontendOption),
+            parseResult.GetValue(solutionNameOption),
+            parseResult.GetValue(noBuildOption)
+        ));
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName, bool noBuild)

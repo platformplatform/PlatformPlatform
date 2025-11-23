@@ -23,27 +23,6 @@ public static class SharedInfrastructureConfiguration
 
     public static DefaultAzureCredential DefaultAzureCredential => GetDefaultAzureCredential();
 
-    public static IHostApplicationBuilder AddSharedInfrastructure<T>(this IHostApplicationBuilder builder, string connectionName)
-        where T : DbContext
-    {
-        builder
-            .ConfigureDatabaseContext<T>(connectionName)
-            .AddDefaultBlobStorage()
-            .AddConfigureOpenTelemetry()
-            .AddOpenTelemetryExporters();
-
-        builder.Services
-            .AddApplicationInsightsTelemetry()
-            .ConfigureHttpClientDefaults(http =>
-                {
-                    http.AddStandardResilienceHandler(); // Turn on resilience by default
-                    http.AddServiceDiscovery(); // Turn on service discovery by default
-                }
-            );
-
-        return builder;
-    }
-
     private static DefaultAzureCredential GetDefaultAzureCredential()
     {
         // Hack: Remove trailing whitespace from the environment variable, added in Bicep to workaround issue #157.
@@ -52,156 +31,187 @@ public static class SharedInfrastructureConfiguration
         return new DefaultAzureCredential(credentialOptions);
     }
 
-    private static IHostApplicationBuilder ConfigureDatabaseContext<T>(this IHostApplicationBuilder builder, string connectionName)
-        where T : DbContext
+    extension(IHostApplicationBuilder builder)
     {
-        var connectionString = IsRunningInAzure
-            ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
-            : builder.Configuration.GetConnectionString(connectionName);
-
-        builder.Services.AddAzureSql<T>(connectionString);
-
-        return builder;
-    }
-
-    private static IHostApplicationBuilder AddDefaultBlobStorage(this IHostApplicationBuilder builder)
-    {
-        // Register the default storage account for BlobStorage
-        if (IsRunningInAzure)
+        public IHostApplicationBuilder AddSharedInfrastructure<T>(string connectionName)
+            where T : DbContext
         {
-            var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-            builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
-            );
-        }
-        else
-        {
-            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
-        }
+            builder
+                .ConfigureDatabaseContext<T>(connectionName)
+                .AddDefaultBlobStorage()
+                .AddConfigureOpenTelemetry()
+                .AddOpenTelemetryExporters();
 
-        return builder;
-    }
-
-    /// <summary>
-    ///     Register different storage accounts for BlobStorage using .NET Keyed services, when a service needs to access
-    ///     multiple storage accounts
-    /// </summary>
-    public static IHostApplicationBuilder AddNamedBlobStorages(
-        this IHostApplicationBuilder builder,
-        params (string ConnectionName, string EnvironmentVariable)[] connections
-    )
-    {
-        if (IsRunningInAzure)
-        {
-            foreach (var connection in connections)
-            {
-                var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection.EnvironmentVariable)!);
-                builder.Services.AddKeyedSingleton(connection.ConnectionName,
-                    (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
-                );
-            }
-        }
-        else
-        {
-            var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-            foreach (var connection in connections)
-            {
-                builder.Services.AddKeyedSingleton(connection.ConnectionName,
-                    (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
-                );
-            }
-        }
-
-        return builder;
-    }
-
-    private static IHostApplicationBuilder AddConfigureOpenTelemetry(this IHostApplicationBuilder builder)
-    {
-        builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
-            {
-                // ReSharper disable once RedundantLambdaParameterType
-                options.Filter = (HttpContext httpContext) =>
-                {
-                    var requestPath = httpContext.Request.Path.ToString();
-
-                    if (EndpointTelemetryFilter.ExcludedPaths.Any(excludePath => requestPath.StartsWith(excludePath)))
-                    {
-                        return false;
-                    }
-
-                    if (EndpointTelemetryFilter.ExcludedFileExtensions.Any(excludeExtension => requestPath.EndsWith(excludeExtension)))
-                    {
-                        return false;
-                    }
-
-                    return true;
-                };
-            }
-        );
-
-        builder.Logging.AddOpenTelemetry(logging =>
-            {
-                logging.IncludeFormattedMessage = true;
-                logging.IncludeScopes = true;
-            }
-        );
-
-        builder.Services.AddOpenTelemetry()
-            .WithMetrics(metrics =>
-                {
-                    metrics.AddAspNetCoreInstrumentation()
-                        .AddHttpClientInstrumentation()
-                        .AddRuntimeInstrumentation();
-                }
-            )
-            .WithTracing(tracing =>
-                {
-                    // We want to view all traces in development
-                    if (builder.Environment.IsDevelopment()) tracing.SetSampler(new AlwaysOnSampler());
-
-                    tracing.AddAspNetCoreInstrumentation().AddGrpcClientInstrumentation().AddHttpClientInstrumentation();
-                }
-            );
-
-        return builder;
-    }
-
-    private static IHostApplicationBuilder AddOpenTelemetryExporters(this IHostApplicationBuilder builder)
-    {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-
-        if (useOtlpExporter)
-        {
             builder.Services
-                .Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter())
-                .ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter())
-                .ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+                .AddApplicationInsightsTelemetry()
+                .ConfigureHttpClientDefaults(http =>
+                    {
+                        http.AddStandardResilienceHandler(); // Turn on resilience by default
+                        http.AddServiceDiscovery(); // Turn on service discovery by default
+                    }
+                );
+
+            return builder;
         }
-
-        builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-            {
-                options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
-                                           "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
-            }
-        );
-
-        return builder;
     }
 
-    private static IServiceCollection AddApplicationInsightsTelemetry(this IServiceCollection services)
+    extension(IHostApplicationBuilder builder)
     {
-        var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+        private IHostApplicationBuilder ConfigureDatabaseContext<T>(string connectionName)
+            where T : DbContext
         {
-            EnableQuickPulseMetricStream = false,
-            EnableRequestTrackingTelemetryModule = false,
-            EnableDependencyTrackingTelemetryModule = false,
-            RequestCollectionOptions = { TrackExceptions = false }
-        };
+            var connectionString = IsRunningInAzure
+                ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
+                : builder.Configuration.GetConnectionString(connectionName);
 
-        return services
-            .AddApplicationInsightsTelemetry(applicationInsightsServiceOptions)
-            .AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>()
-            .AddScoped<OpenTelemetryEnricher>()
-            .AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
+            builder.Services.AddDbContext<T>(options =>
+                options.UseSqlServer(connectionString, sqlOptions =>
+                        sqlOptions.UseCompatibilityLevel(150) // SQL Server 2019 compatibility to avoid native JSON type
+                )
+            );
+
+            return builder;
+        }
+
+        private IHostApplicationBuilder AddDefaultBlobStorage()
+        {
+            // Register the default storage account for BlobStorage
+            if (IsRunningInAzure)
+            {
+                var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
+                builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
+                );
+            }
+            else
+            {
+                var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+                builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
+            }
+
+            return builder;
+        }
+
+        /// <summary>
+        ///     Register different storage accounts for BlobStorage using .NET Keyed services, when a service needs to access
+        ///     multiple storage accounts
+        /// </summary>
+        public IHostApplicationBuilder AddNamedBlobStorages((string ConnectionName, string EnvironmentVariable)?[] connections)
+        {
+            if (IsRunningInAzure)
+            {
+                foreach (var connection in connections)
+                {
+                    var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection!.Value.EnvironmentVariable)!);
+                    builder.Services.AddKeyedSingleton(connection.Value.ConnectionName,
+                        (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
+                    );
+                }
+            }
+            else
+            {
+                var connectionString = builder.Configuration.GetConnectionString("blob-storage");
+                foreach (var connection in connections)
+                {
+                    builder.Services.AddKeyedSingleton(connection!.Value.ConnectionName,
+                        (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
+                    );
+                }
+            }
+
+            return builder;
+        }
+
+        private IHostApplicationBuilder AddConfigureOpenTelemetry()
+        {
+            builder.Services.Configure<AspNetCoreTraceInstrumentationOptions>(options =>
+                {
+                    // ReSharper disable once RedundantLambdaParameterType
+                    options.Filter = (HttpContext httpContext) =>
+                    {
+                        var requestPath = httpContext.Request.Path.ToString();
+
+                        if (EndpointTelemetryFilter.ExcludedPaths.Any(excludePath => requestPath.StartsWith(excludePath)))
+                        {
+                            return false;
+                        }
+
+                        if (EndpointTelemetryFilter.ExcludedFileExtensions.Any(excludeExtension => requestPath.EndsWith(excludeExtension)))
+                        {
+                            return false;
+                        }
+
+                        return true;
+                    };
+                }
+            );
+
+            builder.Logging.AddOpenTelemetry(logging =>
+                {
+                    logging.IncludeFormattedMessage = true;
+                    logging.IncludeScopes = true;
+                }
+            );
+
+            builder.Services.AddOpenTelemetry()
+                .WithMetrics(metrics =>
+                    {
+                        metrics.AddAspNetCoreInstrumentation()
+                            .AddHttpClientInstrumentation()
+                            .AddRuntimeInstrumentation();
+                    }
+                )
+                .WithTracing(tracing =>
+                    {
+                        // We want to view all traces in development
+                        if (builder.Environment.IsDevelopment()) tracing.SetSampler(new AlwaysOnSampler());
+
+                        tracing.AddAspNetCoreInstrumentation().AddGrpcClientInstrumentation().AddHttpClientInstrumentation();
+                    }
+                );
+
+            return builder;
+        }
+
+        private IHostApplicationBuilder AddOpenTelemetryExporters()
+        {
+            var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+
+            if (useOtlpExporter)
+            {
+                builder.Services
+                    .Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter())
+                    .ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter())
+                    .ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+            }
+
+            builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
+                {
+                    options.ConnectionString = builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ??
+                                               "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost";
+                }
+            );
+
+            return builder;
+        }
+    }
+
+    extension(IServiceCollection services)
+    {
+        private IServiceCollection AddApplicationInsightsTelemetry()
+        {
+            var applicationInsightsServiceOptions = new ApplicationInsightsServiceOptions
+            {
+                EnableQuickPulseMetricStream = false,
+                EnableRequestTrackingTelemetryModule = false,
+                EnableDependencyTrackingTelemetryModule = false,
+                RequestCollectionOptions = { TrackExceptions = false }
+            };
+
+            return services
+                .AddApplicationInsightsTelemetry(applicationInsightsServiceOptions)
+                .AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>()
+                .AddScoped<OpenTelemetryEnricher>()
+                .AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
+        }
     }
 }

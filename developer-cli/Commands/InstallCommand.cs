@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -31,7 +30,7 @@ public class InstallCommand : Command
          [green]How does it work?[/]
          The CLI has several commands that you can run from anywhere on your machine.
          Each command is one C# class that can be customized to automate your own workflows.
-         Each command check for its prerequisites (e.g., Docker, Node, .NET Aspire, Azure CLI, etc.)
+         Each command check for its prerequisites (e.g., Docker, Node, Aspire, Azure CLI, etc.)
          To remove the alias, just run [green]{Configuration.AliasName} uninstall[/].
 
          """;
@@ -41,7 +40,7 @@ public class InstallCommand : Command
         $"This will register the alias {Configuration.AliasName} so it will be available everywhere"
     )
     {
-        Handler = CommandHandler.Create(Execute);
+        this.SetAction(_ => Execute());
     }
 
     private static void Execute()

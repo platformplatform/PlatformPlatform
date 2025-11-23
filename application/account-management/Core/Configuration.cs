@@ -11,26 +11,32 @@ public static class Configuration
 {
     public static Assembly Assembly => Assembly.GetExecutingAssembly();
 
-    public static IHostApplicationBuilder AddAccountManagementInfrastructure(this IHostApplicationBuilder builder)
+    extension(IHostApplicationBuilder builder)
     {
-        // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
-        return builder
-            .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
-            .AddNamedBlobStorages(("account-management-storage", "BLOB_STORAGE_URL"));
+        public IHostApplicationBuilder AddAccountManagementInfrastructure()
+        {
+            // Infrastructure is configured separately from other Infrastructure services to allow mocking in tests
+            return builder
+                .AddSharedInfrastructure<AccountManagementDbContext>("account-management-database")
+                .AddNamedBlobStorages([("account-management-storage", "BLOB_STORAGE_URL")]);
+        }
     }
 
-    public static IServiceCollection AddAccountManagementServices(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddHttpClient<GravatarClient>(client =>
-            {
-                client.BaseAddress = new Uri("https://gravatar.com/");
-                client.Timeout = TimeSpan.FromSeconds(5);
-            }
-        );
+        public IServiceCollection AddAccountManagementServices()
+        {
+            services.AddHttpClient<GravatarClient>(client =>
+                {
+                    client.BaseAddress = new Uri("https://gravatar.com/");
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                }
+            );
 
-        return services
-            .AddSharedServices<AccountManagementDbContext>(Assembly)
-            .AddScoped<AvatarUpdater>()
-            .AddScoped<UserInfoFactory>();
+            return services
+                .AddSharedServices<AccountManagementDbContext>([Assembly])
+                .AddScoped<AvatarUpdater>()
+                .AddScoped<UserInfoFactory>();
+        }
     }
 }

@@ -42,18 +42,18 @@ This is a mono repository with multiple self-contained systems (SCS), each being
 - [application](/application): Contains application code:
   - [account-management](/application/account-management): An SCS for tenant and user management:
     - [WebApp](/application/account-management/WebApp): A React, TypeScript SPA.
-    - [Api](/application/account-management/Api): .NET 9 minimal API.
-    - [Core](/application/account-management/Core): .NET 9 Vertical Sliced Architecture.
+    - [Api](/application/account-management/Api): .NET 10 minimal API.
+    - [Core](/application/account-management/Core): .NET 10 Vertical Sliced Architecture.
     - [Workers](/application/account-management/Workers): A .NET Console job.
     - [Tests](/application/account-management/Tests): xUnit tests for backend.
   - [back-office](/application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
     - [WebApp](/application/back-office/WebApp): A React, TypeScript SPA.
-    - [Api](/application/back-office/Api): .NET 9 minimal API.
-    - [Core](/application/back-office/Core): .NET 9 Vertical Sliced Architecture.
+    - [Api](/application/back-office/Api): .NET 10 minimal API.
+    - [Core](/application/back-office/Core): .NET 10 Vertical Sliced Architecture.
     - [Workers](/application/back-office/Workers): A .NET Console job.
     - [Tests](/application/back-office/Tests): xUnit tests for backend.
-  - [AppHost](/application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
-  - [AppGateway](/application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
+  - [AppHost](/application/AppHost): Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
+  - [AppGateway](/application/AppGateway): Main entry point using YARP as reverse proxy for all SCSs.
   - [shared-kernel](/application/shared-kernel): Reusable .NET backend shared by all SCSs.
   - [shared-webapp](/application/shared-webapp): Reusable frontend shared by all SCSs.
 - [cloud-infrastructure](/cloud-infrastructure): Bash and Azure Bicep scripts (IaC).

@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
@@ -26,9 +25,11 @@ public class ConfigureContinuousDeploymentsCommand : Command
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect"
     )
     {
-        AddOption(new Option<bool>(["--verbose-logging"], "Print Azure and GitHub CLI commands and output"));
+        var verboseLoggingOption = new Option<bool>("--verbose-logging") { Description = "Print Azure and GitHub CLI commands and output" };
 
-        Handler = CommandHandler.Create<bool>(Execute);
+        Options.Add(verboseLoggingOption);
+
+        this.SetAction(parseResult => Execute(parseResult.GetValue(verboseLoggingOption)));
     }
 
     private void Execute(bool verboseLogging = false)

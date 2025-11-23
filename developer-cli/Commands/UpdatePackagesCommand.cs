@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.NamingConventionBinder;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -20,12 +19,25 @@ public sealed class UpdatePackagesCommand : Command
 
     public UpdatePackagesCommand() : base("update-packages", "Updates packages to their latest versions while preserving major versions for restricted packages")
     {
-        AddOption(new Option<bool>(["--backend", "-b"], "Update only backend packages (NuGet)"));
-        AddOption(new Option<bool>(["--frontend", "-f"], "Update only frontend packages (npm)"));
-        AddOption(new Option<bool>(["--dry-run", "-d"], "Show what would be updated without making changes"));
-        AddOption(new Option<string?>(["--exclude", "-e"], "Comma-separated list of packages to exclude from updates"));
-        AddOption(new Option<bool>(["--skip-update-dotnet"], "Skip updating .NET SDK version in global.json"));
-        Handler = CommandHandler.Create<bool, bool, bool, string?, bool>(Execute);
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Update only backend packages (NuGet)" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Update only frontend packages (npm)" };
+        var dryRunOption = new Option<bool>("--dry-run", "-d") { Description = "Show what would be updated without making changes" };
+        var excludeOption = new Option<string?>("--exclude", "-e") { Description = "Comma-separated list of packages to exclude from updates" };
+        var skipUpdateDotnetOption = new Option<bool>("--skip-update-dotnet") { Description = "Skip updating .NET SDK version in global.json" };
+
+        Options.Add(backendOption);
+        Options.Add(frontendOption);
+        Options.Add(dryRunOption);
+        Options.Add(excludeOption);
+        Options.Add(skipUpdateDotnetOption);
+
+        this.SetAction(async parseResult => await Execute(
+            parseResult.GetValue(backendOption),
+            parseResult.GetValue(frontendOption),
+            parseResult.GetValue(dryRunOption),
+            parseResult.GetValue(excludeOption),
+            parseResult.GetValue(skipUpdateDotnetOption)
+        ));
     }
 
     private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
@@ -58,7 +70,18 @@ public sealed class UpdatePackagesCommand : Command
 
         if (updateBackend)
         {
-            await UpdateNuGetPackagesAsync(dryRun, excludedPackages);
+            // Update central package management files
+            foreach (var propsFile in Directory.GetFiles(Configuration.SourceCodeFolder, "Directory.Packages.props", SearchOption.AllDirectories))
+            {
+                await UpdateNuGetPackagesAsync(propsFile, "PackageVersion", dryRun, excludedPackages);
+            }
+
+            // Update .csproj files that have inline PackageReference versions (not using central package management)
+            foreach (var csprojFile in Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories))
+            {
+                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, requireVersionAttribute: true);
+            }
+
             UpdateAspireSdkVersion(dryRun);
             await UpdateDotnetToolsAsync(dryRun);
         }
@@ -79,19 +102,21 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static async Task UpdateNuGetPackagesAsync(bool dryRun, string[] excludedPackages)
+    private static async Task UpdateNuGetPackagesAsync(string filePath, string elementName, bool dryRun, string[] excludedPackages, bool requireVersionAttribute = false)
     {
-        var directoryPackagesPath = Path.Combine(Configuration.ApplicationFolder, "Directory.Packages.props");
-        if (!File.Exists(directoryPackagesPath))
+        if (!File.Exists(filePath)) return;
+
+        var xDocument = XDocument.Load(filePath);
+        var packageElements = xDocument.Descendants(elementName).ToArray();
+
+        // Skip files that don't have any packages with Version attributes (e.g., csproj files using central package management)
+        if (requireVersionAttribute && !packageElements.Any(e => e.Attribute("Version") is not null))
         {
-            AnsiConsole.MarkupLine($"[red]Directory.Packages.props not found at {directoryPackagesPath}[/]");
-            Environment.Exit(1);
+            return;
         }
 
-        AnsiConsole.MarkupLine("Analyzing NuGet packages in Directory.Packages.props...");
-
-        var xDocument = XDocument.Load(directoryPackagesPath);
-        var packageElements = xDocument.Descendants("PackageVersion").ToArray();
+        var fileName = Path.GetFileName(filePath);
+        AnsiConsole.MarkupLine($"Analyzing NuGet packages in {fileName}...");
 
         var outdatedPackagesJson = await GetOutdatedPackagesJsonAsync();
 
@@ -297,7 +322,7 @@ public sealed class UpdatePackagesCommand : Command
         }
         else
         {
-            AnsiConsole.MarkupLine("[green]All NuGet packages are up to date![/]");
+            AnsiConsole.MarkupLine($"[green]All {fileName} NuGet packages are up to date![/]");
         }
 
         if (packageUpdatesToApply.Count > 0 && !dryRun)
@@ -307,26 +332,29 @@ public sealed class UpdatePackagesCommand : Command
                 update.Element.SetAttributeValue("Version", update.NewVersion);
             }
 
+            // Determine indent chars from the existing file
+            var existingIndent = xDocument.ToString().Contains("\n    ") ? "    " : "  ";
+
             // Save without XML declaration to preserve original format
             var settings = new XmlWriterSettings
             {
                 OmitXmlDeclaration = true,
                 Indent = true,
-                IndentChars = "  ",
+                IndentChars = existingIndent,
                 Encoding = new UTF8Encoding(false), // No BOM
                 Async = true
             };
 
-            await using (var writer = XmlWriter.Create(directoryPackagesPath, settings))
+            await using (var writer = XmlWriter.Create(filePath, settings))
             {
                 await xDocument.SaveAsync(writer, CancellationToken.None);
             }
 
-            AnsiConsole.MarkupLine("[green]Directory.Packages.props updated successfully![/]");
+            AnsiConsole.MarkupLine($"[green]{fileName} updated successfully![/]");
         }
         else if (packageUpdatesToApply.Count > 0)
         {
-            AnsiConsole.MarkupLine($"[blue]Would update {packageUpdatesToApply.Count} NuGet package(s) (dry-run mode)[/]");
+            AnsiConsole.MarkupLine($"[blue]Would update {packageUpdatesToApply.Count} {fileName} NuGet package(s) (dry-run mode)[/]");
         }
     }
 
@@ -928,11 +956,11 @@ public sealed class UpdatePackagesCommand : Command
         // Read file content to check for SDK
         var fileContent = File.ReadAllText(appHostPath);
 
-        // Use regex to find the Aspire SDK version
-        var sdkVersionMatch = Regex.Match(fileContent, @"<Sdk\s+Name=""Aspire\.AppHost\.Sdk""\s+Version=""([^""]+)""\s*/>");
-        if (!sdkVersionMatch.Success) return;
+        // Use regex to find the Aspire SDK version in Project attribute
+        var projectSdkMatch = Regex.Match(fileContent, @"<Project\s+Sdk=""Aspire\.AppHost\.Sdk/([^""]+)"">");
+        if (!projectSdkMatch.Success) return;
 
-        var currentSdkVersion = sdkVersionMatch.Groups[1].Value;
+        var currentSdkVersion = projectSdkMatch.Groups[1].Value;
 
         // Get the Aspire.Hosting.AppHost version from Directory.Packages.props
         var directoryPackagesPath = Path.Combine(Configuration.ApplicationFolder, "Directory.Packages.props");
@@ -957,10 +985,10 @@ public sealed class UpdatePackagesCommand : Command
 
         if (!dryRun)
         {
-            // Replace only the version string, preserving formatting
+            // Replace Project element SDK attribute version
             var updatedContent = fileContent.Replace(
-                $@"<Sdk Name=""Aspire.AppHost.Sdk"" Version=""{currentSdkVersion}"" />",
-                $@"<Sdk Name=""Aspire.AppHost.Sdk"" Version=""{targetSdkVersion}"" />"
+                $@"<Project Sdk=""Aspire.AppHost.Sdk/{currentSdkVersion}"">",
+                $@"<Project Sdk=""Aspire.AppHost.Sdk/{targetSdkVersion}"">"
             );
 
             // Write back preserving original formatting
@@ -1022,146 +1050,153 @@ public sealed class UpdatePackagesCommand : Command
 
     private static async Task UpdateDotnetToolsAsync(bool dryRun)
     {
-        var dotnetToolsPath = Path.Combine(Configuration.ApplicationFolder, "dotnet-tools.json");
-        if (!File.Exists(dotnetToolsPath)) return;
+        // Find all dotnet-tools.json files
+        var dotnetToolsFiles = Directory.GetFiles(Configuration.SourceCodeFolder, "dotnet-tools.json", SearchOption.AllDirectories);
 
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("Analyzing .NET tools in dotnet-tools.json...");
+        if (dotnetToolsFiles.Length == 0) return;
 
-        var toolsJson = await File.ReadAllTextAsync(dotnetToolsPath);
-        var toolsDocument = JsonDocument.Parse(toolsJson);
-
-        var table = new Table();
-        table.AddColumn("Tool");
-        table.AddColumn("Current Version");
-        table.AddColumn("Latest Version");
-        table.AddColumn("Update Type");
-
-        var dotnetToolUpdatesToApply = new List<(string toolName, string currentVersion, string latestVersion)>();
-
-        if (!toolsDocument.RootElement.TryGetProperty("tools", out var tools))
+        foreach (var dotnetToolsPath in dotnetToolsFiles)
         {
-            return;
-        }
+            var fileName = Path.GetFileName(dotnetToolsPath);
+            var relativePath = Path.GetRelativePath(Configuration.SourceCodeFolder, dotnetToolsPath);
 
-        foreach (var tool in tools.EnumerateObject())
-        {
-            var toolName = tool.Name;
+            AnsiConsole.WriteLine();
+            AnsiConsole.MarkupLine($"Analyzing .NET tools in {relativePath}...");
 
-            if (!tool.Value.TryGetProperty("version", out var versionElement))
+            var toolsJson = await File.ReadAllTextAsync(dotnetToolsPath);
+            var toolsDocument = JsonDocument.Parse(toolsJson);
+
+            var table = new Table();
+            table.AddColumn("Tool");
+            table.AddColumn("Current Version");
+            table.AddColumn("Latest Version");
+            table.AddColumn("Update Type");
+
+            var dotnetToolUpdatesToApply = new List<(string toolName, string currentVersion, string latestVersion)>();
+
+            if (!toolsDocument.RootElement.TryGetProperty("tools", out var tools))
             {
                 continue;
             }
 
-            var currentVersion = versionElement.GetString();
-            if (currentVersion is null)
+            foreach (var tool in tools.EnumerateObject())
             {
-                continue;
-            }
+                var toolName = tool.Name;
 
-            // Get latest version from NuGet API
-            var latestVersion = await GetLatestVersionFromNuGetApi(toolName);
-
-            if (latestVersion is null || latestVersion == currentVersion || !IsNewerVersion(latestVersion, currentVersion))
-            {
-                continue;
-            }
-
-            // Handle prerelease versions
-            if (IsPreReleaseVersion(latestVersion) && !IsPreReleaseVersion(currentVersion))
-            {
-                // Try to find a stable version
-                var stableVersion = await GetLatestStableVersionFromNuGetApi(toolName);
-                if (stableVersion is null || stableVersion == currentVersion || !IsNewerVersion(stableVersion, currentVersion))
+                if (!tool.Value.TryGetProperty("version", out var versionElement))
                 {
-                    continue; // Skip if no stable update available
+                    continue;
                 }
 
-                latestVersion = stableVersion;
+                var currentVersion = versionElement.GetString();
+                if (currentVersion is null)
+                {
+                    continue;
+                }
+
+                // Get latest version from NuGet API
+                var latestVersion = await GetLatestVersionFromNuGetApi(toolName);
+
+                if (latestVersion is null || latestVersion == currentVersion || !IsNewerVersion(latestVersion, currentVersion))
+                {
+                    continue;
+                }
+
+                // Handle prerelease versions
+                if (IsPreReleaseVersion(latestVersion) && !IsPreReleaseVersion(currentVersion))
+                {
+                    // Try to find a stable version
+                    var stableVersion = await GetLatestStableVersionFromNuGetApi(toolName);
+                    if (stableVersion is null || stableVersion == currentVersion || !IsNewerVersion(stableVersion, currentVersion))
+                    {
+                        continue; // Skip if no stable update available
+                    }
+
+                    latestVersion = stableVersion;
+                }
+
+                // Check update type
+                var updateType = GetUpdateType(currentVersion, latestVersion);
+                BackendSummary.IncrementUpdateType(updateType);
+
+                var statusColor = updateType switch
+                {
+                    UpdateType.Major => "[yellow]Major[/]",
+                    UpdateType.Minor => "[green]Minor[/]",
+                    UpdateType.Patch => "Patch",
+                    _ => "[green]Minor[/]"
+                };
+
+                table.AddRow(toolName, currentVersion, latestVersion, statusColor);
+                dotnetToolUpdatesToApply.Add((toolName, currentVersion, latestVersion));
             }
 
-            // Check update type
-            var updateType = GetUpdateType(currentVersion, latestVersion);
-            BackendSummary.IncrementUpdateType(updateType);
-
-            var statusColor = updateType switch
+            if (table.Rows.Count > 0)
             {
-                UpdateType.Major => "[yellow]Major[/]",
-                UpdateType.Minor => "[green]Minor[/]",
-                UpdateType.Patch => "Patch",
-                _ => "[green]Minor[/]"
-            };
-
-            table.AddRow(toolName, currentVersion, latestVersion, statusColor);
-            dotnetToolUpdatesToApply.Add((toolName, currentVersion, latestVersion));
-        }
-
-        if (table.Rows.Count > 0)
-        {
-            AnsiConsole.Write(table);
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[green]All .NET tools are up to date![/]");
-            return;
-        }
-
-        if (dotnetToolUpdatesToApply.Count > 0 && !dryRun)
-        {
-            // Parse and update the JSON
-            using var jsonDoc = JsonDocument.Parse(toolsJson);
-            using var stream = new MemoryStream();
-            await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
+                AnsiConsole.Write(table);
+            }
+            else
             {
-                writer.WriteStartObject();
+                AnsiConsole.MarkupLine($"[green]All .NET tools in {relativePath} are up to date![/]");
+            }
 
-                foreach (var property in jsonDoc.RootElement.EnumerateObject())
+            if (dotnetToolUpdatesToApply.Count > 0 && !dryRun)
+            {
+                // Parse and update the JSON
+                using var jsonDoc = JsonDocument.Parse(toolsJson);
+                using var stream = new MemoryStream();
+                await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
                 {
-                    if (property.Name == "tools")
-                    {
-                        writer.WritePropertyName("tools");
-                        writer.WriteStartObject();
+                    writer.WriteStartObject();
 
-                        foreach (var tool in property.Value.EnumerateObject())
+                    foreach (var property in jsonDoc.RootElement.EnumerateObject())
+                    {
+                        if (property.Name == "tools")
                         {
-                            writer.WritePropertyName(tool.Name);
+                            writer.WritePropertyName("tools");
                             writer.WriteStartObject();
 
-                            var updateInfo = dotnetToolUpdatesToApply.FirstOrDefault(u => u.toolName == tool.Name);
-
-                            foreach (var toolProperty in tool.Value.EnumerateObject())
+                            foreach (var tool in property.Value.EnumerateObject())
                             {
-                                if (toolProperty.Name == "version" && updateInfo != default)
+                                writer.WritePropertyName(tool.Name);
+                                writer.WriteStartObject();
+
+                                var updateInfo = dotnetToolUpdatesToApply.FirstOrDefault(u => u.toolName == tool.Name);
+
+                                foreach (var toolProperty in tool.Value.EnumerateObject())
                                 {
-                                    writer.WriteString("version", updateInfo.latestVersion);
+                                    if (toolProperty.Name == "version" && updateInfo != default)
+                                    {
+                                        writer.WriteString("version", updateInfo.latestVersion);
+                                    }
+                                    else
+                                    {
+                                        toolProperty.WriteTo(writer);
+                                    }
                                 }
-                                else
-                                {
-                                    toolProperty.WriteTo(writer);
-                                }
+
+                                writer.WriteEndObject();
                             }
 
                             writer.WriteEndObject();
                         }
+                        else
+                        {
+                            property.WriteTo(writer);
+                        }
+                    }
 
-                        writer.WriteEndObject();
-                    }
-                    else
-                    {
-                        property.WriteTo(writer);
-                    }
+                    writer.WriteEndObject();
                 }
 
-                writer.WriteEndObject();
+                var updatedJson = Encoding.UTF8.GetString(stream.ToArray());
+                await File.WriteAllTextAsync(dotnetToolsPath, updatedJson);
+                AnsiConsole.MarkupLine($"[green]{relativePath} updated successfully![/]");
             }
-
-            var updatedJson = Encoding.UTF8.GetString(stream.ToArray());
-            await File.WriteAllTextAsync(dotnetToolsPath, updatedJson);
-            AnsiConsole.MarkupLine("[green]dotnet-tools.json updated successfully![/]");
-        }
-        else if (dotnetToolUpdatesToApply.Count > 0)
-        {
-            AnsiConsole.MarkupLine($"[blue]Would update {dotnetToolUpdatesToApply.Count} .NET tool(s) (dry-run mode)[/]");
+            else if (dotnetToolUpdatesToApply.Count > 0)
+            {
+                AnsiConsole.MarkupLine($"[blue]Would update {dotnetToolUpdatesToApply.Count} .NET tool(s) in {relativePath} (dry-run mode)[/]");
+            }
         }
     }
 
@@ -1173,10 +1208,15 @@ public sealed class UpdatePackagesCommand : Command
         var currentVersion = globalJsonDoc.RootElement.GetProperty("sdk").GetProperty("version").GetString()!;
 
         // Get latest .NET SDK version from the official releases
+        // First, check if there's a newer major version available
         var currentMajor = GetMajorVersion(currentVersion);
-        var latestInMajor = await GetLatestDotnetSdkVersion(currentMajor);
+        var latestMajorVersion = await GetLatestDotnetMajorVersion();
 
-        if (latestInMajor == currentVersion)
+        // Determine which version to target - use newer major if available
+        var targetMajor = latestMajorVersion > currentMajor ? latestMajorVersion : currentMajor;
+        var latestVersion = await GetLatestDotnetSdkVersion(targetMajor);
+
+        if (latestVersion == currentVersion)
         {
             if (!earlyCheck)
             {
@@ -1187,7 +1227,7 @@ public sealed class UpdatePackagesCommand : Command
         }
 
         // Check if the latest version is installed locally
-        var isInstalledLocally = IsDotnetSdkInstalledLocally(latestInMajor);
+        var isInstalledLocally = IsDotnetSdkInstalledLocally(latestVersion);
 
         // Early check - only care about blocking if SDK not installed
         if (earlyCheck)
@@ -1195,22 +1235,22 @@ public sealed class UpdatePackagesCommand : Command
             if (isInstalledLocally) return; // If installed, we'll update it after other updates
 
             AnsiConsole.MarkupLine($"""
-                                    [red]❌ Cannot update .NET SDK: version {latestInMajor} is not installed locally![/]
-                                    [yellow]   Install it first: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
+                                    [red]❌ Cannot update .NET SDK: version {latestVersion} is not installed locally![/]
+                                    [yellow]   Install it first: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{targetMajor} (Windows)[/]
                                     """
             );
             Environment.Exit(1);
         }
 
-        AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestInMajor} (current: {currentVersion})[/]");
+        AnsiConsole.MarkupLine($"[blue]A newer .NET SDK version is available: {latestVersion} (current: {currentVersion})[/]");
 
         // Late check - show status information
         if (!isInstalledLocally)
         {
             AnsiConsole.MarkupLine(
                 $"""
-                 [red]   ⚠️  .NET SDK {latestInMajor} is NOT installed on your machine![/]
-                 [yellow]   Update .NET: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{currentMajor} (Windows)[/]
+                 [red]   ⚠️  .NET SDK {latestVersion} is NOT installed on your machine![/]
+                 [yellow]   Update .NET: brew upgrade dotnet-sdk (macOS) or winget upgrade Microsoft.DotNet.SDK.{targetMajor} (Windows)[/]
                  """
             );
         }
@@ -1218,13 +1258,98 @@ public sealed class UpdatePackagesCommand : Command
         // Actually update .NET SDK if not in dry-run mode and SDK is installed
         if (!dryRun && isInstalledLocally)
         {
-            // Update global.json
+            // Update all global.json files
+            await UpdateAllGlobalJsonFiles(latestVersion);
+
+            // Also update Prerequisite.cs
+            await UpdatePrerequisiteDotnetVersion(latestVersion);
+
+            // Update TargetFramework in all csproj files
+            await UpdateTargetFrameworkInAllCsprojFiles(latestVersion);
+
+            // Update ContainerBaseImage in all csproj files
+            await UpdateContainerBaseImageInAllCsprojFiles(latestVersion);
+        }
+    }
+
+    private static async Task UpdateTargetFrameworkInAllCsprojFiles(string newSdkVersion)
+    {
+        var newMajor = GetMajorVersion(newSdkVersion);
+        var newTargetFramework = $"net{newMajor}.0";
+
+        var pattern = @"<TargetFramework>net\d+\.0(-\w+)?</TargetFramework>";
+        var replacement = $"<TargetFramework>{newTargetFramework}$1</TargetFramework>";
+
+        var updatedFiles = new List<string>();
+        var csprojFiles = Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories);
+
+        foreach (var csprojPath in csprojFiles)
+        {
+            var content = await File.ReadAllTextAsync(csprojPath);
+            var updatedContent = Regex.Replace(content, pattern, replacement);
+
+            if (updatedContent != content)
+            {
+                await File.WriteAllTextAsync(csprojPath, updatedContent);
+                updatedFiles.Add(Path.GetRelativePath(Configuration.SourceCodeFolder, csprojPath));
+            }
+        }
+
+        if (updatedFiles.Count > 0)
+        {
+            AnsiConsole.MarkupLine($"[green]✓ Updated TargetFramework to {newTargetFramework} in {updatedFiles.Count} csproj file(s)[/]");
+        }
+    }
+
+    private static async Task UpdateContainerBaseImageInAllCsprojFiles(string newSdkVersion)
+    {
+        var newMajor = GetMajorVersion(newSdkVersion);
+
+        // Pattern to match ContainerBaseImage tags with dotnet base images
+        // Captures: mcr.microsoft.com/dotnet/{runtime}:{version}-{variant}
+        var pattern = @"<ContainerBaseImage>mcr\.microsoft\.com/dotnet/(aspnet|runtime):\d+\.0(-[^<]+)?</ContainerBaseImage>";
+        var replacement = $"<ContainerBaseImage>mcr.microsoft.com/dotnet/$1:{newMajor}.0$2</ContainerBaseImage>";
+
+        var updatedFiles = new List<string>();
+        var csprojFiles = Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories);
+
+        foreach (var csprojPath in csprojFiles)
+        {
+            var content = await File.ReadAllTextAsync(csprojPath);
+            var updatedContent = Regex.Replace(content, pattern, replacement);
+
+            if (updatedContent != content)
+            {
+                await File.WriteAllTextAsync(csprojPath, updatedContent);
+                updatedFiles.Add(Path.GetRelativePath(Configuration.SourceCodeFolder, csprojPath));
+            }
+        }
+
+        if (updatedFiles.Count > 0)
+        {
+            AnsiConsole.MarkupLine($"[green]✓ Updated ContainerBaseImage to .NET {newMajor}.0 in {updatedFiles.Count} csproj file(s)[/]");
+        }
+    }
+
+    private static async Task UpdateAllGlobalJsonFiles(string newVersion)
+    {
+        var globalJsonFiles = Directory.GetFiles(Configuration.SourceCodeFolder, "global.json", SearchOption.AllDirectories);
+        var updatedFiles = new List<string>();
+
+        foreach (var filePath in globalJsonFiles)
+        {
+            var content = await File.ReadAllTextAsync(filePath);
+            var jsonDocument = JsonDocument.Parse(content);
+            var currentVersion = jsonDocument.RootElement.GetProperty("sdk").GetProperty("version").GetString()!;
+
+            if (currentVersion == newVersion) continue;
+
             using var stream = new MemoryStream();
             await using (var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true }))
             {
                 writer.WriteStartObject();
 
-                foreach (var property in globalJsonDoc.RootElement.EnumerateObject())
+                foreach (var property in jsonDocument.RootElement.EnumerateObject())
                 {
                     if (property.Name != "sdk")
                     {
@@ -1239,7 +1364,7 @@ public sealed class UpdatePackagesCommand : Command
                     {
                         if (sdkProperty.Name == "version")
                         {
-                            writer.WriteString("version", latestInMajor);
+                            writer.WriteString("version", newVersion);
                         }
                         else
                         {
@@ -1254,11 +1379,13 @@ public sealed class UpdatePackagesCommand : Command
             }
 
             var updatedJson = Encoding.UTF8.GetString(stream.ToArray());
-            await File.WriteAllTextAsync(globalJsonPath, updatedJson);
-            AnsiConsole.MarkupLine($"\n[green]✓ Updated .NET SDK version from {currentVersion} to {latestInMajor} in global.json[/]");
+            await File.WriteAllTextAsync(filePath, updatedJson);
+            updatedFiles.Add(Path.GetRelativePath(Configuration.SourceCodeFolder, filePath));
+        }
 
-            // Also update Prerequisite.cs
-            await UpdatePrerequisiteDotnetVersion(latestInMajor);
+        if (updatedFiles.Count > 0)
+        {
+            AnsiConsole.MarkupLine($"[green]✓ Updated .NET SDK version to {newVersion} in {updatedFiles.Count} global.json file(s)[/]");
         }
     }
 
@@ -1276,6 +1403,31 @@ public sealed class UpdatePackagesCommand : Command
         }
 
         return false;
+    }
+
+    private static async Task<int> GetLatestDotnetMajorVersion()
+    {
+        using var httpClient = new HttpClient();
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("PlatformPlatform-CLI/1.0");
+
+        // Get the releases index
+        const string dotnetReleaseBaseUrl = "https://dotnetcli.blob.core.windows.net/dotnet/release-metadata";
+        var response = await httpClient.GetStringAsync($"{dotnetReleaseBaseUrl}/releases-index.json");
+        var releasesIndex = JsonDocument.Parse(response);
+
+        // Find the latest major version
+        var latestMajor = releasesIndex.RootElement
+            .GetProperty("releases-index")
+            .EnumerateArray()
+            .Select(release =>
+            {
+                var channelVersion = release.GetProperty("channel-version").GetString()!;
+                var parts = channelVersion.Split('.');
+                return int.Parse(parts[0]);
+            })
+            .Max();
+
+        return latestMajor;
     }
 
     private static async Task<string> GetLatestDotnetSdkVersion(int majorVersion)

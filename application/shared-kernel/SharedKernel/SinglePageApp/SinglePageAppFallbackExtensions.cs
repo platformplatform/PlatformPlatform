@@ -16,66 +16,6 @@ namespace PlatformPlatform.SharedKernel.SinglePageApp;
 
 public static class SinglePageAppFallbackExtensions
 {
-    public static IServiceCollection AddSinglePageAppFallback(
-        this IServiceCollection services,
-        params (string Key, string Value)[] environmentVariables
-    )
-    {
-        return services.AddSingleton<SinglePageAppConfiguration>(serviceProvider =>
-            {
-                var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-                return new SinglePageAppConfiguration(environment.IsDevelopment(), environmentVariables);
-            }
-        );
-    }
-
-    public static IApplicationBuilder UseSinglePageAppFallback(this WebApplication app)
-    {
-        app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
-            {
-                var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
-
-                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "application/javascript", nonce);
-
-                var javaScript = singlePageAppConfiguration.GetRemoteEntryJs();
-                return context.Response.WriteAsync(javaScript);
-            }
-        );
-
-        app.MapFallback((
-                HttpContext context,
-                IExecutionContext executionContext,
-                IAntiforgery antiforgery,
-                SinglePageAppConfiguration singlePageAppConfiguration
-            ) =>
-            {
-                if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
-                    context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    context.Response.StatusCode = StatusCodes.Status404NotFound;
-                    context.Response.ContentType = "text/plain";
-                    return context.Response.WriteAsync("404 Not Found");
-                }
-
-                var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
-
-                SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8", nonce);
-
-                var antiforgeryHttpHeaderToken = GenerateAntiforgeryTokens(antiforgery, context);
-
-                var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo, antiforgeryHttpHeaderToken, nonce);
-
-                return context.Response.WriteAsync(html);
-            }
-        );
-
-        Directory.CreateDirectory(SinglePageAppConfiguration.BuildRootPath);
-
-        return app
-            .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) })
-            .UseRequestLocalization(SinglePageAppConfiguration.SupportedLocalizations);
-    }
-
     private static void SetResponseHttpHeaders(
         SinglePageAppConfiguration singlePageAppConfiguration,
         IHeaderDictionary responseHeaders,
@@ -148,5 +88,68 @@ public static class SinglePageAppFallbackExtensions
         }
 
         return html;
+    }
+
+    extension(IServiceCollection services)
+    {
+        public IServiceCollection AddSinglePageAppFallback(params (string Key, string Value)[] environmentVariables)
+        {
+            return services.AddSingleton<SinglePageAppConfiguration>(serviceProvider =>
+                {
+                    var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+                    return new SinglePageAppConfiguration(environment.IsDevelopment(), environmentVariables);
+                }
+            );
+        }
+    }
+
+    extension(WebApplication app)
+    {
+        public IApplicationBuilder UseSinglePageAppFallback()
+        {
+            app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>
+                {
+                    var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+                    SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "application/javascript", nonce);
+
+                    var javaScript = singlePageAppConfiguration.GetRemoteEntryJs();
+                    return context.Response.WriteAsync(javaScript);
+                }
+            );
+
+            app.MapFallback((
+                    HttpContext context,
+                    IExecutionContext executionContext,
+                    IAntiforgery antiforgery,
+                    SinglePageAppConfiguration singlePageAppConfiguration
+                ) =>
+                {
+                    if (context.Request.Path.Value?.Contains("/api/", StringComparison.OrdinalIgnoreCase) == true ||
+                        context.Request.Path.Value?.Contains("/internal-api/", StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status404NotFound;
+                        context.Response.ContentType = "text/plain";
+                        return context.Response.WriteAsync("404 Not Found");
+                    }
+
+                    var nonce = Convert.ToBase64String(RandomNumberGenerator.GetBytes(16));
+
+                    SetResponseHttpHeaders(singlePageAppConfiguration, context.Response.Headers, "text/html; charset=utf-8", nonce);
+
+                    var antiforgeryHttpHeaderToken = GenerateAntiforgeryTokens(antiforgery, context);
+
+                    var html = GetHtmlWithEnvironment(singlePageAppConfiguration, executionContext.UserInfo, antiforgeryHttpHeaderToken, nonce);
+
+                    return context.Response.WriteAsync(html);
+                }
+            );
+
+            Directory.CreateDirectory(SinglePageAppConfiguration.BuildRootPath);
+
+            return app
+                .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) })
+                .UseRequestLocalization(SinglePageAppConfiguration.SupportedLocalizations);
+        }
     }
 }

@@ -36,7 +36,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         var updatedLoginCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", new { id = loginId.ToString() }
+            "SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", [new { id = loginId.ToString() }]
         );
         updatedLoginCount.Should().Be(1);
 
@@ -82,9 +82,9 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         // Verify retry count increment and event collection
-        var loginCompleted = Connection.ExecuteScalar<long>("SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() });
+        var loginCompleted = Connection.ExecuteScalar<long>("SELECT Completed FROM Logins WHERE Id = @id", [new { id = loginId.ToString() }]);
         loginCompleted.Should().Be(0);
-        var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() });
+        var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", [new { id = emailConfirmationId.ToString() }]);
         updatedRetryCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
@@ -130,11 +130,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         // Verify retry count increment and event collection
         var loginCompleted = Connection.ExecuteScalar<long>(
-            "SELECT Completed FROM Logins WHERE Id = @id", new { id = loginId.ToString() }
+            "SELECT Completed FROM Logins WHERE Id = @id", [new { id = loginId.ToString() }]
         );
         loginCompleted.Should().Be(0);
         var updatedRetryCount = Connection.ExecuteScalar<long>(
-            "SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", new { id = emailConfirmationId.ToString() }
+            "SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", [new { id = emailConfirmationId.ToString() }]
         );
         updatedRetryCount.Should().Be(4);
 
@@ -215,7 +215,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         // Assert
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 1",
-            new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }
+            [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);

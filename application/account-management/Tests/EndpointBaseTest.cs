@@ -30,7 +30,6 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
     protected readonly ServiceCollection Services;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
     protected TelemetryEventsCollectorSpy TelemetryEventsCollectorSpy;
-    private ServiceProvider? _provider;
 
     protected EndpointBaseTest()
     {
@@ -85,11 +84,8 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         Services.AddScoped<IExecutionContext, HttpExecutionContext>();
 
-        // Build the ServiceProvider
-        _provider = Services.BuildServiceProvider();
-
         // Make sure the database is created
-        using var serviceScope = Provider.CreateScope();
+        using var serviceScope = Provider!.CreateScope();
         serviceScope.ServiceProvider.GetRequiredService<TContext>().Database.EnsureCreated();
         DatabaseSeeder = serviceScope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
 
@@ -142,7 +138,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         {
             // ServiceProvider is created on first access to allow Tests to configure services in the constructor
             // before the ServiceProvider is created
-            return _provider ??= Services.BuildServiceProvider();
+            return field ??= Services.BuildServiceProvider();
         }
     }
 
