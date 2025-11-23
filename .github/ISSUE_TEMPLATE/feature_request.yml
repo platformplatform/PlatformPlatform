@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        Thanks for taking the time to fill out this feature request!
   - type: input
     id: contact
     attributes:
@@ -19,7 +19,7 @@ body:
     id: detailed-description
     attributes:
       label: Detailed description?
-      description: Also tell us more about the bug, and what you were expecting.
+      description: Tell us more about the feature request and what you would like to see.
       value: |
         **Is your feature request related to a problem? Please describe.**
         A clear and concise description of what the problem is.

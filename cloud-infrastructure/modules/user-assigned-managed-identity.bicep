@@ -2,11 +2,11 @@ param name string
 param location string
 param tags object
 param containerRegistryName string
-param environmentResourceGroupName string
+param globalResourceGroupName string
 param keyVaultName string
 param grantKeyVaultWritePermissions bool = false
 
-resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
   name: name
   location: location
   tags: tags
@@ -14,7 +14,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 module containerRegistryPermission './role-assignments-container-registry-acr-pull.bicep' = {
   name: '${name}-permission'
-  scope: resourceGroup(subscription().subscriptionId, environmentResourceGroupName)
+  scope: resourceGroup(subscription().subscriptionId, globalResourceGroupName)
   params: {
     containerRegistryName: containerRegistryName
     principalId: userAssignedIdentity.properties.principalId

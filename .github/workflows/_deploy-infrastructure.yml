@@ -80,6 +80,33 @@ jobs:
         id: deploy_cluster
         run: bash ./cloud-infrastructure/cluster/deploy-cluster.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.cluster_location }} ${{ inputs.cluster_location_acronym }} ${{ inputs.sql_admin_object_id }} ${{ inputs.domain_name }} --plan
 
+      - name: Show DNS Configuration
+        if: ${{ inputs.domain_name != '' && inputs.domain_name != '-' }}
+        run: |
+          CLUSTER_RESOURCE_GROUP_NAME="${{ inputs.unique_prefix }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}"
+
+          # Try to get the Container Apps Environment details
+          env_details=$(az containerapp env show --name $CLUSTER_RESOURCE_GROUP_NAME --resource-group $CLUSTER_RESOURCE_GROUP_NAME 2>&1 || echo "")
+
+          if [[ "$env_details" != "" ]] && [[ "$env_details" != *"ResourceNotFound"* ]] && [[ "$env_details" != *"ResourceGroupNotFound"* ]]; then
+            custom_domain_verification_id=$(echo "$env_details" | jq -r '.properties.customDomainConfiguration.customDomainVerificationId')
+            default_domain=$(echo "$env_details" | jq -r '.properties.defaultDomain')
+
+            # Check if app-gateway already has the custom domain configured
+            app_gateway_details=$(az containerapp show --name app-gateway --resource-group $CLUSTER_RESOURCE_GROUP_NAME 2>&1 || echo "")
+            custom_domains=$(echo "$app_gateway_details" | jq -r '.properties.configuration.ingress.customDomains // []')
+
+            if [[ "$custom_domains" != "[]" ]] && [[ "$custom_domains" != "null" ]]; then
+              echo "$(date +"%Y-%m-%dT%H:%M:%S") Custom domain '${{ inputs.domain_name }}' is already configured correctly."
+            else
+              echo "$(date +"%Y-%m-%dT%H:%M:%S") Please add the following DNS entries and then retry:"
+              echo "- A TXT record with the name 'asuid.${{ inputs.domain_name }}' and the value '$custom_domain_verification_id'."
+              echo "- A CNAME record with the Host name '${{ inputs.domain_name }}' that points to address 'app-gateway.$default_domain'."
+            fi
+          else
+            echo "$(date +"%Y-%m-%dT%H:%M:%S") DNS configuration instructions will be shown after the Container Apps Environment is created."
+          fi
+
   deploy:
     name: Deploy
     if: ${{ needs.plan.outputs.should_deploy == 'true' }}

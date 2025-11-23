@@ -51,7 +51,7 @@ jobs:
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
-      RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      CLUSTER_RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
       SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
       SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
 
@@ -82,7 +82,7 @@ jobs:
       - name: Open Firewall
         working-directory: cloud-infrastructure/cluster
         env:
-          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SQL_DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh open
@@ -142,7 +142,7 @@ jobs:
         if: always()
         working-directory: cloud-infrastructure/cluster
         env:
-          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SQL_DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh close
@@ -190,7 +190,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // Delete previous migration info comments
+            // Delete previous migration info comments for this specific database
             const comments = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -198,7 +198,7 @@ jobs:
               per_page: 100
             });
 
-            const MIGRATION_HEADER = '## Approve Database Migration';
+            const MIGRATION_HEADER = '## Approve Database Migration `${{ inputs.database_name }}` database on `${{ inputs.azure_environment }}`';
 
             for (const comment of comments.data) {
               if (comment.body && comment.body.startsWith(MIGRATION_HEADER)) {
@@ -238,7 +238,7 @@ jobs:
     env:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
-      RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      CLUSTER_RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
       SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
       SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
 
@@ -269,7 +269,7 @@ jobs:
       - name: Open Firewall
         working-directory: cloud-infrastructure/cluster
         env:
-          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SQL_DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh open
@@ -289,7 +289,7 @@ jobs:
         if: always()
         working-directory: cloud-infrastructure/cluster
         env:
-          RESOURCE_GROUP_NAME: ${{ env.RESOURCE_GROUP_NAME }}
+          CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
           SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
           SQL_DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh close
