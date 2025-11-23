@@ -27,7 +27,7 @@ Built to demonstrate seamless flow—backend contracts feed a fully-typed React 
 
 ## What's inside
 
-* **Backend** - .NET 9 and C# adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
+* **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
 * **Frontend** – React 19, TypeScript, TanStack Router & Query, React Aria for accessible and UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
@@ -59,7 +59,7 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 2.	From an Administrator PowerShell terminal, use [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) (preinstalled on Windows 11) to install any missing packages:
 
     ```powershell
-    winget install Microsoft.DotNet.SDK.9
+    winget install Microsoft.DotNet.SDK.10
     winget install Git.Git
     winget install Docker.DockerDesktop
     winget install OpenJS.NodeJS
@@ -125,10 +125,10 @@ Open a terminal and run the following commands (if not installed):
   sudo apt-get update
   ```
 
-- Install .NET SDK 9.0, Node, GitHub CLI
+- Install .NET SDK 10.0, Node, GitHub CLI
 
   ```bash
-  sudo apt-get install -y dotnet-sdk-9.0 nodejs gh
+  sudo apt-get install -y dotnet-sdk-10.0 nodejs gh
   ```
 
 - Install Azure CLI
@@ -233,11 +233,11 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 # Technologies
 
-### .NET 9 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
+### .NET 10 Backend With Vertical Sliced Architecture, DDD, CQRS, Minimal API, and Aspire
 
 The backend is built using the most popular, mature, and commonly used technologies in the .NET ecosystem:
 
-- [.NET 9](https://dotnet.microsoft.com) and [C# 13](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
+- [.NET 10](https://dotnet.microsoft.com) and [C# 14](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp)
 - [Aspire](https://aka.ms/dotnet-aspire)
 - [YARP](https://microsoft.github.io/reverse-proxy)
 - [ASP.NET Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)

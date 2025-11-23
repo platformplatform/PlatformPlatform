@@ -42,18 +42,18 @@ This is a mono repository with multiple self-contained systems (SCS), each being
 - [application](mdc:application): Contains application code:
   - [account-management](mdc:application/account-management): An SCS for tenant and user management:
     - [WebApp](mdc:application/account-management/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/account-management/Api): .NET 9 minimal API.
-    - [Core](mdc:application/account-management/Core): .NET 9 Vertical Sliced Architecture.
+    - [Api](mdc:application/account-management/Api): .NET 10 minimal API.
+    - [Core](mdc:application/account-management/Core): .NET 10 Vertical Sliced Architecture.
     - [Workers](mdc:application/account-management/Workers): A .NET Console job.
     - [Tests](mdc:application/account-management/Tests): xUnit tests for backend.
   - [back-office](mdc:application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
     - [WebApp](mdc:application/back-office/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/back-office/Api): .NET 9 minimal API.
-    - [Core](mdc:application/back-office/Core): .NET 9 Vertical Sliced Architecture.
+    - [Api](mdc:application/back-office/Api): .NET 10 minimal API.
+    - [Core](mdc:application/back-office/Core): .NET 10 Vertical Sliced Architecture.
     - [Workers](mdc:application/back-office/Workers): A .NET Console job.
     - [Tests](mdc:application/back-office/Tests): xUnit tests for backend.
-  - [AppHost](mdc:application/AppHost): .NET Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
-  - [AppGateway](mdc:application/AppGateway): Main entry point using .NET YARP as reverse proxy for all SCSs.
+  - [AppHost](mdc:application/AppHost): Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
+  - [AppGateway](mdc:application/AppGateway): Main entry point using YARP as reverse proxy for all SCSs.
   - [shared-kernel](mdc:application/shared-kernel): Reusable .NET backend shared by all SCSs.
   - [shared-webapp](mdc:application/shared-webapp): Reusable frontend shared by all SCSs.
 - [cloud-infrastructure](mdc:cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
