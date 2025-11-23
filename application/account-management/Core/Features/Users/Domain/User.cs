@@ -5,8 +5,6 @@ namespace PlatformPlatform.AccountManagement.Features.Users.Domain;
 
 public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 {
-    private string _email = string.Empty;
-
     private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
         : base(UserId.NewId())
     {
@@ -20,8 +18,8 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
 
     public string Email
     {
-        get => _email;
-        private set => _email = value.ToLowerInvariant();
+        get;
+        private set => field = value.ToLowerInvariant();
     }
 
     public string? FirstName { get; private set; }
