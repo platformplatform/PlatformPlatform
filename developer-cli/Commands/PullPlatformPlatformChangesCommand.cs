@@ -276,12 +276,14 @@ public class PullPlatformPlatformChangesCommand : Command
         {
             try
             {
-                var checkCommand = new CheckCommand();
-                var args = runCodeFormat
-                    ? new[] { "--skip-inspect" }
-                    : new[] { "--skip-format", "--skip-inspect" };
+                new BuildCommand().Parse([]).Invoke();
+                new TestCommand().Parse(["--no-build"]).Invoke();
 
-                checkCommand.Parse(args).Invoke();
+                if (runCodeFormat)
+                {
+                    new FormatCommand().Parse(["--no-build"]).Invoke();
+                }
+
                 break;
             }
             catch (Exception)
