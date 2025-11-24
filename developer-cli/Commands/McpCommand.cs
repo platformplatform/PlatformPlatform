@@ -49,7 +49,8 @@ public static class DeveloperCliMcpTools
         [Description("Skip build (for test, format, inspect only)")]
         bool noBuild = false,
         [Description("Filter tests by name (test command only)")]
-        string? filter = null)
+        string? filter = null,
+        [Description("Developer CLI")] bool cli = false)
     {
         var validCommands = new[] { "build", "test", "format", "inspect" };
         if (!validCommands.Contains(command))
@@ -59,8 +60,11 @@ public static class DeveloperCliMcpTools
 
         var args = new List<string> { command, "--quiet" };
 
-        if (backend && !frontend) args.Add("--backend");
-        if (frontend && !backend) args.Add("--frontend");
+        // Add target flags - if none specified, command will run all targets
+        if (backend) args.Add("--backend");
+        if (frontend) args.Add("--frontend");
+        if (cli) args.Add("--cli");
+
         if (selfContainedSystem is not null)
         {
             args.Add("--self-contained-system");

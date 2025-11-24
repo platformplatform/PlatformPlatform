@@ -10,37 +10,45 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds a self-contained system")
     {
-        var backendOption = new Option<bool>("--backend", "-b") { Description = "Run only backend build" };
-        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run only frontend build" };
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Build backend code" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Build frontend code" };
+        var cliOption = new Option<bool>("--cli", "-c") { Description = "Build developer-cli code" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to build (e.g., account-management, back-office)" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
+        Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
         Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
+                parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
                 parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool quiet)
     {
-        Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
+        var noFlags = !backend && !frontend && !developerCli;
+        var buildBackend = backend || noFlags;
+        var buildFrontend = frontend || noFlags;
+        var buildDeveloperCli = developerCli || noFlags;
 
-        var buildBackend = backend || !frontend;
-        var buildFrontend = frontend || !backend;
+        // Ensure prerequisites based on what we're building
+        if (buildBackend || buildDeveloperCli) Prerequisite.Ensure(Prerequisite.Dotnet);
+        if (buildFrontend) Prerequisite.Ensure(Prerequisite.Node);
 
         try
         {
             var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
+            var developerCliTime = TimeSpan.Zero;
 
             if (buildBackend)
             {
@@ -61,6 +69,13 @@ public class BuildCommand : Command
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
+            if (buildDeveloperCli)
+            {
+                if (!quiet) AnsiConsole.MarkupLine("[blue]Running developer-cli build...[/]");
+                RunDeveloperCliBuild(quiet);
+                developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
+            }
+
             if (quiet)
             {
                 Console.WriteLine("Build succeeded.");
@@ -68,14 +83,15 @@ public class BuildCommand : Command
             else
             {
                 AnsiConsole.MarkupLine($"[green]Build completed successfully in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
-                if (buildBackend && buildFrontend)
+
+                var multipleTargets = (buildBackend ? 1 : 0) + (buildFrontend ? 1 : 0) + (buildDeveloperCli ? 1 : 0) > 1;
+                if (multipleTargets)
                 {
-                    AnsiConsole.MarkupLine(
-                        $"""
-                         Backend:     [green]{backendTime.Format()}[/]
-                         Frontend:    [green]{frontendTime.Format()}[/]
-                         """
-                    );
+                    var timingLines = new List<string>();
+                    if (buildBackend) timingLines.Add($"Backend:       [green]{backendTime.Format()}[/]");
+                    if (buildFrontend) timingLines.Add($"Frontend:      [green]{frontendTime.Format()}[/]");
+                    if (buildDeveloperCli) timingLines.Add($"Developer CLI: [green]{developerCliTime.Format()}[/]");
+                    AnsiConsole.MarkupLine(string.Join(Environment.NewLine, timingLines));
                 }
             }
         }
@@ -169,5 +185,11 @@ public class BuildCommand : Command
         }
 
         return errors.Count > 0 ? errors : ["Build failed. See full output for details."];
+    }
+
+    private static void RunDeveloperCliBuild(bool quiet)
+    {
+        var solutionFile = new FileInfo(Path.Combine(Configuration.CliFolder, "DeveloperCli.slnx"));
+        ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName, "Build", quiet);
     }
 }

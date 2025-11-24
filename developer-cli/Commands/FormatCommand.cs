@@ -12,14 +12,16 @@ public class FormatCommand : Command
 {
     public FormatCommand() : base("format", "Formats code to match code styling rules")
     {
-        var backendOption = new Option<bool>("--backend", "-b") { Description = "Only format backend code" };
-        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Only format frontend code" };
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Format backend code" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Format frontend code" };
+        var cliOption = new Option<bool>("--cli", "-c") { Description = "Format developer-cli code" };
         var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., account-management, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring before formatting" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
+        Options.Add(cliOption);
         Options.Add(selfContainedSystemOption);
         Options.Add(noBuildOption);
         Options.Add(quietOption);
@@ -27,6 +29,7 @@ public class FormatCommand : Command
         SetAction(parseResult => Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
+                parseResult.GetValue(cliOption),
                 parseResult.GetValue(selfContainedSystemOption),
                 parseResult.GetValue(noBuildOption),
                 parseResult.GetValue(quietOption)
@@ -34,10 +37,12 @@ public class FormatCommand : Command
         );
     }
 
-    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool noBuild, bool quiet)
+    private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool noBuild, bool quiet)
     {
-        var formatBackend = backend || !frontend;
-        var formatFrontend = frontend || !backend;
+        var noFlags = !backend && !frontend && !developerCli;
+        var formatBackend = backend || noFlags;
+        var formatFrontend = frontend || noFlags;
+        var formatDeveloperCli = developerCli || noFlags;
 
         try
         {
@@ -50,6 +55,7 @@ public class FormatCommand : Command
             var startTime = Stopwatch.GetTimestamp();
             var backendTime = TimeSpan.Zero;
             var frontendTime = TimeSpan.Zero;
+            var developerCliTime = TimeSpan.Zero;
 
             if (formatBackend)
             {
@@ -63,6 +69,13 @@ public class FormatCommand : Command
                 Prerequisite.Ensure(Prerequisite.Node);
                 RunFrontendFormat(quiet);
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
+            }
+
+            if (formatDeveloperCli)
+            {
+                Prerequisite.Ensure(Prerequisite.Dotnet);
+                RunDeveloperCliFormat(noBuild, quiet);
+                developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
             }
 
             if (quiet)
@@ -84,14 +97,15 @@ public class FormatCommand : Command
                 }
 
                 AnsiConsole.MarkupLine($"[green]Code format completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
-                if (formatBackend && formatFrontend)
+
+                var multipleTargets = (formatBackend ? 1 : 0) + (formatFrontend ? 1 : 0) + (formatDeveloperCli ? 1 : 0) > 1;
+                if (multipleTargets)
                 {
-                    AnsiConsole.MarkupLine(
-                        $"""
-                         Backend:     [green]{backendTime.Format()}[/]
-                         Frontend:    [green]{frontendTime.Format()}[/]
-                         """
-                    );
+                    var timingLines = new List<string>();
+                    if (formatBackend) timingLines.Add($"Backend:       [green]{backendTime.Format()}[/]");
+                    if (formatFrontend) timingLines.Add($"Frontend:      [green]{frontendTime.Format()}[/]");
+                    if (formatDeveloperCli) timingLines.Add($"Developer CLI: [green]{developerCliTime.Format()}[/]");
+                    AnsiConsole.MarkupLine(string.Join(Environment.NewLine, timingLines));
                 }
             }
         }
@@ -150,6 +164,37 @@ public class FormatCommand : Command
     {
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend code format...[/]");
         ProcessHelper.Run("npm run lint", Configuration.ApplicationFolder, "Frontend format", quiet);
+    }
+
+    private static void RunDeveloperCliFormat(bool noBuild, bool quiet)
+    {
+        var solutionFile = new FileInfo(Path.Combine(Configuration.CliFolder, "DeveloperCli.slnx"));
+
+        if (!quiet) AnsiConsole.MarkupLine("[blue]Running developer-cli code format...[/]");
+
+        if (!noBuild)
+        {
+            ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
+        }
+
+        // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
+        var jetbrainsSupportedSolutionFile = CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile);
+        try
+        {
+            ProcessHelper.Run(
+                $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
+                solutionFile.Directory!.FullName,
+                "Format",
+                quiet
+            );
+        }
+        finally
+        {
+            if (File.Exists(jetbrainsSupportedSolutionFile))
+            {
+                File.Delete(jetbrainsSupportedSolutionFile);
+            }
+        }
     }
 
     /// <summary>
