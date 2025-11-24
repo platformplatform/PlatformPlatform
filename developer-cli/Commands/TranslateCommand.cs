@@ -198,14 +198,10 @@ public class TranslateCommand : Command
                 toReturn.Add(translated);
             }
 
-            if (toReturn.Count > 0)
-            {
-                AnsiConsole.MarkupLine($"[green]{toReturn.Count} entries have been translated.[/]");
-            }
-            else
-            {
-                AnsiConsole.MarkupLine("[yellow]No entries were translated.[/]");
-            }
+            AnsiConsole.MarkupLine(toReturn.Count > 0
+                ? $"[green]{toReturn.Count} entries have been translated.[/]"
+                : "[yellow]No entries were translated.[/]"
+            );
 
             return toReturn;
         }
@@ -304,8 +300,8 @@ public class TranslateCommand : Command
     private sealed class OpenAiTranslationService
     {
         public const string ModelName = "gpt-4o";
-        private readonly ChatClient _client;
         public readonly Gpt4OUsageStatistics UsageStatistics = new();
+        private readonly ChatClient _client;
 
         private OpenAiTranslationService(ChatClient chatClient)
         {
@@ -443,66 +439,72 @@ public class TranslateCommand : Command
 
 public static class Extensions
 {
-    public static string GetTranslation(this POSingularEntry poEntry)
+    extension(POSingularEntry poEntry)
     {
-        var translation = poEntry.FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(translation))
+        public string GetTranslation()
         {
-            throw new InvalidOperationException("No translation was found.");
+            var translation = poEntry.FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(translation))
+            {
+                throw new InvalidOperationException("No translation was found.");
+            }
+
+            return translation;
         }
 
-        return translation;
-    }
-
-    public static bool HasTranslation(this POSingularEntry poEntry)
-    {
-        return !string.IsNullOrWhiteSpace(poEntry.Translation);
-    }
-
-    public static POSingularEntry ReverseKeyAndTranslation(this POSingularEntry poEntry)
-    {
-        var key = new POKey(poEntry.GetTranslation(), null, poEntry.Key.ContextId);
-        var entry = new POSingularEntry(key)
+        public bool HasTranslation()
         {
-            Translation = poEntry.Key.Id,
-            Comments = poEntry.Comments
-        };
-
-        return entry;
-    }
-
-    public static POSingularEntry ApplyTranslation(this POSingularEntry poEntry, string translation)
-    {
-        return new POSingularEntry(poEntry.Key)
-        {
-            Translation = translation,
-            Comments = poEntry.Comments
-        };
-    }
-
-    public static IReadOnlyCollection<POSingularEntry> EnsureOnlySingularEntries(this POCatalog catalog)
-    {
-        if (catalog.Values.Any(x => x is not POSingularEntry))
-        {
-            throw new NotSupportedException("Only single translations are supported.");
+            return !string.IsNullOrWhiteSpace(poEntry.Translation);
         }
 
-        return catalog.Values.OfType<POSingularEntry>().ToArray();
+        public POSingularEntry ReverseKeyAndTranslation()
+        {
+            var key = new POKey(poEntry.GetTranslation(), null, poEntry.Key.ContextId);
+            var entry = new POSingularEntry(key)
+            {
+                Translation = poEntry.Key.Id,
+                Comments = poEntry.Comments
+            };
+
+            return entry;
+        }
+
+        public POSingularEntry ApplyTranslation(string translation)
+        {
+            return new POSingularEntry(poEntry.Key)
+            {
+                Translation = translation,
+                Comments = poEntry.Comments
+            };
+        }
     }
 
-    public static void UpdateEntry(this POCatalog poCatalog, POSingularEntry translatedEntry)
+    extension(POCatalog catalog)
     {
-        var key = translatedEntry.Key;
-        var poEntry = poCatalog[key];
-        if (poEntry is POSingularEntry)
+        public IReadOnlyCollection<POSingularEntry> EnsureOnlySingularEntries()
         {
-            var index = poCatalog.IndexOf(poEntry);
-            poCatalog.Remove(key);
-            poCatalog.Insert(index, translatedEntry);
+            if (catalog.Values.Any(x => x is not POSingularEntry))
+            {
+                throw new NotSupportedException("Only single translations are supported.");
+            }
+
+            return catalog.Values.OfType<POSingularEntry>().ToArray();
         }
-        else
+
+        public void UpdateEntry(POSingularEntry translatedEntry)
         {
-            throw new InvalidOperationException($"Plural is currently not supported. Key: '{key.Id}'");
+            var key = translatedEntry.Key;
+            var poEntry = catalog[key];
+            if (poEntry is POSingularEntry)
+            {
+                var index = catalog.IndexOf(poEntry);
+                catalog.Remove(key);
+                catalog.Insert(index, translatedEntry);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Plural is currently not supported. Key: '{key.Id}'");
+            }
         }
     }
 }

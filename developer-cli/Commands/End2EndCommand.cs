@@ -274,11 +274,11 @@ public class End2EndCommand : Command
         int? workers)
     {
         var systemPath = Path.Combine(Configuration.ApplicationFolder, selfContainedSystem, "WebApp");
-        var e2ETestsPath = Path.Combine(systemPath, "tests/e2e");
+        var end2EndTestsPath = Path.Combine(systemPath, "tests/e2e");
 
-        if (!Directory.Exists(e2ETestsPath))
+        if (!Directory.Exists(end2EndTestsPath))
         {
-            AnsiConsole.MarkupLine($"[yellow]No e2e tests found for {selfContainedSystem}. Skipping...[/]");
+            AnsiConsole.MarkupLine($"[yellow]No end-to-end tests found for {selfContainedSystem}. Skipping...[/]");
             return true;
         }
 
@@ -382,10 +382,10 @@ public class End2EndCommand : Command
 
             foreach (var system in availableSystems)
             {
-                var e2ETestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
-                if (!Directory.Exists(e2ETestsPath)) continue;
+                var end2EndTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
+                if (!Directory.Exists(end2EndTestsPath)) continue;
 
-                var testFiles = Directory.GetFiles(e2ETestsPath, "*.spec.ts", SearchOption.AllDirectories)
+                var testFiles = Directory.GetFiles(end2EndTestsPath, "*.spec.ts", SearchOption.AllDirectories)
                     .Select(Path.GetFileName);
 
                 if (testFiles.Any(file => file?.Equals(normalizedPattern, StringComparison.OrdinalIgnoreCase) == true))
@@ -401,10 +401,10 @@ public class End2EndCommand : Command
         {
             foreach (var system in availableSystems)
             {
-                var e2ETestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
-                if (!Directory.Exists(e2ETestsPath)) continue;
+                var end2EndTestsPath = Path.Combine(Configuration.ApplicationFolder, system, "WebApp", "tests", "e2e");
+                if (!Directory.Exists(end2EndTestsPath)) continue;
 
-                var testFiles = Directory.GetFiles(e2ETestsPath, "*.spec.ts", SearchOption.AllDirectories);
+                var testFiles = Directory.GetFiles(end2EndTestsPath, "*.spec.ts", SearchOption.AllDirectories);
                 foreach (var testFile in testFiles)
                 {
                     // For filename search, remove @ if present for comparison

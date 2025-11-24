@@ -138,8 +138,7 @@ public class WatchCommand : Command
                     if (!int.TryParse(address[(portIndex + 1)..], out var port) || port < 9000 || port > 9999) continue;
 
                     var pid = parts[^1];
-                    if (processedPids.Contains(pid)) continue;
-                    processedPids.Add(pid);
+                    if (!processedPids.Add(pid)) continue;
 
                     var processName = ProcessHelper.StartProcess($"""wmic process where ProcessId={pid} get Name /format:list""", redirectOutput: true, exitOnError: false);
 
@@ -234,14 +233,11 @@ public class WatchCommand : Command
         {
             // For Windows in detached mode, use "start" command to truly detach
             var detachedCommand = $"cmd /c start \"Aspire AppHost\" /min {command}";
-            if (publicUrl is not null)
-            {
-                ProcessHelper.StartProcess($"{detachedCommand} --environment PUBLIC_URL={publicUrl}", Configuration.ApplicationFolder, waitForExit: false);
-            }
-            else
-            {
-                ProcessHelper.StartProcess(detachedCommand, Configuration.ApplicationFolder, waitForExit: false);
-            }
+            ProcessHelper.StartProcess(
+                publicUrl is not null ? $"{detachedCommand} --environment PUBLIC_URL={publicUrl}" : detachedCommand,
+                Configuration.ApplicationFolder,
+                waitForExit: false
+            );
 
             // Give it a moment to start
             Thread.Sleep(2000);
@@ -277,7 +273,7 @@ public class WatchCommand : Command
         var subdomain = uri.Host.Split('.')[0];
 
         // Check if ngrok is already running
-        var isNgrokRunning = false;
+        bool isNgrokRunning;
 
         if (Configuration.IsWindows)
         {
@@ -301,15 +297,11 @@ public class WatchCommand : Command
         // Start ngrok in detached mode
         var ngrokCommand = $"ngrok http --url={subdomain}.ngrok-free.app https://localhost:9000";
 
-        if (Configuration.IsWindows)
-        {
-            ProcessHelper.StartProcess($"start /B {ngrokCommand}", waitForExit: false);
-        }
-        else
-        {
-            // Use shell to handle backgrounding properly
-            ProcessHelper.StartProcess($"sh -c \"{ngrokCommand} > /dev/null 2>&1 &\"", waitForExit: false);
-        }
+        // Use shell to handle backgrounding properly on macOS/Linux
+        ProcessHelper.StartProcess(
+            Configuration.IsWindows ? $"start /B {ngrokCommand}" : $"sh -c \"{ngrokCommand} > /dev/null 2>&1 &\"",
+            waitForExit: false
+        );
 
         AnsiConsole.MarkupLine("[green]Ngrok tunnel started successfully.[/]");
     }

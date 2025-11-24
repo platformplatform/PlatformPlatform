@@ -67,16 +67,11 @@ public class InstallCommand : Command
             RegisterAlias();
         }
 
-        if (Configuration.IsWindows)
-        {
-            AnsiConsole.MarkupLine("Please restart your terminal to update your PATH.");
-        }
-        else
-        {
-            AnsiConsole.MarkupLine(
-                $"Please restart your terminal to update your PATH (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/])."
-            );
-        }
+        AnsiConsole.MarkupLine(
+            Configuration.IsWindows
+                ? "Please restart your terminal to update your PATH."
+                : $"Please restart your terminal to update your PATH (or run [green]source ~/{Configuration.MacOs.GetShellInfo().ProfileName}[/])."
+        );
     }
 
     private static bool IsAliasRegistered()
