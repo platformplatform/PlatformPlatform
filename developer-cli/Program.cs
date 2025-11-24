@@ -21,15 +21,18 @@ if (args.Length == 0)
 // Preprocess arguments to handle @ symbols in search terms
 args = CommandLineArgumentsPreprocessor.PreprocessArguments(args);
 
+// Check if running MCP command - skip all output to keep stdout clean for MCP protocol
+var isMcpCommand = args.Length > 0 && args[0] == "mcp";
 var solutionName = new DirectoryInfo(Configuration.SourceCodeFolder).Name;
-if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
-{
-    var figletText = new FigletText(solutionName);
-    AnsiConsole.Write(figletText);
-}
 
-if (!args.Contains("-q") && !args.Contains("--quiet"))
+if (!isMcpCommand && !args.Contains("-q") && !args.Contains("--quiet"))
 {
+    if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
+    {
+        var figletText = new FigletText(solutionName);
+        AnsiConsole.Write(figletText);
+    }
+
     AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
 }
 

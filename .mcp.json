@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "developer-cli": {
+      "command": "dotnet",
+      "args": ["run", "--project", "developer-cli", "mcp"]
+    }
+  }
+}
