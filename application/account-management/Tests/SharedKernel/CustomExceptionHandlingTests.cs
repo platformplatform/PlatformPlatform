@@ -12,15 +12,30 @@ public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountManag
 {
     private readonly WebApplicationFactory<Program> _webApplicationFactory = new();
 
-    [Theory]
-    [InlineData("Development")]
-    [InlineData("Production")]
-    public async Task GlobalExceptionHandling_WhenThrowingException_ShouldHandleExceptionsCorrectly(string environment)
+    [Fact]
+    [TestCategory("Noisy")]
+    public async Task GlobalExceptionHandling_WhenThrowingExceptionInDevelopment_ShouldHandleExceptionsCorrectly()
+    {
+        await GlobalExceptionHandling_WhenThrowingException_ShouldHandleExceptionsCorrectly("Development");
+    }
+
+    [Fact]
+    public async Task GlobalExceptionHandling_WhenThrowingExceptionInProduction_ShouldHandleExceptionsCorrectly()
+    {
+        await GlobalExceptionHandling_WhenThrowingException_ShouldHandleExceptionsCorrectly("Production");
+    }
+
+    internal async Task GlobalExceptionHandling_WhenThrowingException_ShouldHandleExceptionsCorrectly(string environment)
     {
         // Arrange
         var client = _webApplicationFactory.WithWebHostBuilder(builder =>
             {
                 builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
+                builder.ConfigureLogging(logging =>
+                    {
+                        logging.AddFilter(_ => false); // Suppress all logs during tests
+                    }
+                );
                 builder.ConfigureAppConfiguration((_, _) =>
                     {
                         // Set the environment variable to enable the test-specific /api/throwException endpoint.
@@ -53,10 +68,20 @@ public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountManag
         }
     }
 
-    [Theory]
-    [InlineData("Development")]
-    [InlineData("Production")]
-    public async Task TimeoutExceptionHandling_WhenThrowingTimeoutException_ShouldHandleTimeoutExceptionsCorrectly(
+    [Fact]
+    [TestCategory("Noisy")]
+    public async Task TimeoutExceptionHandling_WhenThrowingTimeoutExceptionInDevelopment_ShouldHandleTimeoutExceptionsCorrectly()
+    {
+        await TimeoutExceptionHandling_WhenThrowingTimeoutException_ShouldHandleTimeoutExceptionsCorrectly("Development");
+    }
+
+    [Fact]
+    public async Task TimeoutExceptionHandling_WhenThrowingTimeoutExceptionInProduction_ShouldHandleTimeoutExceptionsCorrectly()
+    {
+        await TimeoutExceptionHandling_WhenThrowingTimeoutException_ShouldHandleTimeoutExceptionsCorrectly("Production");
+    }
+
+    internal async Task TimeoutExceptionHandling_WhenThrowingTimeoutException_ShouldHandleTimeoutExceptionsCorrectly(
         string environment
     )
     {
@@ -64,6 +89,11 @@ public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountManag
         var client = _webApplicationFactory.WithWebHostBuilder(builder =>
             {
                 builder.UseSetting(WebHostDefaults.EnvironmentKey, environment);
+                builder.ConfigureLogging(logging =>
+                    {
+                        logging.AddFilter(_ => false); // Suppress all logs during tests
+                    }
+                );
                 builder.ConfigureAppConfiguration((_, _) =>
                     {
                         // Set the environment variable to enable the test-specific /api/throwException endpoint.
