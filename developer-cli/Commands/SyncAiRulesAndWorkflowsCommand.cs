@@ -5,9 +5,9 @@ using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
-public sealed class SyncWindsurfAiRulesAndWorkflowsCommand : Command
+public sealed class SyncAiRulesAndWorkflowsCommand : Command
 {
-    public SyncWindsurfAiRulesAndWorkflowsCommand() : base("sync-windsurf-ai-rules", "Sync Windsurf AI rules from .cursor/rules to .windsurf/rules and .windsurf/workflows, converting frontmatter and deleting orphans.")
+    public SyncAiRulesAndWorkflowsCommand() : base("sync-ai-rules", "Sync AI rules from .cursor/rules to .windsurf/rules and .windsurf/workflows, converting frontmatter and deleting orphans.")
     {
         SetAction(_ => Execute());
     }
