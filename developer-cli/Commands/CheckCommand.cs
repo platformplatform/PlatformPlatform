@@ -12,32 +12,41 @@ public class CheckCommand : Command
     {
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Run only backend checks" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run only frontend checks" };
-        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to check (only used for backend checks)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to check (e.g., account-management, back-office)" };
         var skipFormatOption = new Option<bool>("--skip-format") { Description = "Skip the backend format step which can be time consuming" };
         var skipInspectOption = new Option<bool>("--skip-inspect") { Description = "Skip the backend inspection step which can be time consuming" };
+        var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
-        Options.Add(solutionNameOption);
+        Options.Add(selfContainedSystemOption);
         Options.Add(skipFormatOption);
         Options.Add(skipInspectOption);
+        Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
-                parseResult.GetValue(solutionNameOption),
+                parseResult.GetValue(selfContainedSystemOption),
                 parseResult.GetValue(skipFormatOption),
-                parseResult.GetValue(skipInspectOption)
+                parseResult.GetValue(skipInspectOption),
+                parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName, bool skipFormat, bool skipInspect)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool skipFormat, bool skipInspect, bool quiet)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
         var checkBackend = backend || !frontend;
         var checkFrontend = frontend || !backend;
+
+        if (quiet)
+        {
+            ExecuteQuiet(checkBackend, checkFrontend, selfContainedSystem, skipFormat, skipInspect);
+            return;
+        }
 
         try
         {
@@ -47,7 +56,7 @@ public class CheckCommand : Command
 
             if (checkBackend)
             {
-                RunBackendChecks(solutionName, skipFormat, skipInspect);
+                RunBackendChecks(selfContainedSystem, skipFormat, skipInspect);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
@@ -75,21 +84,21 @@ public class CheckCommand : Command
         }
     }
 
-    private static void RunBackendChecks(string? solutionName, bool skipFormat, bool skipInspect)
+    private static void RunBackendChecks(string? selfContainedSystem, bool skipFormat, bool skipInspect)
     {
-        string[] solutionArgs = solutionName is not null ? ["--solution-name", solutionName] : [];
+        string[] systemArgs = selfContainedSystem is not null ? ["--self-contained-system", selfContainedSystem] : [];
 
-        new BuildCommand().Parse([.. solutionArgs, "--backend"]).Invoke();
-        new TestCommand().Parse([.. solutionArgs, "--no-build"]).Invoke();
+        new BuildCommand().Parse([.. systemArgs, "--backend"]).Invoke();
+        new TestCommand().Parse([.. systemArgs, "--no-build"]).Invoke();
 
         if (!skipFormat)
         {
-            new FormatCommand().Parse([.. solutionArgs, "--backend"]).Invoke();
+            new FormatCommand().Parse([.. systemArgs, "--backend"]).Invoke();
         }
 
         if (!skipInspect)
         {
-            new InspectCommand().Parse([.. solutionArgs, "--backend", "--no-build"]).Invoke();
+            new InspectCommand().Parse([.. systemArgs, "--backend", "--no-build"]).Invoke();
         }
     }
 
@@ -98,5 +107,53 @@ public class CheckCommand : Command
         new BuildCommand().Parse(["--frontend"]).Invoke();
         new FormatCommand().Parse(["--frontend"]).Invoke();
         new InspectCommand().Parse(["--frontend"]).Invoke();
+    }
+
+    private static void ExecuteQuiet(bool checkBackend, bool checkFrontend, string? selfContainedSystem, bool skipFormat, bool skipInspect)
+    {
+        try
+        {
+            if (checkBackend)
+            {
+                var systemArgs = selfContainedSystem is not null ? new[] { "--self-contained-system", selfContainedSystem, "--quiet" } : new[] { "--quiet" };
+
+                // Build
+                new BuildCommand().Parse([.. systemArgs, "--backend"]).InvokeAsync().Wait();
+
+                // Test
+                new TestCommand().Parse([.. systemArgs, "--no-build"]).InvokeAsync().Wait();
+
+                // Format
+                if (!skipFormat)
+                {
+                    new FormatCommand().Parse([.. systemArgs, "--backend"]).InvokeAsync().Wait();
+                }
+
+                // Inspect
+                if (!skipInspect)
+                {
+                    new InspectCommand().Parse([.. systemArgs, "--backend", "--no-build"]).InvokeAsync().Wait();
+                }
+            }
+
+            if (checkFrontend)
+            {
+                // Build
+                new BuildCommand().Parse(["--frontend", "--quiet"]).InvokeAsync().Wait();
+
+                // Format
+                new FormatCommand().Parse(["--frontend", "--quiet"]).InvokeAsync().Wait();
+
+                // Inspect
+                new InspectCommand().Parse(["--frontend", "--quiet"]).InvokeAsync().Wait();
+            }
+
+            Console.WriteLine("All checks passed.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Checks failed: {ex.Message}");
+            Environment.Exit(1);
+        }
     }
 }

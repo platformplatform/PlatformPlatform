@@ -28,7 +28,10 @@ if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-
     AnsiConsole.Write(figletText);
 }
 
-AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+if (!args.Contains("-q") && !args.Contains("--quiet"))
+{
+    AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+}
 
 var rootCommand = new RootCommand
 {

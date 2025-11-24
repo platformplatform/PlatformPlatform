@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text;
 using PlatformPlatform.DeveloperCli.Installation;
 using Spectre.Console;
 
@@ -6,6 +7,38 @@ namespace PlatformPlatform.DeveloperCli.Utilities;
 
 public static class ProcessHelper
 {
+    private static readonly string TempOutputDirectory = Path.Combine(Path.GetTempPath(), "platformplatform-mcp");
+
+    static ProcessHelper()
+    {
+        // Ensure temp directory exists
+        Directory.CreateDirectory(TempOutputDirectory);
+
+        // Clean up old temp files (older than 24 hours)
+        CleanupOldTempFiles();
+    }
+
+    private static void CleanupOldTempFiles()
+    {
+        try
+        {
+            if (!Directory.Exists(TempOutputDirectory)) return;
+
+            var cutoffTime = DateTime.UtcNow.AddHours(-24);
+            foreach (var file in Directory.GetFiles(TempOutputDirectory, "*.log"))
+            {
+                if (File.GetCreationTimeUtc(file) < cutoffTime)
+                {
+                    File.Delete(file);
+                }
+            }
+        }
+        catch
+        {
+            // Ignore cleanup errors
+        }
+    }
+
     public static void StartProcessWithSystemShell(string command, string? solutionFolder = null)
     {
         var processStartInfo = CreateProcessStartInfo(command, solutionFolder, useShellExecute: true, createNoWindow: false);
@@ -61,6 +94,87 @@ public static class ProcessHelper
         }
 
         return processStartInfo;
+    }
+
+    /// <summary>
+    ///     Executes a command in either quiet or verbose mode.
+    ///     In quiet mode: captures output and shows error summary on failure.
+    ///     In verbose mode: shows output in real-time.
+    /// </summary>
+    public static async Task RunAsync(string command, string? workingDirectory = null, string operationName = "", bool quiet = false)
+    {
+        if (quiet)
+        {
+            var result = await ExecuteQuietlyAsync(command, workingDirectory);
+            if (!result.Success)
+            {
+                Console.WriteLine(string.IsNullOrEmpty(operationName)
+                    ? $"Command failed. See: {result.TempFilePathWithSize}"
+                    : result.GetErrorSummary(operationName)
+                );
+                Environment.Exit(1);
+            }
+        }
+        else
+        {
+            StartProcess(command, workingDirectory);
+        }
+    }
+
+    /// <summary>
+    ///     Executes a command in either quiet or verbose mode (synchronous wrapper).
+    ///     In quiet mode: captures output and shows error summary on failure.
+    ///     In verbose mode: shows output in real-time.
+    /// </summary>
+    public static void Run(string command, string? workingDirectory = null, string operationName = "", bool quiet = false)
+    {
+        RunAsync(command, workingDirectory, operationName, quiet).GetAwaiter().GetResult();
+    }
+
+    public static ProcessResult ExecuteQuietly(
+        string command,
+        string? workingDirectory = null,
+        params (string Name, string Value)[] environmentVariables
+    )
+    {
+        return ExecuteQuietlyAsync(command, workingDirectory, environmentVariables).GetAwaiter().GetResult();
+    }
+
+    public static async Task<ProcessResult> ExecuteQuietlyAsync(
+        string command,
+        string? workingDirectory = null,
+        params (string Name, string Value)[] environmentVariables
+    )
+    {
+        var processStartInfo = CreateProcessStartInfo(command, workingDirectory, true);
+        processStartInfo.RedirectStandardOutput = true;
+        processStartInfo.RedirectStandardError = true;
+
+        foreach (var environmentVariable in environmentVariables)
+        {
+            processStartInfo.Environment[environmentVariable.Name] = environmentVariable.Value;
+        }
+
+        using var process = Process.Start(processStartInfo)!;
+
+        // Read stdout and stderr asynchronously to prevent deadlock
+        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
+
+        await process.WaitForExitAsync();
+
+        // Ensure async stream reads complete (WaitForExit can return before streams finish)
+        var results = await Task.WhenAll(stdoutTask, stderrTask);
+
+        var stdout = results[0];
+        var stderr = results[1];
+
+        // Save full output to temp file
+        var tempFile = Path.Combine(TempOutputDirectory, $"{Guid.NewGuid()}.log");
+        var fullOutput = $"Command: {command}\nWorking Directory: {workingDirectory ?? "N/A"}\nExit Code: {process.ExitCode}\n\n=== STDOUT ===\n{stdout}\n\n=== STDERR ===\n{stderr}";
+        await File.WriteAllTextAsync(tempFile, fullOutput);
+
+        return new ProcessResult(process.ExitCode, stdout, stderr, tempFile);
     }
 
     public static string StartProcess(
@@ -132,6 +246,19 @@ public static class ProcessHelper
         return Process.GetProcessesByName(process).Length > 0;
     }
 
+    public static string FormatFileSize(string filePath)
+    {
+        var fileInfo = new FileInfo(filePath);
+        var sizeInBytes = fileInfo.Length;
+
+        return sizeInBytes switch
+        {
+            < 1024 => $"{sizeInBytes} bytes",
+            < 1024 * 1024 => $"{sizeInBytes / 1024.0:F1} KB",
+            _ => $"{sizeInBytes / (1024.0 * 1024):F1} MB"
+        };
+    }
+
     private static string? FindFullPathFromPath(string command)
     {
         string[] commandFormats = OperatingSystem.IsWindows() ? ["{0}.exe", "{0}.cmd"] : ["{0}"];
@@ -161,4 +288,39 @@ public class ProcessExecutionException(int exitCode, string message)
     : Exception(message)
 {
     public int ExitCode { get; } = exitCode;
+}
+
+public record ProcessResult(int ExitCode, string StdOut, string StdErr, string TempFilePath)
+{
+    public bool Success => ExitCode == 0;
+
+    public string CombinedOutput => $"{StdOut}\n{StdErr}";
+
+    public string TempFilePathWithSize => $"{TempFilePath} ({ProcessHelper.FormatFileSize(TempFilePath)})";
+
+    public string GetErrorSummary(string operation)
+    {
+        var errorLines = CombinedOutput
+            .Split('\n')
+            .Where(line => !string.IsNullOrWhiteSpace(line))
+            .ToArray();
+
+        var outputBuilder = new StringBuilder();
+        outputBuilder.Append(operation).AppendLine(" failed.");
+        outputBuilder.AppendLine();
+
+        foreach (var line in errorLines.Take(3))
+        {
+            outputBuilder.Append("  ").AppendLine(line.Trim());
+        }
+
+        if (errorLines.Length > 3)
+        {
+            outputBuilder.Append("  ... and ").Append(errorLines.Length - 3).AppendLine(" more lines");
+            outputBuilder.AppendLine();
+            outputBuilder.Append("Full output: ").Append(TempFilePath).Append(" (").Append(ProcessHelper.FormatFileSize(TempFilePath)).Append(')');
+        }
+
+        return outputBuilder.ToString();
+    }
 }

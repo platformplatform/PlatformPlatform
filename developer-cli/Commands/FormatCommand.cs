@@ -14,29 +14,32 @@ public class FormatCommand : Command
     {
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Only format backend code" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Only format frontend code" };
-        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the self-contained system to format (only used for backend code)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., account-management, back-office)" };
+        var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
-        Options.Add(solutionNameOption);
+        Options.Add(selfContainedSystemOption);
+        Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
-                parseResult.GetValue(solutionNameOption)
+                parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private static void Execute(bool backend, bool frontend, string? solutionName)
+    private static void Execute(bool backend, bool frontend, string? selfContainedSystem, bool quiet)
     {
         var formatBackend = backend || !frontend;
         var formatFrontend = frontend || !backend;
 
         try
         {
-            var initialUncommittedFiles = GitHelper.GetChangedFiles();
-            if (initialUncommittedFiles.Count > 0)
+            var initialUncommittedFiles = quiet ? null : GitHelper.GetChangedFiles();
+            if (!quiet && initialUncommittedFiles!.Count > 0)
             {
                 AnsiConsole.MarkupLine("[yellow]Warning: You have unstaged changes in your working directory.[/]");
             }
@@ -48,52 +51,68 @@ public class FormatCommand : Command
             if (formatBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                RunBackendFormat(solutionName);
+                RunBackendFormat(selfContainedSystem, quiet);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
             if (formatFrontend)
             {
                 Prerequisite.Ensure(Prerequisite.Node);
-                RunFrontendFormat();
+                RunFrontendFormat(quiet);
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
-            var uncommittedFilesAfterFormat = GitHelper.GetChangedFiles();
-            var modifiedFiles = uncommittedFilesAfterFormat
-                .Where(kvp => !initialUncommittedFiles.TryGetValue(kvp.Key, out var hash) || hash != kvp.Value)
-                .Select(kvp => kvp.Key)
-                .ToArray();
-
-            if (modifiedFiles.Length > 0)
+            if (quiet)
             {
-                AnsiConsole.MarkupLine("[yellow]Warning: Code format modified the following files:[/]");
-                AnsiConsole.MarkupLine($"[blue]{string.Join(Environment.NewLine, modifiedFiles)}[/]");
+                Console.WriteLine("Code formatted successfully.");
             }
-
-            AnsiConsole.MarkupLine($"[green]Code format completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
-            if (formatBackend && formatFrontend)
+            else
             {
-                AnsiConsole.MarkupLine(
-                    $"""
-                     Backend:     [green]{backendTime.Format()}[/]
-                     Frontend:    [green]{frontendTime.Format()}[/]
-                     """
-                );
+                var uncommittedFilesAfterFormat = GitHelper.GetChangedFiles();
+                var modifiedFiles = uncommittedFilesAfterFormat
+                    .Where(kvp => !initialUncommittedFiles!.TryGetValue(kvp.Key, out var hash) || hash != kvp.Value)
+                    .Select(kvp => kvp.Key)
+                    .ToArray();
+
+                if (modifiedFiles.Length > 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Warning: Code format modified the following files:[/]");
+                    AnsiConsole.MarkupLine($"[blue]{string.Join(Environment.NewLine, modifiedFiles)}[/]");
+                }
+
+                AnsiConsole.MarkupLine($"[green]Code format completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
+                if (formatBackend && formatFrontend)
+                {
+                    AnsiConsole.MarkupLine(
+                        $"""
+                         Backend:     [green]{backendTime.Format()}[/]
+                         Frontend:    [green]{frontendTime.Format()}[/]
+                         """
+                    );
+                }
             }
         }
         catch (Exception ex)
         {
-            AnsiConsole.MarkupLine($"[red]Error during code format: {ex.Message}[/]");
+            if (quiet)
+            {
+                Console.WriteLine($"Format failed: {ex.Message}");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[red]Error during code format: {ex.Message}[/]");
+            }
+
             Environment.Exit(1);
         }
     }
 
-    private static void RunBackendFormat(string? solutionName)
+    private static void RunBackendFormat(string? selfContainedSystem, bool quiet)
     {
-        AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
-        ProcessHelper.StartProcess("dotnet tool restore", solutionFile.Directory!.FullName);
+        var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+        if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend code format...[/]");
+        ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
 
         // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
         var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
@@ -104,24 +123,26 @@ public class FormatCommand : Command
                 ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
                 : solutionFile.FullName;
 
-            ProcessHelper.StartProcess(
+            ProcessHelper.Run(
                 $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
-                solutionFile.Directory!.FullName
+                solutionFile.Directory!.FullName,
+                "Format",
+                quiet
             );
         }
         finally
         {
-            if (createTemporarySolutionFile)
+            if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
             {
                 File.Delete(jetbrainsSupportedSolutionFile);
             }
         }
     }
 
-    private static void RunFrontendFormat()
+    private static void RunFrontendFormat(bool quiet)
     {
-        AnsiConsole.MarkupLine("[blue]Running frontend code format...[/]");
-        ProcessHelper.StartProcess("npm run lint", Configuration.ApplicationFolder);
+        if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend code format...[/]");
+        ProcessHelper.Run("npm run lint", Configuration.ApplicationFolder, "Frontend format", quiet);
     }
 
     /// <summary>
@@ -184,5 +205,68 @@ public class FormatCommand : Command
         }
 
         return projectPaths;
+    }
+
+    private static void ExecuteQuiet(bool formatBackend, bool formatFrontend, string? selfContainedSystem)
+    {
+        try
+        {
+            if (formatBackend)
+            {
+                var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
+
+                var restoreResult = ProcessHelper.ExecuteQuietly("dotnet tool restore", solutionFile.Directory!.FullName);
+                if (!restoreResult.Success)
+                {
+                    Console.WriteLine(restoreResult.GetErrorSummary("Tool restore"));
+                    Environment.Exit(1);
+                }
+
+                // .slnx files are not yet supported by JetBrains tools, so we need to create a temporary .slnf file
+                var createTemporarySolutionFile = solutionFile.Extension.Equals(".slnx", StringComparison.OrdinalIgnoreCase);
+                var jetbrainsSupportedSolutionFile = string.Empty;
+                try
+                {
+                    jetbrainsSupportedSolutionFile = createTemporarySolutionFile
+                        ? CreateTemporaryJetBrainsCompatibleSolutionFile(solutionFile)
+                        : solutionFile.FullName;
+
+                    var formatResult = ProcessHelper.ExecuteQuietly(
+                        $"""dotnet jb cleanupcode {jetbrainsSupportedSolutionFile} --profile=".NET only" --no-build""",
+                        solutionFile.Directory!.FullName
+                    );
+
+                    if (!formatResult.Success)
+                    {
+                        Console.WriteLine(formatResult.GetErrorSummary("Format"));
+                        Environment.Exit(1);
+                    }
+                }
+                finally
+                {
+                    if (createTemporarySolutionFile && File.Exists(jetbrainsSupportedSolutionFile))
+                    {
+                        File.Delete(jetbrainsSupportedSolutionFile);
+                    }
+                }
+            }
+
+            if (formatFrontend)
+            {
+                var result = ProcessHelper.ExecuteQuietly("npm run lint", Configuration.ApplicationFolder);
+                if (!result.Success)
+                {
+                    Console.WriteLine(result.GetErrorSummary("Frontend format"));
+                    Environment.Exit(1);
+                }
+            }
+
+            Console.WriteLine("Code formatted successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Format failed: {ex.Message}");
+            Environment.Exit(1);
+        }
     }
 }

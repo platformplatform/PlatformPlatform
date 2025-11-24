@@ -8,30 +8,50 @@ public class TestCommand : Command
 {
     public TestCommand() : base("test", "Runs tests from a solution")
     {
-        var solutionNameOption = new Option<string?>("<solution-name>", "--solution-name", "-s") { Description = "The name of the solution file containing the tests to run" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to test (e.g., account-management, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running tests" };
+        var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
-        Options.Add(solutionNameOption);
+        Options.Add(selfContainedSystemOption);
         Options.Add(noBuildOption);
+        Options.Add(quietOption);
 
         SetAction(parseResult => Execute(
-                parseResult.GetValue(solutionNameOption),
-                parseResult.GetValue(noBuildOption)
+                parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(noBuildOption),
+                parseResult.GetValue(quietOption)
             )
         );
     }
 
-    private void Execute(string? solutionName, bool noBuild)
+    private void Execute(string? selfContainedSystem, bool noBuild, bool quiet)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        var solutionFile = SolutionHelper.GetSolution(solutionName);
-
-        if (!noBuild)
+        try
         {
-            ProcessHelper.StartProcess($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName);
-        }
+            var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
-        ProcessHelper.StartProcess($"dotnet test {solutionFile.Name} --no-build --no-restore", solutionFile.Directory?.FullName);
+            if (!noBuild)
+            {
+                ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory?.FullName, "Build", quiet);
+            }
+
+            var testCommand = quiet
+                ? $"""dotnet test {solutionFile.Name} --no-build --no-restore --logger "console;verbosity=detailed" """
+                : $"dotnet test {solutionFile.Name} --no-build --no-restore";
+
+            ProcessHelper.Run(testCommand, solutionFile.Directory?.FullName, "Tests", quiet);
+
+            if (quiet)
+            {
+                Console.WriteLine("Tests passed.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Tests failed: {ex.Message}");
+            Environment.Exit(1);
+        }
     }
 }
