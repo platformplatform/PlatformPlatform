@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Text;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -26,12 +25,13 @@ public class PullPlatformPlatformChangesCommand : Command
         Options.Add(resumeOption);
         Options.Add(runFormatOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(verboseLoggingOption),
-            parseResult.GetValue(autoConfirmOption),
-            parseResult.GetValue(resumeOption),
-            parseResult.GetValue(runFormatOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(verboseLoggingOption),
+                parseResult.GetValue(autoConfirmOption),
+                parseResult.GetValue(resumeOption),
+                parseResult.GetValue(runFormatOption)
+            )
+        );
     }
 
     private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeFormat)

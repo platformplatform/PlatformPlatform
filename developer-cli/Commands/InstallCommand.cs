@@ -40,7 +40,7 @@ public class InstallCommand : Command
         $"This will register the alias {Configuration.AliasName} so it will be available everywhere"
     )
     {
-        this.SetAction(_ => Execute());
+        SetAction(_ => Execute());
     }
 
     private static void Execute()

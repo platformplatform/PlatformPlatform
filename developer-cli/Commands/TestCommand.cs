@@ -14,10 +14,11 @@ public class TestCommand : Command
         Options.Add(solutionNameOption);
         Options.Add(noBuildOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(solutionNameOption),
-            parseResult.GetValue(noBuildOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(solutionNameOption),
+                parseResult.GetValue(noBuildOption)
+            )
+        );
     }
 
     private void Execute(string? solutionName, bool noBuild)

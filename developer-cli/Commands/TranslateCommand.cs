@@ -23,10 +23,11 @@ public class TranslateCommand : Command
         Options.Add(selfContainedSystemOption);
         Options.Add(languageOption);
 
-        this.SetAction(async parseResult => await Execute(
-            parseResult.GetValue(selfContainedSystemOption),
-            parseResult.GetValue(languageOption)
-        ));
+        SetAction(async parseResult => await Execute(
+                parseResult.GetValue(selfContainedSystemOption),
+                parseResult.GetValue(languageOption)
+            )
+        );
     }
 
     private static async Task Execute(string? selfContainedSystem, string? language)

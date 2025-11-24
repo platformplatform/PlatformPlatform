@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Diagnostics;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -23,13 +22,14 @@ public class CheckCommand : Command
         Options.Add(skipFormatOption);
         Options.Add(skipInspectOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(backendOption),
-            parseResult.GetValue(frontendOption),
-            parseResult.GetValue(solutionNameOption),
-            parseResult.GetValue(skipFormatOption),
-            parseResult.GetValue(skipInspectOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(backendOption),
+                parseResult.GetValue(frontendOption),
+                parseResult.GetValue(solutionNameOption),
+                parseResult.GetValue(skipFormatOption),
+                parseResult.GetValue(skipInspectOption)
+            )
+        );
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName, bool skipFormat, bool skipInspect)

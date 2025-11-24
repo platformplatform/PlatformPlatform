@@ -11,7 +11,7 @@ public sealed class CoAuthorCommand : Command
 
     public CoAuthorCommand() : base("coauthor", "Amends the current commit and adds you as a co-author")
     {
-        this.SetAction(_ => Execute());
+        SetAction(_ => Execute());
     }
 
     private static void Execute()

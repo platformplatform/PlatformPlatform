@@ -13,7 +13,7 @@ public class CoverageCommand : Command
 
         Options.Add(solutionNameOption);
 
-        this.SetAction(parseResult => Execute(parseResult.GetValue(solutionNameOption)));
+        SetAction(parseResult => Execute(parseResult.GetValue(solutionNameOption)));
     }
 
     private static void Execute(string? solutionName)

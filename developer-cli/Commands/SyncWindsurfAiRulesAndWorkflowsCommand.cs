@@ -9,7 +9,7 @@ public sealed class SyncWindsurfAiRulesAndWorkflowsCommand : Command
 {
     public SyncWindsurfAiRulesAndWorkflowsCommand() : base("sync-windsurf-ai-rules", "Sync Windsurf AI rules from .cursor/rules to .windsurf/rules and .windsurf/workflows, converting frontmatter and deleting orphans.")
     {
-        this.SetAction(_ => Execute());
+        SetAction(_ => Execute());
     }
 
     private static void Execute()

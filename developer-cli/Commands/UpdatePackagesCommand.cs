@@ -31,13 +31,14 @@ public sealed class UpdatePackagesCommand : Command
         Options.Add(excludeOption);
         Options.Add(skipUpdateDotnetOption);
 
-        this.SetAction(async parseResult => await Execute(
-            parseResult.GetValue(backendOption),
-            parseResult.GetValue(frontendOption),
-            parseResult.GetValue(dryRunOption),
-            parseResult.GetValue(excludeOption),
-            parseResult.GetValue(skipUpdateDotnetOption)
-        ));
+        SetAction(async parseResult => await Execute(
+                parseResult.GetValue(backendOption),
+                parseResult.GetValue(frontendOption),
+                parseResult.GetValue(dryRunOption),
+                parseResult.GetValue(excludeOption),
+                parseResult.GetValue(skipUpdateDotnetOption)
+            )
+        );
     }
 
     private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
@@ -79,7 +80,7 @@ public sealed class UpdatePackagesCommand : Command
             // Update .csproj files that have inline PackageReference versions (not using central package management)
             foreach (var csprojFile in Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories))
             {
-                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, requireVersionAttribute: true);
+                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, true);
             }
 
             UpdateAspireSdkVersion(dryRun);
@@ -1420,11 +1421,12 @@ public sealed class UpdatePackagesCommand : Command
             .GetProperty("releases-index")
             .EnumerateArray()
             .Select(release =>
-            {
-                var channelVersion = release.GetProperty("channel-version").GetString()!;
-                var parts = channelVersion.Split('.');
-                return int.Parse(parts[0]);
-            })
+                {
+                    var channelVersion = release.GetProperty("channel-version").GetString()!;
+                    var parts = channelVersion.Split('.');
+                    return int.Parse(parts[0]);
+                }
+            )
             .Max();
 
         return latestMajor;

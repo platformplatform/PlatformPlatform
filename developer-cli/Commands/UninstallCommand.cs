@@ -8,7 +8,7 @@ public class UninstallCommand : Command
 {
     public UninstallCommand() : base("uninstall", $"Will remove the {Configuration.AliasName} CLI alias")
     {
-        this.SetAction(_ => Execute());
+        SetAction(_ => Execute());
     }
 
     private void Execute()

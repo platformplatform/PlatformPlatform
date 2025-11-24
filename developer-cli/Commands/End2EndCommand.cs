@@ -56,30 +56,31 @@ public class End2EndCommand : Command
         Options.Add(workersOption);
 
         // SetHandler only supports up to 8 parameters, so we use SetAction for this complex command
-        this.SetAction(parseResult =>
-        {
-            Execute(
-                parseResult.GetValue(searchTermsArgument)!,
-                parseResult.GetValue(browserOption)!,
-                parseResult.GetValue(debugOption),
-                parseResult.GetValue(debugTimingOption),
-                parseResult.GetValue(headedOption),
-                parseResult.GetValue(includeSlowOption),
-                parseResult.GetValue(lastFailedOption),
-                parseResult.GetValue(onlyChangedOption),
-                parseResult.GetValue(quietOption),
-                parseResult.GetValue(repeatEachOption),
-                parseResult.GetValue(deleteArtifactsOption),
-                parseResult.GetValue(retriesOption),
-                parseResult.GetValue(selfContainedSystemOption),
-                parseResult.GetValue(showReportOption),
-                parseResult.GetValue(slowMoOption),
-                parseResult.GetValue(smokeOption),
-                parseResult.GetValue(stopOnFirstFailureOption),
-                parseResult.GetValue(uiOption),
-                parseResult.GetValue(workersOption)
-            );
-        });
+        SetAction(parseResult =>
+            {
+                Execute(
+                    parseResult.GetValue(searchTermsArgument)!,
+                    parseResult.GetValue(browserOption)!,
+                    parseResult.GetValue(debugOption),
+                    parseResult.GetValue(debugTimingOption),
+                    parseResult.GetValue(headedOption),
+                    parseResult.GetValue(includeSlowOption),
+                    parseResult.GetValue(lastFailedOption),
+                    parseResult.GetValue(onlyChangedOption),
+                    parseResult.GetValue(quietOption),
+                    parseResult.GetValue(repeatEachOption),
+                    parseResult.GetValue(deleteArtifactsOption),
+                    parseResult.GetValue(retriesOption),
+                    parseResult.GetValue(selfContainedSystemOption),
+                    parseResult.GetValue(showReportOption),
+                    parseResult.GetValue(slowMoOption),
+                    parseResult.GetValue(smokeOption),
+                    parseResult.GetValue(stopOnFirstFailureOption),
+                    parseResult.GetValue(uiOption),
+                    parseResult.GetValue(workersOption)
+                );
+            }
+        );
     }
 
     private static string BaseUrl => Environment.GetEnvironmentVariable("PUBLIC_URL") ?? "https://localhost:9000";

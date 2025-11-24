@@ -20,12 +20,13 @@ public class InspectCommand : Command
         Options.Add(solutionNameOption);
         Options.Add(noBuildOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(backendOption),
-            parseResult.GetValue(frontendOption),
-            parseResult.GetValue(solutionNameOption),
-            parseResult.GetValue(noBuildOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(backendOption),
+                parseResult.GetValue(frontendOption),
+                parseResult.GetValue(solutionNameOption),
+                parseResult.GetValue(noBuildOption)
+            )
+        );
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName, bool noBuild)

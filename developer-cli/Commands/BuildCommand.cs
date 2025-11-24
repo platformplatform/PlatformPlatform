@@ -18,11 +18,12 @@ public class BuildCommand : Command
         Options.Add(frontendOption);
         Options.Add(solutionNameOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(backendOption),
-            parseResult.GetValue(frontendOption),
-            parseResult.GetValue(solutionNameOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(backendOption),
+                parseResult.GetValue(frontendOption),
+                parseResult.GetValue(solutionNameOption)
+            )
+        );
     }
 
     private static void Execute(bool backend, bool frontend, string? solutionName)

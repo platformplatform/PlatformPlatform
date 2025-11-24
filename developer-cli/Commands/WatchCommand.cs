@@ -28,13 +28,14 @@ public class WatchCommand : Command
         Options.Add(detachOption);
         Options.Add(publicUrlOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(forceOption),
-            parseResult.GetValue(stopOption),
-            parseResult.GetValue(attachOption),
-            parseResult.GetValue(detachOption),
-            parseResult.GetValue(publicUrlOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(forceOption),
+                parseResult.GetValue(stopOption),
+                parseResult.GetValue(attachOption),
+                parseResult.GetValue(detachOption),
+                parseResult.GetValue(publicUrlOption)
+            )
+        );
     }
 
     private static void Execute(bool force, bool stop, bool attach, bool detach, string? publicUrl)

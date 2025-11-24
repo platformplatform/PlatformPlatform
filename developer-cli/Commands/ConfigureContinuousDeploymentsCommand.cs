@@ -29,7 +29,7 @@ public class ConfigureContinuousDeploymentsCommand : Command
 
         Options.Add(verboseLoggingOption);
 
-        this.SetAction(parseResult => Execute(parseResult.GetValue(verboseLoggingOption)));
+        SetAction(parseResult => Execute(parseResult.GetValue(verboseLoggingOption)));
     }
 
     private void Execute(bool verboseLogging = false)
