@@ -39,10 +39,10 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
                 ("Id", UserId.NewId().ToString()),
                 ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
-                ("Email", Faker.Internet.Email()),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", Faker.Name.JobTitle()),
+                ("Email", "ada@lovelace.com"),
+                ("FirstName", "Ada"),
+                ("LastName", "Lovelace"),
+                ("Title", "Mathematician & Writer"),
                 ("Role", UserRole.ToString()),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
@@ -90,7 +90,6 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountManagementDbContext>
     {
         // Arrange
         const string searchString = "William Henry Gates";
-
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/account-management/users?search={searchString}");
