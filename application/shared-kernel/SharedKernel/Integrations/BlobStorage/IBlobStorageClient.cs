@@ -10,7 +10,11 @@ public interface IBlobStorageClient
 
     string GetBlobUrl(string container, string blobName);
 
+    Task<bool> DeleteIfExistsAsync(string containerName, string blobName, CancellationToken cancellationToken);
+
     string GetSharedAccessSignature(string container, TimeSpan expiresIn);
+
+    Uri GetBlobUriWithSharedAccessSignature(string container, string blobName, TimeSpan expiresIn);
 
     Task CreateContainerIfNotExistsAsync(string containerName, PublicAccessType publicAccessType, CancellationToken cancellationToken);
 }
