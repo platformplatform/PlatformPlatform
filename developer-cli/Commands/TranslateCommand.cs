@@ -3,10 +3,12 @@ using System.CommandLine;
 using System.Text;
 using Azure.AI.OpenAI;
 using Karambolo.PO;
+using Microsoft.Extensions.AI;
 using OpenAI.Chat;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
+using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -297,32 +299,26 @@ public class TranslateCommand : Command
         }
     }
 
-    private sealed class OpenAiTranslationService
+    private sealed class OpenAiTranslationService(IChatClient chatClient)
     {
-        public const string ModelName = "gpt-4o";
-        public readonly Gpt4OUsageStatistics UsageStatistics = new();
-        private readonly ChatClient _client;
-
-        private OpenAiTranslationService(ChatClient chatClient)
-        {
-            _client = chatClient;
-        }
+        public const string ModelName = "gpt-5-mini";
+        public readonly Gpt5MiniUsageStatistics UsageStatistics = new();
 
         public static OpenAiTranslationService Create()
         {
             var (apiKey, endpoint) = GetApiKeyAndEndpoint();
 
-            ChatClient chatClient;
+            IChatClient chatClient;
             if (endpoint is null)
             {
                 // Use standard OpenAI client for default endpoint
-                chatClient = new ChatClient(ModelName, apiKey);
+                chatClient = new ChatClient(ModelName, apiKey).AsIChatClient();
             }
             else
             {
                 // Use Azure OpenAI client for custom endpoints
                 var azureClient = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
-                chatClient = azureClient.GetChatClient(ModelName);
+                chatClient = azureClient.GetChatClient(ModelName).AsIChatClient();
             }
 
             return new OpenAiTranslationService(chatClient);
@@ -371,30 +367,33 @@ public class TranslateCommand : Command
         {
             var messages = new List<ChatMessage>
             {
-                new SystemChatMessage(systemPrompt)
+                new(ChatRole.System, systemPrompt)
             };
 
             foreach (var translation in existingTranslations)
             {
-                messages.Add(new UserChatMessage(translation.Key.Id));
-                messages.Add(new AssistantChatMessage(translation.GetTranslation()));
+                messages.Add(new ChatMessage(ChatRole.User, translation.Key.Id));
+                messages.Add(new ChatMessage(ChatRole.Assistant, translation.GetTranslation()));
             }
 
-            messages.Add(new UserChatMessage(nonTranslatedEntry.Key.Id));
+            messages.Add(new ChatMessage(ChatRole.User, nonTranslatedEntry.Key.Id));
             context.Status("Translating (thinking...)");
 
             StringBuilder content = new();
-            var streamingUpdate = _client.CompleteChatStreamingAsync(messages);
-            await foreach (var update in streamingUpdate)
+            var streamingUpdates = new List<ChatResponseUpdate>();
+            await foreach (var update in chatClient.GetStreamingResponseAsync(messages))
             {
-                if (update.Usage is not null)
-                {
-                    UsageStatistics.Update(update.Usage);
-                }
-
-                content.Append(update.ContentUpdate.FirstOrDefault()?.Text ?? "");
+                streamingUpdates.Add(update);
+                content.Append(update.Text);
                 var percent = Math.Round(content.Length / (nonTranslatedEntry.Key.Id.Length * 1.2) * 100); // +20% is a guess
                 context.Status($"Translating {Math.Min(100, percent)}%");
+            }
+
+            // Get usage from the aggregated response
+            var completedResponse = streamingUpdates.ToChatResponse();
+            if (completedResponse.Usage is not null)
+            {
+                UsageStatistics.Update(completedResponse.Usage);
             }
 
             context.Status("Translating 100%");
@@ -403,35 +402,31 @@ public class TranslateCommand : Command
             return nonTranslatedEntry.ApplyTranslation(translated);
         }
 
-        public record Gpt4OUsageStatistics
+        public record Gpt5MiniUsageStatistics
         {
-            private const decimal NonCachedInputPricePerThousandTokens = 0.0025m;
-            private const decimal CachedInputPricePerThousandTokens = 0.00125m;
-            private const decimal OutputPricePerThousandTokens = 0.01m;
-            private int _cachedInputTokenCount;
+            private const decimal InputPricePerThousandTokens = 0.00025m;
+            private const decimal OutputPricePerThousandTokens = 0.002m;
 
-            private int _nonCachedInputTokenCount;
-            private int _outputTokenCount;
+            private long _inputTokenCount;
+            private long _outputTokenCount;
 
             public decimal TotalCost
             {
                 get
                 {
-                    var nonCachedInputCost = _nonCachedInputTokenCount / 1000m * NonCachedInputPricePerThousandTokens;
-                    var cachedInputPrice = _cachedInputTokenCount / 1000m * CachedInputPricePerThousandTokens;
+                    var inputCost = _inputTokenCount / 1000m * InputPricePerThousandTokens;
                     var outputCost = _outputTokenCount / 1000m * OutputPricePerThousandTokens;
 
-                    return nonCachedInputCost + cachedInputPrice + outputCost;
+                    return inputCost + outputCost;
                 }
             }
 
-            public int TotalTokens => _nonCachedInputTokenCount + _outputTokenCount + _cachedInputTokenCount;
+            public long TotalTokens => _inputTokenCount + _outputTokenCount;
 
-            public void Update(ChatTokenUsage usage)
+            public void Update(UsageDetails usage)
             {
-                _cachedInputTokenCount += usage.InputTokenDetails.CachedTokenCount;
-                _nonCachedInputTokenCount += usage.InputTokenCount - usage.InputTokenDetails.CachedTokenCount;
-                _outputTokenCount += usage.OutputTokenCount;
+                _inputTokenCount += usage.InputTokenCount ?? 0;
+                _outputTokenCount += usage.OutputTokenCount ?? 0;
             }
         }
     }
