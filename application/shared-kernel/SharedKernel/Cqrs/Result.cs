@@ -151,6 +151,11 @@ public sealed class Result<T> : ResultBase
         return new Result<T>(HttpStatusCode.TooManyRequests, new ErrorMessage(message), commitChanges, []);
     }
 
+    public static Result<string> Redirect(string redirectUrl)
+    {
+        return new Result<string>(redirectUrl, HttpStatusCode.Redirect);
+    }
+
     /// <summary>
     ///     This is an implicit conversion from T to <see cref="Result{T}" />. This is used to easily return a
     ///     successful <see cref="Result{T}" /> from a command handler.
