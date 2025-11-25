@@ -59,7 +59,7 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
     private void ApplyGlobalTenantFilters(ModelBuilder modelBuilder)
     {
         var tenantScopedEntityTypes = modelBuilder.Model.GetEntityTypes()
-            .Where(t => typeof(ITenantScopedEntity).IsAssignableFrom(t.ClrType))
+            .Where(t => typeof(ITenantScopedEntity).IsAssignableFrom(t.ClrType) && !t.IsOwned())
             .Select(t => t.ClrType);
 
         foreach (var entityType in tenantScopedEntityTypes)
