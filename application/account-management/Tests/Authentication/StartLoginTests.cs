@@ -68,6 +68,9 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     [Theory]
     [InlineData("Invalid Email Format", "invalid-email")]
     [InlineData("Email Too Long", "abcdefghijklmnopqrstuvwyz0123456789-abcdefghijklmnopqrstuvwyz0123456789-abcdefghijklmnopqrstuvwyz0123456789@example.com")]
+    [InlineData("Double Dots In Domain", "neo@gmail..com")]
+    [InlineData("Comma Instead Of Dot", "q@q,com")]
+    [InlineData("Space In Domain", "tje@mentum .dk")]
     public async Task StartLoginCommand_WhenEmailInvalid_ShouldFail(string scenario, string invalidEmail)
     {
         // Arrange

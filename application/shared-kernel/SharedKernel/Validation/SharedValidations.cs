@@ -1,3 +1,4 @@
+using System.Net.Mail;
 using FluentValidation;
 
 namespace PlatformPlatform.SharedKernel.Validation;
@@ -14,26 +15,13 @@ public static class SharedValidations
             const string errorMessage = "Email must be in a valid format and no longer than 100 characters.";
 
             var rule = RuleFor(email => email)
-                .EmailAddress()
+                .Must(email => MailAddress.TryCreate(email, out _))
                 .WithMessage(errorMessage)
                 .MaximumLength(EmailMaxLength)
                 .WithMessage(errorMessage)
-                .Must(email => email == email.ToLowerInvariant())
+                .Must(email => string.Equals(email, email!.ToLowerInvariant(), StringComparison.Ordinal))
                 .WithMessage(errorMessage)
-                .Must(email => email == email.Trim())
-                .WithMessage(errorMessage)
-                .Must(email => !email.Contains(".."))
-                .WithMessage(errorMessage)
-                .Must(email =>
-                    {
-                        var parts = email.Split('@');
-                        return parts.Length == 2 &&
-                               !parts[0].StartsWith('.') &&
-                               !parts[0].EndsWith('.') &&
-                               !parts[1].StartsWith('.') &&
-                               !parts[1].EndsWith('.');
-                    }
-                )
+                .Must(email => email == email!.Trim())
                 .WithMessage(errorMessage);
 
             if (!allowEmpty)
