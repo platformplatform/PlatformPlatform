@@ -20,7 +20,7 @@ public sealed class SwitchTenantHandler(
     AuthenticationTokenService authenticationTokenService,
     AvatarUpdater avatarUpdater,
     [FromKeyedServices("account-management-storage")]
-    BlobStorageClient blobStorageClient,
+    IBlobStorageClient blobStorageClient,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     ILogger<SwitchTenantHandler> logger

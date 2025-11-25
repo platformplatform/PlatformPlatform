@@ -79,13 +79,12 @@ public static class SharedInfrastructureConfiguration
             if (IsRunningInAzure)
             {
                 var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-                builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential))
-                );
+                builder.Services.AddSingleton<IBlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential)));
             }
             else
             {
                 var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-                builder.Services.AddSingleton<BlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
+                builder.Services.AddSingleton<IBlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
             }
 
             return builder;
@@ -102,7 +101,7 @@ public static class SharedInfrastructureConfiguration
                 foreach (var connection in connections)
                 {
                     var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection!.Value.EnvironmentVariable)!);
-                    builder.Services.AddKeyedSingleton(connection.Value.ConnectionName,
+                    builder.Services.AddKeyedSingleton<IBlobStorageClient>(connection.Value.ConnectionName,
                         (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
                     );
                 }
@@ -112,7 +111,7 @@ public static class SharedInfrastructureConfiguration
                 var connectionString = builder.Configuration.GetConnectionString("blob-storage");
                 foreach (var connection in connections)
                 {
-                    builder.Services.AddKeyedSingleton(connection!.Value.ConnectionName,
+                    builder.Services.AddKeyedSingleton<IBlobStorageClient>(connection!.Value.ConnectionName,
                         (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
                     );
                 }
