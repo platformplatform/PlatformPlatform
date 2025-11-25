@@ -22,7 +22,7 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountManagementDbConte
                 ("Id", _userId.ToString()),
                 ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
-                ("Email", Faker.Internet.Email()),
+                ("Email", Faker.Internet.UniqueEmail()),
                 ("FirstName", Faker.Name.FirstName()),
                 ("LastName", Faker.Name.LastName()),
                 ("Title", Faker.Name.JobTitle()),

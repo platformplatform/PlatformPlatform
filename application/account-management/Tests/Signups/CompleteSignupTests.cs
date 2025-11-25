@@ -29,7 +29,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenValid_ShouldCreateTenantAndOwnerUser()
     {
         // Arrange
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var emailConfirmationId = await StartSignup(email);
 
         var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US");
@@ -72,7 +72,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
     {
         // Arrange
-        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
         var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
 
@@ -93,7 +93,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupAlreadyCompleted_ShouldReturnBadRequest()
     {
         // Arrange
-        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
         var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
@@ -110,7 +110,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenRetryCountExceeded_ShouldReturnForbidden()
     {
         // Arrange
-        var emailConfirmationId = await StartSignup(Faker.Internet.Email());
+        var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
         var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
@@ -137,7 +137,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     public async Task CompleteSignup_WhenSignupExpired_ShouldReturnBadRequest()
     {
         // Arrange
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
 
         var emailConfirmationId = EmailConfirmationId.NewId();
         Connection.Insert("EmailConfirmations", [

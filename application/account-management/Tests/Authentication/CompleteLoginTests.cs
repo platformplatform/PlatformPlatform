@@ -201,7 +201,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             [("Name", "Test Company")]
         );
 
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var inviteUserCommand = new InviteUserCommand(email);
         await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);
         TelemetryEventsCollectorSpy.Reset();

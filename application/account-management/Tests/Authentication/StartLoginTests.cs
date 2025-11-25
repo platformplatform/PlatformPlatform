@@ -94,7 +94,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     public async Task StartLoginCommand_WhenUserDoesNotExist_ShouldReturnFakeLoginId()
     {
         // Arrange
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var command = new StartLoginCommand(email);
 
         // Act

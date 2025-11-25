@@ -29,7 +29,7 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
                     ("Id", userId.ToString()),
                     ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
-                    ("Email", Faker.Internet.Email()),
+                    ("Email", Faker.Internet.UniqueEmail()),
                     ("FirstName", Faker.Person.FirstName),
                     ("LastName", Faker.Person.LastName),
                     ("Title", "Test User"),

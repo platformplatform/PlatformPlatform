@@ -106,7 +106,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Id", UserId.NewId().ToString()),
                 ("CreatedAt", TimeProvider.System.GetUtcNow()),
                 ("ModifiedAt", null),
-                ("Email", Faker.Internet.Email()),
+                ("Email", Faker.Internet.UniqueEmail()),
                 ("EmailConfirmed", true),
                 ("FirstName", Faker.Name.FirstName()),
                 ("LastName", Faker.Name.LastName()),

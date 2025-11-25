@@ -1,7 +1,8 @@
 using Bogus;
+using Bogus.DataSets;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.AccountManagement.Tests;
+namespace PlatformPlatform.SharedKernel.Tests;
 
 public static class FakerExtensions
 {
@@ -18,14 +19,22 @@ public static class FakerExtensions
             return $"+{random.Next(1, 9)}-{faker.Phone.PhoneNumberFormat()}";
         }
 
-        public string InvalidEmail()
-        {
-            return faker.Internet.ExampleEmail(faker.Random.AlphaNumeric(100));
-        }
-
         public long RandomId()
         {
             return IdGenerator.NewId();
+        }
+    }
+
+    extension(Internet internet)
+    {
+        public string UniqueEmail()
+        {
+            return $"{internet.UserName()}@{internet.Random.AlphaNumeric(16)}.com";
+        }
+
+        public string InvalidEmail()
+        {
+            return internet.ExampleEmail(internet.Random.AlphaNumeric(100));
         }
     }
 }
