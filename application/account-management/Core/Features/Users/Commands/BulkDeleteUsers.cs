@@ -49,7 +49,7 @@ public sealed class BulkDeleteUsersHandler(
             return Result.NotFound($"Users with ids '{string.Join(", ", missingUserIds.Select(id => id.ToString()))}' not found.");
         }
 
-        userRepository.BulkRemove(usersToDelete);
+        userRepository.RemoveRange(usersToDelete);
 
         foreach (var userId in command.UserIds)
         {
