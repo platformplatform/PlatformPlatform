@@ -210,9 +210,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         var command = new CompleteLoginCommand(CorrectOneTimePassword);
 
         // Act
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+        var response = await AnonymousHttpClient
+            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
 
         // Assert
+        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         Connection.ExecuteScalar<long>(
             "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 1",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
