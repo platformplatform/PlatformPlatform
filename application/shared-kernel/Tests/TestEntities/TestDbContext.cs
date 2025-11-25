@@ -14,5 +14,7 @@ public sealed class TestDbContext(DbContextOptions<TestDbContext> options, IExec
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.UseStringForEnums();
+
+        modelBuilder.Entity<TestAggregate>(entity => { entity.MapStronglyTypedString(e => e.ExternalId); });
     }
 }

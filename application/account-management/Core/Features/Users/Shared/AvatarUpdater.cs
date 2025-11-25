@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Shared;
 
-public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServices("account-management-storage")] BlobStorageClient blobStorageClient)
+public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServices("account-management-storage")] IBlobStorageClient blobStorageClient)
 {
     private const string ContainerName = "avatars";
 

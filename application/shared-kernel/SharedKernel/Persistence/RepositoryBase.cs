@@ -57,7 +57,17 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
         DbSet.Remove(aggregate);
     }
 
-    public void BulkRemove(T[] aggregates)
+    public async Task AddRangeAsync(IEnumerable<T> aggregates, CancellationToken cancellationToken)
+    {
+        await DbSet.AddRangeAsync(aggregates, cancellationToken);
+    }
+
+    public void UpdateRange(T[] aggregates)
+    {
+        DbSet.UpdateRange(aggregates);
+    }
+
+    public void RemoveRange(T[] aggregates)
     {
         DbSet.RemoveRange(aggregates);
     }

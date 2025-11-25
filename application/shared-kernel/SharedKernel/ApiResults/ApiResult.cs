@@ -76,6 +76,11 @@ public sealed class ApiResult<T>(Result<T> result, string? routePrefix = null, I
     {
         if (!result.IsSuccess) return GetProblemDetailsAsJson();
 
+        if (result.StatusCode is HttpStatusCode.Redirect)
+        {
+            return Results.Redirect(result.Value.Adapt<string>());
+        }
+
         return RoutePrefix is null
             ? Results.Ok(result.Value!.Adapt<T>())
             : Results.Created($"{RoutePrefix}/{result.Value}", null);

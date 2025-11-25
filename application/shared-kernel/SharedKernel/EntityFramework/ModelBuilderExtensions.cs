@@ -21,7 +21,22 @@ public static class ModelBuilderExtensions
                 .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
         }
 
+        public void MapStronglyTypedNullableLongId<TId>(Expression<Func<T, TId?>> idExpression)
+            where TId : StronglyTypedLongId<TId>
+        {
+            builder
+                .Property(idExpression)
+                .HasConversion(v => v != null ? v.Value : (long?)null, v => v != null ? Activator.CreateInstance(typeof(TId), v) as TId : null);
+        }
+
         public void MapStronglyTypedUuid<TId>(Expression<Func<T, TId>> expression) where TId : StronglyTypedUlid<TId>
+        {
+            builder
+                .Property(expression)
+                .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+        }
+
+        public void MapStronglyTypedString<TId>(Expression<Func<T, TId>> expression) where TId : StronglyTypedString<TId>
         {
             builder
                 .Property(expression)
@@ -55,6 +70,51 @@ public static class ModelBuilderExtensions
         }
     }
 
+    extension<TOwner, TDependent>(OwnedNavigationBuilder<TOwner, TDependent> builder)
+        where TOwner : class
+        where TDependent : class
+    {
+        public void MapStronglyTypedLongId<TId>(Expression<Func<TDependent, TId>> expression)
+            where TId : StronglyTypedLongId<TId>
+        {
+            builder
+                .Property(expression)
+                .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+        }
+
+        public void MapStronglyTypedUuid<TId>(Expression<Func<TDependent, TId>> expression)
+            where TId : StronglyTypedUlid<TId>
+        {
+            builder
+                .Property(expression)
+                .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+        }
+
+        public void MapStronglyTypedId<TId, TValue>(Expression<Func<TDependent, TId>> expression)
+            where TValue : IComparable<TValue>
+            where TId : StronglyTypedId<TValue, TId>
+        {
+            builder
+                .Property(expression)
+                .HasConversion(v => v.Value, v => (Activator.CreateInstance(typeof(TId), v) as TId)!);
+        }
+
+        public void MapStronglyTypedNullableId<TId, TValue>(Expression<Func<TDependent, TId?>> idExpression)
+            where TValue : class, IComparable<TValue>
+            where TId : StronglyTypedId<TValue, TId>
+        {
+            var nullConstant = Expression.Constant(null, typeof(TValue));
+            var idParameter = Expression.Parameter(typeof(TId), "id");
+            var idValueProperty = Expression.Property(idParameter, "Value");
+            var idCoalesceExpression =
+                Expression.Lambda<Func<TId, TValue>>(Expression.Coalesce(idValueProperty, nullConstant), idParameter);
+
+            builder
+                .Property(idExpression)
+                .HasConversion(idCoalesceExpression!, v => Activator.CreateInstance(typeof(TId), v) as TId);
+        }
+    }
+
     extension(ModelBuilder modelBuilder)
     {
         /// <summary>
@@ -66,9 +126,16 @@ public static class ModelBuilderExtensions
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    if (!property.ClrType.IsEnum) continue;
+                    // Get the enum type (handling both nullable and non-nullable enums)
+                    var enumType = property.ClrType.IsEnum
+                        ? property.ClrType
+                        : Nullable.GetUnderlyingType(property.ClrType);
 
-                    var converterType = typeof(EnumToStringConverter<>).MakeGenericType(property.ClrType);
+                    if (enumType?.IsEnum != true) continue;
+
+                    if (property.GetValueConverter() is not null) continue;
+
+                    var converterType = typeof(EnumToStringConverter<>).MakeGenericType(enumType);
                     var converterInstance = (ValueConverter)Activator.CreateInstance(converterType)!;
                     property.SetValueConverter(converterInstance);
                 }

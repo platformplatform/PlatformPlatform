@@ -32,7 +32,7 @@ public sealed class DeleteTenantHandler(ITenantRepository tenantRepository, IUse
         if (tenant is null) return Result.NotFound($"Tenant with id '{command.Id}' not found.");
 
         var tenantUsers = await userRepository.GetTenantUsers(cancellationToken);
-        userRepository.BulkRemove(tenantUsers);
+        userRepository.RemoveRange(tenantUsers);
 
         tenantRepository.Remove(tenant);
 

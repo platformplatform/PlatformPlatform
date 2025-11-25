@@ -136,7 +136,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
     public async Task GetTenants_UsersOnlySeeTheirOwnTenants_DoesNotReturnOtherUsersTenants()
     {
         // Arrange
-        var otherUserEmail = Faker.Internet.Email().ToLowerInvariant();
+        var otherUserEmail = Faker.Internet.UniqueEmail().ToLowerInvariant();
         var otherUserTenantId = TenantId.NewId();
         var otherUserId = UserId.NewId();
 

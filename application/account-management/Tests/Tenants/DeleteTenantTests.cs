@@ -38,7 +38,7 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Id", UserId.NewId().ToString()),
                 ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
-                ("Email", Faker.Internet.Email()),
+                ("Email", Faker.Internet.UniqueEmail()),
                 ("FirstName", Faker.Person.FirstName),
                 ("LastName", Faker.Person.LastName),
                 ("Title", "Philanthropist & Innovator"),

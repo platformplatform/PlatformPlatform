@@ -20,7 +20,7 @@ public sealed class SwitchTenantHandler(
     AuthenticationTokenService authenticationTokenService,
     AvatarUpdater avatarUpdater,
     [FromKeyedServices("account-management-storage")]
-    BlobStorageClient blobStorageClient,
+    IBlobStorageClient blobStorageClient,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     ILogger<SwitchTenantHandler> logger
@@ -73,8 +73,14 @@ public sealed class SwitchTenantHandler(
             var avatarData = await blobStorageClient.DownloadAsync("avatars", sourceBlobPath, cancellationToken);
             if (avatarData is not null)
             {
+                // Copy to MemoryStream since Azure's RetriableStream doesn't support seeking (Position reset)
+                await using var avatarStream = avatarData.Value.Stream;
+                using var memoryStream = new MemoryStream();
+                await avatarStream.CopyToAsync(memoryStream, cancellationToken);
+                memoryStream.Position = 0;
+
                 // Upload the avatar to the target tenant's storage location
-                await avatarUpdater.UpdateAvatar(targetUser, false, avatarData.Value.ContentType, avatarData.Value.Stream, cancellationToken);
+                await avatarUpdater.UpdateAvatar(targetUser, false, avatarData.Value.ContentType, memoryStream, cancellationToken);
             }
         }
 

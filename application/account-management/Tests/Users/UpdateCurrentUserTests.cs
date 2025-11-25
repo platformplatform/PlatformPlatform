@@ -33,9 +33,9 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountManagementD
         // Arrange
         var command = new UpdateCurrentUserCommand
         (
-            Faker.Random.String(31),
-            Faker.Random.String(31),
-            Faker.Random.String(51)
+            Faker.Random.String2(31),
+            Faker.Random.String2(31),
+            Faker.Random.String2(51)
         );
 
         // Act

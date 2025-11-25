@@ -20,7 +20,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     public async Task StartSignup_WhenEmailIsValid_ShouldReturnSuccess()
     {
         // Arrange
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var command = new StartSignupCommand(email);
 
         // Act
@@ -70,7 +70,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     public async Task StartSignup_WhenTooManyAttempts_ShouldReturnTooManyRequests()
     {
         // Arrange
-        var email = Faker.Internet.Email().ToLowerInvariant();
+        var email = Faker.Internet.UniqueEmail().ToLowerInvariant();
 
         // Create 4 signups within the last hour for this email
         for (var i = 1; i <= 4; i++)

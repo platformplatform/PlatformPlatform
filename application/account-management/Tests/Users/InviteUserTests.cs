@@ -17,7 +17,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task InviteUser_WhenTenantNameNotSet_ShouldReturnBadRequest()
     {
         // Arrange
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var command = new InviteUserCommand(email);
 
         // Act
@@ -39,7 +39,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
             [("Name", tenantName)]
         );
 
-        var email = Faker.Internet.Email();
+        var email = Faker.Internet.UniqueEmail();
         var command = new InviteUserCommand(email);
 
         // Act
@@ -71,7 +71,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task InviteUser_WhenInvalidEmail_ShouldReturnBadRequest()
     {
         // Arrange
-        var invalidEmail = Faker.InvalidEmail();
+        var invalidEmail = Faker.Internet.InvalidEmail();
         var command = new InviteUserCommand(invalidEmail);
 
         // Act

@@ -32,7 +32,7 @@ public sealed class UpdateTenantLogoHandler(
     ITenantRepository tenantRepository,
     IExecutionContext executionContext,
     [FromKeyedServices("account-management-storage")]
-    BlobStorageClient blobStorageClient,
+    IBlobStorageClient blobStorageClient,
     ITelemetryEventsCollector events
 )
     : IRequestHandler<UpdateTenantLogoCommand, Result>
