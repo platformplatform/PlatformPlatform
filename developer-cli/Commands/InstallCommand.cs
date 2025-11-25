@@ -40,19 +40,22 @@ public class InstallCommand : Command
         $"This will register the alias {Configuration.AliasName} so it will be available everywhere"
     )
     {
-        SetAction(_ => Execute());
+        var forceOption = new Option<bool>("--force", "-f") { Description = "Force reinstall even if already installed" };
+        Options.Add(forceOption);
+
+        SetAction(parseResult => Execute(parseResult.GetValue(forceOption)));
     }
 
-    private static void Execute()
+    private static void Execute(bool force)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet);
 
-        if (IsAliasRegistered())
+        if (!force && IsAliasRegistered())
         {
             var installedAliasPath = Configuration.GetConfigurationSetting().CliSourceCodeFolder!;
             AnsiConsole.MarkupLine(Environment.ProcessPath!.StartsWith(installedAliasPath)
-                ? $"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it.[/]"
-                : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}.[/]"
+                ? $"[yellow]The CLI is already installed please run {Configuration.AliasName} to use it. Use --force to reinstall.[/]"
+                : $"[yellow]There is already a CLI with the alias '{Configuration.AliasName}' installed in {installedAliasPath}. Use --force to reinstall.[/]"
             );
 
             Environment.Exit(0);
