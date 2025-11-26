@@ -191,7 +191,7 @@ jobs:
       - name: Run Code Inspections
         working-directory: developer-cli
         run: |
-          dotnet run inspect --backend --solution-name BackOffice.slnf | tee inspection-output.log
+          dotnet run inspect --backend --self-contained-system back-office | tee inspection-output.log
 
           if ! grep -q "No backend issues found!" inspection-output.log; then
             echo "Code inspection issues found."
@@ -201,11 +201,11 @@ jobs:
       - name: Check for Code Formatting Issues
         working-directory: developer-cli
         run: |
-          dotnet run format --backend --solution-name BackOffice.slnf
+          dotnet run format --backend --self-contained-system back-office
 
           # Check for any changes made by the code formatter
           git diff --exit-code || {
-            echo "Formatting issues detected. Please run 'dotnet run format --backend --solution-name BackOffice.slnf' from /developer-cli folder locally and commit the formatted code."
+            echo "Formatting issues detected. Please run 'dotnet run format --backend --self-contained-system back-office' from /developer-cli folder locally and commit the formatted code."
             exit 1
           }
 

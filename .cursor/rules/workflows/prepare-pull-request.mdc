@@ -51,7 +51,7 @@ Use this workflow to create pull request titles and descriptions:
 6. Build, test, format and inspect the codebase:
    - If changes have been made to backend `*.cs` but only to one self-contained system, run:
       ```bash
-      [CLI_ALIAS] check --backend --solution-name SelfContainedSystem.slnf
+      [CLI_ALIAS] check --backend --self-contained-system <self-contained-system>
       ```
    - If backend changes have been made to `*.cs` in multiple self-contained systems or the Shared Kernel, run:
       ```bash

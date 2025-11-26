@@ -20,9 +20,9 @@ Carefully follow these instructions when implementing and extending the custom D
 2. Command Options:
    - Use double-dash (`--`) for long option names and single-dash (`-`) for abbreviations.
    - Provide clear, concise descriptions for all options.
-   - Use consistent naming across commands for similar options (e.g., `--solution-name` and `-s`).
+   - Use consistent naming across commands for similar options (e.g., `--self-contained-system` and `-s`).
    - Define option types explicitly (e.g., `Option<bool>`, `Option<string?>`).
-   - For positional arguments, include both positional and named options (e.g., `["<solution-name>", "--solution-name", "-s"]`).
+   - For positional arguments, include both positional and named options (e.g., `["<self-contained-system>", "--self-contained-system", "-s"]`).
    - Set default values where appropriate using lambda expressions.
 
 3. Prerequisites and Dependencies:
@@ -82,7 +82,7 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds the solution")
     {
-        AddOption(new Option<string?>(["<solution-name>", "--solution-name", "-s"], "The solution to build")); // ✅ DO: Consistent option naming
+        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The self-contained system to build")); // ✅ DO: Consistent option naming
         AddOption(new Option<bool>(["--verbose", "-v"], () => false, "Enable verbose output"));
         Handler = CommandHandler.Create<string?, bool>(Execute);
     }
