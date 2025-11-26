@@ -33,7 +33,7 @@ public static class Configuration
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
-    public static bool VerboseLogging { get; set; }
+    public static bool TraceEnabled { get; set; }
 
     public static bool AutoConfirm { get; set; }
 

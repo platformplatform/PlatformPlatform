@@ -41,6 +41,13 @@ var rootCommand = new RootCommand
     Description = $"Welcome to the {solutionName} Developer CLI!"
 };
 
+var traceOption = new Option<bool>("--trace")
+{
+    Description = "Show external processes being executed",
+    Recursive = true
+};
+rootCommand.Options.Add(traceOption);
+
 var allCommands = Assembly.GetExecutingAssembly().GetTypes()
     .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(Command)))
     .Select(Activator.CreateInstance)
@@ -59,4 +66,5 @@ foreach (var command in allCommands)
 }
 
 var parseResult = rootCommand.Parse(args);
+Configuration.TraceEnabled = parseResult.GetValue(traceOption);
 return await parseResult.InvokeAsync();

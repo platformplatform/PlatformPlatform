@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
+using Spectre.Console;
 
 namespace PlatformPlatform.DeveloperCli.Commands;
 
@@ -72,6 +73,11 @@ public class TestCommand : Command
 
     private static void RunTestsWithFilteredOutput(string command, string? workingDirectory)
     {
+        if (Configuration.TraceEnabled)
+        {
+            AnsiConsole.MarkupLine($"[cyan]{Markup.Escape(command)}[/]");
+        }
+
         var stats = new TestStats();
         var stopwatch = Stopwatch.StartNew();
 
@@ -222,11 +228,11 @@ public class TestCommand : Command
         // Filter per-assembly summary lines (we generate our own)
         if (trimmedLine.StartsWith("Test Run Successful.")) return true;
         if (trimmedLine.StartsWith("Test Run Failed.")) return true;
-        if (Regex.IsMatch(trimmedLine, @"^Total tests:")) return true;
+        if (Regex.IsMatch(trimmedLine, "^Total tests:")) return true;
         if (Regex.IsMatch(trimmedLine, @"^\s*Passed\s*:")) return true;
         if (Regex.IsMatch(trimmedLine, @"^\s*Failed\s*:")) return true;
         if (Regex.IsMatch(trimmedLine, @"^\s*Skipped\s*:")) return true;
-        if (Regex.IsMatch(trimmedLine, @"^Total time:")) return true;
+        if (Regex.IsMatch(trimmedLine, "^Total time:")) return true;
 
         return false;
     }
@@ -248,15 +254,6 @@ public class TestCommand : Command
         }
 
         return trimmed;
-    }
-
-    private class TestStats
-    {
-        public int Passed { get; set; }
-        public int Failed { get; set; }
-        public int Skipped { get; set; }
-        public int Total => Passed + Failed + Skipped;
-        public List<string> FailedTests { get; } = [];
     }
 
     private static string BuildFilterArgument(string? userFilter, string? excludeCategory)
@@ -283,5 +280,18 @@ public class TestCommand : Command
         }
 
         return "";
+    }
+
+    private class TestStats
+    {
+        public int Passed { get; set; }
+
+        public int Failed { get; set; }
+
+        public int Skipped { get; set; }
+
+        public int Total => Passed + Failed + Skipped;
+
+        public List<string> FailedTests { get; } = [];
     }
 }

@@ -25,18 +25,12 @@ public class DeployCommand : Command
         "Set up trust between Azure and GitHub for passwordless deployments using OpenID Connect"
     )
     {
-        var verboseLoggingOption = new Option<bool>("--verbose-logging") { Description = "Print Azure and GitHub CLI commands and output" };
-
-        Options.Add(verboseLoggingOption);
-
-        SetAction(parseResult => Execute(parseResult.GetValue(verboseLoggingOption)));
+        SetAction(_ => Execute());
     }
 
-    private void Execute(bool verboseLogging = false)
+    private void Execute()
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.AzureCli, Prerequisite.GithubCli);
-
-        Configuration.VerboseLogging = verboseLogging;
 
         _configureContinuousDeploymentsExtensions = Assembly.GetExecutingAssembly().GetTypes()
             .Where(t => t.IsSubclassOf(typeof(ConfigureContinuousDeployments)))
@@ -564,7 +558,7 @@ public class DeployCommand : Command
         {
             RunAzureCliCommand(
                 $"provider register --namespace Microsoft.ContainerService --subscription {subscriptionId}",
-                !Configuration.VerboseLogging
+                !Configuration.TraceEnabled
             );
         }
     }
@@ -635,8 +629,8 @@ public class DeployCommand : Command
                     Arguments =
                         $"{(Configuration.IsWindows ? "/C az" : string.Empty)} ad app federated-credential create --id {appRegistrationId} --parameters  @-",
                     RedirectStandardInput = true,
-                    RedirectStandardOutput = !Configuration.VerboseLogging,
-                    RedirectStandardError = !Configuration.VerboseLogging
+                    RedirectStandardOutput = !Configuration.TraceEnabled,
+                    RedirectStandardError = !Configuration.TraceEnabled
                 },
                 parameters,
                 exitOnError: false
@@ -655,11 +649,11 @@ public class DeployCommand : Command
 
             RunAzureCliCommand(
                 $"role assignment create --assignee {servicePrincipalId} --role \"Contributor\" --scope /subscriptions/{subscription.Id}",
-                !Configuration.VerboseLogging
+                !Configuration.TraceEnabled
             );
             RunAzureCliCommand(
                 $"role assignment create --assignee {servicePrincipalId} --role \"User Access Administrator\" --scope /subscriptions/{subscription.Id}",
-                !Configuration.VerboseLogging
+                !Configuration.TraceEnabled
             );
 
             AnsiConsole.MarkupLine(
@@ -684,7 +678,7 @@ public class DeployCommand : Command
 
             RunAzureCliCommand(
                 $"ad group member add --group {sqlAdminGroup.ObjectId} --member-id {appRegistration.ServicePrincipalObjectId}",
-                !Configuration.VerboseLogging
+                !Configuration.TraceEnabled
             );
 
             AnsiConsole.MarkupLine(

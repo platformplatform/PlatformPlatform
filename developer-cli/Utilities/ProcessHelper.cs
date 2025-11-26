@@ -205,7 +205,7 @@ public static class ProcessHelper
         bool throwOnError = false
     )
     {
-        if (Configuration.VerboseLogging)
+        if (Configuration.TraceEnabled)
         {
             var escapedArguments = Markup.Escape(processStartInfo.Arguments);
             AnsiConsole.MarkupLine($"[cyan]{processStartInfo.FileName} {escapedArguments}[/]");

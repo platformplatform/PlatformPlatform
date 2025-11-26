@@ -15,18 +15,15 @@ public class PullPlatformPlatformChangesCommand : Command
 
     public PullPlatformPlatformChangesCommand() : base("pull-platformplatform-changes", "Pull new updates from PlatformPlatform into a pull-request branch")
     {
-        var verboseLoggingOption = new Option<bool>("--verbose-logging") { Description = "Show git command and output" };
         var autoConfirmOption = new Option<bool>("--auto-confirm", "-a") { Description = "Auto confirm picking all upstream pull-requests" };
         var resumeOption = new Option<bool>("--resume", "-r") { Description = "Validate current branch and resume pulling updates starting with rerunning checks" };
         var runFormatOption = new Option<bool>("--run-format", "-s") { Description = "Run JetBrains format of backend code (slow)" };
 
-        Options.Add(verboseLoggingOption);
         Options.Add(autoConfirmOption);
         Options.Add(resumeOption);
         Options.Add(runFormatOption);
 
         SetAction(parseResult => Execute(
-                parseResult.GetValue(verboseLoggingOption),
                 parseResult.GetValue(autoConfirmOption),
                 parseResult.GetValue(resumeOption),
                 parseResult.GetValue(runFormatOption)
@@ -34,11 +31,10 @@ public class PullPlatformPlatformChangesCommand : Command
         );
     }
 
-    private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeFormat)
+    private static void Execute(bool autoConfirm, bool resume, bool runCodeFormat)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.GithubCli);
 
-        Configuration.VerboseLogging = verboseLogging;
         Configuration.AutoConfirm = autoConfirm;
 
         EnsureValidGitState();
