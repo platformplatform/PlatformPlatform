@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Reflection;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -22,19 +21,32 @@ if (args.Length == 0)
 // Preprocess arguments to handle @ symbols in search terms
 args = CommandLineArgumentsPreprocessor.PreprocessArguments(args);
 
+// Check if running MCP command - skip all output to keep stdout clean for MCP protocol
+var isMcpCommand = args.Length > 0 && args[0] == "mcp";
 var solutionName = new DirectoryInfo(Configuration.SourceCodeFolder).Name;
-if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
-{
-    var figletText = new FigletText(solutionName);
-    AnsiConsole.Write(figletText);
-}
 
-AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+if (!isMcpCommand && !args.Contains("-q") && !args.Contains("--quiet"))
+{
+    if (args.Length == 1 && (args[0] == "--help" || args[0] == "-h" || args[0] == "-?"))
+    {
+        var figletText = new FigletText(solutionName);
+        AnsiConsole.Write(figletText);
+    }
+
+    AnsiConsole.WriteLine($"Source code folder: {Configuration.SourceCodeFolder} \n");
+}
 
 var rootCommand = new RootCommand
 {
     Description = $"Welcome to the {solutionName} Developer CLI!"
 };
+
+var traceOption = new Option<bool>("--trace")
+{
+    Description = "Show external processes being executed",
+    Recursive = true
+};
+rootCommand.Options.Add(traceOption);
 
 var allCommands = Assembly.GetExecutingAssembly().GetTypes()
     .Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(Command)))
@@ -54,4 +66,5 @@ foreach (var command in allCommands)
 }
 
 var parseResult = rootCommand.Parse(args);
+Configuration.TraceEnabled = parseResult.GetValue(traceOption);
 return await parseResult.InvokeAsync();

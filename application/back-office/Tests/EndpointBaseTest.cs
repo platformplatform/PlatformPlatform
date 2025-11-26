@@ -5,6 +5,7 @@ using Mapster;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
@@ -93,6 +94,12 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         _webApplicationFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             {
+                builder.ConfigureLogging(logging =>
+                    {
+                        logging.AddFilter(_ => false); // Suppress all logs during tests
+                    }
+                );
+
                 builder.ConfigureTestServices(services =>
                     {
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database

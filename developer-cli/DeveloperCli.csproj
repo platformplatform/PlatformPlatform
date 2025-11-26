@@ -18,7 +18,12 @@
         <PackageReference Include="Bogus" Version="35.6.5"/>
         <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
         <PackageReference Include="Karambolo.PO" Version="1.12.0"/>
+        <PackageReference Include="Microsoft.Extensions.AI" Version="10.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.0.1-preview.1.25571.5"/>
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0"/>
+        <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.4"/>
+        <PackageReference Include="ModelContextProtocol.Core" Version="0.3.0-preview.4"/>
         <PackageReference Include="OpenAI" Version="2.7.0"/>
         <PackageReference Include="Spectre.Console" Version="0.54.0"/>
         <PackageReference Include="System.CommandLine" Version="2.0.0"/>

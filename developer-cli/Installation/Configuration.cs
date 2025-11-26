@@ -33,7 +33,7 @@ public static class Configuration
 
     private static string ConfigFile => Path.Combine(PublishFolder, $"{AliasName}.json");
 
-    public static bool VerboseLogging { get; set; }
+    public static bool TraceEnabled { get; set; }
 
     public static bool AutoConfirm { get; set; }
 
@@ -131,18 +131,30 @@ public static class Configuration
                 return false;
             }
 
+            if (!File.Exists(GetShellInfo().ProfilePath))
+            {
+                return false;
+            }
+
             return Array.Exists(File.ReadAllLines(GetShellInfo().ProfilePath), line => line == AliasLineRepresentation);
         }
 
         internal static void RegisterAliasMacOs()
         {
-            if (!File.Exists(GetShellInfo().ProfilePath))
+            var profilePath = GetShellInfo().ProfilePath;
+
+            if (string.IsNullOrEmpty(profilePath))
             {
                 AnsiConsole.MarkupLine($"[red]Your shell [bold]{GetShellInfo().ShellName}[/] is not supported.[/]");
                 return;
             }
 
-            File.AppendAllLines(GetShellInfo().ProfilePath, [AliasLineRepresentation]);
+            if (!File.Exists(profilePath))
+            {
+                File.Create(profilePath).Dispose();
+            }
+
+            File.AppendAllLines(profilePath, [AliasLineRepresentation]);
         }
 
         public static void DeleteAlias()
@@ -178,7 +190,7 @@ public static class Configuration
 
 public class ConfigurationSetting
 {
-    public string? CliSourceCodeFolder { get; set; }
+    public string? CliSourceCodeFolder { get; init; }
 
     public string? Hash { get; set; }
 

@@ -31,13 +31,14 @@ public sealed class UpdatePackagesCommand : Command
         Options.Add(excludeOption);
         Options.Add(skipUpdateDotnetOption);
 
-        this.SetAction(async parseResult => await Execute(
-            parseResult.GetValue(backendOption),
-            parseResult.GetValue(frontendOption),
-            parseResult.GetValue(dryRunOption),
-            parseResult.GetValue(excludeOption),
-            parseResult.GetValue(skipUpdateDotnetOption)
-        ));
+        SetAction(async parseResult => await Execute(
+                parseResult.GetValue(backendOption),
+                parseResult.GetValue(frontendOption),
+                parseResult.GetValue(dryRunOption),
+                parseResult.GetValue(excludeOption),
+                parseResult.GetValue(skipUpdateDotnetOption)
+            )
+        );
     }
 
     private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
@@ -79,7 +80,7 @@ public sealed class UpdatePackagesCommand : Command
             // Update .csproj files that have inline PackageReference versions (not using central package management)
             foreach (var csprojFile in Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories))
             {
-                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, requireVersionAttribute: true);
+                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, true);
             }
 
             UpdateAspireSdkVersion(dryRun);
@@ -241,8 +242,7 @@ public sealed class UpdatePackagesCommand : Command
         while (packagesToCheckDependencies.Count > 0)
         {
             var packageName = packagesToCheckDependencies.Dequeue();
-            if (checkedPackages.Contains(packageName)) continue;
-            checkedPackages.Add(packageName);
+            if (!checkedPackages.Add(packageName)) continue;
 
             var update = candidatePackageUpdates[packageName];
 
@@ -920,34 +920,6 @@ public sealed class UpdatePackagesCommand : Command
         return new Version(version).Major;
     }
 
-    private static void ValidateBackend()
-    {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[blue]Running backend validation...[/]");
-
-        // Run pp build --backend
-        AnsiConsole.MarkupLine("[dim]Running: pp build --backend[/]");
-        ProcessHelper.StartProcess("pp build --backend", Configuration.SourceCodeFolder);
-
-        // Run pp test
-        AnsiConsole.MarkupLine("[dim]Running: pp test[/]");
-        ProcessHelper.StartProcess("pp test", Configuration.SourceCodeFolder);
-
-        AnsiConsole.MarkupLine("[green]✓ Backend validation completed successfully![/]");
-    }
-
-    private static void ValidateFrontend()
-    {
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[blue]Running frontend validation...[/]");
-
-        // Run pp build --frontend
-        AnsiConsole.MarkupLine("[dim]Running: pp build --frontend[/]");
-        ProcessHelper.StartProcess("pp build --frontend", Configuration.SourceCodeFolder);
-
-        AnsiConsole.MarkupLine("[green]✓ Frontend validation completed successfully![/]");
-    }
-
     private static void UpdateAspireSdkVersion(bool dryRun)
     {
         var appHostPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
@@ -1057,7 +1029,6 @@ public sealed class UpdatePackagesCommand : Command
 
         foreach (var dotnetToolsPath in dotnetToolsFiles)
         {
-            var fileName = Path.GetFileName(dotnetToolsPath);
             var relativePath = Path.GetRelativePath(Configuration.SourceCodeFolder, dotnetToolsPath);
 
             AnsiConsole.WriteLine();
@@ -1420,11 +1391,12 @@ public sealed class UpdatePackagesCommand : Command
             .GetProperty("releases-index")
             .EnumerateArray()
             .Select(release =>
-            {
-                var channelVersion = release.GetProperty("channel-version").GetString()!;
-                var parts = channelVersion.Split('.');
-                return int.Parse(parts[0]);
-            })
+                {
+                    var channelVersion = release.GetProperty("channel-version").GetString()!;
+                    var parts = channelVersion.Split('.');
+                    return int.Parse(parts[0]);
+                }
+            )
             .Max();
 
         return latestMajor;

@@ -50,8 +50,8 @@ Use these commands continously when you are working on the codebase.
 # Build only backend
 [CLI_ALIAS] build --backend
 
-# Build specific backend solution
-[CLI_ALIAS] build --backend --solution-name <solution-name>
+# Build specific self-contained system backend
+[CLI_ALIAS] build --backend --self-contained-system <self-contained-system>
 
 # Build only frontend
 [CLI_ALIAS] build --frontend
@@ -65,8 +65,8 @@ After you have completed a backend task and want to ensure that it works as expe
 # Run all tests
 [CLI_ALIAS] test
 
-# Run tests for specific solution
-[CLI_ALIAS] test --solution-name <solution-name>
+# Run tests for specific self-contained system
+[CLI_ALIAS] test --self-contained-system <self-contained-system>
 ```
 
 ## End-to-End Test Commands
@@ -103,8 +103,8 @@ Run these commands before you commit your changes.
 # Format only backend (run this before commit)
 [CLI_ALIAS] format --backend
 
-# Format specific backend solution (run this before commit)
-[CLI_ALIAS] format --backend --solution-name <solution-name>
+# Format specific self-contained system backend (run this before commit)
+[CLI_ALIAS] format --backend --self-contained-system <self-contained-system>
 
 # Format only frontend (run this before commit)
 [CLI_ALIAS] format --frontend
@@ -112,12 +112,12 @@ Run these commands before you commit your changes.
 
 ## Command Breakdown
 
-Using `--solution-name` with backend commands is recommended as it significantly reduces execution time compared to running commands against the entire codebase. Especially for the `format` and `inspect` commands.
+Using `--self-contained-system` (or `-s`) with backend commands is recommended as it significantly reduces execution time compared to running commands against the entire codebase. Especially for the `format` and `inspect` commands.
 
-- `[CLI_ALIAS] inspect --backend --solution-name BackOffice.slnf`
-- `[CLI_ALIAS] format --backend --solution-name AccountManagement.slnf`
+- `[CLI_ALIAS] inspect --backend --self-contained-system back-office`
+- `[CLI_ALIAS] format --backend --self-contained-system account-management`
 
-The value of the `--solution-name` parameter should be the solution filter file (`.slnf`) name from the self-contained system directory.
+The value of the `--self-contained-system` parameter should be the kebab-case name of the self-contained system directory (e.g., `account-management`, `back-office`).
 
 ## Troubleshooting when `[CLI_ALIAS]` fails
 

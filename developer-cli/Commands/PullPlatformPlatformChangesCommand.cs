@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.Text;
 using PlatformPlatform.DeveloperCli.Installation;
 using PlatformPlatform.DeveloperCli.Utilities;
@@ -16,29 +15,26 @@ public class PullPlatformPlatformChangesCommand : Command
 
     public PullPlatformPlatformChangesCommand() : base("pull-platformplatform-changes", "Pull new updates from PlatformPlatform into a pull-request branch")
     {
-        var verboseLoggingOption = new Option<bool>("--verbose-logging") { Description = "Show git command and output" };
         var autoConfirmOption = new Option<bool>("--auto-confirm", "-a") { Description = "Auto confirm picking all upstream pull-requests" };
         var resumeOption = new Option<bool>("--resume", "-r") { Description = "Validate current branch and resume pulling updates starting with rerunning checks" };
         var runFormatOption = new Option<bool>("--run-format", "-s") { Description = "Run JetBrains format of backend code (slow)" };
 
-        Options.Add(verboseLoggingOption);
         Options.Add(autoConfirmOption);
         Options.Add(resumeOption);
         Options.Add(runFormatOption);
 
-        this.SetAction(parseResult => Execute(
-            parseResult.GetValue(verboseLoggingOption),
-            parseResult.GetValue(autoConfirmOption),
-            parseResult.GetValue(resumeOption),
-            parseResult.GetValue(runFormatOption)
-        ));
+        SetAction(parseResult => Execute(
+                parseResult.GetValue(autoConfirmOption),
+                parseResult.GetValue(resumeOption),
+                parseResult.GetValue(runFormatOption)
+            )
+        );
     }
 
-    private static void Execute(bool verboseLogging, bool autoConfirm, bool resume, bool runCodeFormat)
+    private static void Execute(bool autoConfirm, bool resume, bool runCodeFormat)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.GithubCli);
 
-        Configuration.VerboseLogging = verboseLogging;
         Configuration.AutoConfirm = autoConfirm;
 
         EnsureValidGitState();
@@ -106,6 +102,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         GitHelper.EnsureUpstreamRemoteExists(PlatformplatformGitPath);
         GitHelper.EnsureBranchIsUpToDate();
+        GitHelper.EnsureLocalBranchInSyncWithOrigin(TrunkBranchName);
     }
 
     private static Commit[] GetNewCommitsFromPlatformPlatform()
@@ -276,12 +273,14 @@ public class PullPlatformPlatformChangesCommand : Command
         {
             try
             {
-                var checkCommand = new CheckCommand();
-                var args = runCodeFormat
-                    ? new[] { "--skip-inspect" }
-                    : new[] { "--skip-format", "--skip-inspect" };
+                new BuildCommand().Parse([]).Invoke();
+                new TestCommand().Parse(["--no-build"]).Invoke();
 
-                checkCommand.Parse(args).Invoke();
+                if (runCodeFormat)
+                {
+                    new FormatCommand().Parse(["--no-build"]).Invoke();
+                }
+
                 break;
             }
             catch (Exception)
@@ -396,7 +395,7 @@ public class PullPlatformPlatformChangesCommand : Command
         );
 
         var pullRequestDescription = body.ToString();
-        AnsiConsole.MarkupLine(pullRequestDescription);
+        AnsiConsole.MarkupLine(pullRequestDescription.EscapeMarkup());
         AnsiConsole.Confirm("Copy the above text as a description and use it for the pull request description. Continue?");
 
         GitHelper.PushBranch(PullRequestBranchName);
