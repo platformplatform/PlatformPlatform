@@ -218,6 +218,18 @@ public static class GitHelper
         }
     }
 
+    public static void EnsureLocalBranchInSyncWithOrigin(string branchName)
+    {
+        var localHash = ProcessHelper.StartProcess($"git rev-parse {branchName}", Configuration.SourceCodeFolder, true).Trim();
+        var originHash = ProcessHelper.StartProcess($"git rev-parse {DefaultRemote}/{branchName}", Configuration.SourceCodeFolder, true).Trim();
+
+        if (localHash != originHash)
+        {
+            AnsiConsole.MarkupLine($"[red]Your local '{branchName}' branch is not in sync with '{DefaultRemote}/{branchName}'. Please pull or push changes before running this command.[/]");
+            Environment.Exit(1);
+        }
+    }
+
     public static int GetPullRequestNumber(Commit commit, string pattern)
     {
         var match = Regex.Match(commit.Message, pattern);

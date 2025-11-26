@@ -106,6 +106,7 @@ public class PullPlatformPlatformChangesCommand : Command
 
         GitHelper.EnsureUpstreamRemoteExists(PlatformplatformGitPath);
         GitHelper.EnsureBranchIsUpToDate();
+        GitHelper.EnsureLocalBranchInSyncWithOrigin(TrunkBranchName);
     }
 
     private static Commit[] GetNewCommitsFromPlatformPlatform()
@@ -398,7 +399,7 @@ public class PullPlatformPlatformChangesCommand : Command
         );
 
         var pullRequestDescription = body.ToString();
-        AnsiConsole.MarkupLine(pullRequestDescription);
+        AnsiConsole.MarkupLine(pullRequestDescription.EscapeMarkup());
         AnsiConsole.Confirm("Copy the above text as a description and use it for the pull request description. Continue?");
 
         GitHelper.PushBranch(PullRequestBranchName);
