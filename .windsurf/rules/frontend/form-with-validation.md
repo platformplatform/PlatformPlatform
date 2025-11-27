@@ -4,7 +4,7 @@ globs: *.tsx
 description: Rules for forms with validation using React Aria Components
 ---
 
-# Form with Validation
+# Form With Validation
 
 Carefully follow these instructions when implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
 
@@ -22,7 +22,7 @@ Note: All .NET API endpoints are available as strongly typed API contracts in th
 
 ## Examples
 
-### Example 1 - Basic Form with Validation
+### Example 1 - Basic Form With Validation
 
 ```typescript
 // ✅ DO: Use mutationSubmitter and proper error handling
@@ -114,7 +114,7 @@ function BadUserProfileForm({ user }) {
 }
 ```
 
-### Example 2 - Complex Form with Multiple API Calls
+### Example 2 - Complex Form With Multiple Application Programming Interface Calls
 
 ```typescript
 // ✅ DO: Use custom mutation for complex scenarios
@@ -147,7 +147,7 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
       return await updateUserMutation.mutateAsync(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
+      queryClient.invalidateQueries();
       onSuccess?.();
       onClose?.();
     }
@@ -169,3 +169,4 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
   );
 }
 ```
+

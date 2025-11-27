@@ -14,6 +14,7 @@ Carefully follow these instructions when creating database migrations.
    - Place migrations in the `/[scs-name]/Core/Database/Migrations` directory.
    - Name migration files with a 14-digit timestamp prefix in the format `YYYYMMDDHHmmss_MigrationName.cs`.
    - Only implement the `Up` method; do not implement the `Down` method.
+   - I repeat... DO NOT CREATE `Down` migration.
 
 2. Follow this strict column ordering in all table creation statements:
    - `TenantId` (if applicable)
@@ -26,7 +27,7 @@ Carefully follow these instructions when creating database migrations.
    - For strongly typed IDs default to `varchar(32)` (a ULID is 26 characters, plus underscore and max 5 char prefix).
    - Intelligent deduct use of varchar or nvarchar based on the property type, and command validators, enum values, etc.
    - Use `datetimeoffset` (default), `datetime2` (timezone agnostic) or `date` (date only) and never use `datetime`.
-
+   - Default to 'varchar(10)' or 'varchar(20)' for enum values.
 4. Create appropriate constraints and indexes:
    - Define primary keys using the `PK_TableName` naming convention.
    - Define foreign keys using the `FK_ChildTable_ParentTable_ColumnName` naming convention.
@@ -34,7 +35,6 @@ Carefully follow these instructions when creating database migrations.
 
 5. Migrate existing data:
    - Use `migrationBuilder.Sql("UPDATE [table] SET [column] = [value] WHERE [condition]")` to update data... but use with care.
-
 6. Use standard SQL Server naming conventions:
    - Table names should be plural (e.g., `Users`, not `User`).
    - Constraint and index names should follow the patterns mentioned above.
@@ -73,6 +73,7 @@ public sealed class AddUserPreferences : Migration
     }
 }
 
+// ❌ DON'T: Forget to add the attribute [DbContext(typeof(XxxDbContext))] for the self-contained system 
 [Migration("20250507_AddUserPrefs")]  // ❌ DON'T: Missing proper 14-digit timestamp
 public class AddUserPrefsMigration : Migration  // ❌ DON'T: Not sealed and incorrect naming and suffix with Migration
 {

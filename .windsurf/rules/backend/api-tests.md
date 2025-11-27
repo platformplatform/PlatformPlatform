@@ -14,7 +14,7 @@ Carefully follow these instructions when writing tests for the backend. By defau
    - Test files should be named `[Feature]/[Command|Query]Tests.cs`.
    - Test classes should be named `[Command|Query]Tests` and be `sealed`.
    - Test methods should follow this pattern: `[Method]_[Condition]_[ExpectedResult]`.
-2. Organize tests by feature area in directories matching the feature structure. Do _not_ create a `/features/` top-level folder.
+2. Organize tests by feature area in directories matching the feature structure. Do not create a `/features/` top-level folder.
 3. For endpoint tests, inherit from `EndpointBaseTest<TContext>` for access to HTTP clients and test infrastructure.
 4. Prefer creating API Tests to test behavior over implementation:
    - Use `AuthenticatedOwnerHttpClient` or `AuthenticatedMemberHttpClient` for authenticated requests.
@@ -24,8 +24,8 @@ Carefully follow these instructions when writing tests for the backend. By defau
 7. Use Bogus (Faker) to generate random test data instead of hardcoded values for strings, names, etc.
 8. Use NSubstitute for mocking external dependencies but never mock repositories.
 9. Follow the Arrange-Act-Assert pattern with clear comments for each section:
-   - Only use these three comment sections: `// Arrange`, `// Act`, and `// Assert`
-   - Only include `// Arrange` comments in tests when there's actually an arrange section with setup code.
+   - Only use these three comment sections: `// Arrange`, `// Act`, and `// Assert`.
+   - Only include `// Arrange` comments in tests when there is actually an arrange section with setup code.
    - Do not add additional comments for subsections (e.g., no `// Setup database` or `// Verify telemetry events`).
 10. Test both happy path and error cases.
 11. Avoid sharing fields between tests as they can change for different reasons; prefer local constants or variables within each test method.
@@ -37,7 +37,7 @@ Carefully follow these instructions when writing tests for the backend. By defau
     - `Delete` to delete test data from the database.
     - `ExecuteScalar<T>` to verify data was correctly inserted.
     - `RowExists` to check if specific records exist.
-15. Never use Dapper for database operations in tests.
+15. Never use Dapper for database operations in tests:
     - Using Dapper is the main reason for making tests that cannot be accepted.
 16. The `EndpointBaseTest<TContext>` class provides:
     - Authenticated and anonymous HTTP clients for endpoint testing.
@@ -102,7 +102,7 @@ public class BadTestSetup
         connection.Open();
 
         // Insert user // ❌ DON'T: Add comment
-        connection.Execute("INSERT INTO Users (Email, Id, TenantId) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 }); 
+        connection.Execute("INSERT INTO Users (Email, Id, TenantId) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 });
     }
 }
 ```

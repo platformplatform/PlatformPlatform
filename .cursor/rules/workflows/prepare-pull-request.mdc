@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Prepare Pull Request Workflow
 
-Use this workflow to create pull request titles and descriptions:
+Use this workflow to create pull request titles and descriptions.
 
 ## Workflow
 
@@ -24,8 +24,8 @@ Use this workflow to create pull request titles and descriptions:
    - Focuses on the functional impact of the change without overselling.
    - Do not use the term "Pull Request", "PR", or any abbreviation of it.
    - Do not use personal pronouns such as "we", "our", "he", "she".
-   - DO NOT end the pull request description summarizing the benefits of the changes.
-     - Adding a such a summary at the end is the most common reason pull request descriptions are not accepted.
+   - DO NOT end the pull request description summarizing the benefits of the changes:
+     - Adding such a summary at the end is the most common reason pull request descriptions are not accepted.
 
 4. Always use the official pull request template [.github/PULL_REQUEST_TEMPLATE.md](mdc:.github/PULL_REQUEST_TEMPLATE.md) which includes:
    - **Summary & Motivation**: Start with the most important change, use bullet points for multiple changes, and mention minor fixes last.
@@ -43,34 +43,41 @@ Use this workflow to create pull request titles and descriptions:
    - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:".
    - Avoid phrases like "Downstream projects should" or "Downstream projects must" - use more direct phrasing.
    - Use a numbered list for multiple changes, make it clear if multiple changes are required.
-   - Be very specific about the changes needed.
+   - Be very specific about the changes needed:
      - Often any changes to [Back Office](mdc:application/back-office) are 1:1 with the changes that need to be applied to downstream self-contained systems.
    - Include exact filenames, code snippets, and Git diffs as needed.
    - Use the placeholder term `your-self-contained-system` for downstream implementations.
 
-6. Build, test, format and inspect the codebase:
-   - If changes have been made to backend `*.cs` but only to one self-contained system, run:
-      ```bash
-      [CLI_ALIAS] check --backend --self-contained-system <self-contained-system>
-      ```
-   - If backend changes have been made to `*.cs` in multiple self-contained systems or the Shared Kernel, run:
-      ```bash
-      [CLI_ALIAS] check --backend
-      ```
-   - If changes have been made to frontend `*.ts`, run:
-      ```bash
-      [CLI_ALIAS] check --frontend
-      ```
-   - If there are errors, they must be fixed before the pull request can be created.
+6. Build, test, format and inspect the codebase using the `execute_command` MCP tool:
+
+   **For backend changes** (`*.cs` files):
+   1. Run **build** first: `execute_command(command: "build", backend: true)`.
+   2. Then run **format**, **test**, **inspect** in parallel (or sequentially if parallel not supported):
+      - `execute_command(command: "format", backend: true)`
+      - `execute_command(command: "test", backend: true)`
+      - `execute_command(command: "inspect", backend: true)`
+
+   **For frontend changes** (`*.ts`, `*.tsx` files):
+   1. Run **build** first: `execute_command(command: "build", frontend: true)`.
+   2. Then run **format** and **inspect** in parallel (or sequentially if parallel not supported):
+      - `execute_command(command: "format", frontend: true)`
+      - `execute_command(command: "inspect", frontend: true)`
+
+   If there are errors, they must be fixed before the pull request can be created.
+
+7. Save the generated pull request (title and description) to `.workspace/pull-request.md`:
+   - Create the file with the pull request title as a level 1 heading, followed by the full description
+   - Display the pull request content in the AI editor as normal
+   - End with a clickable link to the saved file using the full absolute path
 
 ## Examples
 
-### Example 1 - Pull request title
+### Example 1 - Pull Request Title
 
 ```
 # ✅ DO: Use imperative form, start with capital letter, no punctuation
 Add user profile image upload functionality
-Fix data protection key sharing between SCSs
+Fix data protection key sharing between self-contained systems
 Update dependency versions to latest stable releases
 
 # ❌ DON'T: Use past tense, end with period, or use title case
@@ -80,30 +87,30 @@ Updating dependencies
 PR: Implement new feature
 ```
 
-### Example 2 - Pull request description
+### Example 2 - Pull Request Description
 
 ```markdown
 ### Summary & Motivation
 
 Add data protection key sharing between self-contained systems to fix antiforgery token validation failures. Previously, each self-contained system had isolated encryption keys, causing tokens generated in one system to be invalid in another.
 
-- Configure a common application name ("PlatformPlatform") for all SCSs.
-- Store keys in a user-accessible directory on disk.
+- Configure a common application name ("PlatformPlatform") for all self-contained systems
+- Store keys in a user-accessible directory on disk
 
-# ✅ DO: Correctly NOT adding a short summary of the benefits here!!!
+# ✅ Correctly NOT adding a short summary of the benefits here!!!
 
 ### Downstream projects
 
 1. Update `your-self-contained-system/Api/Program.cs` to use the shared data protection keys. # ✅ DO: use `your-self-contained-system` to reference downstream system
 
 # ✅ DO: Use Git diff syntax to show what should be changed
-   ```diff
-- // No shared data protection configuration
-+ // Configure shared data protection keys
-+ builder.Services
-+     .AddDataProtection()
-+     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(".platformplatform", "dataprotection-keys")));
-```
+   '''diff
+   - // No shared data protection configuration
+   + // Configure shared data protection keys
+   + builder.Services
+   +     .AddDataProtection()
+   +     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(".platformplatform", "dataprotection-keys")));
+   '''
 
 ### Checklist # ✅ DO: Correctly add the check points from PULL_REQUEST_TEMPLATE.md without setting the [x]
 
@@ -130,4 +137,12 @@ Update SharedKernel with new feature.
 
 - [x] Code follows the style guidelines of the project
 - [x] Changes have been tested locally
+```
+
+### Example 3 - Output with File Link
+
+After generating the pull request, end the output with a clickable link:
+
+```
+Saved to: /Users/thomasjespersen/Developer/PlatformPlatform/.workspace/pull-request.md
 ```

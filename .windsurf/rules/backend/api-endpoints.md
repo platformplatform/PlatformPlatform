@@ -16,12 +16,12 @@ Carefully follow these instructions when implementing minimal API endpoints in t
    ```csharp
    private const string RoutesPrefix = "/api/account-management/users";
    ```
-4. Set up the route group with a tag name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`. E.g.: 
+4. Set up the route group with a tag name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`.
    ```csharp
    var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
    ```
 5. Structure each endpoint in exactly 3 lines (no logic in the body):
-   - Line 1: Signature with route and parameters (don't break the line even if longer than 120 characters).
+   - Line 1: Signature with route and parameters (do not break the line even if longer than 120 characters).
    - Line 2: Expression calling `=> mediator.Send()`.
    - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
 6. Follow these requirements:
@@ -46,6 +46,7 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
+        // ✅ DO: Use [AsParameters] for complex queries with many querystring parameters
         group.MapGet("/", async Task<ApiResult<GetUsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<GetUsersResponse>();
@@ -58,9 +59,10 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        // ✅ DO: Use [AsParameters] even when the query has no parameters
         group.MapGet("/me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)
-        ).Produces<UserResponse>();
+        ).Produces<UserResponse>(); // ✅ DO: Add produces when API returns a strongly typed response
     }
 }
 
@@ -73,7 +75,7 @@ public sealed class BadUserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users"); // ❌ DON'T: Skip .RequireAuthorization() even if all endpoints AllowAnonymous
 
-        group.MapGet("/", async (IMediator mediator, HttpContext context) => 
+        group.MapGet("/", async (IMediator mediator, HttpContext context) =>
         {
             // ❌ DON'T: Add business logic inside endpoint methods
             var tenantId = context.User.GetTenantId();
@@ -82,7 +84,7 @@ public sealed class BadUserEndpoints : IEndpoints
             return Results.Ok(result);
         });
 
-        // ❌ DON'T: Use Put for commands that don't update an existing resource
+        // ❌ DON'T: Use Put for commands that do not update an existing resource
         group.MapPut("/{id}/change-user-role", async Task<ApiResult> (
             UserId id,
             ChangeUserRoleCommand command,
@@ -94,11 +96,14 @@ public sealed class BadUserEndpoints : IEndpoints
         // ❌ DON'T: Use MVC [FromBody] attribute
         group.MapPost("/bulk-delete", async Task<ApiResult> ([FromBody] BulkDeleteUsersCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<UserId>(StatusCodes.Status201Created) // ❌ DON'T: Do not add produces status code
+         .ProducesProblem(StatusCodes.Status403Forbidden) // ❌ DON'T: Do not add produces status code
+         .ProducesProblem(StatusCodes.Status409Conflict);
 
         // ❌ DON'T: Forget leading slashes
-        group.MapGet("me", async Task<ApiResult<UserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
-            => await mediator.Send(query)
+        // ❌ DON'T: new up command and queries even if they have no parameters... use "[AsParameters] GetUserQuery query" instead
+        group.MapGet("me", async Task<ApiResult<UserResponse>> (IMediator mediator)
+            => await mediator.Send(new GetUserQuery())
         ).Produces<UserResponse>();
     }
 }

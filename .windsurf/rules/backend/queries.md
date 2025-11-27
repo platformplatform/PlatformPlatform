@@ -36,13 +36,14 @@ Carefully follow these instructions when implementing CQRS queries, including st
    - Create a public sealed class with `Handler` suffix: e.g., `GetUsersHandler`.
    - Implement `IRequestHandler<QueryType, Result<ResponseType>>`.
    - Use guard statements with early returns that return [Result<T>](/application/shared-kernel/SharedKernel/Cqrs/Result.cs) instead of throwing exceptions.
-   - If result messages contain values always enclose them in single quotes: `$"User with ID '{userId}' not found."`
+   - If result messages contain values always enclose them in single quotes: `$"User with ID '{userId}' not found."`.
    - Use repositories to retrieve data from the database, and never use Entity Framework directly.
    - Prefer using Mapster to map domain aggregates and entities to response DTOs. For complex mapping, map manually.
+   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
    - Queries should rarely track TelemetryEvents.
-7. After changing the API, make sure to run `[CLI_ALIAS] build --backend` to generate the OpenAPI JSON contract. Then run `[CLI_ALIAS] build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend. See [CLI Commands](.windsurf/rules/cli-commands.md) for details.
+7. After changing the API, use the **execute MCP tool** with `command: "build"` for backend to generate the OpenAPI JSON contract. Then use the **execute MCP tool** with `command: "build"` for frontend to trigger `openapi-typescript` to generate the API contract used by the frontend.
 
-Note: Queries run through MediatR pipeline behaviors in this order: Validation → Query → PublishTelemetryEvents
+Note: Queries run through MediatR pipeline behaviors in this order: Validation → Query → PublishTelemetryEvents.
 
 ## Examples
 
@@ -107,6 +108,14 @@ public sealed class BadUsersHandler(IUserRepository userRepository)
         if (user == null)
         {
             throw new NotFoundException($"User with ID {query.UserId} not found"); // ❌ Throws exception, wrong message format
+        }
+
+        
+        if (someCondition)
+        {
+            return Result<BadUsersDto>.NotFound( // ❌ DON'T: Split Result returns across multiple lines if it fits on one line
+                $"User with ID {query.UserId} not found" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+            );
         }
 
         return new BadUsersDto(user.Id, user.Email, user.Role); // ❌ Manual mapping when Mapster can be used

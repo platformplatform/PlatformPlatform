@@ -9,18 +9,29 @@ This is the main entry point for AI-based development when working with this cod
 
 Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
 
-## High-Level Problem Solving Strategy
+## Development Approach
 
-1. Understand the problem deeply. Carefully read the instructions and think critically about what is required.
-2. Investigate the codebase. Explore relevant files, search for key functions, and gather context.
-3. Develop a clear, step-by-step plan. Break down the fix into manageable, incremental steps.
-4. Before each code change, always consult the relevant rule files, and follow the rules very carefully.
-   - Failure to follow the rules is the main reason for making unacceptable changes.
-5. Iterate until you are extremely confident the fix is complete.
-   - When changing code, do not add comments about what you changed.
-6. After each change, make sure you follow the rules in [Backend Rules](/.windsurf/rules/backend/backend.md) or [Frontend Rules](/.windsurf/rules/frontend/frontend.md) on how to correctly use the [CLI_ALIAS] CLI tool for building, testing, and formatting the code.
-   - Failure to use the [CLI_ALIAS] CLI tool after each change is the second most common reason for making unacceptable changes.
-   - Always use the [CLI_ALIAS] CLI commands as described in [Tools](/.windsurf/rules/tools.md) for building, testing, formatting, and inspecting code.
+When working on tasks, follow any specific workflow instructions provided for your role. If no specific workflow is provided:
+
+1. Understand the problem and requirements clearly.
+2. Consult the relevant rule files before implementation.
+3. Develop a clear implementation plan.
+4. Follow established patterns and conventions.
+5. Use MCP tools for building, testing, and formatting.
+   - Use the **build**, **test**, **format**, **inspect**, **watch**, and **e2e** MCP tools
+   - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
+   - **Important**: The **watch** MCP tool restarts the application server and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
+   - **MCP Server Setup**: See [.mcp.json](/.mcp.json) for MCP server configuration. For Claude Code, run `claude config set enableAllProjectMcpServers true` once to enable project-scoped MCP servers.
+
+**Critical**: If you do NOT see the mentioned developer-cli MCP tool, tell the user. Do NOT just ignore that you cannot find them, and fall back to other tools.
+
+## CLI Alias Configuration
+
+Whenever you see `[CLI_ALIAS]`, replace it with the configured value.
+
+```
+CLI_ALIAS="pp"
+```
 
 ## Rules for implementing changes
 

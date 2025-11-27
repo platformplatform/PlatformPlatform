@@ -21,23 +21,26 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Name with `Command` suffix.
    - Define properties in the primary constructor.
    - Use property initializers for simple input sanitization, such as trimming and casing.
-   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment).
+   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment). Do this on real properties and NOT on the primary constructor parameters!
 3. Command validator:
    - Only validate if the command has user input.
    - Ideally each property should only have one shared validation message for all cases (required, max length, etc.).
    - Don't inject dependencies like repositories to validators; use guards in the handler instead.
+   - Only validate user input, not route parameters, enum values, strongly typed IDs, etc., that are validated by the ASP.NET model binder.
 4. Handler:
    - Create a public sealed class with `Handler`.
    - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
-   - Commands can optionally return e.g., a newly created ID.
+   - Commands can optionally return e.g., a newly created ID. But ONLY do this if you truly need the Id, most often you don't need it.
    - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`.
      - Enclose dynamic values in single quotes and end messages with a period.
    - Never throw exceptions, but always return `Result.Xxx()`.
    - Always create [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) for successful command results.
-     - Optionally log telemetry for failed commands.
+     - Optionally log telemetry for failed commands when it adds business value (e.g. for a failed login).
+     - Prefer tracking one event per command. For bulk operations, track a single bulk event unless single operation equivalents exist (e.g., if both AssignTag and AssignTags exist, AssignTags should emit individual TagAssigned events for consistency).
    - Save changes:
      - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.
      - Never call Entity Framework `SaveChangesAsync()` directly.
+   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
 5. Command Composition:
    - Inject MediatR to chain commands: e.g., `await mediator.Send(new CreateUserCommand(...))`.
    - Extract shared logic to separate classes and store them in `/[scs-name]/Core/Features/[Feature]/Shared` (e.g., `await avatarUpdater.UpdateAvatar(user, ...)`).
@@ -48,7 +51,7 @@ Note: Commands run through MediatR pipeline behaviors in this order: Validation 
 
 ```csharp
 // CreateUser.cs
-public sealed record CreateUserCommand(TenantId TenantId, string Email, string Name)
+public sealed record CreateUserCommand(string Email, string Name)
     : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes from API contract // ✅ DO: Add JsonIgnore for route parameters 
@@ -90,7 +93,7 @@ public sealed class CreateUserHandler(IUserRepository userRepository, ITelemetry
 ```
 
 ```csharp
-public sealed record CreateUserCommand(string Email, string Name)
+public sealed record CreateUserCommand([JsonIgnore] TenantId TenantId; string Email) // ❌ DON'T: Add attributes on positional parameters (“primary constructor parameters”)
     : ICommand, IRequest<Result>;
 
 public sealed class CreateUserValidator : AbstractValidator<CreateUserCommand>
@@ -118,7 +121,14 @@ public sealed class CreateUserHandler(
             // ❌ DON'T: Forgetting to enclose values in single quotes and forgetting trailing period
             throw new ArgumentException($"Email {command.Email} must be valid"); // ❌ DON'T: Throw exceptions
         }
-               
+
+        if (someCondition)
+        {
+            return Result.BadRequest( // ❌ DON'T: Split Result returns across multiple lines if it fits on one line
+                $"User with email {command.Email} already exists" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+            );
+        }
+
         // ❌ DON'T: Call handlers directly instead of using MediatR or raise domain events
         await sendEmailHandler.Handle(new SendEmailCommand(command.Email, "Welcome!"), cancellationToken);
 

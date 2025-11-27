@@ -17,12 +17,12 @@ Carefully follow these instructions when implementing strongly typed IDs in the 
 6. Always override `ToString()` in the concrete class, as record types will not inherit this method from the base class.
 7. Place the ID class in the same file as its corresponding aggregate or entity.
 8. Use strongly typed IDs everywhere: API endpoints, request/response DTOs, commands, queries, and even in the frontend webapp.
-9. In rare cases, other ID types can be used for performance reasons (e.g., `TenantId` uses a strongly typed `long` because it's faster and used in almost every table).
-10. `UserId` and `TenantId` are special cases as they need to be shared between self-contained systems, so they're defined in the shared kernel.
+9. In rare cases, other ID types can be used for performance reasons (e.g., `TenantId` uses a strongly typed `long` because it is faster and used in almost every table).
+10. `UserId` and `TenantId` are special cases as they need to be shared between self-contained systems, so they are defined in the shared kernel.
 11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
-    - `MapStronglyTypedUuid` for ULIDs
-    - `MapStronglyTypedLongId` for long IDs
-    - `MapStronglyTypedGuid` for GUIDs
+    - `MapStronglyTypedUuid` for ULIDs.
+    - `MapStronglyTypedLongId` for long IDs.
+    - `MapStronglyTypedGuid` for GUIDs.
 
 ## Examples
 

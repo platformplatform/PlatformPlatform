@@ -21,12 +21,17 @@ Carefully follow these instructions when implementing DDD repositories in the ba
 8. Repositories are automatically registered in the DI container.
 9. By default, Aggregates with the `ITenantScopedEntity` interface are automatically filtered by tenant using Entity Framework Core query filters:
    - In rare cases, you may need to disable this by using the `IgnoreQueryFilters` method, e.g., when looking up an anonymous user by email.
-   - If you use `IgnoreQueryFilters`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
+   - If you use `IgnoreQueryFilters`, the repository method must have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
 10. Use `IEntityTypeConfiguration<TAggregate>` for Entity Framework Core model configuration.
 11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
     - `MapStronglyTypedUuid` for ULIDs.
     - `MapStronglyTypedLongId` for long IDs.
     - `MapStronglyTypedGuid` for GUIDs.
+12. Updating entities does not belong to the repository. Use commands to fetch the aggregate and update it, and then save it using the repository.
+13. Never add `.AsTracking()` to queries. Instead, fetch aggregates through repositories and update them using repository.Update(), which handles tracking internally.
+14. Never do N+1 queries.
+15. Do not register repositories in the DI container. They are registered automatically by SharedKernel.
+16. Do not add DbSets to the DbContext. This is automatically handled by RepositoryBase.
 
 ## Examples
 
@@ -41,9 +46,9 @@ public sealed class LoginRepository(AccountManagementDbContext accountManagement
     : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
 
 // ❌ DON'T: Use ICrudRepository if not all CRUD ops needed, or return DTOs
-public interface IBadLoginRepository : ICrudRepository<Login, LoginId> // ❌ DON'T: Use ICrudRepository if not all CRUD ops needed
+internal interface IBadLoginRepository : ICrudRepository<Login, LoginId> // ❌ DON'T: Do not make repositories internal
 {
-    Task<LoginDto> GetDto(LoginId id); // ❌ DON'T: Return DTOs from repositories
+    Task<LoginDto> GetDto(LoginId id); // ❌ DON'T: Return DTOs from repositories, mape entities in the query
 }
 
 // ✅ DO: Example with a custom query method
@@ -58,14 +63,21 @@ public sealed class EmailConfirmationRepository(AccountManagementDbContext accou
     public EmailConfirmation[] GetByEmail(string email)
         => DbSet.Where(ec => !ec.Completed && ec.Email == email.ToLowerInvariant()).ToArray(); // ✅ DO: Implement custom query
 }
+
+public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options, IExecutionContext executionContext)
+    : SharedKernelDbContext<AccountManagementDbContext>(options, executionContext)
+{
+    public DbSet<EmailConfirmation> EmailConfirmations => Set<EmailConfirmation>(); // ❌ DON'T: Add DbSet<T> to DbContext... this is automatiiclay handled in RepositoryBase
+}
+
 ```
 
-### Use of .IgnoreQueryFilters()
+### Use of IgnoreQueryFilters
 
-- If you use `.IgnoreQueryFilters()`, the repository method **must** have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
+If you use `.IgnoreQueryFilters()`, the repository method must have an `UnfilteredAsync` suffix and an XML comment warning that this is dangerous and disables tenant and soft-delete filters.
 
 ```csharp
-/// <summary> // ✅ DO: Add XML comment explaining whay ignoring quiery filters are ok
+/// <summary> // ✅ DO: Add XML comment explaining why ignoring query filters is acceptable
 ///     Retrieves a user by email without applying tenant query filters.
 ///     This method should only be used during the login processes where tenant context is not yet established.
 /// </summary>

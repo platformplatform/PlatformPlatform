@@ -4,15 +4,15 @@ globs: developer-cli/Commands/*.cs
 description: Rules for implementing Developer CLI commands
 ---
 
-# Developer CLI Rules
+# Developer Command Line Interface Rules
 
-Carefully follow these instructions when implementing and extending the custom Developer CLI commands.
+Carefully follow these instructions when implementing and extending the custom Developer Command Line Interface (CLI) commands.
 
 ## Implementation
 
 1. Command Structure:
    - Create one file per command in the `developer-cli/Commands` directory.
-   - Name the file with the `Command` iherit from `System.CommandLine.Command` base class.
+   - Name the file with the `Command` suffix and inherit from `System.CommandLine.Command` base class.
    - Provide a concise description in the constructor that explains the command's purpose.
    - Define all command options using `AddOption()` in the constructor.
    - Implement the command's logic in a private `Execute` method.
@@ -136,12 +136,11 @@ public class BadBuildCommand : Command
 
 ## Troubleshooting
 
-The CLI is self compiling, so to build you just have to run [CLI_ALIAS]. Somethimes you will get errors like:
+The CLI is self-compiling, so to build use `execute_command(command: "build", cli: true)`. Sometimes you will get errors like:
 
 ```bash
-Failed to publish new CLI. Please run 'dotnet run' to fix. Could not load file or assembly 'System.IO.Pipelines, 
-Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51'. The system cannot find the 
+Failed to publish new CLI. Please run 'dotnet run' to fix. Could not load file or assembly 'System.IO.Pipelines,
+Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51'. The system cannot find the
 ```
 
 Just retry the command and it should work.
-

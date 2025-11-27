@@ -10,7 +10,7 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 
 ## Implementation
 
-1. Create all DDD models in the `/[scs-name]/Core/Features/[Feature]/Domain` directory, including aggregates, entities, value objects, strongly typed IDs, repositories, and EF Core mapping.
+1. Create all DDD models in the `/[scs-name]/Core/Features/[Feature]/Domain` directory, including aggregates, entities, value objects, strongly typed IDs, repositories, and Entity Framework Core mapping.
 2. Understand the core DDD concepts:
    - Aggregates are the root of the DDD model and map 1:1 to database tables.
    - Entities belong to aggregates but have their own identity.
@@ -24,6 +24,8 @@ Carefully follow these instructions when implementing DDD models for aggregates,
    - Use factory methods when creating aggregates.
    - Make properties private, and use methods when changing state and enforcing business rules.
    - Make properties immutable.
+   - For many-to-many aggregates, make them Tenant scoped (ITenantScopedEntity) to include TenantId column, even if foreign key constraints already ensure tenant isolation.
+   - For many-to-many aggregates, carefully consider if cascade delete is needed. If so, use `OnDelete(DeleteBehavior.Cascade)` in the EF Core IEntityTypeConfiguration.
 5. For Entities:
    - Use public sealed classes that inherit from `Entity<TId>`.
    - Create a strongly typed ID for entities.
@@ -34,7 +36,11 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 6. For Value Objects:
    - Use records to ensure immutability.
    - Value objects do not have an ID.
- 
+7. Do NOT add Entity Framework configuration for primitive properties:
+   - We do not use Entity Framework tooling for creating migrations, so there is no need for primitive property configuration, like length of fields or nullable properties.
+   - Only configure Entity Framework properties for complex types, like collections, and value objects, that Entity Framework uses for generating SQL statements.
+8. When implementing a new aggregate, start with the minimum required methods for the current feature. Add additional methods as new features require them, ensuring each method maintains aggregate invariants.
+
 ## Examples
 
 ```csharp
@@ -103,7 +109,7 @@ public sealed class InvoiceLine : Entity<InvoiceLineId>
 }
 
 [PublicAPI]
-[IdPrefix("oline")]
+[IdPrefix("invln")]
 [JsonConverter(typeof(StronglyTypedIdJsonConverter<string, InvoiceLineId>))]
 public sealed record InvoiceLineId(string Value) : StronglyTypedUlid<InvoiceLineId>(Value);
 
@@ -155,6 +161,9 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
     public void Configure(EntityTypeBuilder<BadInvoice> builder)
     {
         builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ Do not configure primitive properties
+        builder.Property(t => t.Description).HasMaxLength(255);  // ❌ Do not configure primitive properties
+        builder.HasIndex(u => new { u.Email }).IsUnique();  // ❌ Is Unique is a database constraint, not need by EF Core at runtime
+        builder.Property(u => u.Role).HasColumnType("varchar(10)").HasConversion<string>(); // ❌  EntityFramework is configured to convert all enums to string
     }
 }
 ```
