@@ -1,5 +1,6 @@
 ---
 description: Workflow for creating, updating, and reviewing AI rules and commands
+auto_execution_mode: 3
 ---
 
 # Update AI Rules Workflow

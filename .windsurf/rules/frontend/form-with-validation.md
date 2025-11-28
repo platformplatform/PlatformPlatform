@@ -114,7 +114,7 @@ function BadUserProfileForm({ user }) {
 }
 ```
 
-### Example 2 - Complex Form With Multiple Application Programming Interface Calls
+### Example 2 - Complex Form With Multiple APIs Calls
 
 ```typescript
 // ✅ DO: Use custom mutation for complex scenarios

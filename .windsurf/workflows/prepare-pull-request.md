@@ -1,5 +1,6 @@
 ---
 description: Workflow for writing pull request titles and descriptions
+auto_execution_mode: 3
 ---
 
 # Prepare Pull Request Workflow
