@@ -33,6 +33,14 @@ Whenever you see `[CLI_ALIAS]`, replace it with the configured value.
 CLI_ALIAS="pp"
 ```
 
+## Product Management Tool
+
+Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the configured value.
+
+```
+PRODUCT_MANAGEMENT_TOOL="Linear"
+```
+
 ## Rules for implementing changes
 
 Always consult the relevant rule files before each code change.
