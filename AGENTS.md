@@ -1,11 +1,4 @@
----
-description: Main entry point for AI-based development and developer reference
-globs: 
-alwaysApply: true
----
 # Main Entry Point
-
-This is the main entry point for AI-based development when working with this codebase, but also serves as a great reference for developers.
 
 Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
 
@@ -51,29 +44,29 @@ Commit messages should be in imperative form, start with a capital letter, avoid
 
 Be very careful with comments, and add them only very sparingly. Never add comments about changes made (these belong in pull requests).
 
-When making changes, always take speial care not to change parts of the code that are not in scope.
+When making changes, always take special care not to change parts of the code that are not in scope.
 
 ## Project Structure
 
 This is a mono repository with multiple self-contained systems (SCS), each being a small monolith. All SCSs follow the same structure.
 
-- [.github](mdc:.github): GitHub workflows and other GitHub artifacts.
-- [application](mdc:application): Contains application code:
-  - [account-management](mdc:application/account-management): An SCS for tenant and user management:
-    - [WebApp](mdc:application/account-management/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/account-management/Api): .NET 10 minimal API.
-    - [Core](mdc:application/account-management/Core): .NET 10 Vertical Sliced Architecture.
-    - [Workers](mdc:application/account-management/Workers): A .NET Console job.
-    - [Tests](mdc:application/account-management/Tests): xUnit tests for backend.
-  - [back-office](mdc:application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
-    - [WebApp](mdc:application/back-office/WebApp): A React, TypeScript SPA.
-    - [Api](mdc:application/back-office/Api): .NET 10 minimal API.
-    - [Core](mdc:application/back-office/Core): .NET 10 Vertical Sliced Architecture.
-    - [Workers](mdc:application/back-office/Workers): A .NET Console job.
-    - [Tests](mdc:application/back-office/Tests): xUnit tests for backend.
-  - [AppHost](mdc:application/AppHost): Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
-  - [AppGateway](mdc:application/AppGateway): Main entry point using YARP as reverse proxy for all SCSs.
-  - [shared-kernel](mdc:application/shared-kernel): Reusable .NET backend shared by all SCSs.
-  - [shared-webapp](mdc:application/shared-webapp): Reusable frontend shared by all SCSs.
-- [cloud-infrastructure](mdc:cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
-- [developer-cli](mdc:developer-cli): A .NET CLI tool for automating common developer tasks.
+- [.github](/.github): GitHub workflows and other GitHub artifacts.
+- [application](/application): Contains application code:
+  - [account-management](/application/account-management): An SCS for tenant and user management:
+    - [WebApp](/application/account-management/WebApp): A React, TypeScript SPA.
+    - [Api](/application/account-management/Api): .NET 10 minimal API.
+    - [Core](/application/account-management/Core): .NET 10 Vertical Sliced Architecture.
+    - [Workers](/application/account-management/Workers): A .NET Console job.
+    - [Tests](/application/account-management/Tests): xUnit tests for backend.
+  - [back-office](/application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
+    - [WebApp](/application/back-office/WebApp): A React, TypeScript SPA.
+    - [Api](/application/back-office/Api): .NET 10 minimal API.
+    - [Core](/application/back-office/Core): .NET 10 Vertical Sliced Architecture.
+    - [Workers](/application/back-office/Workers): A .NET Console job.
+    - [Tests](/application/back-office/Tests): xUnit tests for backend.
+  - [AppHost](/application/AppHost): Aspire project for orchestrating SCSs and Docker containers. Never run directly—typically running in watch mode.
+  - [AppGateway](/application/AppGateway): Main entry point using YARP as reverse proxy for all SCSs.
+  - [shared-kernel](/application/shared-kernel): Reusable .NET backend shared by all SCSs.
+  - [shared-webapp](/application/shared-webapp): Reusable frontend shared by all SCSs.
+- [cloud-infrastructure](/cloud-infrastructure): Bash and Azure Bicep scripts (IaC).
+- [developer-cli](/developer-cli): A .NET CLI tool for automating common developer tasks.
