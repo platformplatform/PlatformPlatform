@@ -1,0 +1,89 @@
+---
+trigger: glob
+globs: *Dialog.tsx,*Modal.tsx
+description: Rules for modal dialogs using React Aria Components
+---
+
+# Modal Dialog
+
+Carefully follow these instructions when implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
+
+## Implementation
+
+1. Use React Aria Components from `@repo/ui/components`.
+2. Use the `Dialog` component from shared-webapp for all dialogs and modal dialogs.
+3. Manage dialog state with React hooks (either `useState` or context depending on scope).
+4. Use `onPress` instead of `onClick` for event handlers.
+5. Include appropriate aria labels for accessibility.
+6. Use `<Trans>...</Trans>` or t\`...\` for translations (content should be plain English).
+7. **Required**: Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, `sm:w-dialog-xl`, or `sm:w-dialog-2xl`) to every `Dialog` component.
+8. Use `isDismissable={!mutation.isPending}` to prevent closing the dialog during save operations.
+
+## Dialog Sizing
+
+Every dialog must have a fixed width class to ensure consistent sizing across languages:
+
+- `sm:w-dialog-md` - Use for most dialogs: alerts, confirmations, simple forms (1-3 fields), informational dialogs.
+- `sm:w-dialog-lg` - Use for standard forms with multiple fields (4-6 fields).
+- `sm:w-dialog-xl` - Use for complex forms with many fields, file uploads, or multi-section content.
+- `sm:w-dialog-2xl` - Use for extra-large dialogs with dual-list interfaces or very complex layouts that need fixed width to prevent resizing.
+
+The `AlertDialog` component has `sm:w-dialog-md` as its default size, but can be overridden if needed.
+
+## Examples
+
+### Example 1 - Simple Form Dialog
+
+```typescript
+const [isOpen, setIsOpen] = useState(false);
+
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+  <Dialog className="sm:w-dialog-md">
+    <XIcon
+      onClick={() => setIsOpen(false)}
+      className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
+    />
+    <DialogHeader description={<Trans>Enter the email address.</Trans>}>
+      <Heading slot="title" className="text-2xl">
+        <Trans>Invite user</Trans>
+      </Heading>
+    </DialogHeader>
+
+    <Form onSubmit={handleSubmit}>
+      <DialogContent className="flex flex-col gap-4">
+        <TextField
+          autoFocus={true}
+          isRequired={true}
+          name="email"
+          label={t`Email`}
+        />
+      </DialogContent>
+      <DialogFooter>
+        <Button variant="secondary" onPress={() => setIsOpen(false)}>
+          <Trans>Cancel</Trans>
+        </Button>
+        <Button type="submit">
+          <Trans>Send invite</Trans>
+        </Button>
+      </DialogFooter>
+    </Form>
+  </Dialog>
+</Modal>
+```
+
+### Example 2 - Alert Dialog
+
+```typescript
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+  <AlertDialog
+    title={t`Delete user`}
+    variant="destructive"
+    actionLabel={t`Delete`}
+    cancelLabel={t`Cancel`}
+    onAction={handleDelete}
+  >
+    <Trans>Are you sure you want to delete this user?</Trans>
+  </AlertDialog>
+</Modal>
+```
+
