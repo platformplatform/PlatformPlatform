@@ -15,35 +15,35 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
 ## Implementation
 
 1. Create one file per command containing `Command`, `Validator`, and `Handler`:
-   - Name the file after the command without suffix.
+   - Name the file after the command without suffix
 2. Command Record:
-   - Create a public sealed record marked with `[PublicAPI]` that implements `ICommand` and `IRequest<Result>` or `IRequest<Result<T>>`.
-   - Name with `Command` suffix.
-   - Define properties in the primary constructor.
-   - Use property initializers for simple input sanitization, such as trimming and casing.
-   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment). Do this on real properties and NOT on the primary constructor parameters!
+   - Create a public sealed record marked with `[PublicAPI]` that implements `ICommand` and `IRequest<Result>` or `IRequest<Result<T>>`
+   - Name with `Command` suffix
+   - Define properties in the primary constructor
+   - Use property initializers for simple input sanitization (trimming, casing)
+   - For route parameters, use `[JsonIgnore] // Removes from API contract` on real properties, not primary constructor parameters
 3. Command validator:
-   - Only validate if the command has user input.
-   - Ideally each property should only have one shared validation message for all cases (required, max length, etc.).
-   - Don't inject dependencies like repositories to validators; use guards in the handler instead.
-   - Only validate user input, not route parameters, enum values, strongly typed IDs, etc., that are validated by the ASP.NET model binder.
+   - Only validate if the command has user input
+   - Each property should have one shared validation message for all cases (required, max length, etc.)
+   - Don't inject dependencies like repositories—use guards in the handler instead
+   - Only validate user input, not route parameters, enum values, or strongly typed IDs validated by the model binder
 4. Handler:
-   - Create a public sealed class with `Handler`.
-   - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`.
-   - Commands can optionally return e.g., a newly created ID. But ONLY do this if you truly need the Id, most often you don't need it.
-   - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`.
-     - Enclose dynamic values in single quotes and end messages with a period.
-   - Never throw exceptions, but always return `Result.Xxx()`.
-   - Always create [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) for successful command results.
-     - Optionally log telemetry for failed commands when it adds business value (e.g. for a failed login).
-     - Prefer tracking one event per command. For bulk operations, track a single bulk event unless single operation equivalents exist (e.g., if both AssignTag and AssignTags exist, AssignTags should emit individual TagAssigned events for consistency).
+   - Create a public sealed class with `Handler` suffix
+   - Implement `IRequestHandler<CommandType, Result>` or `IRequestHandler<CommandType, Result<T>>`
+   - Commands can optionally return a newly created ID, but only if truly needed
+   - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`
+     - Enclose dynamic values in single quotes and end messages with a period
+   - Never throw exceptions—always return `Result.Xxx()`
+   - Always create [Telemetry Events](/.windsurf/rules/backend/telemetry-events.md) for successful command results
+     - Optionally log telemetry for failed commands when it adds business value
+     - Prefer one event per command; for bulk operations, track individual events if single operation equivalents exist
    - Save changes:
-     - Call `AddAsync()`, `Remove()`, `Update()` repositories to persist changes.
-     - Never call Entity Framework `SaveChangesAsync()` directly.
-   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
+     - Call `AddAsync()`, `Remove()`, `Update()` to persist changes
+     - Never call `SaveChangesAsync()` directly
+   - Never do N+1 operations—load all entities and process them in memory
 5. Command Composition:
-   - Inject MediatR to chain commands: e.g., `await mediator.Send(new CreateUserCommand(...))`.
-   - Extract shared logic to separate classes and store them in `/[scs-name]/Core/Features/[Feature]/Shared` (e.g., `await avatarUpdater.UpdateAvatar(user, ...)`).
+   - Inject MediatR to chain commands: `await mediator.Send(new CreateUserCommand(...))`
+   - Extract shared logic to `/[scs-name]/Core/Features/[Feature]/Shared`
 
 Note: Commands run through MediatR pipeline behaviors in this order: Validation → Command → PublishDomainEvents → UnitOfWork → PublishTelemetryEvents. Nested commands and domain events are handled within the UnitOfWork transaction. Also, note that Entity Framework change tracking is disabled.
 
@@ -118,14 +118,14 @@ public sealed class CreateUserHandler(
         // ❌ DON'T: Perform validation in the handler that should be in the validator
         if (!command.Email.Contains('@'))
         {
-            // ❌ DON'T: Forgetting to enclose values in single quotes and forgetting trailing period
+            // ❌ Forgetting to enclose values in single quotes and trailing period
             throw new ArgumentException($"Email {command.Email} must be valid"); // ❌ DON'T: Throw exceptions
         }
 
         if (someCondition)
         {
             return Result.BadRequest( // ❌ DON'T: Split Result returns across multiple lines if it fits on one line
-                $"User with email {command.Email} already exists" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+                $"User with email {command.Email} already exists" // ❌ Missing single quotes around dynamic value and trailing period
             );
         }
 

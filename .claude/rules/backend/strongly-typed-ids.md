@@ -10,20 +10,20 @@ Carefully follow these instructions when implementing strongly typed IDs in the 
 
 ## Implementation
 
-1. Use strongly typed IDs to provide type safety and prevent mixing different ID types that are technically the same primitive type, improving readability and maintainability.
-2. By default, use `StronglyTypedUlid<T>` as the base class for IDs as it provides chronological ordering and includes a prefix for easy recognition (e.g., here is a UserId: `usr_01JMVAW4T4320KJ3A7EJMCG8R0`).
-3. Use the `[IdPrefix]` attribute with a short prefix (max 5 characters): strongly typed ULIDs are 26 characters long, and with the 5-character prefix plus underscore, the total length is 32 characters, and database id columns are typically varchar(32).
-4. Follow the naming convention of `[Entity]Id`.
-5. Include the `[JsonConverter]` attribute for proper serialization.
-6. Always override `ToString()` in the concrete class, as record types will not inherit this method from the base class.
-7. Place the ID class in the same file as its corresponding aggregate or entity.
-8. Use strongly typed IDs everywhere: API endpoints, request/response DTOs, commands, queries, and even in the frontend webapp.
-9. In rare cases, other ID types can be used for performance reasons (e.g., `TenantId` uses a strongly typed `long` because it is faster and used in almost every table).
-10. `UserId` and `TenantId` are special cases as they need to be shared between self-contained systems, so they are defined in the shared kernel.
-11. Map strongly typed IDs in Entity Framework Core configurations using the appropriate extension method:
-    - `MapStronglyTypedUuid` for ULIDs.
-    - `MapStronglyTypedLongId` for long IDs.
-    - `MapStronglyTypedGuid` for GUIDs.
+1. Use strongly typed IDs to provide type safety and prevent mixing different ID types, improving readability and maintainability
+2. By default, use `StronglyTypedUlid<T>` as the base class—it provides chronological ordering and includes a prefix for easy recognition (e.g., `usr_01JMVAW4T4320KJ3A7EJMCG8R0`)
+3. Use the `[IdPrefix]` attribute with a short prefix (max 5 characters)—ULIDs are 26 chars, plus 5-char prefix and underscore = 32 chars for varchar(32)
+4. Follow the naming convention `[Entity]Id`
+5. Include the `[JsonConverter]` attribute for proper serialization
+6. Always override `ToString()` in the concrete class—record types don't inherit this from the base class
+7. Place the ID class in the same file as its corresponding aggregate or entity
+8. Use strongly typed IDs everywhere: API endpoints, DTOs, commands, queries, and the frontend webapp
+9. In rare cases, other ID types can be used for performance (e.g., `TenantId` uses `long` because it's faster and used in almost every table)
+10. `UserId` and `TenantId` are shared between self-contained systems, so they're defined in the shared kernel
+11. Map strongly typed IDs in EF Core configurations using:
+    - `MapStronglyTypedUuid` for ULIDs
+    - `MapStronglyTypedLongId` for long IDs
+    - `MapStronglyTypedGuid` for GUIDs
 
 ## Examples
 

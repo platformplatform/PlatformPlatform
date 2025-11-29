@@ -276,7 +276,7 @@ The coordinator will prompt you to select which feature to implement.
 ❌ DON'T:
 - Write PRDs as user stories—use the example structure
 - Include implementation details or code examples in the PRD
-- Skip research. Always understand the problem first
+- Skip research—always understand the problem first
 - Ignore rule files
 - Repeat information across sections
 - Write titles in Title Case—use sentence case

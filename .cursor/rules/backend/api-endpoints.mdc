@@ -9,27 +9,27 @@ Carefully follow these instructions when implementing minimal API endpoints in t
 
 ## Implementation
 
-1. Create API endpoint classes in the `/application/[scs-name]/Api/Endpoints` directory, organized by feature area.
-2. Create an endpoint class implementing the `IEndpoints` interface with proper naming (`[Feature]Endpoints.cs`).
+1. Create API endpoint classes in `/application/[scs-name]/Api/Endpoints`, organized by feature area
+2. Create an endpoint class implementing `IEndpoints` with proper naming (`[Feature]Endpoints.cs`)
 3. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[Feature]`:
    ```csharp
    private const string RoutesPrefix = "/api/account-management/users";
    ```
-4. Set up the route group with a tag name of the feature and `.RequireAuthorization()` and `.ProducesValidationProblem()`.
+4. Set up the route group with a tag name, `.RequireAuthorization()`, and `.ProducesValidationProblem()`:
    ```csharp
    var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
    ```
 5. Structure each endpoint in exactly 3 lines (no logic in the body):
-   - Line 1: Signature with route and parameters (do not break the line even if longer than 120 characters).
-   - Line 2: Expression calling `=> mediator.Send()`.
-   - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.).
+   - Line 1: Signature with route and parameters (don't break the line even if longer than 120 characters)
+   - Line 2: Expression calling `=> mediator.Send()`
+   - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.)
 6. Follow these requirements:
-   - Use [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) for route parameters.
-   - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands.
-   - Use `[AsParameters]` for query parameters.
-   - Use `with { Id = id }` syntax to bind route parameters to commands and queries.
-7. After changing the API, make sure to run `cd developer-cli && dotnet run build --backend` to generate the OpenAPI JSON contract. Then run `cd developer-cli && dotnet run build --frontend` to trigger `openapi-typescript` to generate the API contract used by the frontend.
-8. `IEndpoints` are automatically registered in the SharedKernel.
+   - Use [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) for route parameters
+   - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands
+   - Use `[AsParameters]` for query parameters
+   - Use `with { Id = id }` syntax to bind route parameters to commands and queries
+7. After changing the API, run `build --backend` to generate the OpenAPI JSON contract, then `build --frontend` to trigger `openapi-typescript`
+8. `IEndpoints` are automatically registered in the SharedKernel
 
 ## Examples
 
@@ -95,12 +95,11 @@ public sealed class BadUserEndpoints : IEndpoints
         // ❌ DON'T: Use MVC [FromBody] attribute
         group.MapPost("/bulk-delete", async Task<ApiResult> ([FromBody] BulkDeleteUsersCommand command, IMediator mediator)
             => await mediator.Send(command)
-        ).Produces<UserId>(StatusCodes.Status201Created) // ❌ DON'T: Do not add produces status code
-         .ProducesProblem(StatusCodes.Status403Forbidden) // ❌ DON'T: Do not add produces status code
+        ).Produces<UserId>(StatusCodes.Status201Created) // ❌ DON'T: Add produces status code
+         .ProducesProblem(StatusCodes.Status403Forbidden) // ❌ DON'T: Add produces status code
          .ProducesProblem(StatusCodes.Status409Conflict);
 
-        // ❌ DON'T: Forget leading slashes
-        // ❌ DON'T: new up command and queries even if they have no parameters... use "[AsParameters] GetUserQuery query" instead
+        // ❌ Forgot leading slash, newing up query instead of using [AsParameters]
         group.MapGet("me", async Task<ApiResult<UserResponse>> (IMediator mediator)
             => await mediator.Send(new GetUserQuery())
         ).Produces<UserResponse>();

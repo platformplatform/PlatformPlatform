@@ -9,38 +9,38 @@ Carefully follow these instructions when implementing CQRS queries, including st
 
 ## Implementation
 
-1. Create queries in the `/[scs-name]/Core/Features/[Feature]/Queries` directory.
+1. Create queries in `/[scs-name]/Core/Features/[Feature]/Queries`
 2. Create one file per query containing Query, Response, Validator (optional), and Handler:
-   - Name the file after the query without suffix: e.g., `GetUsers.cs`.
+   - Name the file after the query without suffix (e.g., `GetUsers.cs`)
 3. Query Record:
-   - Create a public sealed record marked with `[PublicAPI]` that implements `IRequest<Result<TResponse>>`.
-   - Name with `Query` suffix: e.g., `GetUsersQuery`.
-   - Define properties in the primary constructor.
-   - Use property initializers for simple input normalization: `public string Email { get; } = Email?.Trim().ToLower();`.
-   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties (including the comment).
-   - Use default values for optional parameters where applicable, e.g., `int PageSize = 25`.
-   - Use nullable reference types for optional parameters: e.g., `UserRole? UserRole = null`.
+   - Create a public sealed record marked with `[PublicAPI]` that implements `IRequest<Result<TResponse>>`
+   - Name with `Query` suffix (e.g., `GetUsersQuery`)
+   - Define properties in the primary constructor
+   - Use property initializers for input normalization: `public string Email { get; } = Email?.Trim().ToLower();`
+   - For route parameters, use `[JsonIgnore] // Removes from API contract` on properties
+   - Use default values for optional parameters (e.g., `int PageSize = 25`)
+   - Use nullable reference types for optional parameters (e.g., `UserRole? UserRole = null`)
 4. Response Record:
-   - Create a public sealed record marked with `[PublicAPI]` for the response.
-   - Name with `Response` suffix: e.g., `UserResponse`.
-   - Include all necessary data for the client.
-   - Use [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) and enums.
-   - Take special care to not include sensitive data in the response.
+   - Create a public sealed record marked with `[PublicAPI]`
+   - Name with `Response` suffix (e.g., `UserResponse`)
+   - Include all necessary data for the client
+   - Use [Strongly Typed IDs](mdc:.cursor/rules/backend/strongly-typed-ids.mdc) and enums
+   - Take special care not to include sensitive data
 5. Validator (optional):
-   - Validation should focus on preventing malicious input like `PageSize=1_000_000_000`; the WebApp will typically ensure that the input is meaningful, so focus on malicious input.
-   - Create a public sealed class with `Validator` suffix: e.g., `GetUsersQueryValidator`.
-   - Each property should have one shared error message (e.g., "Search term must be no longer than 100 characters.").
-   - Validation should only validate query properties (format, length, etc.), and should not make complex queries to e.g. a repository; use guards in the Query handler instead.
+   - Focus on preventing malicious input like `PageSize=1_000_000_000`—the WebApp ensures meaningful input
+   - Create a public sealed class with `Validator` suffix (e.g., `GetUsersQueryValidator`)
+   - Each property should have one shared error message
+   - Only validate query properties (format, length)—use guards in the handler for complex checks
 6. Handler:
-   - Create a public sealed class with `Handler` suffix: e.g., `GetUsersHandler`.
-   - Implement `IRequestHandler<QueryType, Result<ResponseType>>`.
-   - Use guard statements with early returns that return [Result<T>](mdc:application/shared-kernel/SharedKernel/Cqrs/Result.cs) instead of throwing exceptions.
-   - If result messages contain values always enclose them in single quotes: `$"User with ID '{userId}' not found."`.
-   - Use repositories to retrieve data from the database, and never use Entity Framework directly.
-   - Prefer using Mapster to map domain aggregates and entities to response DTOs. For complex mapping, map manually.
-   - Never do N+1 operations. Find a way to load all entities and then process them in memory.
-   - Queries should rarely track TelemetryEvents.
-7. After changing the API, use the **execute MCP tool** with `command: "build"` for backend to generate the OpenAPI JSON contract. Then use the **execute MCP tool** with `command: "build"` for frontend to trigger `openapi-typescript` to generate the API contract used by the frontend.
+   - Create a public sealed class with `Handler` suffix (e.g., `GetUsersHandler`)
+   - Implement `IRequestHandler<QueryType, Result<ResponseType>>`
+   - Use guard statements with early returns instead of throwing exceptions
+   - Enclose dynamic values in single quotes: `$"User with ID '{userId}' not found."`
+   - Use repositories to retrieve data—never use Entity Framework directly
+   - Prefer Mapster for mapping; use manual mapping for complex cases
+   - Never do N+1 operations—load all entities and process in memory
+   - Queries should rarely track TelemetryEvents
+7. After changing the API, run `build --backend` to generate the OpenAPI JSON contract, then `build --frontend` to trigger `openapi-typescript`
 
 Note: Queries run through MediatR pipeline behaviors in this order: Validation → Query → PublishTelemetryEvents.
 
@@ -89,13 +89,13 @@ public sealed class GetUsersHandler(IUserRepository userRepository)
 ```
 
 ```csharp
-[PublicAPI] // ❌ No Query suffix and don't use class instead of record
+[PublicAPI] // ❌ No Query suffix, using class instead of record
 public sealed class BadUsers : IRequest<Result<BadUsersDto>>
 {
-    public bool UpdateLastAccessed { get; init; } = true; // ❌ Mutates state
+    public bool UpdateLastAccessed { get; init; } = true; // ❌ Queries must not mutate state
 }
 
-// ❌ Don't use DTO suffix and don't skip the [PublicAPI] attribute
+// ❌ Using DTO suffix, missing [PublicAPI] attribute
 public sealed record BadUsersDto(UserId Id, string Email, UserRole Role);
 
 public sealed class BadUsersHandler(IUserRepository userRepository)
@@ -113,7 +113,7 @@ public sealed class BadUsersHandler(IUserRepository userRepository)
         if (someCondition)
         {
             return Result<BadUsersDto>.NotFound( // ❌ DON'T: Split Result returns across multiple lines if it fits on one line
-                $"User with ID {query.UserId} not found" // ❌ DON'T: Missing single quotes around dynamic value and missing ending period.
+                $"User with ID {query.UserId} not found" // ❌ Missing single quotes around dynamic value and trailing period
             );
         }
 

@@ -9,19 +9,19 @@ Carefully follow these instructions when implementing telemetry events in the ba
 
 ## Implementation
 
-1. Create telemetry events to collect information about the application's behavior and usage, helping business stakeholders understand how the application is being used and gather valuable insights.
-2. Always create telemetry events in the existing `/[scs-name]/Core/TelemetryEvents.cs` file to maintain high quality and consistent naming.
-3. Name telemetry events in past tense (e.g., `LoginCompleted`, `UserCreated`) and inherit from `TelemetryEvent`.
-4. Ensure events are sorted alphabetically in the `TelemetryEvents.cs` file.
-5. Use primary constructors to define the event properties.
-6. Include relevant contextual information in the event that allows for better insights:
-   - As a rule of thumb, include the ID of aggregates and entities when performing mutations. But be aware that UserId and TenantId are tracked from the execution context.
-   - For example, in `LoginCompleted`, include `UserId` and `LoginTimeInSeconds` to measure how long it takes users to complete login.
-7. Use snake_case for property names in event data to align with OpenTelemetry conventions.
-8. Collect events using the `events.CollectEvent()` method in command handlers just before returning.
-9. By default, events are only collected for successful commands. To collect events for failed commands, set `commitChanges: true` in the Result object.
-10. Do not track id of many to many aggregates, but track the id of the two main aggregates.
-11. Do not track IDs of single-use operations that are merely unique identifiers, as they provide no analytical value and may contain PII.
+1. Create telemetry events to collect information about application behavior and usage, helping stakeholders understand how the application is used
+2. Always create telemetry events in `/[scs-name]/Core/TelemetryEvents.cs` to maintain consistent naming
+3. Name telemetry events in past tense (e.g., `LoginCompleted`, `UserCreated`) and inherit from `TelemetryEvent`
+4. Ensure events are sorted alphabetically in the `TelemetryEvents.cs` file
+5. Use primary constructors to define event properties
+6. Include relevant contextual information for better insights:
+   - Include the ID of aggregates and entities when performing mutations (UserId and TenantId are tracked from execution context)
+   - Example: in `LoginCompleted`, include `UserId` and `LoginTimeInSeconds` to measure login duration
+7. Use snake_case for property names in event data to align with OpenTelemetry conventions
+8. Collect events using `events.CollectEvent()` in command handlers just before returning
+9. Events are only collected for successful commands by default—set `commitChanges: true` for failed commands
+10. Don't track IDs of many-to-many aggregates—track the IDs of the two main aggregates instead
+11. Don't track IDs of single-use operations that are merely unique identifiers, as they provide no analytical value and may contain PII
 
 Note: Telemetry events are automatically annotated with extra data from the request, including current tenant ID, authenticated user ID, user role, application version, user's location, device type, browser, etc.
 
@@ -41,7 +41,7 @@ public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole t
     : TelemetryEvent(("user_id", userId), ("from_role", fromRole), ("to_role", toRole));
 
 // ❌ DON'T: Use present tense or collect personal information
-public sealed class CompleteLogin(LoginID loginId, UserId userId, string email, string ipAddress) // ❌  LoginId is is not meaning full in events. Email and IP Address are PII data.
+public sealed class CompleteLogin(LoginID loginId, UserId userId, string email, string ipAddress) // ❌ LoginId is not meaningful in events, Email and IP are PII data
     : TelemetryEvent(("user_id", userId), ("email", email), ("ip_address", ipAddress));
 ```
 

@@ -20,35 +20,35 @@ Use the description provided in the arguments above (if any) to understand what 
 **Before committing**, verify you are only committing files within your scope:
 
 **Backend reviewers** should ONLY commit changes in:
-- Backend folders: `Api/`, `Core/`, `Workers/`, `Tests/` (C# code).
-- Backend-specific files: `.cs`, `.csproj`, `.sln`, database migrations.
+- Backend folders: `Api/`, `Core/`, `Workers/`, `Tests/` (C# code)
+- Backend-specific files: `.cs`, `.csproj`, `.sln`, database migrations
 - Root configuration files that affect backend: `application/global.json`, `application/dotnet-tools.json`, `.editorconfig`, etc.
 
 **Frontend reviewers** should ONLY commit changes in:
-- Frontend folders: `WebApp/` (TypeScript/React code).
-- Frontend-specific files: `.ts`, `.tsx`, `.css`, `.po`, `.pot`, frontend configs.
+- Frontend folders: `WebApp/` (TypeScript/React code)
+- Frontend-specific files: `.ts`, `.tsx`, `.css`, `.po`, `.pot`, frontend configs
 - Root configuration files that affect frontend: `biome.json`, `package.json`, `tsconfig.json`, etc.
 
 **Special cases**:
-- `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` belongs to **backend** (auto-generated from API contracts).
-- Shared documentation (`README.md`, etc.) belongs to whoever made the functional change being documented.
-- When in doubt, use your judgment based on what the changes actually affect.
+- `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` belongs to **backend** (auto-generated from API contracts)
+- Shared documentation (`README.md`, etc.) belongs to whoever made the functional change being documented
+- When in doubt, use your judgment based on what the changes actually affect
 
 **REJECT the commit immediately if**:
-- Backend reviewer finds changes in `WebApp/` folders (except `*.Api.json`).
-- Frontend reviewer finds changes in `Api/`, `Core/`, `Workers/`, or `Tests/` folders.
-- Frontend reviewer finds `*.Api.json` files in staged changes.
+- Backend reviewer finds changes in `WebApp/` folders (except `*.Api.json`)
+- Frontend reviewer finds changes in `Api/`, `Core/`, `Workers/`, or `Tests/` folders
+- Frontend reviewer finds `*.Api.json` files in staged changes
 
 Use `git status --porcelain` to verify file scope before proceeding.
 
 ### Commit Message Format
 
 1. Create a proper commit message following these format rules:
-   - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature").
-   - Start with a capital letter (sentence case).
-   - Do not end the message with punctuation.
-   - Keep the message to a single line.
-   - Describe what is changed and the motivation, but keep it concise.
+   - Use imperative form (e.g., "Add feature" not "Added feature" or "Adds feature")
+   - Start with a capital letter (sentence case)
+   - Do not end the message with punctuation
+   - Keep the message to a single line
+   - Describe what is changed and the motivation, but keep it concise
 
 2. Stage files individually and commit:
    ```bash

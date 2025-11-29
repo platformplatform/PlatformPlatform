@@ -10,20 +10,20 @@ Carefully follow these instructions for C# backend development, including code s
 
 ## Code Style
 
-- Be consistent. If you do something a certain way, do all similar things in the same way.
+- Be consistent—if you do something a certain way, do all similar things the same way
 - Always use these C# features:
-  - Top-level namespaces.
-  - Primary constructors.
-  - Array initializers.
-  - Pattern matching with `is null` and `is not null` instead of `== null` and `!= null`.
-- Records for immutable types.
-- Mark all C# types as sealed.
-- Use `var` when possible.
-- Use simple collection types like `UserId[]` instead of `List<UserId>` whenever possible.
-- JetBrains tooling is used for automatically formatting code, but automatic line breaking has been disabled for more readable code:
-  - Wrap lines if new language constructs are started after 120 characters. This allows lines longer than 120 characters but ensures that no important code is hidden after the 120 character mark.
-  - Important code means parameters, arguments, or constructs that are relevant for understanding the code. `CancellationToken cancellationToken` is NOT considered important and should never trigger a line break.
-  - Always prefer long lines over splitting to maximize code visible on screen. Only wrap when truly necessary.
+  - Top-level namespaces
+  - Primary constructors
+  - Array initializers
+  - Pattern matching with `is null` and `is not null` instead of `== null` and `!= null`
+- Records for immutable types
+- Mark all C# types as sealed
+- Use `var` when possible
+- Use simple collection types like `UserId[]` instead of `List<UserId>` whenever possible
+- JetBrains tooling formats code automatically, but line breaking is disabled for readability:
+  - Wrap lines only when new language constructs start after 120 characters (content after 120 chars is acceptable if the construct starts before)
+  - `CancellationToken cancellationToken` is not considered important and should never trigger a line break
+  - Prefer long lines over splitting to maximize visible code—only wrap when truly necessary
   - Examples:
     ```csharp
     // ✅ DO: Keep on one line even if longer than 120 chars (the 'c' in 'command' is before 120 chars)
@@ -51,71 +51,69 @@ Carefully follow these instructions for C# backend development, including code s
     ) : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
     ```
 - Avoid using exceptions for control flow:
-  - When exceptions are thrown, always use meaningful exceptions following .NET conventions.
-  - Use `UnreachableException` to signal unreachable code that cannot be reached by tests.
-  - Exception messages should include a period.
+  - When throwing exceptions, use meaningful exceptions following .NET conventions
+  - Use `UnreachableException` to signal unreachable code that cannot be reached by tests
+  - Exception messages should include a period
 - Log only meaningful events at appropriate severity levels:
-  - Logging messages should not include a period.
-  - Use structured logging.
-- Never introduce new NuGet dependencies.
-- Don't do defensive coding (e.g., do not add exception handling to handle situations we don't know will happen).
-- Use `user?.IsActive == true` over `user != null && user.IsActive == true`.
-- Avoid try-catch unless we cannot fix the reason. We have global exception handling to handle unknown exceptions.
-- Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if we are running in Azure.
-- Use `TimeProvider.System.GetUtcNow()` and not `DateTime.UtcNow()`.
-- Names rules:
-  - Never use acronyms or abbreviations. For example, use `SharedAccessSignature` instead of `Sas`, and `Context` over `Ctx`.
-  - Prefer long variable names for better readability. For example, `gravatarHttpClient` over `httpClient`, and `enterKeyListenerCancellationTokenSource` over `enterKeyListenerCancellation`.
-  - Choose descriptive and unambiguous names.
-  - Make meaningful distinction.
-  - Use pronounceable names.
-  - Use searchable names.
-  - Replace magic numbers with named constants.
-  - Avoid encodings. Do not append prefixes or type information.
+  - Logging messages should not include a period
+  - Use structured logging
+- Never introduce new NuGet dependencies
+- Don't do defensive coding (e.g., don't add exception handling for situations we don't know will happen)
+- Use `user?.IsActive == true` over `user != null && user.IsActive == true`
+- Avoid try-catch unless we cannot fix the root cause—global exception handling covers unknown exceptions
+- Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if running in Azure
+- Use `TimeProvider.System.GetUtcNow()` instead of `DateTime.UtcNow()`
+- Naming rules:
+  - Never use acronyms or abbreviations (e.g., use `SharedAccessSignature` not `Sas`, `Context` not `Ctx`)
+  - Prefer long variable names for readability (e.g., `gravatarHttpClient` not `httpClient`)
+  - Choose descriptive and unambiguous names
+  - Make meaningful distinctions
+  - Use pronounceable names
+  - Use searchable names
+  - Replace magic numbers with named constants
+  - Avoid encodings—don't append prefixes or type information
 - Comments rules:
-  - Don't explain what you change (that belongs to commit messages). Code should reflect the current state AND never refer how it used to work, or what have been changed.
-  - Always try to explain yourself in code.
-  - Don't be redundant.
-  - Don't add obvious noise.
-  - Don't use closing brace comments.
-  - Don't comment out code. Just remove.
-  - Use as explanation of intent.
-  - Use as clarification of code.
-  - Use as warning of consequences.
+  - Don't explain what you changed (that belongs in commit messages)—code should reflect the current state only
+  - Always try to explain yourself in code
+  - Don't be redundant
+  - Don't add obvious noise
+  - Don't use closing brace comments
+  - Don't comment out code—just remove it
+  - Use comments for explanation of intent, clarification, or warning of consequences
 - Source code structure:
-  - Separate concepts vertically.
-  - Related code should appear vertically dense.
-  - Declare variables close to their usage.
-  - Dependent functions should be close.
-  - Similar functions should be close.
-  - Place functions in the downward direction.
-  - Public functions should be above internal functions, and internal functions should be above private functions.
-  - Don't use horizontal alignment.
-  - Use white space to associate related things and disassociate weakly related.
-  - Avoid nesting of code. Prefer early return, or break/continue statements. Keep the happy path return at the end when possible.
-- Functions rules :
-  - Small.
-  - Do one thing.
-  - Use descriptive names.
-  - Prefer fewer arguments.
-  - Have no side effects.
-  - Don't use flag arguments. Split method into several independent methods that can be called from the client without the flag.
+  - Separate concepts vertically
+  - Related code should appear vertically dense
+  - Declare variables close to their usage
+  - Dependent functions should be close
+  - Similar functions should be close
+  - Place functions in the downward direction
+  - Order: public functions above internal, internal above private
+  - Don't use horizontal alignment
+  - Use white space to associate related things and disassociate weakly related
+  - Avoid nesting—prefer early return or break/continue statements, keeping the happy path at the end
+- Functions rules:
+  - Keep them small
+  - Do one thing
+  - Use descriptive names
+  - Prefer fewer arguments
+  - Have no side effects
+  - Don't use flag arguments—split into independent methods instead
 - For enum comparisons:
   - When comparing enums to enums, use direct comparison: `tenant.State == tenantState.Trial`
-  - When comparing string properties to enums (e.g., JWT claims, database string columns), use `nameof` on the enum: `executionContext.UserInfo.Role == nameof(UserRole.Owner)`.
-  - Avoid unnecessary `Enum.TryParse` when the comparison context is clear and the string is expected to match the enum.
+  - When comparing string properties to enums (e.g., JWT claims), use `nameof`: `executionContext.UserInfo.Role == nameof(UserRole.Owner)`
+  - Avoid unnecessary `Enum.TryParse` when the comparison context is clear
 
 ## Implementation
 
 IMPORTANT: Always follow these steps very carefully when implementing changes:
 
-1. Always start new changes by writing new test cases (or change existing tests). Remember to consult [API Tests](/.claude/rules/backend/api-tests.md) for details.
+1. Always start new changes by writing new test cases (or change existing tests)—consult [API Tests](/.claude/rules/backend/api-tests.md) for details
 2. Build and test your changes:
-   - Use the **execute MCP tool** with `command: "build"` for backend.
-   - Use the **execute MCP tool** with `command: "test"` to run all tests.
-   - If you change API contracts (endpoints, DTOs), use the **execute MCP tool** with `command: "build"` for frontend to ensure it still compiles.
+   - Use the **execute MCP tool** with `command: "build"` for backend
+   - Use the **execute MCP tool** with `command: "test"` to run all tests
+   - If you change API contracts (endpoints, DTOs), also build frontend to ensure it still compiles
 3. Format your code:
-   - When all tests are passing and you think you are feature complete, use the **execute MCP tool** with `command: "format"` for backend.
-   - The format tool will automatically fix code style issues according to our conventions.
+   - When all tests pass and the feature is complete, use the **execute MCP tool** with `command: "format"` for backend
+   - The format tool will automatically fix code style issues according to our conventions
 
-When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account-management`, `back-office`) you're working with. Replace `[Feature]` with the specific feature name you're working with (e.g., `Users`, `Tenants`, `Authentication`). A feature is often 1:1 with a domain aggregate (e.g., `User`, `Tenant`, `Login`).
+When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account-management`, `back-office`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate.

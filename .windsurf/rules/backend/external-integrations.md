@@ -10,22 +10,22 @@ Carefully follow these instructions when implementing integrations with external
 
 ## Implementation
 
-1. Create integration clients in the `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs` file location.
-2. Create a client class with a clear purpose and name.
-3. Use constructor injection with primary constructor syntax for dependencies.
+1. Create integration clients in `/[scs-name]/Core/Integrations/[ServiceName]/[ServiceClient].cs`
+2. Create a client class with a clear purpose and name
+3. Use constructor injection with primary constructor syntax for dependencies
 4. Implement proper error handling and logging:
-   - Never throw exceptions from integration clients.
-   - Return appropriate types (null, optional, or Result types) instead.
-   - Log errors with appropriate severity levels and structured data.
-5. Use typed clients with HttpClient injection (via AddHttpClient<T>) for HTTP-based integrations.
+   - Never throw exceptions from integration clients
+   - Return appropriate types (null, optional, or Result types) instead
+   - Log errors with appropriate severity levels and structured data
+5. Use typed clients with HttpClient injection (via `AddHttpClient<T>`) for HTTP-based integrations
 6. Configure resilience policies:
-   - Set appropriate timeouts for external calls.
-   - Implement retry policies for transient errors.
-   - Consider circuit breakers for failing services.
-7. Support cancellation tokens for proper request cancellation.
-8. Create DTOs for request and response data when needed (but don't postfix with `Dto`).
-9. Keep the implementation of one client in one file. Only if the client is very complex, should it be split into multiple files.
-10. Register clients in the DI container using the typed client pattern.
+   - Set appropriate timeouts for external calls
+   - Implement retry policies for transient errors
+   - Consider circuit breakers for failing services
+7. Support cancellation tokens for proper request cancellation
+8. Create DTOs for request and response data when needed (don't postfix with `Dto`)
+9. Keep the implementation of one client in one file—only split if very complex
+10. Register clients in the DI container using the typed client pattern
 
 ## Examples
 

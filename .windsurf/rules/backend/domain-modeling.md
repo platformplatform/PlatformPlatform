@@ -10,36 +10,36 @@ Carefully follow these instructions when implementing DDD models for aggregates,
 
 ## Implementation
 
-1. Create all DDD models in the `/[scs-name]/Core/Features/[Feature]/Domain` directory, including aggregates, entities, value objects, strongly typed IDs, repositories, and Entity Framework Core mapping.
+1. Create all DDD models in `/[scs-name]/Core/Features/[Feature]/Domain`, including aggregates, entities, value objects, strongly typed IDs, repositories, and EF Core mapping
 2. Understand the core DDD concepts:
-   - Aggregates are the root of the DDD model and map 1:1 to database tables.
-   - Entities belong to aggregates but have their own identity.
-   - Value objects are immutable and have no identity.
-   - Repositories are used to add, get, update, and remove aggregates; consult [Repositories](/.windsurf/rules/backend/repositories.md) for details.
-3. Store entities and value objects as JSON columns on the Aggregate in the database to avoid EF Core's `.Include()` method.
+   - Aggregates are the root of the DDD model and map 1:1 to database tables
+   - Entities belong to aggregates but have their own identity
+   - Value objects are immutable and have no identity
+   - Repositories add, get, update, and remove aggregates—see [Repositories](/.windsurf/rules/backend/repositories.md)
+3. Store entities and value objects as JSON columns on the Aggregate to avoid EF Core's `.Include()` method
 4. For Aggregates:
-   - Use public sealed classes that inherit from `AggregateRoot<TId>`.
-   - Create a strongly typed ID for aggregates; consult [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md) for details.
-   - Never use navigational properties to other aggregates (e.g., don't use `User.Tenant`, or `Order.Customer`).
-   - Use factory methods when creating aggregates.
-   - Make properties private, and use methods when changing state and enforcing business rules.
-   - Make properties immutable.
-   - For many-to-many aggregates, make them Tenant scoped (ITenantScopedEntity) to include TenantId column, even if foreign key constraints already ensure tenant isolation.
-   - For many-to-many aggregates, carefully consider if cascade delete is needed. If so, use `OnDelete(DeleteBehavior.Cascade)` in the EF Core IEntityTypeConfiguration.
+   - Use public sealed classes that inherit from `AggregateRoot<TId>`
+   - Create a strongly typed ID—see [Strongly Typed IDs](/.windsurf/rules/backend/strongly-typed-ids.md)
+   - Never use navigational properties to other aggregates (e.g., no `User.Tenant` or `Order.Customer`)
+   - Use factory methods when creating aggregates
+   - Make properties private; use methods for state changes and enforcing business rules
+   - Make properties immutable
+   - For many-to-many aggregates, make them Tenant scoped (`ITenantScopedEntity`) even if FK constraints ensure isolation
+   - For many-to-many aggregates, consider if cascade delete is needed—use `OnDelete(DeleteBehavior.Cascade)` if so
 5. For Entities:
-   - Use public sealed classes that inherit from `Entity<TId>`.
-   - Create a strongly typed ID for entities.
-   - Use factory methods when creating entities.
-   - Use private setters to control state changes.
-   - Make properties private, and use methods when changing state and enforcing business rules.
-   - Store entities as JSON columns on the Aggregate in the database.
+   - Use public sealed classes that inherit from `Entity<TId>`
+   - Create a strongly typed ID
+   - Use factory methods when creating entities
+   - Use private setters to control state changes
+   - Make properties private; use methods for state changes and enforcing business rules
+   - Store entities as JSON columns on the Aggregate
 6. For Value Objects:
-   - Use records to ensure immutability.
-   - Value objects do not have an ID.
+   - Use records to ensure immutability
+   - Value objects do not have an ID
 7. Do NOT add Entity Framework configuration for primitive properties:
-   - We do not use Entity Framework tooling for creating migrations, so there is no need for primitive property configuration, like length of fields or nullable properties.
-   - Only configure Entity Framework properties for complex types, like collections, and value objects, that Entity Framework uses for generating SQL statements.
-8. When implementing a new aggregate, start with the minimum required methods for the current feature. Add additional methods as new features require them, ensuring each method maintains aggregate invariants.
+   - We don't use EF tooling for migrations, so no need for primitive property configuration (length, nullable)
+   - Only configure EF properties for complex types (collections, value objects) that EF uses for generating SQL
+8. When implementing a new aggregate, start with minimum required methods and add more as features require, ensuring each maintains aggregate invariants
 
 ## Examples
 
@@ -160,10 +160,10 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
 {
     public void Configure(EntityTypeBuilder<BadInvoice> builder)
     {
-        builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ Do not configure primitive properties
-        builder.Property(t => t.Description).HasMaxLength(255);  // ❌ Do not configure primitive properties
-        builder.HasIndex(u => new { u.Email }).IsUnique();  // ❌ Is Unique is a database constraint, not need by EF Core at runtime
-        builder.Property(u => u.Role).HasColumnType("varchar(10)").HasConversion<string>(); // ❌  EntityFramework is configured to convert all enums to string
+        builder.Property(t => t.Name).HasMaxLength(100).IsRequired(); // ❌ DON'T: Configure primitive properties
+        builder.Property(t => t.Description).HasMaxLength(255);  // ❌ DON'T: Configure primitive properties
+        builder.HasIndex(u => new { u.Email }).IsUnique();  // ❌ IsUnique is a database constraint, not needed by EF Core at runtime
+        builder.Property(u => u.Role).HasColumnType("varchar(10)").HasConversion<string>(); // ❌ EF is configured to convert all enums to string
     }
 }
 ```

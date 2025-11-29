@@ -11,69 +11,65 @@ Carefully follow these instructions when implementing and extending the custom D
 ## Implementation
 
 1. Command Structure:
-   - Create one file per command in the `developer-cli/Commands` directory.
-   - Name the file with the `Command` suffix and inherit from `System.CommandLine.Command` base class.
-   - Provide a concise description in the constructor that explains the command's purpose.
-   - Define all command options using `AddOption()` in the constructor.
-   - Implement the command's logic in a private `Execute` method.
-   - Use static methods where appropriate for better organization of functionality.
+   - Create one file per command in `developer-cli/Commands`
+   - Name the file with `Command` suffix and inherit from `System.CommandLine.Command`
+   - Provide a concise description in the constructor explaining the command's purpose
+   - Define all command options using `AddOption()` in the constructor
+   - Implement the command's logic in a private `Execute` method
+   - Use static methods where appropriate for better organization
 
 2. Command Options:
-   - Use double-dash (`--`) for long option names and single-dash (`-`) for abbreviations.
-   - Provide clear, concise descriptions for all options.
-   - Use consistent naming across commands for similar options (e.g., `--self-contained-system` and `-s`).
-   - Define option types explicitly (e.g., `Option<bool>`, `Option<string?>`).
-   - For positional arguments, include both positional and named options (e.g., `["<self-contained-system>", "--self-contained-system", "-s"]`).
-   - Set default values where appropriate using lambda expressions.
+   - Use double-dash (`--`) for long names and single-dash (`-`) for abbreviations
+   - Provide clear, concise descriptions for all options
+   - Use consistent naming across commands (e.g., `--self-contained-system` and `-s`)
+   - Define option types explicitly (e.g., `Option<bool>`, `Option<string?>`)
+   - For positional arguments, include both positional and named options
+   - Set default values where appropriate using lambda expressions
 
 3. Prerequisites and Dependencies:
-   - Always check for required dependencies at the beginning of the `Execute` method.
-   - Use `Prerequisite.Ensure()` to verify that required tools are installed.
-   - Common prerequisites include `Prerequisite.Dotnet` and `Prerequisite.Node`.
+   - Always check for required dependencies at the beginning of `Execute`
+   - Use `Prerequisite.Ensure()` to verify required tools are installed
+   - Common prerequisites: `Prerequisite.Dotnet` and `Prerequisite.Node`
 
 4. Process Execution:
-   - Use `ProcessHelper` for all external process execution.
-   - For simple process execution, use `ProcessHelper.StartProcess()`.
-   - For processes that need shell features, use `ProcessHelper.StartProcessWithSystemShell()`.
-   - Specify the working directory as the second parameter when needed.
-   - Handle process execution errors appropriately.
+   - Use `ProcessHelper` for all external process execution
+   - Use `ProcessHelper.StartProcess()` for simple execution
+   - Use `ProcessHelper.StartProcessWithSystemShell()` for shell features
+   - Specify working directory as the second parameter when needed
+   - Handle process execution errors appropriately
 
 5. Error Handling:
-   - Use `try/catch` blocks to handle exceptions.
-   - Display error messages using `AnsiConsole.MarkupLine()` with appropriate color formatting.
-   - Use `Environment.Exit(1)` to exit with a non-zero status code on errors.
-   - Do not throw exceptions; instead, handle them and exit gracefully.
-   - Provide clear, actionable error messages to the user.
+   - Use `try/catch` blocks to handle exceptions
+   - Display error messages using `AnsiConsole.MarkupLine()` with color formatting
+   - Use `Environment.Exit(1)` to exit with non-zero status on errors
+   - Don't throw exceptions—handle them and exit gracefully
+   - Provide clear, actionable error messages
 
 6. Console Output:
-   - Use `Spectre.Console.AnsiConsole` for all console output.
-   - Use color coding for different types of messages:
-     - `[blue]` for informational messages
-     - `[green]` for success messages
-     - `[yellow]` for warnings
-     - `[red]` for errors
-   - Format output consistently across all commands.
-   - Use tables, panels, or other Spectre.Console features for complex output.
+   - Use `Spectre.Console.AnsiConsole` for all console output
+   - Use color coding: `[blue]` info, `[green]` success, `[yellow]` warnings, `[red]` errors
+   - Format output consistently across all commands
+   - Use tables, panels, or other Spectre.Console features for complex output
 
 7. Command Registration:
-   - Set the command handler in the constructor using `CommandHandler.Create<>()`.
-   - Match the handler parameters with the command options.
-   - Use nullable types for optional parameters.
+   - Set the command handler in the constructor using `CommandHandler.Create<>()`
+   - Match handler parameters with command options
+   - Use nullable types for optional parameters
 
 8. Utility Classes:
-   - Use existing utility classes from the `developer-cli/Utilities` directory.
-   - Only create new utility classes for truly generic functionality that can be used across multiple commands.
-   - Place command-specific helper methods as private methods within the command class.
+   - Use existing utility classes from `developer-cli/Utilities`
+   - Only create new utility classes for truly generic functionality
+   - Place command-specific helper methods as private methods in the command class
 
 9. Performance Tracking:
-   - Use `Stopwatch` to track execution time for long-running operations.
-   - Display timing information to the user for better feedback.
-   - Format timing information consistently using extension methods like `.Format()`.
+   - Use `Stopwatch` to track execution time for long-running operations
+   - Display timing information for better feedback
+   - Format timing consistently using extension methods like `.Format()`
 
 10. Self-Contained Implementation:
-    - Keep each command implementation self-contained in a single file.
-    - Avoid dependencies between command implementations.
-    - Extract shared functionality to utility classes only when necessary.
+    - Keep each command self-contained in a single file
+    - Avoid dependencies between command implementations
+    - Extract shared functionality to utility classes only when necessary
 
 ## Examples
 
@@ -118,7 +114,7 @@ public class BadBuildCommand : Command
     public BadBuildCommand() : base("bad-build", "Bad build command")
     {
         // ❌ DON'T: Extract options to a variable
-        var option = new Option<string?>(["-file-name", "--f"], "The name of the solution to process") // ❌ DON'T: Inconsistent option naming and wrong use of -- and -
+        var option = new Option<string?>(["-file-name", "--f"], "The name of the solution to process") // ❌ Inconsistent option naming, wrong use of -- and -
         AddOption(option); 
         Handler = CommandHandler.Create<string>(Execute);
     }
@@ -129,7 +125,7 @@ public class BadBuildCommand : Command
         Console.WriteLine("Building..."); // ❌ DON'T: Use Console.WriteLine
         var process = System.Diagnostics.Process.Start("dotnet", $"build {file}"); // ❌ DON'T: Use Process.Start directly
         process.WaitForExit();
-        return process.ExitCode; // ❌ DON'T: Return exit code instead of Environment.Exit
+        return process.ExitCode; // ❌ DON'T: Return exit code, use Environment.Exit instead
     }
 }
 ```

@@ -11,101 +11,101 @@ These rules outline the structure, patterns, and best practices for writing end-
 ## Implementation
 
 1. Use the **e2e MCP tool** to run end-to-end tests with these options:
-   - Test filtering: smoke tests only, specific browser, search terms.
-   - Change scoping: last failed tests, only changed tests.
-   - Flaky test detection: repeat tests, retry on failure, stop on first failure.
-   - Performance: debug timing to see step execution times.
-   - **Note**: The **e2e MCP tool** always runs with quiet mode automatically.
+   - Test filtering: smoke tests only, specific browser, search terms
+   - Change scoping: last failed tests, only changed tests
+   - Flaky test detection: repeat tests, retry on failure, stop on first failure
+   - Performance: debug timing to see step execution times
+   - **Note**: The **e2e MCP tool** always runs with quiet mode automatically
 
 2. Test Search and Filtering:
-   - Search by test tags: smoke, comprehensive.
-   - Search by test content: find tests containing specific text.
-   - Search by filename: find specific test files.
-   - Multiple search terms: `e2e(searchTerms=["user", "management"])`.
-   - The tool automatically detects which self-contained systems contain matching tests and only runs those.
+   - Search by test tags: smoke, comprehensive
+   - Search by test content: find tests containing specific text
+   - Search by filename: find specific test files
+   - Multiple search terms: `e2e(searchTerms=["user", "management"])`
+   - The tool automatically detects which self-contained systems contain matching tests and only runs those
 
 3. Test-Driven Debugging Process:
-   - Focus on one failing test at a time and make it pass before moving to the next.
-   - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
-   - Consider if root causes can be fixed in the application code, and fix application bugs rather than masking them with test workarounds.
+   - Focus on one failing test at a time and make it pass before moving to the next
+   - Ensure tests use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
+   - Consider if root causes can be fixed in the application code—fix application bugs rather than masking them with test workarounds
 
 4. Organize tests in a consistent file structure:
-   - All e2e test files must be located in `[self-contained-system]/WebApp/tests/e2e/` folder (e.g., `application/account-management/WebApp/tests/e2e/`).
-   - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`).
-   - One test file per feature with max 2 tests: one @smoke and one @comprehensive. Prefer extending existing tests even for new features to optimize test speed.
-   - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`.
+   - All e2e test files must be located in `[self-contained-system]/WebApp/tests/e2e/` folder (e.g., `application/account-management/WebApp/tests/e2e/`)
+   - All test files use the `*-flows.spec.ts` naming convention (e.g., `login-flows.spec.ts`, `signup-flows.spec.ts`, `user-management-flows.spec.ts`)
+   - One test file per feature with max 2 tests: one @smoke and one @comprehensive—prefer extending existing tests even for new features to optimize test speed
+   - Top-level describe blocks must use only these 3 approved tags: `test.describe("@smoke", () => {})`, `test.describe("@comprehensive", () => {})`, `test.describe("@slow", () => {})`
    - `@smoke` tests:
-     - Critical tests run on deployment of any self-contained system.
-     - Should be comprehensive scenarios that test core user journeys.
-     - Keep tests focused on specific flows to reduce fragility while maintaining coverage.
-     - Focus on must-work functionality with extensive validation steps.
-     - Include boundary cases and error handling within the same test scenario.
-     - Avoid testing the same functionality multiple times across different tests.
+     - Critical tests run on deployment of any self-contained system
+     - Should be comprehensive scenarios that test core user journeys
+     - Keep tests focused on specific flows to reduce fragility while maintaining coverage
+     - Focus on must-work functionality with extensive validation steps
+     - Include boundary cases and error handling within the same test scenario
+     - Avoid testing the same functionality multiple times across different tests
    - `@comprehensive` tests:
-     - Thorough tests run when a specific self-contained system is deployed.
-     - Focus on edge cases, error conditions, and less common scenarios.
-     - Test specific features in depth with various input combinations.
+     - Thorough tests run when a specific self-contained system is deployed
+     - Focus on edge cases, error conditions, and less common scenarios
+     - Test specific features in depth with various input combinations
      - Include tests for concurrency, validation rules, accessibility, etc.
-     - Group related edge cases together to reduce test count while maintaining coverage.
+     - Group related edge cases together to reduce test count while maintaining coverage
    - `@slow` tests:
-     - Optional and run only ad-hoc using `--include-slow` flag.
-     - Any tests that require waiting like `waitForTimeout` (e.g., for OTP timeouts) must be marked as `@slow`.
+     - Optional and run only ad-hoc using `--include-slow` flag
+     - Any tests that require waiting like `waitForTimeout` (e.g., for OTP timeouts) must be marked as `@slow`
      - Include tests for rate limiting with actual wait times, session timeouts, etc.
-     - Use `test.setTimeout()` at the individual test level based on actual wait times needed.
+     - Use `test.setTimeout()` at the individual test level based on actual wait times needed
 
 5. Write clear test descriptions and documentation:
-   - Test descriptions must accurately reflect what the test covers and be kept in sync with test implementation.
-   - Use descriptive test names that clearly indicate the functionality being tested (e.g., "should handle single and bulk user deletion workflows with dashboard integration").
-   - Include JSDoc comments above complex tests listing all major features/scenarios covered.
-   - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes.
+   - Test descriptions must accurately reflect what the test covers and be kept in sync with test implementation
+   - Use descriptive test names that clearly indicate the functionality being tested (e.g., "should handle single and bulk user deletion workflows with dashboard integration")
+   - Include JSDoc comments above complex tests listing all major features/scenarios covered
+   - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes
 
 6. Structure each test with step decorators and proper monitoring:
-   - All tests must start with `const context = createTestContext(page);` for proper error monitoring.
-   - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`.
+   - All tests must start with `const context = createTestContext(page);` for proper error monitoring
+   - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
    - Step naming conventions:
-     - Always follow "[Business action + details] & [expected outcome]" pattern.
-     - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit".
-     - Never use test/assertion prefixes like "Test", "Verify", "Check", "Validate", "Ensure"; use descriptive business actions instead.
-     - Every step must include an action (arrange/act) followed by assertions, not pure assertion steps.
+     - Always follow "[Business action + details] & [expected outcome]" pattern
+     - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit"
+     - Never use test/assertion prefixes like "Test", "Verify", "Check", "Validate", "Ensure"—use descriptive business actions instead
+     - Every step must include an action (arrange/act) followed by assertions, not pure assertion steps
    - Step structure:
-     - Use blank lines to separate arrange/act/assert sections within steps.
-     - Keep shared variable declarations outside steps when used across multiple steps.
-     - Use section headers with `// === SECTION NAME ===` to group related steps.
-     - Add JSDoc comments for complex test workflows.
-   - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`.
-   - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`.
-   - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation.
+     - Use blank lines to separate arrange/act/assert sections within steps
+     - Keep shared variable declarations outside steps when used across multiple steps
+     - Use section headers with `// === SECTION NAME ===` to group related steps
+     - Add JSDoc comments for complex test workflows
+   - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`
+   - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`
+   - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation
 
 7. Timeout Configuration:
-   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`.
+   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
    - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
-   - Global timeout configuration is handled in the shared Playwright. Do not change this.
+   - Global timeout configuration is handled in the shared Playwright—do not change this
 
-8. Write deterministic tests - This is critical for reliable testing:
-   - Each test should have a clear, linear flow of actions and assertions.
-   - Never use if statements, custom error handling, or try/catch blocks in tests.
-   - Never use regular expressions in tests; use simple string matching instead.
+8. Write deterministic tests—this is critical for reliable testing:
+   - Each test should have a clear, linear flow of actions and assertions
+   - Never use if statements, custom error handling, or try/catch blocks in tests
+   - Never use regular expressions in tests—use simple string matching instead
 
 9. What to test:
-   - Enter invalid values, such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
+   - Enter invalid values such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
 10. Test Fixtures and Page Management:
-   - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests.
-   - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`.
-   - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests.
-   - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests.
+    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests
+    - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
+    - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests
+    - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests
 
 11. Test Data and Constants:
-   - Use underscore separators: `const timeout = 30_000; // 30 seconds`.
-   - Generate unique data: `const email = uniqueEmail();`.
-   - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`.
-   - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`.
+    - Use underscore separators: `const timeout = 30_000; // 30 seconds`
+    - Generate unique data: `const email = uniqueEmail();`
+    - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
+    - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
 
 12. Memory Management in End-to-End Tests:
-    - Playwright automatically handles browser context cleanup after tests.
-    - Manual cleanup steps are unnecessary - focus on test clarity over micro-optimizations.
-    - End-to-End test suites have minimal memory leak concerns due to their limited scope and duration.
+    - Playwright automatically handles browser context cleanup after tests
+    - Manual cleanup steps are unnecessary—focus on test clarity over micro-optimizations
+    - End-to-End test suites have minimal memory leak concerns due to their limited scope and duration
 
 ## Examples
 
@@ -218,7 +218,7 @@ test.describe("@slow", () => {
 ```
 
 ```typescript
-test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @smoke, @comprehensive, @slow only
+test.describe("@security", () => { // ❌ DON'T: Invent new tags - use @smoke, @comprehensive, @slow only
   test("should handle login", async ({ page }) => {
     // ❌ DON'T: Skip createTestContext(page); step
     page.setDefaultTimeout(5000); // ❌ DON'T: Set timeouts manually - use global config
@@ -257,6 +257,6 @@ test.describe("@security", () => { // ❌ DON'T: Don't invent new tags - use @sm
 
 // ❌ DON'T: Create tests without proper organization
 test("isolated test without describe block", async ({ page }) => {
-  // ❌ DON'T: Violates organization rules
+  // ❌ Violates organization rules
 });
 ```
