@@ -9,14 +9,14 @@ Carefully follow these instructions when integrating with backend APIs in the fr
 
 ## Implementation
 
-1. Use TanStack Query for all API integration.
-2. Use the shared-webapp library for common hooks and API clients.
-3. Leverage the strongly typed API contract generated from the .NET backend.
-4. Use `api.useQuery` for data fetching operations.
-5. Use `api.useMutation` for data modification operations.
-6. Use `mutationSubmitter` for form submissions with mutations.
+1. Use TanStack Query for all API integration
+2. Use the shared-webapp library for common hooks and API clients
+3. Leverage the strongly typed API contract generated from the .NET backend
+4. Use `api.useQuery` for data fetching operations
+5. Use `api.useMutation` for data modification operations
+6. Use `mutationSubmitter` for form submissions with mutations
 
-Note: All .NET API endpoints are available as strongly typed API contracts in the frontend. When compiling the .NET backend, an OpenApi.json file is generated, and the frontend build uses `openapi-typescript` to generate the API contracts.
+Note: All .NET API endpoints are available as strongly typed API contracts in the frontend—when compiling the .NET backend, an OpenApi.json file is generated and the frontend build uses `openapi-typescript` to generate the API contracts.
 
 ```json
 "scripts": {
@@ -24,7 +24,9 @@ Note: All .NET API endpoints are available as strongly typed API contracts in th
 },
 ```
 
-## Example 1 - Data Fetching Example
+## Examples
+
+### Example 1 - Data Fetching Example
 
 ```typescript
 import { LoadingSpinner } from "@repo/ui/components/LoadingSpinner";
@@ -42,7 +44,7 @@ const { data: users, isLoading } = api.useQuery("get", "/api/users", {
 )}
 ```
 
-## Example 2 - Data Mutation Example
+### Example 2 - Data Mutation Example
 
 ```typescript
 const completeLoginMutation = api.useMutation("post", "/api/login/{id}/complete");
@@ -65,7 +67,7 @@ const handleComplete = () => {
 };
 ```
 
-## Example 3 - Form Submission Example
+### Example 3 - Form Submission Example
 
 ```typescript
 import { Form } from "@repo/ui/components/Form";
@@ -90,3 +92,4 @@ import { Trans } from "@lingui/react/macro";
   </Button>
 </Form>
 ```
+

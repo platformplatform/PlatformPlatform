@@ -1,48 +1,86 @@
 ---
 description: Core rules for frontend TypeScript and React development
-globs: *.tsx
+globs: *.tsx,*.ts
 alwaysApply: false
 ---
 # Frontend
 
-Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, and build/format steps.
+Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
+
+## Architecture Overview
+
+1. **SPA Served by .NET Backend**:
+   - SPA served via `SinglePageAppFallbackExtensions.cs` from the backend
+   - UserInfo injected into HTML meta tags and available via `import.meta.user_info_env`
+   - Authentication is server-side with HTTP-only cookies
+   - YARP reverse proxy handles routing between SPA and APIs
+
+2. **Module Federation for Micro-Frontends**:
+   - Each self-contained system has its own WebApp
+   - Common UI exposed via federation in `federated-modules/`
+   - Shared components in `application/shared-webapp/`
+   - Never import directly between self-contained systems
+   - Use `window.location.href` for navigation between systems (not TanStack Router)
+
+3. **API Integration**:
+   - API client auto-generated from OpenAPI spec
+   - Located in `shared/lib/api/client.ts`
+   - Never make direct fetch calls
+   - Server state lives in TanStack Query only
+   - Use `queryClient.invalidateQueries()` to refresh data after mutations
 
 ## Implementation
 
 1. Follow these code style and pattern conventions:
    - Use proper naming conventions:
-     - PascalCase for components (e.g., `UserProfile`, `NavigationMenu`).
-     - camelCase for variables and functions (e.g., `userName`, `handleSubmit`).
+     - PascalCase for components (e.g., `UserProfile`, `NavigationMenu`)
+     - camelCase for variables and functions (e.g., `userName`, `handleSubmit`)
    - Create semantically correct components with clear boundaries and responsibilities:
-     - Each component should have a single, well-defined purpose.
-     - UI elements with different functionality should be in separate components.
-     - Avoid mixing unrelated functionality in one component.
-   - Use clear, descriptive names instead of making comments.
-   - Never use acronyms in code (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`, `navigation` not `nav`, `parameters` not `params`).
-   - Prioritize code readability and maintainability.
-   - Never introduce new npm dependencies.
-   - Always use React Aria Components, and do not use native HTML elements like: `<a>`, `<button>`, `<div>`, `<fieldset>`, `<form>`, `<h1>` to `<h6>`, `<hr>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<span>`, `<table>`, `<textarea>`, `<ul>`.
+     - Each component should have a single, well-defined purpose
+     - UI elements with different functionality should be in separate components
+     - Avoid mixing unrelated functionality in one component
+   - Use clear, descriptive names instead of making comments
+   - Never use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
+   - Prioritize code readability and maintainability
+   - Never introduce new npm dependencies
+   - Always use React Aria Components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
 
 2. Use the following React patterns and libraries:
-   - Use React Aria Components from `@repo/ui/components/ComponentName`.
-   - Use `onPress` instead of `onClick` for event handlers.
-   - Use `<Trans>...</Trans>` or t-string literals (t`...`) for translations.
-   - Use TanStack Query for API interactions, and don't use `fetch` directly.
-   - Throw errors sparingly and ensure error messages include a period.
+   - Use React Aria Components from `@repo/ui/components/ComponentName`:
+     - Search [Components](mdc:application/shared-webapp/ui/components) when you need to find a component
+     - Always use existing components rather than creating new ones
+   - Use `onPress` instead of `onClick` for event handlers
+   - Use `onAction` for menu items and list actions
+   - Use `<Trans>...</Trans>` for JSX translations, `t` macro for strings
+   - Use TanStack Query for API interactions via `api.useQuery()` and `api.useMutation()`
+   - Never use `fetch` directly—always use the generated API client
+   - Use Suspense boundaries with error boundaries at route level
+   - Colocate state with components—don't lift state unnecessarily
+   - Use `useCallback` and `useMemo` only for proven performance issues
+   - Throw errors sparingly and ensure error messages include a period
 
-3. Always follow these steps when implementing changes:
-   - Consult relevant rule files and list which ones guided your implementation.
-   - Search the codebase for similar code before implementing new code.
-   - Reference existing implementations to maintain consistency.
+3. Error handling:
+   - **Errors are handled globally**—`shared-webapp/infrastructure/http/errorHandler.ts` automatically shows toast notifications with the server's error message (don't manually show toasts for errors)
+   - **Validation errors**: Pass to forms via `validationErrors={mutation.error?.errors}`
+   - **`onError` is for UI cleanup only** (resetting loading states, closing dialogs), not for showing errors
 
-4. Build and format your changes:
-   - After each minor change, run `[CLI_ALIAS] build --frontend` to format your code. See [Tools](mdc:.cursor/rules/tools.mdc) for details.
-   - This ensures consistent code style across the codebase.
+4. Responsive design utilities:
+   - Use `useViewportResize()` hook to detect mobile viewport (returns `true` when mobile)
+   - Use `isTouchDevice()` for touch vs mouse interactions
+   - Use `isMediumViewportOrLarger()` for desktop-specific features
 
-5. Verify your changes:
-   - When a feature is complete, run `[CLI_ALIAS] check --frontend` to verify your changes.
-   - This command runs build, format, and check in that order.
-   - Fix any compiler warnings or test failures before proceeding.
+5. Always follow these steps when implementing changes:
+   - Consult relevant rule files and list which ones guided your implementation
+   - Search the codebase for similar code before implementing new code
+   - Reference existing implementations to maintain consistency
+
+6. Build and format your changes:
+   - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend
+   - This ensures consistent code style across the codebase
+
+7. Verify your changes:
+   - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
+   - Fix any compiler warnings or test failures before proceeding
 
 ## Examples
 
@@ -84,20 +122,20 @@ export function AvatarMenu({ userInfo, onProfileClick, onLogoutClick }: AvatarMe
 // ❌ DON'T: Mix unrelated functionality in a single component
 function BadAvatarMenu({ userInfo }) { // Bad: Mixing menu with logout functionality
   return (
-    <div className="menu"> // ❌ DON'T: use css styles instead of Tailwind
+    <div className="menu"> // ❌ DON'T: Use CSS styles instead of Tailwind
       <div className="header">
-        <div className="flex flex-row items-center gap-2"> // ❌ DON'T: <div> as the only element inside another <div>
+        <div className="flex flex-row items-center gap-2"> // ❌ Unnecessary nested <div>
           <div className="m-12">
             <img src={userInfo.avatarUrl} alt="User avatar" /> // ❌ DON'T: Use native <img>
             <h2>{userInfo.fullName}</h2>
           </div>
         </div>
       </div>
-      <button onClick={() => showProfile()}> // ❌ DON'T: use native <button>
+      <button onClick={() => showProfile()}> // ❌ DON'T: Use native <button>
         <i className="icon-user"></i> Profile
       </button>
       <button onClick={() => {
-        // ❌ DON'T: Implement logout logic directly in the component, and don't call fetch directly
+        // ❌ DON'T: Implement logout logic directly in component or call fetch directly
         fetch("/api/account-management/authentication/logout", { method: "POST" })
           .then(() => window.location.href = "/login");
       }}>

@@ -1,135 +1,184 @@
 ---
-description: Workflow for creating and maintaining AI rules
+description: Workflow for creating, updating, and reviewing AI rules and commands
+auto_execution_mode: 3
 ---
 
 # Update AI Rules Workflow
 
-Follow this workflow to create and update AI rules files. Rules should be created in appropriate subfolders of the `.windsurf/` directory, with clear file names that reflect their purpose (e.g., `.windsurf/rules/backend/strongly-typed-ids.md`, `.windsurf/rules/frontend/tanstack-query-api-integration.md`).
+Follow this workflow to create, update, or review AI configuration files (rules, commands/workflows, etc.). The `.claude/` directory is the source of truth, synchronized to other AI editors via the `sync_ai_rules` MCP tool.
 
-## Workflow
+## Directory Structure
 
-1. Start each rule file with the required frontmatter:
-   ```markdown
-   ---
-   description: Clear, one-line description of what the rule enforces.
-   globs: path/to/files/*PostFix.ext, other/path/**/*
-   alwaysApply: false
-   ---
-   ```
-   - Make the description concise but descriptive.
-   - Use appropriate glob patterns to target specific file types. Be as specific as possible, e.g. `**/Commands/*.cs` or `**/Domain/*Repository.cs`.
-   - Set `alwaysApply` to false for most rules (except main.md which should have `alwaysApply: true`).
+- `.claude/rules/` - Coding standards and patterns in subfolders (e.g., backend, frontend, infrastructure).
+- `.claude/commands/` - Slash command workflows in subfolders (e.g., process, modes, review).
 
-2. Follow this standard document structure for all rule files:
-   - Start with a level 1 heading (`# Heading`) that matches the file name (without extension).
+## Frontmatter Formats
+
+### Rules Frontmatter
+
+```yaml
+---
+trigger: glob
+globs: **/Commands/*.cs, **/Queries/*.cs
+description: Clear, one-line description of what the rule enforces
+---
+```
+
+- `trigger: glob` - Required. Indicates rule is loaded based on file patterns.
+- `globs:` - File patterns for auto-loading. Be specific (e.g., `**/Commands/*.cs` not `**/*.cs`).
+- `description:` - Synced to other editors. Keep it self-contained.
+
+### Commands Frontmatter
+
+```yaml
+---
+description: Self-contained description of what this workflow does
+args:
+  - name: argName
+    description: What this argument is for
+    required: false
+---
+```
+
+- `description:` - Must be self-contained. Args are Claude Code specific and don't sync to other editors.
+- `args:` - Optional. Only available in Claude Code.
+
+## Writing Rules
+
+1. Use the standard document structure:
+   - Start with a level 1 heading (`# Title`) matching the filename (without extension).
    - Begin with a brief overview paragraph describing the rule's purpose.
-   - Include a level 2 heading called "## Implementation" that contains the implementation steps.
-   - Include a level 2 heading called "## Examples" with practical examples.
+   - Include a level 2 heading `## Implementation` with numbered steps.
+   - Include a level 2 heading `## Examples` with practical examples.
+
+2. Follow formatting conventions:
+   - Use Title Case for level 2 headings (e.g., `## Implementation`, `## Examples`).
    - Number implementation steps for easy reference.
    - Use bulleted lists for related items within a step.
-   - Bullets should end with a period like a sentence.
 
-3. Write implementation steps clearly and actionably:
-   - Begin each step with a directive verb (Use, Follow, Create, Implement, etc.).
+3. Write implementation steps clearly:
+   - Begin each step with a directive verb (Use, Follow, Create, Implement).
    - Be specific about requirements and conventions.
-   - Provide clear guidance that can be followed without ambiguity.
-   - Organize related requirements under the same numbered step using bullet points.
    - Cover both the "what" and the "how" in your instructions.
 
-4. Reference related files and documentation:
-   - Use `[filename](/path/to/file)` syntax to link to other files.
-   - Example: `[Commands](/.windsurf/rules/backend/commands.md)` for rule references.
-   - Example: `[UserRepository.cs](/application/account-management/Core/Features/Users/Domain/UserRepository.cs)` for code references.
-   - Reference actual implementation examples from the codebase whenever possible.
-
-5. Include clear code examples:
+4. Include code examples:
    - Use language-specific code blocks with proper syntax highlighting.
    - Always show both good (DO) and bad (DON'T) examples for clarity.
-   - Use comments with ✅ DO: and ❌ DON'T: prefixes to highlight key points.
-   - Structure examples in a consistent format:
-   ```csharp
-   // ✅ DO: Show good examples with clear explanation
-   public class GoodExample
-   {
-       // Implementation details
-   }
+   - Use comments with `// ✅ DO:` and `// ❌ DON'T:` prefixes, or just `// ✅` and `// ❌`.
+   - Provide multiple examples for complex rules, using `### Example 1` and `### Example 2`.
 
-   // ❌ DON'T: Violate the convention
-   public class BadExample
-   {
-       // Implementation details
-   }
-   ```
-   - Provide multiple examples for complex rules, using numbered headings like "### Example 1" and "### Example 2".
+5. Reference related files:
+   - Use `[filename](/path/to/file)` syntax to link to other files.
+   - Reference actual implementation examples from the codebase whenever possible.
 
-6. Ensure consistency across all rule files:
-   - Maintain consistent terminology across related rule files.
-   - Use the same formatting conventions in all rules.
-   - Ensure the level of detail is similar across rules of the same category.
-   - Reference other rule files when dependencies exist between rules.
-   - Keep file organization consistent within each directory.
+## Writing Commands/Workflows
 
-7. Update rules when implementation patterns change:
-   - Review and update rules when new patterns or libraries are introduced.
-   - Ensure rules reflect the current best practices in the codebase.
-   - Remove outdated guidance when development patterns evolve.
-   - Add new examples that showcase modern implementations.
+1. Use the standard document structure:
+   - Start with `# Title Workflow` or `# Title Mode` heading.
+   - Use step-by-step structure for complex workflows (STEP 1, STEP 2, etc.).
 
-8. Organize rules logically by category:
-   - Backend rules in `.windsurf/rules/backend/`
-   - Frontend rules in `.windsurf/rules/frontend/`
-   - Infrastructure rules in `.windsurf/rules/infrastructure/`
-   - Developer CLI rules in `.windsurf/rules/developer-cli/`
-   - Workflow instructions in `.windsurf/workflows/`
+2. Follow formatting conventions:
+   - Use Title Case for level 2 headings.
+   - Descriptions must be self-contained since args don't sync to other editors.
 
-9. Remember that workflow files (in `.windsurf/workflows/`) are special:
-   - These are not automatically included in AI context.
-   - They are activated ad-hoc by the user when needed.
-   - These should follow the same structure as other rule files.
-   - They should have clear, actionable steps for completing specific workflows.
+3. Reference other rules/commands with links when needed.
 
-10. IMPORTANT: Never modify files in the `.windsurf/` directory:
-    - Only modify files in the `.windsurf/` directory.
-    - The `.windsurf/` directory is updated using the `[CLI_ALIAS] sync-windsurf-ai-rules` command.
-    - Always run `[CLI_ALIAS] sync-windsurf-ai-rules` after updating rules and before committing.
+## Product Management Tool Integration
 
-11. Keep rule files under 6000 characters:
-    - This limit is enforced by Windsurf.
-    - Split complex rules into multiple files if necessary.
+Workflows that integrate with product management tools must use tool-agnostic terminology:
+
+**Required terminology** (use brackets, case, and pluralization consistently):
+- `[feature]` / `[features]` / `[Feature]` / `[Features]` - A collection of related [tasks].
+- `[task]` / `[tasks]` / `[Task]` / `[Tasks]` - A complete vertical slice of work.
+- `[subtask]` / `[subtasks]` / `[Subtask]` / `[Subtasks]` - Bullet points in [task] descriptions (not tracked separately).
+
+**Forbidden terms** (tool-specific, do not use):
+- Issue, Epic, Story, User Story, Work Item, Ticket, Bug (as work item types).
+
+The `[PRODUCT_MANAGEMENT_TOOL]` variable in `AGENTS.md` determines which specific tool guide to load. Reference tool-specific guides at `.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
+
+## Sync and Limits
+
+1. `.claude/` is the source of truth. Never modify files in other editor directories directly.
+
+2. Always run the `sync_ai_rules` MCP tool after updating files.
+
+3. **12,000 character limit** per file. Some editors like Windsurf truncate content exceeding this limit.
+
+## Review Checklist
+
+When reviewing changes to rules or commands:
+
+- [ ] Frontmatter format is correct for file type (rules vs commands).
+- [ ] Description is self-contained and meaningful.
+- [ ] Level 2 headings use Title Case.
+- [ ] Examples use ✅/❌ patterns where applicable.
+- [ ] File organization matches its category.
+- [ ] Tool-agnostic terminology used (no Issue, Epic, Story, etc.).
+- [ ] `sync_ai_rules` MCP tool will be run after changes.
 
 ## Examples
 
-### Example 1 - Rule file structure
+### Example 1 - Rule File
 
 ```markdown
 ---
-description: Guidelines for TypeScript code style, type safety, and best practices.
-globs: **/*.ts,**/*.tsx
-alwaysApply: false
+trigger: glob
+globs: application/*/Core/*/Commands/*.cs
+description: Guidelines for implementing CQRS command handlers
 ---
-# TypeScript
+
+# Commands
+
+Command handlers implement write operations following CQRS patterns.
 
 ## Implementation
 
-1. Use explicit type annotations for function parameters and return types.
-2. Prefer interfaces over type aliases for object definitions.
-3. Use proper error handling with typed catch clauses.
-4. Initialize arrays and objects with concise syntax.
-5. Use optional chaining and nullish coalescing for safer code.
+1. Create command record in the feature's Commands folder.
+2. Implement handler using MediatR IRequestHandler.
+3. Use FluentValidation for input validation.
 
 ## Examples
 
-### Example 1 - Code Examples with DO and DON'T Patterns
+### Example 1 - Command Records
 
-```typescript
-// ✅ DO: Use explicit return types
-function calculateTotal(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.price, 0);
-}
+` ` `csharp
+// ✅ DO: Use records for commands
+public sealed record CreateUserCommand(string Email, string Name) : IRequest<Result<UserId>>;
 
-// ❌ DON'T: Rely on type inference for function signatures
-function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + item.price, 0);
+// ❌ DON'T: Use classes for commands
+public class CreateUserCommand : IRequest<Result<UserId>>
+{
+    public string Email { get; set; }
+    public string Name { get; set; }
 }
+` ` `
 ```
+
+### Example 2 - Command File
+
+```markdown
+---
+description: Workflow for implementing a [task] from a [feature]
+args:
+  - name: title
+    description: Task title
+    required: false
+---
+
+# Implement Task Workflow
+
+You are implementing: **{{{title}}}**
+
+## STEP 1: Read Task Assignment
+
+Read the [task] details from [PRODUCT_MANAGEMENT_TOOL].
+
+## STEP 2: Research Patterns
+
+Find similar implementations in the codebase.
+
+## STEP 3: Implement
+
+Follow the relevant rules for your implementation area.
 ```

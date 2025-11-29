@@ -1,1 +1,1 @@
-../.ai-rules/README.md
+../AGENTS.md

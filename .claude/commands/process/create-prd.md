@@ -1,0 +1,289 @@
+---
+description: Workflow for creating a product requirement document (PRD) for a new feature
+---
+
+# Create PRD Workflow
+
+Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [tasks] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
+
+## Mandatory Preparation
+
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+
+## Workflow
+
+Follow the steps below to create the PRD.
+
+### Step 1: Initialize `[PRODUCT_MANAGEMENT_TOOL]`
+
+Follow initialization steps in `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
+
+### Step 2: Ask what [feature] to build
+
+Use the AskUserQuestion tool to ask the user what [feature] they want to build:
+
+```
+AskUserQuestion with:
+- question: "What feature would you like to build?"
+- header: "Feature"
+- multiSelect: false
+- options:
+  - label: "New feature", description: "Create a new feature"
+  - label: "Enhancement", description: "Enhance existing functionality"
+```
+
+Users will typically use the custom text option to describe their [feature].
+
+**If the user's answer comes back empty:**
+- Tell the user to enable Plan Mode and try again
+- STOP the workflow
+
+**If you receive a valid answer:**
+- Use the text they entered as the [feature] description for research
+
+### Step 3: Research and understand the [feature]
+
+Conduct deep research for a feasible solution that takes the existing codebase and [features] into consideration:
+- Understand the user's requirements and business context
+- Investigate the current state and implementation in the codebase:
+  - Specify which self-contained system (e.g., `account-management`, `back-office`) the [feature] belongs to
+  - Respect the multi-tenant nature: design [features] to work for one tenant by default, unless otherwise specified
+- Use MCP tools (like context7 for library docs), Perplexity for online research, or web research for best practices and technologies
+- Read relevant code files and rule files to understand patterns and conventions
+
+### Step 4: Interactive requirements wizard
+
+Now that you've done research, ask the user ALL required questions in ONE single AskUserQuestion call:
+
+```
+AskUserQuestion with 4 questions:
+
+Question 1 - Feature name:
+- question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
+- header: "Feature name"
+- multiSelect: false
+- options:
+  - label: "Custom name", description: "Enter your feature name"
+
+Question 2 - Self-contained system (put the most likely SCS first based on research):
+- question: "Which self-contained system (SCS) should this feature belong to?"
+- header: "SCS"
+- multiSelect: false
+- options:
+  - label: "account-management", description: "Tenant and user management system"
+  - label: "back-office", description: "Support and system admin tools"
+  - label: "[Suggested SCS based on research]", description: "Based on my analysis"
+
+Question 3 - E2E tests:
+- question: "Should this PRD include Playwright end-to-end tests?"
+- header: "E2E Tests"
+- multiSelect: false
+- options:
+  - label: "Yes", description: "Include E2E tests as a separate [task]"
+  - label: "No", description: "Skip E2E tests for now"
+
+Question 4 - Parallel optimization:
+- question: "Should [tasks] be optimized for parallel work of backend and frontend?"
+- header: "Parallel"
+- multiSelect: false
+- options:
+  - label: "Yes", description: "Backend and frontend with mocks work in parallel, then integration"
+  - label: "No", description: "Sequential approach: backend first, then frontend"
+```
+
+**REQUIRED - Ask additional questions:**
+
+After the first 4 questions, you MUST ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
+
+Ask as many questions as needed to understand:
+- User roles and permissions
+- Complexity level (simple CRUD, workflow-based, complex logic)
+- Integration points with existing features
+- Validation rules and constraints
+- Edge cases to consider
+- Data relationships and dependencies
+
+**The more questions you ask, the better the PRD.**
+
+**Frontend-first approach (only ask if user selected "No" for parallel optimization):**
+```
+AskUserQuestion with:
+- question: "Should we create frontend mockups first for UI/UX exploration?"
+- header: "Approach"
+- multiSelect: false
+- options:
+  - label: "Yes", description: "Frontend mockups first to validate UI/UX before backend"
+  - label: "No", description: "Backend-first approach"
+```
+
+### Step 5: Draft the complete PRD and get approval
+
+Based on all the research and user answers, draft the complete PRD.
+
+**Create the PRD content following the [example PRD structure](/.claude/samples/example-prd.md):**
+
+1. **High-level PRD description:**
+   - Use sentence case for level-1 headers
+   - Stay at a high level—no implementation details or code examples
+   - Use correct domain terminology: multi-tenant, self-contained system, shared kernel, tenant, user, etc.
+   - Specify which self-contained system(s) are in scope
+   - Avoid repetition
+
+2. **[Tasks] section** structured based on wizard answers:
+
+   **Examples based on common patterns:**
+
+   **Example 1 - Parallel optimization (small [feature]):**
+   - Frontend with mocked API responses
+   - Backend implementation with real data (can work in parallel)
+   - Integration (connect frontend to real backend, remove mocks)
+   - E2E tests (if E2E tests selected)
+
+   **Example 2 - Frontend-first approach:**
+   - Frontend mockups/prototypes with static data
+   - Backend implementation based on frontend contract
+   - Integration (connect frontend to backend)
+   - E2E tests (if E2E tests selected)
+
+   **Example 3 - Backend-first approach:**
+   - Backend implementation
+   - Frontend implementation
+   - E2E tests (if E2E tests selected)
+
+   **Example 4 - Backend-only [feature]:**
+   - Backend implementation (API endpoints, commands, queries, migrations, tests)
+
+   **Example 5 - Large complex [feature]:**
+   - Frontend core UI with mocks
+   - Backend core functionality
+   - Integration frontend with backend
+   - Frontend advanced features with mocks
+   - Backend advanced functionality
+   - Integration frontend with backend
+   - E2E tests (if E2E tests selected)
+
+   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers.
+
+3. **[Task] guidelines:**
+   - Each [task] should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
+   - Keep [tasks] focused (one commit per [task])
+   - Write a clear paragraph describing what each [task] delivers
+   - Each [task] represents a complete vertical slice that can be implemented, reviewed, and committed independently
+   - **CRITICAL**: Repeat ALL relevant business rules in EACH task description (permissions, validations, constraints)
+   - Engineers/reviewers only read the task description, not the feature overview
+   - **List [tasks] in implementation order** (the order they should be implemented)
+   - E2E tests should typically be the final [task]
+   - **Important:** When using MCP-based `[PRODUCT_MANAGEMENT_TOOL]`, create [tasks] in the same order they appear in the PRD—this defines the implementation sequence
+
+**Example of WRONG task description (missing business rules):**
+```
+### 1. Backend for team management
+
+This task implements team CRUD operations with API endpoints and tests.
+
+- Create Team aggregate
+- Create CreateTeam command
+- Create API endpoints
+- Create tests
+```
+
+**Example of CORRECT task description (includes business rules):**
+```
+### 1. Backend for team management
+
+This task implements team CRUD operations with API endpoints and tests. Teams are managed by Tenant Owners and Admins only. Team names must be unique within a tenant.
+
+- Create Team aggregate with name uniqueness validation
+- Create CreateTeam command with Owner/Admin permission guard
+- Create UpdateTeam command with Owner/Admin permission guard
+- Create DeleteTeam command with Owner/Admin permission guard
+- Create API endpoints for all operations
+- Create tests covering permissions (403 for non-owners/admins), name uniqueness, tenant isolation
+```
+
+4. **Frontend task descriptions - use ASCII art sketches:**
+
+For frontend tasks, include ASCII art fat marker sketches showing UI layout and components:
+
+```
+### 2. Frontend for user management
+
+This task implements the Users page UI. Users can only be managed by Tenant Owners or Admins.
+
+┌─────────────────────────────────────────┐
+│ Users                   [+ Invite user] │
+├─────────────────────────────────────────┤
+│ ┌─────────────────────────────────────┐ │
+│ │ Email           Name         Role   │ │
+│ ├─────────────────────────────────────┤ │
+│ │ admin@...       John Doe     Owner  │ │
+│ │ member@...      Jane Smith   Member │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+
+- Add Users navigation menu item
+- Create Users page with table
+- Create CreateUserDialog (validates email uniqueness)
+- Show/hide [+ Invite user] button based on role (Owner/Admin only)
+- Create UserDetailsSidePane
+- Integrate all API operations
+```
+
+ASCII sketches help engineers visualize the UI before coding.
+
+Show the complete PRD to the user - display the full content including all [tasks] with their descriptions.
+
+**Ask for approval:** "Does this PRD look good?" (Yes/No)
+- If No: Ask what to change, update the PRD content, show again, repeat approval
+- If Yes: Continue to Step 6
+
+### Step 6: Create [feature] and [tasks] in [PRODUCT_MANAGEMENT_TOOL]
+
+Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
+
+Create:
+- [feature] with name=[feature name from Step 4 wizard], assign to "me"
+- [task] for each [task] in the PRD with:
+  - Title: [task title] (sentence case)
+  - Description: [task description paragraph] + [subtask bullets] (use bullets, NOT checkboxes)
+  - Link to parent [feature]
+  - Assign to "me"
+- Initialize all items in [Planned] status, in the current iteration/sprint
+
+**CRITICAL:** Each [task] description must include:
+1. A paragraph explaining what the task delivers
+2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
+
+**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. To implement, start the coordinator:
+```
+[DEVELOPER_CLI_ALIAS] claude-agent coordinator
+```
+The coordinator will prompt you to select which feature to implement.
+
+## Guidelines
+
+✅ DO:
+- Follow the exact structure in the example PRD
+- Conduct deep research by reading code, consulting rule files, and using MCP tools
+- Specify the self-contained system for the [feature]
+- Respect multi-tenant design by default
+- Keep the PRD high level without code snippets
+- Ask comprehensive questions in Step 4 to gather all requirements
+- Show PRD for approval (Step 5) before creating anything
+- Use the AskUserQuestion tool for all wizard questions in Plan Mode
+
+❌ DON'T:
+- Write PRDs as user stories—use the example structure
+- Include implementation details or code examples in the PRD
+- Skip research—always understand the problem first
+- Ignore rule files
+- Repeat information across sections
+- Write titles in Title Case—use sentence case
+- Create [feature] or [tasks] in `[PRODUCT_MANAGEMENT_TOOL]` before getting PRD approval in Step 5
+- Rename the file—must be `prd.md`
+- Save questions in the PRD file
+- Create [tasks] that split tests, implementation, and migrations across separate [tasks]—each [task] must be a complete vertical slice
+- Ask the user clarifying questions before Step 4
+
+**SERIOUSLY:**
+Do the research. Read code and rule files. Ask comprehensive questions. Create excellent PRDs. No shortcuts.
