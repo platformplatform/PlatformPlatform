@@ -126,7 +126,12 @@ You are reviewing: **{{{title}}}**
 
 **When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
-**STEP 8**: If APPROVED, run `/review/commit`.
+**STEP 8**: If APPROVED, commit changes:
+1. Stage test files: `git add <file>` for each test file
+2. Commit: One line, imperative form, no description, no co-author
+3. Get hash: `git rev-parse HEAD`
+
+🚨 **NEVER use `git add -A` or `git add .`**
 
 **STEP 9**: Signal completion (skip in standalone mode)
 

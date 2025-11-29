@@ -410,30 +410,16 @@ By this point, you've already marked each file, architecture, and requirements a
 
 **If APPROVED, proceed with commit:**
 
-1. Extract "Files Changed" from engineer's request.
-2. Verify scope completeness:
-   - Run `git status --porcelain` to see all changed files.
+1. Identify files to commit from review context:
+   - Run `git status --porcelain` to see all changed files
    - Filter to YOUR scope only:
-     - **Backend reviewer**: Api/Core/Tests files + *.Api.json files (even in WebApp folder).
-     - **Frontend reviewer**: WebApp files EXCEPT *.Api.json files.
-   - Verify engineer's list matches filtered git status EXACTLY (no missing files, no extra files).
-   - If mismatch: REJECT with specific files missing or wrongly included.
+     - **Backend reviewer**: Api/Core/Tests files + `*.Api.json` files (auto-generated, in WebApp folder)
+     - **Frontend reviewer**: WebApp files + `*.po` files (auto-generated) EXCEPT `*.Api.json` files
+2. Stage files: `git add <file>` for each file
+3. Commit: One line, imperative form, no description, no co-author
+4. Get hash: `git rev-parse HEAD`
 
-**CRITICAL for backend-reviewer**: ALWAYS verify OpenAPI JSON file is included:
-- Check if `application/{self-contained-system}/WebApp/shared/lib/api/*.Api.json` exists in git status.
-- This *.Api.json file MUST be committed with backend changes.
-
-**Execute steps 3-6 immediately without delay (minimize race conditions)**:
-
-3. Stage files: `git add <file>` for each file in engineer's list.
-4. Verify: `git diff --cached --name-only` matches engineer's list exactly. If not: REJECT.
-5. Commit with descriptive message.
-6. Get hash: `git rev-parse HEAD`.
-
-🚨 **NEVER use `git add -A` or `git add .`**.
-🚨 **Execute git commands immediately** - no other work between staging and committing.
-
-**Edge case**: If `git status` shows no changes (verification-only), use `git rev-parse HEAD` for commitHash.
+🚨 **NEVER use `git add -A` or `git add .`**
 
 **STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
 
