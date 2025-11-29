@@ -201,10 +201,11 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
+├─ .agent                # Google Antigravity AI rules and workflows (synchronized from .claude)
 ├─ .claude               # Claude Code AI rules, commands, and samples (base for all AI editors)
 ├─ .cursor               # Cursor AI rules and workflows (synchronized from .claude)
-├─ .github               # Separate GitHub workflows for deploying Infrastructure and app
-├─ .windsurf             # Windsurf  AI rules and workflows (synchronized from .claude)
+├─ .github               # GitHub configuration, CI/CD, and GitHub Copilot AI rules and workflows
+├─ .windsurf             # Windsurf AI rules and workflows (synchronized from .claude)
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 

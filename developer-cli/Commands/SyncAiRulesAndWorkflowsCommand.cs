@@ -9,7 +9,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public sealed class SyncAiRulesAndWorkflowsCommand : Command
 {
-    public SyncAiRulesAndWorkflowsCommand() : base("sync-ai-rules", "Sync AI rules and workflows from .claude to .windsurf and .cursor, converting formats appropriately.")
+    public SyncAiRulesAndWorkflowsCommand() : base("sync-ai-rules", "Sync AI rules and workflows from .claude to .cursor, .windsurf, .agent (Antigravity), and .github (Copilot symlink).")
     {
         SetAction(_ => Execute());
     }
@@ -32,6 +32,16 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var cursorRules = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules");
         var cursorSamples = Path.Combine(Configuration.SourceCodeFolder, ".cursor/samples");
 
+        // Target directories for GitHub Copilot
+        var copilotInstructions = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot-instructions.md");
+        var copilotRules = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/rules");
+        var copilotWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/workflows");
+        var agentsMd = Path.Combine(Configuration.SourceCodeFolder, "AGENTS.md");
+
+        // Target directories for Google Antigravity
+        var antigravityWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".agent/workflows");
+        var antigravityRules = Path.Combine(Configuration.SourceCodeFolder, ".agent/rules");
+
         // Create dictionaries to track file changes
         var initialFileHashes = new Dictionary<string, string>();
         var finalFileHashes = new Dictionary<string, string>();
@@ -39,10 +49,15 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Track expected files in target directories
         var expectedWindsurfFiles = new HashSet<string>();
         var expectedCursorFiles = new HashSet<string>();
+        var expectedCopilotFiles = new HashSet<string>();
+        var expectedAntigravityFiles = new HashSet<string>();
 
-        // Collect initial file hashes for both .windsurf and .cursor
+        // Collect initial file hashes for all target directories
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), initialFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), initialFileHashes);
+        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), initialFileHashes);
+        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), initialFileHashes);
+        CollectSymlinkHash(copilotInstructions, initialFileHashes);
 
         try
         {
@@ -62,9 +77,24 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Samples → samples (simple copy for Cursor)
             SyncClaudeToPlainMarkdown(claudeSamples, cursorSamples, expectedCursorFiles);
 
+            // Sync to GitHub Copilot
+            CreateOrUpdateSymlink(agentsMd, copilotInstructions);
+            // Commands → workflows
+            SyncClaudeToCopilotWorkflows(claudeCommands, copilotWorkflows, expectedCopilotFiles);
+            // Rules → rules
+            SyncClaudeToCopilotRules(claudeRules, copilotRules, expectedCopilotFiles);
+
+            // Sync to Google Antigravity
+            // Commands → workflows
+            SyncClaudeToAntigravityWorkflows(claudeCommands, antigravityWorkflows, expectedAntigravityFiles);
+            // Rules → rules
+            SyncClaudeToAntigravityRules(claudeRules, antigravityRules, expectedAntigravityFiles);
+
             // Delete orphaned files in target directories
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), expectedWindsurfFiles);
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), expectedCursorFiles);
+            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), expectedCopilotFiles);
+            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".agent"), expectedAntigravityFiles);
         }
         catch (Exception ex)
         {
@@ -75,6 +105,9 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Collect final file hashes
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), finalFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), finalFileHashes);
+        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), finalFileHashes);
+        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), finalFileHashes);
+        CollectSymlinkHash(copilotInstructions, finalFileHashes);
 
         // Display results
         DisplayFileChangeResults(initialFileHashes, finalFileHashes);
@@ -660,5 +693,213 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         }
 
         return frontmatterDictionary;
+    }
+
+    private static void CreateOrUpdateSymlink(string targetPath, string linkPath)
+    {
+        // Calculate relative path from link location to target
+        var linkDirectory = Path.GetDirectoryName(linkPath) ?? "";
+        var relativePath = Path.GetRelativePath(linkDirectory, targetPath);
+
+        // Check if symlink already exists (works for both valid and broken symlinks)
+        var fileInfo = new FileInfo(linkPath);
+        if (fileInfo.LinkTarget is not null)
+        {
+            if (fileInfo.LinkTarget == relativePath)
+            {
+                return; // Symlink already correct
+            }
+
+            // Delete existing symlink (broken or pointing to wrong target)
+            File.Delete(linkPath);
+        }
+        else if (File.Exists(linkPath))
+        {
+            // It's a regular file, not a symlink - delete it
+            File.Delete(linkPath);
+        }
+
+        // Create symlink
+        Directory.CreateDirectory(linkDirectory);
+        File.CreateSymbolicLink(linkPath, relativePath);
+    }
+
+    private static void SyncClaudeToCopilotWorkflows(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        Directory.CreateDirectory(targetDirectory);
+
+        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
+
+        foreach (var sourceFile in sourceFiles)
+        {
+            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
+            var targetFile = Path.Combine(targetDirectory, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
+
+            expectedFiles.Add(targetFile);
+            ConvertClaudeToCopilot(sourceFile, targetFile);
+        }
+    }
+
+    private static void SyncClaudeToCopilotRules(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        Directory.CreateDirectory(targetDirectory);
+
+        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
+
+        foreach (var sourceFile in sourceFiles)
+        {
+            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
+            var targetFile = Path.Combine(targetDirectory, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
+
+            expectedFiles.Add(targetFile);
+            ConvertClaudeToCopilot(sourceFile, targetFile);
+        }
+    }
+
+    private static void ConvertClaudeToCopilot(string sourceFile, string targetFile)
+    {
+        var lines = File.ReadAllLines(sourceFile);
+        var (_, contentLines) = SplitFrontmatter(lines);
+
+        // Skip path conversion for update-ai-rules file
+        var skipFile = IsUpdateAiRulesFile(sourceFile);
+
+        // Copilot doesn't use frontmatter - just content
+        var contentToWrite = contentLines.ToList();
+        if (contentToWrite.Count > 0 && string.IsNullOrWhiteSpace(contentToWrite[0]))
+        {
+            contentToWrite.RemoveAt(0);
+        }
+
+        // Replace Claude references with Copilot references
+        var outputArray = contentToWrite.ToArray();
+        ReplaceClaudeReferencesWithCopilot(outputArray, skipFile);
+
+        File.WriteAllLines(targetFile, outputArray);
+    }
+
+    private static void ReplaceClaudeReferencesWithCopilot(string[] lines, bool skipFile = false)
+    {
+        if (skipFile) return;
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            // Order matters - specific paths first, then generic
+            // Convert .claude/commands/ to .github/copilot/workflows/
+            lines[i] = lines[i].Replace(".claude/commands/", ".github/copilot/workflows/");
+            // Convert .claude/rules/ to .github/copilot/rules/
+            lines[i] = lines[i].Replace(".claude/rules/", ".github/copilot/rules/");
+            // Convert remaining .claude/ references to .github/copilot/
+            lines[i] = lines[i].Replace(".claude/", ".github/copilot/");
+        }
+    }
+
+    private static void SyncClaudeToAntigravityWorkflows(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        Directory.CreateDirectory(targetDirectory);
+
+        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
+
+        foreach (var sourceFile in sourceFiles)
+        {
+            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
+            var targetFile = Path.Combine(targetDirectory, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
+
+            expectedFiles.Add(targetFile);
+            ConvertClaudeToAntigravity(sourceFile, targetFile);
+        }
+    }
+
+    private static void SyncClaudeToAntigravityRules(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        Directory.CreateDirectory(targetDirectory);
+
+        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
+
+        foreach (var sourceFile in sourceFiles)
+        {
+            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
+            var targetFile = Path.Combine(targetDirectory, relativePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
+
+            expectedFiles.Add(targetFile);
+            ConvertClaudeToAntigravity(sourceFile, targetFile);
+        }
+    }
+
+    private static void ConvertClaudeToAntigravity(string sourceFile, string targetFile)
+    {
+        var lines = File.ReadAllLines(sourceFile);
+        var (frontmatterLines, contentLines) = SplitFrontmatter(lines);
+
+        // Skip path conversion for update-ai-rules file
+        var skipFile = IsUpdateAiRulesFile(sourceFile);
+
+        // Build output preserving frontmatter (Antigravity uses same format as Claude)
+        var outputLines = new List<string>();
+
+        if (frontmatterLines.Count > 0)
+        {
+            var frontmatterDict = ParseFrontmatter(frontmatterLines);
+            outputLines.Add("---");
+
+            // Preserve trigger field
+            if (frontmatterDict.TryGetValue("trigger", out var trigger))
+            {
+                outputLines.Add($"trigger: {trigger}");
+            }
+
+            // Preserve globs field
+            if (frontmatterDict.TryGetValue("globs", out var globs))
+            {
+                outputLines.Add($"globs: {globs}");
+            }
+
+            // Preserve description field
+            if (frontmatterDict.TryGetValue("description", out var description))
+            {
+                outputLines.Add($"description: {description}");
+            }
+
+            outputLines.Add("---");
+        }
+
+        // Skip leading empty line if present
+        var contentToAdd = contentLines.ToList();
+        if (contentToAdd.Count > 0 && string.IsNullOrWhiteSpace(contentToAdd[0]))
+        {
+            contentToAdd.RemoveAt(0);
+        }
+
+        outputLines.AddRange(contentToAdd);
+
+        // Replace Claude references with Antigravity references
+        var outputArray = outputLines.ToArray();
+        ReplaceClaudeReferencesWithAntigravity(outputArray, skipFile);
+
+        File.WriteAllLines(targetFile, outputArray);
+    }
+
+    private static void ReplaceClaudeReferencesWithAntigravity(string[] lines, bool skipFile = false)
+    {
+        if (skipFile) return;
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            // Order matters - specific paths first, then generic
+            // Convert .claude/commands/ to .agent/workflows/
+            lines[i] = lines[i].Replace(".claude/commands/", ".agent/workflows/");
+            // Convert .claude/rules/ to .agent/rules/
+            lines[i] = lines[i].Replace(".claude/rules/", ".agent/rules/");
+            // Convert remaining .claude/ references to .agent/
+            lines[i] = lines[i].Replace(".claude/", ".agent/");
+        }
     }
 }
