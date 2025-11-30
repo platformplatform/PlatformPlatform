@@ -7,106 +7,101 @@ You are implementing: **{{{title}}}**
 
 **Agentic vs standalone mode:** Your system prompt will explicitly state if you are in *agentic mode*. Otherwise, assume *standalone mode* and skip steps marked "(skip in standalone mode)".
 
-## Mandatory Preparation
-
-**Note:**
-- **Agentic mode**: The [taskId] comes from `current-task.json`, not from command arguments. The CLI passes only the [taskTitle] as the slash command argument.
+- **Agentic mode**: The [taskId] comes from `current-task.json`, not from command arguments. The CLI passes only the [taskTitle] as the slash command argument. You run autonomously without human supervision - work with your team to find solutions.
 - **Standalone mode**: Task details are passed as command arguments `{{{title}}}`. If a [taskId] is provided, read [feature] and [task] from `[PRODUCT_MANAGEMENT_TOOL]`. If no [taskId] provided, ask user to describe the task. There is no `current-task.json`.
+
+## STEP 0: Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
-## STEP 1: Read Task Assignment
+2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
+   - `requestFilePath`: Request file path
+   - `featureId`: [FeatureId] (the feature this task belongs to, or "ad-hoc" for ad-hoc work)
+   - `taskId`: [TaskId] (the task you're implementing, or "ad-hoc-yyyyMMdd-HHmm" for ad-hoc work)
+   - `taskTitle`: Task title
 
-**Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
-- `requestFilePath`: Request file path
-- `featureId`: [FeatureId] (the feature this task belongs to, or null for ad-hoc)
-- `taskId`: [TaskId] (the task you're implementing)
-- `taskTitle`: Task title
+   **⚠️ CRITICAL - If current-task.json does NOT exist:**
 
-**⚠️ CRITICAL - If current-task.json does NOT exist:**
+   This means there is no active task assignment. You MUST immediately call CompleteWork to properly terminate your session:
 
-This means there is no active task assignment. You MUST immediately call CompleteWork to properly terminate your session:
+   ```
+   Call CompleteWork with:
+   - mode: "task"
+   - agentType: your agent type
+   - taskSummary: "No active task assignment found"
+   - responseContent: "Session invoked without active task. Current-task.json does not exist. Terminating session."
+   - feedback: "[system] Session was invoked with /process:implement-task but no current-task.json exists - possible double invocation after completion"
+   ```
 
-```
-Call CompleteWork with:
-- mode: "task"
-- agentType: your agent type
-- taskSummary: "No active task assignment found"
-- responseContent: "Session invoked without active task. Current-task.json does not exist. Terminating session."
-- feedback: "[system] Session was invoked with /process:implement-task but no current-task.json exists - possible double invocation after completion"
-```
+   DO NOT proceed with any other work. DO NOT just say "nothing to do". Call CompleteWork immediately to terminate the session.
 
-DO NOT proceed with any other work. DO NOT just say "nothing to do". Call CompleteWork immediately to terminate the session.
+3. **Read the request file** from the path in `requestFilePath`.
 
-**Then read the request file** from the path in `requestFilePath`.
+4. **Verify Previous Work Committed**:
 
-**If `featureId` exists in current-task.json (not null):**
-1. Read [feature] from `featureId` in [PRODUCT_MANAGEMENT_TOOL] to understand the full PRD context
-2. Read [task] from `taskId` in [PRODUCT_MANAGEMENT_TOOL] to get task details and subtask bullets
-3. **Update [task] status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
+   Before proceeding, verify your previous task was committed:
+   1. Run `git log --oneline -5` to check recent commits.
+   2. Look for commits containing your agent type (e.g., "backend-engineer", "frontend-engineer").
+   3. If your previous task is uncommitted: **REFUSE to start** and respond with error explaining uncommitted work exists.
+   4. Note: Changes from other engineers (parallel work) are expected and fine - only verify YOUR previous work is committed.
 
-**If `featureId` is null (ad-hoc work):**
-- Skip [PRODUCT_MANAGEMENT_TOOL] operations
-- Still follow full engineer → reviewer → commit cycle
-
-**CRITICAL - Verify Previous Work Committed**:
-
-Before proceeding, verify your previous task was committed:
-1. Run `git log --oneline -5` to check recent commits.
-2. Look for commits containing your agent type (e.g., "backend-engineer", "frontend-engineer").
-3. If your previous task is uncommitted: **REFUSE to start** and respond with error explaining uncommitted work exists.
-4. Note: Changes from other engineers (parallel work) are expected and fine - only verify YOUR previous work is committed.
-
----
-
-## CRITICAL - Autonomous Operation
-
-You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. Work with our team to find a solution.
-
-**Token limits approaching?** Use `/compact` strategically (e.g., after being assigned a new task, but before reading task assignment, before catching up).
-
----
-
-## STEP 2: Create Todo List - DO THIS NOW!
+5. **Create Todo List**
 
 **CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
 ```json
 {
   "todos": [
-    {"content": "Update [task] status to [Active]", "status": "pending", "activeForm": "Updating [task] status to [Active]"},
-    {"content": "Understand context and catch up efficiently", "status": "pending", "activeForm": "Understanding context and catching up"},
+    {"content": "Read [task] from [PRODUCT_MANAGEMENT_TOOL] and update status to [Active]", "status": "pending", "activeForm": "Reading task and updating status to Active"},
+    {"content": "Understand the full feature context", "status": "pending", "activeForm": "Understanding feature context"},
     {"content": "Research existing patterns for this [task] type", "status": "pending", "activeForm": "Researching existing patterns"},
-    {"content": "Implement [task] [name of the [task] from request file]", "status": "pending", "activeForm": "Implementing [task]"},
-    {"content": "Build and verify ALL translations complete with grep (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
+    {"content": "Implement each subtask", "status": "pending", "activeForm": "Implementing subtasks"},
+    {"content": "Build and verify translations (frontend-engineer only)", "status": "pending", "activeForm": "Building and verifying translations"},
     {"content": "Run validation tools and fix all failures/warnings", "status": "pending", "activeForm": "Running validation tools"},
-    {"content": "Test changes in Chrome DevTools and fix ALL network warnings and console errors with zero tolerance (frontend-engineer only)", "status": "pending", "activeForm": "Testing in Chrome DevTools and fixing all issues"},
-    {"content": "Update [task] status to [Review] and call reviewer subagent (only after all validation tools pass)", "status": "pending", "activeForm": "Calling reviewer subagent"},
-    {"content": "MANDATORY: Call CompleteWork after reviewer approval to signal completion", "status": "pending", "activeForm": "Calling CompleteWork to signal completion"}
+    {"content": "Test in browser with zero tolerance (frontend-engineer only)", "status": "pending", "activeForm": "Testing in browser"},
+    {"content": "Fix any bugs discovered during validation/testing", "status": "pending", "activeForm": "Fixing bugs discovered"},
+    {"content": "Update [task] status to [Review] and delegate to reviewer subagent (skip in standalone mode)", "status": "pending", "activeForm": "Updating status and calling reviewer"},
+    {"content": "Check feature progress (skip in standalone mode/optional in agentic mode)", "status": "pending", "activeForm": "Checking feature progress"},
+    {"content": "MANDATORY: Call CompleteWork after reviewer approval (skip in standalone mode)", "status": "pending", "activeForm": "Calling CompleteWork"}
   ]
 }
 ```
 
-**CRITICAL - After creating base todo, unfold subtasks:**
+**After creating this template**: Remove todo items marked for a different engineer role. For example, if you're a backend-engineer, remove items containing "(frontend-engineer only)".
 
-1. Read YOUR [task] description from [PRODUCT_MANAGEMENT_TOOL].
-2. Extract the subtask bullets listed in the description.
-3. Replace the "Implement [task] [name]" todo item with:
+---
+
+## Workflow Steps
+
+**STEP 1**: Read [task] from [PRODUCT_MANAGEMENT_TOOL] and update status to [Active]
+
+**If `featureId` is NOT "ad-hoc" (regular task from a feature):**
+1. Read [feature] from `featureId` in [PRODUCT_MANAGEMENT_TOOL] to understand the full PRD context
+2. Read [task] from `taskId` in [PRODUCT_MANAGEMENT_TOOL] to get task details and subtask bullets
+3. **Update [task] status to [Active]** in `[PRODUCT_MANAGEMENT_TOOL]`
+4. **If [task] lookup fails** (not found, already completed, or error): This is a coordination error. Report a problem and call CompleteWork explaining the task could not be found.
+
+**If `featureId` is "ad-hoc" (ad-hoc work):**
+- Skip [PRODUCT_MANAGEMENT_TOOL] operations
+- Still follow full engineer → reviewer → commit cycle
+
+**CRITICAL - After reading [task], unfold subtasks in todo:**
+
+1. Extract the subtask bullets from [task] description.
+2. Replace the "Implement each subtask" todo item with:
    - The task name as a parent item.
    - Each subtask as an indented child item (using ├─ and └─ formatting).
 
 **Example:**
-If task with title "Backend for user CRUD operations" has a description like:
+If task with title "Backend for user CRUD operations" has subtasks:
 ```
-This task implements the core user functionality...
-
 - Create UserId strongly typed ID
 - Create User aggregate
 - Create IUserRepository interface and implementation
 - Create API endpoint for create user
 ```
 
-Replace the single "Implement [task]" item with:
+Replace the single "Implement each subtask" item with:
 ```
 Backend for user CRUD operations
 ├─ Create UserId strongly typed ID [pending]
@@ -115,13 +110,7 @@ Backend for user CRUD operations
 └─ Create API endpoint for create user [pending]
 ```
 
-This expanded structure helps you track progress through the larger [task] scope.
-
----
-
-## Workflow Steps
-
-**STEP 3**: Understand the full feature context
+**STEP 2**: Understand the full feature context
 
 Before implementing, understand the big picture:
 
@@ -136,7 +125,7 @@ Before implementing, understand the big picture:
 3. **Read YOUR [task] description carefully**:
    - Already read in STEP 1, but review the subtask bullets.
    - Tasks are complete vertical slices.
-   - Subtasks are already unfolded in your todo list (see STEP 2 above).
+   - Subtasks are already unfolded in your todo list (see STEP 1 above).
 
 **IMPORTANT**: The [feature] plan was AI-generated by tech-lead in a few minutes after interviewing the user. You have implementation time to think deeply about the code. YOU are the expert closest to the code. If something doesn't align with:
 - Feature intent.
@@ -152,9 +141,11 @@ Before implementing, understand the big picture:
 
 **Note**: All architectural rules for your role are embedded in your system prompt and available for reference at all times.
 
-**STEP 4**: Research similar implementations in codebase.
+**STEP 3**: Research existing patterns for this [task] type
 
-**STEP 5**: Implement each subtask with incremental validation
+Research the codebase to find similar implementations. Look for existing code that handles similar features, patterns, or business logic that can guide your implementation.
+
+**STEP 4**: Implement each subtask
 
 **CRITICAL - Incremental development approach:**
 
@@ -181,16 +172,16 @@ Since [tasks] are complete vertical slices, you MUST build and test incrementall
 - Ensures each piece works before moving on.
 - Critical for larger tasks.
 
-**Do NOT run format/inspect after each subtask** - these are slow and run once at the end in STEP 7.
+**Do NOT run format/inspect after each subtask** - these are slow and run once at the end in STEP 6.
 
-**STEP 6**: Frontend only - build and verify ALL translations complete
+**STEP 5**: Build and verify translations (frontend-engineer only)
 
 1. Run build to extract new translation strings to `*.po` files.
 2. Find ALL empty translations: `grep -r 'msgstr ""' */WebApp/shared/translations/locale/*.po`.
 3. Translate EVERY empty msgstr found (all languages: da-DK, nl-NL, etc.).
 4. Use consistent domain terminology (check existing translations for guidance).
 
-**STEP 7**: Run final validation tools and fix all failures/warnings
+**STEP 6**: Run validation tools and fix all failures/warnings
 
 **CRITICAL - ZERO TOLERANCE FOR ANY ISSUES**:
 - We deploy to production after review - quality is non-negotiable.
@@ -203,7 +194,7 @@ For **backend [tasks]**:
 1. Run **inspect** for your self-contained system: `execute_command(command: "inspect", backend: true, selfContainedSystem: "{self-contained-system}")`.
 2. Fix ALL failures found (zero tolerance).
 
-**Note**: Build and test were already run after each subtask in STEP 5. Backend-engineer does NOT run format - the reviewer will handle formatting before commit.
+**Note**: Build and test were already run after each subtask in STEP 4. Backend-engineer does NOT run format - the reviewer will handle formatting before commit.
 
 For **frontend [tasks]**:
 1. Run **build** for your self-contained system: `execute_command(command: "build", frontend: true, selfContainedSystem: "{self-contained-system}")`.
@@ -211,7 +202,7 @@ For **frontend [tasks]**:
 3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`.
 4. Fix ALL failures found (zero tolerance).
 
-**STEP 8**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
+**STEP 7**: Test in browser with zero tolerance (frontend-engineer only)
 
 **MANDATORY FOR FRONTEND ENGINEER - DO NOT SKIP**
 
@@ -251,18 +242,18 @@ For **frontend [tasks]**:
 
 **Boy Scout Rule**: Leave the codebase cleaner than you found it. If you see pre-existing console errors or network warnings unrelated to your changes, FIX THEM. Zero tolerance means ZERO - not "only for my changes".
 
-**STEP 9**: Fix any bugs discovered during validation/testing
+**STEP 8**: Fix any bugs discovered during validation/testing
 
 **CRITICAL - APPLIES TO ALL ENGINEERS**:
 
 If you discover bugs during testing or validation (API errors, broken functionality, console errors, broken UI, test failures), you MUST fix them before requesting review. NEVER request review with known bugs.
 
 **If bug is in existing code (not your changes)**:
-1. `git stash` your current changes (but don't include changes from other engineers working in parallel).
+1. Stash only your changes: `git stash push -- <your-files>` (don't include changes from other engineers working in parallel).
 2. Verify the bug exists on clean code.
 3. **Agentic mode**: Fix yourself if within your specialty OR delegate to engineer subagent if outside your specialty (use "ad-hoc" taskId).
    **Standalone mode**: Fix it yourself or inform user that the bug requires different expertise.
-4. Get review and commit for the fix.
+4. Follow STEP 10 to delegate to reviewer and get the fix committed.
 5. `git stash pop` to restore your changes and continue.
 
 **If you see errors that might be from parallel engineer's changes**:
@@ -275,34 +266,21 @@ If you discover bugs during testing or validation (API errors, broken functional
 - Delegate to appropriate engineer if bug is outside your specialty (use start_worker_agent with ad-hoc taskId).
 - **Revert your changes** if solution is too complex - revert all git changes, fix pre-existing problems first, then re-implement cleanly.
 
-**STEP 10**: Update [task] for review
-
-**If `featureId` is not null (regular task):**
-1. **Update [task] description** to reflect what was actually implemented (optional):
-   - If implemented exactly as described: No update needed.
-   - If deviated from plan: Update description to document what was actually done.
-
-2. **Update [task] status to [Review]** in `[PRODUCT_MANAGEMENT_TOOL]`.
-
-**If `featureId` is null (ad-hoc work):**
-- Skip [PRODUCT_MANAGEMENT_TOOL] operations.
-- Proceed directly to calling reviewer.
-
-**STEP 11**: Delegate to reviewer subagent to review and commit your code (skip in standalone mode)
+**STEP 9**: Update [task] status to [Review] and delegate to reviewer subagent (skip in standalone mode)
 
 **CRITICAL - Before calling reviewer (EVERY TIME, including re-reviews)**:
 
-**1. Update [task] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL] (if featureId is not null):
+**1. Update [task] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL] (if featureId is NOT "ad-hoc"):
    - This applies to EVERY review request, not just the first one.
    - When reviewer rejects and moves status to [Active], you MUST move it back to [Review] when requesting re-review.
-   - Skip this only for ad-hoc work (featureId is null).
+   - Skip this only for ad-hoc work (featureId is "ad-hoc").
 
 **2. Zero tolerance verification**: Confirm ALL validation tools pass with ZERO failures/warnings. NEVER request review with ANY outstanding issues - we deploy to production after review.
 
 **3. Identify your changed files**:
 - Run `git status --porcelain` to see ALL changed files.
 - Identify YOUR files (files you created/modified for THIS task):
-  - **Backend engineers**: MUST include `*.Api.json` files (even though located in WebApp folder - they're generated from your API changes).
+  - **Backend engineers**: MUST include `*.Api.json` files. These are auto-generated TypeScript types from your C# API endpoints, placed in WebApp/shared/lib/api/ for frontend consumption, but owned by backend.
   - **Frontend engineers**: MUST exclude `*.Api.json` files (these belong to backend, not you).
   - Don't forget `.po` translation files.
   - Exclude files from parallel engineers (different agent types).
@@ -342,18 +320,18 @@ Response: {responseFilePath}
 - If reviewer returns APPROVED → Check YOUR files (not parallel engineers' files) are committed → Proceed to completion.
 - **NEVER call CompleteWork unless reviewer approved and committed your code**.
 - **NEVER commit code yourself** - only the reviewer commits.
-- ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. No workarounds, no proceeding, no commits - just STOP and wait for human intervention.
+- ⚠️ **If rejected 3+ times with same feedback despite validation tools passing:** Report problem with severity: error, then STOP COMPLETELY. Do not call CompleteWork, do not proceed with work - the user will take over manually.
 
-**STEP 12**: Check feature progress (skip in standalone mode/optional in agentic mode)
+**STEP 10**: Check feature progress (skip in standalone mode/optional in agentic mode)
 
-**If `featureId` is not null (regular task):**
+**If `featureId` is NOT "ad-hoc" (regular task from a feature):**
 - Optionally check if there are more [tasks] remaining in the [feature].
 - This helps provide context in your completion message.
 
-**If `featureId` is null (ad-hoc work):**
+**If `featureId` is "ad-hoc" (ad-hoc work):**
 - Skip (no [feature] to check).
 
-**STEP 13**: Signal completion and exit (skip in standalone mode)
+**STEP 11**: MANDATORY: Call CompleteWork after reviewer approval (skip in standalone mode)
 
 ⚠️ **CRITICAL - SESSION TERMINATING CALL**:
 
