@@ -23,20 +23,23 @@
 
 Kick-start building top-tier B2B & B2C cloud SaaS products with sleek design, fully localized and accessible, vertical slice architecture, automated and fast DevOps, and top-notch security.
 
-Built to demonstrate seamless flow—backend contracts feed a fully-typed React UI, pipelines make fully automated deployments to Azure, and AI guardrails keep the codebase tidy—think of it as a ready-made blueprint, not a pile of parts to assemble.
+Built to demonstrate seamless flow: backend contracts feed a fully-typed React UI, pipelines make fully automated deployments to Azure, and a multi-agent AI workflow where PlatformPlatform-expert agents collaborate to deliver complete features following the opinionated architecture. Think of it as a ready-made blueprint, not a pile of parts to assemble.
 
 ## What's inside
 
 * **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
-* **Frontend** – React 19, TypeScript, TanStack Router & Query, React Aria for accessible and UI
+* **Frontend** - React 19, TypeScript, TanStack Router & Query, React Aria for accessible UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
-* **AI rules** – 30+ rules & workflows that guide AI tools to generate consistent, production-ready code
+* **AI rules** - 30+ rules & workflows that guide AI tools to generate consistent, production-ready code
+* **Multi-agent workflow** (Experimental) - Specialized autonomous AI agents expert in PlatformPlatform's architecture
 
-Still in alpha state, follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like SSO, user management, telemetry, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+![Multi Agent Workflow](https://platformplatformgithub.blob.core.windows.net/multi-agent-workflow.png)
 
-Show your support for our project – Give us a star on GitHub! It truly means a lot! ⭐
+Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/projects/2/views/2) with core SaaS features like SSO, monitoring, alerts, multi-region, feature flags, back office for support, etc.
+
+Show your support for our project - give us a star on GitHub! It truly means a lot! ⭐
 
 # Getting Started 1-2-3
 
@@ -195,6 +198,75 @@ The infrastructure is configured with auto-scaling and hosting costs in focus. I
 
 ![Azure Costs](https://platformplatformgithub.blob.core.windows.net/$root/azure-costs-center.png)
 
+# Experimental: Agentic Workflow with Claude Code
+
+PlatformPlatform includes a multi-agent autonomous development workflow powered by [Claude Code](https://claude.com/product/claude-code). Nine specialized AI agents collaborate to deliver complete features, from requirements to production-ready code, while enforcing enterprise-grade quality standards.
+
+## What makes this different
+
+**Zero-tolerance code reviews**: AI agents follow rules well until they hit problems, then cut corners, which is why many struggle to get AI to write production-ready code. Dedicated reviewer agents catch this. They reject any code that can objectively be made better: compiler warnings, static analysis errors, browser console warnings, or deviation from established patterns. All warnings including warnings in seemingly unrelated parts of the system are fixed. This boy scout rule approach ensures every commit meets production standards.
+
+**Interactive sessions with full visibility**: Each agent runs in an interactive Claude Code session. You can watch their work in real-time, intervene to guide decisions, or let them run autonomously. Unlike normal Claude Code agents that work in the background like a black box, you're always in control.
+
+**Persistent memory across interactions**: Agents maintain context between delegations. When an engineer requests a follow-up review, the same reviewer continues with full knowledge of prior feedback. No re-explaining needed.
+
+**Cross-team collaboration**: Agents can communicate directly. If the frontend engineer needs a backend API change, they ask the backend engineer, wait for implementation and review approval, then continue their work automatically. All work is locally on the same branch, but each agent only changes, reviews, and commits code within their area of expertise.
+
+**No context window exhaustion**: Traditional AI agents must clear or compact their context as conversations grow, forgetting important details. With specialized agents for each domain, no single agent accumulates context bloat. The frontend engineer doesn't need backend implementation details. The system ensures that every new task starts with a fresh context window, but agents always read the feature description first to maintain the big picture.
+
+**Self-healing orchestration**: The developer-cli hosts each agent process. If an agent stops for whatever reason, the worker-host detects it and recovers automatically. E.g. if an agent forgets to signal completion, they hit Claude Code session rate limit, the server needs to be restarted, or database migrations are needed. The system will try to self-heal and continue until the feature is complete.
+
+**Automatic problem reporting**: When agents encounter unclear situations (duplicate tasks, missing tools), they file problem reports. The pair-programmer agent can analyze these reports and fix workflow issues.
+
+**Standard product management tool integration**: Works with Linear, Azure DevOps, Jira, GitHub, or markdown files in the local filesystem. Tasks flow through statuses (planned → active → review → completed) with full audit trail. Adjust tasks mid-flight or restart features entirely if the first attempt misses the mark.
+
+## Agent roles
+
+- **tech-lead**: Interviews you with targeted multiple-choice questions to rapidly gather requirements, researches codebase patterns, and creates a PRD with implementable tasks
+- **coordinator**: Maintains the big picture across hour-long implementation sessions, ensuring engineers work structured and stay aligned with feature goals
+- **backend-engineer**, **frontend-engineer**, **qa-engineer**: Implement code within their specialty
+- **backend-reviewer**, **frontend-reviewer**, **qa-reviewer**: Zero-tolerance gatekeepers who reject any deviation from established standards, then commit approved code
+
+## Getting started
+
+This workflow requires Claude Code and will not work with other AI coding assistants.
+
+### 1. Create a feature branch
+
+```bash
+git checkout -b feature-name
+```
+
+### 2. Define your feature with the tech-lead
+
+```bash
+pp claude-agent tech-lead
+```
+
+Run the `/process:create-prd` slash command. The tech-lead will guide you through a brief interview to understand what you want to build, then generate a complete feature specification with tasks in your product management tool (Linear, Azure DevOps, Jira, GitHub, or markdown files).
+
+### 3. Launch the agent team
+
+Open seven terminal windows and start each agent:
+
+```bash
+pp claude-agent coordinator
+pp claude-agent backend-engineer
+pp claude-agent frontend-engineer
+pp claude-agent backend-reviewer
+pp claude-agent frontend-reviewer
+pp claude-agent qa-engineer
+pp claude-agent qa-reviewer
+```
+
+### 4. Watch the magic happen
+
+Tell the coordinator which feature to implement by providing the title or ID of the feature created with the tech-lead. From here, the agents take over.
+
+The coordinator breaks down the feature into tasks and delegates them to engineers. Each engineer claims their task, studies the requirements, and builds according to project rules and guidelines - writing tests, running migrations, restarting servers, and handling all the details. When implementation is complete, reviewers scrutinize every change and only approve code that meets production standards.
+
+The entire process can take several hours depending on complexity, but at the end you get a fully implemented feature: backend logic, database migrations, API endpoints, frontend UI, localization, and end-to-end tests. All committed. All tests passing. Ready to ship.
+
 # Inside Our Monorepo
 
 PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) containing all application code, infrastructure, tools, libraries, documentation, etc. A monorepo is a powerful way to organize a codebase, used by Google, Facebook, Uber, Microsoft, etc.
@@ -203,6 +275,11 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 .
 ├─ .agent                # Google Antigravity AI rules and workflows (synchronized from .claude)
 ├─ .claude               # Claude Code AI rules, commands, and samples (base for all AI editors)
+│  ├─ agents            # Claude Code agent definitions for Task tool subagents
+│  ├─ agentic-workflow  # Agentic workflow with system prompts and MCP configs (Claude Code only)
+│  ├─ commands          # Slash commands and workflows
+│  ├─ hooks             # Claude Code hooks to enforce MCP tool usage and prevent dangerous git operations
+│  └─ rules             # AI rules for code generation patterns
 ├─ .cursor               # Cursor AI rules and workflows (synchronized from .claude)
 ├─ .github               # GitHub configuration, CI/CD, and GitHub Copilot AI rules and workflows
 ├─ .windsurf             # Windsurf AI rules and workflows (synchronized from .claude)
