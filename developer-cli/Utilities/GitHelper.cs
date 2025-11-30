@@ -25,6 +25,45 @@ public static class GitHelper
         return !string.IsNullOrWhiteSpace(status);
     }
 
+    public static bool HasRecentGitActivity(TimeSpan withinTimespan)
+    {
+        // Check 1: Recent commits
+        if (HasRecentCommits(withinTimespan))
+        {
+            return true;
+        }
+
+        // Check 2: Uncommitted changes with recent modifications
+        var threshold = DateTime.Now - withinTimespan;
+        var status = ProcessHelper.StartProcess("git status --porcelain", Configuration.SourceCodeFolder, true);
+
+        if (string.IsNullOrWhiteSpace(status)) return false;
+
+        var files = status
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+            .Select(line => line.Length > 3 ? line[3..].Trim() : string.Empty)
+            .Where(f => !string.IsNullOrEmpty(f))
+            .Select(f => Path.Combine(Configuration.SourceCodeFolder, f))
+            .Where(File.Exists);
+
+        return files.Any(file => File.GetLastWriteTime(file) > threshold);
+    }
+
+    public static bool HasRecentCommits(TimeSpan withinTimespan)
+    {
+        var minutesAgo = (int)Math.Ceiling(withinTimespan.TotalMinutes);
+        // Get commits from the last N minutes using git log with --since
+        var result = ProcessHelper.StartProcess(
+            $"git log --since=\"{minutesAgo} minutes ago\" --oneline -1",
+            Configuration.SourceCodeFolder,
+            true,
+            exitOnError: false
+        );
+
+        // If there's any output, there are recent commits
+        return !string.IsNullOrWhiteSpace(result);
+    }
+
     public static void DiscardAllChanges()
     {
         ProcessHelper.StartProcess("git reset --hard", Configuration.SourceCodeFolder);
@@ -270,7 +309,7 @@ public static class GitHelper
     }
 }
 
-public record Commit
+public sealed record Commit
 {
     public Commit(string date, string hash, string message)
     {
