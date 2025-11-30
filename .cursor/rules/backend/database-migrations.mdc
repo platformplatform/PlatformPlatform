@@ -22,7 +22,7 @@ Carefully follow these instructions when creating database migrations.
    - All other properties in the same order as they appear in the C# Aggregate class
 
 3. Use appropriate SQL Server data types:
-   - For strongly typed IDs, default to `varchar(32)` (ULID is 26 chars + underscore + max 5-char prefix)
+   - Use `varchar(32)` for strongly typed IDs (ULID is 26 chars + underscore + max 5-char prefix = exactly 32)
    - Intelligently deduce varchar vs nvarchar based on property type, validators, enum values, etc.
    - Use `datetimeoffset` (default), `datetime2` (timezone agnostic), or `date`—never `datetime`
    - Default to `varchar(10)` or `varchar(20)` for enum values

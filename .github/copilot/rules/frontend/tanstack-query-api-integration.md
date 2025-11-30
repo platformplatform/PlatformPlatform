@@ -10,6 +10,7 @@ Carefully follow these instructions when integrating with backend APIs in the fr
 4. Use `api.useQuery` for data fetching operations
 5. Use `api.useMutation` for data modification operations
 6. Use `mutationSubmitter` for form submissions with mutations
+7. Use mutation's `onSuccess` callback for success toasts—never `useEffect` with `isSuccess` (causes duplicate toasts on re-renders)
 
 Note: All .NET API endpoints are available as strongly typed API contracts in the frontend—when compiling the .NET backend, an OpenApi.json file is generated and the frontend build uses `openapi-typescript` to generate the API contracts.
 
@@ -66,21 +67,19 @@ const handleComplete = () => {
 
 ```typescript
 import { Form } from "@repo/ui/components/Form";
-import { FormErrorMessage } from "@repo/ui/components/FormErrorMessage";
 import { TextField } from "@repo/ui/components/TextField";
 import { Button } from "@repo/ui/components/Button";
 import { Trans } from "@lingui/react/macro";
 
 <Form
-  onSubmit={mutationSubmitter(completeLoginMutation, { 
-    path: { id: loginId } 
+  onSubmit={mutationSubmitter(completeLoginMutation, {
+    path: { id: loginId }
   })}
   validationErrors={completeLoginMutation.error?.errors}
 >
   <TextField name="oneTimePassword" type="password" />
-  <FormErrorMessage error={completeLoginMutation.error} />
-  <Button 
-    type="submit" 
+  <Button
+    type="submit"
     isDisabled={completeLoginMutation.isPending}
   >
     <Trans>Submit</Trans>

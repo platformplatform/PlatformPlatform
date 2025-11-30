@@ -24,7 +24,7 @@ Carefully follow these instructions when writing tests for the backend. By defau
 10. Test both happy path and error cases
 11. Avoid sharing fields between tests—prefer local constants or variables within each test method
 12. Verify side effects like database changes and telemetry events
-13. Always call `TelemetryEventsCollectorSpy.Reset()` as the last Arrange statement if API calls were used to set up state
+13. Always call `TelemetryEventsCollectorSpy.Reset()` as the last Arrange statement if API calls were used to set up state (to ensure only the events from the Act phase are verified)
 14. Use the `Connection` property from `EndpointBaseTest<TContext>` for test data—it provides a SQLite connection with:
     - `Insert` to populate test data
     - `Update` to update test data

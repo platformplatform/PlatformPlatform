@@ -107,9 +107,8 @@ public class BadBuildCommand : Command
 {
     public BadBuildCommand() : base("bad-build", "Bad build command")
     {
-        // ❌ DON'T: Extract options to a variable
-        var option = new Option<string?>(["-file-name", "--f"], "The name of the solution to process") // ❌ Inconsistent option naming, wrong use of -- and -
-        AddOption(option); 
+        // ❌ Use inconsistent option naming (single dash for long names, double dash for short)
+        AddOption(new Option<string?>(["-file-name", "--f"], "The name of the solution to process")); 
         Handler = CommandHandler.Create<string>(Execute);
     }
     private static int Execute(string file)

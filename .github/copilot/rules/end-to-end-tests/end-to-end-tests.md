@@ -53,9 +53,9 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Include JSDoc comments above complex tests listing all major features/scenarios covered
    - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes
 
-6. Structure each test with step decorators and proper monitoring:
+6. Structure each test with step wrappers and proper monitoring:
    - All tests must start with `const context = createTestContext(page);` for proper error monitoring
-   - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
+   - Use step wrappers: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
    - Step naming conventions:
      - Always follow "[Business action + details] & [expected outcome]" pattern
      - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit"
@@ -152,7 +152,7 @@ await step("Ensure user is deleted")(async () => { // "Ensure" is assertion pref
 
 ### ✅ Complete Test Example
 ```typescript
-import { step } from "@shared/e2e/utils/step-decorator";
+import { step } from "@shared/e2e/utils/test-step-wrapper";
 import { expectValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { testUser } from "@shared/e2e/utils/test-data";
 

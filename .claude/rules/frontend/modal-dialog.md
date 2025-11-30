@@ -37,7 +37,7 @@ The `AlertDialog` component defaults to `sm:w-dialog-md` but can be overridden.
 ```typescript
 const [isOpen, setIsOpen] = useState(false);
 
-<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={!mutation.isPending}>
   <Dialog className="sm:w-dialog-md">
     <XIcon
       onClick={() => setIsOpen(false)}
@@ -59,10 +59,10 @@ const [isOpen, setIsOpen] = useState(false);
         />
       </DialogContent>
       <DialogFooter>
-        <Button variant="secondary" onPress={() => setIsOpen(false)}>
+        <Button variant="secondary" onPress={() => setIsOpen(false)} isDisabled={mutation.isPending}>
           <Trans>Cancel</Trans>
         </Button>
-        <Button type="submit">
+        <Button type="submit" isPending={mutation.isPending}>
           <Trans>Send invite</Trans>
         </Button>
       </DialogFooter>
