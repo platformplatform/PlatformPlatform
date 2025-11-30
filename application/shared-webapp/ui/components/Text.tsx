@@ -3,7 +3,8 @@
  */
 import type { TextProps } from "react-aria-components";
 import { Text as AriaText } from "react-aria-components";
+import { twMerge } from "tailwind-merge";
 
-export function Text(props: Readonly<TextProps>) {
-  return <AriaText {...props} />;
+export function Text({ className, ...props }: Readonly<TextProps>) {
+  return <AriaText {...props} className={twMerge("block", className)} />;
 }
