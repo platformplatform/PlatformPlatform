@@ -15,15 +15,16 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
    - **With session context**: Include only files you changed; exclude others
    - Auto-generated files: `*.Api.json` (backend), `*.po` (frontend)
 
-3. **Offer validation commands** (optional question in same `AskUserQuestion`):
-   - Always offer all relevant commands, but recommend the most appropriate
-   - **AI rules only**: Recommend sync-ai-rules, skip build/format/inspect
-   - **Frontend changes**: Always offer build, format, inspect
-   - **Backend changes**: Always offer build, format, inspect (note: format/inspect are slow)
+3. **Auto-run sync-ai-rules if AI rules changed**:
+   - If any files in `.agent/` changed, run sync-ai-rules automatically
+
+4. **Offer validation commands** (optional question in same `AskUserQuestion`):
+   - **Frontend changes**: Offer build, format, inspect
+   - **Backend changes**: Offer build, format, inspect (note: format/inspect are slow)
    - **Big changes**: Also offer end-to-end tests
    - Let user multi-select or skip all
 
-4. **Ask ALL questions in ONE `AskUserQuestion` call** — minimize back-and-forth:
+5. **Ask ALL questions in ONE `AskUserQuestion` call** — minimize back-and-forth:
    - Always include commit message options (2-4 choices)
    - **Commit message format**: Imperative form, sentence case (capital letter), no trailing period, no co-author
    - **No prefixes**: Do NOT use `feat:`, `fix:`, `docs:`, `chore:`, or similar conventional commit prefixes
@@ -31,10 +32,15 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
    - One line but elaborate enough to understand the change without reading the diff
    - Add contextual questions as needed (file selection, validation commands, actions for leftovers, etc.)
 
-5. **Stage explicitly and commit**:
-   - `git add <file1> <file2> ...` — never use `git add -A` or `git add .`
+6. **Run selected validation commands** (build, format, inspect, etc.):
+   - Run all selected tools/commands before staging and committing
+   - Wait for all commands to complete
 
-6. **Only ask follow-up questions if user selects "Other" or gives unexpected input**
+7. **Stage explicitly and commit**:
+   - `git add <file1> <file2> ...` — never use `git add -A` or `git add .`
+   - Include any files modified by validation tools (e.g., synced AI rules)
+
+8. **Only ask follow-up questions if user selects "Other" or gives unexpected input**
 
 ---
 
