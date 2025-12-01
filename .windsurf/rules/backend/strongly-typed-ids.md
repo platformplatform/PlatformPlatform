@@ -6,7 +6,7 @@ description: Rules for creating strongly typed IDs for DDD aggregates and entiti
 
 # Strongly Typed IDs
 
-Carefully follow these instructions when implementing strongly typed IDs in the backend, covering type safety, naming, serialization, and EF Core mapping.
+Guidelines for implementing strongly typed IDs in the backend, covering type safety, naming, serialization, and EF Core mapping.
 
 ## Implementation
 

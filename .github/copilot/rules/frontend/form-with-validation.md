@@ -1,6 +1,6 @@
 # Form With Validation
 
-Carefully follow these instructions when implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
+Guidelines for implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
 
 ## Implementation
 

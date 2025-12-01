@@ -6,7 +6,7 @@ description: Rules for creating DDD aggregates, entities, value objects, and Ent
 
 # Domain Modeling
 
-Carefully follow these instructions when implementing DDD models for aggregates, entities, and value objects.
+Guidelines for implementing DDD models for aggregates, entities, and value objects.
 
 ## Implementation
 

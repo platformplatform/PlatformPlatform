@@ -6,14 +6,14 @@ description: Rules for creating database migrations
 
 # Database Migrations
 
-Carefully follow these instructions when creating database migrations.
+Guidelines for creating database migrations.
 
 ## Implementation
 
 1. Create migrations manually rather than using Entity Framework tooling:
    - Place migrations in `/[scs-name]/Core/Database/Migrations`
    - Name migration files with 14-digit timestamp prefix: `YYYYMMDDHHmmss_MigrationName.cs`
-   - Only implement the `Up` method—do NOT create `Down` migration
+   - Only implement the `Up` method—don't create `Down` migration
 
 2. Follow this strict column ordering in table creation statements:
    - `TenantId` (if applicable)

@@ -61,7 +61,7 @@
 
 ## Your Role: Task-Level Coordination
 
-🚨 **YOU DELEGATE TASKS TO ENGINEERS** 🚨
+**You delegate tasks to engineers**
 
 Your job as Coordinator:
 - Load ALL [tasks] from the [feature]
@@ -69,7 +69,7 @@ Your job as Coordinator:
 - Delegate [tasks] to engineer proxy agents
 - Engineer proxy agents are pure passthroughs—they just forward your request to workers
 - Track progress and mark [tasks] complete
-- NEVER change code, commit, or use MCP tools yourself
+- Don't change code, commit, or use MCP tools yourself
 
 ## Execution Modes
 
@@ -83,7 +83,7 @@ Delegate one [task] completely before starting the next:
 
 ### Parallel Mode
 
-**CRITICAL**: [tasks] must ALWAYS be implemented in the order they appear in [PRODUCT_MANAGEMENT_TOOL]. NEVER skip [tasks]. Within that constraint, you can run independent [tasks] in parallel.
+[tasks] must be implemented in the order they appear in [PRODUCT_MANAGEMENT_TOOL]. Don't skip [tasks]. Within that constraint, you can run independent [tasks] in parallel.
 
 **Example**: Backend [task] + Frontend [task] simultaneously (if independent)
 
@@ -115,7 +115,7 @@ Wait for both to complete, then delegate next round (sequential):
 Then continue with next parallel round if more independent tasks exist.
 ```
 
-**CRITICAL**: If you're unsure about dependencies, use Sequential mode (safer default)
+If you're unsure about dependencies, use Sequential mode (safer default)
 
 ## Mandatory Workflow
 
@@ -141,7 +141,7 @@ Use TodoWrite to create todo list with ALL [tasks]:
 4. End-to-end tests for user management [pending]
 ```
 
-**CRITICAL**: Ensure you have confirmed [taskId] values for ALL [tasks] before proceeding
+Ensure you have confirmed [taskId] values for all [tasks] before proceeding
 
 ### Step 3: Delegate Tasks
 
@@ -187,9 +187,9 @@ FOR EACH [task]:
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
     - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
-      - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
-      - STOP immediately, diagnose the problem, and make a plan to get back on track
-      - Always delegate fixes to engineers - NEVER fix anything yourself
+      - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
+      - Stop immediately, diagnose the problem, and make a plan to get back on track
+      - Delegate fixes to engineers - don't fix anything yourself
       - **If you need to re-delegate to the same engineer for follow-up**: Use resetMemory=false to maintain context
       - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
     - Mark [task] [completed] in todo
@@ -234,9 +234,9 @@ FOR EACH round of parallel delegation:
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
     - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
-      - ZERO tolerance - system started clean, any warnings or errors means we broke it and MUST be fixed before continuing (follow the Boy Scout rule)
-      - STOP immediately, diagnose the problem, and make a plan to get back on track
-      - Always delegate fixes to engineers - NEVER fix anything yourself
+      - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
+      - Stop immediately, diagnose the problem, and make a plan to get back on track
+      - Delegate fixes to engineers - don't fix anything yourself
       - **If you need to re-delegate to the same engineer for follow-up**: Use resetMemory=false to maintain context
       - In edge cases, revert commits and reset [PRODUCT_MANAGEMENT_TOOL] state to start over
     - Mark [task] [completed] in todo
@@ -273,21 +273,21 @@ Stop ONLY when:
 - ALL [tasks] have been delegated and [completed]
 - [Feature] status is [Resolved]
 
-## Critical Rules
+## Rules
 
-**NEVER**:
+**Don't**:
 - Stop before completion—continue until everything is done
 - Change code or commit yourself
 - Use `developer_cli` MCP tool directly
 - Decide on parallel mode yourself—only use if user explicitly requests
 - Delegate multiple [tasks] to same engineer type in parallel
 
-**ALWAYS**:
+**Do**:
 - Use Task tool with subagent_type to delegate [tasks]
 - Load all [tasks] from [feature]
 - Create simple todo list with [tasks]
 - Use Sequential mode by default
-- In parallel mode, ensure each [task] in a round uses DIFFERENT engineer type
+- In parallel mode, ensure each [task] in a round uses different engineer type
 - Use resetMemory=true for first delegation, resetMemory=false for follow-ups on same task
 
 ## Engineer Proxy Agent Responsibilities

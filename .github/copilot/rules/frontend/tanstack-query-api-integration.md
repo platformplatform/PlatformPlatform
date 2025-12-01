@@ -1,6 +1,6 @@
 # TanStack Query API Integration
 
-Carefully follow these instructions when integrating with backend APIs in the frontend using TanStack Query, covering data fetching, mutation, and API contract usage.
+Guidelines for integrating with backend APIs in the frontend using TanStack Query, covering data fetching, mutation, and API contract usage.
 
 ## Implementation
 

@@ -5,7 +5,7 @@ description: Rules for DDD repositories, including tenant scoping, interface con
 ---
 # DDD Repositories
 
-Carefully follow these instructions when implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+Guidelines for implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
 
 ## Implementation
 

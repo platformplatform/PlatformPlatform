@@ -94,7 +94,7 @@ You are reviewing: **{{{title}}}**
 - Normally ONE new `@comprehensive` test per feature
 - Existing `@smoke` tests should be updated, not duplicated
 - For BIG features: Allow both new `@smoke` and new `@comprehensive`
-- **REJECT if too many small test files created**
+- **Reject if too many small test files created**
 
 **STEP 4**: Review each test step for correct patterns
 
@@ -103,11 +103,11 @@ You are reviewing: **{{{title}}}**
 - ✅ Good: `"Submit login form & verify authentication"`
 - ❌ Bad: `"Verify button is visible"` (no action)
 - ❌ Bad: `"Test login"` (uses "test" prefix)
-- **REJECT if steps don't follow pattern**
+- **Reject if steps don't follow pattern**
 
 **Critical Check 2 - No Sleep Statements:**
 - Search for: `waitForTimeout`, `sleep`, `delay`, `setTimeout`
-- **REJECT immediately if found—no exceptions, no discussion**
+- **Reject if found—no exceptions**
 - Playwright auto-waits—sleep is NEVER needed in any scenario
 - Demand Playwright await assertions instead:
   - Use `toBeVisible()`, `toHaveURL()`, `toContainText()`, etc.
@@ -118,13 +118,13 @@ You are reviewing: **{{{title}}}**
 **Critical Check 1 - Leverage Existing Logic:**
 - Verify tests use fixtures: `{ page }`, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }`
 - Verify tests use helpers: `expectToastMessage`, `expectValidationError`, etc.
-- **REJECT if tests duplicate existing logic**
+- **Reject if tests duplicate existing logic**
 
 **Critical Check 2 - Speed Optimization:**
 - Tests should test MANY things in FEW steps
 - Avoid excessive navigation or setup
 - Group related scenarios together
-- **REJECT if tests are unnecessarily slow**
+- **Reject if tests are unnecessarily slow**
 
 **STEP 6**: Make binary decision (approve or reject)
 
@@ -139,11 +139,11 @@ You are reviewing: **{{{title}}}**
 - ✓ Tests use existing fixtures and helpers
 - ✓ Tests are efficient and fast
 
-**REJECT if ANY issue exists—no exceptions. Common rationalizations to AVOID:**
-- ✗ "Test failed but feature works manually" → REJECT, fix test
-- ✗ "Console error unrelated to E2E code" → REJECT ANYWAY
-- ✗ "It's just a warning" → REJECT, zero means ZERO
-- ✗ "Previous test run passed" → REJECT ANYWAY if current run has issues
+**Reject if any issue exists—no exceptions. Common rationalizations to avoid:**
+- ✗ "Test failed but feature works manually" → Reject, fix test
+- ✗ "Console error unrelated to E2E code" → Reject anyway
+- ✗ "It's just a warning" → Reject, zero means zero
+- ✗ "Previous test run passed" → Reject anyway if current run has issues
 
 **When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
@@ -153,7 +153,7 @@ You are reviewing: **{{{title}}}**
 2. Commit: One line, imperative form, no description, no co-author
 3. Get hash: `git rev-parse HEAD`
 
-🚨 **NEVER use `git add -A` or `git add .`**
+Don't use `git add -A` or `git add .`
 
 **STEP 8**: Update [task] status to [Completed] or [Active]
 
@@ -164,9 +164,7 @@ You are reviewing: **{{{title}}}**
 **If `featureId` is "ad-hoc" (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates.
 
-**STEP 9**: MANDATORY: Call CompleteWork
-
-⚠️ **CRITICAL - SESSION TERMINATING CALL**:
+**STEP 9**: Call CompleteWork
 
 **Call MCP CompleteWork tool**:
 - `mode`: "review"
@@ -185,10 +183,10 @@ You are reviewing: **{{{title}}}**
 
 ---
 
-## Critical Rules
+## Rules
 
-1. **Tests MUST pass** — Never approve failing tests
-2. **No sleep statements** — This is non-negotiable
+1. **Tests must pass** — Don't approve failing tests
+2. **No sleep statements** — Non-negotiable
 3. **Follow step pattern** — Every step needs action + verification
 4. **One test per feature** — Avoid test proliferation
 5. **Speed matters** — Reject slow, inefficient tests

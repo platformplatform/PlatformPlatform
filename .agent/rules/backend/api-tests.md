@@ -5,7 +5,7 @@ description: Rules for writing backend API tests
 ---
 # Writing API Tests
 
-Carefully follow these instructions when writing tests for the backend. By default, tests should test API endpoints to verify behavior over implementation. Only in rare cases should unit tests be used.
+Guidelines for writing tests for the backend. By default, tests should test API endpoints to verify behavior over implementation. Only in rare cases should unit tests be used.
 
 ## Implementation
 
@@ -44,7 +44,7 @@ Carefully follow these instructions when writing tests for the backend. By defau
     - Telemetry event collection
     - Proper test cleanup with the Dispose pattern
 
-IMPORTANT: Ensure consistent ordering, naming, spacing, and line breaks. When creating SQL dummy data, ensure columns are in the exact same order as in the database. Make sure similar elements are written consistently across tests.
+Ensure consistent ordering, naming, spacing, and line breaks. When creating SQL dummy data, ensure columns are in the exact same order as in the database. Make sure similar elements are written consistently across tests.
 
 ## Examples
 

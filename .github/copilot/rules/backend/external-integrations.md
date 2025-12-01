@@ -1,6 +1,6 @@
 # External Integrations
 
-Carefully follow these instructions when implementing integrations with external services in the backend, including structure, error handling, and client conventions.
+Guidelines for implementing integrations with external services in the backend, including structure, error handling, and client conventions.
 
 ## Implementation
 

@@ -1,6 +1,6 @@
 # Developer Command Line Interface Rules
 
-Carefully follow these instructions when implementing and extending the custom Developer Command Line Interface (CLI) commands.
+Guidelines for implementing and extending the custom Developer Command Line Interface (CLI) commands.
 
 ## Implementation
 

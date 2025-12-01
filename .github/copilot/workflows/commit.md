@@ -14,6 +14,8 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
 
 3. **Auto-run sync-ai-rules if AI rules changed**:
    - If any files in `.github/copilot/` changed, run sync-ai-rules automatically
+   - Sync updates files in `.agent/`, `.cursor/`, `.github/copilot/`, `.windsurf/`
+   - These synced directories must be included in the commit (step 7)
 
 4. **Offer validation commands** (optional question in same `AskUserQuestion`):
    - **Frontend changes**: Offer build, format, inspect
@@ -35,10 +37,10 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
 
 7. **Stage explicitly and commit**:
    - `git add <file1> <file2> ...` — never use `git add -A` or `git add .`
-   - Include any files modified by validation tools (e.g., synced AI rules)
+   - If sync-ai-rules ran: also stage `.agent/`, `.cursor/`, `.github/copilot/`, `.windsurf/`
 
 8. **Only ask follow-up questions if user selects "Other" or gives unexpected input**
 
 ---
 
-⚠️ **CRITICAL**: Being asked to commit now does NOT grant permission for future autonomous commits. Never commit, amend, or revert without explicit user instruction each time.
+Being asked to commit now does not grant permission for future autonomous commits. Don't commit, amend, or revert without explicit user instruction each time.

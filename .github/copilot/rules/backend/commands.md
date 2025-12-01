@@ -1,6 +1,6 @@
 # CQRS Commands
 
-Carefully follow these instructions when implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
+Guidelines for implementing CQRS commands, including structure, validation, handlers, and MediatR pipeline behaviors.
 
 ## Structure
 

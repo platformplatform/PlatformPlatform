@@ -20,9 +20,9 @@ You are implementing: **{{{title}}}**
    - `taskId`: [TaskId] (the task you're implementing, or "ad-hoc-yyyyMMdd-HHmm" for ad-hoc work)
    - `taskTitle`: Task title
 
-   **⚠️ CRITICAL - If current-task.json does NOT exist:**
+   **If current-task.json does NOT exist:**
 
-   This means there is no active task assignment. You MUST immediately call CompleteWork to properly terminate your session:
+   This means there is no active task assignment. Call CompleteWork immediately to terminate your session:
 
    ```
    Call CompleteWork with:
@@ -93,7 +93,7 @@ Research the codebase to find similar E2E test implementations. Look for existin
 
 **STEP 4**: Plan test scenarios
 
-**CRITICAL - Speed is essential**: Tests must run fast. Prefer extending existing tests over creating new ones. Design tests that validate multiple scenarios in a single test run.
+**Speed is essential**: Tests must run fast. Prefer extending existing tests over creating new ones. Design tests that validate multiple scenarios in a single test run.
 
 **Planning approach**:
 - **First, check existing tests**: Can you extend an existing test file instead of creating a new one?
@@ -127,12 +127,11 @@ Research the codebase to find similar E2E test implementations. Look for existin
 
 **STEP 7**: Run tests and verify they pass
 
-**CRITICAL**:
 - Use **e2e MCP tool** to run your tests
 - Start with smoke tests: `e2e(smoke=true)`
 - Then run comprehensive tests with search terms: `e2e(searchTerms=["feature-name"])`
-- **ALL tests MUST pass** before proceeding
-- If tests fail: Fix them and run again (never proceed with failing tests)
+- All tests must pass before proceeding
+- If tests fail: Fix them and run again (don't proceed with failing tests)
 
 **If tests fail with backend errors or suspect server issues**:
 - Use **watch MCP tool** to restart server and run database migrations
@@ -141,14 +140,14 @@ Research the codebase to find similar E2E test implementations. Look for existin
 
 **STEP 8**: Delegate to reviewer subagent (skip in standalone mode)
 
-**CRITICAL - Before calling reviewer (EVERY TIME, including re-reviews)**:
+**Before calling reviewer (every time, including re-reviews)**:
 
 **1. Update [task] status to [Review]** in [PRODUCT_MANAGEMENT_TOOL] (if featureId is NOT "ad-hoc"):
-   - This applies to EVERY review request, not just the first one.
-   - When reviewer rejects and moves status to [Active], you MUST move it back to [Review] when requesting re-review.
+   - This applies to every review request, not just the first one.
+   - When reviewer rejects and moves status to [Active], move it back to [Review] when requesting re-review.
    - Skip this only for ad-hoc work (featureId is "ad-hoc").
 
-**2. Zero tolerance verification**: Confirm ALL tests pass with ZERO failures. NEVER request review with ANY failing tests.
+**2. Zero tolerance verification**: Confirm all tests pass with zero failures. Don't request review with failing tests.
 
 **3. Identify your changed files**:
 - Run `git status --porcelain` to see ALL changed files.
@@ -182,18 +181,16 @@ Response: {responseFilePath}
 
 **Review loop**:
 - If reviewer returns NOT APPROVED → Fix issues → Update [task] status to [Review] → Call reviewer subagent again.
-- If reviewer returns APPROVED → Check YOUR files are committed → Proceed to completion.
-- **NEVER call CompleteWork unless reviewer approved and committed your code**.
-- **NEVER commit code yourself** - only the reviewer commits.
-- ⚠️ **If rejected 3+ times with same feedback despite all tests passing:** Report problem with severity: error, then STOP COMPLETELY. Do not call CompleteWork, do not proceed with work - the user will take over manually.
+- If reviewer returns APPROVED → Check your files are committed → Proceed to completion.
+- Don't call CompleteWork unless reviewer approved and committed your code.
+- Don't commit code yourself - only the reviewer commits.
+- If rejected 3+ times with same feedback despite all tests passing: Report problem with severity: error, then stop. Don't call CompleteWork, don't proceed with work - the user will take over manually.
 
-**STEP 9**: MANDATORY: Call CompleteWork after reviewer approval (skip in standalone mode)
+**STEP 9**: Call CompleteWork after reviewer approval (skip in standalone mode)
 
-⚠️ **CRITICAL - SESSION TERMINATING CALL**:
+After completing all work and receiving reviewer approval, call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will terminate your session.
 
-After completing all work AND receiving reviewer approval, you MUST call the MCP **CompleteWork** tool with `mode: "task"` to signal completion. This tool call will IMMEDIATELY TERMINATE your session - there is no going back after this call.
-
-**CompleteWork requires reviewer approval and committed code - NO EXCEPTIONS**
+CompleteWork requires reviewer approval and committed code.
 
 **Before calling CompleteWork**:
 1. Ensure all work is complete and all todos are marked as completed.

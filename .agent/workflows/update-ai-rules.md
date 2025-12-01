@@ -61,8 +61,8 @@ args:
 
 4. Include code examples:
    - Use language-specific code blocks with proper syntax highlighting.
-   - Always show both good (DO) and bad (DON'T) examples for clarity.
-   - Use comments with `// ✅ DO:` and `// ❌ DON'T:` prefixes, or just `// ✅` and `// ❌`.
+   - Show both good and bad examples for clarity.
+   - Use comments with `// ✅` and `// ❌` prefixes (optionally with `DO:` and `DON'T:`).
    - Provide multiple examples for complex rules, using `### Example 1` and `### Example 2`.
 
 5. Reference related files:
@@ -85,21 +85,21 @@ args:
 
 Workflows that integrate with product management tools must use tool-agnostic terminology:
 
-**Required terminology** (use brackets, case, and pluralization consistently):
+**✅ Use this terminology** (brackets, case, and pluralization consistently):
 - `[feature]` / `[features]` / `[Feature]` / `[Features]` - A collection of related [tasks].
 - `[task]` / `[tasks]` / `[Task]` / `[Tasks]` - A complete vertical slice of work.
 - `[subtask]` / `[subtasks]` / `[Subtask]` / `[Subtasks]` - Bullet points in [task] descriptions (not tracked separately).
 
-**Forbidden terms** (tool-specific, do not use):
+**❌ Avoid these terms** (tool-specific):
 - Issue, Epic, Story, User Story, Work Item, Ticket, Bug (as work item types).
 
 The `[PRODUCT_MANAGEMENT_TOOL]` variable in `AGENTS.md` determines which specific tool guide to load. Reference tool-specific guides at `.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
 ## Sync and Limits
 
-1. `.claude/` is the source of truth. Never modify files in other editor directories directly.
+1. `.claude/` is the source of truth. Don't modify files in other editor directories directly.
 
-2. Always run the `sync_ai_rules` MCP tool after updating files.
+2. Run the `sync_ai_rules` MCP tool after updating files.
 
 3. **12,000 character limit** per file. Some editors like Windsurf truncate content exceeding this limit.
 

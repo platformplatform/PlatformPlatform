@@ -32,11 +32,11 @@ Coordinator (orchestrates implementation)
 - Process monitoring: Inactivity detection (20-62 min), restart logic (max 2 restarts)
 - Task recovery: Prompts user to continue incomplete tasks on startup
 
-## Terminology Standards (CRITICAL)
+## Terminology Standards
 
 **The PlatformPlatform workflow is tool-agnostic**. Users can switch between Linear, AzureDevOps, Jira, or even markdown files by simply changing `[PRODUCT_MANAGEMENT_TOOL]` in AGENTS.md.
 
-### ✅ ALWAYS Use These Standardized Terms
+### Use These Standardized Terms
 
 When writing or updating `.windsurf/workflows/process/**` files, system prompts, agent definitions, or any workflow documentation:
 
@@ -52,7 +52,7 @@ When writing or updating `.windsurf/workflows/process/**` files, system prompts,
 
 Use capitalized forms (`[Feature]`, `[Task]`, `[Subtask]`) when it reads more naturally in sentences.
 
-### ❌ NEVER Use Tool-Specific Terms
+### Don't Use Tool-Specific Terms
 
 **Forbidden terms** (these are specific to certain tools):
 - ❌ Issue, Issues
@@ -91,7 +91,7 @@ When the workflow runs, the underlying tool maps our generic terms:
 
 ### When Updating Workflow Files
 
-**Before making ANY change to `.windsurf/workflows/process/**` files**:
+**Before making changes to `.windsurf/workflows/process/**` files**:
 
 1. Search for tool-specific terms and replace with standardized terms
 2. Verify status flows use only `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
@@ -162,7 +162,7 @@ Agent workspaces are organized based on whether agents are branch-specific or br
 - Creates PRDs and defines features
 - Conducts research and discovery
 - Defines what to build, not how
-- NEVER implements features or delegates to engineers
+- Doesn't implement features or delegate to engineers
 - Hands off to coordinator for implementation
 - Runs continuously, relaunching after each session ends
 - Auto-launches immediately when started
@@ -171,7 +171,7 @@ Agent workspaces are organized based on whether agents are branch-specific or br
 - Orchestrates feature implementation
 - Delegates tasks to engineers via Task tool (proxy agents)
 - Monitors progress through response files
-- NEVER codes or commits
+- Doesn't code or commit
 - Runs continuously, relaunching after each session ends
 - Auto-launches immediately when started
 - Prompts user to select feature, then runs `/process:implement-feature`
@@ -320,7 +320,7 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 
 ### Types of Problems
 
-**MUST REPORT** (workflow/system bugs):
+**Report these** (workflow/system bugs):
 - MCP tool errors or incorrect parameters
 - System prompt contradictions or missing guidance
 - Agent communication failures or message format issues
@@ -328,7 +328,7 @@ mv .workspace/agent-workspaces/cto/feedback-reports/problems/14-30-00-error-mcp-
 - Agent definitions with wrong tool permissions
 - Slash commands with incorrect instructions
 
-**DO NOT REPORT** (feature/implementation issues):
+**Don't report** (feature/implementation issues):
 - Business logic bugs
 - Missing product features
 - Code quality problems in production code
@@ -441,12 +441,12 @@ Understanding these files helps debug workflow issues:
 ### For System Prompts
 1. Keep concise, avoid redundancy
 2. Follow established patterns across agents
-3. **CRITICAL**: Use ONLY standardized terminology: `[feature]`, `[task]`, `[subtask]`, `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`
-4. NEVER use tool-specific terms (Issue, User Story, Epic, Work Item, etc.)
+3. Use standardized terminology: `[feature]`, `[task]`, `[subtask]`, `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`
+4. Don't use tool-specific terms (Issue, User Story, Epic, Work Item, etc.)
 5. Be token-efficient (agents read these on every launch)
 
 ### For Workflow Files (.windsurf/workflows/process/**)
-1. **Before ANY edit**: Review the "Terminology Standards" section above
+1. **Before editing**: Review the "Terminology Standards" section above
 2. Use ONLY standardized terms: `[feature]`, `[task]`, `[subtask]`
 3. Use ONLY standardized statuses: `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`
 4. Replace any tool-specific terms found (Issue, User Story, Epic, Work Item, etc.)

@@ -2,6 +2,17 @@
 
 Always follow these rule files very carefully, as they have been crafted to ensure consistency and high-quality code.
 
+## Git Commit Policy
+
+Wait for the user to request git operations (commit, amend, revert). Each request grants permission for that operation only.
+
+- ✅ Always wait for user to request a commit
+- ❌ Be proactive about commits—user will always initiate
+- ❌ After completing work, ask if user wants to commit
+- ❌ Commit after finishing a task without being asked
+- ❌ Run revert or amend to fix a mistake—let user decide
+- ❌ Treat one commit request as permission for later commits
+
 ## Development Approach
 
 When working on tasks, follow any specific workflow instructions provided for your role. If no specific workflow is provided:

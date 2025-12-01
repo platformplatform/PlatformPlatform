@@ -76,14 +76,14 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation
 
 7. Timeout Configuration:
-   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
-   - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
-   - Global timeout configuration is handled in the shared Playwright—do not change this
+   - Use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
+   - Don't add timeouts to `.click()`, `.waitForSelector()`, etc.
+   - Global timeout configuration is handled in the shared Playwright—don't change this
 
-8. Write deterministic tests—this is critical for reliable testing:
+8. Write deterministic tests for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions
-   - Never use if statements, custom error handling, or try/catch blocks in tests
-   - Never use regular expressions in tests—use simple string matching instead
+   - Don't use if statements, custom error handling, or try/catch blocks in tests
+   - Don't use regular expressions in tests—use simple string matching instead
 
 9. What to test:
    - Enter invalid values such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.

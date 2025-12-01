@@ -57,12 +57,12 @@ DEFAULT_TEAM=null
 | `featureId` | Project ID/name |
 | `taskId` | Issue ID (e.g. PP-445) |
 
-## Critical Rules
+## Rules
 
-- ALL operations MUST use MCP tools.
-- If ANY MCP call fails: STOP immediately and call report_problem with severity: error.
-- NEVER skip status updates.
-- NEVER work around MCP failures.
+- All operations use MCP tools.
+- If an MCP call fails: Stop immediately and call report_problem with severity: error.
+- Don't skip status updates.
+- Don't work around MCP failures.
 - featureId will be a project ID/name.
 - taskId will be an issue ID (e.g., "PP-445").
 - To query tasks in a feature: use `list_issues` with `project: "<project-id>"`.
