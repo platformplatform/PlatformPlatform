@@ -79,29 +79,45 @@ public async Task BadTest()
     // ❌ DON'T: Skip verifying DB or telemetry side effects
 }
 
-// ✅ DO: Use SQLite helpers for test data setup, consistent column order
-public GetUsersTests()
+// ✅ DO: Create helper methods for test data, call them in // Arrange
+private string InsertTestUser(string? email = null)
 {
+    var userId = UserId.NewId().ToString();
     Connection.Insert("Users", [
         ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-        ("Id", UserId.NewId().ToString()),
+        ("Id", userId),
         ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)), // ✅ DO: Use TimeProvider for dates
         ("ModifiedAt", null),
-        ("Email", Email)
+        ("Email", email ?? Faker.Internet.Email())
     ]);
+    return userId;
 }
 
-// ❌ DON'T: Use Dapper in tests
+[Fact]
+public async Task GetUser_WhenUserExists_ShouldReturnUser()
+{
+    // Arrange
+    var userId = InsertTestUser("test@example.com"); // ✅ DO: Call helper in Arrange - makes test self-contained
+
+    // Act
+    var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/users/{userId}");
+
+    // Assert
+    response.StatusCode.Should().Be(HttpStatusCode.OK);
+}
+
+// ❌ DON'T: Create test data in constructors or use Dapper
 public class BadTestSetup
 {
-    public BadTestSetup() // ❌ DON'T: Add setup logic to constructor
+    public BadTestSetup()
     {
-        // Arrange
+        // ❌ DON'T: Add setup logic to constructor - tests become implicit and harder to understand
         using var connection = new SqliteConnection(Connection.ConnectionString); // ❌ DON'T: Use Dapper
         connection.Open();
 
         // Insert user // ❌ DON'T: Add comments
-        connection.Execute("INSERT INTO Users (Email, Id, TenantId) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 });
+        connection.Execute("INSERT INTO Users ...");
+        connection.Execute("INSERT INTO Users (Email, Id, TenantId) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 }); // ❌ DON'T: Use Dapper Execute
     }
 }
 ```
