@@ -264,11 +264,17 @@ msgstr "First name"
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
 
+msgid "Get started"
+msgstr "Get started"
+
 msgid "GitHub"
 msgstr "GitHub"
 
 msgid "Go to account settings"
 msgstr "Go to account settings"
+
+msgid "Go to app"
+msgstr "Go to app"
 
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
