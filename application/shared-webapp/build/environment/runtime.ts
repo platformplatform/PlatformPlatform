@@ -13,6 +13,7 @@
  */
 const runtimeEnvElement = document.head.getElementsByTagName("meta").namedItem("runtimeEnv");
 const userInfoEnvElement = document.head.getElementsByTagName("meta").namedItem("userInfoEnv");
+const antiforgeryTokenElement = document.head.getElementsByTagName("meta").namedItem("antiforgeryToken");
 
 if (runtimeEnvElement == null) {
   throw new Error("Runtime environment is not configured");
@@ -22,9 +23,14 @@ if (userInfoEnvElement == null) {
   throw new Error("UserInfo environment is not configured");
 }
 
+if (antiforgeryTokenElement == null) {
+  throw new Error("Antiforgery token is not configured");
+}
+
 try {
   const runtimeEnv: RuntimeEnv = JSON.parse(runtimeEnvElement.content);
   const userInfoEnv: UserInfoEnv = JSON.parse(userInfoEnvElement.content);
+  const antiforgeryToken: string = antiforgeryTokenElement.content;
 
   const environment = {
     ...import.meta.build_env,
@@ -36,7 +42,8 @@ try {
     buildEnv: import.meta.build_env,
     runtimeEnv,
     userInfoEnv,
-    env: environment
+    env: environment,
+    antiforgeryToken
   });
 } catch {
   throw new Error("Could not read runtime environment");

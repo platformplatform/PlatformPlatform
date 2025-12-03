@@ -104,5 +104,6 @@ export declare global {
     build_env: BuildEnv;
     runtime_env: RuntimeEnv;
     user_info_env: UserInfoEnv;
+    antiforgeryToken: string;
   }
 }

@@ -15,14 +15,6 @@ import { normalizeError } from "./errorHandler";
 export const DEFAULT_TIMEOUT = 30000;
 
 /**
- * Gets the antiforgery token from the meta tag
- */
-export function getAntiforgeryToken(): string {
-  const metaTag = document.querySelector('meta[name="antiforgeryToken"]');
-  return metaTag?.getAttribute("content") ?? "";
-}
-
-/**
  * Direct fetch wrapper for non-strongly-typed HTTP calls
  * Adds antiforgery tokens, timeout handling, and error processing
  */
@@ -42,7 +34,7 @@ export async function enhancedFetch(input: RequestInfo | URL, init?: RequestInit
   if (method !== "GET") {
     enhancedInit.headers = {
       ...enhancedInit.headers,
-      "x-xsrf-token": getAntiforgeryToken()
+      "x-xsrf-token": import.meta.antiforgeryToken
     };
   }
 
