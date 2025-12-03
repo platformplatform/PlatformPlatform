@@ -1,6 +1,6 @@
 # CQRS Queries
 
-Carefully follow these instructions when implementing CQRS queries, including structure, validation, response types, and MediatR pipeline behaviors.
+Guidelines for implementing CQRS queries, including structure, validation, response types, and MediatR pipeline behaviors.
 
 ## Implementation
 

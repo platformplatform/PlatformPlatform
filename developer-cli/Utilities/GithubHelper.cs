@@ -65,7 +65,7 @@ public static class GithubHelper
     }
 }
 
-public class GithubInfo(string organizationName, string repositoryName)
+public sealed class GithubInfo(string organizationName, string repositoryName)
 {
     public string OrganizationName { get; } = organizationName;
 

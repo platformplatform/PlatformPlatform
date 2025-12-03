@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Frontend
 
-Carefully follow these instructions for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
+Guidelines for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
 
 ## Architecture Overview
 
@@ -19,7 +19,7 @@ Carefully follow these instructions for frontend TypeScript and React developmen
    - Each self-contained system has its own WebApp
    - Common UI exposed via federation in `federated-modules/`
    - Shared components in `application/shared-webapp/`
-   - Never import directly between self-contained systems
+   - Don't import directly between self-contained systems
    - Use `window.location.href` for navigation between systems (not TanStack Router)
 
 3. **API Integration**:
@@ -40,20 +40,20 @@ Carefully follow these instructions for frontend TypeScript and React developmen
      - UI elements with different functionality should be in separate components
      - Avoid mixing unrelated functionality in one component
    - Use clear, descriptive names instead of making comments
-   - Never use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
+   - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
-   - Never introduce new npm dependencies
-   - Always use React Aria Components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
+   - Don't introduce new npm dependencies
+   - Use React Aria Components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
 
 2. Use the following React patterns and libraries:
    - Use React Aria Components from `@repo/ui/components/ComponentName`:
      - Search [Components](mdc:application/shared-webapp/ui/components) when you need to find a component
-     - Always use existing components rather than creating new ones
+     - Use existing components rather than creating new ones
    - Use `onPress` instead of `onClick` for event handlers
    - Use `onAction` for menu items and list actions
    - Use `<Trans>...</Trans>` for JSX translations, `t` macro for strings
    - Use TanStack Query for API interactions via `api.useQuery()` and `api.useMutation()`
-   - Never use `fetch` directly—always use the generated API client
+   - Don't use `fetch` directly—use the generated API client
    - Use Suspense boundaries with error boundaries at route level
    - Colocate state with components—don't lift state unnecessarily
    - Use `useCallback` and `useMemo` only for proven performance issues

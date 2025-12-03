@@ -284,13 +284,13 @@ public static class ProcessHelper
     }
 }
 
-public class ProcessExecutionException(int exitCode, string message)
+public sealed class ProcessExecutionException(int exitCode, string message)
     : Exception(message)
 {
     public int ExitCode { get; } = exitCode;
 }
 
-public record ProcessResult(int ExitCode, string StdOut, string StdErr, string TempFilePath)
+public sealed record ProcessResult(int ExitCode, string StdOut, string StdErr, string TempFilePath)
 {
     public bool Success => ExitCode == 0;
 

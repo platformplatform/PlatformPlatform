@@ -1,6 +1,6 @@
 # Form With Validation
 
-Carefully follow these instructions when implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
+Guidelines for implementing forms with validation in the frontend, covering UI components, mutation handling, and validation error display.
 
 ## Implementation
 
@@ -9,8 +9,13 @@ Carefully follow these instructions when implementing forms with validation in t
 3. Use the custom `mutationSubmitter` to handle form submission and data mapping
 4. Handle validation errors using the `validationErrors` prop from the mutation error
 5. Show loading state in submit buttons
-6. Include a `FormErrorMessage` component to display validation errors
-7. For complex scenarios with multiple API calls, create a custom mutation with a `mutationFn`
+6. For complex scenarios with multiple API calls, create a custom mutation with a `mutationFn`
+
+## Anti-patterns
+
+- **Do NOT use `<FormErrorMessage>`** - This component is deprecated. Instead:
+  - Use `validationErrors` prop on the `<Form>` to show field-level validation errors
+  - Use toast notifications to display server errors (non-validation errors)
 
 Note: All .NET API endpoints are available as strongly typed API contracts in the frontend—when compiling the .NET backend, an OpenApi.json file is generated and the frontend build uses `openapi-typescript` to generate the API contracts.
 
@@ -22,7 +27,7 @@ Note: All .NET API endpoints are available as strongly typed API contracts in th
 // ✅ DO: Use mutationSubmitter and proper error handling
 import { api } from "@/shared/lib/api/client";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { Form, FormErrorMessage, TextField, Button } from "@repo/ui/components";
+import { Form, TextField, Button } from "@repo/ui/components";
 import { Trans } from "@lingui/react/macro";
 
 export function UserProfileForm({ user }) {
@@ -50,15 +55,12 @@ export function UserProfileForm({ user }) {
         placeholder={t`E.g., Taylor`}
       />
       
-      <TextField 
-        name="title" 
-        label={t`Title`} 
-        defaultValue={user?.title} 
+      <TextField
+        name="title"
+        label={t`Title`}
+        defaultValue={user?.title}
       />
-      
-      {/* Error message display */}
-      <FormErrorMessage error={updateUserMutation.error} />
-      
+
       <Button type="submit" isDisabled={updateUserMutation.isPending}>
         {updateUserMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
       </Button>
@@ -97,8 +99,6 @@ function BadUserProfileForm({ user }) {
       <TextField name="firstName" defaultValue={user?.firstName} isRequired />
       <TextField name="lastName" defaultValue={user?.lastName} isRequired />
       <TextField name="title" defaultValue={user?.title} />
-      
-      {error && <FormErrorMessage error={error} />}
       
       <Button type="submit" isDisabled={isLoading}>
         {isLoading ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
@@ -154,8 +154,7 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
       validationErrors={saveMutation.error?.errors || updateUserMutation.error?.errors}
     >
       {/* Form fields */}
-      <FormErrorMessage error={saveMutation.error} />
-      
+
       <Button type="submit" isDisabled={saveMutation.isPending}>
         {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
       </Button>

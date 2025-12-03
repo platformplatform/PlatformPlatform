@@ -1,6 +1,6 @@
 # Modal Dialog
 
-Carefully follow these instructions when implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
+Guidelines for implementing modal dialogs in the frontend, focusing on accessibility, component usage, and translation patterns.
 
 ## Implementation
 
@@ -10,7 +10,7 @@ Carefully follow these instructions when implementing modal dialogs in the front
 4. Use `onPress` instead of `onClick` for event handlers
 5. Include appropriate aria labels for accessibility
 6. Use `<Trans>...</Trans>` or t\`...\` for translations (content should be plain English)
-7. **Required**: Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, `sm:w-dialog-xl`, or `sm:w-dialog-2xl`) to every `Dialog` component
+7. Apply a dialog width class (`sm:w-dialog-md`, `sm:w-dialog-lg`, `sm:w-dialog-xl`, or `sm:w-dialog-2xl`) to every `Dialog` component
 8. Use `isDismissable={!mutation.isPending}` to prevent closing during save operations
 
 ## Dialog Sizing
@@ -31,7 +31,7 @@ The `AlertDialog` component defaults to `sm:w-dialog-md` but can be overridden.
 ```typescript
 const [isOpen, setIsOpen] = useState(false);
 
-<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={true}>
+<Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={!mutation.isPending}>
   <Dialog className="sm:w-dialog-md">
     <XIcon
       onClick={() => setIsOpen(false)}
@@ -53,10 +53,10 @@ const [isOpen, setIsOpen] = useState(false);
         />
       </DialogContent>
       <DialogFooter>
-        <Button variant="secondary" onPress={() => setIsOpen(false)}>
+        <Button variant="secondary" onPress={() => setIsOpen(false)} isDisabled={mutation.isPending}>
           <Trans>Cancel</Trans>
         </Button>
-        <Button type="submit">
+        <Button type="submit" isPending={mutation.isPending}>
           <Trans>Send invite</Trans>
         </Button>
       </DialogFooter>

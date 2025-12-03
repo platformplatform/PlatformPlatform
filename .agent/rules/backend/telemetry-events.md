@@ -5,7 +5,7 @@ description: Rules for telemetry events including important rules of where to cr
 ---
 # Telemetry Events
 
-Carefully follow these instructions when implementing telemetry events in the backend, including event structure, naming, and publishing practices.
+Guidelines for implementing telemetry events in the backend, including event structure, naming, and publishing practices.
 
 ## Implementation
 

@@ -1,6 +1,6 @@
 # Telemetry Events
 
-Carefully follow these instructions when implementing telemetry events in the backend, including event structure, naming, and publishing practices.
+Guidelines for implementing telemetry events in the backend, including event structure, naming, and publishing practices.
 
 ## Implementation
 

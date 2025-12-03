@@ -1,6 +1,6 @@
 # API Endpoints
 
-Carefully follow these instructions when implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
+Guidelines for implementing minimal API endpoints in the backend, including structure, route conventions, and usage patterns.
 
 ## Implementation
 

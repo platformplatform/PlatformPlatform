@@ -5,20 +5,20 @@ description: Rules for translations and internationalization
 ---
 # Translations
 
-Carefully follow these instructions when implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
+Guidelines for implementing translations and internationalization in the frontend, including usage of translation markers and best practices.
 
 ## Implementation
 
 1. Use `<Trans>...</Trans>` for TSX/component content
 2. Use the t\`...\` syntax for string translations in code
 3. Always use plain English text in translation markers
-4. Never hardcode text without proper translation wrappers
+4. Don't hardcode text without proper translation wrappers
 5. Use "Sentence case" for everything (buttons, menus, headings, etc.)
 6. Translation workflow:
    - Translation files are in `shared/translations/locale/` (e.g., `da-DK.po`, `en-US.po`)
    - After adding/changing `<Trans>` or t\`\` markers, the `*.po` files are auto-generated/updated by the build system
-   - Never manually add or remove entries to `*.po` files
-   - **Critical**: After auto-generation, translate all new/updated entries in `*.po` files for all supported languages
+   - Don't manually add or remove entries to `*.po` files
+   - After auto-generation, translate all new/updated entries in `*.po` files for all supported languages
    - Only translate `msgstr` values—never change `msgid` values
 7. Don't translate fully dynamic content such as variable values or dynamic text
 8. **Domain terminology consistency**:

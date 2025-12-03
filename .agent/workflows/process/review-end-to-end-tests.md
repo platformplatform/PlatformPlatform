@@ -1,5 +1,5 @@
 ---
-description: Review end-to-end test implementation for a story task
+description: Review end-to-end test implementation for a [task]
 ---
 # Review E2E Tests Workflow
 
@@ -7,37 +7,50 @@ You are reviewing: **{{{title}}}**
 
 **Agentic vs standalone mode:** Your system prompt will explicitly state if you are in *agentic mode*. Otherwise, assume *standalone mode* and skip steps marked "(skip in standalone mode)".
 
-## Mandatory Preparation
-
-**Note:**
-- **Agentic mode**: The review request comes from `current-task.json`. The CLI passes only the task title as the slash command argument.
+- **Agentic mode**: The review request comes from `current-task.json`. The CLI passes only the task title as the slash command argument. You run autonomously without human supervision - work with your team to find solutions.
 - **Standalone mode**: Test files are passed as command arguments `{{{title}}}`. Read test files from user-provided paths or from `git status`.
 
-**Read your `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{your-agent-type}/current-task.json`** to get:
-- `requestFilePath`: Request file path
-- `taskId`: [TaskId] (if applicable)
-- `title`: Task title
+## Review Principles
 
-**Then read the request and response files** to understand what was implemented.
+**Zero Tolerance for Test Quality**: E2E tests must be perfect. ALL tests must pass, ZERO console errors, ZERO network errors, NO sleep statements. There are no exceptions.
+
+**Evidence-Based Reviews**: Every finding must be backed by rules in `/.agent/rules/end-to-end-tests/end-to-end-tests.md` or established patterns in the codebase.
+
+**Speed is Critical**: Tests must run fast. Reject tests that are unnecessarily slow or create too many small test files.
 
 ---
 
-## Create Todo List
+## STEP 0: Mandatory Preparation
+
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+
+2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
+   - `requestFilePath`: Request file path (contains engineer's request message)
+   - `responseFilePath`: Response file path (where you'll write your review outcome)
+   - `featureId`: [FeatureId] (the feature this task belongs to, or "ad-hoc" for ad-hoc work)
+   - `taskId`: [TaskId] (the task being reviewed, or "ad-hoc-yyyyMMdd-HHmm" for ad-hoc work)
+   - `taskTitle`: Task title
+
+3. **Read the request file** from the path in `requestFilePath`.
+
+4. **Read all files referenced in the engineer's request** (test files, implementation details, etc.).
+
+5. **Create Todo List**
+
+**CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
 ```json
 {
   "todos": [
-    {"content": "Read context and engineer's implementation", "status": "pending", "activeForm": "Reading context"},
-    {"content": "Run watch tool to apply migrations", "status": "pending", "activeForm": "Running watch tool"},
-    {"content": "Run e2e tests and verify ALL pass", "status": "pending", "activeForm": "Running E2E tests"},
-    {"content": "Review E2E test file structure and organization", "status": "pending", "activeForm": "Reviewing test structure"},
-    {"content": "Verify test categorization (@smoke vs @comprehensive)", "status": "pending", "activeForm": "Verifying categorization"},
-    {"content": "Check all steps follow 'Do something & verify result' pattern", "status": "pending", "activeForm": "Checking step patterns"},
-    {"content": "Reject if any sleep statements found", "status": "pending", "activeForm": "Checking for sleep statements"},
-    {"content": "Verify tests leverage existing fixtures and helpers", "status": "pending", "activeForm": "Verifying test efficiency"},
+    {"content": "Read [feature] and [task] to understand requirements", "status": "pending", "activeForm": "Reading feature and task"},
+    {"content": "Run e2e tests and verify ALL pass with zero tolerance", "status": "pending", "activeForm": "Running E2E tests"},
+    {"content": "Review test file structure and organization", "status": "pending", "activeForm": "Reviewing test structure"},
+    {"content": "Review each test step for correct patterns", "status": "pending", "activeForm": "Reviewing test steps"},
+    {"content": "Review test efficiency and speed", "status": "pending", "activeForm": "Reviewing test efficiency"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making decision"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing if approved"},
-    {"content": "Report any workflow errors encountered (wrong paths, missing tools, etc.)", "status": "pending", "activeForm": "Reporting workflow errors"}
+    {"content": "Update [task] status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating task status"},
+    {"content": "MANDATORY: Call CompleteWork", "status": "pending", "activeForm": "Calling CompleteWork"}
   ]
 }
 ```
@@ -46,10 +59,30 @@ You are reviewing: **{{{title}}}**
 
 ## Workflow Steps
 
-**STEP 1**: Read all context.
+**STEP 1**: Read [feature] and [task] to understand requirements
 
-**STEP 2**: Run watch and E2E tools:
+1. **Read the [feature]** from `featureId` in [PRODUCT_MANAGEMENT_TOOL] (if not ad-hoc):
+   - Understand the overall problem and solution approach.
+
+2. **Read the [task]** from `taskId` in [PRODUCT_MANAGEMENT_TOOL]:
+   - Read the task description carefully.
+   - Understand what tests should cover.
+
+3. **Read engineer's request** to understand what tests were created.
+
+**If [task] lookup fails** (not found, already completed, or error): This is a coordination error. Report a problem and reject the review explaining the task could not be found.
+
+4. **Study E2E rules**:
+   - Read [End-to-End Tests](/.agent/rules/end-to-end-tests/end-to-end-tests.md)
+   - Ensure engineer followed all patterns
+
+**STEP 2**: Run e2e tests and verify ALL pass with zero tolerance
+
+**If tests require backend changes, run watch tool first**:
 - Use **watch MCP tool** to restart server and run migrations
+- The tool starts .NET Aspire at https://localhost:9000
+
+**Run E2E tests**:
 - Use **e2e MCP tool** to run tests: `e2e(searchTerms=["feature-name"])`
 - **ALL tests MUST pass with ZERO failures to approve**
 - **Verify ZERO console errors** during test execution
@@ -58,49 +91,45 @@ You are reviewing: **{{{title}}}**
 - If ANY console errors: REJECT
 - If ANY network errors: REJECT
 
-**STEP 3**: Study E2E rules:
-- Read [End-to-End Tests](/.agent/rules/end-to-end-tests/end-to-end-tests.md)
-- Ensure engineer followed all patterns
-
-**STEP 4**: Review test file structure.
+**STEP 3**: Review test file structure and organization
 
 **Critical Check 1 - Test Count:**
 - Normally ONE new `@comprehensive` test per feature
 - Existing `@smoke` tests should be updated, not duplicated
 - For BIG features: Allow both new `@smoke` and new `@comprehensive`
-- **REJECT if too many small test files created**
+- **Reject if too many small test files created**
 
-**STEP 5**: Review each test step.
+**STEP 4**: Review each test step for correct patterns
 
-**Critical Check 2 - Step Naming Pattern:**
+**Critical Check 1 - Step Naming Pattern:**
 - **EVERY step MUST follow**: "Do something & verify result"
 - ✅ Good: `"Submit login form & verify authentication"`
 - ❌ Bad: `"Verify button is visible"` (no action)
 - ❌ Bad: `"Test login"` (uses "test" prefix)
-- **REJECT if steps don't follow pattern**
+- **Reject if steps don't follow pattern**
 
-**Critical Check 3 - No Sleep Statements:**
+**Critical Check 2 - No Sleep Statements:**
 - Search for: `waitForTimeout`, `sleep`, `delay`, `setTimeout`
-- **REJECT immediately if found—no exceptions, no discussion**
+- **Reject if found—no exceptions**
 - Playwright auto-waits—sleep is NEVER needed in any scenario
 - Demand Playwright await assertions instead:
   - Use `toBeVisible()`, `toHaveURL()`, `toContainText()`, etc.
   - These built-in auto-wait mechanisms handle all timing scenarios
 
-**STEP 6**: Review test efficiency.
+**STEP 5**: Review test efficiency and speed
 
-**Critical Check 4 - Leverage Existing Logic:**
+**Critical Check 1 - Leverage Existing Logic:**
 - Verify tests use fixtures: `{ page }`, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }`
 - Verify tests use helpers: `expectToastMessage`, `expectValidationError`, etc.
-- **REJECT if tests duplicate existing logic**
+- **Reject if tests duplicate existing logic**
 
-**Critical Check 5 - Speed Optimization:**
+**Critical Check 2 - Speed Optimization:**
 - Tests should test MANY things in FEW steps
 - Avoid excessive navigation or setup
 - Group related scenarios together
-- **REJECT if tests are unnecessarily slow**
+- **Reject if tests are unnecessarily slow**
 
-**STEP 7**: Decide - APPROVED or NOT APPROVED.
+**STEP 6**: Make binary decision (approve or reject)
 
 **Aim for perfection, not "good enough".**
 
@@ -113,24 +142,32 @@ You are reviewing: **{{{title}}}**
 - ✓ Tests use existing fixtures and helpers
 - ✓ Tests are efficient and fast
 
-**REJECT if ANY issue exists—no exceptions. Common rationalizations to AVOID:**
-- ✗ "Test failed but feature works manually" → REJECT, fix test
-- ✗ "Console error unrelated to E2E code" → REJECT ANYWAY
-- ✗ "It's just a warning" → REJECT, zero means ZERO
-- ✗ "Previous test run passed" → REJECT ANYWAY if current run has issues
+**Reject if any issue exists—no exceptions. Common rationalizations to avoid:**
+- ✗ "Test failed but feature works manually" → Reject, fix test
+- ✗ "Console error unrelated to E2E code" → Reject anyway
+- ✗ "It's just a warning" → Reject, zero means zero
+- ✗ "Previous test run passed" → Reject anyway if current run has issues
 
 **When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
-**STEP 8**: If APPROVED, commit changes:
+**STEP 7**: If approved, commit changes
+
 1. Stage test files: `git add <file>` for each test file
 2. Commit: One line, imperative form, no description, no co-author
 3. Get hash: `git rev-parse HEAD`
 
-🚨 **NEVER use `git add -A` or `git add .`**
+Don't use `git add -A` or `git add .`
 
-**STEP 9**: Signal completion (skip in standalone mode)
+**STEP 8**: Update [task] status to [Completed] or [Active]
 
-⚠️ **CRITICAL - SESSION TERMINATING CALL**:
+**If `featureId` is NOT "ad-hoc" (regular task from a feature):**
+- If APPROVED: Update [task] status to [Completed].
+- If REJECTED: Update [task] status back to [Active].
+
+**If `featureId` is "ad-hoc" (ad-hoc work):**
+- Skip [PRODUCT_MANAGEMENT_TOOL] status updates.
+
+**STEP 9**: Call CompleteWork
 
 **Call MCP CompleteWork tool**:
 - `mode`: "review"
@@ -149,10 +186,10 @@ You are reviewing: **{{{title}}}**
 
 ---
 
-## Critical Rules
+## Rules
 
-1. **Tests MUST pass** — Never approve failing tests
-2. **No sleep statements** — This is non-negotiable
+1. **Tests must pass** — Don't approve failing tests
+2. **No sleep statements** — Non-negotiable
 3. **Follow step pattern** — Every step needs action + verification
 4. **One test per feature** — Avoid test proliferation
 5. **Speed matters** — Reject slow, inefficient tests

@@ -7,13 +7,8 @@ You are reviewing: **{{{title}}}**
 
 **Agentic vs standalone mode:** Your system prompt will explicitly state if you are in *agentic mode*. Otherwise, assume *standalone mode* and skip steps marked "(skip in standalone mode)".
 
-## Mandatory Preparation
-
-**Note:**
-- **Agentic mode**: The review request comes from `current-task.json`. The CLI passes only the task title as the slash command argument.
+- **Agentic mode**: The review request comes from `current-task.json`. The CLI passes only the task title as the slash command argument. You run autonomously without human supervision - work with your team to find solutions.
 - **Standalone mode**: Review request is passed as command arguments `{{{title}}}`. Read changed files from `git status` or user-provided list.
-
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 ## Review Principles
 
@@ -36,38 +31,22 @@ Avoid subjective personal preferences.
 
 ---
 
-## STEP 0: Read Task Assignment and Create Todo List
+## STEP 0: Mandatory Preparation
 
-**Read your `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{your-agent-type}/current-task.json`** to get:
-- `requestFilePath`: Request file path
-- `featureId`: [FeatureId] (the feature this task belongs to, or null for ad-hoc)
-- `taskId`: [TaskId] (the task being reviewed)
-- `taskTitle`: Task title
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
-**Then read the request file** from the path in `requestFilePath`.
+2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
+   - `requestFilePath`: Request file path (contains engineer's request message)
+   - `responseFilePath`: Response file path (where you'll write your review outcome)
+   - `featureId`: [FeatureId] (the feature this task belongs to, or "ad-hoc" for ad-hoc work)
+   - `taskId`: [TaskId] (the task being reviewed, or "ad-hoc-yyyyMMdd-HHmm" for ad-hoc work)
+   - `taskTitle`: Task title
 
-**If `featureId` is not null (regular task):**
-1. Read [feature] from `featureId` in [PRODUCT_MANAGEMENT_TOOL] to understand the full PRD context
-2. Read [task] from `taskId` in [PRODUCT_MANAGEMENT_TOOL] to understand task requirements
-3. Understand that tasks are complete vertical slices
+3. **Read the request file** from the path in `requestFilePath`.
 
-**If `featureId` is null (ad-hoc work):**
-- Skip [PRODUCT_MANAGEMENT_TOOL] operations
-- Review and commit exactly like regular [tasks]
+4. **Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
 
-**Read all files referenced in the engineer's request** (implementation details, changed files, etc.).
-
----
-
-## CRITICAL - Autonomous Operation
-
-You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. Work with our team to find a solution.
-
-**Token limits approaching?** Use `/compact` strategically (e.g., after being assigned a new task, but before reading task assignment, before catching up).
-
----
-
-## Create Todo List - DO THIS NOW!
+5. **Create Todo List**
 
 **CALL TodoWrite TOOL WITH THIS EXACT JSON - COPY AND PASTE**:
 
@@ -77,8 +56,8 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
     {"content": "Read [feature] and [task] to understand requirements", "status": "pending", "activeForm": "Reading feature and task"},
     {"content": "Create checklist of all requirements from [task] description", "status": "pending", "activeForm": "Creating requirements checklist"},
     {"content": "Run validation tools in parallel (format, test, inspect)", "status": "pending", "activeForm": "Running validation tools"},
-    {"content": "Verify translations complete (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
-    {"content": "Test in Chrome DevTools - verify zero console/network errors (frontend-reviewer only)", "status": "pending", "activeForm": "Testing in browser"},
+    {"content": "Verify translations (frontend-reviewer only)", "status": "pending", "activeForm": "Verifying translations"},
+    {"content": "Test in browser with zero tolerance (frontend-reviewer only)", "status": "pending", "activeForm": "Testing in browser"},
     {"content": "Review changed files one-by-one", "status": "pending", "activeForm": "Reviewing files"},
     {"content": "Review high-level architecture", "status": "pending", "activeForm": "Reviewing architecture"},
     {"content": "Verify all requirements met with tests", "status": "pending", "activeForm": "Verifying requirements"},
@@ -89,7 +68,9 @@ You run WITHOUT human supervision. NEVER ask for guidance or refuse to do work. 
 }
 ```
 
-**CRITICAL - After creating base todo, unfold "Review changed files one-by-one":**
+**After creating this template**: Remove todo items marked for a different reviewer role. For example, if you're a backend-reviewer, remove items containing "(frontend-reviewer only)".
+
+**After creating base todo, unfold "Review changed files one-by-one":**
 
 1. Get list of changed files from engineer's request (NOT from git status).
 2. Replace the single "Review changed files" item with individual file review items.
@@ -108,9 +89,7 @@ Review changed files one-by-one
 
 ## Workflow Steps
 
-**STEP 1**: Understand requirements and create checklist
-
-Before reviewing code, understand what SHOULD have been implemented:
+**STEP 1**: Read [feature] and [task] to understand requirements
 
 1. **Read the [feature]** from `featureId` in [PRODUCT_MANAGEMENT_TOOL] (if not ad-hoc):
    - Understand the overall problem and solution approach.
@@ -119,7 +98,13 @@ Before reviewing code, understand what SHOULD have been implemented:
    - Read the task description carefully.
    - Note all subtask bullets (implementation steps).
 
-3. **Create requirements checklist** - Extract ALL business rules, edge cases, and validations from task description:
+3. **Read engineer's request and response files** to understand what was actually implemented.
+
+**If [task] lookup fails** (not found, already completed, or error): This is a coordination error. Report a problem and reject the review explaining the task could not be found.
+
+**STEP 2**: Create checklist of all requirements from [task] description
+
+Extract ALL business rules, edge cases, and validations from task description:
    - What are the business rules? (uniqueness, permissions, constraints).
    - What validations are required?
    - What edge cases must be handled?
@@ -153,7 +138,7 @@ This checklist focuses on non-obvious requirements that reviewers often miss.
 
 4. **Read engineer's request and response files** to understand what was actually implemented.
 
-**IMPORTANT**: The [feature] plan was AI-generated by tech-lead in a few minutes after interviewing the user. Engineers spend implementation time thinking deeply about the code. YOU are the expert reviewer. If implementation OR task design doesn't align with:
+The [feature] plan was AI-generated by tech-lead in a few minutes after interviewing the user. Engineers spend implementation time considering the code carefully. You are the expert reviewer. If implementation or task design doesn't align with:
 - Feature intent.
 - Rules in the project.
 - Patterns used in the solution.
@@ -165,15 +150,17 @@ This checklist focuses on non-obvious requirements that reviewers often miss.
 
 **Collaborate with your team**: For complex problems or design questions, engage in conversation with engineers or other reviewers. Better solutions often emerge from team collaboration.
 
-**STEP 2**: Run validation (role-specific)
+**STEP 3**: Run validation tools in parallel (format, test, inspect)
 
-**CRITICAL - ZERO TOLERANCE FOR ANY ISSUES**:
+**Zero tolerance for issues**:
 - We deploy to production after review - quality is non-negotiable.
 - **Boy Scout Rule**: The codebase must be cleaner than before.
-- REJECT if ANY failures, warnings, or problems exist ANYWHERE in the system.
+- Reject if any failures, warnings, or problems exist anywhere in the system.
 - This includes pre-existing issues unrelated to engineer's changes.
-- NEVER approve code with ANY outstanding issues.
-- **Infrastructure failures** (MCP errors, tools fail) → REJECT, report problem, do not approve.
+- Don't approve code with outstanding issues.
+- Infrastructure failures (MCP errors, tools fail) → Reject, report problem, do not approve.
+
+**Inspect findings block merging**: If inspect returns "Issues found", the CI pipeline will fail and the code cannot be merged. The severity level (note/warning/error) is irrelevant - all findings must be fixed before approval.
 
 **For backend-reviewer** (validates all self-contained systems to catch cross-self-contained-system breakage):
 
@@ -221,23 +208,19 @@ This checklist focuses on non-obvious requirements that reviewers often miss.
 **If validation fails with errors unrelated to engineer's changes**:
 - Check `git log --oneline` for recent parallel engineer commits.
 - If recent commits exist: Sleep 5 minutes, re-run validation.
-- If issue persists: REJECT and ask engineer to fix pre-existing issue.
+- If issue persists: REJECT. Per Boy Scout Rule, the engineer is responsible for fixing ALL issues found, even pre-existing ones.
 
 **Note**: All architectural rules for your role are embedded in your system prompt and available for reference at all times.
 
-**STEP 3**: Frontend only - verify translations in `*.po` files
+**STEP 4**: Verify translations (frontend-reviewer only)
 
 Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain terminology. Reject if translations are missing or terminology differs from established usage elsewhere.
 
-**STEP 4**: Frontend only - test changes in Chrome DevTools with ZERO TOLERANCE
+**STEP 5**: Test in browser with zero tolerance (frontend-reviewer only)
 
-**MANDATORY FOR FRONTEND REVIEWER - DO NOT SKIP**
+**Required for frontend reviewers**
 
-**IF YOU CANNOT COMPLETE THIS STEP FOR ANY REASON: IMMEDIATELY REJECT**
-- MCP connection failed? → REJECT, report problem
-- Browser won't start? → REJECT, report problem
-- Cannot access localhost? → REJECT, use watch tool or report problem
-- ANY infrastructure issue? → REJECT, do not approve without completing this step
+If infrastructure issues prevent testing: Try to recover (use watch MCP tool to restart server, retry browser). If recovery fails, complete the rest of your review, then reject with all findings including the infrastructure issue. Report problem for infrastructure failures.
 
 1. **Navigate to https://localhost:9000** and test ALL functionality:
    - **Test the COMPLETE happy path** of the new feature from start to finish.
@@ -283,13 +266,13 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
    - Use `UNLOCK` for verification code (works on localhost only).
    - If user doesn't exist: Sign up for a new tenant, use `UNLOCK` for verification code.
 
-**CRITICAL**: If you discover bugs during testing (API errors, broken functionality, console errors, network errors), you MUST REJECT. Zero tolerance means REJECT on ANY issue found.
+If you discover bugs during testing (API errors, broken functionality, console errors, network errors), reject. Zero tolerance means reject on any issue found.
 
 **Boy Scout Rule**: If you find pre-existing issues unrelated to engineer's changes, REJECT and require engineer to fix them. Zero tolerance means ZERO - not "only for my changes".
 
-**STEP 5**: Review each file one-by-one
+**STEP 6**: Review changed files one-by-one
 
-**CRITICAL - Review files individually, not in bulk. Do NOT read ALL files and then review them all:**
+**Review files individually, not in bulk:**
 
 For EACH file in your unfolded todo:
 1. **Mark file [in_progress]** in todo.
@@ -317,7 +300,7 @@ For EACH file in your unfolded todo:
 
 Play the devil's advocate, and reject if you find ANY small thing that is objectively not correct.
 
-**STEP 6**: Review high-level architecture
+**STEP 7**: Review high-level architecture
 
 After reviewing all individual files, step back and review the overall design:
 
@@ -342,7 +325,7 @@ Play the devil's advocate, and reject if you find ANY small thing that is object
 - Change to "Review high-level architecture (Approved)" or "(Issues found)".
 - Mark as [completed].
 
-**STEP 7**: Verify all requirements met
+**STEP 8**: Verify all requirements met with tests
 
 **Go through your requirements checklist from STEP 1 systematically:**
 
@@ -361,7 +344,7 @@ For EACH business rule:
 2. **Verify correct roles** - Does it check the right role (Owner, Admin, Member)?
 3. **Verify test coverage** - Is there a test proving unauthorized access is rejected (403)?
 
-**CRITICAL**: If ANY requirement is missing, not implemented correctly, or not tested, REJECT with specific gaps.
+If any requirement is missing, not implemented correctly, or not tested, reject with specific gaps.
 
 **Example verification:**
 ```
@@ -378,7 +361,7 @@ REJECT: Missing permission guard for create. Missing test for last-owner protect
 - Change to "Verify all requirements met with tests (Approved)" or "(Requirements missing)".
 - Mark as [completed].
 
-**STEP 8**: Decide and commit (if approved) or reject (if issues found)
+**STEP 9**: If approved, commit changes (or reject if any issues found)
 
 **Aim for perfection, not "good enough".**
 
@@ -396,13 +379,13 @@ By this point, you've already marked each file, architecture, and requirements a
 - ✓ Architecture marked "(Approved)".
 - ✓ Requirements marked "(Approved)".
 
-**REJECT if ANY issue exists - no exceptions. Common rationalizations to AVOID:**
-- ✗ "Backend issue, not frontend problem" → REJECT ANYWAY.
-- ✗ "Previous review verified it" → REJECT ANYWAY.
-- ✗ "Validation tools passed" → NOT ENOUGH if browser has errors.
-- ✗ "Infrastructure/MCP issue" → REJECT ANYWAY, report problem.
-- ✗ "Pre-existing problem" → REJECT ANYWAY per Boy Scout Rule.
-- ✗ "It's just a warning" → REJECT, zero means ZERO.
+**Reject if any issue exists - no exceptions. Common rationalizations to avoid:**
+- ✗ "Backend issue, not frontend problem" → Reject anyway.
+- ✗ "Previous review verified it" → Reject anyway.
+- ✗ "Validation tools passed" → Not enough if browser has errors.
+- ✗ "Infrastructure/MCP issue" → Reject anyway, report problem.
+- ✗ "Pre-existing problem" → Reject anyway per Boy Scout Rule.
+- ✗ "It's just a warning" → Reject, zero means zero.
 
 **When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds). Skip to STEP 9 to update status, then STEP 10 to call CompleteWork.
 
@@ -417,22 +400,20 @@ By this point, you've already marked each file, architecture, and requirements a
 3. Commit: One line, imperative form, no description, no co-author
 4. Get hash: `git rev-parse HEAD`
 
-🚨 **NEVER use `git add -A` or `git add .`**
+Don't use `git add -A` or `git add .`
 
-**STEP 9**: Update [task] status in `[PRODUCT_MANAGEMENT_TOOL]`
+**STEP 10**: Update [task] status to [Completed] or [Active]
 
-**If `featureId` is not null (regular task):**
+**If `featureId` is NOT "ad-hoc" (regular task from a feature):**
 - If APPROVED: Update [task] status to [Completed].
 - If REJECTED: Update [task] status back to [Active].
 
-**If `featureId` is null (ad-hoc work):**
+**If `featureId` is "ad-hoc" (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates.
 
-**STEP 10**: Signal completion and exit (skip in standalone mode)
+**STEP 11**: Call CompleteWork
 
-⚠️ **CRITICAL - SESSION TERMINATING CALL**:
-
-Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates IMMEDIATELY after this call.
+Call MCP **CompleteWork** tool with `mode: "review"` - your session terminates after this call.
 
 **Categorized Feedback Required**:
 Use category prefixes for all feedback:
@@ -487,7 +468,7 @@ When calling CompleteWork with `responseContent`:
 [One sentence objective explanation of why approved, e.g., "Follows established patterns for X and complies with rules Y and Z"]
 ```
 
-**Critical Requirements**:
+**Requirements**:
 - Line-by-line review like GitHub PR.
 - NO comments on correct code.
 - NO subjective language ("excellent", "great", "well done").

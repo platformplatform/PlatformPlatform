@@ -6,14 +6,14 @@ description: Rules for creating database migrations
 
 # Database Migrations
 
-Carefully follow these instructions when creating database migrations.
+Guidelines for creating database migrations.
 
 ## Implementation
 
 1. Create migrations manually rather than using Entity Framework tooling:
    - Place migrations in `/[scs-name]/Core/Database/Migrations`
    - Name migration files with 14-digit timestamp prefix: `YYYYMMDDHHmmss_MigrationName.cs`
-   - Only implement the `Up` method—do NOT create `Down` migration
+   - Only implement the `Up` method—don't create `Down` migration
 
 2. Follow this strict column ordering in table creation statements:
    - `TenantId` (if applicable)
@@ -23,7 +23,7 @@ Carefully follow these instructions when creating database migrations.
    - All other properties in the same order as they appear in the C# Aggregate class
 
 3. Use appropriate SQL Server data types:
-   - For strongly typed IDs, default to `varchar(32)` (ULID is 26 chars + underscore + max 5-char prefix)
+   - Use `varchar(32)` for strongly typed IDs (ULID is 26 chars + underscore + max 5-char prefix = exactly 32)
    - Intelligently deduce varchar vs nvarchar based on property type, validators, enum values, etc.
    - Use `datetimeoffset` (default), `datetime2` (timezone agnostic), or `date`—never `datetime`
    - Default to `varchar(10)` or `varchar(20)` for enum values

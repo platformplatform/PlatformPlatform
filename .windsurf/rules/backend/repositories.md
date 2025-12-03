@@ -6,7 +6,7 @@ description: Rules for DDD repositories, including tenant scoping, interface con
 
 # DDD Repositories
 
-Carefully follow these instructions when implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
+Guidelines for implementing DDD repositories in the backend, including structure, interface conventions, and Entity Framework mapping.
 
 ## Implementation
 
@@ -17,7 +17,7 @@ Carefully follow these instructions when implementing DDD repositories in the ba
    - Use `IBaseRepository` when you don't need all CRUD operations
    - Only include methods needed for your specific aggregate
 5. Only return Aggregates or custom projections—never Entities or Value Objects
-6. Never return `[PublicAPI]` response DTOs
+6. Never return `[PublicAPI]` response DTOs (repositories return domain objects; mapping to DTOs happens in query handlers)
 7. Keep repositories focused on persistence operations, not business logic
 8. Repositories are automatically registered in the DI container
 9. Aggregates with `ITenantScopedEntity` are automatically filtered by tenant using EF Core query filters:

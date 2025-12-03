@@ -1,6 +1,6 @@
 # Backend
 
-Carefully follow these instructions for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
+Guidelines for C# backend development, including code style, naming, exceptions, logging, and build/test/format workflow.
 
 ## Code Style
 
@@ -99,7 +99,7 @@ Carefully follow these instructions for C# backend development, including code s
 
 ## Implementation
 
-IMPORTANT: Always follow these steps very carefully when implementing changes:
+Follow these steps when implementing changes:
 
 1. Always start new changes by writing new test cases (or change existing tests)—consult [API Tests](/.github/copilot/rules/backend/api-tests.md) for details
 2. Build and test your changes:

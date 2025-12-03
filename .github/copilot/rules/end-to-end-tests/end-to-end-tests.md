@@ -53,9 +53,9 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Include JSDoc comments above complex tests listing all major features/scenarios covered
    - When adding new functionality to existing tests, update both the test description and JSDoc comments to reflect changes
 
-6. Structure each test with step decorators and proper monitoring:
+6. Structure each test with step wrappers and proper monitoring:
    - All tests must start with `const context = createTestContext(page);` for proper error monitoring
-   - Use step decorators: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
+   - Use step wrappers: `await step("Complete signup & verify account creation")(async () => { /* test logic */ })();`
    - Step naming conventions:
      - Always follow "[Business action + details] & [expected outcome]" pattern
      - Use business action verbs like "Sign up", "Login", "Invite", "Rename", "Update", "Delete", "Create", "Submit"
@@ -71,14 +71,14 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation
 
 7. Timeout Configuration:
-   - Always use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
-   - Never add timeouts to `.click()`, `.waitForSelector()`, etc.
-   - Global timeout configuration is handled in the shared Playwright—do not change this
+   - Use Playwright's built-in auto-waiting assertions: `toHaveURL()`, `toBeVisible()`, `toBeEnabled()`, `toHaveValue()`, `toContainText()`
+   - Don't add timeouts to `.click()`, `.waitForSelector()`, etc.
+   - Global timeout configuration is handled in the shared Playwright—don't change this
 
-8. Write deterministic tests—this is critical for reliable testing:
+8. Write deterministic tests for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions
-   - Never use if statements, custom error handling, or try/catch blocks in tests
-   - Never use regular expressions in tests—use simple string matching instead
+   - Don't use if statements, custom error handling, or try/catch blocks in tests
+   - Don't use regular expressions in tests—use simple string matching instead
 
 9. What to test:
    - Enter invalid values such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
@@ -152,7 +152,7 @@ await step("Ensure user is deleted")(async () => { // "Ensure" is assertion pref
 
 ### ✅ Complete Test Example
 ```typescript
-import { step } from "@shared/e2e/utils/step-decorator";
+import { step } from "@shared/e2e/utils/test-step-wrapper";
 import { expectValidationError, blurActiveElement, createTestContext } from "@shared/e2e/utils/test-assertions";
 import { testUser } from "@shared/e2e/utils/test-data";
 

@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Domain Modeling
 
-Carefully follow these instructions when implementing DDD models for aggregates, entities, and value objects.
+Guidelines for implementing DDD models for aggregates, entities, and value objects.
 
 ## Implementation
 
@@ -155,7 +155,7 @@ public class BadInvoice : AggregateRoot<BadInvoiceId>
     public List<BadInvoiceLine> InvoiceLines { get; set; } = new();
 }
 
-public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoice> 
+public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoice>
 {
     public void Configure(EntityTypeBuilder<BadInvoice> builder)
     {
@@ -163,6 +163,17 @@ public sealed class BadInvoiceConfiguration : IEntityTypeConfiguration<BadInvoic
         builder.Property(t => t.Description).HasMaxLength(255);  // ❌ DON'T: Configure primitive properties
         builder.HasIndex(u => new { u.Email }).IsUnique();  // ❌ IsUnique is a database constraint, not needed by EF Core at runtime
         builder.Property(u => u.Role).HasColumnType("varchar(10)").HasConversion<string>(); // ❌ EF is configured to convert all enums to string
+
+        // ❌ DON'T: Configure FK relationships without OnDelete - we don't use EF Tools for migrations
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(i => i.TenantId);
+
+        // ✅ DO: Configure FK relationships only when you need cascade delete behavior at runtime
+        builder.HasOne<Customer>()
+            .WithMany()
+            .HasForeignKey(i => i.CustomerId)
+            .OnDelete(DeleteBehavior.Cascade); // EF needs this to handle cascades at runtime
     }
 }
 ```

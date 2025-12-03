@@ -90,9 +90,9 @@ Question 4 - Parallel optimization:
   - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
 
-**REQUIRED - Ask additional questions:**
+**Ask additional questions:**
 
-After the first 4 questions, you MUST ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
+After the first 4 questions, ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
 
 Ask as many questions as needed to understand:
 - User roles and permissions
@@ -168,7 +168,7 @@ Based on all the research and user answers, draft the complete PRD.
    - Keep [tasks] focused (one commit per [task])
    - Write a clear paragraph describing what each [task] delivers
    - Each [task] represents a complete vertical slice that can be implemented, reviewed, and committed independently
-   - **CRITICAL**: Repeat ALL relevant business rules in EACH task description (permissions, validations, constraints)
+   - Repeat all relevant business rules in each task description (permissions, validations, constraints)
    - Engineers/reviewers only read the task description, not the feature overview
    - **List [tasks] in implementation order** (the order they should be implemented)
    - E2E tests should typically be the final [task]
@@ -249,7 +249,7 @@ Create:
   - Assign to "me"
 - Initialize all items in [Planned] status, in the current iteration/sprint
 
-**CRITICAL:** Each [task] description must include:
+Each [task] description must include:
 1. A paragraph explaining what the task delivers
 2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
 
@@ -284,5 +284,4 @@ The coordinator will prompt you to select which feature to implement.
 - Create [tasks] that split tests, implementation, and migrations across separate [tasks]—each [task] must be a complete vertical slice
 - Ask the user clarifying questions before Step 4
 
-**SERIOUSLY:**
-Do the research. Read code and rule files. Ask comprehensive questions. Create excellent PRDs. No shortcuts.
+Do the research. Read code and rule files. Ask comprehensive questions. Create excellent PRDs.
