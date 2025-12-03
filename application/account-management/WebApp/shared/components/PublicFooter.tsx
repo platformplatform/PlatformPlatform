@@ -72,6 +72,8 @@ export function PublicFooter() {
             <TooltipTrigger>
               <Link
                 href="https://www.linkedin.com/company/platformplatform/"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="LinkedIn"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
@@ -84,6 +86,8 @@ export function PublicFooter() {
             <TooltipTrigger>
               <Link
                 href="https://www.youtube.com/@PlatformPlatform"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="YouTube"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
@@ -96,6 +100,8 @@ export function PublicFooter() {
             <TooltipTrigger>
               <Link
                 href="https://github.com/platformplatform/PlatformPlatform"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="GitHub"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
