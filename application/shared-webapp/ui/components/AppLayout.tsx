@@ -256,7 +256,7 @@ export function AppLayout({
       {/* Skip navigation link for keyboard users */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
       >
         Skip to main content
       </a>
@@ -325,7 +325,7 @@ export function AppLayout({
         {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-[60] md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            className="fixed inset-0 z-70 md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}

@@ -30,8 +30,8 @@ const overlayStyles = tv({
       false: ""
     },
     zIndex: {
-      normal: "z-[100]",
-      high: "z-[300]"
+      normal: "z-90",
+      high: "z-100"
     }
   },
   defaultVariants: {

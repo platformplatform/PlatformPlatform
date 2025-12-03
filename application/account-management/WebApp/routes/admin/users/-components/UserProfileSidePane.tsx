@@ -246,12 +246,12 @@ export function UserProfileSidePane({
   return (
     <>
       {/* Backdrop for small screens */}
-      {isSmallScreen && <div className="fixed inset-0 z-[59] bg-black/50" aria-hidden="true" />}
+      {isSmallScreen && <div className="fixed inset-0 z-[65] bg-black/50" aria-hidden="true" />}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
-        className="relative z-[60] flex h-full w-full flex-col border-border border-l bg-background"
+        className="relative z-70 flex h-full w-full flex-col border-border border-l bg-background"
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
