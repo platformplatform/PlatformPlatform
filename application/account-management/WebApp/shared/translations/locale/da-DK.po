@@ -264,6 +264,12 @@ msgstr "Fornavn"
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
 
+msgid "Full access except changing user roles and account settings"
+msgstr "Fuld adgang undtagen ændring af brugerroller og kontoindstillinger"
+
+msgid "Full access including user roles and account settings"
+msgstr "Fuld adgang inklusive brugerroller og kontoindstillinger"
+
 msgid "Get started"
 msgstr "Kom i gang"
 
@@ -444,10 +450,6 @@ msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
-#. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
-msgid "Select a new role for <0>{0}</0>"
-msgstr "Vælg en ny rolle for <0>{0}</0>"
-
 msgid "Select Account"
 msgstr "Vælg konto"
 
@@ -474,6 +476,9 @@ msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom t
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
+
+msgid "Standard user access"
+msgstr "Standard brugeradgang"
 
 msgid "Success"
 msgstr "Succes"

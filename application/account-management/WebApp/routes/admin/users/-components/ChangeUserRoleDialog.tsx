@@ -1,14 +1,20 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { DialogContent, DialogFooter } from "@repo/ui/components/DialogFooter";
+import { Dialog } from "@repo/ui/components/Dialog";
+import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import { Form } from "@repo/ui/components/Form";
+import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
-import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Radio, RadioGroup } from "@repo/ui/components/RadioGroup";
+import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
-import { useCallback, useState } from "react";
+import { getInitials } from "@repo/utils/string/getInitials";
+import { useQueryClient } from "@tanstack/react-query";
+import { XIcon } from "lucide-react";
+import { useState } from "react";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
 type UserDetails = components["schemas"]["UserDetails"];
 
@@ -19,19 +25,14 @@ interface ChangeUserRoleDialogProps {
 }
 
 export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
+  const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role");
 
-  const handleConfirm = useCallback(async () => {
-    if (!user || !selectedRole) {
-      return;
-    }
-
-    try {
-      await changeUserRoleMutation.mutateAsync({
-        params: { path: { id: user.id } },
-        body: { userRole: selectedRole }
-      });
+  const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role", {
+    onSuccess: () => {
+      if (!user) {
+        return;
+      }
 
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
       toastQueue.add({
@@ -39,58 +40,131 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
         description: t`User role updated successfully for ${userDisplayName}`,
         variant: "success"
       });
-
+      queryClient.invalidateQueries({
+        queryKey: ["get", "/api/account-management/users"]
+      });
       onOpenChange(false);
-      setSelectedRole(null);
-    } catch (_error) {
-      // Error is handled by the mutation
     }
-  }, [user, selectedRole, changeUserRoleMutation, onOpenChange]);
+  });
 
-  const handleCancel = useCallback(() => {
-    onOpenChange(false);
-    setSelectedRole(null);
-  }, [onOpenChange]);
+  if (!user) {
+    return null;
+  }
+
+  const displayName = [user.firstName, user.lastName].filter(Boolean).join(" ") || user.email;
+  const currentRole = selectedRole ?? user.role;
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    changeUserRoleMutation.mutate({
+      params: {
+        path: { id: user.id }
+      },
+      body: { userRole: currentRole }
+    });
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedRole(null);
+    }
+    onOpenChange(open);
+  };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={true}>
-      <AlertDialog title={t`Change user role`}>
-        <div className="flex flex-col max-sm:h-full">
-          <DialogContent>
-            <p className="text-muted-foreground text-sm">
-              <Trans>
-                Select a new role for{" "}
-                <b>{user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""}</b>
-              </Trans>
-            </p>
+    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} isDismissable={!changeUserRoleMutation.isPending}>
+      <Dialog className="sm:w-dialog-lg">
+        {({ close }) => (
+          <>
+            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
+            <DialogHeader>
+              <Heading slot="title" className="text-2xl">
+                <Trans>Change user role</Trans>
+              </Heading>
+            </DialogHeader>
 
-            <div className="mt-4">
-              <Select
-                autoFocus={true}
-                aria-label={t`User role`}
-                selectedKey={selectedRole || user?.role}
-                onSelectionChange={(key) => setSelectedRole(key as UserRole)}
-                className="flex w-full flex-col"
-              >
-                {Object.values(UserRole).map((userRole) => (
-                  <SelectItem id={userRole} key={userRole}>
-                    {getUserRoleLabel(userRole)}
-                  </SelectItem>
-                ))}
-              </Select>
-            </div>
-          </DialogContent>
+            <Form
+              onSubmit={handleSubmit}
+              validationErrors={changeUserRoleMutation.error?.errors}
+              validationBehavior="aria"
+              className="flex flex-col max-sm:h-full"
+            >
+              <DialogContent className="flex flex-col gap-6">
+                <div className="flex items-center gap-3">
+                  <Avatar
+                    initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+                    avatarUrl={user.avatarUrl}
+                    size="lg"
+                    isRound={true}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <Text className="truncate font-medium">{displayName}</Text>
+                    {user.title && <Text className="truncate text-muted-foreground text-sm">{user.title}</Text>}
+                    <Text className="truncate text-muted-foreground text-sm">{user.email}</Text>
+                  </div>
+                </div>
 
-          <DialogFooter>
-            <Button variant="outline" onPress={handleCancel}>
-              {t`Cancel`}
-            </Button>
-            <Button variant="primary" onPress={handleConfirm} isDisabled={!selectedRole || selectedRole === user?.role}>
-              {t`OK`}
-            </Button>
-          </DialogFooter>
-        </div>
-      </AlertDialog>
+                <RadioGroup
+                  aria-label={t`Role`}
+                  value={currentRole}
+                  onChange={(value) => setSelectedRole(value as UserRole)}
+                  orientation="vertical"
+                >
+                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                    <Radio value={UserRole.Owner}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          <Trans>Owner</Trans>
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          <Trans>Full access including user roles and account settings</Trans>
+                        </span>
+                      </div>
+                    </Radio>
+                  </div>
+                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                    <Radio value={UserRole.Admin}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          <Trans>Admin</Trans>
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          <Trans>Full access except changing user roles and account settings</Trans>
+                        </span>
+                      </div>
+                    </Radio>
+                  </div>
+                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                    <Radio value={UserRole.Member}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">
+                          <Trans>Member</Trans>
+                        </span>
+                        <span className="text-muted-foreground text-sm">
+                          <Trans>Standard user access</Trans>
+                        </span>
+                      </div>
+                    </Radio>
+                  </div>
+                </RadioGroup>
+              </DialogContent>
+              <DialogFooter>
+                <Button
+                  type="reset"
+                  onPress={() => handleOpenChange(false)}
+                  variant="secondary"
+                  isDisabled={changeUserRoleMutation.isPending}
+                >
+                  <Trans>Cancel</Trans>
+                </Button>
+                <Button type="submit" isDisabled={changeUserRoleMutation.isPending}>
+                  {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+                </Button>
+              </DialogFooter>
+            </Form>
+          </>
+        )}
+      </Dialog>
     </Modal>
   );
 }
