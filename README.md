@@ -231,13 +231,19 @@ PlatformPlatform includes a multi-agent autonomous development workflow powered 
 
 This workflow requires Claude Code and will not work with other AI coding assistants.
 
-### 1. Create a feature branch
+### 1. Install the PlatformPlatform CLI globally
+
+```bash
+cd .\developer-cli\; dotnet run install
+```
+
+### 2. Create a feature branch
 
 ```bash
 git checkout -b feature-name
 ```
 
-### 2. Define your feature with the tech-lead
+### 3. Define your feature with the tech-lead
 
 ```bash
 pp claude-agent tech-lead
