@@ -41,7 +41,7 @@ Follow our [up-to-date roadmap](https://github.com/orgs/PlatformPlatform/project
 
 Show your support for our project - give us a star on GitHub! It truly means a lot! ⭐
 
-# Getting Started 1-2-3
+# Getting Started
 
 TL;DR: Open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
 
@@ -162,9 +162,30 @@ Open a terminal and run the following commands (if not installed):
 
 We recommend you keep the commit history, which serves as a great learning and troubleshooting resource. 😃
 
-## 2. Run the Aspire AppHost to spin up everything on localhost
+## 2. (Optional) Install the Developer CLI
 
-Using Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+The PlatformPlatform CLI provides convenient commands for common tasks. Install it globally to use the `pp` command from anywhere in your terminal.
+
+```bash
+cd developer-cli
+dotnet run install
+```
+
+Restart your terminal to make the `pp` command available.
+
+![Developer CLI](https://platformplatformgithub.blob.core.windows.net/$root/developer-cli.png)
+
+## 3. Run the Aspire AppHost to spin up everything on localhost
+
+Using Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need to install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+
+With the CLI installed:
+
+```bash
+pp run --attach
+```
+
+Or without the CLI:
 
 ```bash
 cd application/AppHost
@@ -177,7 +198,7 @@ Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/local-development-exp.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
-## 3. Set up CI/CD with passwordless deployments from GitHub to Azure
+## 4. Set up CI/CD with passwordless deployments from GitHub to Azure
 
 Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](./cloud-infrastructure) (using Bicep) and compiling [application code](./application) to Docker images deployed to Azure Container Apps:
 
@@ -227,7 +248,7 @@ PlatformPlatform includes a multi-agent autonomous development workflow powered 
 - **backend-engineer**, **frontend-engineer**, **qa-engineer**: Implement code within their specialty
 - **backend-reviewer**, **frontend-reviewer**, **qa-reviewer**: Zero-tolerance gatekeepers who reject any deviation from established standards, then commit approved code
 
-## Getting started
+## How to use
 
 This workflow requires Claude Code and will not work with other AI coding assistants.
 
@@ -239,9 +260,13 @@ git checkout -b feature-name
 
 ### 2. Define your feature with the tech-lead
 
+Start the tech-lead agent using the [Developer CLI](#2-optional-install-the-developer-cli):
+
 ```bash
 pp claude-agent tech-lead
 ```
+
+If you prefer not to install the CLI, run `dotnet run claude-agent tech-lead` from the `developer-cli` directory.
 
 Run the `/process:create-prd` slash command. The tech-lead will guide you through a brief interview to understand what you want to build, then generate a complete feature specification with tasks in your product management tool (Linear, Azure DevOps, Jira, GitHub, or markdown files).
 
@@ -258,6 +283,8 @@ pp claude-agent frontend-reviewer
 pp claude-agent qa-engineer
 pp claude-agent qa-reviewer
 ```
+
+If you prefer not to install the CLI, run `dotnet run claude-agent [agent-name]` from the `developer-cli` directory.
 
 ### 4. Watch the magic happen
 
