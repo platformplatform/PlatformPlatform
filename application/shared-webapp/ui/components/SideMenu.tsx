@@ -411,7 +411,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = tv({
-  base: "group fixed top-0 left-0 z-50 flex h-screen flex-col bg-background transition-[width] duration-100 md:z-[70]",
+  base: "group fixed top-0 left-0 z-60 flex h-screen flex-col bg-background transition-[width] duration-100",
   variants: {
     isCollapsed: {
       true: "w-[72px]",
@@ -434,7 +434,7 @@ const sideMenuStyles = tv({
     {
       overlayMode: true,
       isOverlayOpen: true,
-      class: "w-[300px]" // Match max width constant
+      class: "z-80 w-[300px]" // Above side panes when expanded in overlay mode
     }
   ]
 });
@@ -747,7 +747,7 @@ const _getClientCoordinates = (
 const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
   <button
     type="button"
-    className="fixed top-0 right-0 bottom-0 left-[72px] z-40 bg-black/50 transition-opacity duration-100 sm:block md:z-[65] xl:hidden"
+    className="fixed top-0 right-0 bottom-0 left-[72px] z-[75] bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
     onClick={closeOverlay}
     aria-label="Close menu"
   />

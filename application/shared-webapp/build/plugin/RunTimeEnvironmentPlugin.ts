@@ -33,7 +33,8 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
               }),
               "import.meta.runtime_env": "getApplicationEnvironment().runtimeEnv",
               "import.meta.user_info_env": "getApplicationEnvironment().userInfoEnv",
-              "import.meta.env": "getApplicationEnvironment().env"
+              "import.meta.env": "getApplicationEnvironment().env",
+              "import.meta.antiforgeryToken": "getApplicationEnvironment().antiforgeryToken"
             }
           },
           output: {

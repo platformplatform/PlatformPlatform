@@ -86,7 +86,7 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
 
   return (
     <Modal isOpen={isOpen} isDismissable={false} isKeyboardDismissDisabled={true}>
-      <Dialog className="sm:max-w-lg">
+      <Dialog className="sm:w-dialog-md">
         {() => (
           <>
             <Heading slot="title" className="font-semibold text-lg">

@@ -15,7 +15,7 @@ import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { type HttpError, normalizeError } from "./errorHandler";
-import { DEFAULT_TIMEOUT, getAntiforgeryToken } from "./httpClient";
+import { DEFAULT_TIMEOUT } from "./httpClient";
 
 /**
  * Creates HTTP middleware for the OpenAPI client
@@ -36,7 +36,7 @@ function createHttpMiddleware() {
 
       // Only add the token for non-GET requests
       if (request.method !== "GET") {
-        request.headers.set("x-xsrf-token", getAntiforgeryToken());
+        request.headers.set("x-xsrf-token", import.meta.antiforgeryToken);
       }
 
       // Handle request timeout with AbortController

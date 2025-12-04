@@ -264,11 +264,23 @@ msgstr "First name"
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
 
+msgid "Full access except changing user roles and account settings"
+msgstr "Full access except changing user roles and account settings"
+
+msgid "Full access including user roles and account settings"
+msgstr "Full access including user roles and account settings"
+
+msgid "Get started"
+msgstr "Get started"
+
 msgid "GitHub"
 msgstr "GitHub"
 
 msgid "Go to account settings"
 msgstr "Go to account settings"
+
+msgid "Go to app"
+msgstr "Go to app"
 
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
@@ -438,10 +450,6 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
-#. placeholder {0}: user ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : ""
-msgid "Select a new role for <0>{0}</0>"
-msgstr "Select a new role for <0>{0}</0>"
-
 msgid "Select Account"
 msgstr "Select Account"
 
@@ -468,6 +476,9 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 
 msgid "Signup verification code"
 msgstr "Signup verification code"
+
+msgid "Standard user access"
+msgstr "Standard user access"
 
 msgid "Success"
 msgstr "Success"
