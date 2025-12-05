@@ -18,6 +18,13 @@ export default defineConfig({
   security: {
     nonce: "{{cspNonce}}"
   },
+  output: {
+    copy: [
+      { from: "./routes/legal/terms.en-US.md", to: "./legal/documents/terms.md" },
+      { from: "./routes/legal/privacy.en-US.md", to: "./legal/documents/privacy.md" },
+      { from: "./routes/legal/dpa.en-US.md", to: "./legal/documents/dpa.md" }
+    ]
+  },
   tools: {
     rspack: {
       // Exclude tests/e2e directory from file watching to prevent hot reloading issues
