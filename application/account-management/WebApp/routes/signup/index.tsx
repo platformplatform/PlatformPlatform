@@ -118,11 +118,11 @@ export function StartSignupForm() {
       <div className="text-muted-foreground text-sm">
         <Trans>By continuing, you accept our policies</Trans>
         <div className="flex items-center justify-center">
-          <Link href="/">
+          <Link href="/legal/terms">
             <Trans>Terms of use</Trans>
           </Link>
           <DotIcon className="h-4 w-4" />
-          <Link href="/">
+          <Link href="/legal/privacy">
             <Trans>Privacy policies</Trans>
           </Link>
         </div>
