@@ -71,7 +71,7 @@ jobs:
       - name: Import Container Image from Staging to Production
         if: inputs.azure_environment == 'prod'
         run: |
-          STAGING_REGISTRY_ID="/subscriptions/${{ vars.STAGING_SUBSCRIPTION_ID }}/resourceGroups/${{ env.UNIQUE_PREFIX }}-stage/providers/Microsoft.ContainerRegistry/registries/${{ env.UNIQUE_PREFIX }}stage"
+          STAGING_REGISTRY_ID="/subscriptions/${{ vars.STAGING_SUBSCRIPTION_ID }}/resourceGroups/${{ env.UNIQUE_PREFIX }}-stage-global/providers/Microsoft.ContainerRegistry/registries/${{ env.UNIQUE_PREFIX }}stage"
 
           az acr import \
             --name ${{ env.UNIQUE_PREFIX }}${{ env.ENVIRONMENT }} \
