@@ -9,6 +9,10 @@
 @import "tailwindcss";
 @config "./tailwind-preset.ts";
 
+/* Scan all self-contained system WebApp directories for Tailwind classes */
+@source "../../account-management/WebApp";
+@source "../../back-office/WebApp";
+
 :root,
 .light {
   --background: hsl(200 13% 95%);

@@ -3,10 +3,7 @@ import type { Config } from "tailwindcss";
 
 export default {
   content: [
-    "./**/*.{ts,tsx}",
-    "./public/index.html",
-    path.join(path.dirname(require.resolve("@repo/ui")), "components", "*.js"),
-    path.join(path.dirname(require.resolve("@repo/ui")), "components", "**/*.js")
+    path.join(path.dirname(require.resolve("@repo/ui")), "**/*.{js,ts,tsx}")
   ],
   darkMode: "selector",
   theme: {
