@@ -88,12 +88,12 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Restart .NET Aspire and run database migrations at https://localhost:9000. Runs in the background so you can continue working while it starts.")]
-    public static string Watch()
+    [Description("Start .NET Aspire AppHost and run database migrations at https://localhost:9000. Runs in the background so you can continue working while it starts.")]
+    public static string Run()
     {
-        // Call watch command in detached mode - don't wait for process exit
+        // Call run command in detached mode - don't wait for process exit
         var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var args = new List<string> { "run", "--project", developerCliPath, "watch", "--detach", "--force" };
+        var args = new List<string> { "run", "--project", developerCliPath, "run", "--detach", "--force" };
 
         var processStartInfo = new ProcessStartInfo
         {

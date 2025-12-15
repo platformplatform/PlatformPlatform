@@ -188,7 +188,7 @@ FOR EACH [task]:
   - **If SUCCESS marker found**:
     - Verify code was committed by checking recent commits
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
-    - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
+    - **If backend [task]**: Restart Aspire AppHost using the run MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
       - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
       - Stop immediately, diagnose the problem, and make a plan to get back on track
@@ -235,7 +235,7 @@ FOR EACH round of parallel delegation:
   - If success marker found:
     - Verify code was committed by checking recent commits
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
-    - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
+    - **If backend [task]**: Restart Aspire AppHost using the run MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
       - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
       - Stop immediately, diagnose the problem, and make a plan to get back on track

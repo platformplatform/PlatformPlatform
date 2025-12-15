@@ -131,7 +131,7 @@ Research the codebase to find similar E2E test implementations. Look for existin
 - If tests fail: Fix them and run again (don't proceed with failing tests)
 
 **If tests fail with backend errors or suspect server issues**:
-- Use **watch MCP tool** to restart server and run database migrations
+- Use **run MCP tool** to restart server and run database migrations
 - The tool starts .NET Aspire at https://localhost:9000
 - Re-run tests after server restart
 
@@ -219,7 +219,7 @@ CompleteWork requires reviewer approval and committed code.
 ## Key Principles
 
 - **Tests must pass**: Never complete without running tests and verifying they pass
-- **Database migrations**: Always run watch tool if backend schema changed
+- **Database migrations**: Always run the run tool if backend schema changed
 - **Speed is critical**: Structure tests to minimize steps while maximizing coverage
 - **Follow conventions**: Adhere to patterns in [End-to-End Tests](/.github/copilot/rules/end-to-end-tests/end-to-end-tests.md)
 - **Realistic user journeys**: Test scenarios that reflect actual user behavior

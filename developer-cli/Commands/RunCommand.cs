@@ -8,20 +8,22 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 /// <summary>
 ///     Command to manage Aspire AppHost lifecycle - start, stop, and monitor the application host.
 /// </summary>
-public class WatchCommand : Command
+public class RunCommand : Command
 {
     private const int AspirePort = 9001;
     private const int DashboardPort = 9097;
     private const int ResourceServicePort = 9098;
 
-    public WatchCommand() : base("watch", "Manages Aspire AppHost operations")
+    public RunCommand() : base("run", "Runs Aspire AppHost (use --watch for hot reload)")
     {
+        var watchOption = new Option<bool>("--watch", "-w") { Description = "Enable watch mode for hot reload" };
         var forceOption = new Option<bool>("--force") { Description = "Force start a fresh Aspire AppHost instance, stopping any existing one" };
         var stopOption = new Option<bool>("--stop") { Description = "Stop any running Aspire AppHost instance without starting a new one" };
         var attachOption = new Option<bool>("--attach", "-a") { Description = "Keep the CLI process attached to the Aspire process" };
         var detachOption = new Option<bool>("--detach", "-d") { Description = "Run the Aspire process in detached mode (background)" };
         var publicUrlOption = new Option<string?>("--public-url") { Description = "Set the PUBLIC_URL environment variable for the app (e.g., https://example.ngrok-free.app)" };
 
+        Options.Add(watchOption);
         Options.Add(forceOption);
         Options.Add(stopOption);
         Options.Add(attachOption);
@@ -29,6 +31,7 @@ public class WatchCommand : Command
         Options.Add(publicUrlOption);
 
         SetAction(parseResult => Execute(
+                parseResult.GetValue(watchOption),
                 parseResult.GetValue(forceOption),
                 parseResult.GetValue(stopOption),
                 parseResult.GetValue(attachOption),
@@ -38,7 +41,7 @@ public class WatchCommand : Command
         );
     }
 
-    private static void Execute(bool force, bool stop, bool attach, bool detach, string? publicUrl)
+    private static void Execute(bool watch, bool force, bool stop, bool attach, bool detach, string? publicUrl)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node, Prerequisite.Docker);
 
@@ -68,7 +71,7 @@ public class WatchCommand : Command
             StopAspire();
         }
 
-        StartAspireAppHost(attach, publicUrl);
+        StartAspireAppHost(watch, attach, publicUrl);
     }
 
     private static bool IsAspireRunning()
@@ -100,17 +103,17 @@ public class WatchCommand : Command
             }
         }
 
-        // Also check if there are any dotnet watch processes running AppHost
+        // Also check if there are any dotnet processes running AppHost (both run and watch modes)
         if (Configuration.IsWindows)
         {
             // Check if any dotnet.exe processes are running with AppHost in the command line
-            var watchProcesses = ProcessHelper.StartProcess("""powershell -Command "Get-Process dotnet -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -like '*watch*AppHost*'} | Select-Object Id" """, redirectOutput: true, exitOnError: false);
-            return !string.IsNullOrWhiteSpace(watchProcesses) && watchProcesses.Contains("Id");
+            var appHostProcesses = ProcessHelper.StartProcess("""powershell -Command "Get-Process dotnet -ErrorAction SilentlyContinue | Where-Object {$_.CommandLine -like '*AppHost*'} | Select-Object Id" """, redirectOutput: true, exitOnError: false);
+            return !string.IsNullOrWhiteSpace(appHostProcesses) && appHostProcesses.Contains("Id");
         }
         else
         {
-            var watchProcesses = ProcessHelper.StartProcess("pgrep -f dotnet.*watch.*AppHost", redirectOutput: true, exitOnError: false);
-            return !string.IsNullOrWhiteSpace(watchProcesses);
+            var appHostProcesses = ProcessHelper.StartProcess("pgrep -f dotnet.*AppHost", redirectOutput: true, exitOnError: false);
+            return !string.IsNullOrWhiteSpace(appHostProcesses);
         }
     }
 
@@ -210,9 +213,10 @@ public class WatchCommand : Command
         AnsiConsole.MarkupLine("[green]Aspire AppHost stopped successfully.[/]");
     }
 
-    private static void StartAspireAppHost(bool attach, string? publicUrl)
+    private static void StartAspireAppHost(bool watch, bool attach, string? publicUrl)
     {
-        AnsiConsole.MarkupLine($"[blue]Starting Aspire AppHost in {(attach ? "attached" : "detached")} mode...[/]");
+        var mode = watch ? "watch" : "run";
+        AnsiConsole.MarkupLine($"[blue]Starting Aspire AppHost in {mode} mode ({(attach ? "attached" : "detached")})...[/]");
 
         if (publicUrl is not null)
         {
@@ -227,7 +231,9 @@ public class WatchCommand : Command
         }
 
         var appHostProjectPath = Path.Combine(Configuration.ApplicationFolder, "AppHost", "AppHost.csproj");
-        var command = $"dotnet watch --non-interactive --project {appHostProjectPath}";
+        var command = watch
+            ? $"dotnet watch --non-interactive --project {appHostProjectPath}"
+            : $"dotnet run --project {appHostProjectPath}";
 
         if (!attach && Configuration.IsWindows)
         {

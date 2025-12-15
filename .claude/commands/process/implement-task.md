@@ -224,7 +224,7 @@ For **frontend [tasks]**:
    - Verify UI components render correctly (spacing, alignment, colors, borders, fonts).
    - Test all user interactions (clicks, forms, dialogs, navigation, keyboard navigation).
    - **Document what you tested** in your response (which scenarios, which user flows, which modes tested).
-   - If website not responding, use **watch** MCP tool to restart server.
+   - If website not responding, use **run** MCP tool to restart server.
 
 2. **Test with different user roles** (if applicable):
    - Test as admin user: `admin@platformplatform.local` / `UNLOCK`.

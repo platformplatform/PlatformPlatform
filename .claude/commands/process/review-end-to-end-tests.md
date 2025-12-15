@@ -83,8 +83,8 @@ You are reviewing: **{{{title}}}**
 
 **STEP 2**: Run e2e tests and verify ALL pass with zero tolerance
 
-**If tests require backend changes, run watch tool first**:
-- Use **watch MCP tool** to restart server and run migrations
+**If tests require backend changes, run the run tool first**:
+- Use **run MCP tool** to restart server and run migrations
 - The tool starts .NET Aspire at https://localhost:9000
 
 **Run E2E tests**:

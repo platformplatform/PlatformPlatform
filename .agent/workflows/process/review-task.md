@@ -220,7 +220,7 @@ Check all `*.po` files for empty `msgstr ""` entries and inconsistent domain ter
 
 **Required for frontend reviewers**
 
-If infrastructure issues prevent testing: Try to recover (use watch MCP tool to restart server, retry browser). If recovery fails, complete the rest of your review, then reject with all findings including the infrastructure issue. Report problem for infrastructure failures.
+If infrastructure issues prevent testing: Try to recover (use run MCP tool to restart server, retry browser). If recovery fails, complete the rest of your review, then reject with all findings including the infrastructure issue. Report problem for infrastructure failures.
 
 1. **Navigate to https://localhost:9000** and test ALL functionality:
    - **Test the COMPLETE happy path** of the new feature from start to finish.
@@ -231,7 +231,7 @@ If infrastructure issues prevent testing: Try to recover (use watch MCP tool to 
    - Test **localization** (switch language if feature has translatable strings).
    - Test **responsive behavior**: mobile size, small browser, large browser (resize and verify layout adapts).
    - Verify engineer documented what they tested - if not documented, REJECT.
-   - If website not responding, use **watch** MCP tool to restart server.
+   - If website not responding, use **run** MCP tool to restart server.
 
 2. **Test with different user roles** (CRITICAL):
    - Test as admin: `admin@platformplatform.local` / `UNLOCK`.
