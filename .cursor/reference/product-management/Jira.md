@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/commands/review/**, .claude/commands/orchestrate/**
-description: Jira-specific product management tool guide
----
-
 # Jira
 
 ## Terminology Mapping

@@ -27,7 +27,7 @@ You are reviewing: **{{{title}}}**
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
    - `requestFilePath`: Request file path (contains engineer's request message)

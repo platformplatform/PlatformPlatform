@@ -1,8 +1,3 @@
----
-trigger: glob
-globs: .agent/workflows/process/**, .agent/workflows/implement/**, .agent/workflows/review/**, .agent/workflows/orchestrate/**
-description: Azure DevOps-specific product management tool guide
----
 # Azure DevOps
 
 ## Terminology Mapping

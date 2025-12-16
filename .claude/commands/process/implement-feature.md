@@ -14,7 +14,7 @@ argument-hint: [FeatureId] from [PRODUCT_MANAGEMENT_TOOL] (optional)
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Select feature to implement**:
 
@@ -130,7 +130,7 @@ If you're unsure about dependencies, use Sequential mode (safer default)
 
 Load all [tasks] from the [feature] loaded in Mandatory Preparation
 
-Refer to `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
+Refer to `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
 - Query for [tasks] within the [feature]
 - Extract [task] titles and IDs
 - Determine [task] ordering

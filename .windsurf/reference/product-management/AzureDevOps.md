@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .windsurf/workflows/process/**, .windsurf/workflows/implement/**, .windsurf/workflows/review/**, .windsurf/workflows/orchestrate/**
-description: Azure DevOps-specific product management tool guide
----
-
 # Azure DevOps
 
 ## Terminology Mapping

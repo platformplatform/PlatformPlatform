@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .windsurf/workflows/process/**, .windsurf/workflows/implement/**, .windsurf/workflows/review/**, .windsurf/workflows/orchestrate/**
-description: Markdown-specific product management tool guide
----
-
 # Markdown
 
 Markdown is a file-based product management tool that does NOT use MCP. Instead, [features] and [tasks] are stored as markdown files in `.workspace/task-manager/`, simulating the same structure as tools like Jira, Azure DevOps, and Linear using local files.

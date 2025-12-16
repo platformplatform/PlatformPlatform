@@ -1,8 +1,3 @@
----
-trigger: glob
-globs: .agent/workflows/process/**, .agent/workflows/implement/**, .agent/workflows/review/**, .agent/workflows/orchestrate/**
-description: Linear-specific product management tool guide
----
 # Linear
 
 ## Configuration

@@ -1,8 +1,3 @@
----
-description: Markdown-specific product management tool guide
-globs: .cursor/rules/workflows/process/**, .cursor/rules/workflows/implement/**, .cursor/rules/workflows/review/**, .cursor/rules/workflows/orchestrate/**
-alwaysApply: false
----
 # Markdown
 
 Markdown is a file-based product management tool that does NOT use MCP. Instead, [features] and [tasks] are stored as markdown files in `.workspace/task-manager/`, simulating the same structure as tools like Jira, Azure DevOps, and Linear using local files.

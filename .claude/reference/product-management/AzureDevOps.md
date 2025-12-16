@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/commands/review/**, .claude/commands/orchestrate/**
-description: Azure DevOps-specific product management tool guide
----
-
 # Azure DevOps
 
 ## Terminology Mapping

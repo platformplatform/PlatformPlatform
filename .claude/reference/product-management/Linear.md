@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .claude/commands/process/**, .claude/commands/implement/**, .claude/commands/review/**, .claude/commands/orchestrate/**
-description: Linear-specific product management tool guide
----
-
 # Linear
 
 ## Configuration

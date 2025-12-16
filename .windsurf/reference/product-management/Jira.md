@@ -1,8 +1,3 @@
----
-description: Jira-specific product management tool guide
-globs: .cursor/rules/workflows/process/**, .cursor/rules/workflows/implement/**, .cursor/rules/workflows/review/**, .cursor/rules/workflows/orchestrate/**
-alwaysApply: false
----
 # Jira
 
 ## Terminology Mapping

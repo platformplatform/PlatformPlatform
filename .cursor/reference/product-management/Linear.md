@@ -1,9 +1,3 @@
----
-trigger: glob
-globs: .windsurf/workflows/process/**, .windsurf/workflows/implement/**, .windsurf/workflows/review/**, .windsurf/workflows/orchestrate/**
-description: Linear-specific product management tool guide
----
-
 # Linear
 
 ## Configuration
