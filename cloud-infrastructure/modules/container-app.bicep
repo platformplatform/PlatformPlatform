@@ -60,7 +60,7 @@ var image = useQuickStartImage
 // Create a revisionSuffix that contains the version and random suffix. E.g. "2025-11-19-756-a3f2"
 var fullRevisionSuffix = '${replace(containerImageTag, '.', '-')}-${revisionSuffix}'
 
-resource containerApp 'Microsoft.App/containerApps@2025-07-01' = {
+resource containerApp 'Microsoft.App/containerApps@2025-10-02-preview' = {
   name: name
   location: location
   tags: tags
@@ -149,6 +149,11 @@ resource containerApp 'Microsoft.App/containerApps@2025-07-01' = {
           identity: userAssignedIdentity.id
         }
       ]
+      runtime: {
+        dotnet: {
+          autoConfigureDataProtection: true
+        }
+      }
       ingress: ingress
         ? {
             external: external
