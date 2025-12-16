@@ -62,11 +62,14 @@ public sealed class MapStronglyTypedStringTests : IDisposable
         );
 
         // Act
-        var retrievedAggregate = await _testDbContext.TestAggregates.FindAsync(id);
+        var retrievedExternalId = await _testDbContext.TestAggregates
+            .Where(e => e.Id == id)
+            .Select(e => e.ExternalId)
+            .SingleAsync();
 
         // Assert
-        retrievedAggregate.Should().NotBeNull();
-        retrievedAggregate.ExternalId.Value.Should().Be("ext_xyz789");
+        retrievedExternalId.Should().NotBeNull();
+        retrievedExternalId.Value.Should().Be("ext_xyz789");
     }
 
     [Fact]
