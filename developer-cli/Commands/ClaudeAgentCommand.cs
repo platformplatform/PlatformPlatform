@@ -1,6 +1,5 @@
 using System.CommandLine;
 using System.Diagnostics;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using PlatformPlatform.DeveloperCli.Installation;
@@ -900,66 +899,6 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-    private async Task<string> GetRulesForAgentType(string agentType)
-    {
-        // Map agent type to rules directory
-        var rulesPath = agentType switch
-        {
-            "backend-engineer" or "backend-reviewer" => Path.Combine(Configuration.SourceCodeFolder, ".claude", "rules", "backend"),
-            "frontend-engineer" or "frontend-reviewer" => Path.Combine(Configuration.SourceCodeFolder, ".claude", "rules", "frontend"),
-            "qa-engineer" or "qa-reviewer" => Path.Combine(Configuration.SourceCodeFolder, ".claude", "rules", "end-to-end-tests"),
-            _ => null
-        };
-
-        if (rulesPath is null || !Directory.Exists(rulesPath))
-        {
-            return string.Empty;
-        }
-
-        // Get all .md files
-        var allRuleFiles = Directory.GetFiles(rulesPath, "*.md");
-
-        if (allRuleFiles.Length == 0)
-        {
-            return string.Empty;
-        }
-
-        // Determine the main file based on the folder name
-        var mainFileName = agentType switch
-        {
-            "backend-engineer" or "backend-reviewer" => "backend.md",
-            "frontend-engineer" or "frontend-reviewer" => "frontend.md",
-            "qa-engineer" or "qa-reviewer" => "e2e-tests.md",
-            _ => null
-        };
-
-        // Sort files: main file first, then alphabetically
-        var sortedFiles = allRuleFiles
-            .OrderBy(f =>
-                {
-                    var fileName = Path.GetFileName(f);
-                    return fileName == mainFileName ? "000-" + fileName : fileName;
-                }
-            )
-            .ToList();
-
-        // Concatenate all rule files with section headers
-        var rulesBuilder = new StringBuilder();
-
-        foreach (var ruleFile in sortedFiles)
-        {
-            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(ruleFile);
-            var content = await File.ReadAllTextAsync(ruleFile);
-
-            // Add section header
-            rulesBuilder.AppendLine($"## {fileNameWithoutExtension}");
-            rulesBuilder.AppendLine();
-            rulesBuilder.AppendLine(content);
-            rulesBuilder.AppendLine();
-        }
-
-        return rulesBuilder.ToString();
-    }
 
     private async Task<Process> LaunchWorker(
         Workspace workspace,
@@ -974,14 +913,6 @@ public class ClaudeAgentCommand : Command
         }
 
         var systemPromptText = await File.ReadAllTextAsync(workspace.SystemPromptFile);
-
-        // Concatenate all rule files for this agent type
-        var rulesContent = await GetRulesForAgentType(workspace.AgentType);
-        if (!string.IsNullOrEmpty(rulesContent))
-        {
-            systemPromptText += $"\n\n---\n\n# Architectural Rules\n\nYou have complete knowledge of all architectural rules and patterns. Reference these rules when implementing or reviewing code.\n\nNote: All architectural rules are embedded in your system prompt and available for reference.\n\n{rulesContent}";
-        }
-
         systemPromptText = systemPromptText.Replace('\n', ' ').Replace('\r', ' ').Replace("\"", "'").Trim();
 
         // Build standard arguments
