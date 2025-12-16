@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: *.tsx,*.ts
+paths: *.tsx,*.ts
 description: Core rules for frontend TypeScript and React development
 ---
 

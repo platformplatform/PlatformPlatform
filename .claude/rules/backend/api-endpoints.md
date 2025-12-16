@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Endpoints/*.cs,*Endpoints.cs
+paths: **/Endpoints/*.cs,*Endpoints.cs
 description: Rules for ASP.NET minimal API endpoints
 ---
 

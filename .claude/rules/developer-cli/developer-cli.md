@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: developer-cli/Commands/*.cs
+paths: developer-cli/Commands/*.cs
 description: Rules for implementing Developer CLI commands
 ---
 
