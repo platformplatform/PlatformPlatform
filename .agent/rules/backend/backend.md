@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.cs,*.csproj,*.slnx,Directory.Packages.props,global.json,dotnet-tools.json
+globs: **/*.cs,**/*.csproj,**/*.slnx,**/*.slnx.DotSettings,**/*.props,**/*.targets,**/*.json,.editorconfig
 description: Core rules for C# development and tooling
 ---
 # Backend

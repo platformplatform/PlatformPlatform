@@ -1,6 +1,6 @@
 ---
 description: Rules for implementing Developer CLI commands
-globs: developer-cli/Commands/*.cs
+globs: developer-cli/**/*.cs
 alwaysApply: false
 ---
 # Developer Command Line Interface Rules

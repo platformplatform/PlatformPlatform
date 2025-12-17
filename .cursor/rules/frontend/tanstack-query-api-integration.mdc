@@ -1,6 +1,6 @@
 ---
 description: Rules for using TanStack Query with backend APIs
-globs: *.tsx
+globs: **/*.tsx
 alwaysApply: false
 ---
 # TanStack Query API Integration

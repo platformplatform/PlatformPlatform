@@ -1,6 +1,6 @@
 ---
 description: Rules for ASP.NET minimal API endpoints
-globs: **/Endpoints/*.cs,*Endpoints.cs
+globs: **/Endpoints/*.cs,**/*Endpoints.cs
 alwaysApply: false
 ---
 # API Endpoints

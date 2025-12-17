@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.tsx
+globs: **/*.tsx
 description: Rules for forms with validation using React Aria Components
 ---
 

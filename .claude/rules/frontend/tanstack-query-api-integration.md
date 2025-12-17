@@ -1,5 +1,5 @@
 ---
-paths: *.tsx
+paths: **/*.tsx
 description: Rules for using TanStack Query with backend APIs
 ---
 

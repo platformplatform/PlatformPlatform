@@ -1,6 +1,6 @@
 ---
 description: Rules for end-to-end tests
-globs: */tests/e2e/**
+globs: **/tests/e2e/**
 alwaysApply: false
 ---
 # End-to-End Tests

@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.tsx,*.ts
+globs: **/*.tsx,**/*.ts,**/*.json,**/*.esproj,.editorconfig
 description: Core rules for frontend TypeScript and React development
 ---
 

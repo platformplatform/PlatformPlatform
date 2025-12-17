@@ -1,5 +1,5 @@
 ---
-paths: *.tsx
+paths: **/*.tsx
 description: Rules for forms with validation using React Aria Components
 ---
 

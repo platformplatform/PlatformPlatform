@@ -1,5 +1,5 @@
 ---
-paths: *.tsx,*.ts
+paths: **/*.tsx,**/*.ts
 description: List of console warnings that are known issues and can be ignored
 ---
 

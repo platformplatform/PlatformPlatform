@@ -1,5 +1,5 @@
 ---
-paths: developer-cli/Commands/*.cs
+paths: developer-cli/**/*.cs
 description: Rules for implementing Developer CLI commands
 ---
 

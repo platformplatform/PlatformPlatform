@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.tsx
+globs: **/*.tsx
 description: Rules for using TanStack Query with backend APIs
 ---
 
