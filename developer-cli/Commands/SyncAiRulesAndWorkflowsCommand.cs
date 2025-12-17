@@ -462,7 +462,8 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
                     newFrontmatter.Add(!string.IsNullOrWhiteSpace(globsValue)
                         ? $"globs: {ConvertGlobsForCursor(globsValue)}"
-                        : "globs: ");
+                        : "globs: "
+                    );
 
                     newFrontmatter.Add("alwaysApply: true");
                     break;

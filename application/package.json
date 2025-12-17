@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Application",
   "private": true,
-  "packageManager": "npm@10.9.0",
+  "packageManager": "npm@11.4.2",
   "workspaces": [
     "account-management/WebApp",
     "back-office/WebApp",

@@ -899,7 +899,6 @@ public class ClaudeAgentCommand : Command
         }
     }
 
-
     private async Task<Process> LaunchWorker(
         Workspace workspace,
         string? taskTitle = null,
