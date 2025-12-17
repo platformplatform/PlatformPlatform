@@ -95,15 +95,14 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("menu")).toBeVisible();
       await page.getByRole("menuitem", { name: "Change role" }).click();
 
-      await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
-      await page.getByRole("button", { name: "Member User role" }).click();
-      await page.getByRole("option", { name: "Admin" }).click();
-      await page.getByRole("button", { name: "OK" }).click();
+      await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
+      await page.getByRole("radio", { name: "Admin" }).check({ force: true });
+      await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
 
       // Wait for dialog to close
-      await expect(page.getByRole("alertdialog", { name: "Change user role" })).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
       await expect(adminUserRow.first()).toContainText("Admin");
     })();
 
