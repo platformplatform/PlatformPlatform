@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -13,20 +13,20 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0"/>
-        <PackageReference Include="Azure.Identity" Version="1.17.0"/>
+        <PackageReference Include="Azure.Identity" Version="1.17.1"/>
         <PackageReference Include="Azure.ResourceManager" Version="1.13.2"/>
         <PackageReference Include="Bogus" Version="35.6.5"/>
-        <PackageReference Include="JetBrains.Annotations" Version="2025.2.2"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2025.2.4"/>
         <PackageReference Include="Karambolo.PO" Version="1.12.0"/>
-        <PackageReference Include="Microsoft.Extensions.AI" Version="10.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.0.1-preview.1.25571.5"/>
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.0"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0"/>
-        <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.4"/>
-        <PackageReference Include="ModelContextProtocol.Core" Version="0.3.0-preview.4"/>
-        <PackageReference Include="OpenAI" Version="2.7.0"/>
+        <PackageReference Include="Microsoft.Extensions.AI" Version="10.1.1"/>
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.1.1-preview.1.25612.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1"/>
+        <PackageReference Include="ModelContextProtocol" Version="0.5.0-preview.1"/>
+        <PackageReference Include="ModelContextProtocol.Core" Version="0.5.0-preview.1"/>
+        <PackageReference Include="OpenAI" Version="2.8.0"/>
         <PackageReference Include="Spectre.Console" Version="0.54.0"/>
-        <PackageReference Include="System.CommandLine" Version="2.0.0"/>
+        <PackageReference Include="System.CommandLine" Version="2.0.1"/>
     </ItemGroup>
 
     <ItemGroup>

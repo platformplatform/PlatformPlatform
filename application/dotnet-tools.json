@@ -11,15 +11,15 @@
       "commands": ["dotnet-dotcover"]
     },
     "jetbrains.resharper.globaltools": {
-      "version": "2025.3.0.2",
+      "version": "2025.3.0.4",
       "commands": ["jb"]
     },
     "dotnet-ef": {
-      "version": "10.0.0",
+      "version": "10.0.1",
       "commands": ["dotnet-ef"]
     },
     "aspire.cli": {
-      "version": "13.0.0",
+      "version": "13.1.0",
       "commands": ["aspire"]
     }
   }
