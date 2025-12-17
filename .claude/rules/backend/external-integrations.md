@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Integrations/**/*.cs
+paths: **/Integrations/**/*.cs
 description: Rules for creating external integration services
 ---
 

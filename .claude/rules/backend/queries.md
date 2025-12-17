@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Queries/*.cs
+paths: **/Queries/*.cs
 description: Rules for CQRS queries, including structure, validation, response types, and mapping
 ---
 

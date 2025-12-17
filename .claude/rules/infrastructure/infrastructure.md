@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: cloud-infrastructure/**
+paths: cloud-infrastructure/**
 description: Rules for cloud infrastructure and deployment
 ---
 

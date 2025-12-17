@@ -12,7 +12,7 @@ You are implementing: **{{{title}}}**
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.agent/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
    - `requestFilePath`: Request file path
@@ -219,7 +219,7 @@ For **frontend [tasks]**:
    - Verify UI components render correctly (spacing, alignment, colors, borders, fonts).
    - Test all user interactions (clicks, forms, dialogs, navigation, keyboard navigation).
    - **Document what you tested** in your response (which scenarios, which user flows, which modes tested).
-   - If website not responding, use **watch** MCP tool to restart server.
+   - If website not responding, use **run** MCP tool to restart server.
 
 2. **Test with different user roles** (if applicable):
    - Test as admin user: `admin@platformplatform.local` / `UNLOCK`.

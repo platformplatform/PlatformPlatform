@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Database/Migrations/*.cs
+paths: **/Database/Migrations/*.cs
 description: Rules for creating database migrations
 ---
 

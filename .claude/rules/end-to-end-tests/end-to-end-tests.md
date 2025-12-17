@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: */tests/e2e/**
+paths: **/tests/e2e/**
 description: Rules for end-to-end tests
 ---
 

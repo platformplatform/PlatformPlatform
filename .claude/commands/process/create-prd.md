@@ -8,7 +8,7 @@ Your job is to work with the user through an interactive wizard to create a high
 
 ## Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 ## Workflow
 
@@ -16,7 +16,7 @@ Follow the steps below to create the PRD.
 
 ### Step 1: Initialize `[PRODUCT_MANAGEMENT_TOOL]`
 
-Follow initialization steps in `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
+Follow initialization steps in `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
 ### Step 2: Ask what [feature] to build
 
@@ -120,7 +120,7 @@ AskUserQuestion with:
 
 Based on all the research and user answers, draft the complete PRD.
 
-**Create the PRD content following the [example PRD structure](/.claude/samples/example-prd.md):**
+**Create the PRD content following the [example PRD structure](/.claude/reference/samples/example-prd.md):**
 
 1. **High-level PRD description:**
    - Use sentence case for level-1 headers
@@ -239,7 +239,7 @@ Show the complete PRD to the user - display the full content including all [task
 
 ### Step 6: Create [feature] and [tasks] in [PRODUCT_MANAGEMENT_TOOL]
 
-Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
+Follow your [PRODUCT_MANAGEMENT_TOOL]-specific guide at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand how to create items based on the PRD.
 
 Create:
 - [feature] with name=[feature name from Step 4 wizard], assign to "me"

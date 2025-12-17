@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.tsx,*.ts
+globs: **/*.tsx,**/*.ts
 description: List of console warnings that are known issues and can be ignored
 ---
 

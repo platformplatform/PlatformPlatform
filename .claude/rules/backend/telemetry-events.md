@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Commands/*.cs,TelemetryEvents.cs
+paths: **/Commands/*.cs,**/TelemetryEvents.cs
 description: Rules for telemetry events including important rules of where to create events, naming, and what properties to track
 ---
 

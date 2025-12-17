@@ -768,7 +768,18 @@ public sealed class UpdatePackagesCommand : Command
             return;
         }
 
-        var outdatedPackages = JsonDocument.Parse(output);
+        // Extract only the JSON portion (npm may include warnings/notices before or after the JSON)
+        var jsonStart = output.IndexOf('{');
+        var jsonEnd = output.LastIndexOf('}');
+
+        if (jsonStart == -1 || jsonEnd == -1 || jsonEnd < jsonStart)
+        {
+            AnsiConsole.MarkupLine("[green]All npm packages are up to date![/]");
+            return;
+        }
+
+        var jsonOutput = output.Substring(jsonStart, jsonEnd - jsonStart + 1);
+        var outdatedPackages = JsonDocument.Parse(jsonOutput);
         var table = new Table();
         table.AddColumn("Package");
         table.AddColumn("Current Version");

@@ -14,22 +14,25 @@ auto_execution_mode: 3
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.windsurf/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.windsurf/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Select feature to implement**:
 
    **If [FeatureId] provided as argument:** Use the provided [FeatureId].
 
-   **If NO [FeatureId] provided:** Ask user which feature to implement, or offer to list available features.
+   **If NO [FeatureId] provided:**
 
-   - **Ask user**: "Which feature would you like to implement? (Provide feature ID/name, or I can list available features)"
-   - **If user requests list**: Query [PRODUCT_MANAGEMENT_TOOL] for:
+   **CRITICAL: DO NOT guess or automatically lookup features. ONLY ask the user.**
+
+   - Ask user: "Which feature would you like to implement? (Provide feature ID, or I can list available features if you'd like)"
+   - Wait for user response
+   - **ONLY if user explicitly requests a list**, query [PRODUCT_MANAGEMENT_TOOL] for:
      - Recently created features (last 48 hours)
      - All features in [Planned] status
      - Show: Feature ID, name, description (first line), created date
    - User provides feature ID (e.g., "proj_abc123" or "PP-100")
    - Validate feature exists in [PRODUCT_MANAGEMENT_TOOL]
-   - If not found, ask again or offer to list features
+   - If not found, ask user again or offer to list features
 
 3. **Load [feature] and [task] data** from `[PRODUCT_MANAGEMENT_TOOL]` using the selected/provided [FeatureId].
 
@@ -130,7 +133,7 @@ If you're unsure about dependencies, use Sequential mode (safer default)
 
 Load all [tasks] from the [feature] loaded in Mandatory Preparation
 
-Refer to `/.windsurf/rules/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
+Refer to `/.windsurf/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` for tool-specific instructions on how to:
 - Query for [tasks] within the [feature]
 - Extract [task] titles and IDs
 - Determine [task] ordering
@@ -190,7 +193,7 @@ FOR EACH [task]:
   - **If SUCCESS marker found**:
     - Verify code was committed by checking recent commits
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
-    - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
+    - **If backend [task]**: Restart Aspire AppHost using the run MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
       - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
       - Stop immediately, diagnose the problem, and make a plan to get back on track
@@ -237,7 +240,7 @@ FOR EACH round of parallel delegation:
   - If success marker found:
     - Verify code was committed by checking recent commits
     - Verify [task] marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
-    - **If backend [task]**: Restart Aspire AppHost using the watch MCP tool to apply database migrations and backend changes
+    - **If backend [task]**: Restart Aspire AppHost using the run MCP tool to apply database migrations and backend changes
     - **If anything unexpected (multiple [tasks] done, uncommitted code, failing tests, etc.)**:
       - Zero tolerance - system started clean, any warnings or errors means we broke it and must be fixed before continuing (follow the Boy Scout rule)
       - Stop immediately, diagnose the problem, and make a plan to get back on track

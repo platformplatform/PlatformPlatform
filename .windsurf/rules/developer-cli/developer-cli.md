@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: developer-cli/Commands/*.cs
+globs: developer-cli/**/*.cs
 description: Rules for implementing Developer CLI commands
 ---
 

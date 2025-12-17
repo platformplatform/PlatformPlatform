@@ -1,6 +1,6 @@
 ---
 trigger: glob
-globs: *.tsx
+globs: **/*.tsx
 description: Rules for translations and internationalization
 ---
 # Translations

@@ -9,7 +9,7 @@ namespace PlatformPlatform.DeveloperCli.Commands;
 
 public sealed class SyncAiRulesAndWorkflowsCommand : Command
 {
-    public SyncAiRulesAndWorkflowsCommand() : base("sync-ai-rules", "Sync AI rules and workflows from .claude to .cursor, .windsurf, .agent (Antigravity), and .github (Copilot symlink).")
+    public SyncAiRulesAndWorkflowsCommand() : base("sync-ai-rules", "Sync AI rules, workflows, and reference docs from .claude to .cursor, .windsurf, .agent (Antigravity), and .github (Copilot symlink).")
     {
         SetAction(_ => Execute());
     }
@@ -20,27 +20,29 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var claudeRoot = Path.Combine(Configuration.SourceCodeFolder, ".claude");
         var claudeCommands = Path.Combine(claudeRoot, "commands");
         var claudeRules = Path.Combine(claudeRoot, "rules");
-        var claudeSamples = Path.Combine(claudeRoot, "samples");
+        var claudeReference = Path.Combine(claudeRoot, "reference");
 
         // Target directories for Windsurf
         var windsurfWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/workflows");
         var windsurfRules = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/rules");
-        var windsurfSamples = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/samples");
+        var windsurfReference = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/reference");
 
         // Target directories for Cursor
         var cursorWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules/workflows");
         var cursorRules = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules");
-        var cursorSamples = Path.Combine(Configuration.SourceCodeFolder, ".cursor/samples");
+        var cursorReference = Path.Combine(Configuration.SourceCodeFolder, ".cursor/reference");
 
         // Target directories for GitHub Copilot
         var copilotInstructions = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot-instructions.md");
         var copilotRules = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/rules");
         var copilotWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/workflows");
+        var copilotReference = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/reference");
         var agentsMd = Path.Combine(Configuration.SourceCodeFolder, "AGENTS.md");
 
         // Target directories for Google Antigravity
         var antigravityWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".agent/workflows");
         var antigravityRules = Path.Combine(Configuration.SourceCodeFolder, ".agent/rules");
+        var antigravityReference = Path.Combine(Configuration.SourceCodeFolder, ".agent/reference");
 
         // Create dictionaries to track file changes
         var initialFileHashes = new Dictionary<string, string>();
@@ -66,16 +68,16 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             SyncClaudeToWindsurfWorkflows(claudeCommands, windsurfWorkflows, expectedWindsurfFiles);
             // Rules → rules
             SyncClaudeToWindsurfRules(claudeRules, windsurfRules, expectedWindsurfFiles);
-            // Samples → samples
-            SyncClaudeToWindsurfRules(claudeSamples, windsurfSamples, expectedWindsurfFiles);
+            // Reference → reference
+            SyncClaudeToWindsurfRules(claudeReference, windsurfReference, expectedWindsurfFiles);
 
             // Sync to Cursor
             // Commands → rules/workflows
             SyncClaudeToCursorWorkflows(claudeCommands, cursorWorkflows, expectedCursorFiles);
             // Rules → rules
             SyncClaudeToCursorRules(claudeRules, cursorRules, cursorWorkflows, expectedCursorFiles);
-            // Samples → samples (simple copy for Cursor)
-            SyncClaudeToPlainMarkdown(claudeSamples, cursorSamples, expectedCursorFiles);
+            // Reference → reference (simple copy for Cursor)
+            SyncClaudeToPlainMarkdown(claudeReference, cursorReference, expectedCursorFiles);
 
             // Sync to GitHub Copilot
             CreateOrUpdateSymlink(agentsMd, copilotInstructions);
@@ -83,12 +85,16 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             SyncClaudeToCopilotWorkflows(claudeCommands, copilotWorkflows, expectedCopilotFiles);
             // Rules → rules
             SyncClaudeToCopilotRules(claudeRules, copilotRules, expectedCopilotFiles);
+            // Reference → reference
+            SyncClaudeToCopilotRules(claudeReference, copilotReference, expectedCopilotFiles);
 
             // Sync to Google Antigravity
             // Commands → workflows
             SyncClaudeToAntigravityWorkflows(claudeCommands, antigravityWorkflows, expectedAntigravityFiles);
             // Rules → rules
             SyncClaudeToAntigravityRules(claudeRules, antigravityRules, expectedAntigravityFiles);
+            // Reference → reference
+            SyncClaudeToAntigravityRules(claudeReference, antigravityReference, expectedAntigravityFiles);
 
             // Delete orphaned files in target directories
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), expectedWindsurfFiles);
@@ -226,16 +232,49 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
 
             expectedFiles.Add(targetFile);
 
-            // Rules in Windsurf keep the same format as Claude but need reference conversion
             var lines = File.ReadAllLines(sourceFile);
+            var (frontmatterLines, contentLines) = SplitFrontmatter(lines);
+            var frontmatterDict = ParseFrontmatter(frontmatterLines);
 
             // Skip path conversion for update-ai-rules file (it should keep .claude/ references)
             var skipFile = IsUpdateAiRulesFile(sourceFile);
 
-            // Convert .claude references to .windsurf references
-            ReplaceClaudeReferencesWithWindsurf(lines, skipFile);
+            // Build output with converted frontmatter
+            var outputLines = new List<string>();
 
-            File.WriteAllLines(targetFile, lines);
+            if (frontmatterLines.Count > 0)
+            {
+                outputLines.Add("---");
+
+                // Convert paths to trigger + globs for Windsurf
+                if (frontmatterDict.TryGetValue("paths", out var paths))
+                {
+                    outputLines.Add("trigger: glob");
+                    outputLines.Add($"globs: {paths}");
+                }
+                else if (frontmatterDict.TryGetValue("trigger", out var trigger))
+                {
+                    outputLines.Add($"trigger: {trigger}");
+                    if (frontmatterDict.TryGetValue("globs", out var globs))
+                    {
+                        outputLines.Add($"globs: {globs}");
+                    }
+                }
+
+                if (frontmatterDict.TryGetValue("description", out var description))
+                {
+                    outputLines.Add($"description: {description}");
+                }
+
+                outputLines.Add("---");
+            }
+
+            outputLines.AddRange(contentLines);
+
+            var outputArray = outputLines.ToArray();
+            ReplaceClaudeReferencesWithWindsurf(outputArray, skipFile);
+
+            File.WriteAllLines(targetFile, outputArray);
         }
     }
 
@@ -407,6 +446,9 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Convert frontmatter for Cursor rules
         var newFrontmatter = new List<string> { "---" };
 
+        // Get globs value from either paths or globs field
+        var globsValue = frontmatterDict.GetValueOrDefault("paths") ?? frontmatterDict.GetValueOrDefault("globs");
+
         // Convert trigger patterns
         if (frontmatterDict.TryGetValue("trigger", out var trigger))
         {
@@ -418,14 +460,9 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                         newFrontmatter.Add($"description: {desc}");
                     }
 
-                    if (frontmatterDict.TryGetValue("globs", out var globs) && !string.IsNullOrWhiteSpace(globs))
-                    {
-                        newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globs)}");
-                    }
-                    else
-                    {
-                        newFrontmatter.Add("globs: ");
-                    }
+                    newFrontmatter.Add(!string.IsNullOrWhiteSpace(globsValue)
+                        ? $"globs: {ConvertGlobsForCursor(globsValue)}"
+                        : "globs: ");
 
                     newFrontmatter.Add("alwaysApply: true");
                     break;
@@ -436,9 +473,9 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                         newFrontmatter.Add($"description: {desc}");
                     }
 
-                    if (frontmatterDict.TryGetValue("globs", out globs))
+                    if (globsValue != null)
                     {
-                        newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globs)}");
+                        newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globsValue)}");
                     }
 
                     newFrontmatter.Add("alwaysApply: false");
@@ -467,26 +504,41 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
                         newFrontmatter.Add($"description: {desc}");
                     }
 
-                    if (frontmatterDict.TryGetValue("globs", out globs))
+                    if (globsValue != null)
                     {
-                        newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globs)}");
+                        newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globsValue)}");
                     }
 
                     newFrontmatter.Add("alwaysApply: false");
                     break;
             }
         }
-        else
+        else if (frontmatterDict.ContainsKey("paths"))
         {
-            // No trigger field, use defaults
+            // New Claude format: paths field without trigger (infer trigger: glob)
             if (frontmatterDict.TryGetValue("description", out var desc))
             {
                 newFrontmatter.Add($"description: {desc}");
             }
 
-            if (frontmatterDict.TryGetValue("globs", out var globs))
+            if (globsValue != null)
             {
-                newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globs)}");
+                newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globsValue)}");
+            }
+
+            newFrontmatter.Add("alwaysApply: false");
+        }
+        else
+        {
+            // No trigger or paths field, use defaults
+            if (frontmatterDict.TryGetValue("description", out var desc))
+            {
+                newFrontmatter.Add($"description: {desc}");
+            }
+
+            if (globsValue != null)
+            {
+                newFrontmatter.Add($"globs: {ConvertGlobsForCursor(globsValue)}");
             }
 
             newFrontmatter.Add("alwaysApply: false");
@@ -660,7 +712,8 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
     private static bool IsUpdateAiRulesFile(string filePath)
     {
         var fileName = Path.GetFileNameWithoutExtension(filePath);
-        return fileName.Equals("update-ai-rules", StringComparison.OrdinalIgnoreCase);
+        return fileName.Equals("update-ai-rules", StringComparison.OrdinalIgnoreCase) ||
+               fileName.Equals("ai-rules", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string ConvertGlobsForCursor(string globs)
@@ -850,16 +903,25 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             var frontmatterDict = ParseFrontmatter(frontmatterLines);
             outputLines.Add("---");
 
-            // Preserve trigger field
-            if (frontmatterDict.TryGetValue("trigger", out var trigger))
+            // Convert paths to trigger + globs for Antigravity
+            if (frontmatterDict.TryGetValue("paths", out var paths))
             {
-                outputLines.Add($"trigger: {trigger}");
+                outputLines.Add("trigger: glob");
+                outputLines.Add($"globs: {paths}");
             }
-
-            // Preserve globs field
-            if (frontmatterDict.TryGetValue("globs", out var globs))
+            else
             {
-                outputLines.Add($"globs: {globs}");
+                // Preserve trigger field
+                if (frontmatterDict.TryGetValue("trigger", out var trigger))
+                {
+                    outputLines.Add($"trigger: {trigger}");
+                }
+
+                // Preserve globs field
+                if (frontmatterDict.TryGetValue("globs", out var globs))
+                {
+                    outputLines.Add($"globs: {globs}");
+                }
             }
 
             // Preserve description field

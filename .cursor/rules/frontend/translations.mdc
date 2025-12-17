@@ -1,6 +1,6 @@
 ---
 description: Rules for translations and internationalization
-globs: *.tsx
+globs: **/*.tsx
 alwaysApply: false
 ---
 # Translations

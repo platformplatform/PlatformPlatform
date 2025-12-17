@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Domain/*.cs
+paths: **/Domain/*.cs
 description: Rules for creating strongly typed IDs for DDD aggregates and entities
 ---
 

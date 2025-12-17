@@ -1,6 +1,6 @@
 ---
 description: Core rules for C# development and tooling
-globs: *.cs,*.csproj,*.slnx,Directory.Packages.props,global.json,dotnet-tools.json
+globs: **/*.cs,**/*.csproj,**/*.slnx,**/*.slnx.DotSettings,**/*.props,**/*.targets,**/*.json,.editorconfig
 alwaysApply: false
 ---
 # Backend
@@ -111,8 +111,12 @@ Follow these steps when implementing changes:
    - Use the **execute MCP tool** with `command: "build"` for backend
    - Use the **execute MCP tool** with `command: "test"` to run all tests
    - If you change API contracts (endpoints, DTOs), also build frontend to ensure it still compiles
-3. Format your code:
-   - When all tests pass and the feature is complete, use the **execute MCP tool** with `command: "format"` for backend
-   - The format tool will automatically fix code style issues according to our conventions
+3. Format and inspect your code in parallel:
+   - When all tests pass and the feature is complete, call both MCP tools in a single message:
+     - `execute_command(command: "format")`
+     - `execute_command(command: "inspect")`
+   - Format automatically fixes code style issues according to our conventions
+   - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
+   - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
 
 When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account-management`, `back-office`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate.

@@ -22,9 +22,9 @@ When working on tasks, follow any specific workflow instructions provided for yo
 3. Develop a clear implementation plan.
 4. Follow established patterns and conventions.
 5. Use MCP tools for building, testing, and formatting.
-   - Use the **build**, **test**, **format**, **inspect**, **watch**, and **e2e** MCP tools
+   - Use the **build**, **test**, **format**, **inspect**, **run**, and **e2e** MCP tools
    - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
-   - **Important**: The **watch** MCP tool restarts the application server and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use watch if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
+   - **Important**: The **run** MCP tool starts the Aspire AppHost and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use run if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
    - **MCP Server Setup**: See [.mcp.json](/.mcp.json) for MCP server configuration. For Claude Code, run `claude config set enableAllProjectMcpServers true` once to enable project-scoped MCP servers.
 
 **Critical**: If you do NOT see the mentioned developer-cli MCP tool, tell the user. Do NOT just ignore that you cannot find them, and fall back to other tools.

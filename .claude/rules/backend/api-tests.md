@@ -1,6 +1,5 @@
 ---
-trigger: glob
-globs: **/Tests/*.cs
+paths: **/Tests/*.cs
 description: Rules for writing backend API tests
 ---
 

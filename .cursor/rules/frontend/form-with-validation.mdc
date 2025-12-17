@@ -1,6 +1,6 @@
 ---
 description: Rules for forms with validation using React Aria Components
-globs: *.tsx
+globs: **/*.tsx
 alwaysApply: false
 ---
 # Form With Validation
