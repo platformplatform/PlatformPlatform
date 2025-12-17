@@ -23,34 +23,37 @@ public sealed class UpdatePackagesCommand : Command
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Update only frontend packages (npm)" };
         var dryRunOption = new Option<bool>("--dry-run", "-d") { Description = "Show what would be updated without making changes" };
         var excludeOption = new Option<string?>("--exclude", "-e") { Description = "Comma-separated list of packages to exclude from updates" };
-        var skipUpdateDotnetOption = new Option<bool>("--skip-update-dotnet") { Description = "Skip updating .NET SDK version in global.json" };
+        var includeMajorFrameworkUpdatesOption = new Option<bool>("--include-major-framework-updates") { Description = "Allow updating .NET and Node.js to new major versions (default: only update within current major)" };
 
         Options.Add(backendOption);
         Options.Add(frontendOption);
         Options.Add(dryRunOption);
         Options.Add(excludeOption);
-        Options.Add(skipUpdateDotnetOption);
+        Options.Add(includeMajorFrameworkUpdatesOption);
 
         SetAction(async parseResult => await Execute(
                 parseResult.GetValue(backendOption),
                 parseResult.GetValue(frontendOption),
                 parseResult.GetValue(dryRunOption),
                 parseResult.GetValue(excludeOption),
-                parseResult.GetValue(skipUpdateDotnetOption)
+                parseResult.GetValue(includeMajorFrameworkUpdatesOption)
             )
         );
     }
 
-    private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool skipUpdateDotnet)
+    private static async Task Execute(bool backend, bool frontend, bool dryRun, string? exclude, bool includeMajorFrameworkUpdates)
     {
         Prerequisite.Ensure(Prerequisite.Dotnet, Prerequisite.Node);
 
-        var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => p != "").ToArray() ?? [];
-        if (excludedPackages.Length > 0)
+        var excludedPackages = exclude?.Split(',').Select(p => p.Trim()).Where(p => p != "").ToList() ?? [];
+
+        if (excludedPackages.Count > 0)
         {
             AnsiConsole.MarkupLine($"[yellow]Excluding packages: {string.Join(", ", excludedPackages)}[/]");
             AnsiConsole.WriteLine();
         }
+
+        var excludedPackagesArray = excludedPackages.ToArray();
 
         if (dryRun)
         {
@@ -61,12 +64,11 @@ public sealed class UpdatePackagesCommand : Command
 
         var updateBackend = backend || !frontend;
         var updateFrontend = frontend || !backend;
-        var updateDotnet = !skipUpdateDotnet && updateBackend;
 
-        // Check .NET SDK version early if updating dotnet (default behavior)
-        if (updateDotnet && !dryRun)
+        // Check .NET SDK version early if updating backend (default behavior)
+        if (updateBackend && !dryRun)
         {
-            await CheckDotnetSdkVersionAsync(dryRun, true);
+            await CheckDotnetSdkVersionAsync(dryRun, true, includeMajorFrameworkUpdates);
         }
 
         if (updateBackend)
@@ -74,13 +76,13 @@ public sealed class UpdatePackagesCommand : Command
             // Update central package management files
             foreach (var propsFile in Directory.GetFiles(Configuration.SourceCodeFolder, "Directory.Packages.props", SearchOption.AllDirectories))
             {
-                await UpdateNuGetPackagesAsync(propsFile, "PackageVersion", dryRun, excludedPackages);
+                await UpdateNuGetPackagesAsync(propsFile, "PackageVersion", dryRun, excludedPackagesArray);
             }
 
             // Update .csproj files that have inline PackageReference versions (not using central package management)
             foreach (var csprojFile in Directory.GetFiles(Configuration.SourceCodeFolder, "*.csproj", SearchOption.AllDirectories))
             {
-                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackages, true);
+                await UpdateNuGetPackagesAsync(csprojFile, "PackageReference", dryRun, excludedPackagesArray, true);
             }
 
             UpdateAspireSdkVersion(dryRun);
@@ -89,17 +91,23 @@ public sealed class UpdatePackagesCommand : Command
 
         if (updateFrontend)
         {
-            UpdateNpmPackages(dryRun, excludedPackages);
+            UpdateNpmPackages(dryRun, excludedPackagesArray, includeMajorFrameworkUpdates);
         }
 
         // Display update summary
         DisplayUpdateSummary(updateBackend, updateFrontend);
 
-        // Show .NET SDK info at the end for backend updates (unless explicitly skipped)
-        if (updateDotnet)
+        // Show .NET SDK info at the end for backend updates
+        if (updateBackend)
         {
             AnsiConsole.WriteLine();
-            await CheckDotnetSdkVersionAsync(dryRun, false);
+            await CheckDotnetSdkVersionAsync(dryRun, false, includeMajorFrameworkUpdates);
+        }
+
+        // Sync .node-version with Prerequisite.cs if updating frontend
+        if (updateFrontend && !dryRun)
+        {
+            await SyncNodeVersionFile();
         }
     }
 
@@ -747,7 +755,7 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static void UpdateNpmPackages(bool dryRun, string[] excludedPackages)
+    private static void UpdateNpmPackages(bool dryRun, string[] excludedPackages, bool includeMajorFrameworkUpdates)
     {
         var packageJsonPath = Path.Combine(Configuration.ApplicationFolder, "package.json");
 
@@ -824,6 +832,23 @@ public sealed class UpdatePackagesCommand : Command
             // Use wanted version (from package.json) as the base for comparison
             // Skip packages that are already at the latest version
             if (wantedVersion == latestVersion) continue;
+
+            // Restrict @types/node to minor updates unless explicitly allowed
+            if (packageName == "@types/node" && !includeMajorFrameworkUpdates)
+            {
+                var currentMajor = int.Parse(wantedVersion.Split('-')[0].Split('.')[0]);
+                var latestMajor = int.Parse(latestVersion.Split('-')[0].Split('.')[0]);
+                if (latestMajor > currentMajor)
+                {
+                    var versionsOutput = ProcessHelper.StartProcess("npm view @types/node versions --json", Configuration.ApplicationFolder, true, exitOnError: false, throwOnError: false);
+                    var candidates = JsonDocument.Parse(versionsOutput).RootElement.EnumerateArray().Select(v => v.GetString()!).Where(v => !v.Contains('-') && int.Parse(v.Split('.')[0]) == currentMajor).ToArray();
+                    latestVersion = wantedVersion;
+                    foreach (var candidate in candidates)
+                    {
+                        if (IsNewerVersion(candidate, latestVersion)) latestVersion = candidate;
+                    }
+                }
+            }
 
             // Check update type based on what's in package.json (wanted) vs latest
             var updateType = GetUpdateType(wantedVersion, latestVersion);
@@ -945,11 +970,11 @@ public sealed class UpdatePackagesCommand : Command
 
         var currentSdkVersion = projectSdkMatch.Groups[1].Value;
 
-        // Get the Aspire.Hosting.AppHost version from Directory.Packages.props
+        // Get the Aspire.Hosting version from Directory.Packages.props
         var directoryPackagesPath = Path.Combine(Configuration.ApplicationFolder, "Directory.Packages.props");
         var packagesXml = XDocument.Load(directoryPackagesPath);
         var appHostPackageElement = packagesXml.Descendants("PackageVersion")
-            .FirstOrDefault(e => e.Attribute("Include")?.Value == "Aspire.Hosting.AppHost");
+            .FirstOrDefault(e => e.Attribute("Include")?.Value == "Aspire.Hosting");
 
         var targetSdkVersion = appHostPackageElement?.Attribute("Version")?.Value;
         if (targetSdkVersion is null || targetSdkVersion == currentSdkVersion) return;
@@ -1182,7 +1207,7 @@ public sealed class UpdatePackagesCommand : Command
         }
     }
 
-    private static async Task CheckDotnetSdkVersionAsync(bool dryRun, bool earlyCheck)
+    private static async Task CheckDotnetSdkVersionAsync(bool dryRun, bool earlyCheck, bool includeMajorFrameworkUpdates)
     {
         var globalJsonPath = Path.Combine(Configuration.ApplicationFolder, "global.json");
         var globalJson = await File.ReadAllTextAsync(globalJsonPath);
@@ -1190,12 +1215,20 @@ public sealed class UpdatePackagesCommand : Command
         var currentVersion = globalJsonDoc.RootElement.GetProperty("sdk").GetProperty("version").GetString()!;
 
         // Get latest .NET SDK version from the official releases
-        // First, check if there's a newer major version available
         var currentMajor = GetMajorVersion(currentVersion);
-        var latestMajorVersion = await GetLatestDotnetMajorVersion();
 
-        // Determine which version to target - use newer major if available
-        var targetMajor = latestMajorVersion > currentMajor ? latestMajorVersion : currentMajor;
+        // Determine which version to target
+        int targetMajor;
+        if (includeMajorFrameworkUpdates)
+        {
+            var latestMajorVersion = await GetLatestDotnetMajorVersion();
+            targetMajor = latestMajorVersion > currentMajor ? latestMajorVersion : currentMajor;
+        }
+        else
+        {
+            targetMajor = currentMajor;
+        }
+
         var latestVersion = await GetLatestDotnetSdkVersion(targetMajor);
 
         if (latestVersion == currentVersion)
@@ -1466,6 +1499,17 @@ public sealed class UpdatePackagesCommand : Command
             await File.WriteAllTextAsync(prerequisitePath, updatedContent);
             AnsiConsole.MarkupLine($"[green]✓ Updated Prerequisite.cs to require .NET {newVersion}[/]");
         }
+    }
+
+    private static async Task SyncNodeVersionFile()
+    {
+        var prerequisitePath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli", "Installation", "Prerequisite.cs");
+        var content = await File.ReadAllTextAsync(prerequisitePath);
+        var match = Regex.Match(content, @"Node = new CommandLineToolPrerequisite\(""node"", ""NodeJS"", new Version\((\d+), (\d+), (\d+)\)\);");
+        if (!match.Success) return;
+
+        var nodeVersion = $"{match.Groups[1].Value}.{match.Groups[2].Value}.{match.Groups[3].Value}";
+        await File.WriteAllTextAsync(Path.Combine(Configuration.ApplicationFolder, ".node-version"), nodeVersion + Environment.NewLine);
     }
 
     private static bool IsPackageExcluded(string packageName, string[] excludePatterns)
