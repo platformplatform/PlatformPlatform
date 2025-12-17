@@ -37,7 +37,8 @@
     "react-aria-components": "1.13.0",
     "react-dom": "19.2.0",
     "tailwind-merge": "3.4.0",
-    "tailwind-variants": "3.1.1",
+    "tailwind-variants": "3.2.2",
+    "tailwindcss-animate": "1.0.7",
     "zod": "4.1.12"
   },
   "devDependencies": {
@@ -52,8 +53,7 @@
     "@rsbuild/plugin-svgr": "1.0.6",
     "@rsbuild/plugin-type-check": "1.1.0",
     "@rspack/binding": "1.1.6",
-    "@tailwindcss/container-queries": "0.1.1",
-    "@tailwindcss/postcss": "4.1.17",
+    "@tailwindcss/postcss": "4.1.18",
     "@tanstack/router-devtools": "1.134.18",
     "@tanstack/router-plugin": "1.134.18",
     "@types/node": "24.10.0",
@@ -63,8 +63,7 @@
     "openapi-typescript-helpers": "0.0.15",
     "playwright": "1.56.1",
     "rimraf": "6.1.0",
-    "tailwindcss": "4.1.17",
-    "tailwindcss-animate": "1.0.7",
+    "tailwindcss": "4.1.18",
     "tailwindcss-react-aria-components": "2.0.1",
     "turbo": "2.6.0",
     "typescript": "5.9.3"

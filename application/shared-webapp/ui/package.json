@@ -7,6 +7,7 @@
     ".": "./dist/index.js",
     "./*": "./dist/*.js",
     "./components/*": "./dist/components/*.js",
+    "./theme.css": "./theme.css",
     "./tailwind.css": "./tailwind.css",
     "./package.json": "./package.json"
   },
