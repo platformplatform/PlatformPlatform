@@ -90,6 +90,8 @@ Guidelines for frontend TypeScript and React development, including component st
 
 8. Verify your changes:
    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
+   - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
+   - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
    - Fix any compiler warnings or test failures before proceeding
 
 ## Examples
