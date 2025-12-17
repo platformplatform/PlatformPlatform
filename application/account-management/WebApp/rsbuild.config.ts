@@ -3,6 +3,7 @@ import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugi
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
 import { ModuleFederationPlugin } from "@repo/build/plugin/ModuleFederationPlugin";
 import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentPlugin";
+import { TailwindPlugin } from "@repo/build/plugin/TailwindPlugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginSvgr } from "@rsbuild/plugin-svgr";
@@ -23,6 +24,7 @@ export default defineConfig({
     }
   },
   plugins: [
+    TailwindPlugin("#account-management"),
     pluginReact(),
     pluginTypeCheck(),
     pluginSvgr(),

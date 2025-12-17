@@ -71,11 +71,6 @@
   "overrides": {
     "@lingui/babel-plugin-lingui-macro": "5.0.0"
   },
-  "postcss": {
-    "plugins": {
-      "@tailwindcss/postcss": {}
-    }
-  },
   "browserslist": [
     "last 1 version",
     "> 1%",
