@@ -922,18 +922,22 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
-        // Add Chrome DevTools MCP for frontend and QA agents
+        // Add frontend MCP servers for frontend engineers and reviewers
         if (workspace.AgentType == "frontend-engineer" ||
-            workspace.AgentType == "frontend-reviewer" ||
-            workspace.AgentType == "qa-engineer" ||
+            workspace.AgentType == "frontend-reviewer")
+        {
+            claudeArgs.Add("--mcp-config");
+            claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "frontend-mcp-config.json")); // NOTE: Not using --strict-mcp-config so it merges with user config
+            claudeArgs.Add("--"); // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
+        }
+
+        // Add QA MCP servers for QA engineers and reviewers
+        if (workspace.AgentType == "qa-engineer" ||
             workspace.AgentType == "qa-reviewer")
         {
             claudeArgs.Add("--mcp-config");
-            claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "chrome-devtools.json"));
-            // NOTE: Not using --strict-mcp-config so it merges with user config
-
-            // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
-            claudeArgs.Add("--");
+            claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "qa-mcp-config.json")); // NOTE: Not using --strict-mcp-config so it merges with user config
+            claudeArgs.Add("--"); // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
         }
 
         // Add recovery message if this is a restart
