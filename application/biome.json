@@ -107,7 +107,6 @@
       "!**/dist",
       "!**/obj",
       "!**/environment.d.ts",
-      "!**/tailwind-preset.ts",
       "!**/module-federation-types/*.d.ts",
       "!**/*.Api.json",
       "!**/*.css",

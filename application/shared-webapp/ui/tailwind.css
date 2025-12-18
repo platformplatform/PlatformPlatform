@@ -7,85 +7,29 @@
 @import "@fontsource/inter/900.css";
 
 @import "tailwindcss";
-@config "./tailwind-preset.ts";
+@plugin 'tailwindcss-react-aria-components';
+@plugin 'tailwindcss-animate';
 
-:root,
-.light {
-  --background: hsl(200 13% 95%);
-  --foreground: hsl(219 42% 11%);
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-  --popover: hsl(200 13% 95%); /* Same as background */
-  --popover-foreground: hsl(219 42% 11%);
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --card: hsl(200 13% 95%); /* Same as background */
-  --card-foreground: hsl(219 42% 11%);
-  --primary: hsl(222.2 47.4% 11.2%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(220 17% 85%);
-  --secondary-foreground: hsl(219 42% 11%);
-  --accent: hsl(210 40% 90%);
-  --accent-foreground: hsl(219 42% 11%);
-  --destructive: hsl(1 75% 55.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --ring: hsl(215 20.2% 65.1%);
-  --sidebar: hsl(200 13% 95%); /* Same as background */
-  --hover-background: hsl(210 10% 91%);
-  --active-background: hsl(0 0% 100%); /* Same as input-background */
-  --selected-hover-background: hsl(210 10% 91%); /* Same as hover-background */
-  --input-background: hsl(0 0% 100%);
+@source "../../node_modules/@repo/ui/components";
 
-  --danger: hsl(1 75% 55.6%);
-  --danger-foreground: hsl(210 40% 98%);
-  --success: hsl(143 64% 24%);
-  --success-foreground: hsl(210 40% 98%);
-  --warning: hsl(38 92% 50%);
-  --warning-foreground: hsl(210 40% 98%);
-  --info: hsl(226 71% 40%);
-  --info-foreground: hsl(210 40% 98%);
+@custom-variant dark (&:where(.dark, .dark *));
 
-  --panel-opacity: 0.5;
-  --radius: 0.5rem;
-}
+@theme {
+  --animate-accordion-down: "accordion-down 0.2s ease-out";
+  --animate-accordion-up: "accordion-up 0.2s ease-out";
 
-.dark {
-  --background: hsl(222 29% 12%); /* Same as background */
-  --foreground: hsl(210 40% 98%);
-  --muted: hsl(223 15% 18%);
-  --muted-foreground: hsl(217.9 10.6% 64.9%);
-  --popover: hsl(222 29% 12%); /* Same as background */
-  --popover-foreground: hsl(210 40% 98%);
-  --border: hsl(217 19% 20%);
-  --input: hsl(217 19% 27%); /* Same as border */
-  --card: hsl(222 29% 12%); /* Same as background */
-  --card-foreground: hsl(210 40% 98%);
-  --primary: hsl(210 40% 98%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: hsl(217 19% 27%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --accent: hsl(217.2 32.6% 17.5%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(1 75% 55.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --ring: hsl(0 0% 100%);
-  --sidebar: hsl(222 29% 12%); /* Same as background */
-  --hover-background: hsl(219 31% 15%);
-  --active-background: hsl(222 45% 8%); /* Same as input-background */
-  --selected-hover-background: hsl(219 31% 15%); /* Same as hover-background */
-  --input-background: hsl(222 45% 8%);
-
-  --danger: hsl(1 75% 55.6%);
-  --danger-foreground: hsl(0 0% 100%);
-  --success: hsl(143 64% 24%);
-  --success-foreground: hsl(0 0% 100%);
-  --warning: hsl(38 92% 50%);
-  --warning-foreground: hsl(0 0% 100%);
-  --info: hsl(217 91% 60%);
-  --info-foreground: hsl(0 0% 100%);
-
-  --panel-opacity: 0.5;
-  --radius: 0.5rem;
+  @keyframes accordion-down {
+    from: {
+      height: 0;
+    }
+    to: {
+      height: "var(--accordion-content-height)"
+    }
+  }
+    @keyframes accordion-up {
+      from: { height: "var(--accordion-content-height)" },
+      to: { height: 0 }
+  }
 }
 
 @theme inline {

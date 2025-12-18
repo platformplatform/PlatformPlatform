@@ -1,3 +1,4 @@
+import "@repo/ui/theme.css";
 import "@repo/ui/tailwind.css";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/errorHandler";
