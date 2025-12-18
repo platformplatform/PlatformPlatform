@@ -29,7 +29,7 @@ export function Meter({ label, warnAt, dangerAt, showIndicators, ...props }: Rea
               {` ${valueText}`}
             </span>
           </div>
-          <div className="-outline-offset-1 relative h-2 w-64 rounded-full bg-muted outline outline-1 outline-transparent">
+          <div className="relative h-2 w-64 rounded-full bg-muted outline outline-1 outline-transparent -outline-offset-1">
             <div
               className={`absolute top-0 left-0 h-full rounded-full ${getTrackColor({ percentage, warnAt, dangerAt })} forced-colors:bg-[Highlight]`}
               style={{ width: `${percentage}%` }}

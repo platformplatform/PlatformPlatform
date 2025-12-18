@@ -75,7 +75,7 @@ export function Input({
   if (startIcon) {
     return (
       <div className="relative">
-        <div className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 flex items-center">
+        <div className="pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center">
           {startIcon}
         </div>
         {inputElement}

@@ -63,9 +63,9 @@ export function DropdownSection<T extends object>({
   ...props
 }: Readonly<DropdownSectionProps<T>>) {
   return (
-    <Section className="first:-mt-[5px] after:block after:h-[5px] after:content-['']" {...props}>
+    <Section className="after:block after:h-[5px] after:content-[''] first:-mt-[5px]" {...props}>
       {title && (
-        <Header className="-top-[5px] -mt-px -mx-1 sticky z-10 truncate border-y bg-transparent px-4 py-1 font-semibold text-accent-foreground text-sm backdrop-blur-md supports-[-moz-appearance:none]:bg-accent [&+*]:mt-1">
+        <Header className="sticky -top-[5px] z-10 -mx-1 -mt-px truncate border-y bg-transparent px-4 py-1 font-semibold text-accent-foreground text-sm backdrop-blur-md supports-[-moz-appearance:none]:bg-accent [&+*]:mt-1">
           {title}
         </Header>
       )}

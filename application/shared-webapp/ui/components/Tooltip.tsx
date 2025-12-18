@@ -43,7 +43,7 @@ export function Tooltip({ children, ...props }: Readonly<TooltipProps>) {
           width={8}
           height={8}
           viewBox="0 0 8 8"
-          className="group-placement-left:-rotate-90 fill-popover stroke-border group-placement-bottom:rotate-180 group-placement-right:rotate-90 forced-colors:fill-[Canvas] forced-colors:stroke-[ButtonBorder]"
+          className="fill-popover stroke-border group-placement-bottom:rotate-180 group-placement-left:-rotate-90 group-placement-right:rotate-90 forced-colors:fill-[Canvas] forced-colors:stroke-[ButtonBorder]"
         >
           <title>Tooltip arrow</title>
           <path d="M0 0 L4 4 L8 0" />
