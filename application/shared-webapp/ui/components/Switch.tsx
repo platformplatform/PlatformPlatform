@@ -27,7 +27,7 @@ const trackStyles = tv({
 });
 
 const handleStyles = tv({
-  base: "-outline-offset-1 h-5 w-5 transform rounded-full bg-background shadow outline outline-1 outline-transparent transition duration-200 ease-in-out",
+  base: "h-5 w-5 transform rounded-full bg-background shadow outline outline-1 outline-transparent -outline-offset-1 transition duration-200 ease-in-out",
   variants: {
     isSelected: {
       false: "translate-x-0",

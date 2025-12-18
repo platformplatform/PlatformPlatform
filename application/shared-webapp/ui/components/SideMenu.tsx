@@ -149,7 +149,7 @@ function ActiveIndicator({
 
   return (
     <div
-      className={`-translate-y-1/2 absolute top-1/2 h-8 w-1 bg-primary ${
+      className={`absolute top-1/2 h-8 w-1 -translate-y-1/2 bg-primary ${
         isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
       }`}
     />
@@ -924,7 +924,7 @@ const MenuNav = ({
 
       {/* Toggle button centered on divider, at intersection with topbar border */}
       <div
-        className={`-translate-y-1/2 absolute top-[72px] right-0 translate-x-1/2 ${
+        className={`absolute top-[72px] right-0 translate-x-1/2 -translate-y-1/2 ${
           !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
         } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
       >

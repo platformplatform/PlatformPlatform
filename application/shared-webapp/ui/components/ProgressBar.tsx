@@ -19,7 +19,7 @@ export function ProgressBar({ label, ...props }: Readonly<ProgressBarProps>) {
             <Label>{label}</Label>
             <span className="text-muted-foreground text-sm">{valueText}</span>
           </div>
-          <div className="-outline-offset-1 relative h-2 w-64 overflow-hidden rounded-full bg-muted outline outline-1 outline-transparent">
+          <div className="relative h-2 w-64 overflow-hidden rounded-full bg-muted outline outline-1 outline-transparent -outline-offset-1">
             <div
               className={`absolute top-0 h-full rounded-full bg-info forced-colors:bg-[Highlight] ${isIndeterminate ? "slide-out-to-right-full repeat-infinite left-full animate-in duration-1000 ease-out [--tw-enter-translate-x:calc(-16rem-100%)]" : "left-0"}`}
               style={{ width: `${isIndeterminate ? 40 : percentage}%` }}

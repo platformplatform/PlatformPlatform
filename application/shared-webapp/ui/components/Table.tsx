@@ -62,7 +62,7 @@ const columnStyles = tv({
 
 const resizerStyles = tv({
   extend: focusRing,
-  base: "column-resizer -outline-offset-2 absolute right-0 box-content h-6 w-px shrink-0 translate-x-2 cursor-col-resize rounded bg-clip-content px-2 py-1",
+  base: "column-resizer absolute right-0 box-content h-6 w-px shrink-0 translate-x-2 cursor-col-resize rounded bg-clip-content px-2 py-1 -outline-offset-2",
   variants: {
     isResizing: {
       false: "bg-border forced-colors:bg-[ButtonBorder]",
@@ -138,7 +138,7 @@ export function TableHeader<T extends object>({
 
 const rowStyles = tv({
   extend: focusRing,
-  base: "group/row -outline-offset-2 relative cursor-default select-none font-normal text-sm transition-colors [&>td:first-child]:pl-4 [&>td:last-child]:pr-4",
+  base: "group/row relative cursor-default select-none font-normal text-sm -outline-offset-2 transition-colors [&>td:first-child]:pl-4 [&>td:last-child]:pr-4",
   variants: {
     isDisabled: {
       false: "text-muted-foreground hover:bg-hover-background",
@@ -172,7 +172,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
 
 const cellStyles = tv({
   extend: focusRing,
-  base: "-outline-offset-2 truncate border-b border-b-border p-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0"
+  base: "truncate border-b border-b-border p-2 -outline-offset-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0"
 });
 
 type CellProps = {

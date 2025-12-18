@@ -398,7 +398,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             <ListFilter size={16} aria-label={t`Show filters`} />
           )}
           {activeFilterCount > 0 && !showAllFilters && (
-            <span className="-right-1 -top-1 absolute flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
               {activeFilterCount}
             </span>
           )}

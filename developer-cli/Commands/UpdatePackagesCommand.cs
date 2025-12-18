@@ -850,6 +850,9 @@ public sealed class UpdatePackagesCommand : Command
                 }
             }
 
+            // Skip if versions are equal after special handling
+            if (wantedVersion == latestVersion) continue;
+
             // Check update type based on what's in package.json (wanted) vs latest
             var updateType = GetUpdateType(wantedVersion, latestVersion);
             FrontendSummary.IncrementUpdateType(updateType);

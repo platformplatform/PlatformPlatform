@@ -19,7 +19,7 @@ const trackStyles = tv({
   variants: {
     orientation: {
       horizontal: "h-2 w-full",
-      vertical: "-translate-x-[50%] ml-[50%] h-full w-2"
+      vertical: "ml-[50%] h-full w-2 -translate-x-[50%]"
     },
     isMultiple: {
       true: "bg-primary forced-colors:bg-[ButtonBorder]",

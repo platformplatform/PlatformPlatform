@@ -12,6 +12,9 @@ import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 const customBuildEnv: CustomBuildEnv = {};
 
 export default defineConfig({
+  dev: {
+    lazyCompilation: false
+  },
   security: {
     nonce: "{{cspNonce}}"
   },
