@@ -8,10 +8,12 @@ public sealed class SqliteInMemoryDbContextFactory<T> : IDisposable where T : Db
 {
     private readonly IExecutionContext _executionContext;
     private readonly SqliteConnection _sqliteConnection;
+    private readonly TimeProvider _timeProvider;
 
-    public SqliteInMemoryDbContextFactory(IExecutionContext executionContext)
+    public SqliteInMemoryDbContextFactory(IExecutionContext executionContext, TimeProvider timeProvider)
     {
         _executionContext = executionContext;
+        _timeProvider = timeProvider;
         _sqliteConnection = new SqliteConnection("DataSource=:memory:");
         _sqliteConnection.Open();
     }
@@ -25,7 +27,7 @@ public sealed class SqliteInMemoryDbContextFactory<T> : IDisposable where T : Db
     {
         var options = CreateOptions();
 
-        var context = (T)Activator.CreateInstance(typeof(T), options, _executionContext)!;
+        var context = (T)Activator.CreateInstance(typeof(T), options, _executionContext, _timeProvider)!;
         context.Database.EnsureCreated();
 
         return context;

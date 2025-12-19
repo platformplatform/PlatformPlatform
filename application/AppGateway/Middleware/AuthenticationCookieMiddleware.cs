@@ -10,9 +10,9 @@ namespace PlatformPlatform.AppGateway.Middleware;
 public class AuthenticationCookieMiddleware(
     ITokenSigningClient tokenSigningClient,
     IHttpClientFactory httpClientFactory,
+    TimeProvider timeProvider,
     ILogger<AuthenticationCookieMiddleware> logger
-)
-    : IMiddleware
+) : IMiddleware
 {
     private const string? RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
 
@@ -51,9 +51,9 @@ public class AuthenticationCookieMiddleware(
 
         try
         {
-            if (accessToken is null || ExtractExpirationFromToken(accessToken) < TimeProvider.System.GetUtcNow())
+            if (accessToken is null || ExtractExpirationFromToken(accessToken) < timeProvider.GetUtcNow())
             {
-                if (ExtractExpirationFromToken(refreshToken) < TimeProvider.System.GetUtcNow())
+                if (ExtractExpirationFromToken(refreshToken) < timeProvider.GetUtcNow())
                 {
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);

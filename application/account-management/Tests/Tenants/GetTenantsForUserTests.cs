@@ -25,7 +25,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
@@ -36,7 +36,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", true),
@@ -98,7 +98,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", otherTenantId.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", "Other Tenant"),
                 ("State", nameof(TenantState.Active)),
@@ -109,7 +109,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", otherTenantId.Value),
                 ("Id", otherUserId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", email),
                 ("EmailConfirmed", true),
@@ -142,7 +142,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", otherUserTenantId.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", "Other User Tenant"),
                 ("State", nameof(TenantState.Active)),
@@ -153,7 +153,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", otherUserTenantId.Value),
                 ("Id", otherUserId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", otherUserEmail),
                 ("EmailConfirmed", true),
@@ -187,7 +187,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
 
         Connection.Insert("Tenants", [
                 ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
@@ -198,7 +198,7 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false), // User has not confirmed email in this tenant

@@ -27,6 +27,7 @@ public sealed class CompleteLoginHandler(
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
     ITelemetryEventsCollector events,
+    TimeProvider timeProvider,
     ILogger<CompleteLoginHandler> logger
 ) : IRequestHandler<CompleteLoginCommand, Result>
 {
@@ -98,7 +99,7 @@ public sealed class CompleteLoginHandler(
     {
         user.ConfirmEmail();
         userRepository.Update(user);
-        var inviteAcceptedTimeInMinutes = (int)(TimeProvider.System.GetUtcNow() - user.CreatedAt).TotalMinutes;
+        var inviteAcceptedTimeInMinutes = (int)(timeProvider.GetUtcNow() - user.CreatedAt).TotalMinutes;
         events.CollectEvent(new UserInviteAccepted(user.Id, inviteAcceptedTimeInMinutes));
     }
 }

@@ -20,7 +20,7 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountManagementDbConte
         Connection.Insert("Users", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                 ("Id", _userId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", Faker.Internet.UniqueEmail()),
                 ("FirstName", Faker.Name.FirstName()),

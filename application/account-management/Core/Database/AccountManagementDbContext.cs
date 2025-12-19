@@ -4,5 +4,5 @@ using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.AccountManagement.Database;
 
-public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options, IExecutionContext executionContext)
-    : SharedKernelDbContext<AccountManagementDbContext>(options, executionContext);
+public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options, IExecutionContext executionContext, TimeProvider timeProvider)
+    : SharedKernelDbContext<AccountManagementDbContext>(options, executionContext, timeProvider);

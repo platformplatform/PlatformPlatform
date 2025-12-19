@@ -142,12 +142,12 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         var emailConfirmationId = EmailConfirmationId.NewId();
         Connection.Insert("EmailConfirmations", [
                 ("Id", emailConfirmationId.ToString()),
-                ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("Email", email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", TimeProvider.System.GetUtcNow().AddMinutes(-5)),
+                ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)

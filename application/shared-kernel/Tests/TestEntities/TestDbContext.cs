@@ -4,8 +4,8 @@ using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
 
-public sealed class TestDbContext(DbContextOptions<TestDbContext> options, IExecutionContext executionContext)
-    : SharedKernelDbContext<TestDbContext>(options, executionContext)
+public sealed class TestDbContext(DbContextOptions<TestDbContext> options, IExecutionContext executionContext, TimeProvider timeProvider)
+    : SharedKernelDbContext<TestDbContext>(options, executionContext, timeProvider)
 {
     public DbSet<TestAggregate> TestAggregates => Set<TestAggregate>();
 

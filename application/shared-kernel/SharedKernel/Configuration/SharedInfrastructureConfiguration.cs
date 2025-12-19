@@ -79,12 +79,16 @@ public static class SharedInfrastructureConfiguration
             if (IsRunningInAzure)
             {
                 var defaultBlobStorageUri = new Uri(Environment.GetEnvironmentVariable("BLOB_STORAGE_URL")!);
-                builder.Services.AddSingleton<IBlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential)));
+                builder.Services.AddSingleton<IBlobStorageClient>(sp =>
+                    new BlobStorageClient(new BlobServiceClient(defaultBlobStorageUri, DefaultAzureCredential), sp.GetRequiredService<TimeProvider>())
+                );
             }
             else
             {
                 var connectionString = builder.Configuration.GetConnectionString("blob-storage");
-                builder.Services.AddSingleton<IBlobStorageClient>(_ => new BlobStorageClient(new BlobServiceClient(connectionString)));
+                builder.Services.AddSingleton<IBlobStorageClient>(sp =>
+                    new BlobStorageClient(new BlobServiceClient(connectionString), sp.GetRequiredService<TimeProvider>())
+                );
             }
 
             return builder;
@@ -92,7 +96,7 @@ public static class SharedInfrastructureConfiguration
 
         /// <summary>
         ///     Register different storage accounts for BlobStorage using .NET Keyed services, when a service needs to access
-        ///     multiple storage accounts
+        ///     multiple storage accounts.
         /// </summary>
         public IHostApplicationBuilder AddNamedBlobStorages((string ConnectionName, string EnvironmentVariable)?[] connections)
         {
@@ -102,7 +106,7 @@ public static class SharedInfrastructureConfiguration
                 {
                     var storageEndpointUri = new Uri(Environment.GetEnvironmentVariable(connection!.Value.EnvironmentVariable)!);
                     builder.Services.AddKeyedSingleton<IBlobStorageClient>(connection.Value.ConnectionName,
-                        (_, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential))
+                        (sp, _) => new BlobStorageClient(new BlobServiceClient(storageEndpointUri, DefaultAzureCredential), sp.GetRequiredService<TimeProvider>())
                     );
                 }
             }
@@ -112,7 +116,7 @@ public static class SharedInfrastructureConfiguration
                 foreach (var connection in connections)
                 {
                     builder.Services.AddKeyedSingleton<IBlobStorageClient>(connection!.Value.ConnectionName,
-                        (_, _) => new BlobStorageClient(new BlobServiceClient(connectionString))
+                        (sp, _) => new BlobStorageClient(new BlobServiceClient(connectionString), sp.GetRequiredService<TimeProvider>())
                     );
                 }
             }

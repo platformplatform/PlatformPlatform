@@ -16,7 +16,7 @@ public sealed class UnitOfWorkTests : IDisposable
     public UnitOfWorkTests()
     {
         var executionContext = new BackgroundWorkerExecutionContext();
-        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext, TimeProvider.System);
         _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _unitOfWork = new UnitOfWork(_testDbContext);
     }

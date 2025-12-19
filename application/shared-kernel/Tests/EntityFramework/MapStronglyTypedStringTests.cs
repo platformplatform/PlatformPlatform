@@ -17,7 +17,7 @@ public sealed class MapStronglyTypedStringTests : IDisposable
     public MapStronglyTypedStringTests()
     {
         var executionContext = new BackgroundWorkerExecutionContext();
-        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext, TimeProvider.System);
         _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _connection = (SqliteConnection)_testDbContext.Database.GetDbConnection();
     }

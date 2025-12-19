@@ -13,7 +13,8 @@ public sealed record DeclineInvitationCommand(TenantId TenantId) : ICommand, IRe
 public sealed class DeclineInvitationHandler(
     IUserRepository userRepository,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    TimeProvider timeProvider
 ) : IRequestHandler<DeclineInvitationCommand, Result>
 {
     public async Task<Result> Handle(DeclineInvitationCommand command, CancellationToken cancellationToken)
@@ -34,7 +35,7 @@ public sealed class DeclineInvitationHandler(
         }
 
         // Calculate how long the invitation existed
-        var inviteExistedTimeInMinutes = (int)(TimeProvider.System.GetUtcNow() - user.CreatedAt).TotalMinutes;
+        var inviteExistedTimeInMinutes = (int)(timeProvider.GetUtcNow() - user.CreatedAt).TotalMinutes;
 
         // Delete the user to decline the invitation
         userRepository.Remove(user);

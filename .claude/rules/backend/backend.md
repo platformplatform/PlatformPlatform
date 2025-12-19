@@ -61,7 +61,8 @@ Guidelines for C# backend development, including code style, naming, exceptions,
 - Use `user?.IsActive == true` over `user != null && user.IsActive == true`
 - Avoid try-catch unless we cannot fix the root cause—global exception handling covers unknown exceptions
 - Use `SharedInfrastructureConfiguration.IsRunningInAzure` to determine if running in Azure
-- Use `TimeProvider.System.GetUtcNow()` instead of `DateTime.UtcNow()`
+- Inject `TimeProvider` into services and handlers, use `timeProvider.GetUtcNow()` instead of `DateTimeOffset.UtcNow`
+- Pass `DateTimeOffset` values (not `TimeProvider`) to domain methods and aggregates to maintain clean boundaries (e.g., `entity.HasExpired(timeProvider.GetUtcNow())`)
 - Naming rules:
   - Never use acronyms or abbreviations (e.g., use `SharedAccessSignature` not `Sas`, `Context` not `Ctx`)
   - Prefer long variable names for readability (e.g., `gravatarHttpClient` not `httpClient`)

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -66,6 +67,7 @@ public static class SharedDependencyConfiguration
                 .AddSingleton(GetTokenSigningService())
                 .AddCrossServiceDataProtection()
                 .AddSingleton(Settings.Current)
+                .AddTimeProvider()
                 .AddAuthentication()
                 .AddDefaultJsonSerializerOptions()
                 .AddPersistenceHelpers<T>()
@@ -87,6 +89,12 @@ public static class SharedDependencyConfiguration
                 dataProtection.SetApplicationName("PlatformPlatform");
             }
 
+            return services;
+        }
+
+        private IServiceCollection AddTimeProvider()
+        {
+            services.TryAddSingleton(TimeProvider.System); // Use Try to allow tests to override with a fake TimeProvider
             return services;
         }
 

@@ -7,8 +7,10 @@ internal static class SecurityTokenDescriptorExtensions
 {
     extension(SecurityTokenDescriptor tokenDescriptor)
     {
-        internal string GenerateToken(DateTimeOffset expires, string issuer, string audience, SigningCredentials signingCredentials)
+        internal string GenerateToken(DateTimeOffset now, DateTimeOffset expires, string issuer, string audience, SigningCredentials signingCredentials)
         {
+            tokenDescriptor.NotBefore = now.UtcDateTime;
+            tokenDescriptor.IssuedAt = now.UtcDateTime;
             tokenDescriptor.Expires = expires.UtcDateTime;
             tokenDescriptor.Issuer = issuer;
             tokenDescriptor.Audience = audience;

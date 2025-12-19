@@ -23,6 +23,7 @@ public sealed class SwitchTenantHandler(
     IBlobStorageClient blobStorageClient,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
+    TimeProvider timeProvider,
     ILogger<SwitchTenantHandler> logger
 ) : IRequestHandler<SwitchTenantCommand, Result>
 {
@@ -88,7 +89,7 @@ public sealed class SwitchTenantHandler(
         userRepository.Update(targetUser);
 
         // Calculate how long it took to accept the invitation
-        var inviteAcceptedTimeInMinutes = (int)(DateTimeOffset.UtcNow - targetUser.CreatedAt).TotalMinutes;
+        var inviteAcceptedTimeInMinutes = (int)(timeProvider.GetUtcNow() - targetUser.CreatedAt).TotalMinutes;
         events.CollectEvent(new UserInviteAccepted(targetUser.Id, inviteAcceptedTimeInMinutes));
     }
 }

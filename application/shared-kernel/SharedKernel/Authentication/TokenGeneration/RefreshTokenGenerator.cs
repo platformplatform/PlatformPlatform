@@ -5,7 +5,7 @@ using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
-public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient)
+public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient, TimeProvider timeProvider)
 {
     // Refresh tokens are stored as a persistent cookie in the user's browser.
     // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
@@ -13,7 +13,7 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
 
     public string Generate(UserInfo userInfo)
     {
-        return GenerateRefreshToken(userInfo, RefreshTokenId.NewId(), 1, TimeProvider.System.GetUtcNow().AddHours(ValidForHours));
+        return GenerateRefreshToken(userInfo, RefreshTokenId.NewId(), 1, timeProvider.GetUtcNow().AddHours(ValidForHours));
     }
 
     public string Update(UserInfo userInfo, RefreshTokenId refreshTokenId, int currentRefreshTokenVersion, DateTimeOffset expires)
@@ -38,6 +38,7 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
         };
 
         return tokenDescriptor.GenerateToken(
+            timeProvider.GetUtcNow(),
             expires,
             tokenSigningClient.Issuer,
             tokenSigningClient.Audience,

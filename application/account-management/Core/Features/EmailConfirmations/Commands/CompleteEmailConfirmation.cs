@@ -17,6 +17,7 @@ public sealed class CompleteEmailConfirmationHandler(
     IEmailConfirmationRepository emailConfirmationRepository,
     OneTimePasswordHelper oneTimePasswordHelper,
     ITelemetryEventsCollector events,
+    TimeProvider timeProvider,
     ILogger<CompleteEmailConfirmationHandler> logger
 ) : IRequestHandler<CompleteEmailConfirmationCommand, Result<CompleteEmailConfirmationResponse>>
 {
@@ -51,14 +52,14 @@ public sealed class CompleteEmailConfirmationHandler(
             return Result<CompleteEmailConfirmationResponse>.BadRequest("The code is wrong or no longer valid.", true);
         }
 
-        var confirmationTimeInSeconds = (int)(TimeProvider.System.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
-        if (emailConfirmation.HasExpired())
+        var confirmationTimeInSeconds = (int)(timeProvider.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
+        if (emailConfirmation.HasExpired(timeProvider.GetUtcNow()))
         {
             events.CollectEvent(new EmailConfirmationExpired(emailConfirmation.Id, emailConfirmation.Type, confirmationTimeInSeconds));
             return Result<CompleteEmailConfirmationResponse>.BadRequest("The code is no longer valid, please request a new code.", true);
         }
 
-        emailConfirmation.MarkAsCompleted();
+        emailConfirmation.MarkAsCompleted(timeProvider.GetUtcNow());
         emailConfirmationRepository.Update(emailConfirmation);
 
         return new CompleteEmailConfirmationResponse(emailConfirmation.Email, confirmationTimeInSeconds);

@@ -16,7 +16,7 @@ public sealed class RepositoryTests : IDisposable
     public RepositoryTests()
     {
         var executionContext = new BackgroundWorkerExecutionContext();
-        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext);
+        _sqliteInMemoryDbContextFactory = new SqliteInMemoryDbContextFactory<TestDbContext>(executionContext, TimeProvider.System);
         _testDbContext = _sqliteInMemoryDbContextFactory.CreateContext();
         _testAggregateRepository = new TestAggregateRepository(_testDbContext);
     }

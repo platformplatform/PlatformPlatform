@@ -4,7 +4,7 @@ using Azure.Storage.Sas;
 
 namespace PlatformPlatform.SharedKernel.Integrations.BlobStorage;
 
-public class BlobStorageClient(BlobServiceClient blobServiceClient) : IBlobStorageClient
+public class BlobStorageClient(BlobServiceClient blobServiceClient, TimeProvider timeProvider) : IBlobStorageClient
 {
     public async Task UploadAsync(string containerName, string blobName, string contentType, Stream stream, CancellationToken cancellationToken)
     {
@@ -44,28 +44,29 @@ public class BlobStorageClient(BlobServiceClient blobServiceClient) : IBlobStora
     public string GetSharedAccessSignature(string container, TimeSpan expiresIn)
     {
         var blobContainerClient = blobServiceClient.GetBlobContainerClient(container);
-        var dateTimeOffset = DateTimeOffset.UtcNow.Add(expiresIn);
-        return blobContainerClient.GenerateSasUri(BlobContainerSasPermissions.Read, dateTimeOffset).Query;
+        var expiresOn = timeProvider.GetUtcNow().Add(expiresIn);
+        return blobContainerClient.GenerateSasUri(BlobContainerSasPermissions.Read, expiresOn).Query;
     }
 
     public Uri GetBlobUriWithSharedAccessSignature(string container, string blobName, TimeSpan expiresIn)
     {
         var blobContainerClient = blobServiceClient.GetBlobContainerClient(container);
         var blobClient = blobContainerClient.GetBlobClient(blobName);
-        var dateTimeOffset = DateTimeOffset.UtcNow.Add(expiresIn);
+        var utcNow = timeProvider.GetUtcNow();
+        var expiresOn = utcNow.Add(expiresIn);
 
         if (blobClient.CanGenerateSasUri)
         {
-            return blobClient.GenerateSasUri(BlobSasPermissions.Read, dateTimeOffset);
+            return blobClient.GenerateSasUri(BlobSasPermissions.Read, expiresOn);
         }
 
-        var userDelegationKey = blobServiceClient.GetUserDelegationKey(DateTimeOffset.UtcNow, dateTimeOffset);
+        var userDelegationKey = blobServiceClient.GetUserDelegationKey(utcNow, expiresOn);
         var builder = new BlobSasBuilder
         {
             BlobContainerName = container,
             BlobName = blobName,
             Resource = "b",
-            ExpiresOn = dateTimeOffset
+            ExpiresOn = expiresOn
         };
 
         builder.SetPermissions(BlobSasPermissions.Read);

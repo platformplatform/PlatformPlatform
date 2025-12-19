@@ -23,6 +23,7 @@ public sealed class ResendEmailConfirmationCodeHandler(
     IEmailClient emailClient,
     IPasswordHasher<object> passwordHasher,
     ITelemetryEventsCollector events,
+    TimeProvider timeProvider,
     ILogger<ResendEmailConfirmationCodeHandler> logger
 ) : IRequestHandler<ResendEmailConfirmationCodeCommand, Result<ResendEmailConfirmationCodeResponse>>
 {
@@ -45,10 +46,10 @@ public sealed class ResendEmailConfirmationCodeHandler(
 
         var oneTimePassword = OneTimePasswordHelper.GenerateOneTimePassword(6);
         var oneTimePasswordHash = passwordHasher.HashPassword(this, oneTimePassword);
-        emailConfirmation.UpdateVerificationCode(oneTimePasswordHash);
+        emailConfirmation.UpdateVerificationCode(oneTimePasswordHash, timeProvider.GetUtcNow());
         emailConfirmationRepository.Update(emailConfirmation);
 
-        var secondsSinceSignupStarted = (TimeProvider.System.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
+        var secondsSinceSignupStarted = (timeProvider.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
         events.CollectEvent(new EmailConfirmationResend((int)secondsSinceSignupStarted));
 
         await emailClient.SendAsync(emailConfirmation.Email, "Your verification code (resend)",

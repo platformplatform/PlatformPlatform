@@ -27,7 +27,7 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
             Connection.Insert("Users", [
                     ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
                     ("Id", userId.ToString()),
-                    ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
                     ("Email", Faker.Internet.UniqueEmail()),
                     ("FirstName", Faker.Person.FirstName),
