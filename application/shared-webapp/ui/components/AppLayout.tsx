@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { cn } from "../cn";
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
+import { cn } from "../utils";
 
 type AppLayoutVariant = "full" | "center";
 
