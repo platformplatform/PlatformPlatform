@@ -4,7 +4,11 @@
   "extends": "@repo/config/typescript/react-library.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "exclude": ["node_modules", "dist"]
 }
