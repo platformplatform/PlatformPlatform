@@ -10,8 +10,8 @@ import {
 } from "react-aria-components";
 import { Button } from "./Button";
 import { Description } from "./Description";
-import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
+import { FieldGroup } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 
