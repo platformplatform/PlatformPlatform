@@ -3,24 +3,27 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
 import { Field, FieldLabel } from "@repo/ui/components/Field";
-import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { Filter, FilterX, XIcon } from "lucide-react";
+import { Filter, FilterX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
 
-// SearchParams interface defines the structure of URL query parameters
 interface SearchParams {
   search: string | undefined;
   userRole: UserRole | undefined;
@@ -41,12 +44,6 @@ interface UserQueryingProps {
   onFiltersUpdated?: () => void;
 }
 
-/**
- * UserQuerying component handles the user list filtering.
- * Uses URL parameters as the single source of truth for all filters.
- * The only local state is for the search input, which is debounced
- * to prevent too many URL updates while typing.
- */
 export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
@@ -60,7 +57,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [, forceUpdate] = useState({});
 
-  // Convert URL date strings to DateRange if they exist
   const dateRange =
     searchParams.startDate && searchParams.endDate
       ? {
@@ -69,7 +65,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         }
       : null;
 
-  // Updates URL parameters while preserving existing ones
   const updateFilter = useCallback(
     (params: Partial<SearchParams>, isSearchUpdate = false) => {
       navigate({
@@ -80,7 +75,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           pageOffset: undefined
         })
       });
-      // Only call onFiltersUpdated for actual filter changes, not search updates
       if (!isSearchUpdate) {
         onFiltersUpdated?.();
       }
@@ -99,7 +93,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     });
   }, [debouncedSearch, navigate]);
 
-  // Count active filters for badge
   const getActiveFilterCount = () => {
     let count = 0;
     if (searchParams.userRole) {
@@ -116,7 +109,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   const activeFilterCount = getActiveFilterCount();
 
-  // Detect if side pane is open by checking DOM
   const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
 
   useEffect(() => {
@@ -128,17 +120,14 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
       }
     };
 
-    // Check immediately
     checkSidePaneState();
 
-    // Use MutationObserver to detect when side pane is added/removed
     const observer = new MutationObserver(checkSidePaneState);
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => observer.disconnect();
   }, [isSidePaneOpen]);
 
-  // Handle screen size and container space changes to show/hide filters appropriately
   useEffect(() => {
     let debounceTimeout: NodeJS.Timeout | null = null;
     let lastStateChange = 0;
@@ -165,9 +154,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
       const searchWidth = searchField?.offsetWidth || 300;
       const filterButtonWidth = filterButton?.offsetWidth || 50;
-      // Account for invite button and potential side panel
       const rightSideWidth = sidePaneOpen ? 200 : 150;
-      const gaps = 24; // Increased gap allowance
+      const gaps = 24;
 
       const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
       return toolbarWidth - usedSpace;
@@ -217,15 +205,12 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
       debounceTimeout = setTimeout(checkFilterSpace, 100);
     };
 
-    // Run check immediately
     checkFilterSpace();
 
-    // Also listen for resize events to handle browser-specific timing issues
     const handleResize = () => {
       debouncedCheckFilterSpace();
     };
 
-    // Listen for side menu events that affect layout
     const handleSideMenuToggle = () => {
       debouncedCheckFilterSpace();
     };
@@ -234,7 +219,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
       debouncedCheckFilterSpace();
     };
 
-    // Force a recheck after mount to ensure correct initial state across browsers
     const timeoutId = setTimeout(() => {
       forceUpdate({});
       checkFilterSpace();
@@ -255,21 +239,17 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     };
   }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen, isSidePaneOpen]);
 
-  // Notify parent component when filter state changes
   useEffect(() => {
-    // On 2XL+ screens, keep full buttons even with filters
     const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches; // sm breakpoint
+    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
     const shouldUseCompactButtons = (!is2XlScreen && (showAllFilters || activeFilterCount > 0)) || isMobileScreen;
 
     onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
   }, [showAllFilters, activeFilterCount, onFilterStateChange]);
 
   const clearAllFilters = () => {
-    // Set search to empty string first to ensure UI updates immediately
     setSearch("");
 
-    // Then update the filter which will set search to undefined in URL
     updateFilter({
       search: undefined,
       userRole: undefined,
@@ -354,7 +334,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         </>
       )}
 
-      {/* Filter button with responsive behavior */}
       <TooltipTrigger>
         <Button
           variant="secondary"
@@ -362,14 +341,11 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
           data-testid="filter-button"
           onClick={() => {
-            // If filters are currently showing and user clicks, always clear filters
-            // This ensures consistent behavior regardless of space calculations
             if (showAllFilters) {
               clearAllFilters();
               return;
             }
 
-            // Force modal when overlays are open (blocks interaction)
             if (isOverlayOpen || isMobileMenuOpen) {
               setIsFilterPanelOpen(true);
               return;
@@ -380,7 +356,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               return;
             }
 
-            // Measure the actual available space by finding the parent toolbar container
             const toolbarContainer = containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
             if (!toolbarContainer) {
               setIsFilterPanelOpen(true);
@@ -391,15 +366,12 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
             const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
 
-            // Calculate space used by existing elements - ALWAYS assume filters are hidden for measurement
             const searchWidth = searchField?.offsetWidth || 300;
             const filterButtonWidth = filterButton?.offsetWidth || 50;
 
-            // For space calculation, assume buttons will be compact (130px) when filters are shown
-            // This accounts for the fact that showing filters makes buttons compact, freeing up space
             const rightSideWidth = 130;
 
-            const gaps = 16; // gap-2 between main sections
+            const gaps = 16;
             const minimumFilterSpace = 500;
 
             const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
@@ -408,11 +380,9 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
             if (hasSpaceForInlineFilters) {
-              // If we have space but filters aren't showing, toggle them
               setShowAllFilters(!showAllFilters);
               return;
             }
-            // If we don't have space, open dialog
             setIsFilterPanelOpen(true);
           }}
         >
@@ -430,20 +400,15 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         <Tooltip>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</Tooltip>
       </TooltipTrigger>
 
-      {/* Filter dialog for small/medium screens */}
-      <Modal isOpen={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen} isDismissable={true}>
-        <Dialog className="w-full sm:min-w-[400px]">
-          <XIcon
-            onClick={() => setIsFilterPanelOpen(false)}
-            className="absolute top-2 right-2 h-10 w-10 p-2 hover:bg-muted"
-          />
+      <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen}>
+        <DialogContent className="w-full sm:min-w-[400px]">
           <DialogHeader>
-            <Heading slot="title" className="text-2xl">
+            <DialogTitle>
               <Trans>Filters</Trans>
-            </Heading>
+            </DialogTitle>
           </DialogHeader>
 
-          <DialogContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <SearchField
               placeholder={t`Search`}
               value={search}
@@ -516,7 +481,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               placeholder={t`Select dates`}
               className="w-full"
             />
-          </DialogContent>
+          </div>
 
           <DialogFooter>
             <Button
@@ -526,12 +491,12 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             >
               <Trans>Clear</Trans>
             </Button>
-            <Button variant="default" onClick={() => setIsFilterPanelOpen(false)}>
+            <DialogClose render={<Button variant="default" />}>
               <Trans>OK</Trans>
-            </Button>
+            </DialogClose>
           </DialogFooter>
-        </Dialog>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

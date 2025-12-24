@@ -1,16 +1,19 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
@@ -19,20 +22,8 @@ interface InviteUserDialogProps {
 }
 
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
-  const [isFormDirty, setIsFormDirty] = useState(false);
-  const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
-
-  const handleCloseComplete = () => {
-    setIsFormDirty(false);
-  };
-
-  const handleClose = () => {
-    onOpenChange(false);
-  };
-
-  useEffect(() => {
-    if (inviteUserMutation.isSuccess) {
-      setIsFormDirty(false);
+  const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite", {
+    onSuccess: () => {
       toastQueue.add({
         title: t`Success`,
         description: t`User invited successfully`,
@@ -40,22 +31,18 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
       });
       onOpenChange(false);
     }
-  }, [inviteUserMutation.isSuccess, onOpenChange]);
+  });
 
   return (
-    <DirtyModal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      hasUnsavedChanges={isFormDirty}
-      isDismissable={!inviteUserMutation.isPending}
-      onCloseComplete={handleCloseComplete}
-    >
-      <Dialog className="sm:w-dialog-md">
-        <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-        <DialogHeader description={<Trans>An email with login instructions will be sent to the user.</Trans>}>
-          <Heading slot="title" className="text-2xl">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:w-dialog-md">
+        <DialogHeader>
+          <DialogTitle>
             <Trans>Invite user</Trans>
-          </Heading>
+          </DialogTitle>
+          <DialogDescription>
+            <Trans>An email with login instructions will be sent to the user.</Trans>
+          </DialogDescription>
         </DialogHeader>
 
         <Form
@@ -64,7 +51,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           validationBehavior="aria"
           className="flex flex-col max-sm:h-full"
         >
-          <DialogContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <TextField
               autoFocus={true}
               isRequired={true}
@@ -72,19 +59,18 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
               label={t`Email`}
               placeholder={t`user@email.com`}
               className="flex-grow"
-              onChange={() => setIsFormDirty(true)}
             />
-          </DialogContent>
+          </div>
           <DialogFooter>
-            <Button type="reset" onClick={handleClose} variant="secondary" disabled={inviteUserMutation.isPending}>
+            <DialogClose render={<Button type="reset" variant="secondary" disabled={inviteUserMutation.isPending} />}>
               <Trans>Cancel</Trans>
-            </Button>
+            </DialogClose>
             <Button type="submit" disabled={inviteUserMutation.isPending}>
               <Trans>Send invite</Trans>
             </Button>
           </DialogFooter>
         </Form>
-      </Dialog>
-    </DirtyModal>
+      </DialogContent>
+    </Dialog>
   );
 }

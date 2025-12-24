@@ -1,11 +1,7 @@
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
-import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
 import { Text } from "@repo/ui/components/Text";
-import { XIcon } from "lucide-react";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 
@@ -53,18 +49,14 @@ export function AcceptInvitationDialog({
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
-      <Dialog className="sm:w-dialog-md">
-        <XIcon
-          onClick={() => onOpenChange(false)}
-          className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
-        />
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
-          <Heading slot="title" className="text-2xl">
+          <DialogTitle>
             <Trans>Accept invitation</Trans>
-          </Heading>
+          </DialogTitle>
         </DialogHeader>
-        <DialogContent className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
           <Text>
             <Trans>
               You have been invited to join <strong>{tenant.tenantName}</strong>.
@@ -76,7 +68,7 @@ export function AcceptInvitationDialog({
               account will be copied to the new account.
             </Trans>
           </Text>
-        </DialogContent>
+        </div>
         <DialogFooter>
           <Button
             variant="destructive"
@@ -89,7 +81,7 @@ export function AcceptInvitationDialog({
             {isLoading ? <Trans>Accepting...</Trans> : <Trans>Accept invitation</Trans>}
           </Button>
         </DialogFooter>
-      </Dialog>
-    </Modal>
+      </DialogContent>
+    </Dialog>
   );
 }

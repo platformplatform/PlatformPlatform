@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertDialog } from "./AlertDialog";
-import { Modal } from "./Modal";
+import { AlertDialog, AlertDialogRoot } from "./AlertDialog";
 
 type UnsavedChangesAlertDialogProps = {
   isOpen: boolean;
@@ -22,7 +21,7 @@ export function UnsavedChangesAlertDialog({
   children
 }: Readonly<UnsavedChangesAlertDialogProps>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={(open) => !open && onCancel()} zIndex="high">
+    <AlertDialogRoot open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialog
         title={title}
         variant="destructive"
@@ -32,6 +31,6 @@ export function UnsavedChangesAlertDialog({
       >
         {children}
       </AlertDialog>
-    </Modal>
+    </AlertDialogRoot>
   );
 }

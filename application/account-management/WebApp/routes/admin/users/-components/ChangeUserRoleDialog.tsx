@@ -2,19 +2,22 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
 import { Label } from "@repo/ui/components/Label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
-import { XIcon } from "lucide-react";
 import { useState } from "react";
-import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -28,8 +31,6 @@ interface ChangeUserRoleDialogProps {
 export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
   const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-
-  const hasUnsavedChanges = selectedRole !== null && selectedRole !== user?.role;
 
   const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role", {
     onSuccess: () => {
@@ -50,12 +51,11 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     }
   });
 
-  const handleCloseComplete = () => {
-    setSelectedRole(null);
-  };
-
-  const handleClose = () => {
-    onOpenChange(false);
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedRole(null);
+    }
+    onOpenChange(open);
   };
 
   if (!user) {
@@ -76,115 +76,93 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
   };
 
   return (
-    <DirtyModal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      hasUnsavedChanges={hasUnsavedChanges}
-      isDismissable={!changeUserRoleMutation.isPending}
-      onCloseComplete={handleCloseComplete}
-    >
-      <Dialog className="sm:w-dialog-lg">
-        {() => (
-          <>
-            <XIcon
-              onClick={handleClose}
-              className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
-            />
-            <DialogHeader>
-              <Heading slot="title" className="text-2xl">
-                <Trans>Change user role</Trans>
-              </Heading>
-            </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:w-dialog-lg">
+        <DialogHeader>
+          <DialogTitle>
+            <Trans>Change user role</Trans>
+          </DialogTitle>
+        </DialogHeader>
 
-            <Form
-              onSubmit={handleSubmit}
-              validationErrors={changeUserRoleMutation.error?.errors}
-              validationBehavior="aria"
-              className="flex flex-col max-sm:h-full"
+        <Form
+          onSubmit={handleSubmit}
+          validationErrors={changeUserRoleMutation.error?.errors}
+          validationBehavior="aria"
+          className="flex flex-col max-sm:h-full"
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-3">
+              <Avatar
+                initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+                avatarUrl={user.avatarUrl}
+                size="lg"
+                isRound={true}
+              />
+              <div className="min-w-0 flex-1">
+                <Text className="truncate font-medium">{displayName}</Text>
+                {user.title && <Text className="truncate text-muted-foreground text-sm">{user.title}</Text>}
+                <Text className="truncate text-muted-foreground text-sm">{user.email}</Text>
+              </div>
+            </div>
+
+            <RadioGroup
+              aria-label={t`Role`}
+              value={currentRole}
+              onValueChange={(value) => setSelectedRole(value as UserRole)}
             >
-              <DialogContent className="flex flex-col gap-6">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
-                    avatarUrl={user.avatarUrl}
-                    size="lg"
-                    isRound={true}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <Text className="truncate font-medium">{displayName}</Text>
-                    {user.title && <Text className="truncate text-muted-foreground text-sm">{user.title}</Text>}
-                    <Text className="truncate text-muted-foreground text-sm">{user.email}</Text>
+              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                <Label htmlFor="role-owner" className="flex cursor-pointer items-start gap-3">
+                  <RadioGroupItem value={UserRole.Owner} id="role-owner" className="mt-0.5" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      <Trans>Owner</Trans>
+                    </span>
+                    <span className="font-normal text-muted-foreground text-sm">
+                      <Trans>Full access including user roles and account settings</Trans>
+                    </span>
                   </div>
-                </div>
-
-                <RadioGroup
-                  aria-label={t`Role`}
-                  value={currentRole}
-                  onValueChange={(value) => setSelectedRole(value as UserRole)}
-                >
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Label htmlFor="role-owner" className="flex cursor-pointer items-start gap-3">
-                      <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} className="mt-0.5" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Owner</Trans>
-                        </span>
-                        <span className="font-normal text-muted-foreground text-sm">
-                          <Trans>Full access including user roles and account settings</Trans>
-                        </span>
-                      </div>
-                    </Label>
+                </Label>
+              </div>
+              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                <Label htmlFor="role-admin" className="flex cursor-pointer items-start gap-3">
+                  <RadioGroupItem value={UserRole.Admin} id="role-admin" className="mt-0.5" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      <Trans>Admin</Trans>
+                    </span>
+                    <span className="font-normal text-muted-foreground text-sm">
+                      <Trans>Full access except changing user roles and account settings</Trans>
+                    </span>
                   </div>
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Label htmlFor="role-admin" className="flex cursor-pointer items-start gap-3">
-                      <RadioGroupItem value={UserRole.Admin} id="role-admin" aria-label={t`Admin`} className="mt-0.5" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Admin</Trans>
-                        </span>
-                        <span className="font-normal text-muted-foreground text-sm">
-                          <Trans>Full access except changing user roles and account settings</Trans>
-                        </span>
-                      </div>
-                    </Label>
+                </Label>
+              </div>
+              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+                <Label htmlFor="role-member" className="flex cursor-pointer items-start gap-3">
+                  <RadioGroupItem value={UserRole.Member} id="role-member" className="mt-0.5" />
+                  <div className="flex flex-col">
+                    <span className="font-medium">
+                      <Trans>Member</Trans>
+                    </span>
+                    <span className="font-normal text-muted-foreground text-sm">
+                      <Trans>Standard user access</Trans>
+                    </span>
                   </div>
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Label htmlFor="role-member" className="flex cursor-pointer items-start gap-3">
-                      <RadioGroupItem
-                        value={UserRole.Member}
-                        id="role-member"
-                        aria-label={t`Member`}
-                        className="mt-0.5"
-                      />
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Member</Trans>
-                        </span>
-                        <span className="font-normal text-muted-foreground text-sm">
-                          <Trans>Standard user access</Trans>
-                        </span>
-                      </div>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </DialogContent>
-              <DialogFooter>
-                <Button
-                  type="reset"
-                  onClick={handleClose}
-                  variant="secondary"
-                  disabled={changeUserRoleMutation.isPending}
-                >
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button type="submit" disabled={changeUserRoleMutation.isPending}>
-                  {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-                </Button>
-              </DialogFooter>
-            </Form>
-          </>
-        )}
-      </Dialog>
-    </DirtyModal>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <DialogFooter>
+            <DialogClose
+              render={<Button type="reset" variant="secondary" disabled={changeUserRoleMutation.isPending} />}
+            >
+              <Trans>Cancel</Trans>
+            </DialogClose>
+            <Button type="submit" disabled={changeUserRoleMutation.isPending}>
+              {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

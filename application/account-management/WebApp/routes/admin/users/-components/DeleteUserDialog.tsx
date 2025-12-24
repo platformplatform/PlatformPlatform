@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
+import { AlertDialog, AlertDialogRoot } from "@repo/ui/components/AlertDialog";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useCallback } from "react";
 import { api, type components } from "@/shared/lib/api/client";
@@ -60,7 +59,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
   ]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={true}>
+    <AlertDialogRoot open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialog
         title={isSingleUser ? t`Delete user` : t`Delete users`}
         variant="destructive"
@@ -78,6 +77,6 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
           </Trans>
         )}
       </AlertDialog>
-    </Modal>
+    </AlertDialogRoot>
   );
 }

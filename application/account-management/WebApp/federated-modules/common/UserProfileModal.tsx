@@ -2,9 +2,17 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
-import { Heading } from "@repo/ui/components/Heading";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
+import { Form } from "@repo/ui/components/Form";
+import { Label } from "@repo/ui/components/Label";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { MenuButton } from "@repo/ui/components/MenuButton";
 import { TextField } from "@repo/ui/components/TextField";
@@ -12,10 +20,9 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
-import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
-import { useContext, useEffect, useRef, useState } from "react";
-import { FileTrigger, Form, Label } from "react-aria-components";
-import { DirtyModal } from "@/shared/components/DirtyModal";
+import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
+import { useContext, useRef, useState } from "react";
+import { FileTrigger } from "react-aria-components";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -27,12 +34,10 @@ type ProfileModalProps = {
 };
 
 export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<ProfileModalProps>) {
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
-  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -44,26 +49,6 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     error,
     refetch
   } = api.useQuery("get", "/api/account-management/users/me");
-
-  const hasUnsavedChanges = isFormDirty || selectedAvatarFile !== null || removeAvatarFlag;
-
-  useEffect(() => {
-    setIsLoading(isLoadingUser);
-  }, [isLoadingUser]);
-
-  const handleCloseComplete = () => {
-    setSelectedAvatarFile(null);
-    setRemoveAvatarFlag(false);
-    setIsFormDirty(false);
-    if (avatarPreviewUrl) {
-      URL.revokeObjectURL(avatarPreviewUrl);
-      setAvatarPreviewUrl(null);
-    }
-  };
-
-  const handleClose = () => {
-    onOpenChange(false);
-  };
 
   const updateAvatarMutation = api.useMutation("post", "/api/account-management/users/me/update-avatar");
   const removeAvatarMutation = api.useMutation("delete", "/api/account-management/users/me/remove-avatar");
@@ -93,11 +78,8 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       if (updatedUser) {
         updateUserInfo(updatedUser);
       }
-    }
-  });
-
-  useEffect(() => {
-    if (saveMutation.isSuccess) {
+    },
+    onSuccess: () => {
       toastQueue.add({
         title: t`Success`,
         description: t`Profile updated successfully`,
@@ -105,7 +87,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       });
       onOpenChange(false);
     }
-  }, [saveMutation.isSuccess, onOpenChange]);
+  });
 
   const onFileSelect = (files: FileList | null) => {
     if (files?.[0]) {
@@ -133,40 +115,33 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
   }
 
   return (
-    <DirtyModal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      hasUnsavedChanges={hasUnsavedChanges}
-      isDismissable={!isLoading && !saveMutation.isPending}
-      onCloseComplete={handleCloseComplete}
-      zIndex="high"
-    >
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       {!user ? (
-        <Dialog aria-label={t`User profile`}>
-          <Heading slot="title">
-            {isLoadingUser && <Trans>Fetching data...</Trans>}
-            {error && JSON.stringify(error)}
-          </Heading>
-        </Dialog>
+        <DialogContent className="sm:w-dialog-md">
+          <DialogHeader>
+            <DialogTitle>
+              {isLoadingUser && <Trans>Fetching data...</Trans>}
+              {error && JSON.stringify(error)}
+            </DialogTitle>
+          </DialogHeader>
+        </DialogContent>
       ) : (
-        <Dialog
-          aria-label={t`User profile`}
-          className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-lg"
-        >
-          <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-          <DialogHeader description={<Trans>Update your profile picture and personal details here.</Trans>}>
-            <Heading slot="title" className="text-2xl">
+        <DialogContent className="max-sm:h-full max-sm:w-full max-sm:max-w-full max-sm:rounded-none sm:w-dialog-lg sm:max-w-none">
+          <DialogHeader>
+            <DialogTitle>
               <Trans>User profile</Trans>
-            </Heading>
+            </DialogTitle>
+            <DialogDescription>
+              <Trans>Update your profile picture and personal details here.</Trans>
+            </DialogDescription>
           </DialogHeader>
 
           <Form
             onSubmit={mutationSubmitter(saveMutation)}
             validationBehavior="aria"
             validationErrors={saveMutation.error?.errors}
-            className="flex min-h-0 flex-1 flex-col"
           >
-            <DialogContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               <FileTrigger
                 ref={avatarFileInputRef}
                 onSelect={(files) => {
@@ -235,8 +210,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   label={t`First name`}
                   defaultValue={user?.firstName}
                   placeholder={t`E.g. Alex`}
-                  className="sm:w-64"
-                  onChange={() => setIsFormDirty(true)}
+                  className="sm:flex-1"
                 />
                 <TextField
                   isRequired={true}
@@ -244,8 +218,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   label={t`Last name`}
                   defaultValue={user?.lastName}
                   placeholder={t`E.g. Taylor`}
-                  className="sm:w-64"
-                  onChange={() => setIsFormDirty(true)}
+                  className="sm:flex-1"
                 />
               </div>
               <TextField
@@ -260,26 +233,22 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 tooltip={t`Your professional title or role`}
                 defaultValue={user?.title}
                 placeholder={t`E.g. Software engineer`}
-                onChange={() => setIsFormDirty(true)}
               />
-            </DialogContent>
+            </div>
 
-            <DialogFooter>
-              <Button
-                type="reset"
-                onClick={handleClose}
-                variant="secondary"
-                disabled={isLoading || saveMutation.isPending}
+            <DialogFooter className="mt-6">
+              <DialogClose
+                render={<Button type="reset" variant="secondary" disabled={isLoadingUser || saveMutation.isPending} />}
               >
                 <Trans>Cancel</Trans>
-              </Button>
-              <Button type="submit" disabled={isLoading || saveMutation.isPending}>
+              </DialogClose>
+              <Button type="submit" disabled={isLoadingUser || saveMutation.isPending}>
                 {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
               </Button>
             </DialogFooter>
           </Form>
-        </Dialog>
+        </DialogContent>
       )}
-    </DirtyModal>
+    </Dialog>
   );
 }

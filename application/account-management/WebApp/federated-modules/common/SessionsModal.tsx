@@ -1,16 +1,21 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
+import { AlertDialog, AlertDialogRoot } from "@repo/ui/components/AlertDialog";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
-import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon, XIcon } from "lucide-react";
+import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType } from "@/shared/lib/api/client";
@@ -138,7 +143,6 @@ function SessionCard({
 function RevokeSessionDialog({
   isOpen,
   onOpenChange,
-  isPending,
   onRevoke
 }: Readonly<{
   isOpen: boolean;
@@ -147,7 +151,7 @@ function RevokeSessionDialog({
   onRevoke: () => void;
 }>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={!isPending} zIndex="high">
+    <AlertDialogRoot open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialog
         title={t`Revoke session`}
         variant="destructive"
@@ -159,7 +163,7 @@ function RevokeSessionDialog({
           Are you sure you want to revoke this session? The device will be signed out and will need to log in again.
         </Trans>
       </AlertDialog>
-    </Modal>
+    </AlertDialogRoot>
   );
 }
 
@@ -211,22 +215,20 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
-        <Dialog aria-label={t`Sessions`} className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-xl">
-          <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-          <DialogHeader
-            description={
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent className="max-sm:h-full max-sm:w-full max-sm:max-w-full max-sm:rounded-none sm:w-dialog-xl sm:max-w-none">
+          <DialogHeader>
+            <DialogTitle>
+              <Trans>Sessions</Trans>
+            </DialogTitle>
+            <DialogDescription>
               <Trans>
                 A list of devices that have logged into your account. Revoke any sessions you don't recognize.
               </Trans>
-            }
-          >
-            <Heading slot="title" className="text-2xl">
-              <Trans>Sessions</Trans>
-            </Heading>
+            </DialogDescription>
           </DialogHeader>
 
-          <DialogContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {hasRevokedSession && (
               <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
                 <InfoIcon className="h-5 w-5 shrink-0 text-info" />
@@ -252,14 +254,14 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                 ))}
               </div>
             )}
-          </DialogContent>
+          </div>
           <DialogFooter>
-            <Button onClick={handleClose}>
+            <DialogClose render={<Button variant="default" />} onClick={handleClose}>
               <Trans>Close</Trans>
-            </Button>
+            </DialogClose>
           </DialogFooter>
-        </Dialog>
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
       <RevokeSessionDialog
         isOpen={isRevokeDialogOpen}
