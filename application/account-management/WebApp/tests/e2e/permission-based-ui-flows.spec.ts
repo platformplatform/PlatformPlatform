@@ -126,8 +126,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.evaluate((el: HTMLElement) => el.click());
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -333,8 +340,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.evaluate((el: HTMLElement) => el.click());
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");

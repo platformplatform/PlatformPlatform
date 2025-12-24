@@ -94,9 +94,9 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - `z-[45]`: Backdrops (side panes, menu overlays)
    - `z-[46]`: Side panes, side menu in overlay mode
    - `z-[48]`: Add to homescreen banner
+   - `z-[49]`: Mobile full-screen menus (just below z-50 so dropdowns inside work naturally)
    - `z-50`: **Dialogs, dropdowns, popovers, tooltips** (ShadCN default - never modify)
    - `z-[60]`: Toasts (always visible, even when dialogs are open)
-   - `z-[200]`: Mobile full-screen menus
    - Note: ShadCN components use z-50 as the standard overlay layer. Keep all app UI below z-50 unless it must appear above dialogs (like toasts)
 
 6. DirtyDialog close handlers:

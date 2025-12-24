@@ -3,9 +3,14 @@ import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { Form } from "@repo/ui/components/Form";
-import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
@@ -168,58 +173,62 @@ function LogoSection({
         <Trans>Logo</Trans>
       </Label>
 
-      <MenuTrigger isOpen={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
-        <MenuButton
-          variant="ghost"
-          size="icon"
-          className="h-16 w-16 rounded-md"
-          aria-label={t`Change logo`}
-          isDisabled={!isOwner}
-        >
-          {tenant?.logoUrl || logoPreviewUrl ? (
-            <img
-              src={logoPreviewUrl ?? tenant?.logoUrl ?? ""}
-              className="h-full w-full rounded-md object-contain"
-              alt={t`Logo`}
-            />
-          ) : (
-            <TenantLogo
-              key={tenant?.logoUrl || "no-logo"}
-              logoUrl={null}
-              tenantName={tenant?.name ?? ""}
-              size="lg"
-              isRound={false}
-              className="h-full w-full"
-            />
-          )}
-        </MenuButton>
-        <Menu>
-          <MenuItem
-            onAction={() => {
+      <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
+        <DropdownMenuTrigger
+          disabled={!isOwner}
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-16 w-16 rounded-md"
+              aria-label={t`Change logo`}
+              disabled={!isOwner}
+            >
+              {tenant?.logoUrl || logoPreviewUrl ? (
+                <img
+                  src={logoPreviewUrl ?? tenant?.logoUrl ?? ""}
+                  className="h-full w-full rounded-md object-contain"
+                  alt={t`Logo`}
+                />
+              ) : (
+                <TenantLogo
+                  key={tenant?.logoUrl || "no-logo"}
+                  logoUrl={null}
+                  tenantName={tenant?.name ?? ""}
+                  size="lg"
+                  isRound={false}
+                  className="h-full w-full"
+                />
+              )}
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
               logoFileInputRef.current?.click();
             }}
           >
             <CameraIcon className="h-4 w-4" />
             <Trans>Upload logo</Trans>
-          </MenuItem>
+          </DropdownMenuItem>
           {(tenant?.logoUrl || logoPreviewUrl) && (
             <>
-              <MenuSeparator />
-              <MenuItem
-                onAction={() => {
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() => {
                   setLogoMenuOpen(false);
                   handleLogoRemoval();
                 }}
               >
-                <Trash2Icon className="h-4 w-4 text-destructive" />
-                <span className="text-destructive">
-                  <Trans>Remove logo</Trans>
-                </span>
-              </MenuItem>
+                <Trash2Icon className="h-4 w-4" />
+                <Trans>Remove logo</Trans>
+              </DropdownMenuItem>
             </>
           )}
-        </Menu>
-      </MenuTrigger>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }

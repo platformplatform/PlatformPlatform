@@ -3,8 +3,14 @@ import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
+import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
@@ -17,7 +23,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
-import { MenuTrigger, TableBody } from "react-aria-components";
+import { TableBody } from "react-aria-components";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -290,72 +296,73 @@ export function UserTable({
                         <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
                       </div>
                     </div>
-                  </div>
-                </Cell>
-                {isSmallViewportOrLarger() && (
-                  <Cell>
-                    <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
-                  </Cell>
-                )}
-                {isMediumViewportOrLarger() && (
-                  <Cell>
-                    <SmartDate date={user.createdAt} className="text-foreground" />
-                  </Cell>
-                )}
-                {isMediumViewportOrLarger() && (
-                  <Cell>
-                    <SmartDate date={user.lastSeenAt} className="text-foreground" />
-                  </Cell>
-                )}
-                {isSmallViewportOrLarger() && (
-                  <Cell>
-                    <div className="flex h-full w-full items-center justify-between p-0">
-                      <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                      <MenuTrigger
-                        onOpenChange={(isOpen) => {
-                          if (isOpen) {
-                            onSelectedUsersChange([user]);
-                          }
-                        }}
-                      >
-                        <MenuButton variant="ghost" size="icon" aria-label={t`User actions`}>
-                          <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                        </MenuButton>
-                        <Menu>
-                          <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
-                            <UserIcon className="h-4 w-4" />
-                            <Trans>View profile</Trans>
-                          </MenuItem>
-                          {userInfo?.role === "Owner" && (
-                            <>
-                              <MenuItem
-                                id="changeRole"
-                                isDisabled={user.id === userInfo?.id}
-                                onAction={() => onChangeRole(user)}
-                              >
-                                <SettingsIcon className="h-4 w-4" />
-                                <Trans>Change role</Trans>
-                              </MenuItem>
-                              <MenuSeparator />
-                              <MenuItem
-                                id="deleteUser"
-                                isDisabled={user.id === userInfo?.id}
-                                onAction={() => onDeleteUser(user)}
-                              >
-                                <Trash2Icon className="h-4 w-4 text-destructive" />
-                                <span className="text-destructive">
+                  </TableCell>
+                  {isSmallViewportOrLarger() && (
+                    <TableCell>
+                      <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                    </TableCell>
+                  )}
+                  {isMediumViewportOrLarger() && (
+                    <TableCell>
+                      <SmartDate date={user.createdAt} className="text-foreground" />
+                    </TableCell>
+                  )}
+                  {isMediumViewportOrLarger() && (
+                    <TableCell>
+                      <SmartDate date={user.lastSeenAt} className="text-foreground" />
+                    </TableCell>
+                  )}
+                  {isSmallViewportOrLarger() && (
+                    <TableCell>
+                      <div className="flex h-full w-full items-center justify-between p-0">
+                        <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                        <DropdownMenu
+                          onOpenChange={(isOpen) => {
+                            if (isOpen) {
+                              onSelectedUsersChange([user]);
+                            }
+                          }}
+                        >
+                          <DropdownMenuTrigger
+                            render={
+                              <Button variant="ghost" size="icon" aria-label={t`User actions`}>
+                                <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                              </Button>
+                            }
+                          />
+                          <DropdownMenuContent className="w-auto">
+                            <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
+                              <UserIcon className="h-4 w-4" />
+                              <Trans>View profile</Trans>
+                            </DropdownMenuItem>
+                            {userInfo?.role === "Owner" && (
+                              <>
+                                <DropdownMenuItem
+                                  disabled={user.id === userInfo?.id}
+                                  onClick={() => onChangeRole(user)}
+                                >
+                                  <SettingsIcon className="h-4 w-4" />
+                                  <Trans>Change role</Trans>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  disabled={user.id === userInfo?.id}
+                                  variant="destructive"
+                                  onClick={() => onDeleteUser(user)}
+                                >
+                                  <Trash2Icon className="h-4 w-4" />
                                   <Trans>Delete</Trans>
-                                </span>
-                              </MenuItem>
-                            </>
-                          )}
-                        </Menu>
-                      </MenuTrigger>
-                    </div>
-                  </Cell>
-                )}
-              </Row>
-            ))}
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
