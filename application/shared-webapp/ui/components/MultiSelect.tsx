@@ -22,7 +22,7 @@ import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Drop
 import { FieldError } from "./FieldError";
 import { focusRing } from "./focusRing";
 import { LabelWithTooltip } from "./LabelWithTooltip";
-import { Popover } from "./Popover";
+import { LegacyPopover } from "./LegacyPopover";
 
 const buttonStyles = tv({
   extend: focusRing,
@@ -131,7 +131,7 @@ export function MultiSelect<T extends MultiSelectItemShape>({
         {description && <Description>{description}</Description>}
         <FieldError>{errorMessage}</FieldError>
         {hasItems && (
-          <Popover style={{ width: popoverWidth }}>
+          <LegacyPopover style={{ width: popoverWidth }}>
             <ListBox
               aria-label="listbox"
               items={items}
@@ -143,7 +143,7 @@ export function MultiSelect<T extends MultiSelectItemShape>({
             >
               {children}
             </ListBox>
-          </Popover>
+          </LegacyPopover>
         )}
       </DialogTrigger>
     </div>

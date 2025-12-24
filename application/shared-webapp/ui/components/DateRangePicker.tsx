@@ -18,7 +18,7 @@ import { Dialog } from "./Dialog";
 import { FieldError } from "./FieldError";
 import { FieldGroup } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
-import { Popover } from "./Popover";
+import { LegacyPopover } from "./LegacyPopover";
 import { RangeCalendar } from "./RangeCalendar";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -135,11 +135,11 @@ export function DateRangePicker<T extends DateValue>({
 
         {description && <Description>{description}</Description>}
         <FieldError>{errorMessage}</FieldError>
-        <Popover>
+        <LegacyPopover>
           <Dialog>
             <RangeCalendar />
           </Dialog>
-        </Popover>
+        </LegacyPopover>
       </AriaDateRangePicker>
     </I18nProvider>
   );
