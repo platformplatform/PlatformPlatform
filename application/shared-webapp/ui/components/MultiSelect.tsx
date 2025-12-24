@@ -21,7 +21,7 @@ import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
 import { FieldError } from "./FieldError";
 import { focusRing } from "./focusRing";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { Popover } from "./Popover";
 
 const buttonStyles = tv({
@@ -99,7 +99,7 @@ export function MultiSelect<T extends MultiSelectItemShape>({
   return (
     <div className={`group flex flex-col gap-1 ${className || ""}`}>
       <DialogTrigger>
-        {label && <Label tooltip={tooltip}>{label}</Label>}
+        {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
         <Button
           ref={buttonRef}
           className={(renderProps) =>

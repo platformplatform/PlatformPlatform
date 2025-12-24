@@ -30,7 +30,7 @@ export function DateField<T extends DateValue>({
   ...props
 }: Readonly<DateFieldProps<T>>) {
   return (
-    <AriaDateField {...props} className={composeTailwindRenderProps(props.className, "flex flex-col gap-1")}>
+    <AriaDateField {...props} className={composeTailwindRenderProps(props.className, "flex flex-col gap-3")}>
       {label && <Label>{label}</Label>}
       <DateInput />
       {description && <Description>{description}</Description>}

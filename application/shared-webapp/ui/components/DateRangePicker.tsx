@@ -17,7 +17,7 @@ import { Description } from "./Description";
 import { Dialog } from "./Dialog";
 import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { Popover } from "./Popover";
 import { RangeCalendar } from "./RangeCalendar";
 import { composeTailwindRenderProps } from "./utils";
@@ -86,9 +86,9 @@ export function DateRangePicker<T extends DateValue>({
             setIsExpanded(false);
           }
         }}
-        className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
+        className={composeTailwindRenderProps(props.className, "group flex flex-col gap-3")}
       >
-        {label && <Label tooltip={tooltip}>{label}</Label>}
+        {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
 
         {isExpanded ? (
           // Expanded view - standard date range picker

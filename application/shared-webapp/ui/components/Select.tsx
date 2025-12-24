@@ -20,7 +20,7 @@ import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
 import { FieldError } from "./FieldError";
 import { focusRing } from "./focusRing";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -67,8 +67,8 @@ export function Select<T extends object>({
   const isInvalid = props.isInvalid || Boolean(name != null && name in errors ? errors?.[name] : undefined);
 
   return (
-    <AriaSelect {...props} name={name} className={composeTailwindRenderProps(className, "group flex flex-col gap-1")}>
-      {label && <Label tooltip={tooltip}>{label}</Label>}
+    <AriaSelect {...props} name={name} className={composeTailwindRenderProps(className, "group flex flex-col gap-3")}>
+      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
       <Button className={(renderProps) => buttonStyles({ ...renderProps, isInvalid })}>
         <SelectValue className="flex-1 text-sm placeholder-shown:italic" />
         <ChevronDown

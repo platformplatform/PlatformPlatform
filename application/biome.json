@@ -35,6 +35,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/ui/components/Label.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off"
+          }
+        }
+      }
     }
   ],
   "linter": {

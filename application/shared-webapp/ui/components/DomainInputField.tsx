@@ -53,7 +53,7 @@ export function DomainInputField({
   const isInvalid = Boolean(name != null && name in errors ? errors?.[name] : undefined);
   const { focusProps, isFocusVisible } = useFocusRing();
   return (
-    <AriaTextField {...props} name={name} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
+    <AriaTextField {...props} name={name} className={composeTailwindRenderProps(className, "flex flex-col gap-3")}>
       {label && <Label>{label}</Label>}
       <Group className={inputStyles({ isInvalid, isFocusVisible })}>
         <div className="flex grow overflow-hidden">
