@@ -4,6 +4,7 @@
  */
 import { ChevronDown, ChevronUp } from "lucide-react";
 import {
+  Input as AriaInput,
   NumberField as AriaNumberField,
   type NumberFieldProps as AriaNumberFieldProps,
   Button,
@@ -14,7 +15,6 @@ import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldGroup, fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
-import { Input } from "./Input";
 import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -32,7 +32,7 @@ export function NumberField({ label, description, errorMessage, tooltip, ...prop
       <FieldGroup>
         {(renderProps) => (
           <>
-            <Input isEmbedded={true} />
+            <AriaInput className="h-9 w-full min-w-0 border-0 bg-transparent px-2.5 py-1 text-base shadow-none outline-none placeholder:text-muted-foreground focus:ring-0 md:text-sm" />
             <div className={fieldBorderStyles({ ...renderProps, class: "-me-px flex flex-col border-s-2" })}>
               <StepperButton slot="increment" className="px-1.5">
                 <ChevronUp aria-hidden={true} className="h-4 w-4" />

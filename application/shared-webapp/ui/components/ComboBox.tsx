@@ -7,6 +7,7 @@ import type React from "react";
 import {
   ComboBox as AriaComboBox,
   type ComboBoxProps as AriaComboBoxProps,
+  Input as AriaInput,
   ListBox,
   type ListBoxItemProps,
   type ValidationResult
@@ -16,7 +17,6 @@ import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
 import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
-import { Input } from "./Input";
 import { Label } from "./Label";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";
@@ -45,7 +45,7 @@ export function ComboBox<T extends object>({
     <AriaComboBox {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
       {label && <Label tooltip={tooltip}>{label}</Label>}
       <FieldGroup>
-        <Input isEmbedded={true} />
+        <AriaInput className="h-9 w-full min-w-0 border-0 bg-transparent px-2.5 py-1 text-base shadow-none outline-none placeholder:text-muted-foreground focus:ring-0 md:text-sm" />
         <Button
           variant="ghost"
           size="icon"
