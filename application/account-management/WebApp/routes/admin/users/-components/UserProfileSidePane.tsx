@@ -65,7 +65,7 @@ function UserProfileContent({
             <div className="flex flex-col items-end gap-1">
               <Text className="text-right text-sm">{user.email}</Text>
               {user.emailConfirmed ? (
-                <Badge variant="success" className="text-xs">
+                <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
                   <Trans>Verified</Trans>
                 </Badge>
               ) : (

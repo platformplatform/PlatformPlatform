@@ -106,7 +106,7 @@ function SessionCard({
               {deviceLabel} ({browserInfo})
             </span>
             {session.isCurrent && (
-              <Badge variant="success">
+              <Badge variant="secondary" className="bg-success text-success-foreground">
                 <Trans>Current session</Trans>
               </Badge>
             )}

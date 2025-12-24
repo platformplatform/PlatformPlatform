@@ -178,7 +178,7 @@ function TenantMenuDropdown({
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     {tenant.isNew && (
-                      <Badge variant="warning" className="text-xs">
+                      <Badge variant="secondary" className="bg-warning text-warning-foreground text-xs">
                         <Trans>Invitation pending</Trans>
                       </Badge>
                     )}
