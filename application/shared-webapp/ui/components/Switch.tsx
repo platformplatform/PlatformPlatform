@@ -1,61 +1,30 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/switch--docs
- * ref: https://ui.shadcn.com/docs/components/switch
- */
-import type React from "react";
-import { Switch as AriaSwitch, type SwitchProps as AriaSwitchProps } from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { focusRing } from "./focusRing";
-import { composeTailwindRenderProps } from "./utils";
+import { Switch as SwitchPrimitive } from "@base-ui/react/switch";
 
-export interface SwitchProps extends Omit<AriaSwitchProps, "children"> {
-  children: React.ReactNode;
-}
+import { cn } from "../utils";
 
-const trackStyles = tv({
-  extend: focusRing,
-  base: "flex h-6 w-11 shrink-0 cursor-default items-center rounded-full border border-transparent px-px shadow-inner transition duration-200 ease-in-out",
-  variants: {
-    isSelected: {
-      false: "bg-input group-pressed:bg-input/80",
-      true: "forced-colors:!bg-[Highlight] bg-primary group-pressed:bg-primary/80"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    }
-  }
-});
-
-const handleStyles = tv({
-  base: "h-5 w-5 transform rounded-full bg-background shadow outline outline-1 outline-transparent -outline-offset-1 transition duration-200 ease-in-out",
-  variants: {
-    isSelected: {
-      false: "translate-x-0",
-      true: "translate-x-[100%]"
-    },
-    isDisabled: {
-      true: "forced-colors:outline-[GrayText]"
-    }
-  }
-});
-
-export function Switch({ children, className, ...props }: Readonly<SwitchProps>) {
+function Switch({
+  className,
+  size = "default",
+  ...props
+}: SwitchPrimitive.Root.Props & {
+  size?: "sm" | "default";
+}) {
   return (
-    <AriaSwitch
+    <SwitchPrimitive.Root
+      data-slot="switch"
+      data-size={size}
+      className={cn(
+        "peer group/switch relative inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs outline-none transition-all after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 data-[size=default]:h-[18.4px] data-[size=sm]:h-[14px] data-[size=default]:w-[32px] data-[size=sm]:w-[24px] data-disabled:cursor-not-allowed data-checked:bg-primary data-unchecked:bg-input data-disabled:opacity-50 dark:data-unchecked:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
       {...props}
-      className={composeTailwindRenderProps(
-        className,
-        "group flex items-center gap-2 text-muted-foreground text-sm transition disabled:opacity-50 forced-colors:disabled:text-[GrayText]"
-      )}
     >
-      {(renderProps) => (
-        <>
-          <div className={trackStyles(renderProps)}>
-            <span className={handleStyles(renderProps)} />
-          </div>
-          {children}
-        </>
-      )}
-    </AriaSwitch>
+      <SwitchPrimitive.Thumb
+        data-slot="switch-thumb"
+        className="pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=default]/switch:data-unchecked:translate-x-0 group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-unchecked:translate-x-0 dark:data-checked:bg-primary-foreground dark:data-unchecked:bg-foreground"
+      />
+    </SwitchPrimitive.Root>
   );
 }
+
+export { Switch };
