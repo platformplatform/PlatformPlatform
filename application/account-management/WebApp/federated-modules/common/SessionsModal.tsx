@@ -130,8 +130,8 @@ function SessionCard({
       {!session.isCurrent && (
         <Button
           variant="secondary"
-          onPress={() => onRevoke(session)}
-          isDisabled={isRevoking}
+          onClick={() => onRevoke(session)}
+          disabled={isRevoking}
           className="w-full sm:w-auto"
         >
           {isRevoking ? <Trans>Revoking...</Trans> : <Trans>Revoke</Trans>}
@@ -292,7 +292,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
             )}
           </DialogContent>
           <DialogFooter>
-            <Button onPress={handleClose}>
+            <Button onClick={handleClose}>
               <Trans>Close</Trans>
             </Button>
           </DialogFooter>

@@ -1,8 +1,8 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import type { Key } from "@react-types/shared";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -137,13 +137,13 @@ export default function ThemeModeSelector({
   const getThemeIcon = () => {
     switch (themeMode) {
       case ThemeMode.Dark:
-        return <MoonIcon className="h-5 w-5" />;
+        return <MoonIcon className="size-5" />;
       case ThemeMode.Light:
-        return <SunIcon className="h-5 w-5" />;
+        return <SunIcon className="size-5" />;
       default: {
         // For system mode, show icon based on actual system preference
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        return prefersDark ? <MoonStarIcon className="h-5 w-5" /> : <SunMoonIcon className="h-5 w-5" />;
+        return prefersDark ? <MoonStarIcon className="size-5" /> : <SunMoonIcon className="size-5" />;
       }
     }
   };
@@ -151,11 +151,11 @@ export default function ThemeModeSelector({
   const menuContent = (
     <MenuTrigger>
       {variant === "icon" ? (
-        <Button variant="icon" aria-label={t`Change theme`}>
+        <MenuButton variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
           {getThemeIcon()}
-        </Button>
+        </MenuButton>
       ) : (
-        <Button
+        <MenuButton
           variant="ghost"
           className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
           style={{ pointerEvents: "auto" }}
@@ -173,7 +173,7 @@ export default function ThemeModeSelector({
               <Trans>Dark</Trans>
             )}
           </div>
-        </Button>
+        </MenuButton>
       )}
       <Menu
         onAction={handleThemeChange}

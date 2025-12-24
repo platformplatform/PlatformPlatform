@@ -267,7 +267,7 @@ export function CompleteLoginForm() {
           <Button
             type="submit"
             className="mt-4 w-full text-center"
-            isDisabled={
+            disabled={
               !isOneTimeCodeComplete ||
               isExpired ||
               completeLoginMutation.isPending ||
@@ -297,7 +297,7 @@ export function CompleteLoginForm() {
               <Button
                 type="submit"
                 variant="link"
-                isDisabled={resendLoginCodeMutation.isPending}
+                disabled={resendLoginCodeMutation.isPending}
                 className="h-auto p-0 text-sm"
               >
                 <Trans>Request a new code</Trans>
@@ -308,7 +308,7 @@ export function CompleteLoginForm() {
         <Link
           href="/login"
           className="mt-2 text-xs"
-          onPress={() => {
+          onClick={() => {
             const loginState = getLoginState();
             clearLoginState();
             setLoginState({ email: loginState?.email ?? "" });

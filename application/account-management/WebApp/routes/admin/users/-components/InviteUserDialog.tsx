@@ -77,15 +77,10 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
                 />
               </DialogContent>
               <DialogFooter>
-                <Button
-                  type="reset"
-                  onPress={handleCancel}
-                  variant="secondary"
-                  isDisabled={inviteUserMutation.isPending}
-                >
+                <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteUserMutation.isPending}>
                   <Trans>Cancel</Trans>
                 </Button>
-                <Button type="submit" isDisabled={inviteUserMutation.isPending}>
+                <Button type="submit" disabled={inviteUserMutation.isPending}>
                   {inviteUserMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
                 </Button>
               </DialogFooter>

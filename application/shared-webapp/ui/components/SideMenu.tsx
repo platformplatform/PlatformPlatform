@@ -1236,7 +1236,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
           <Button
             aria-label={ariaLabel}
             className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
-            onPress={() => setIsOpen(true)}
+            onClick={() => setIsOpen(true)}
           >
             <Menu className="h-7 w-7 text-foreground" />
           </Button>
@@ -1285,7 +1285,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                 <Button
                   variant="ghost"
                   size="icon"
-                  onPress={() => setIsOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
                   className="h-12 w-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >

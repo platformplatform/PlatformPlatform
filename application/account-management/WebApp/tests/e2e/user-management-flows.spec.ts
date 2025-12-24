@@ -543,7 +543,7 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByLabel("User role").first()).toBeVisible();
       await expect(page.getByLabel("User status").first()).toBeVisible();
-      await expect(page.getByLabel("Modified date").first()).toBeVisible();
+      await expect(page.getByText("Modified date").first()).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {

@@ -7,7 +7,7 @@ import { Button } from "@repo/ui/components/Button";
 import { overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MailQuestion, MonitorSmartphoneIcon, UserIcon } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import LocaleSwitcher from "../common/LocaleSwitcher";
@@ -25,6 +25,7 @@ function MobileMenuHeader({
   onEditProfile: () => void;
   onShowSessions: () => void;
 }) {
+  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
   const userInfo = useUserInfo();
   const queryClient = useQueryClient();
   const overlayCtx = useContext(overlayContext);
@@ -85,7 +86,7 @@ function MobileMenuHeader({
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onPress={() => {
+            onClick={() => {
               setTimeout(() => {
                 onShowSessions();
                 if (overlayCtx?.isOpen) {
@@ -109,7 +110,7 @@ function MobileMenuHeader({
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onPress={() => {
+            onClick={() => {
               setTimeout(() => {
                 // Close mobile menu if it's open
                 if (overlayCtx?.isOpen) {
@@ -164,21 +165,22 @@ function MobileMenuHeader({
 
         {/* Support Section - styled like menu item */}
         <div className="flex items-center justify-between">
-          <SupportDialog>
-            <Button
-              variant="ghost"
-              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-              style={{ pointerEvents: "auto", touchAction: "none" }}
-            >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <MailQuestion className="h-5 w-5 stroke-current" />
-              </div>
-              <div className="overflow-hidden whitespace-nowrap text-start">
-                <Trans>Contact support</Trans>
-              </div>
-            </Button>
-          </SupportDialog>
+          <Button
+            variant="ghost"
+            onClick={() => setIsSupportDialogOpen(true)}
+            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+            style={{ pointerEvents: "auto", touchAction: "none" }}
+          >
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+              <MailQuestion className="h-5 w-5 stroke-current" />
+            </div>
+            <div className="overflow-hidden whitespace-nowrap text-start">
+              <Trans>Contact support</Trans>
+            </div>
+          </Button>
         </div>
+
+        <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />
       </div>
     </div>
   );

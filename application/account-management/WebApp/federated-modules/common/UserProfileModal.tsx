@@ -6,6 +6,7 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -180,8 +181,9 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   </Label>
 
                   <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-                    <Button
-                      variant="icon"
+                    <MenuButton
+                      variant="ghost"
+                      size="icon"
                       className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
                       aria-label={t`Change profile picture`}
                     >
@@ -194,7 +196,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                       ) : (
                         <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
                       )}
-                    </Button>
+                    </MenuButton>
                     <Menu>
                       <MenuItem
                         onAction={() => {
@@ -265,13 +267,13 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 <DialogFooter>
                   <Button
                     type="reset"
-                    onPress={handleCancel}
+                    onClick={handleCancel}
                     variant="secondary"
-                    isDisabled={isLoading || saveMutation.isPending}
+                    disabled={isLoading || saveMutation.isPending}
                   >
                     <Trans>Cancel</Trans>
                   </Button>
-                  <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>
+                  <Button type="submit" disabled={isLoading || saveMutation.isPending}>
                     {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
                   </Button>
                 </DialogFooter>

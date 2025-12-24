@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react";
 import type { Key } from "@react-types/shared";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { use, useMemo } from "react";
 import { preferredLocaleKey } from "./constants";
@@ -33,9 +33,9 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
 
   return (
     <MenuTrigger>
-      <Button variant="icon" aria-label={ariaLabel}>
-        <GlobeIcon className="h-5 w-5" />
-      </Button>
+      <MenuButton variant="ghost" size="icon-lg" aria-label={ariaLabel}>
+        <GlobeIcon className="size-5" />
+      </MenuButton>
       <Menu onAction={handleLocaleChange} aria-label={ariaLabel}>
         {items.map((item) => (
           <MenuItem key={item.id} id={item.id} textValue={item.label}>

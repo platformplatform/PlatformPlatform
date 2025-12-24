@@ -5,8 +5,8 @@ import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -78,7 +78,7 @@ export default function LocaleSwitcher({
   if (variant === "mobile-menu") {
     return (
       <MenuTrigger>
-        <Button
+        <MenuButton
           variant="ghost"
           className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
           style={{ pointerEvents: "auto" }}
@@ -90,7 +90,7 @@ export default function LocaleSwitcher({
             <Trans>Language</Trans>
           </div>
           <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>
-        </Button>
+        </MenuButton>
         <Menu onAction={handleLocaleChange} placement="bottom end">
           {locales.map((locale) => (
             <MenuItem key={locale.id} id={locale.id} textValue={locale.label}>
@@ -108,9 +108,9 @@ export default function LocaleSwitcher({
   // Icon variant
   const menuContent = (
     <MenuTrigger>
-      <Button variant="icon" aria-label={t`Change language`}>
-        <GlobeIcon className="h-5 w-5" />
-      </Button>
+      <MenuButton variant="ghost" size="icon-lg" aria-label={t`Change language`}>
+        <GlobeIcon className="size-5" />
+      </MenuButton>
       <Menu onAction={handleLocaleChange} aria-label={t`Change language`}>
         {locales.map((locale) => (
           <MenuItem key={locale.id} id={locale.id} textValue={locale.label}>

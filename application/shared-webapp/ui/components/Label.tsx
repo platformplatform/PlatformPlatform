@@ -31,7 +31,7 @@ export function Label({ className, tooltip, children, ...props }: Readonly<Label
       <span className="inline-flex items-center gap-2">
         {children}
         <TooltipTrigger delay={300}>
-          <Button variant="icon" className="h-4 w-4 p-0">
+          <Button variant="ghost" size="icon" className="h-4 w-4 p-0">
             <InfoIcon className="h-4 w-4 text-muted-foreground" />
           </Button>
           <Tooltip>{tooltip}</Tooltip>

@@ -232,7 +232,7 @@ export function CompleteSignupForm() {
           <Button
             type="submit"
             className="mt-4 w-full text-center"
-            isDisabled={
+            disabled={
               !isOneTimeCodeComplete ||
               isExpired ||
               completeSignupMutation.isPending ||
@@ -262,7 +262,7 @@ export function CompleteSignupForm() {
               <Button
                 type="submit"
                 variant="link"
-                isDisabled={resendSignupCodeMutation.isPending}
+                disabled={resendSignupCodeMutation.isPending}
                 className="h-auto p-0 text-sm"
               >
                 <Trans>Request a new code</Trans>
@@ -273,7 +273,7 @@ export function CompleteSignupForm() {
         <Link
           href="/signup"
           className="mt-2 text-xs"
-          onPress={() => {
+          onClick={() => {
             const signupState = getSignupState();
             clearSignupState();
             setSignupState({ email: signupState?.email ?? "" });

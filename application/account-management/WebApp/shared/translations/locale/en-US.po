@@ -660,6 +660,9 @@ msgstr "Restore {0} users"
 msgid "Restore user"
 msgstr "Restore user"
 
+msgid "Restoring..."
+msgstr "Restoring..."
+
 msgid "Revoke"
 msgstr "Revoke"
 
