@@ -10,8 +10,8 @@ import {
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
-import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
+import { fieldBorderStyles } from "./fieldStyles";
 import { focusRing } from "./focusRing";
 import { Group } from "./Group";
 import { Label } from "./Label";
