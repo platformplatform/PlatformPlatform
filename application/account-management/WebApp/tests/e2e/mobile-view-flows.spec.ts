@@ -99,7 +99,7 @@ test.describe("@comprehensive", () => {
       await expect(profileModal.getByLabel("First name")).toBeVisible();
       await expect(profileModal.getByLabel("Last name")).toBeVisible();
       await expect(profileModal.getByLabel("Email")).toBeVisible();
-      await expect(profileModal.getByLabel("Title")).toBeVisible();
+      await expect(profileModal.getByRole("textbox", { name: "Title" })).toBeVisible();
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
@@ -107,7 +107,7 @@ test.describe("@comprehensive", () => {
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
-      await profileModal.getByLabel("Title").fill(newTitle);
+      await profileModal.getByRole("textbox", { name: "Title" }).fill(newTitle);
       // Click save button
       await profileModal.getByRole("button", { name: "Save" }).click();
 

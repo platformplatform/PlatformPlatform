@@ -13,8 +13,8 @@ import {
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
-import { FieldGroup, fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
+import { FieldGroup, fieldBorderStyles } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 

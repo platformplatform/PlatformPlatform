@@ -15,8 +15,8 @@ import {
 import { Button } from "./Button";
 import { Description } from "./Description";
 import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Dropdown";
-import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
+import { FieldGroup } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";

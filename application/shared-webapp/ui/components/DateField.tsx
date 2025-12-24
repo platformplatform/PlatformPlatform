@@ -12,8 +12,8 @@ import {
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
-import { fieldGroupStyles } from "./Field";
 import { FieldError } from "./FieldError";
+import { fieldGroupStyles } from "./fieldStyles";
 import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 

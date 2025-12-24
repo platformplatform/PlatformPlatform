@@ -347,7 +347,6 @@ export function AccountSettings() {
             label={t`Account name`}
             tooltip={isOwner ? t`The name of your account, shown to users and in email notifications` : undefined}
             description={!isOwner ? t`Only account owners can modify the account name` : undefined}
-            validationBehavior="aria"
             onChange={() => setIsFormDirty(true)}
           />
           {isOwner && (
