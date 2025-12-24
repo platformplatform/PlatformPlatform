@@ -165,7 +165,6 @@ export default function UsersPage() {
               onDeleteUser={handleDeleteUser}
               onChangeRole={handleChangeRole}
               onUsersLoaded={handleUsersLoaded}
-              isProfileOpen={!!profileUser}
             />
           </div>
         </div>

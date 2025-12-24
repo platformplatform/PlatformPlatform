@@ -75,7 +75,7 @@ export function DeletedUsersToolbar({
   }
 
   return (
-    <div className="mb-4 flex items-center justify-end gap-2 bg-background/95 backdrop-blur-sm">
+    <div className="mb-4 flex items-center justify-end gap-2">
       {hasSelection ? (
         <>
           <Button

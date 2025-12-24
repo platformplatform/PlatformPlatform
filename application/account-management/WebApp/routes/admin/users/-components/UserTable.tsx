@@ -11,25 +11,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Pagination } from "@repo/ui/components/Pagination";
-import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { TablePagination } from "@repo/ui/components/TablePagination";
 import { Text } from "@repo/ui/components/Text";
 import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
-import { useKeyboardNavigation } from "@repo/ui/hooks/useKeyboardNavigation";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
-import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
+import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import type { Selection, SortDescriptor } from "react-aria-components";
-import { TableBody } from "react-aria-components";
+import { ArrowUp, EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { useInfiniteUsers } from "../-hooks/useInfiniteUsers";
 
 type UserDetails = components["schemas"]["UserDetails"];
+
+type SortDescriptor = {
+  column: string;
+  direction: "ascending" | "descending";
+};
 
 interface UserTableProps {
   selectedUsers: UserDetails[];
@@ -38,7 +40,6 @@ interface UserTableProps {
   onDeleteUser: (user: UserDetails) => void;
   onChangeRole: (user: UserDetails) => void;
   onUsersLoaded?: (users: UserDetails[]) => void;
-  isProfileOpen?: boolean;
 }
 
 export function UserTable({
@@ -47,21 +48,23 @@ export function UserTable({
   onViewProfile,
   onDeleteUser,
   onChangeRole,
-  onUsersLoaded,
-  isProfileOpen
+  onUsersLoaded
 }: Readonly<UserTableProps>) {
   const navigate = useNavigate();
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
     strict: false
   });
   const userInfo = useUserInfo();
+  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
     column: orderBy ?? SortableUserProperties.Name,
     direction: sortOrder === SortOrder.Descending ? "descending" : "ascending"
   }));
-  const isKeyboardNavigation = useKeyboardNavigation();
   const isMobile = useViewportResize();
+  const [focusedRowIndex, setFocusedRowIndex] = useState<number>(-1);
+
+  const selectedUserIds = useMemo(() => new Set(selectedUsers.map((user) => user.id)), [selectedUsers]);
 
   // Use regular query for desktop
   const { data: desktopUsers, isLoading: isDesktopLoading } = api.useQuery("get", "/api/account-management/users", {
@@ -116,11 +119,18 @@ export function UserTable({
   );
 
   const handleSortChange = useCallback(
-    (newSortDescriptor: SortDescriptor) => {
+    (columnId: string) => {
+      const newDirection =
+        sortDescriptor.column === columnId && sortDescriptor.direction === "ascending" ? "descending" : "ascending";
+
+      const newSortDescriptor: SortDescriptor = {
+        column: columnId,
+        direction: newDirection
+      };
       setSortDescriptor(newSortDescriptor);
-      const newOrderBy = (newSortDescriptor.column?.toString() ??
-        SortableUserProperties.Name) as SortableUserProperties;
-      const newSortOrder = newSortDescriptor.direction === "ascending" ? SortOrder.Ascending : SortOrder.Descending;
+
+      const newOrderBy = columnId as SortableUserProperties;
+      const newSortOrder = newDirection === "ascending" ? SortOrder.Ascending : SortOrder.Descending;
 
       navigate({
         to: "/admin/users",
@@ -132,7 +142,7 @@ export function UserTable({
         })
       });
     },
-    [navigate]
+    [navigate, sortDescriptor]
   );
 
   useEffect(() => {
@@ -145,67 +155,94 @@ export function UserTable({
     }
   }, [users?.users, onUsersLoaded]);
 
-  const handleSelectionChange = useCallback(
-    (keys: Selection) => {
-      if (keys === "all") {
-        onSelectedUsersChange(users?.users ?? []);
-        onViewProfile(null);
+  const handleRowClick = useCallback(
+    (user: UserDetails, event: React.MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest("button") || target.closest('[role="menuitem"]')) {
         return;
       }
 
-      const selectedUsersList = users?.users.filter((user) => keys.has(user.id)) ?? [];
-      onSelectedUsersChange(selectedUsersList);
+      const usersList = users?.users ?? [];
+      const clickedIndex = usersList.findIndex((u) => u.id === user.id);
+      const isSelected = selectedUserIds.has(user.id);
+      const isCtrlOrCmd = event.ctrlKey || event.metaKey;
+      const isShift = event.shiftKey;
 
-      // Handle profile viewing
-      if (selectedUsersList.length !== 1) {
+      if (isCtrlOrCmd) {
+        // Ctrl/Cmd+click: toggle individual row in selection
+        if (isSelected) {
+          const newSelection = selectedUsers.filter((u) => u.id !== user.id);
+          onSelectedUsersChange(newSelection);
+        } else {
+          onSelectedUsersChange([...selectedUsers, user]);
+        }
         onViewProfile(null);
-        return;
-      }
-
-      // Single user selected - check if we should auto-open profile
-      if (isKeyboardNavigation) {
-        return; // Don't auto-open on keyboard navigation
-      }
-
-      // For touch devices in single selection mode, always open profile
-      if (isTouchDevice() || !isMediumViewportOrLarger()) {
-        onViewProfile(selectedUsersList[0], false);
-      } else if (isMediumViewportOrLarger()) {
-        // For desktop, also open profile
-        onViewProfile(selectedUsersList[0], false);
+      } else if (isShift && selectedUsers.length > 0) {
+        // Shift+click: range select from first selected to clicked
+        const firstSelectedIndex = usersList.findIndex((u) => u.id === selectedUsers[0].id);
+        const start = Math.min(firstSelectedIndex, clickedIndex);
+        const end = Math.max(firstSelectedIndex, clickedIndex);
+        const rangeUsers = usersList.slice(start, end + 1);
+        onSelectedUsersChange(rangeUsers);
+        onViewProfile(null);
+      } else if (isSelected && selectedUsers.length === 1) {
+        // Click on only selected row: unselect and close sidebar
+        onSelectedUsersChange([]);
+        onViewProfile(null);
+      } else {
+        // Regular click: single select and open sidebar
+        onSelectedUsersChange([user]);
+        onViewProfile(user, false);
       }
     },
-    [users?.users, onSelectedUsersChange, onViewProfile, isKeyboardNavigation]
+    [users?.users, selectedUserIds, selectedUsers, onSelectedUsersChange, onViewProfile]
   );
 
-  // Handle Enter key to open profile
+  // Handle keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Enter" || selectedUsers.length !== 1) {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const usersList = users?.users ?? [];
+      if (!usersList.length) {
         return;
       }
 
-      const activeElement = document.activeElement;
-      const tableContainer = document.querySelector(".min-h-0.flex-1");
-      if (!tableContainer?.contains(activeElement)) {
+      const tableContainer = tableContainerRef.current;
+      if (!tableContainer?.contains(document.activeElement)) {
         return;
       }
 
-      const target = e.target as HTMLElement;
+      const target = event.target as HTMLElement;
       if (target.tagName === "BUTTON" || target.closest("button")) {
         return;
       }
 
-      e.preventDefault();
-      e.stopPropagation();
-      onViewProfile(selectedUsers[0], true);
+      const currentIndex = selectedUsers.length === 1 ? usersList.findIndex((u) => u.id === selectedUsers[0].id) : -1;
+
+      // Enter or Space: open sidebar for selected user
+      if ((event.key === "Enter" || event.key === " ") && selectedUsers.length === 1) {
+        event.preventDefault();
+        event.stopPropagation();
+        onViewProfile(selectedUsers[0], true);
+        return;
+      }
+
+      // Arrow keys: navigate and select
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        let nextIndex: number;
+        if (event.key === "ArrowDown") {
+          nextIndex = currentIndex < usersList.length - 1 ? currentIndex + 1 : 0;
+        } else {
+          nextIndex = currentIndex > 0 ? currentIndex - 1 : usersList.length - 1;
+        }
+        setFocusedRowIndex(nextIndex);
+        onSelectedUsersChange([usersList[nextIndex]]);
+      }
     };
 
     document.addEventListener("keydown", handleKeyDown, true);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown, true);
-    };
-  }, [selectedUsers, onViewProfile]);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [selectedUsers, onViewProfile, users?.users, onSelectedUsersChange]);
 
   // Use infinite scroll hook for mobile
   const loadMoreRef = useInfiniteScroll({
@@ -223,143 +260,182 @@ export function UserTable({
 
   return (
     <>
-      <div className="min-h-48 flex-1">
-        <Table
-          key={pageOffset}
-          selectionMode={isTouchDevice() || !isMediumViewportOrLarger() ? "single" : "multiple"}
-          selectionBehavior="replace"
-          selectedKeys={new Set(selectedUsers.map((user) => user.id))}
-          onSelectionChange={handleSelectionChange}
-          sortDescriptor={sortDescriptor}
-          onSortChange={handleSortChange}
-          aria-label={t`Users`}
-          className={isMobile ? "[&>div>div>div]:-webkit-overflow-scrolling-touch" : ""}
-          disableHorizontalScroll={isProfileOpen}
-        >
-          <TableHeader>
-            <Column
-              allowsSorting={true}
-              id={SortableUserProperties.Name}
-              isRowHeader={true}
-              minWidth={isSmallViewportOrLarger() ? 250 : undefined}
-            >
-              <Trans>Name</Trans>
-            </Column>
-            {isSmallViewportOrLarger() && (
-              <Column minWidth={160} allowsSorting={true} id={SortableUserProperties.Email}>
-                <Trans>Email</Trans>
-              </Column>
-            )}
-            {isMediumViewportOrLarger() && (
-              <Column minWidth={65} defaultWidth={110} allowsSorting={true} id={SortableUserProperties.CreatedAt}>
-                <Trans>Created</Trans>
-              </Column>
-            )}
-            {isMediumViewportOrLarger() && (
-              <Column minWidth={65} defaultWidth={140} allowsSorting={true} id={SortableUserProperties.LastSeenAt}>
-                <Trans>Last seen</Trans>
-              </Column>
-            )}
-            {isSmallViewportOrLarger() && (
-              <Column width={135} allowsSorting={true} id={SortableUserProperties.Role}>
-                <Trans>Role</Trans>
-              </Column>
-            )}
+      <div ref={tableContainerRef} className="min-h-48 flex-1 overflow-auto">
+        <Table aria-label={t`Users`}>
+          <TableHeader className="sticky top-0 z-10 bg-inherit">
+            <TableRow>
+              <TableHead
+                className={`cursor-pointer select-none ${isSmallViewportOrLarger() ? "min-w-[250px]" : ""}`}
+                onClick={() => handleSortChange(SortableUserProperties.Name)}
+              >
+                <div className="flex items-center gap-1 font-bold text-xs">
+                  <span>
+                    <Trans>Name</Trans>
+                  </span>
+                  <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Name} />
+                </div>
+              </TableHead>
+              {isSmallViewportOrLarger() && (
+                <TableHead
+                  className="min-w-[160px] cursor-pointer select-none"
+                  onClick={() => handleSortChange(SortableUserProperties.Email)}
+                >
+                  <div className="flex items-center gap-1 font-bold text-xs">
+                    <span>
+                      <Trans>Email</Trans>
+                    </span>
+                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Email} />
+                  </div>
+                </TableHead>
+              )}
+              {isMediumViewportOrLarger() && (
+                <TableHead
+                  className="w-[110px] min-w-[65px] cursor-pointer select-none"
+                  onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
+                >
+                  <div className="flex items-center gap-1 font-bold text-xs">
+                    <span>
+                      <Trans>Created</Trans>
+                    </span>
+                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.CreatedAt} />
+                  </div>
+                </TableHead>
+              )}
+              {isMediumViewportOrLarger() && (
+                <TableHead
+                  className="w-[120px] min-w-[65px] cursor-pointer select-none"
+                  onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
+                >
+                  <div className="flex items-center gap-1 font-bold text-xs">
+                    <span>
+                      <Trans>Last seen</Trans>
+                    </span>
+                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.LastSeenAt} />
+                  </div>
+                </TableHead>
+              )}
+              {isSmallViewportOrLarger() && (
+                <TableHead
+                  className="w-[135px] cursor-pointer select-none"
+                  onClick={() => handleSortChange(SortableUserProperties.Role)}
+                >
+                  <div className="flex items-center gap-1 font-bold text-xs">
+                    <span>
+                      <Trans>Role</Trans>
+                    </span>
+                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Role} />
+                  </div>
+                </TableHead>
+              )}
+            </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.users.map((user) => (
-              <Row key={user.id} id={user.id}>
-                <Cell>
-                  <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
-                    <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
-                      <Avatar
-                        initials={getInitials(user.firstName, user.lastName, user.email)}
-                        avatarUrl={user.avatarUrl}
-                        size="sm"
-                        isRound={true}
-                      />
-                      <div className="flex min-w-0 flex-1 flex-col">
-                        <div className="flex items-center gap-2 truncate text-foreground">
-                          <span className="truncate">
-                            {user.firstName || user.lastName
-                              ? `${user.firstName} ${user.lastName}`.trim()
-                              : !isSmallViewportOrLarger()
-                                ? user.email
-                                : ""}
-                          </span>
-                          {user.emailConfirmed ? null : (
-                            <Badge variant="outline" className="shrink-0">
-                              <Trans>Pending</Trans>
-                            </Badge>
-                          )}
+            {users?.users.map((user, index) => {
+              const isSelected = selectedUserIds.has(user.id);
+              return (
+                <TableRow
+                  key={user.id}
+                  data-state={isSelected ? "selected" : undefined}
+                  className={`cursor-pointer select-none ${isSelected ? "bg-active-background hover:bg-active-background" : "hover:bg-hover-background"}`}
+                  onClick={(event) => handleRowClick(user, event)}
+                  onFocus={() => setFocusedRowIndex(index)}
+                  tabIndex={index === focusedRowIndex ? 0 : -1}
+                >
+                  <TableCell>
+                    <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
+                      <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
+                        <Avatar
+                          initials={getInitials(user.firstName, user.lastName, user.email)}
+                          avatarUrl={user.avatarUrl}
+                          size="sm"
+                          isRound={true}
+                        />
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <div className="flex items-center gap-2 truncate text-foreground">
+                            <span className="truncate">
+                              {user.firstName || user.lastName
+                                ? `${user.firstName} ${user.lastName}`.trim()
+                                : !isSmallViewportOrLarger()
+                                  ? user.email
+                                  : ""}
+                            </span>
+                            {user.emailConfirmed ? null : (
+                              <Badge variant="outline" className="shrink-0">
+                                <Trans>Pending</Trans>
+                              </Badge>
+                            )}
+                          </div>
+                          <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
                         </div>
-                        <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
                       </div>
                     </div>
-                  </div>
-                </Cell>
-                {isSmallViewportOrLarger() && (
-                  <Cell>
-                    <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
-                  </Cell>
-                )}
-                {isMediumViewportOrLarger() && (
-                  <Cell>
-                    <SmartDate date={user.createdAt} className="text-foreground" />
-                  </Cell>
-                )}
-                {isMediumViewportOrLarger() && (
-                  <Cell>
-                    <SmartDate date={user.lastSeenAt} className="text-foreground" />
-                  </Cell>
-                )}
-                {isSmallViewportOrLarger() && (
-                  <Cell>
-                    <div className="flex h-full w-full items-center justify-between p-0">
-                      <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                      <DropdownMenu
-                        onOpenChange={(isOpen) => {
-                          if (isOpen) {
-                            onSelectedUsersChange([user]);
-                          }
-                        }}
-                      >
-                        <DropdownMenuTrigger
-                          render={
-                            <Button variant="ghost" size="icon" aria-label={t`User actions`}>
-                              <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                            </Button>
-                          }
-                        />
-                        <DropdownMenuContent className="w-auto">
-                          <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
-                            <UserIcon className="h-4 w-4" />
-                            <Trans>View profile</Trans>
-                          </DropdownMenuItem>
-                          {userInfo?.role === "Owner" && (
-                            <>
-                              <DropdownMenuItem disabled={user.id === userInfo?.id} onClick={() => onChangeRole(user)}>
-                                <SettingsIcon className="h-4 w-4" />
-                                <Trans>Change role</Trans>
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                disabled={user.id === userInfo?.id}
-                                variant="destructive"
-                                onClick={() => onDeleteUser(user)}
-                              >
-                                <Trash2Icon className="h-4 w-4" />
-                                <Trans>Delete</Trans>
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </Cell>
-                )}
-              </Row>
-            ))}
+                  </TableCell>
+                  {isSmallViewportOrLarger() && (
+                    <TableCell>
+                      <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                    </TableCell>
+                  )}
+                  {isMediumViewportOrLarger() && (
+                    <TableCell>
+                      <SmartDate date={user.createdAt} className="text-foreground" />
+                    </TableCell>
+                  )}
+                  {isMediumViewportOrLarger() && (
+                    <TableCell>
+                      <SmartDate date={user.lastSeenAt} className="text-foreground" />
+                    </TableCell>
+                  )}
+                  {isSmallViewportOrLarger() && (
+                    <TableCell>
+                      <div className="flex h-full w-full items-center justify-between p-0">
+                        <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                        <DropdownMenu
+                          onOpenChange={(isOpen) => {
+                            if (isOpen) {
+                              onSelectedUsersChange([user]);
+                            }
+                          }}
+                        >
+                          <DropdownMenuTrigger
+                            render={
+                              <Button variant="ghost" size="icon" aria-label={t`User actions`}>
+                                <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                              </Button>
+                            }
+                          />
+                          <DropdownMenuContent className="w-auto">
+                            <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
+                              <UserIcon className="h-4 w-4" />
+                              <Trans>View profile</Trans>
+                            </DropdownMenuItem>
+                            {userInfo?.role === "Owner" && (
+                              <>
+                                <DropdownMenuItem
+                                  disabled={user.id === userInfo?.id}
+                                  onClick={() => onChangeRole(user)}
+                                >
+                                  <SettingsIcon className="h-4 w-4" />
+                                  <Trans>Change role</Trans>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  disabled={user.id === userInfo?.id}
+                                  variant="destructive"
+                                  onClick={() => onDeleteUser(user)}
+                                >
+                                  <Trash2Icon className="h-4 w-4" />
+                                  <Trans>Delete</Trans>
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
@@ -369,8 +445,8 @@ export function UserTable({
 
       {/* Desktop: Regular pagination */}
       {!isMobile && users && (
-        <div className="flex-shrink-0 bg-background pt-4">
-          <Pagination
+        <div className="flex-shrink-0 pt-4">
+          <TablePagination
             paginationSize={9}
             currentPage={currentPage}
             totalPages={users.totalPages ?? 1}
@@ -382,5 +458,24 @@ export function UserTable({
         </div>
       )}
     </>
+  );
+}
+
+interface SortIndicatorProps {
+  sortDescriptor: SortDescriptor;
+  columnId: string;
+}
+
+function SortIndicator({ sortDescriptor, columnId }: Readonly<SortIndicatorProps>) {
+  if (sortDescriptor.column !== columnId) {
+    return null;
+  }
+
+  return (
+    <span
+      className={`flex h-4 w-4 items-center justify-center transition ${sortDescriptor.direction === "descending" ? "rotate-180" : ""}`}
+    >
+      <ArrowUp aria-hidden={true} className="h-4 w-4 text-muted-foreground" />
+    </span>
   );
 }

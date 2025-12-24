@@ -251,7 +251,7 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <section
         ref={sidePaneRef}
-        className={`relative flex h-full w-full flex-col border-border border-l bg-background ${isSmallScreen ? "fixed inset-0 z-[46]" : ""}`}
+        className={`relative flex h-full w-full flex-col border-border border-l ${isSmallScreen ? "fixed inset-0 z-[46] bg-card" : ""}`}
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
@@ -322,7 +322,7 @@ export function UserProfileSidePane({
 
         {/* Quick Actions */}
         {userInfo?.role === "Owner" && user && (
-          <div className="relative mt-auto border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="relative mt-auto border-border border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button
               variant="destructive"
               onClick={() => onDeleteUser(user)}

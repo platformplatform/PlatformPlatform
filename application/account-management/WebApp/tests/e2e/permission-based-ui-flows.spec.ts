@@ -297,28 +297,33 @@ test.describe("@smoke", () => {
     })();
 
     await step("Select multiple users as Owner & verify bulk delete button appears")(async () => {
-      // Select the first two invited users - use first tbody due to mobile rendering
-      const rows = page.locator("tbody").first().locator("tr");
+      // Set desktop viewport to enable multi-select mode
+      await page.setViewportSize({ width: 1280, height: 720 });
+
+      // Wait for table to re-render after viewport change and verify rows are visible
+      const table = page.getByRole("table", { name: "Users" });
+      await expect(table).toBeVisible();
+      const rows = table.locator("tbody tr");
+      await expect(rows).toHaveCount(4);
+
       const secondRow = rows.nth(1); // First invited user
       const thirdRow = rows.nth(2); // Second invited user
 
-      // Select first user using force click to bypass visibility
-      await secondRow.dispatchEvent("click");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select first user
+      await secondRow.click({ force: true });
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
-      // Select second user with Ctrl/Cmd modifier - use evaluate to simulate click with modifier
-      await page.keyboard.down("ControlOrMeta");
-      await thirdRow.dispatchEvent("click");
-      await page.keyboard.up("ControlOrMeta");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select second user with Ctrl/Cmd modifier for multi-select
+      await thirdRow.click({ modifiers: ["ControlOrMeta"] });
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify bulk delete button is visible for Owner
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
 
       // Ensure the selections are stable and the UI has updated
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
     })();
 
     await step("Log out as owner and log in as member & verify authentication")(async () => {
@@ -330,8 +335,8 @@ test.describe("@smoke", () => {
       const allRows = page.locator("tbody").first().locator("tr");
       const secondRow = allRows.nth(1);
       const thirdRow = allRows.nth(2);
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
@@ -377,28 +382,28 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to users page as Member & verify no bulk operations available")(async () => {
+      // Set viewport to 2xl to avoid side pane backdrop issues before navigating
+      await page.setViewportSize({ width: 1536, height: 1024 });
       await page.goto("/admin/users");
 
       // Ensure we can see the users that were created
       // Use first tbody due to mobile rendering creating duplicate tables
       await expect(page.locator("tbody").first().locator("tr")).toHaveCount(4);
 
-      // Try to select rows (member can still select, but no bulk actions should appear)
-      // Set viewport to 2xl to avoid side pane backdrop issues
-      await page.setViewportSize({ width: 1536, height: 1024 });
-
-      const rows = page.locator("tbody").first().locator("tr");
+      const table = page.getByRole("table", { name: "Users" });
+      await expect(table).toBeVisible();
+      const rows = table.locator("tbody tr");
       const secondRow = rows.nth(1);
       const thirdRow = rows.nth(2);
 
-      // Select users as Member using force click to bypass visibility
-      await secondRow.dispatchEvent("click");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select first user as Member
+      await secondRow.scrollIntoViewIfNeeded();
+      await secondRow.click();
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
-      await page.keyboard.down("ControlOrMeta");
-      await thirdRow.dispatchEvent("click");
-      await page.keyboard.up("ControlOrMeta");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      // Select second user with Ctrl/Cmd modifier
+      await thirdRow.click({ modifiers: ["ControlOrMeta"] });
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Verify bulk delete button is NOT visible for Member even with selections
       await expect(page.getByRole("button", { name: "Delete 2 users" })).not.toBeVisible();

@@ -384,7 +384,7 @@ test.describe("@smoke", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from owner account & verify redirect to login")(async () => {
@@ -442,7 +442,7 @@ test.describe("@smoke", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from admin account & verify redirect to login")(async () => {
@@ -866,7 +866,7 @@ test.describe("@comprehensive", () => {
 
     // === OWNER PROTECTION SECTION ===
     await step("Open owner actions menu & verify delete option is disabled")(async () => {
-      const usersGrid = page.getByRole("grid", { name: "Users" });
+      const usersGrid = page.getByRole("table", { name: "Users" });
       const ownerRow = usersGrid.getByRole("row").filter({ hasText: owner.email });
       await ownerRow.getByRole("button", { name: "User actions" }).click();
 
@@ -880,13 +880,13 @@ test.describe("@comprehensive", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       await expect(deletedUsersGrid).toContainText(user1.email);
       await expect(deletedUsersGrid).toContainText(user2.email);
     })();
 
     await step("Select user1 row & restore via toolbar button")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user1Row = deletedUsersGrid.locator("tr").filter({ hasText: user1.email });
       await user1Row.click();
 
@@ -902,7 +902,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Select user2 row & permanently delete via toolbar")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user2Row = deletedUsersGrid.locator("tr").filter({ hasText: user2.email });
       await user2Row.click();
 
@@ -921,7 +921,7 @@ test.describe("@comprehensive", () => {
 
       await expect(deleteDialog).not.toBeVisible();
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).not.toBeVisible();
+      await expect(page.getByRole("table", { name: "Deleted users" })).not.toBeVisible();
       await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
     })();
 

@@ -1,184 +1,70 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/table--docs
- * ref: https://ui.shadcn.com/docs/components/table
- */
-import { ArrowUp } from "lucide-react";
-import {
-  Cell as AriaCell,
-  type CellProps as AriaCellProps,
-  Checkbox as AriaCheckbox,
-  Column as AriaColumn,
-  Row as AriaRow,
-  Table as AriaTable,
-  TableHeader as AriaTableHeader,
-  Button,
-  Collection,
-  type ColumnProps,
-  ColumnResizer,
-  composeRenderProps,
-  Group,
-  ResizableTableContainer,
-  type RowProps,
-  type TableHeaderProps,
-  type TableProps,
-  useTableOptions
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { useAxisLock } from "../hooks/useAxisLock";
-import { isTouchDevice } from "../utils/responsive";
-import { focusRing } from "./focusRing";
-import { composeTailwindRenderProps } from "./utils";
+import type * as React from "react";
 
-export { TableBody, useContextProps } from "react-aria-components";
+import { cn } from "../utils";
 
-interface ExtendedTableProps extends TableProps {
-  disableHorizontalScroll?: boolean;
-}
-
-export function Table({ disableHorizontalScroll, ...props }: Readonly<ExtendedTableProps>) {
-  const scrollRef = useAxisLock<HTMLDivElement>();
-  const isMobile = isTouchDevice();
-
+function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div className="relative h-full w-full">
-      <div className="absolute top-0 right-0 bottom-0 left-0 overflow-hidden">
-        <ResizableTableContainer
-          ref={scrollRef}
-          className={`relative h-full w-full scroll-pt-[2.281rem] overflow-auto rounded-md ${
-            disableHorizontalScroll && isMobile ? "overflow-x-hidden" : ""
-          }`}
-        >
-          <AriaTable {...props} className="border-separate border-spacing-0" />
-        </ResizableTableContainer>
-      </div>
+    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+      <table data-slot="table" className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
   );
 }
 
-const columnStyles = tv({
-  extend: focusRing,
-  base: "flex w-full items-center gap-1 font-bold text-xs"
-});
+function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+  return <thead data-slot="table-header" className={cn("[&_tr]:border-b", className)} {...props} />;
+}
 
-const resizerStyles = tv({
-  extend: focusRing,
-  base: "column-resizer absolute right-0 box-content h-6 w-px shrink-0 translate-x-2 cursor-col-resize rounded bg-clip-content px-2 py-1 -outline-offset-2",
-  variants: {
-    isResizing: {
-      false: "bg-border forced-colors:bg-[ButtonBorder]",
-      true: "bg-ring forced-colors:bg-[Highlight]"
-    },
-    isHovered: {
-      true: "bg-muted-foreground/80"
-    }
-  }
-});
+function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+  return <tbody data-slot="table-body" className={cn("[&_tr:last-child]:border-0", className)} {...props} />;
+}
 
-export function Column({ children, className, ...props }: Readonly<ColumnProps>) {
+function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
-    <AriaColumn
+    <tfoot
+      data-slot="table-footer"
+      className={cn("border-t bg-muted/50 font-medium [&>tr]:last:border-b-0", className)}
       {...props}
-      className={composeTailwindRenderProps(
-        className,
-        "relative h-12 cursor-default text-start text-foreground/70 [&:focus-within]:z-20 [&:hover]:z-20"
-      )}
-    >
-      {composeRenderProps(children, (children, { allowsSorting, sortDirection }) => (
-        <div className="flex w-full items-center px-2">
-          <Group role="presentation" tabIndex={-1} className={columnStyles}>
-            <span className="truncate">{children}</span>
-            {allowsSorting && (
-              <span
-                className={`flex h-4 w-4 items-center justify-center transition ${
-                  sortDirection === "descending" ? "rotate-180" : ""
-                }`}
-              >
-                {sortDirection && (
-                  <ArrowUp
-                    aria-hidden={true}
-                    className="h-4 w-4 text-muted-foreground forced-colors:text-[ButtonText]"
-                  />
-                )}
-              </span>
-            )}
-          </Group>
-          {!props.width && <ColumnResizer className={(rp) => resizerStyles(rp)} />}
-        </div>
-      ))}
-    </AriaColumn>
+    />
   );
 }
 
-export function TableHeader<T extends object>({
-  className,
-  children,
-  ...tableHeaderProps
-}: Readonly<TableHeaderProps<T>>) {
-  const { selectionBehavior, selectionMode, allowsDragging } = useTableOptions();
-
+function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
-    <AriaTableHeader
-      {...tableHeaderProps}
-      className={composeTailwindRenderProps(
-        className,
-        "sticky top-0 z-10 rounded-lg bg-background backdrop-blur-3xl supports-[-moz-appearance:none]:bg-accent forced-colors:bg-[Canvas] [&>tr>th:first-child]:pl-4 [&>tr>th:last-child]:pr-4 [&>tr>th:last-child_.column-resizer]:hidden"
-      )}
-    >
-      {/* Add extra columns for drag and drop and selection. */}
-      {allowsDragging && <Column />}
-      {selectionBehavior === "toggle" && (
-        <AriaColumn width={52} minWidth={52}>
-          {selectionMode === "multiple" && <AriaCheckbox slot="selection" />}
-        </AriaColumn>
-      )}
-      <Collection items={tableHeaderProps.columns}>{children}</Collection>
-    </AriaTableHeader>
+    <tr
+      data-slot="table-row"
+      className={cn("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className)}
+      {...props}
+    />
   );
 }
 
-const rowStyles = tv({
-  extend: focusRing,
-  base: "group/row relative cursor-default select-none font-normal text-sm -outline-offset-2 transition-colors [&>td:first-child]:pl-4 [&>td:last-child]:pr-4",
-  variants: {
-    isDisabled: {
-      false: "text-muted-foreground hover:bg-hover-background",
-      true: "text-muted-foreground/90"
-    },
-    isSelected: {
-      true: "rounded-md bg-active-background hover:bg-active-background"
-    }
-  }
-});
-
-export function Row<T extends object>({ id, columns, children, ...rowProps }: Readonly<RowProps<T>>) {
-  const { selectionBehavior, allowsDragging } = useTableOptions();
-
+function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
-    <AriaRow id={id} {...rowProps} className={rowStyles}>
-      {allowsDragging && (
-        <Cell>
-          <Button slot="drag">≡</Button>
-        </Cell>
+    <th
+      data-slot="table-head"
+      className={cn(
+        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground [&:has([role=checkbox])]:pr-0",
+        className
       )}
-      {selectionBehavior === "toggle" && (
-        <Cell>
-          <AriaCheckbox slot="selection" />
-        </Cell>
-      )}
-      <Collection items={columns}>{children}</Collection>
-    </AriaRow>
+      {...props}
+    />
   );
 }
 
-const cellStyles = tv({
-  extend: focusRing,
-  base: "truncate border-b border-b-border p-2 -outline-offset-2 group-first/row:border-y group-first/row:border-t-border group-last/row:border-b-0"
-});
-
-type CellProps = {
-  className?: string;
-} & AriaCellProps;
-
-export function Cell({ className, ...props }: Readonly<CellProps>) {
-  return <AriaCell {...props} className={(renderProps) => cellStyles({ ...renderProps, className })} />;
+function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+  return (
+    <td
+      data-slot="table-cell"
+      className={cn("whitespace-nowrap p-2 align-middle [&:has([role=checkbox])]:pr-0", className)}
+      {...props}
+    />
+  );
 }
+
+function TableCaption({ className, ...props }: React.ComponentProps<"caption">) {
+  return (
+    <caption data-slot="table-caption" className={cn("mt-4 text-muted-foreground text-sm", className)} {...props} />
+  );
+}
+
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption };
