@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
@@ -14,7 +13,7 @@ import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useContext, useEffect, useRef, useState } from "react";
-import { FileTrigger, Form, Label } from "react-aria-components";
+import { Dialog, FileTrigger, Form, Label } from "react-aria-components";
 import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api, type Schemas } from "@/shared/lib/api/client";
 

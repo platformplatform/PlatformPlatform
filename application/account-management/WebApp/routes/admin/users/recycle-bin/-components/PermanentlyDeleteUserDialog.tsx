@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
+import { AlertDialog, AlertDialogRoot } from "@repo/ui/components/AlertDialog";
 import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -35,8 +34,6 @@ export function PermanentlyDeleteUserDialog({
   const isSingleUser = users.length === 1;
   const user = users[0];
   const userDisplayName = isSingleUser ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || user?.email : "";
-  const isPending =
-    purgeUserMutation.isPending || bulkPurgeUsersMutation.isPending || emptyRecycleBinMutation.isPending;
 
   const handleDelete = useCallback(async () => {
     if (isEmptyRecycleBin) {
@@ -145,7 +142,7 @@ export function PermanentlyDeleteUserDialog({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={!isPending}>
+    <AlertDialogRoot open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialog
         title={getDialogTitle()}
         variant="destructive"
@@ -155,6 +152,6 @@ export function PermanentlyDeleteUserDialog({
       >
         {getDialogContent()}
       </AlertDialog>
-    </Modal>
+    </AlertDialogRoot>
   );
 }

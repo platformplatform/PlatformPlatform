@@ -1,26 +1,21 @@
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
-import { type ReactNode, useId } from "react";
-import type { DialogProps } from "react-aria-components";
+import { type ReactNode, useId, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
 import { Button } from "./Button";
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
- * ref: https://ui.shadcn.com/docs/components/alert-dialog
- */
-import { Dialog } from "./Dialog";
-import { Heading } from "./Heading";
+import { Dialog, DialogClose, DialogContent, DialogTitle } from "./Dialog";
 
-interface AlertDialogProps extends Omit<DialogProps, "children"> {
+interface AlertDialogProps {
   title: string;
   children: ReactNode;
   variant?: "info" | "destructive";
   actionLabel?: string;
   cancelLabel?: string;
   onAction?: () => void;
+  className?: string;
 }
 
-const alertDialogContents = tv({
+const alertDialogIconStyles = tv({
   base: "absolute top-6 right-6 h-6 w-6 stroke-2",
   variants: {
     variant: {
@@ -41,42 +36,51 @@ export function AlertDialog({
   actionLabel,
   onAction,
   children,
-  ...props
+  className
 }: Readonly<AlertDialogProps>) {
   const contentId = useId();
+  const [isPending, setIsPending] = useState(false);
+
+  const handleAction = async () => {
+    if (onAction) {
+      setIsPending(true);
+      try {
+        await onAction();
+      } finally {
+        setIsPending(false);
+      }
+    }
+  };
+
   return (
-    <Dialog
+    <DialogContent
       role="alertdialog"
       aria-describedby={contentId}
-      {...props}
-      className={twMerge("sm:w-dialog-md", props.className)}
+      showCloseButton={false}
+      className={twMerge("sm:w-dialog-md", className)}
     >
-      {({ close }) => (
-        <>
-          <Heading slot="title">{title}</Heading>
-          <div className={alertDialogContents({ variant })}>
-            {variant === "destructive" ? <AlertCircleIcon aria-hidden={true} /> : <InfoIcon aria-hidden={true} />}
-          </div>
-          <div id={contentId}>{children}</div>
-          {actionLabel && (
-            <fieldset className="flex justify-end gap-2 pt-10">
-              <Button variant="secondary" onClick={close}>
-                {cancelLabel ?? "Cancel"}
-              </Button>
-              <Button
-                variant={variant === "destructive" ? "destructive" : "default"}
-                autoFocus={true}
-                onClick={() => {
-                  onAction?.();
-                  close();
-                }}
-              >
-                {actionLabel}
-              </Button>
-            </fieldset>
-          )}
-        </>
+      <DialogTitle>{title}</DialogTitle>
+      <div className={alertDialogIconStyles({ variant })}>
+        {variant === "destructive" ? <AlertCircleIcon aria-hidden={true} /> : <InfoIcon aria-hidden={true} />}
+      </div>
+      <div id={contentId}>{children}</div>
+      {actionLabel && (
+        <fieldset className="flex justify-end gap-2 pt-10">
+          <DialogClose render={<Button variant="secondary" disabled={isPending} />}>
+            {cancelLabel ?? "Cancel"}
+          </DialogClose>
+          <Button
+            variant={variant === "destructive" ? "destructive" : "default"}
+            autoFocus={true}
+            disabled={isPending}
+            onClick={handleAction}
+          >
+            {actionLabel}
+          </Button>
+        </fieldset>
       )}
-    </Dialog>
+    </DialogContent>
   );
 }
+
+export { Dialog as AlertDialogRoot };

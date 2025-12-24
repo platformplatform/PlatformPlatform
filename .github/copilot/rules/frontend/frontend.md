@@ -88,15 +88,16 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
 
 5. Z-index layering for fixed-position elements (don't invent new values):
    - `z-0` to `z-20`: Content layers (sticky headers, table headers)
-   - `z-30` to `z-40`: Navigation (top bar, mobile header)
-   - `z-60`: Side menu collapsed
-   - `z-70`: Side panes (backdrop at `z-[65]`)
-   - `z-80`: Side menu expanded in overlay mode (backdrop at `z-[75]`)
-   - `z-90`: Modal dialogs
-   - `z-100`: High priority modals (nested, confirmations)
-   - `z-[150]`: Toasts (always visible for user feedback)
+   - `z-30`: Mobile header
+   - `z-40`: Desktop top bar
+   - `z-[42]`: Side menu (collapsed and expanded)
+   - `z-[45]`: Backdrops (side panes, menu overlays)
+   - `z-[46]`: Side panes, side menu in overlay mode
+   - `z-[48]`: Add to homescreen banner
+   - `z-50`: **Dialogs, dropdowns, popovers, tooltips** (ShadCN default - never modify)
+   - `z-[60]`: Toasts (always visible, even when dialogs are open)
    - `z-[200]`: Mobile full-screen menus
-   - Note: Dropdowns, tooltips, and popovers use BaseUI's overlay system which manages stacking relative to their context
+   - Note: ShadCN components use z-50 as the standard overlay layer. Keep all app UI below z-50 unless it must appear above dialogs (like toasts)
 
 6. DirtyModal close handlers:
    - **X button**: Use Dialog's `close` from render prop (shows unsaved warning if dirty)

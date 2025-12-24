@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
@@ -10,6 +9,7 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
 import { useState } from "react";
+import { Dialog } from "react-aria-components";
 import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api } from "@/shared/lib/api/client";
 
