@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -258,7 +258,7 @@ test.describe("@smoke", () => {
       const filterDialog = page.getByRole("dialog", { name: "Filters" });
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByRole("button", { name: "Any role User role" }).click();
+      await filterDialog.getByLabel("User role").click();
       await page.getByRole("option", { name: "Owner" }).click();
 
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -272,7 +272,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Show filters" }).click();
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByRole("button", { name: "Owner User role" }).click();
+      await filterDialog.getByLabel("User role").click();
       await page.getByRole("option", { name: "Any role" }).click();
       await filterDialog.getByRole("button", { name: "OK" }).click();
 
@@ -552,17 +552,11 @@ test.describe("@comprehensive", () => {
 
       // Clear status filter
       await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Any status" }).click();
-      await blurActiveElement(page);
+      await page.getByRole("option", { name: "Any status" }).click();
 
       // Set role filter to Owner
       await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
-      await expect(roleListbox).toBeVisible();
-      await roleListbox.getByRole("option", { name: "Owner" }).click();
-      await blurActiveElement(page);
+      await page.getByRole("option", { name: "Owner" }).click();
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -583,10 +577,7 @@ test.describe("@comprehensive", () => {
 
       // Set role filter to Member
       await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
-      await expect(roleListbox).toBeVisible();
-      await roleListbox.getByRole("option", { name: "Member" }).click();
-      await blurActiveElement(page);
+      await page.getByRole("option", { name: "Member" }).click();
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -624,10 +615,7 @@ test.describe("@comprehensive", () => {
 
       // Set status filter to Pending
       await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Pending" }).click();
-      await blurActiveElement(page);
+      await page.getByRole("option", { name: "Pending" }).click();
 
       // Close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -648,10 +636,7 @@ test.describe("@comprehensive", () => {
 
       // Set status filter to Active
       await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Active" }).click();
-      await blurActiveElement(page);
+      await page.getByRole("option", { name: "Active" }).click();
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
