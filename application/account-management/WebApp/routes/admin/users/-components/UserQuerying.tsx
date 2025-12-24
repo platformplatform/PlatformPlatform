@@ -5,10 +5,11 @@ import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
 import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import { Field, FieldLabel } from "@repo/ui/components/Field";
 import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { SearchField } from "@repo/ui/components/SearchField";
-import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
@@ -287,41 +288,57 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
       {showAllFilters && (
         <>
-          <Select
-            selectedKey={searchParams.userRole}
-            onSelectionChange={(userRole) => {
-              updateFilter({ userRole: (userRole as UserRole) || undefined });
-            }}
-            label={t`User role`}
-            placeholder={t`Any role`}
-          >
-            <SelectItem id="">
-              <Trans>Any role</Trans>
-            </SelectItem>
-            {Object.values(UserRole).map((userRole) => (
-              <SelectItem id={userRole} key={userRole}>
-                {getUserRoleLabel(userRole)}
-              </SelectItem>
-            ))}
-          </Select>
+          <Field className="flex flex-col">
+            <FieldLabel>{t`User role`}</FieldLabel>
+            <Select
+              value={searchParams.userRole ?? ""}
+              onValueChange={(userRole) => {
+                updateFilter({ userRole: (userRole as UserRole) || undefined });
+              }}
+            >
+              <SelectTrigger aria-label={t`User role`}>
+                <SelectValue>
+                  {(value: string) => (value ? getUserRoleLabel(value as UserRole) : t`Any role`)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">
+                  <Trans>Any role</Trans>
+                </SelectItem>
+                {Object.values(UserRole).map((userRole) => (
+                  <SelectItem value={userRole} key={userRole}>
+                    {getUserRoleLabel(userRole)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
-          <Select
-            selectedKey={searchParams.userStatus}
-            onSelectionChange={(userStatus) => {
-              updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
-            }}
-            label={t`User status`}
-            placeholder={t`Any status`}
-          >
-            <SelectItem id="">
-              <Trans>Any status</Trans>
-            </SelectItem>
-            {Object.values(UserStatus).map((userStatus) => (
-              <SelectItem id={userStatus} key={userStatus}>
-                {getUserStatusLabel(userStatus)}
-              </SelectItem>
-            ))}
-          </Select>
+          <Field className="flex flex-col">
+            <FieldLabel>{t`User status`}</FieldLabel>
+            <Select
+              value={searchParams.userStatus ?? ""}
+              onValueChange={(userStatus) => {
+                updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
+              }}
+            >
+              <SelectTrigger aria-label={t`User status`}>
+                <SelectValue>
+                  {(value: string) => (value ? getUserStatusLabel(value as UserStatus) : t`Any status`)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">
+                  <Trans>Any status</Trans>
+                </SelectItem>
+                {Object.values(UserStatus).map((userStatus) => (
+                  <SelectItem value={userStatus} key={userStatus}>
+                    {getUserStatusLabel(userStatus)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
 
           <DateRangePicker
             value={dateRange}
@@ -435,43 +452,57 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               className="w-full"
             />
 
-            <Select
-              selectedKey={searchParams.userRole}
-              onSelectionChange={(userRole) => {
-                updateFilter({ userRole: (userRole as UserRole) || undefined });
-              }}
-              label={t`User role`}
-              placeholder={t`Any role`}
-              className="w-full"
-            >
-              <SelectItem id="">
-                <Trans>Any role</Trans>
-              </SelectItem>
-              {Object.values(UserRole).map((userRole) => (
-                <SelectItem id={userRole} key={userRole}>
-                  {getUserRoleLabel(userRole)}
-                </SelectItem>
-              ))}
-            </Select>
+            <Field className="flex w-full flex-col">
+              <FieldLabel>{t`User role`}</FieldLabel>
+              <Select
+                value={searchParams.userRole ?? ""}
+                onValueChange={(userRole) => {
+                  updateFilter({ userRole: (userRole as UserRole) || undefined });
+                }}
+              >
+                <SelectTrigger className="w-full" aria-label={t`User role`}>
+                  <SelectValue>
+                    {(value: string) => (value ? getUserRoleLabel(value as UserRole) : t`Any role`)}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent container={null}>
+                  <SelectItem value="">
+                    <Trans>Any role</Trans>
+                  </SelectItem>
+                  {Object.values(UserRole).map((userRole) => (
+                    <SelectItem value={userRole} key={userRole}>
+                      {getUserRoleLabel(userRole)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-            <Select
-              selectedKey={searchParams.userStatus}
-              onSelectionChange={(userStatus) => {
-                updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
-              }}
-              label={t`User status`}
-              placeholder={t`Any status`}
-              className="w-full"
-            >
-              <SelectItem id="">
-                <Trans>Any status</Trans>
-              </SelectItem>
-              {Object.values(UserStatus).map((userStatus) => (
-                <SelectItem id={userStatus} key={userStatus}>
-                  {getUserStatusLabel(userStatus)}
-                </SelectItem>
-              ))}
-            </Select>
+            <Field className="flex w-full flex-col">
+              <FieldLabel>{t`User status`}</FieldLabel>
+              <Select
+                value={searchParams.userStatus ?? ""}
+                onValueChange={(userStatus) => {
+                  updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
+                }}
+              >
+                <SelectTrigger className="w-full" aria-label={t`User status`}>
+                  <SelectValue>
+                    {(value: string) => (value ? getUserStatusLabel(value as UserStatus) : t`Any status`)}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent container={null}>
+                  <SelectItem value="">
+                    <Trans>Any status</Trans>
+                  </SelectItem>
+                  {Object.values(UserStatus).map((userStatus) => (
+                    <SelectItem value={userStatus} key={userStatus}>
+                      {getUserStatusLabel(userStatus)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
             <DateRangePicker
               value={dateRange}

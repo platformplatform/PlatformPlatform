@@ -3,10 +3,12 @@ import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
+import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
+import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
-import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -85,19 +87,26 @@ export function StartSignupForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <Select
-        name="region"
-        selectedKey="europe"
-        label={t`Region`}
-        tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
-        description={t`This is the region where your data is stored`}
-        isRequired={true}
-        className="flex w-full flex-col"
-      >
-        <SelectItem id="europe">
-          <Trans>Europe</Trans>
-        </SelectItem>
-      </Select>
+      <Field className="flex w-full flex-col">
+        <FieldLabel>
+          <LabelWithTooltip
+            tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
+          >
+            {t`Region`}
+          </LabelWithTooltip>
+        </FieldLabel>
+        <Select name="region" defaultValue="europe" required={true}>
+          <SelectTrigger className="w-full" aria-label={t`Region`}>
+            <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="europe">
+              <Trans>Europe</Trans>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
+      </Field>
       <Button type="submit" disabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         {startSignupMutation.isPending ? (
           <Trans>Sending verification code...</Trans>
