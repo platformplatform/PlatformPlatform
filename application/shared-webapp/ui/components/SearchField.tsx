@@ -47,7 +47,7 @@ export function SearchField({
           isEmbedded={true}
           className="bg-transparent [&::-webkit-search-cancel-button]:hidden"
         />
-        <Button variant="icon" className="mr-1 w-6 group-empty:invisible">
+        <Button variant="ghost" size="icon" className="mr-1 w-6 group-empty:invisible">
           <XIcon aria-hidden={true} className="h-4 w-4" />
         </Button>
       </FieldGroup>

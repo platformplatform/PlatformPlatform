@@ -106,7 +106,7 @@ export function AddToHomescreen() {
               then "Add to Home Screen"
             </Text>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onPress={handleDismiss}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleDismiss}>
             <X className="h-4 w-4" />
           </Button>
         </div>

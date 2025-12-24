@@ -46,7 +46,11 @@ export function ComboBox<T extends object>({
       {label && <Label tooltip={tooltip}>{label}</Label>}
       <FieldGroup>
         <Input isEmbedded={true} />
-        <Button variant="icon" className="-me-px h-full w-auto rounded-none rounded-e-md px-2 outline-offset-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="-me-px h-full w-auto rounded-none rounded-e-md px-2 outline-offset-0"
+        >
           <ChevronsUpDownIcon aria-hidden={true} className="h-4 w-4" />
         </Button>
       </FieldGroup>

@@ -94,7 +94,7 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
             </Heading>
             <div className="mt-2 text-muted-foreground text-sm">{content.description}</div>
             <DialogFooter className="mt-6">
-              <Button variant="primary" onPress={onPrimaryAction}>
+              <Button variant="default" onClick={onPrimaryAction}>
                 {content.primaryLabel}
               </Button>
             </DialogFooter>

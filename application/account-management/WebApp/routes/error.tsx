@@ -150,7 +150,7 @@ function ErrorPage() {
           </div>
 
           <div className="flex justify-center gap-3 pt-2">
-            <Button variant="primary" onPress={handleLogIn} aria-label={t`Log in`}>
+            <Button variant="default" onClick={handleLogIn} aria-label={t`Log in`}>
               <LogIn size={16} />
               <Trans>Log in</Trans>
             </Button>

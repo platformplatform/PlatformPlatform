@@ -48,8 +48,8 @@ export function Pagination({
       <Button
         variant="secondary"
         className=""
-        onPress={handlePrevious}
-        isDisabled={currentPage === 1}
+        onClick={handlePrevious}
+        disabled={currentPage === 1}
         aria-label={previousLabel ? String(previousLabel) : "Previous page"}
       >
         <ArrowLeftIcon className="h-4 w-4" />
@@ -68,8 +68,8 @@ export function Pagination({
       <Button
         variant="secondary"
         className=""
-        onPress={handleNext}
-        isDisabled={currentPage === totalPages}
+        onClick={handleNext}
+        disabled={currentPage === totalPages}
         aria-label={nextLabel ? String(nextLabel) : "Next page"}
       >
         {nextLabel && <span className="hidden sm:block">{nextLabel}</span>}
@@ -172,7 +172,7 @@ function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Reado
     <li key={page} {...keyboardProps}>
       <Button
         aria-label={`Page number ${page}`}
-        onPress={() => onPageChange(page)}
+        onClick={() => onPageChange(page)}
         variant={page === currentPage ? "secondary" : "ghost"}
         size="sm"
         className="tabular-nums duration-0"
@@ -186,7 +186,7 @@ function PageNumberButton({ page, currentPage, totalPages, onPageChange }: Reado
 function Separator() {
   return (
     <li>
-      <Button isDisabled={true} variant="ghost">
+      <Button disabled={true} variant="ghost">
         ...
       </Button>
     </li>

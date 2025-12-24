@@ -36,11 +36,11 @@ export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<Tena
             </DialogContent>
 
             <DialogFooter>
-              <Button variant="secondary" onPress={close}>
+              <Button variant="secondary" onClick={close}>
                 <Trans>Cancel</Trans>
               </Button>
               <Link to="/admin/account">
-                <Button variant="primary" onPress={close}>
+                <Button variant="default" onClick={close}>
                   <Trans>Go to account settings</Trans>
                 </Button>
               </Link>

@@ -102,11 +102,16 @@ export function DateRangePicker<T extends DateValue>({
             </span>
             <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
             {value && (
-              <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-1 w-6 group-empty:invisible"
+                onClick={() => onChange?.(null)}
+              >
                 <XIcon aria-hidden={true} className="h-4 w-4" />
               </Button>
             )}
-            <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
+            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm outline-offset-0">
               <CalendarIcon aria-hidden={true} className="h-4 w-4" />
             </Button>
           </FieldGroup>
@@ -117,7 +122,7 @@ export function DateRangePicker<T extends DateValue>({
             className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
               hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
             }`}
-            onPress={() => setIsExpanded(true)}
+            onClick={() => setIsExpanded(true)}
           >
             <div className="flex items-center gap-2 truncate">
               <CalendarIcon className="h-5 w-5 flex-shrink-0" />

@@ -76,7 +76,7 @@ function AccessDeniedNavigation() {
           <LocaleSwitcher />
         </span>
         {isAuthenticated && userInfo && (
-          <Button variant="outline" onPress={handleLogout} isDisabled={isLoggingOut} aria-label={t`Log out`}>
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
             <LogOut size={16} />
             <span className="hidden sm:inline">
               <Trans>Log out</Trans>
@@ -112,8 +112,8 @@ export default function FederatedAccessDeniedPage() {
 
           <div className="flex justify-center gap-3 pt-2">
             <Button
-              variant="primary"
-              onPress={() => {
+              variant="default"
+              onClick={() => {
                 globalThis.location.href = "/";
               }}
             >

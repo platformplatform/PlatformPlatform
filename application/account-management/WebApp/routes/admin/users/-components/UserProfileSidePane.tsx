@@ -89,7 +89,7 @@ function UserProfileContent({
           <Button
             variant="ghost"
             className="h-auto p-0 text-xs"
-            onPress={onChangeRole}
+            onClick={onChangeRole}
             aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
             <Badge
@@ -325,9 +325,9 @@ export function UserProfileSidePane({
           <div className="relative mt-auto border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button
               variant="destructive"
-              onPress={() => onDeleteUser(user)}
+              onClick={() => onDeleteUser(user)}
               className="w-full justify-center text-sm"
-              isDisabled={isCurrentUser}
+              disabled={isCurrentUser}
             >
               <Trash2Icon className="h-4 w-4" />
               <Trans>Delete user</Trans>

@@ -33,7 +33,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
               <p className="text-muted-foreground text-sm">{t`Our support team will assist you with the account deletion process and ensure all your data is properly removed.`}</p>
             </DialogContent>
             <DialogFooter>
-              <Button onPress={close}>{t`Close`}</Button>
+              <Button onClick={close}>{t`Close`}</Button>
             </DialogFooter>
           </>
         )}

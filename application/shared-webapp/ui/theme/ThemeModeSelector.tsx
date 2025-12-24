@@ -14,7 +14,7 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: Readonly<{ "aria-
 
   return (
     <TooltipTrigger>
-      <Button variant="icon" onPress={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
+      <Button variant="ghost" size="icon-lg" onClick={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
         <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
       </Button>
       <Tooltip>{tooltipText}</Tooltip>
@@ -31,7 +31,7 @@ function getTooltipText(themeMode: ThemeMode, resolvedThemeMode: SystemThemeMode
 
 function ThemeModeIcon({ themeMode, resolvedThemeMode }: { themeMode: ThemeMode; resolvedThemeMode: SystemThemeMode }) {
   if (resolvedThemeMode === SystemThemeMode.Dark) {
-    return themeMode === ThemeMode.System ? <MoonStarIcon className="h-5 w-5" /> : <MoonIcon className="h-5 w-5" />;
+    return themeMode === ThemeMode.System ? <MoonStarIcon className="size-5" /> : <MoonIcon className="size-5" />;
   }
-  return themeMode === ThemeMode.System ? <SunMoonIcon className="h-5 w-5" /> : <SunIcon className="h-5 w-5" />;
+  return themeMode === ThemeMode.System ? <SunMoonIcon className="size-5" /> : <SunIcon className="size-5" />;
 }

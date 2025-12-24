@@ -5,8 +5,8 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { Avatar } from "@repo/ui/components/Avatar";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MonitorSmartphoneIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -63,9 +63,9 @@ export default function AvatarButton() {
   return (
     <>
       <MenuTrigger>
-        <Button aria-label={t`User profile menu`} variant="icon" className="rounded-full">
+        <MenuButton aria-label={t`User profile menu`} variant="ghost" size="icon-lg" className="rounded-full">
           <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
-        </Button>
+        </MenuButton>
         <Menu placement="bottom end">
           <MenuHeader>
             <div className="flex flex-row items-center gap-2">

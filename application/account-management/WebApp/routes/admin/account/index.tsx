@@ -5,6 +5,7 @@ import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
@@ -168,7 +169,13 @@ function LogoSection({
       </Label>
 
       <MenuTrigger isOpen={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
-        <Button variant="icon" className="h-16 w-16 rounded-md" aria-label={t`Change logo`} isDisabled={!isOwner}>
+        <MenuButton
+          variant="ghost"
+          size="icon"
+          className="h-16 w-16 rounded-md"
+          aria-label={t`Change logo`}
+          isDisabled={!isOwner}
+        >
           {tenant?.logoUrl || logoPreviewUrl ? (
             <img
               src={logoPreviewUrl ?? tenant?.logoUrl ?? ""}
@@ -185,7 +192,7 @@ function LogoSection({
               className="h-full w-full"
             />
           )}
-        </Button>
+        </MenuButton>
         <Menu>
           <MenuItem
             onAction={() => {
@@ -230,7 +237,7 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
           <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
         </p>
 
-        <Button variant="destructive" onPress={() => setIsDeleteModalOpen(true)} className="w-fit">
+        <Button variant="destructive" onClick={() => setIsDeleteModalOpen(true)} className="w-fit max-sm:w-full">
           <Trash2 />
           <Trans>Delete account</Trans>
         </Button>
@@ -344,7 +351,7 @@ export function AccountSettings() {
             onChange={() => setIsFormDirty(true)}
           />
           {isOwner && (
-            <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
+            <Button type="submit" className="mt-4 w-fit max-sm:w-full" disabled={updateCurrentTenantMutation.isPending}>
               {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
             </Button>
           )}

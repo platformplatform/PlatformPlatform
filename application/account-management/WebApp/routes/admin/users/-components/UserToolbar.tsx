@@ -52,7 +52,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       <div className="mt-6 flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (
           <TooltipTrigger>
-            <Button variant="primary" onPress={handleInviteClick} aria-label={t`Invite user`}>
+            <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
               <PlusIcon className="h-5 w-5" />
               <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
                 <Trans>Invite user</Trans>
@@ -69,8 +69,8 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
           <TooltipTrigger>
             <Button
               variant="destructive"
-              onPress={() => setIsDeleteModalOpen(true)}
-              isDisabled={hasSelectedSelf}
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={hasSelectedSelf}
               aria-label={t`Delete ${selectedUsers.length} users`}
             >
               <Trash2Icon className="h-5 w-5" />
