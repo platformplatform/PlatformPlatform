@@ -87,7 +87,8 @@ test.describe("@smoke", () => {
     await step("Open Invite dialog, enter email & verify unsaved changes warning on Escape")(async () => {
       await page.getByRole("button", { name: "Invite user" }).first().click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
+      await page.getByRole("textbox", { name: "Email" }).click();
+      await page.keyboard.type("test@example.com");
 
       await page.keyboard.press("Escape");
 

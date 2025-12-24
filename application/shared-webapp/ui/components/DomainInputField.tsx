@@ -2,6 +2,7 @@ import { CheckIcon, DotIcon, TriangleAlertIcon } from "lucide-react";
 import { useContext } from "react";
 import { useFocusRing } from "react-aria";
 import {
+  Input as AriaInput,
   TextField as AriaTextField,
   type TextFieldProps as AriaTextFieldProps,
   FormValidationContext,
@@ -13,7 +14,6 @@ import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
 import { focusRing } from "./focusRing";
 import { Group } from "./Group";
-import { Input } from "./Input";
 import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -57,13 +57,12 @@ export function DomainInputField({
       {label && <Label>{label}</Label>}
       <Group className={inputStyles({ isInvalid, isFocusVisible })}>
         <div className="flex grow overflow-hidden">
-          <Input
+          <AriaInput
             {...focusProps}
-            isEmbedded={true}
             placeholder={placeholder}
             autoComplete={autocomplete}
             autoCorrect="off"
-            className="h-full w-full"
+            className="h-full w-full border-0 bg-transparent px-2.5 py-1 text-base shadow-none outline-none placeholder:text-muted-foreground focus:ring-0 md:text-sm"
           />
         </div>
         <div className="flex w-fit items-center gap-1 p-1 text-muted-foreground text-xs">
