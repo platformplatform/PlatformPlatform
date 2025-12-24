@@ -2,6 +2,7 @@
  * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/gridlist--docs
  */
 import {
+  Checkbox as AriaCheckbox,
   GridList as AriaGridList,
   GridListItem as AriaGridListItem,
   Button,
@@ -9,7 +10,6 @@ import {
   type GridListProps
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
-import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -46,7 +46,7 @@ export function GridListItem({ children, ...props }: Readonly<GridListItemProps>
         <>
           {/* Add elements for drag and drop and selection. */}
           {allowsDragging && <Button slot="drag">≡</Button>}
-          {selectionMode === "multiple" && selectionBehavior === "toggle" && <Checkbox slot="selection" />}
+          {selectionMode === "multiple" && selectionBehavior === "toggle" && <AriaCheckbox slot="selection" />}
           {children}
         </>
       )}

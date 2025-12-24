@@ -6,6 +6,7 @@ import { ArrowUp } from "lucide-react";
 import {
   Cell as AriaCell,
   type CellProps as AriaCellProps,
+  Checkbox as AriaCheckbox,
   Column as AriaColumn,
   Row as AriaRow,
   Table as AriaTable,
@@ -25,7 +26,6 @@ import {
 import { tv } from "tailwind-variants";
 import { useAxisLock } from "../hooks/useAxisLock";
 import { isTouchDevice } from "../utils/responsive";
-import { Checkbox } from "./Checkbox";
 import { focusRing } from "./focusRing";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -128,7 +128,7 @@ export function TableHeader<T extends object>({
       {allowsDragging && <Column />}
       {selectionBehavior === "toggle" && (
         <AriaColumn width={52} minWidth={52}>
-          {selectionMode === "multiple" && <Checkbox slot="selection" />}
+          {selectionMode === "multiple" && <AriaCheckbox slot="selection" />}
         </AriaColumn>
       )}
       <Collection items={tableHeaderProps.columns}>{children}</Collection>
@@ -162,7 +162,7 @@ export function Row<T extends object>({ id, columns, children, ...rowProps }: Re
       )}
       {selectionBehavior === "toggle" && (
         <Cell>
-          <Checkbox slot="selection" />
+          <AriaCheckbox slot="selection" />
         </Cell>
       )}
       <Collection items={columns}>{children}</Collection>
