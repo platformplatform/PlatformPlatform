@@ -12,7 +12,7 @@ import {
 import { cn } from "../utils";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 
 const inputStyles =
@@ -63,7 +63,7 @@ export function TextField({
       isReadOnly={isReadOnly}
       className={composeTailwindRenderProps(className, "flex flex-col gap-1")}
     >
-      {label && <Label tooltip={tooltip}>{label}</Label>}
+      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
       {startIcon ? (
         <div className="relative">
           <div className="pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center">

@@ -12,7 +12,7 @@ import { Button } from "./Button";
 import { Description } from "./Description";
 import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface SearchFieldProps extends AriaSearchFieldProps {
@@ -36,7 +36,7 @@ export function SearchField({
       {...props}
       className={composeTailwindRenderProps(props.className, "group flex min-w-[40px] flex-col gap-1")}
     >
-      {label && <Label tooltip={tooltip}>{label}</Label>}
+      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
       <FieldGroup>
         <SearchIcon
           aria-hidden={true}

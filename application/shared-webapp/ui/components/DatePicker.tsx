@@ -17,7 +17,7 @@ import { Description } from "./Description";
 import { Dialog } from "./Dialog";
 import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { Popover } from "./Popover";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -40,7 +40,7 @@ export function DatePicker<T extends DateValue>({
     // This avoids confusion between MM/DD/YYYY (US) and DD/MM/YYYY (EU) formats
     <I18nProvider locale="en-CA">
       <AriaDatePicker {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
-        {label && <Label tooltip={tooltip}>{label}</Label>}
+        {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
         <FieldGroup className="w-auto min-w-[208px] bg-input-background">
           <DateInput className="min-w-[150px] flex-1 px-2 py-1.5 text-sm" />
           <Button variant="ghost" size="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">

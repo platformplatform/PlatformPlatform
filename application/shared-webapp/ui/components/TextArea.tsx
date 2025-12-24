@@ -13,7 +13,7 @@ import { Description } from "./Description";
 import { fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
 import { focusRing } from "./focusRing";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 
 const textAreaStyles = tv({
@@ -56,7 +56,7 @@ export function TextArea({
   }
   return (
     <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
-      {label && <Label tooltip={tooltip}>{label}</Label>}
+      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
       <AriaTextArea name={props.name} className={textAreaStyles} rows={rows} />
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
