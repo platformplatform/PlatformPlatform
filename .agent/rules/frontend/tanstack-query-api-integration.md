@@ -85,9 +85,9 @@ import { Trans } from "@lingui/react/macro";
   <TextField name="oneTimePassword" type="password" />
   <Button
     type="submit"
-    isDisabled={completeLoginMutation.isPending}
+    disabled={completeLoginMutation.isPending}
   >
-    <Trans>Submit</Trans>
+    {completeLoginMutation.isPending ? <Trans>Submitting...</Trans> : <Trans>Submit</Trans>}
   </Button>
 </Form>
 ```
