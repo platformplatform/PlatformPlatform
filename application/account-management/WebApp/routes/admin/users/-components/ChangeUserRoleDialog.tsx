@@ -6,7 +6,8 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
-import { Radio, RadioGroup } from "@repo/ui/components/RadioGroup";
+import { Label } from "@repo/ui/components/Label";
+import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -117,44 +118,51 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
                 <RadioGroup
                   aria-label={t`Role`}
                   value={currentRole}
-                  onChange={(value) => setSelectedRole(value as UserRole)}
-                  orientation="vertical"
+                  onValueChange={(value) => setSelectedRole(value as UserRole)}
                 >
                   <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Owner}>
+                    <Label htmlFor="role-owner" className="flex cursor-pointer items-start gap-3">
+                      <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} className="mt-0.5" />
                       <div className="flex flex-col">
                         <span className="font-medium">
                           <Trans>Owner</Trans>
                         </span>
-                        <span className="text-muted-foreground text-sm">
+                        <span className="font-normal text-muted-foreground text-sm">
                           <Trans>Full access including user roles and account settings</Trans>
                         </span>
                       </div>
-                    </Radio>
+                    </Label>
                   </div>
                   <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Admin}>
+                    <Label htmlFor="role-admin" className="flex cursor-pointer items-start gap-3">
+                      <RadioGroupItem value={UserRole.Admin} id="role-admin" aria-label={t`Admin`} className="mt-0.5" />
                       <div className="flex flex-col">
                         <span className="font-medium">
                           <Trans>Admin</Trans>
                         </span>
-                        <span className="text-muted-foreground text-sm">
+                        <span className="font-normal text-muted-foreground text-sm">
                           <Trans>Full access except changing user roles and account settings</Trans>
                         </span>
                       </div>
-                    </Radio>
+                    </Label>
                   </div>
                   <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Member}>
+                    <Label htmlFor="role-member" className="flex cursor-pointer items-start gap-3">
+                      <RadioGroupItem
+                        value={UserRole.Member}
+                        id="role-member"
+                        aria-label={t`Member`}
+                        className="mt-0.5"
+                      />
                       <div className="flex flex-col">
                         <span className="font-medium">
                           <Trans>Member</Trans>
                         </span>
-                        <span className="text-muted-foreground text-sm">
+                        <span className="font-normal text-muted-foreground text-sm">
                           <Trans>Standard user access</Trans>
                         </span>
                       </div>
-                    </Radio>
+                    </Label>
                   </div>
                 </RadioGroup>
               </DialogContent>
