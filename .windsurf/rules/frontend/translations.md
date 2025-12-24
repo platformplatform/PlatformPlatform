@@ -38,7 +38,7 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 
-<Button onPress={handleLogin}>
+<Button onClick={handleLogin}>
   <Trans>Log in</Trans>
 </Button>
 
