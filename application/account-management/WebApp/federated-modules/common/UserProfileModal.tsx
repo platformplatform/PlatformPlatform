@@ -249,6 +249,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                     />
                   </div>
                   <TextField
+                    name="email"
                     label={t`Email`}
                     value={user?.email}
                     isDisabled={true}

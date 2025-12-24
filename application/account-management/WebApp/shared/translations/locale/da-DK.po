@@ -520,6 +520,9 @@ msgstr "Mobil"
 msgid "Modified date"
 msgstr "Ændret dato"
 
+msgid "More information"
+msgstr "Mere information"
+
 msgid "Name"
 msgstr "Navn"
 
