@@ -163,13 +163,13 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
               <DialogFooter>
                 <Button
                   type="reset"
-                  onPress={handleClose}
+                  onClick={handleClose}
                   variant="secondary"
-                  isDisabled={changeUserRoleMutation.isPending}
+                  disabled={changeUserRoleMutation.isPending}
                 >
                   <Trans>Cancel</Trans>
                 </Button>
-                <Button type="submit" isDisabled={changeUserRoleMutation.isPending}>
+                <Button type="submit" disabled={changeUserRoleMutation.isPending}>
                   {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
                 </Button>
               </DialogFooter>

@@ -1,15 +1,16 @@
-import { Button, type ButtonProps } from "@repo/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 import { useNavigate } from "@tanstack/react-router";
+import type { ComponentPropsWithoutRef } from "react";
 import { signUpPath } from "./constants";
 
 type SignUpButtonProps = {
   customSignUpPath?: string;
-} & Omit<ButtonProps, "onPress">;
+} & Omit<ComponentPropsWithoutRef<typeof Button>, "onClick">;
 
 export function SignUpButton({ customSignUpPath, children, ...props }: SignUpButtonProps) {
   const navigate = useNavigate();
   return (
-    <Button {...props} onPress={() => navigate({ to: customSignUpPath ?? signUpPath })}>
+    <Button {...props} onClick={() => navigate({ to: customSignUpPath ?? signUpPath })}>
       {children}
     </Button>
   );

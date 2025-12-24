@@ -43,7 +43,7 @@ export function DatePicker<T extends DateValue>({
         {label && <Label tooltip={tooltip}>{label}</Label>}
         <FieldGroup className="w-auto min-w-[208px] bg-input-background">
           <DateInput className="min-w-[150px] flex-1 px-2 py-1.5 text-sm" />
-          <Button variant="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">
+          <Button variant="ghost" size="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">
             <CalendarIcon aria-hidden={true} className="h-4 w-4" />
           </Button>
         </FieldGroup>

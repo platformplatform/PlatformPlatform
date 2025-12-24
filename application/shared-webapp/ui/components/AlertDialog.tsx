@@ -1,6 +1,5 @@
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
 import { type ReactNode, useId } from "react";
-import { chain } from "react-aria";
 import type { DialogProps } from "react-aria-components";
 import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
@@ -61,13 +60,16 @@ export function AlertDialog({
           <div id={contentId}>{children}</div>
           {actionLabel && (
             <fieldset className="flex justify-end gap-2 pt-10">
-              <Button variant="secondary" onPress={close}>
+              <Button variant="secondary" onClick={close}>
                 {cancelLabel ?? "Cancel"}
               </Button>
               <Button
-                variant={variant === "destructive" ? "destructive" : "primary"}
+                variant={variant === "destructive" ? "destructive" : "default"}
                 autoFocus={true}
-                onPress={chain(onAction, close)}
+                onClick={() => {
+                  onAction?.();
+                  close();
+                }}
               >
                 {actionLabel}
               </Button>

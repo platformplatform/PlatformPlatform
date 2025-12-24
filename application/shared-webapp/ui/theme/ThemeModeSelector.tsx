@@ -14,7 +14,7 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: Readonly<{ "aria-
 
   return (
     <TooltipTrigger>
-      <Button variant="icon" onPress={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
+      <Button variant="ghost" size="icon" onClick={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
         <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
       </Button>
       <Tooltip>{tooltipText}</Tooltip>

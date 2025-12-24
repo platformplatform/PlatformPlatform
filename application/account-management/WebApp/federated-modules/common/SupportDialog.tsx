@@ -35,7 +35,7 @@ export function SupportDialog({ children }: Readonly<SupportDialogProps>) {
                 <p className="text-muted-foreground text-sm">{t`Feel free to reach out with any questions or issues you may have.`}</p>
               </DialogContent>
               <DialogFooter>
-                <Button onPress={close}>{t`Close`}</Button>
+                <Button onClick={close}>{t`Close`}</Button>
               </DialogFooter>
             </>
           )}

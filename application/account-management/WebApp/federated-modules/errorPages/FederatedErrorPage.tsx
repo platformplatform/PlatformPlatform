@@ -78,7 +78,7 @@ function ErrorNavigation() {
           <LocaleSwitcher />
         </span>
         {isAuthenticated && userInfo && (
-          <Button variant="outline" onPress={handleLogout} isDisabled={isLoggingOut} aria-label={t`Log out`}>
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
             <LogOut size={16} />
             <span className="hidden sm:inline">
               <Trans>Log out</Trans>
@@ -119,7 +119,7 @@ export default function FederatedErrorPage({ error, reset }: Readonly<ErrorCompo
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Button variant="primary" onPress={reset}>
+            <Button onClick={reset}>
               <RefreshCw size={16} />
               <Trans>Try again</Trans>
             </Button>
@@ -138,7 +138,7 @@ export default function FederatedErrorPage({ error, reset }: Readonly<ErrorCompo
             <div className="mt-4 w-full">
               <Button
                 variant="ghost"
-                onPress={() => setShowDetails(!showDetails)}
+                onClick={() => setShowDetails(!showDetails)}
                 className="text-muted-foreground text-sm"
               >
                 {showDetails ? <Trans>Hide details</Trans> : <Trans>Show details</Trans>}

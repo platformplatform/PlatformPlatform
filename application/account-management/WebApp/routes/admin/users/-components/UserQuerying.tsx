@@ -344,7 +344,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           className="relative mt-6"
           aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
           data-testid="filter-button"
-          onPress={() => {
+          onClick={() => {
             // If filters are currently showing and user clicks, always clear filters
             // This ensures consistent behavior regardless of space calculations
             if (showAllFilters) {
@@ -490,12 +490,12 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           <DialogFooter>
             <Button
               variant="secondary"
-              onPress={clearAllFilters}
-              isDisabled={activeFilterCount === 0 && !searchParams.search}
+              onClick={clearAllFilters}
+              disabled={activeFilterCount === 0 && !searchParams.search}
             >
               <Trans>Clear</Trans>
             </Button>
-            <Button variant="primary" onPress={() => setIsFilterPanelOpen(false)}>
+            <Button variant="default" onClick={() => setIsFilterPanelOpen(false)}>
               <Trans>OK</Trans>
             </Button>
           </DialogFooter>

@@ -3,8 +3,8 @@ import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
@@ -318,9 +318,9 @@ export function UserTable({
                           }
                         }}
                       >
-                        <Button variant="icon" aria-label={t`User actions`}>
+                        <MenuButton variant="ghost" size="icon" aria-label={t`User actions`}>
                           <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                        </Button>
+                        </MenuButton>
                         <Menu>
                           <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
                             <UserIcon className="h-4 w-4" />

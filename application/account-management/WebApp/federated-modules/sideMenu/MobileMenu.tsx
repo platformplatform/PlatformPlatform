@@ -85,7 +85,7 @@ function MobileMenuHeader({
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onPress={() => {
+            onClick={() => {
               setTimeout(() => {
                 onShowSessions();
                 if (overlayCtx?.isOpen) {
@@ -109,7 +109,7 @@ function MobileMenuHeader({
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onPress={() => {
+            onClick={() => {
               setTimeout(() => {
                 // Close mobile menu if it's open
                 if (overlayCtx?.isOpen) {

@@ -77,7 +77,7 @@ function AccessDeniedNavigation() {
           <LocaleSwitcher />
         </span>
         {isAuthenticated && userInfo && (
-          <Button variant="outline" onPress={handleLogout} isDisabled={isLoggingOut} aria-label={t`Log out`}>
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
             <LogOut size={16} />
             <span className="hidden sm:inline">
               <Trans>Log out</Trans>

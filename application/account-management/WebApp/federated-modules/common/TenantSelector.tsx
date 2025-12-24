@@ -4,8 +4,8 @@ import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider"
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import { MenuButton } from "@repo/ui/components/MenuButton";
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
@@ -122,7 +122,7 @@ function TenantMenuDropdown({
     <div className="relative w-full px-3">
       <div className="">
         <MenuTrigger onOpenChange={setIsMenuOpen}>
-          <Button
+          <MenuButton
             variant="ghost"
             className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
             isDisabled={isSwitching}
@@ -145,7 +145,7 @@ function TenantMenuDropdown({
                 <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
               </>
             )}
-          </Button>
+          </MenuButton>
           <Menu
             placement={variant === "mobile-menu" ? "bottom end" : isCollapsed ? "right" : "bottom start"}
             popoverClassName="bg-input-background p-px -ml-1"

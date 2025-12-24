@@ -98,7 +98,7 @@ export function StartSignupForm() {
           <Trans>Europe</Trans>
         </SelectItem>
       </Select>
-      <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
+      <Button type="submit" disabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         {startSignupMutation.isPending ? (
           <Trans>Sending verification code...</Trans>
         ) : (

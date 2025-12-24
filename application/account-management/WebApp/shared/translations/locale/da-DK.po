@@ -651,6 +651,9 @@ msgstr "Gendan {0} brugere"
 msgid "Restore user"
 msgstr "Gendan bruger"
 
+msgid "Restoring..."
+msgstr "Gendanner..."
+
 msgid "Revoke"
 msgstr "Tilbagekald"
 

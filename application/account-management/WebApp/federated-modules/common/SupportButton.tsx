@@ -9,7 +9,7 @@ export default function SupportButton() {
   return (
     <SupportDialog>
       <TooltipTrigger>
-        <Button variant="icon" aria-label={t`Contact support`}>
+        <Button variant="ghost" size="icon" aria-label={t`Contact support`}>
           <MailQuestion size={20} />
         </Button>
         <Tooltip>{t`Contact support`}</Tooltip>
