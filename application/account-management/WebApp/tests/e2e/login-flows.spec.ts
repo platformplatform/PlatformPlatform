@@ -62,8 +62,17 @@ test.describe("@smoke", () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
     })();

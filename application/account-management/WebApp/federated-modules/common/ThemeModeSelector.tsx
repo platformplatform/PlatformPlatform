@@ -1,8 +1,12 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import type { Key } from "@react-types/shared";
-import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
+import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -96,8 +100,7 @@ export default function ThemeModeSelector({
     };
   }, []);
 
-  const handleThemeChange = (key: Key) => {
-    const newMode = key as ThemeMode;
+  const handleThemeChange = (newMode: ThemeMode) => {
     setThemeModeState(newMode);
     localStorage.setItem(THEME_MODE_KEY, newMode);
 
@@ -149,38 +152,38 @@ export default function ThemeModeSelector({
   };
 
   const menuContent = (
-    <MenuTrigger>
-      {variant === "icon" ? (
-        <MenuButton variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
-          {getThemeIcon()}
-        </MenuButton>
-      ) : (
-        <MenuButton
-          variant="ghost"
-          className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-          style={{ pointerEvents: "auto" }}
-        >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center">{getThemeIcon()}</div>
-          <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-            <Trans>Theme</Trans>
-          </div>
-          <div className="shrink-0 text-base text-muted-foreground">
-            {themeMode === ThemeMode.System ? (
-              <Trans>System</Trans>
-            ) : themeMode === ThemeMode.Light ? (
-              <Trans>Light</Trans>
-            ) : (
-              <Trans>Dark</Trans>
-            )}
-          </div>
-        </MenuButton>
-      )}
-      <Menu
-        onAction={handleThemeChange}
-        aria-label={t`Change theme`}
-        placement={variant === "mobile-menu" ? "bottom end" : "bottom"}
-      >
-        <MenuItem id={ThemeMode.System} textValue="System">
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          variant === "icon" ? (
+            <Button variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
+              {getThemeIcon()}
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+              style={{ pointerEvents: "auto" }}
+            >
+              <div className="flex h-6 w-6 shrink-0 items-center justify-center">{getThemeIcon()}</div>
+              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
+                <Trans>Theme</Trans>
+              </div>
+              <div className="shrink-0 text-base text-muted-foreground">
+                {themeMode === ThemeMode.System ? (
+                  <Trans>System</Trans>
+                ) : themeMode === ThemeMode.Light ? (
+                  <Trans>Light</Trans>
+                ) : (
+                  <Trans>Dark</Trans>
+                )}
+              </div>
+            </Button>
+          )
+        }
+      />
+      <DropdownMenuContent align={variant === "mobile-menu" ? "end" : "start"} className="w-auto">
+        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
           <div className="flex items-center gap-2">
             {window.matchMedia("(prefers-color-scheme: dark)").matches ? (
               <MoonStarIcon className="h-5 w-5" />
@@ -190,23 +193,23 @@ export default function ThemeModeSelector({
             <Trans>System</Trans>
             {themeMode === ThemeMode.System && <CheckIcon className="ml-auto h-5 w-5" />}
           </div>
-        </MenuItem>
-        <MenuItem id={ThemeMode.Light} textValue="Light">
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
           <div className="flex items-center gap-2">
             <SunIcon className="h-5 w-5" />
             <Trans>Light</Trans>
             {themeMode === ThemeMode.Light && <CheckIcon className="ml-auto h-5 w-5" />}
           </div>
-        </MenuItem>
-        <MenuItem id={ThemeMode.Dark} textValue="Dark">
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
           <div className="flex items-center gap-2">
             <MoonIcon className="h-5 w-5" />
             <Trans>Dark</Trans>
             {themeMode === ThemeMode.Dark && <CheckIcon className="ml-auto h-5 w-5" />}
           </div>
-        </MenuItem>
-      </Menu>
-    </MenuTrigger>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 
   if (variant === "icon") {

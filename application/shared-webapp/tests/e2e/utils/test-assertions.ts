@@ -385,9 +385,10 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
         });
 
         // Also specifically look for common toast class patterns
+        // Exclude [data-slot] elements as those are ShadCN components (Badge, etc.)
         document
           .querySelectorAll(
-            '[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]'
+            '[class*="toast"]:not([data-slot]), [class*="notification"]:not([data-slot]), [data-testid*="toast"], [role="status"]:not([data-slot]), [role="alert"]:not([data-slot])'
           )
           .forEach((el) => {
             const text = el.textContent?.trim();

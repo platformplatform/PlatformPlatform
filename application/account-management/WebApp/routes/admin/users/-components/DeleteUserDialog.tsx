@@ -11,6 +11,7 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { toastQueue } from "@repo/ui/components/Toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api, type components } from "@/shared/lib/api/client";
 
@@ -26,9 +27,14 @@ interface DeleteUserDialogProps {
 export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }: Readonly<DeleteUserDialogProps>) {
   const isSingleUser = users.length === 1;
   const user = users[0];
+  const queryClient = useQueryClient();
 
-  const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}");
-  const bulkDeleteUsersMutation = api.useMutation("post", "/api/account-management/users/bulk-delete");
+  const deleteUserMutation = api.useMutation("delete", "/api/account-management/users/{id}", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const bulkDeleteUsersMutation = api.useMutation("post", "/api/account-management/users/bulk-delete", {
+    meta: { skipQueryInvalidation: true }
+  });
   const userDisplayName = isSingleUser ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : "";
 
   const [isPending, setIsPending] = useState(false);
@@ -52,6 +58,18 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
           variant: "success"
         });
       }
+
+      // Invalidate user list queries (but not individual user queries to avoid 404)
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          return (
+            Array.isArray(key) &&
+            key[0] === "get" &&
+            (key[1] === "/api/account-management/users" || key[1] === "/api/account-management/users/deleted")
+          );
+        }
+      });
 
       onUsersDeleted?.();
       onOpenChange(false);

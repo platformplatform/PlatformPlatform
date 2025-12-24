@@ -11,10 +11,15 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
-import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -179,37 +184,42 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 <Trans>Profile picture</Trans>
               </Label>
 
-              <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-                <MenuButton
-                  variant="ghost"
-                  size="icon"
-                  className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
-                  aria-label={t`Change profile picture`}
-                >
-                  {user.avatarUrl || avatarPreviewUrl ? (
-                    <img
-                      src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
-                      className="h-full w-full rounded-full object-cover"
-                      alt={t`Preview avatar`}
-                    />
-                  ) : (
-                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
-                  )}
-                </MenuButton>
-                <Menu>
-                  <MenuItem
-                    onAction={() => {
+              <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
+                      aria-label={t`Change profile picture`}
+                    >
+                      {user.avatarUrl || avatarPreviewUrl ? (
+                        <img
+                          src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
+                          className="h-full w-full rounded-full object-cover"
+                          alt={t`Preview avatar`}
+                        />
+                      ) : (
+                        <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
+                      )}
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent>
+                  <DropdownMenuItem
+                    onClick={() => {
                       avatarFileInputRef.current?.click();
                     }}
                   >
                     <CameraIcon className="h-4 w-4" />
                     <Trans>Upload profile picture</Trans>
-                  </MenuItem>
+                  </DropdownMenuItem>
                   {(user.avatarUrl || avatarPreviewUrl) && (
                     <>
-                      <MenuSeparator />
-                      <MenuItem
-                        onAction={() => {
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => {
                           setAvatarMenuOpen(false);
                           setRemoveAvatarFlag(true);
                           setSelectedAvatarFile(null);
@@ -217,15 +227,13 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                           user.avatarUrl = null;
                         }}
                       >
-                        <Trash2Icon className="h-4 w-4 text-destructive" />
-                        <span className="text-destructive">
-                          <Trans>Remove profile picture</Trans>
-                        </span>
-                      </MenuItem>
+                        <Trash2Icon className="h-4 w-4" />
+                        <Trans>Remove profile picture</Trans>
+                      </DropdownMenuItem>
                     </>
                   )}
-                </Menu>
-              </MenuTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <div className="flex flex-col gap-4 sm:flex-row">
                 <TextField

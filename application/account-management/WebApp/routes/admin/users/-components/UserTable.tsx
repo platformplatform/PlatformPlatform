@@ -3,8 +3,14 @@ import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Menu, MenuItem, MenuSeparator } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
+import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
@@ -17,7 +23,7 @@ import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
-import { MenuTrigger, TableBody } from "react-aria-components";
+import { TableBody } from "react-aria-components";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -311,46 +317,44 @@ export function UserTable({
                   <Cell>
                     <div className="flex h-full w-full items-center justify-between p-0">
                       <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                      <MenuTrigger
+                      <DropdownMenu
                         onOpenChange={(isOpen) => {
                           if (isOpen) {
                             onSelectedUsersChange([user]);
                           }
                         }}
                       >
-                        <MenuButton variant="ghost" size="icon" aria-label={t`User actions`}>
-                          <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
-                        </MenuButton>
-                        <Menu>
-                          <MenuItem id="viewProfile" onAction={() => onViewProfile(user, false)}>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button variant="ghost" size="icon" aria-label={t`User actions`}>
+                              <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent className="w-auto">
+                          <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
                             <UserIcon className="h-4 w-4" />
                             <Trans>View profile</Trans>
-                          </MenuItem>
+                          </DropdownMenuItem>
                           {userInfo?.role === "Owner" && (
                             <>
-                              <MenuItem
-                                id="changeRole"
-                                isDisabled={user.id === userInfo?.id}
-                                onAction={() => onChangeRole(user)}
-                              >
+                              <DropdownMenuItem disabled={user.id === userInfo?.id} onClick={() => onChangeRole(user)}>
                                 <SettingsIcon className="h-4 w-4" />
                                 <Trans>Change role</Trans>
-                              </MenuItem>
-                              <MenuSeparator />
-                              <MenuItem
-                                id="deleteUser"
-                                isDisabled={user.id === userInfo?.id}
-                                onAction={() => onDeleteUser(user)}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                disabled={user.id === userInfo?.id}
+                                variant="destructive"
+                                onClick={() => onDeleteUser(user)}
                               >
-                                <Trash2Icon className="h-4 w-4 text-destructive" />
-                                <span className="text-destructive">
-                                  <Trans>Delete</Trans>
-                                </span>
-                              </MenuItem>
+                                <Trash2Icon className="h-4 w-4" />
+                                <Trans>Delete</Trans>
+                              </DropdownMenuItem>
                             </>
                           )}
-                        </Menu>
-                      </MenuTrigger>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </Cell>
                 )}

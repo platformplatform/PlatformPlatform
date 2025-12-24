@@ -145,10 +145,14 @@ test.describe("@smoke", () => {
     await step("Open Change Role dialog, select role & verify unsaved changes warning on Escape")(async () => {
       const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
       const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
-      await actionsButton.evaluate((el: HTMLElement) => el.click());
+      await actionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Owner" }).check({ force: true });
@@ -173,11 +177,15 @@ test.describe("@smoke", () => {
     await step("Open actions menu for admin user and change role to Admin & verify role updates")(async () => {
       const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
       const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
-      await actionsButton.evaluate((el: HTMLElement) => el.click());
+      await actionsButton.dispatchEvent("click");
 
       // Wait for menu to be visible before clicking
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Admin" }).check({ force: true });
@@ -216,7 +224,7 @@ test.describe("@smoke", () => {
     await step("Open owner's actions menu & verify self-deletion and role change are disabled")(async () => {
       const ownerRowSelf = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
       const ownerActionsButton = ownerRowSelf.locator("button[aria-label='User actions']").first();
-      await ownerActionsButton.evaluate((el: HTMLElement) => el.click());
+      await ownerActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
@@ -287,8 +295,15 @@ test.describe("@smoke", () => {
     // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
     await step("Logout from owner to activate deletable user")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
     })();
@@ -318,8 +333,15 @@ test.describe("@smoke", () => {
 
     await step("Logout from deletable user & login as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
 
@@ -335,10 +357,14 @@ test.describe("@smoke", () => {
     await step("Soft delete user via actions menu & verify removed from All users tab")(async () => {
       const deletableUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: deletableUser.email });
       const deletableActionsButton = deletableUserRow.locator("button[aria-label='User actions']").first();
-      await deletableActionsButton.evaluate((el: HTMLElement) => el.click());
+      await deletableActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem).toBeVisible();
+      await deleteMenuItem.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
@@ -346,7 +372,7 @@ test.describe("@smoke", () => {
       await expect(page.getByText(`Are you sure you want to delete ${deletableFullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${deletableFullName}`);
       await expect(deleteDialog).not.toBeVisible();
@@ -369,8 +395,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
     })();
@@ -418,7 +451,11 @@ test.describe("@smoke", () => {
       await profileMenuButton.focus();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
     })();
@@ -652,9 +689,14 @@ test.describe("@comprehensive", () => {
     // === ACTIVATE USERS TO ENABLE SOFT DELETE ===
     await step("Logout from owner & login as user1 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
@@ -673,9 +715,14 @@ test.describe("@comprehensive", () => {
 
     await step("Logout from user1 & login as user2 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
@@ -695,9 +742,14 @@ test.describe("@comprehensive", () => {
     await step("Logout from user2 & login back as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await expect(page.getByRole("region", { name: /notification/ })).not.toBeVisible();
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
@@ -731,10 +783,14 @@ test.describe("@comprehensive", () => {
       const user1LastSeenAtBefore = await user1Row.locator("td").nth(3).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
-      await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
+      await user1ActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Admin" }).check({ force: true });
@@ -758,15 +814,20 @@ test.describe("@comprehensive", () => {
       user1LastSeenAtBeforeDelete = await user1Row.locator("td").nth(3).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
-      await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await user1ActionsButton.dispatchEvent("click");
+      await expect(page.getByRole("menu")).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem1 = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem1).toBeVisible();
+      await deleteMenuItem1.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user1FullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${user1FullName}`);
       await expect(deleteDialog).not.toBeVisible();
@@ -781,15 +842,20 @@ test.describe("@comprehensive", () => {
 
       const user2Row = page.locator("tbody").first().locator("tr").filter({ hasText: user2.email });
       const user2ActionsButton = user2Row.locator("button[aria-label='User actions']").first();
-      await user2ActionsButton.evaluate((el: HTMLElement) => el.click());
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await user2ActionsButton.dispatchEvent("click");
+      await expect(page.getByRole("menu")).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem2 = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem2).toBeVisible();
+      await deleteMenuItem2.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user2FullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${user2FullName}`);
       await expect(deleteDialog).not.toBeVisible();

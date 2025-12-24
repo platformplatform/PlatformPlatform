@@ -4,8 +4,16 @@ import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider"
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
-import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { MenuButton } from "@repo/ui/components/MenuButton";
+import { Button } from "@repo/ui/components/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
@@ -121,44 +129,51 @@ function TenantMenuDropdown({
   return (
     <div className="relative w-full px-3">
       <div className="">
-        <MenuTrigger onOpenChange={setIsMenuOpen}>
-          <MenuButton
-            variant="ghost"
-            className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
-            isDisabled={isSwitching}
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-              <TenantLogo
-                logoUrl={currentTenantLogoUrl}
-                tenantName={currentTenantNameForLogo}
-                size="xs"
-                isRound={false}
-                className="shrink-0"
-              />
-            </div>
-            {!isCollapsed && (
-              <>
-                <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
-                  {currentTenantName}
+        <DropdownMenu onOpenChange={setIsMenuOpen}>
+          <DropdownMenuTrigger
+            disabled={isSwitching}
+            render={
+              <Button
+                variant="ghost"
+                className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                  <TenantLogo
+                    logoUrl={currentTenantLogoUrl}
+                    tenantName={currentTenantNameForLogo}
+                    size="xs"
+                    isRound={false}
+                    className="shrink-0"
+                  />
                 </div>
-                {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
-                <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-primary opacity-70" />
-              </>
-            )}
-          </MenuButton>
-          <Menu
-            placement={variant === "mobile-menu" ? "bottom end" : isCollapsed ? "right" : "bottom start"}
-            popoverClassName="bg-input-background p-px -ml-1"
-            style={{ minWidth: `${sidebarWidth - 16}px` }}
+                {!isCollapsed && (
+                  <>
+                    <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
+                      {currentTenantName}
+                    </div>
+                    {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
+                    <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-foreground opacity-70" />
+                  </>
+                )}
+              </Button>
+            }
+          />
+          <DropdownMenuContent
+            align={variant === "mobile-menu" ? "end" : "start"}
+            side={variant === "mobile-menu" ? "bottom" : isCollapsed ? "right" : "bottom"}
+            className="w-auto bg-popover"
+            style={{ minWidth: `${Math.max(SIDE_MENU_DEFAULT_WIDTH, sidebarWidth) - 24}px` }}
           >
-            <MenuHeader>
-              <div className="flex flex-col gap-1 font-semibold text-sm">
-                <Trans>Select Account</Trans>
-              </div>
-            </MenuHeader>
-            <MenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>
+                <div className="flex flex-col gap-1 font-semibold text-sm">
+                  <Trans>Select Account</Trans>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
             {sortedTenants.map((tenant: TenantInfo) => (
-              <MenuItem key={tenant.tenantId} id={tenant.tenantId} onAction={() => handleTenantSwitch(tenant)}>
+              <DropdownMenuItem key={tenant.tenantId} onClick={() => handleTenantSwitch(tenant)}>
                 <TenantLogo
                   logoUrl={tenant.logoUrl}
                   tenantName={tenant.tenantName || ""}
@@ -185,10 +200,10 @@ function TenantMenuDropdown({
                     {tenant.tenantId === currentTenantId && <Check className="h-4 w-4" />}
                   </div>
                 </div>
-              </MenuItem>
+              </DropdownMenuItem>
             ))}
-          </Menu>
-        </MenuTrigger>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
@@ -222,7 +237,7 @@ function SingleTenantDisplay({
             />
           </div>
           {!isCollapsed && (
-            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-primary">
+            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
               {currentTenantName}
             </div>
           )}

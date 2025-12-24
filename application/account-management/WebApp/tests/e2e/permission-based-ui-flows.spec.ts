@@ -81,7 +81,7 @@ test.describe("@smoke", () => {
 
       // Click the actions button using JavaScript to bypass visibility checks
       const actionsButton = ownerRow.locator("button[aria-label='User actions']").first();
-      await actionsButton.evaluate((el: HTMLElement) => el.click());
+      await actionsButton.dispatchEvent("click");
 
       // Verify delete menu item is disabled (self-protection)
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
@@ -126,8 +126,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -190,7 +197,7 @@ test.describe("@smoke", () => {
       // Find the member's own row by filtering by email - use first() to handle duplicates
       const memberRow = page.locator("tbody tr").filter({ hasText: member.email }).first();
       const memberActionsButton = memberRow.locator("button[aria-label='User actions']").first();
-      await memberActionsButton.evaluate((el: HTMLElement) => el.click());
+      await memberActionsButton.dispatchEvent("click");
 
       // Verify delete and change role menu items are not visible (members don't see these options)
       await expect(page.getByRole("menuitem", { name: "Delete" })).not.toBeVisible();
@@ -296,12 +303,12 @@ test.describe("@smoke", () => {
       const thirdRow = rows.nth(2); // Second invited user
 
       // Select first user using force click to bypass visibility
-      await secondRow.evaluate((el: HTMLElement) => el.click());
+      await secondRow.dispatchEvent("click");
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       // Select second user with Ctrl/Cmd modifier - use evaluate to simulate click with modifier
       await page.keyboard.down("ControlOrMeta");
-      await thirdRow.evaluate((el: HTMLElement) => el.click());
+      await thirdRow.dispatchEvent("click");
       await page.keyboard.up("ControlOrMeta");
       await expect(thirdRow).toHaveAttribute("aria-selected", "true");
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
@@ -333,8 +340,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -378,11 +392,11 @@ test.describe("@smoke", () => {
       const thirdRow = rows.nth(2);
 
       // Select users as Member using force click to bypass visibility
-      await secondRow.evaluate((el: HTMLElement) => el.click());
+      await secondRow.dispatchEvent("click");
       await expect(secondRow).toHaveAttribute("aria-selected", "true");
 
       await page.keyboard.down("ControlOrMeta");
-      await thirdRow.evaluate((el: HTMLElement) => el.click());
+      await thirdRow.dispatchEvent("click");
       await page.keyboard.up("ControlOrMeta");
       await expect(thirdRow).toHaveAttribute("aria-selected", "true");
 

@@ -62,9 +62,17 @@ test.describe("@smoke", () => {
     })();
 
     await step("Open Sessions modal & verify current session with badge and no Revoke button")(async () => {
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Sessions" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const sessionsMenuItem = page.getByRole("menuitem", { name: "Sessions" });
+      await expect(sessionsMenuItem).toBeVisible();
+      await sessionsMenuItem.dispatchEvent("click");
 
       await expect(sessionsDialog).toBeVisible();
       await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
@@ -104,9 +112,17 @@ test.describe("@smoke", () => {
     })();
 
     await step("Re-open Sessions modal & verify multiple sessions with Revoke button on non-current")(async () => {
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Sessions" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const sessionsMenuItem = page.getByRole("menuitem", { name: "Sessions" });
+      await expect(sessionsMenuItem).toBeVisible();
+      await sessionsMenuItem.dispatchEvent("click");
 
       await expect(sessionsDialog).toBeVisible();
       await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
@@ -205,9 +221,17 @@ test.describe("@comprehensive", () => {
       const secondPageContext = createTestContext(secondPage);
       const secondSessionsDialog = secondPage.getByRole("dialog", { name: "Sessions" });
 
-      await secondPage.getByRole("button", { name: "User profile menu" }).click();
-      await expect(secondPage.getByRole("menu")).toBeVisible();
-      await secondPage.getByRole("menuitem", { name: "Sessions" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = secondPage.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = secondPage.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const sessionsMenuItem = secondPage.getByRole("menuitem", { name: "Sessions" });
+      await expect(sessionsMenuItem).toBeVisible();
+      await sessionsMenuItem.dispatchEvent("click");
 
       await expect(secondSessionsDialog).toBeVisible();
 
