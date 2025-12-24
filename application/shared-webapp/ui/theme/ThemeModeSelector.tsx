@@ -1,5 +1,5 @@
 import { Button } from "@repo/ui/components/Button";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { toggleThemeMode, useThemeMode } from "./mode/ThemeMode";
 import { SystemThemeMode, ThemeMode } from "./mode/utils";
@@ -13,12 +13,16 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: Readonly<{ "aria-
   const tooltipText = getTooltipText(themeMode, resolvedThemeMode);
 
   return (
-    <TooltipTrigger>
-      <Button variant="ghost" size="icon-lg" onClick={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
-        <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
-      </Button>
-      <Tooltip>{tooltipText}</Tooltip>
-    </TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button variant="ghost" size="icon-lg" onClick={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
+            <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
+          </Button>
+        }
+      />
+      <TooltipContent>{tooltipText}</TooltipContent>
+    </Tooltip>
   );
 }
 

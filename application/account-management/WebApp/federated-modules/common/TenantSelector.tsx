@@ -16,7 +16,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -370,12 +370,12 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
   if (isCollapsed) {
     return (
       <>
-        <TooltipTrigger>
-          {menuContent}
-          <Tooltip placement="right" offset={4}>
+        <Tooltip>
+          <TooltipTrigger render={menuContent} />
+          <TooltipContent side="right" sideOffset={4}>
             {currentTenantName}
-          </Tooltip>
-        </TooltipTrigger>
+          </TooltipContent>
+        </Tooltip>
         {isSwitching && <SwitchingAccountLoader />}
       </>
     );

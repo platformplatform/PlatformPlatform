@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -136,9 +136,9 @@ export default function LocaleSwitcher({
   );
 
   return (
-    <TooltipTrigger>
-      {menuContent}
-      <Tooltip>{t`Change language`}</Tooltip>
-    </TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger render={menuContent} />
+      <TooltipContent>{t`Change language`}</TooltipContent>
+    </Tooltip>
   );
 }

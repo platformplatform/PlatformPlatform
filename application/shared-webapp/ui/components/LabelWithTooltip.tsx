@@ -1,8 +1,8 @@
 import { t } from "@lingui/core/macro";
 import { InfoIcon } from "lucide-react";
-import { Button as AriaButton, Label as AriaLabel, type LabelProps as AriaLabelProps } from "react-aria-components";
+import { Label as AriaLabel, type LabelProps as AriaLabelProps } from "react-aria-components";
 import { cn } from "../utils";
-import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export interface LabelWithTooltipProps extends AriaLabelProps {
   tooltip?: string;
@@ -23,15 +23,15 @@ function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<L
   return (
     <AriaLabel {...props} className={cn(labelClassName, className)}>
       {children}
-      <TooltipTrigger delay={300}>
-        <AriaButton
+      <Tooltip>
+        <TooltipTrigger
           aria-label={t`More information`}
           className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-md p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
           <InfoIcon className="h-4 w-4 text-muted-foreground" />
-        </AriaButton>
-        <Tooltip>{tooltip}</Tooltip>
-      </TooltipTrigger>
+        </TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
     </AriaLabel>
   );
 }
