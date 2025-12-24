@@ -1,8 +1,8 @@
 import { Trans } from "@lingui/react/macro";
 import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { Github, Linkedin, Mail, Youtube } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { GithubIcon, LinkedinIcon, MailIcon, YoutubeIcon } from "lucide-react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -75,60 +75,76 @@ export function PublicFooter() {
 
           {/* Right: Social Links */}
           <div className="flex items-center gap-4">
-            <TooltipTrigger>
-              <a
-                href="mailto:support@platformplatform.net"
-                aria-label="Email"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Mail className="h-5 w-5" />
-              </a>
-              <Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <a
+                    href="mailto:support@platformplatform.net"
+                    aria-label="Email"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                  >
+                    <MailIcon className="h-5 w-5" />
+                  </a>
+                }
+              />
+              <TooltipContent>
                 <Trans>Email</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://www.linkedin.com/company/platformplatform/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Linkedin className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://www.linkedin.com/company/platformplatform/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="LinkedIn"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                  >
+                    <LinkedinIcon className="h-5 w-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>LinkedIn</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://www.youtube.com/@PlatformPlatform"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Youtube className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://www.youtube.com/@PlatformPlatform"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                  >
+                    <YoutubeIcon className="h-5 w-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>YouTube</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://github.com/platformplatform/PlatformPlatform"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Github className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://github.com/platformplatform/PlatformPlatform"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                  >
+                    <GithubIcon className="h-5 w-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>GitHub</Trans>
-              </Tooltip>
-            </TooltipTrigger>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>

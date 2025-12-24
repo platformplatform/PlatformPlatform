@@ -1,65 +1,58 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/tooltip--docs
- * ref: https://ui.shadcn.com/docs/components/tooltip
- */
-import type React from "react";
-import {
-  Tooltip as AriaTooltip,
-  type TooltipProps as AriaTooltipProps,
-  TooltipTrigger as AriaTooltipTrigger,
-  composeRenderProps,
-  OverlayArrow
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
+import { cn } from "../utils";
 
-// Default delay for tooltips across the application (in milliseconds)
 export const DEFAULT_TOOLTIP_DELAY = 200;
 
-export interface TooltipProps extends Omit<AriaTooltipProps, "children"> {
-  children: React.ReactNode;
-}
-
-const styles = tv({
-  base: "group rounded-md border border-border bg-popover px-3 py-1 text-popover-foreground text-sm shadow-md drop-shadow-lg will-change-transform",
-  variants: {
-    isEntering: {
-      true: "fade-in placement-bottom:slide-in-from-top-0.5 placement-top:slide-in-from-bottom-0.5 placement-left:slide-in-from-right-0.5 placement-right:slide-in-from-left-0.5 animate-in duration-200 ease-out"
-    },
-    isExiting: {
-      true: "fade-out placement-bottom:slide-out-to-top-0.5 placement-top:slide-out-to-bottom-0.5 placement-left:slide-out-to-right-0.5 placement-right:slide-out-to-left-0.5 animate-out duration-150 ease-in"
-    }
-  }
-});
-
-export function Tooltip({ children, ...props }: Readonly<TooltipProps>) {
+function TooltipProvider({ children, ...props }: TooltipPrimitive.Provider.Props) {
   return (
-    <AriaTooltip
-      {...props}
-      offset={10}
-      className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className }))}
-    >
-      <OverlayArrow>
-        <svg
-          width={8}
-          height={8}
-          viewBox="0 0 8 8"
-          className="fill-popover stroke-border group-placement-bottom:rotate-180 group-placement-left:-rotate-90 group-placement-right:rotate-90 forced-colors:fill-[Canvas] forced-colors:stroke-[ButtonBorder]"
-        >
-          <title>Tooltip arrow</title>
-          <path d="M0 0 L4 4 L8 0" />
-        </svg>
-      </OverlayArrow>
+    <TooltipPrimitive.Provider delay={DEFAULT_TOOLTIP_DELAY} {...props}>
       {children}
-    </AriaTooltip>
+    </TooltipPrimitive.Provider>
   );
 }
 
-export interface TooltipTriggerProps extends React.ComponentProps<typeof AriaTooltipTrigger> {}
-
-/**
- * Custom TooltipTrigger wrapper that provides a default delay.
- * Individual components can override by passing their own delay prop.
- */
-export function TooltipTrigger({ delay = DEFAULT_TOOLTIP_DELAY, ...props }: Readonly<TooltipTriggerProps>) {
-  return <AriaTooltipTrigger delay={delay} {...props} />;
+function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
+  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
 }
+
+function TooltipTrigger({ className, ...props }: TooltipPrimitive.Trigger.Props) {
+  return (
+    <TooltipPrimitive.Trigger data-slot="tooltip-trigger" className={cn("cursor-default", className)} {...props} />
+  );
+}
+
+export interface TooltipContentProps
+  extends TooltipPrimitive.Popup.Props,
+    Pick<TooltipPrimitive.Positioner.Props, "side" | "sideOffset" | "align" | "alignOffset"> {}
+
+function TooltipContent({
+  className,
+  side = "top",
+  sideOffset = 8,
+  align = "center",
+  alignOffset = 0,
+  children,
+  ...props
+}: TooltipContentProps) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Positioner side={side} sideOffset={sideOffset} align={align} alignOffset={alignOffset}>
+        <TooltipPrimitive.Popup
+          data-slot="tooltip-content"
+          className={cn(
+            "z-50 overflow-hidden rounded-md border border-border bg-popover px-3 py-1 text-popover-foreground text-sm shadow-md",
+            "origin-(--transform-origin) transition-[opacity,transform] duration-200",
+            "data-[starting-style]:scale-95 data-[starting-style]:opacity-0",
+            "data-[ending-style]:scale-95 data-[ending-style]:opacity-0",
+            className
+          )}
+          {...props}
+        >
+          {children}
+        </TooltipPrimitive.Popup>
+      </TooltipPrimitive.Positioner>
+    </TooltipPrimitive.Portal>
+  );
+}
+
+export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };

@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -214,10 +214,10 @@ export default function ThemeModeSelector({
 
   if (variant === "icon") {
     return (
-      <TooltipTrigger>
-        {menuContent}
-        <Tooltip>{t`Change theme`}</Tooltip>
-      </TooltipTrigger>
+      <Tooltip>
+        <TooltipTrigger render={menuContent} />
+        <TooltipContent>{t`Change theme`}</TooltipContent>
+      </Tooltip>
     );
   }
 
