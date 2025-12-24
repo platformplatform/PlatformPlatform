@@ -16,7 +16,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -110,7 +110,8 @@ function TenantMenuDropdown({
   currentTenantId,
   userInfo,
   handleTenantSwitch,
-  setIsMenuOpen
+  setIsMenuOpen,
+  showTooltip = false
 }: {
   currentTenantName: string;
   currentTenantNameForLogo: string;
@@ -125,39 +126,48 @@ function TenantMenuDropdown({
   userInfo: UserInfo | null;
   handleTenantSwitch: (tenant: TenantInfo) => void;
   setIsMenuOpen: (open: boolean) => void;
+  showTooltip?: boolean;
 }) {
+  const triggerButton = (
+    <Button
+      variant="ghost"
+      className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
+    >
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+        <TenantLogo
+          logoUrl={currentTenantLogoUrl}
+          tenantName={currentTenantNameForLogo}
+          size="xs"
+          isRound={false}
+          className="shrink-0"
+        />
+      </div>
+      {!isCollapsed && (
+        <>
+          <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
+            {currentTenantName}
+          </div>
+          {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
+          <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-foreground opacity-70" />
+        </>
+      )}
+    </Button>
+  );
+
   return (
     <div className="relative w-full px-3">
       <div className="">
         <DropdownMenu onOpenChange={setIsMenuOpen}>
-          <DropdownMenuTrigger
-            disabled={isSwitching}
-            render={
-              <Button
-                variant="ghost"
-                className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
-              >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                  <TenantLogo
-                    logoUrl={currentTenantLogoUrl}
-                    tenantName={currentTenantNameForLogo}
-                    size="xs"
-                    isRound={false}
-                    className="shrink-0"
-                  />
-                </div>
-                {!isCollapsed && (
-                  <>
-                    <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
-                      {currentTenantName}
-                    </div>
-                    {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
-                    <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-foreground opacity-70" />
-                  </>
-                )}
-              </Button>
-            }
-          />
+          {showTooltip ? (
+            <Tooltip>
+              <TooltipTrigger render={<DropdownMenuTrigger disabled={isSwitching} render={triggerButton} />} />
+              <TooltipContent side="right" sideOffset={4}>
+                {currentTenantName}
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <DropdownMenuTrigger disabled={isSwitching} render={triggerButton} />
+          )}
           <DropdownMenuContent
             align={variant === "mobile-menu" ? "end" : "start"}
             side={variant === "mobile-menu" ? "bottom" : isCollapsed ? "right" : "bottom"}
@@ -348,42 +358,24 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
   }
 
   // When there are multiple tenants, show dropdown with styled content
-  const menuContent = (
-    <TenantMenuDropdown
-      currentTenantName={currentTenantName}
-      currentTenantNameForLogo={currentTenantNameForLogo}
-      currentTenantLogoUrl={currentTenantLogoUrl}
-      newTenantsCount={newTenantsCount}
-      isCollapsed={isCollapsed}
-      isSwitching={isSwitching}
-      variant={variant}
-      sidebarWidth={sidebarWidth}
-      sortedTenants={sortedTenants}
-      currentTenantId={currentTenantId}
-      userInfo={userInfo}
-      handleTenantSwitch={handleTenantSwitch}
-      setIsMenuOpen={setIsMenuOpen}
-    />
-  );
-
-  // Wrap in tooltip for collapsed state
-  if (isCollapsed) {
-    return (
-      <>
-        <TooltipTrigger>
-          {menuContent}
-          <Tooltip placement="right" offset={4}>
-            {currentTenantName}
-          </Tooltip>
-        </TooltipTrigger>
-        {isSwitching && <SwitchingAccountLoader />}
-      </>
-    );
-  }
-
   return (
     <>
-      {menuContent}
+      <TenantMenuDropdown
+        currentTenantName={currentTenantName}
+        currentTenantNameForLogo={currentTenantNameForLogo}
+        currentTenantLogoUrl={currentTenantLogoUrl}
+        newTenantsCount={newTenantsCount}
+        isCollapsed={isCollapsed}
+        isSwitching={isSwitching}
+        variant={variant}
+        sidebarWidth={sidebarWidth}
+        sortedTenants={sortedTenants}
+        currentTenantId={currentTenantId}
+        userInfo={userInfo}
+        handleTenantSwitch={handleTenantSwitch}
+        setIsMenuOpen={setIsMenuOpen}
+        showTooltip={isCollapsed}
+      />
       {isSwitching && <SwitchingAccountLoader />}
     </>
   );

@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -113,15 +113,22 @@ export default function LocaleSwitcher({
   }
 
   // Icon variant
-  const menuContent = (
+  return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-lg" aria-label={t`Change language`}>
-            <GlobeIcon className="size-5" />
-          </Button>
-        }
-      />
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon-lg" aria-label={t`Change language`}>
+                  <GlobeIcon className="size-5" />
+                </Button>
+              }
+            />
+          }
+        />
+        <TooltipContent>{t`Change language`}</TooltipContent>
+      </Tooltip>
       <DropdownMenuContent>
         {locales.map((locale) => (
           <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
@@ -133,12 +140,5 @@ export default function LocaleSwitcher({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-
-  return (
-    <TooltipTrigger>
-      {menuContent}
-      <Tooltip>{t`Change language`}</Tooltip>
-    </TooltipTrigger>
   );
 }

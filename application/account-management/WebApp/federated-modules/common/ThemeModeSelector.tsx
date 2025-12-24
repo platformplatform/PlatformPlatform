@@ -7,17 +7,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const THEME_MODE_KEY = "preferred-theme";
 
-enum ThemeMode {
-  System = "system",
-  Light = "light",
-  Dark = "dark"
-}
+const ThemeMode = {
+  System: "system",
+  Light: "light",
+  Dark: "dark"
+} as const;
+
+type ThemeModeType = (typeof ThemeMode)[keyof typeof ThemeMode];
 
 function updateThemeColorMeta() {
   requestAnimationFrame(() => {
@@ -40,11 +42,11 @@ export default function ThemeModeSelector({
   variant?: "icon" | "mobile-menu";
   onAction?: () => void;
 } = {}) {
-  const [themeMode, setThemeModeState] = useState<ThemeMode>(ThemeMode.System);
+  const [themeMode, setThemeModeState] = useState<ThemeModeType>(ThemeMode.System);
 
   useEffect(() => {
     // Read initial theme mode from localStorage
-    const savedMode = localStorage.getItem(THEME_MODE_KEY) as ThemeMode;
+    const savedMode = localStorage.getItem(THEME_MODE_KEY) as ThemeModeType;
     const initialMode = savedMode && Object.values(ThemeMode).includes(savedMode) ? savedMode : ThemeMode.System;
     setThemeModeState(initialMode);
 
@@ -75,7 +77,7 @@ export default function ThemeModeSelector({
     // Listen for storage changes from other tabs/components
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === THEME_MODE_KEY && e.newValue) {
-        const newMode = e.newValue as ThemeMode;
+        const newMode = e.newValue as ThemeModeType;
         if (Object.values(ThemeMode).includes(newMode)) {
           setThemeModeState(newMode);
         }
@@ -85,7 +87,7 @@ export default function ThemeModeSelector({
     // Listen for theme changes from the same tab (e.g., mobile menu)
     const handleThemeChange = (e: Event) => {
       const customEvent = e as CustomEvent;
-      const newMode = customEvent.detail as ThemeMode;
+      const newMode = customEvent.detail as ThemeModeType;
       if (Object.values(ThemeMode).includes(newMode)) {
         setThemeModeState(newMode);
       }
@@ -100,7 +102,7 @@ export default function ThemeModeSelector({
     };
   }, []);
 
-  const handleThemeChange = (newMode: ThemeMode) => {
+  const handleThemeChange = (newMode: ThemeModeType) => {
     setThemeModeState(newMode);
     localStorage.setItem(THEME_MODE_KEY, newMode);
 
@@ -151,15 +153,11 @@ export default function ThemeModeSelector({
     }
   };
 
-  const menuContent = (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          variant === "icon" ? (
-            <Button variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
-              {getThemeIcon()}
-            </Button>
-          ) : (
+  if (variant === "mobile-menu") {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
             <Button
               variant="ghost"
               className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
@@ -179,10 +177,56 @@ export default function ThemeModeSelector({
                 )}
               </div>
             </Button>
-          )
-        }
-      />
-      <DropdownMenuContent align={variant === "mobile-menu" ? "end" : "start"} className="w-auto">
+          }
+        />
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
+            <div className="flex items-center gap-2">
+              {window.matchMedia("(prefers-color-scheme: dark)").matches ? (
+                <MoonStarIcon className="h-5 w-5" />
+              ) : (
+                <SunMoonIcon className="h-5 w-5" />
+              )}
+              <Trans>System</Trans>
+              {themeMode === ThemeMode.System && <CheckIcon className="ml-auto h-5 w-5" />}
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
+            <div className="flex items-center gap-2">
+              <SunIcon className="h-5 w-5" />
+              <Trans>Light</Trans>
+              {themeMode === ThemeMode.Light && <CheckIcon className="ml-auto h-5 w-5" />}
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
+            <div className="flex items-center gap-2">
+              <MoonIcon className="h-5 w-5" />
+              <Trans>Dark</Trans>
+              {themeMode === ThemeMode.Dark && <CheckIcon className="ml-auto h-5 w-5" />}
+            </div>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DropdownMenuTrigger
+              render={
+                <Button variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
+                  {getThemeIcon()}
+                </Button>
+              }
+            />
+          }
+        />
+        <TooltipContent>{t`Change theme`}</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="start">
         <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
           <div className="flex items-center gap-2">
             {window.matchMedia("(prefers-color-scheme: dark)").matches ? (
@@ -211,15 +255,4 @@ export default function ThemeModeSelector({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-
-  if (variant === "icon") {
-    return (
-      <TooltipTrigger>
-        {menuContent}
-        <Tooltip>{t`Change theme`}</Tooltip>
-      </TooltipTrigger>
-    );
-  }
-
-  return menuContent;
 }

@@ -14,7 +14,7 @@ import {
 import { Field, FieldLabel } from "@repo/ui/components/Field";
 import { SearchField } from "@repo/ui/components/SearchField";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
@@ -334,71 +334,77 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         </>
       )}
 
-      <TooltipTrigger>
-        <Button
-          variant="secondary"
-          className="relative mt-6"
-          aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
-          data-testid="filter-button"
-          onClick={() => {
-            if (showAllFilters) {
-              clearAllFilters();
-              return;
-            }
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              variant="secondary"
+              className="relative mt-6"
+              aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
+              data-testid="filter-button"
+              onClick={() => {
+                if (showAllFilters) {
+                  clearAllFilters();
+                  return;
+                }
 
-            if (isOverlayOpen || isMobileMenuOpen) {
-              setIsFilterPanelOpen(true);
-              return;
-            }
+                if (isOverlayOpen || isMobileMenuOpen) {
+                  setIsFilterPanelOpen(true);
+                  return;
+                }
 
-            if (!containerRef.current) {
-              setIsFilterPanelOpen(true);
-              return;
-            }
+                if (!containerRef.current) {
+                  setIsFilterPanelOpen(true);
+                  return;
+                }
 
-            const toolbarContainer = containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
-            if (!toolbarContainer) {
-              setIsFilterPanelOpen(true);
-              return;
-            }
+                const toolbarContainer = containerRef.current.closest(
+                  ".flex.items-center.justify-between"
+                ) as HTMLElement;
+                if (!toolbarContainer) {
+                  setIsFilterPanelOpen(true);
+                  return;
+                }
 
-            const toolbarWidth = toolbarContainer.offsetWidth;
-            const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
-            const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
+                const toolbarWidth = toolbarContainer.offsetWidth;
+                const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
+                const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
 
-            const searchWidth = searchField?.offsetWidth || 300;
-            const filterButtonWidth = filterButton?.offsetWidth || 50;
+                const searchWidth = searchField?.offsetWidth || 300;
+                const filterButtonWidth = filterButton?.offsetWidth || 50;
 
-            const rightSideWidth = 130;
+                const rightSideWidth = 130;
 
-            const gaps = 16;
-            const minimumFilterSpace = 500;
+                const gaps = 16;
+                const minimumFilterSpace = 500;
 
-            const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-            const availableSpace = toolbarWidth - usedSpace;
+                const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+                const availableSpace = toolbarWidth - usedSpace;
 
-            const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
+                const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
 
-            if (hasSpaceForInlineFilters) {
-              setShowAllFilters(!showAllFilters);
-              return;
-            }
-            setIsFilterPanelOpen(true);
-          }}
-        >
-          {showAllFilters ? (
-            <FilterX size={16} aria-label={t`Clear filters`} />
-          ) : (
-            <Filter size={16} aria-label={t`Show filters`} />
-          )}
-          {activeFilterCount > 0 && !showAllFilters && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
-              {activeFilterCount}
-            </span>
-          )}
-        </Button>
-        <Tooltip>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</Tooltip>
-      </TooltipTrigger>
+                if (hasSpaceForInlineFilters) {
+                  setShowAllFilters(!showAllFilters);
+                  return;
+                }
+                setIsFilterPanelOpen(true);
+              }}
+            >
+              {showAllFilters ? (
+                <FilterX size={16} aria-label={t`Clear filters`} />
+              ) : (
+                <Filter size={16} aria-label={t`Show filters`} />
+              )}
+              {activeFilterCount > 0 && !showAllFilters && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+          }
+        />
+        <TooltipContent>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</TooltipContent>
+      </Tooltip>
 
       <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen}>
         <DialogContent className="w-full sm:min-w-[400px]">

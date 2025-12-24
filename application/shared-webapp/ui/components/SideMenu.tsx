@@ -11,7 +11,7 @@ import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_
 import { Button } from "./Button";
 import { focusRing } from "./focusRing";
 import { Link } from "./Link";
-import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export const collapsedContext = createContext(false);
 export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
@@ -229,27 +229,31 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     setTimeout(navigateWithDelay, 10);
   };
 
-  // For collapsed menu, wrap in TooltipTrigger
+  // For collapsed menu, wrap in Tooltip
   if (isCollapsed) {
     return (
       <div className="relative">
         <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
-        <TooltipTrigger>
-          <Link
-            href={forceReload || federatedNavigation ? undefined : to}
-            className={linkClassName}
-            variant="ghost"
-            underline={false}
-            isDisabled={isDisabled}
-            aria-current={isActive ? "page" : undefined}
-            onPress={handlePress}
-          >
-            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-          </Link>
-          <Tooltip placement="right" offset={4}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href={forceReload || federatedNavigation ? undefined : to}
+                className={linkClassName}
+                variant="ghost"
+                underline={false}
+                isDisabled={isDisabled}
+                aria-current={isActive ? "page" : undefined}
+                onPress={handlePress}
+              >
+                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+              </Link>
+            }
+          />
+          <TooltipContent side="right" sideOffset={4}>
             {label}
-          </Tooltip>
-        </TooltipTrigger>
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   }
@@ -344,27 +348,31 @@ export function FederatedMenuButton({
     }, 10);
   }, [isDisabled, overlayCtx, isCurrentSystem, router, to]);
 
-  // For collapsed menu, wrap in TooltipTrigger
+  // For collapsed menu, wrap in Tooltip
   if (isCollapsed) {
     return (
       <div className="relative">
         <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
-        <TooltipTrigger>
-          <Link
-            href={undefined}
-            className={linkClassName}
-            variant="ghost"
-            underline={false}
-            isDisabled={isDisabled}
-            aria-current={isActive ? "page" : undefined}
-            onPress={handleNavigation}
-          >
-            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-          </Link>
-          <Tooltip placement="right" offset={4}>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href={undefined}
+                className={linkClassName}
+                variant="ghost"
+                underline={false}
+                isDisabled={isDisabled}
+                aria-current={isActive ? "page" : undefined}
+                onPress={handleNavigation}
+              >
+                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+              </Link>
+            }
+          />
+          <TooltipContent side="right" sideOffset={4}>
             {label}
-          </Tooltip>
-        </TooltipTrigger>
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   }
