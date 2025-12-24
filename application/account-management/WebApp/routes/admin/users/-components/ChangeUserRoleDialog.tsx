@@ -2,14 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@repo/ui/components/Dialog";
+import { DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
+import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
@@ -17,7 +11,7 @@ import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -38,6 +32,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
         return;
       }
 
+      setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
       toastQueue.add({
         title: t`Success`,
@@ -51,12 +46,9 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     }
   });
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      setSelectedRole(null);
-    }
-    onOpenChange(open);
-  };
+  const handleCloseComplete = useCallback(() => {
+    setSelectedRole(null);
+  }, []);
 
   if (!user) {
     return null;
@@ -76,7 +68,16 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <DirtyDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={selectedRole !== null}
+      unsavedChangesTitle={t`Unsaved changes`}
+      unsavedChangesMessage={<Trans>You have unsaved changes. If you leave now, your changes will be lost.</Trans>}
+      leaveLabel={t`Leave`}
+      stayLabel={t`Stay`}
+      onCloseComplete={handleCloseComplete}
+    >
       <DialogContent className="sm:w-dialog-lg">
         <DialogHeader>
           <DialogTitle>
@@ -163,6 +164,6 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
           </DialogFooter>
         </Form>
       </DialogContent>
-    </Dialog>
+    </DirtyDialog>
   );
 }

@@ -3,7 +3,6 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
 import {
-  Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -11,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
@@ -21,7 +21,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
-import { useContext, useRef, useState } from "react";
+import { useCallback, useContext, useRef, useState } from "react";
 import { FileTrigger } from "react-aria-components";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
@@ -38,10 +38,18 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   const { updateUserInfo } = useContext(AuthenticationContext);
+
+  const handleCloseComplete = useCallback(() => {
+    setSelectedAvatarFile(null);
+    setAvatarPreviewUrl(null);
+    setRemoveAvatarFlag(false);
+    setIsFormDirty(false);
+  }, []);
 
   const {
     data: user,
@@ -80,6 +88,10 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       }
     },
     onSuccess: () => {
+      setSelectedAvatarFile(null);
+      setAvatarPreviewUrl(null);
+      setRemoveAvatarFlag(false);
+      setIsFormDirty(false);
       toastQueue.add({
         title: t`Success`,
         description: t`Profile updated successfully`,
@@ -114,8 +126,19 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     return null;
   }
 
+  const hasUnsavedChanges = isFormDirty || selectedAvatarFile !== null || removeAvatarFlag;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <DirtyDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={hasUnsavedChanges}
+      unsavedChangesTitle={t`Unsaved changes`}
+      unsavedChangesMessage={<Trans>You have unsaved changes. If you leave now, your changes will be lost.</Trans>}
+      leaveLabel={t`Leave`}
+      stayLabel={t`Stay`}
+      onCloseComplete={handleCloseComplete}
+    >
       {!user ? (
         <DialogContent className="sm:w-dialog-md">
           <DialogHeader>
@@ -211,6 +234,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   defaultValue={user?.firstName}
                   placeholder={t`E.g. Alex`}
                   className="sm:flex-1"
+                  onChange={() => setIsFormDirty(true)}
                 />
                 <TextField
                   isRequired={true}
@@ -219,6 +243,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   defaultValue={user?.lastName}
                   placeholder={t`E.g. Taylor`}
                   className="sm:flex-1"
+                  onChange={() => setIsFormDirty(true)}
                 />
               </div>
               <TextField
@@ -233,6 +258,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 tooltip={t`Your professional title or role`}
                 defaultValue={user?.title}
                 placeholder={t`E.g. Software engineer`}
+                onChange={() => setIsFormDirty(true)}
               />
             </div>
 
@@ -249,6 +275,6 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           </Form>
         </DialogContent>
       )}
-    </Dialog>
+    </DirtyDialog>
   );
 }

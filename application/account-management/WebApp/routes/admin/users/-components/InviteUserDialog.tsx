@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import {
-  Dialog,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -10,10 +9,12 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
@@ -22,8 +23,10 @@ interface InviteUserDialogProps {
 }
 
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite", {
     onSuccess: () => {
+      setIsFormDirty(false);
       toastQueue.add({
         title: t`Success`,
         description: t`User invited successfully`,
@@ -33,8 +36,21 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
     }
   });
 
+  const handleCloseComplete = () => {
+    setIsFormDirty(false);
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <DirtyDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={isFormDirty}
+      unsavedChangesTitle={t`Unsaved changes`}
+      unsavedChangesMessage={<Trans>You have unsaved changes. If you leave now, your changes will be lost.</Trans>}
+      leaveLabel={t`Leave`}
+      stayLabel={t`Stay`}
+      onCloseComplete={handleCloseComplete}
+    >
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>
@@ -59,6 +75,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
               label={t`Email`}
               placeholder={t`user@email.com`}
               className="flex-grow"
+              onChange={() => setIsFormDirty(true)}
             />
           </div>
           <DialogFooter>
@@ -71,6 +88,6 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           </DialogFooter>
         </Form>
       </DialogContent>
-    </Dialog>
+    </DirtyDialog>
   );
 }

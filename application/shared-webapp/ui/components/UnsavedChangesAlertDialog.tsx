@@ -1,5 +1,14 @@
 import type { ReactNode } from "react";
-import { AlertDialog, AlertDialogRoot } from "./AlertDialog";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "./AlertDialog";
+import { Button } from "./Button";
 
 type UnsavedChangesAlertDialogProps = {
   isOpen: boolean;
@@ -21,16 +30,19 @@ export function UnsavedChangesAlertDialog({
   children
 }: Readonly<UnsavedChangesAlertDialogProps>) {
   return (
-    <AlertDialogRoot open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <AlertDialog
-        title={title}
-        variant="destructive"
-        actionLabel={actionLabel}
-        cancelLabel={cancelLabel}
-        onAction={onConfirmLeave}
-      >
-        {children}
-      </AlertDialog>
-    </AlertDialogRoot>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent zIndex="high">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{children}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogClose render={<Button variant="secondary" />}>{cancelLabel}</AlertDialogClose>
+          <Button variant="destructive" onClick={onConfirmLeave}>
+            {actionLabel}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -1,6 +1,14 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog, AlertDialogRoot } from "@repo/ui/components/AlertDialog";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@repo/ui/components/AlertDialog";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import {
@@ -151,19 +159,26 @@ function RevokeSessionDialog({
   onRevoke: () => void;
 }>) {
   return (
-    <AlertDialogRoot open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialog
-        title={t`Revoke session`}
-        variant="destructive"
-        actionLabel={t`Revoke`}
-        cancelLabel={t`Cancel`}
-        onAction={onRevoke}
-      >
-        <Trans>
-          Are you sure you want to revoke this session? The device will be signed out and will need to log in again.
-        </Trans>
-      </AlertDialog>
-    </AlertDialogRoot>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent zIndex="high">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t`Revoke session`}</AlertDialogTitle>
+          <AlertDialogDescription>
+            <Trans>
+              Are you sure you want to revoke this session? The device will be signed out and will need to log in again.
+            </Trans>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogClose render={<Button variant="secondary" />}>
+            <Trans>Cancel</Trans>
+          </AlertDialogClose>
+          <Button variant="destructive" onClick={onRevoke}>
+            <Trans>Revoke</Trans>
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
