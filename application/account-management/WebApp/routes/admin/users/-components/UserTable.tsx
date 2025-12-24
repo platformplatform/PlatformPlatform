@@ -11,8 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
-import { Pagination } from "@repo/ui/components/Pagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
+import { TablePagination } from "@repo/ui/components/TablePagination";
 import { Text } from "@repo/ui/components/Text";
 import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useKeyboardNavigation } from "@repo/ui/hooks/useKeyboardNavigation";
@@ -370,7 +370,7 @@ export function UserTable({
       {/* Desktop: Regular pagination */}
       {!isMobile && users && (
         <div className="flex-shrink-0 bg-background pt-4">
-          <Pagination
+          <TablePagination
             paginationSize={9}
             currentPage={currentPage}
             totalPages={users.totalPages ?? 1}

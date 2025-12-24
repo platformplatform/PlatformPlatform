@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
-import { Pagination } from "@repo/ui/components/Pagination";
+import { TablePagination } from "@repo/ui/components/TablePagination";
 import { Cell, Column, Row, Table, TableHeader } from "@repo/ui/components/Table";
 import { Text } from "@repo/ui/components/Text";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
@@ -154,7 +154,7 @@ export function DeletedUsersTable({
 
       {!isMobile && totalPages > 1 && (
         <div className="flex-shrink-0 bg-background pt-4">
-          <Pagination
+          <TablePagination
             paginationSize={9}
             currentPage={currentPage}
             totalPages={totalPages}
