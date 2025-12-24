@@ -3,6 +3,7 @@
  */
 import { SearchIcon, XIcon } from "lucide-react";
 import {
+  Input as AriaInput,
   SearchField as AriaSearchField,
   type SearchFieldProps as AriaSearchFieldProps,
   type ValidationResult
@@ -11,7 +12,6 @@ import { Button } from "./Button";
 import { Description } from "./Description";
 import { FieldGroup } from "./Field";
 import { FieldError } from "./FieldError";
-import { Input } from "./Input";
 import { Label } from "./Label";
 import { composeTailwindRenderProps } from "./utils";
 
@@ -42,10 +42,9 @@ export function SearchField({
           aria-hidden={true}
           className="ml-2 h-4 min-h-[16px] w-4 min-w-[16px] text-muted-foreground group-disabled:opacity-50 forced-colors:text-[ButtonText] forced-colors:group-disabled:text-[GrayText]"
         />
-        <Input
+        <AriaInput
           placeholder={placeholder}
-          isEmbedded={true}
-          className="bg-transparent [&::-webkit-search-cancel-button]:hidden"
+          className="h-9 w-full min-w-0 border-0 bg-transparent px-2.5 py-1 text-base shadow-none outline-none placeholder:text-muted-foreground focus:ring-0 md:text-sm [&::-webkit-search-cancel-button]:hidden"
         />
         <Button variant="ghost" size="icon" className="mr-1 w-6 group-empty:invisible">
           <XIcon aria-hidden={true} className="h-4 w-4" />
