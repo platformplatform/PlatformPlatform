@@ -3,10 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { AlertDialog } from "@repo/ui/components/AlertDialog";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
-import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -144,7 +141,6 @@ function SessionCard({
 function RevokeSessionDialog({
   isOpen,
   onOpenChange,
-  isPending,
   onRevoke
 }: Readonly<{
   isOpen: boolean;
@@ -153,7 +149,7 @@ function RevokeSessionDialog({
   onRevoke: () => void;
 }>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={!isPending} zIndex="high">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialog
         title={t`Revoke session`}
         variant="destructive"
@@ -165,7 +161,7 @@ function RevokeSessionDialog({
         <br />
         <Trans>The device will need to sign in again.</Trans>
       </AlertDialog>
-    </Modal>
+    </Dialog>
   );
 }
 
@@ -244,22 +240,24 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
-        <Dialog aria-label={t`Sessions`} className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-xl">
+      <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <DialogContent
+          showCloseButton={false}
+          className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-xl"
+        >
           <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-          <DialogHeader
-            description={
+          <DialogHeader>
+            <DialogTitle className="text-2xl">
+              <Trans>Sessions</Trans>
+            </DialogTitle>
+            <p className="text-muted-foreground text-sm">
               <Trans>
                 A list of devices that have logged into your account. Revoke any sessions you don't recognize.
               </Trans>
-            }
-          >
-            <Heading slot="title" className="text-2xl">
-              <Trans>Sessions</Trans>
-            </Heading>
+            </p>
           </DialogHeader>
 
-          <DialogContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {hasRevokedSession && (
               <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
                 <InfoIcon className="h-5 w-5 shrink-0 text-info" />
@@ -290,14 +288,14 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                 ))}
               </div>
             )}
-          </DialogContent>
+          </div>
           <DialogFooter>
             <Button onClick={handleClose}>
               <Trans>Close</Trans>
             </Button>
           </DialogFooter>
-        </Dialog>
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
       <RevokeSessionDialog
         isOpen={isRevokeDialogOpen}

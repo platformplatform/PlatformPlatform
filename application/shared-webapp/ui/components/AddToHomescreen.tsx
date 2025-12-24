@@ -85,7 +85,7 @@ export function AddToHomescreen() {
 
   return (
     <div
-      className="slide-in-from-top-2 fixed top-0 right-0 left-0 z-80 animate-in"
+      className="slide-in-from-top-2 fixed top-0 right-0 left-0 z-[48] animate-in"
       style={{
         transform: `translateY(${translateY}px)`,
         transition: isDragging ? "none" : "transform 0.2s ease-out"

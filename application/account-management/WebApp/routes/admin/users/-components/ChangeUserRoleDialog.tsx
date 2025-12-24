@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
@@ -14,6 +13,7 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 import { useState } from "react";
+import { Dialog } from "react-aria-components";
 import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
