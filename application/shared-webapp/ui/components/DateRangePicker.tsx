@@ -119,6 +119,7 @@ export function DateRangePicker<T extends DateValue>({
           // Compact view - just a button with calendar icon
           <Button
             variant="outline"
+            aria-label={label}
             className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
               hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
             }`}

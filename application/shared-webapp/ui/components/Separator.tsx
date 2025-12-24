@@ -1,24 +1,19 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter
- */
-import { Separator as AriaSeparator, type SeparatorProps } from "react-aria-components";
-import { tv } from "tailwind-variants";
+import { Separator as SeparatorPrimitive } from "@base-ui/react/separator";
 
-const styles = tv({
-  base: "bg-gray-300 dark:bg-zinc-600 forced-colors:bg-[ButtonBorder]",
-  variants: {
-    orientation: {
-      horizontal: "h-px w-full",
-      vertical: "w-px"
-    }
-  },
-  defaultVariants: {
-    orientation: "horizontal"
-  }
-});
+import { cn } from "../utils";
 
-export function Separator(props: Readonly<SeparatorProps>) {
+function Separator({ className, orientation = "horizontal", ...props }: SeparatorPrimitive.Props) {
   return (
-    <AriaSeparator {...props} className={styles({ orientation: props.orientation, className: props.className })} />
+    <SeparatorPrimitive
+      data-slot="separator"
+      orientation={orientation}
+      className={cn(
+        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:w-px data-[orientation=vertical]:self-stretch",
+        className
+      )}
+      {...props}
+    />
   );
 }
+
+export { Separator };
