@@ -243,7 +243,7 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Ensure row is selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens automatically on mobile when clicking a row
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -266,7 +266,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("ArrowDown");
 
       const secondRow = page.locator("tbody tr").nth(1);
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane remains closed when using keyboard navigation
       await expect(page.locator('[aria-label="User profile"]')).not.toBeVisible();
@@ -277,7 +277,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("ArrowDown");
 
       const thirdRow = page.locator("tbody tr").nth(2);
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Press Enter to open the side pane
       await page.keyboard.press("Enter");
@@ -311,7 +311,7 @@ test.describe("@comprehensive", () => {
       // Re-select first user since selection was cleared
       const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opened automatically
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -342,7 +342,7 @@ test.describe("@comprehensive", () => {
       // Navigate to second user and open side pane
       const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Side pane should open automatically on click in mobile
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -483,10 +483,10 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Verify only first row is selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
       const secondRow = page.locator("tbody tr").nth(1);
       await expect(secondRow).toBeVisible();
-      await expect(secondRow).toHaveAttribute("aria-selected", "false");
+      await expect(secondRow).not.toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -516,7 +516,7 @@ test.describe("@comprehensive", () => {
 
       // Now click first row again and verify selection
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Close side pane
       await page.keyboard.press("Escape");
@@ -526,8 +526,8 @@ test.describe("@comprehensive", () => {
 
       // Verify selection moved to second row
       const secondRow = page.locator("tbody tr").nth(1);
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane stays closed during keyboard navigation
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -561,7 +561,7 @@ test.describe("@comprehensive", () => {
 
       // Click first user
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Close side pane
       await page.keyboard.press("Escape");
@@ -571,8 +571,8 @@ test.describe("@comprehensive", () => {
       await secondRow.click();
 
       // With single selection mode, only second user should be selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
     })();
 
     await step("Click third user after keyboard navigation and side pane interaction & verify single selection")(
@@ -583,20 +583,16 @@ test.describe("@comprehensive", () => {
         await page.keyboard.press("Escape");
         await expect(sidePane).not.toBeVisible();
 
-        // Click first user
+        // Click first user to select it
         const firstRow = page.locator("tbody tr").first();
         await firstRow.click();
-        await page.keyboard.press("Escape");
-
-        // Re-select first row since selection was cleared
-        await firstRow.click();
-        await expect(firstRow).toHaveAttribute("aria-selected", "true");
+        await expect(firstRow).toHaveAttribute("data-state", "selected");
         await page.keyboard.press("Escape");
 
         // Navigate to second with keyboard
         const secondRow = page.locator("tbody tr").nth(1);
         await page.keyboard.press("ArrowDown");
-        await expect(secondRow).toHaveAttribute("aria-selected", "true");
+        await expect(secondRow).toHaveAttribute("data-state", "selected");
 
         // Open side pane with Enter
         const thirdRow = page.locator("tbody tr").nth(2);
@@ -615,9 +611,9 @@ test.describe("@comprehensive", () => {
         await thirdRow.click();
 
         // With single selection mode, only third user should be selected
-        await expect(firstRow).toHaveAttribute("aria-selected", "false");
-        await expect(secondRow).toHaveAttribute("aria-selected", "false");
-        await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+        await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+        await expect(secondRow).not.toHaveAttribute("data-state", "selected");
+        await expect(thirdRow).toHaveAttribute("data-state", "selected");
       }
     )();
 
@@ -649,9 +645,9 @@ test.describe("@comprehensive", () => {
       await thirdRow.click();
 
       // With single selection mode, only third user should be selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "false");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).not.toHaveAttribute("data-state", "selected");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
     })();
   });
 });

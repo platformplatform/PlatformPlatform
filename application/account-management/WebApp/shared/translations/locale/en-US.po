@@ -696,8 +696,16 @@ msgstr "Security alert"
 msgid "Security, privacy, and compliance information"
 msgstr "Security, privacy, and compliance information"
 
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Select {0} {1}"
+msgstr "Select {0} {1}"
+
 msgid "Select Account"
 msgstr "Select Account"
+
+msgid "Select all users"
+msgstr "Select all users"
 
 msgid "Select dates"
 msgstr "Select dates"
