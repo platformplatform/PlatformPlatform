@@ -7,6 +7,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
 import { Text } from "@repo/ui/components/Text";
+import { cn } from "@repo/ui/utils";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -251,7 +252,10 @@ export function UserProfileSidePane({
       {/* Side pane */}
       <section
         ref={sidePaneRef}
-        className="relative flex h-full w-full flex-col border-border border-l bg-background"
+        className={cn(
+          "relative flex h-full w-full flex-col border-border border-l bg-background",
+          isSmallScreen && "z-[46]"
+        )}
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}

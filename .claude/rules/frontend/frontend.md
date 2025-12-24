@@ -104,8 +104,8 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - `z-[200]`: Mobile full-screen menus
    - Note: ShadCN components use z-50 as the standard overlay layer. Keep all app UI below z-50 unless it must appear above dialogs (like toasts)
 
-6. DirtyModal close handlers:
-   - **X button**: Use Dialog's `close` from render prop (shows unsaved warning if dirty)
+6. DirtyDialog close handlers:
+   - **X button**: Built-in close button shows unsaved warning if dirty
    - **Cancel button**: Use `handleCancel` that clears state and closes immediately (bypasses warning)
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
 
@@ -145,32 +145,26 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
   const handleCancel = () => { setIsFormDirty(false); onOpenChange(false); }; // ✅ Clear state + close (bypasses warning)
 
   return (
-    <DirtyModal isOpen={isOpen} onOpenChange={onOpenChange} hasUnsavedChanges={isFormDirty}
-                isDismissable={!inviteMutation.isPending} onCloseComplete={handleCloseComplete}>
-      <Dialog className="sm:w-dialog-md"> // ✅ Use dialog width classes (not max-w-lg)
-        {({ close }) => ( // ✅ Dialog render prop provides close function
-          <>
-            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" /> // ✅ X uses close (shows warning if dirty)
-            <DialogHeader description={t`Select users from the list.`}>
-              <Heading slot="title" className="text-2xl"><Trans>Select users</Trans></Heading>
-            </DialogHeader>
-            <Form onSubmit={mutationSubmitter(inviteMutation)}>
-              <DialogContent>
-                <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
-              </DialogContent>
-              <DialogFooter>
-                <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button type="submit" disabled={inviteMutation.isPending}> // ✅ Use disabled for pending
-                  {inviteMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
-                </Button>
-              </DialogFooter>
-            </Form>
-          </>
-        )}
-      </Dialog>
-    </DirtyModal>
+    <DirtyDialog open={isOpen} onOpenChange={onOpenChange} hasUnsavedChanges={isFormDirty}
+                 onCloseComplete={handleCloseComplete}>
+      <DialogContent className="sm:w-dialog-md"> // ✅ Use dialog width classes (not max-w-lg)
+        <DialogHeader>
+          <DialogTitle><Trans>Select users</Trans></DialogTitle>
+          <DialogDescription>{t`Select users from the list.`}</DialogDescription>
+        </DialogHeader>
+        <Form onSubmit={mutationSubmitter(inviteMutation)}>
+          <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
+          <DialogFooter>
+            <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
+              <Trans>Cancel</Trans>
+            </Button>
+            <Button type="submit" disabled={inviteMutation.isPending}> // ✅ Use disabled for pending
+              {inviteMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </DirtyDialog>
   );
 }
 
@@ -199,29 +193,26 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
   const handleSelect = (id) => console.log(id); // ❌ "handle" + noun (use handleSelectUser), console.log
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose}> // ❌ Missing isDismissable={!isPending}
-      <Dialog className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
-        {({ close }) => ( // ❌ Both X and Cancel use close (Cancel should use handleCancel)
-          <>
-            <XIcon onClick={close} />
-            <h1>User Mgmt</h1> // ❌ Native <h1> (use Heading), acronym "Mgmt", missing <Trans>
-            <ul> // ❌ Native <ul> - use ListBox
-              {filteredUsers.map(user => (
-                <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>
-                  <img src={user.avatarUrl} /> // ❌ Native <img> - use Avatar
-                  <Text className="text-sm">{user.email}</Text> // ❌ text-sm with Text causes blur
-                  {getDisplayName(user)}
-                </li>
-              ))}
-            </ul>
-            <Button onClick={close}>Cancel</Button> // ❌ Cancel uses close (shows unwanted warning)
-            <Button type="submit"> // ❌ Missing disabled={isPending}
-              <Trans>Submit</Trans> // ❌ Missing isPending text pattern, generic "Submit" text
-            </Button>
-          </>
-        )}
-      </Dialog>
-    </Modal>
+    <DirtyDialog open={isOpen} onOpenChange={onClose} hasUnsavedChanges={true}>
+      <DialogContent className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
+        <h1>User Mgmt</h1> // ❌ Native <h1> (use DialogTitle), acronym "Mgmt", missing <Trans>
+        <ul> // ❌ Native <ul> - use ListBox
+          {filteredUsers.map(user => (
+            <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>
+              <img src={user.avatarUrl} /> // ❌ Native <img> - use Avatar
+              <Text className="text-sm">{user.email}</Text> // ❌ text-sm with Text causes blur
+              {getDisplayName(user)}
+            </li>
+          ))}
+        </ul>
+        <DialogFooter>
+          <Button onClick={() => onClose(false)}>Cancel</Button> // ❌ Missing handleCancel pattern (shows unwanted warning)
+          <Button type="submit"> // ❌ Missing disabled={isPending}
+            <Trans>Submit</Trans> // ❌ Missing isPending text pattern, generic "Submit" text
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </DirtyDialog>
   );
 }
 ```

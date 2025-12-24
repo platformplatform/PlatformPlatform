@@ -1,9 +1,15 @@
 import { AlertCircleIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Dialog } from "react-aria-components";
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "./AlertDialog";
 import { Button } from "./Button";
-import { Heading } from "./Heading";
-import { Modal } from "./Modal";
 
 type UnsavedChangesAlertDialogProps = {
   isOpen: boolean;
@@ -25,33 +31,24 @@ export function UnsavedChangesAlertDialog({
   children
 }: Readonly<UnsavedChangesAlertDialogProps>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={(open) => !open && onCancel()} zIndex="high">
-      <Dialog role="alertdialog" className="relative sm:w-dialog-md" aria-label={title}>
-        {({ close }) => (
-          <>
-            <Heading slot="title">{title}</Heading>
-            <div className="absolute top-6 right-6 h-6 w-6 stroke-2 text-destructive">
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent zIndex="high">
+        <AlertDialogHeader>
+          <div className="flex items-start gap-4">
+            <div className="h-6 w-6 shrink-0 stroke-2 text-destructive">
               <AlertCircleIcon aria-hidden={true} />
             </div>
-            <div>{children}</div>
-            <fieldset className="flex justify-end gap-2 pt-10">
-              <Button variant="secondary" onClick={close}>
-                {cancelLabel}
-              </Button>
-              <Button
-                variant="destructive"
-                autoFocus={true}
-                onClick={() => {
-                  onConfirmLeave();
-                  close();
-                }}
-              >
-                {actionLabel}
-              </Button>
-            </fieldset>
-          </>
-        )}
-      </Dialog>
-    </Modal>
+            <AlertDialogTitle>{title}</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription>{children}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogClose render={<Button variant="secondary" />}>{cancelLabel}</AlertDialogClose>
+          <Button variant="destructive" onClick={onConfirmLeave}>
+            {actionLabel}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
