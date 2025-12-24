@@ -81,7 +81,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Close Sessions modal & create second session from new browser context")(async () => {
-      await sessionsDialog.locator("svg.cursor-pointer").click();
+      await sessionsDialog.getByRole("button", { name: "Close" }).last().click();
       await expect(sessionsDialog).not.toBeVisible();
 
       const browser = page.context().browser() as Browser;
@@ -222,7 +222,7 @@ test.describe("@comprehensive", () => {
       await revokeDialog.getByRole("button", { name: "Revoke", exact: true }).click();
 
       await expectToastMessage(secondPageContext, "Session revoked successfully");
-      await secondSessionsDialog.locator("svg.cursor-pointer").click();
+      await secondSessionsDialog.getByRole("button", { name: "Close" }).last().click();
     })();
 
     await step("Navigate in revoked session & verify session-revoked error page")(async () => {

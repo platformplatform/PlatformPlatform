@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { TextField } from "@repo/ui/components/TextField";
 import { MailIcon } from "lucide-react";
 
 interface SupportDialogProps {
@@ -25,12 +26,13 @@ export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogPr
           <DialogDescription>{t`Need help? Our support team is here to assist you.`}</DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 rounded-lg border border-input bg-input-background p-4 opacity-50">
-            <MailIcon className="h-5 w-5 text-muted-foreground" />
-            <a href="mailto:support@platformplatform.net" className="text-primary hover:underline">
-              support@platformplatform.net
-            </a>
-          </div>
+          <TextField
+            name="email"
+            label={t`Email`}
+            value="support@platformplatform.net"
+            isReadOnly={true}
+            startIcon={<MailIcon className="size-4" />}
+          />
           <p className="text-muted-foreground text-sm">{t`Feel free to reach out with any questions or issues you may have.`}</p>
         </div>
         <DialogFooter>

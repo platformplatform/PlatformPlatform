@@ -1,6 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog, AlertDialogRoot } from "@repo/ui/components/AlertDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@repo/ui/components/AlertDialog";
 import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -142,16 +151,21 @@ export function PermanentlyDeleteUserDialog({
   };
 
   return (
-    <AlertDialogRoot open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialog
-        title={getDialogTitle()}
-        variant="destructive"
-        actionLabel={isEmptyRecycleBin ? t`Empty recycle bin` : t`Delete permanently`}
-        cancelLabel={t`Cancel`}
-        onAction={handleDelete}
-      >
-        {getDialogContent()}
-      </AlertDialog>
-    </AlertDialogRoot>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{getDialogTitle()}</AlertDialogTitle>
+          <AlertDialogDescription>{getDialogContent()}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="secondary">
+            <Trans>Cancel</Trans>
+          </AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={handleDelete}>
+            {isEmptyRecycleBin ? <Trans>Empty recycle bin</Trans> : <Trans>Delete permanently</Trans>}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
