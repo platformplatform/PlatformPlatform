@@ -18,7 +18,7 @@ import { DropdownItem, DropdownSection, type DropdownSectionProps } from "./Drop
 import { FieldError } from "./FieldError";
 import { FieldGroup } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
-import { Popover } from "./Popover";
+import { LegacyPopover } from "./LegacyPopover";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface ComboBoxProps<T extends object> extends Omit<AriaComboBoxProps<T>, "children"> {
@@ -56,14 +56,14 @@ export function ComboBox<T extends object>({
       </FieldGroup>
       {description && <Description>{description}</Description>}
       <FieldError>{errorMessage}</FieldError>
-      <Popover className="w-(--trigger-width) bg-input-background" isOpen={isOpen}>
+      <LegacyPopover className="w-(--trigger-width) bg-input-background" isOpen={isOpen}>
         <ListBox
           items={items}
           className="max-h-[inherit] overflow-auto p-1 outline-0 [clip-path:inset(0_0_0_0_round_.75rem)]"
         >
           {children}
         </ListBox>
-      </Popover>
+      </LegacyPopover>
     </AriaComboBox>
   );
 }

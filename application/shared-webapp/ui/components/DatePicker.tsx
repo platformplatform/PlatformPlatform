@@ -18,7 +18,7 @@ import { Dialog } from "./Dialog";
 import { FieldError } from "./FieldError";
 import { FieldGroup } from "./fieldStyles";
 import { LabelWithTooltip } from "./LabelWithTooltip";
-import { Popover } from "./Popover";
+import { LegacyPopover } from "./LegacyPopover";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface DatePickerProps<T extends DateValue> extends AriaDatePickerProps<T> {
@@ -49,11 +49,11 @@ export function DatePicker<T extends DateValue>({
         </FieldGroup>
         {description && <Description>{description}</Description>}
         <FieldError>{errorMessage}</FieldError>
-        <Popover className="bg-input-background">
+        <LegacyPopover className="bg-input-background">
           <Dialog>
             <Calendar />
           </Dialog>
-        </Popover>
+        </LegacyPopover>
       </AriaDatePicker>
     </I18nProvider>
   );

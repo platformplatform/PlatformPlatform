@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -312,7 +312,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(deletableUser.firstName);
@@ -348,7 +348,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
@@ -412,7 +412,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
     })();
@@ -465,7 +465,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       // Member lands on recycle-bin but sees access denied (requires Owner/Admin role)
       await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
@@ -702,7 +702,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user1.firstName);
@@ -728,7 +728,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user2.firstName);
@@ -755,7 +755,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
