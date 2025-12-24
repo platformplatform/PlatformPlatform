@@ -37,6 +37,15 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Server state lives in TanStack Query only
    - Use `queryClient.invalidateQueries()` to refresh data after mutations
 
+4. **ShadCN 2.0 with BaseUI** (not Radix UI):
+   - **BaseUI** (`@base-ui/react`): Headless primitives providing accessibility and behavior
+   - **ShadCN 2.0**: Pre-styled components built on BaseUI, using class-variance-authority (cva)
+   - Install components via `npx shadcn add <component>` - never copy manually
+   - After installing: change `@/utils` to `../utils` and rename file to PascalCase (e.g., `button.tsx` to `Button.tsx`)
+   - Import from `@repo/ui/components/`, never from BaseUI directly
+   - Only create custom components when no ShadCN equivalent exists (edge cases)
+   - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
+
 ## Implementation
 
 1. Follow these code style and pattern conventions:
@@ -51,27 +60,26 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
    - Don't introduce new npm dependencies
-   - Use React Aria Components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
+   - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
 
 2. Use the following React patterns and libraries:
-   - Use React Aria Components from `@repo/ui/components/ComponentName`:
+   - Use ShadCN components from `@repo/ui/components/ComponentName`:
      - Search [Components](/application/shared-webapp/ui/components) when you need to find a component
      - Use existing components rather than creating new ones
-   - Use `onPress` instead of `onClick` for event handlers (exception: Dialog close button uses `onClick={close}` from render prop)
-   - Use `onAction` for menu items and list actions
+   - Use `onClick` for click handlers and `disabled` for disabled state (ShadCN patterns)
    - Use `<Trans>...</Trans>` for JSX translations, `t` macro for strings
    - Use TanStack Query for API interactions via `api.useQuery()` and `api.useMutation()`
-   - Don't use `fetch` directly—use the generated API client
+   - Don't use `fetch` directly - use the generated API client
    - Use Suspense boundaries with error boundaries at route level
-   - Colocate state with components—don't lift state unnecessarily
+   - Colocate state with components - don't lift state unnecessarily
    - Use `useCallback` and `useMemo` only for proven performance issues
    - Throw errors sparingly and ensure error messages include a period
    - Include appropriate aria labels for accessibility (e.g., `slot="title"` on Heading in dialogs)
-   - Disable UI during pending operations: `isDisabled={mutation.isPending}` on buttons/fields, `isDismissable={!mutation.isPending}` on modals
+   - Disable UI during pending operations: `disabled={mutation.isPending}` on buttons/fields, `isDismissable={!mutation.isPending}` on modals
    - Dialog sizing: `sm:w-dialog-md` (simple), `sm:w-dialog-lg` (4-6 fields), `sm:w-dialog-xl` (complex), `sm:w-dialog-2xl` (extra-large)
 
 3. Error handling:
-   - **Errors are handled globally**—`shared-webapp/infrastructure/http/errorHandler.ts` automatically shows toast notifications with the server's error message (don't manually show toasts for errors)
+   - **Errors are handled globally** - `shared-webapp/infrastructure/http/errorHandler.ts` automatically shows toast notifications with the server's error message (don't manually show toasts for errors)
    - **Validation errors**: Pass to forms via `validationErrors={mutation.error?.errors}`
    - **`onError` is for UI cleanup only** (resetting loading states, closing dialogs), not for showing errors
    - **Toast notifications**: Show success toasts in mutation `onSuccess` callbacks, not in `useEffect` watching `isSuccess` (avoids React effect scheduling delays)
@@ -91,7 +99,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - `z-100`: High priority modals (nested, confirmations)
    - `z-[150]`: Toasts (always visible for user feedback)
    - `z-[200]`: Mobile full-screen menus
-   - Note: Dropdowns, tooltips, and popovers use React Aria's overlay system which manages stacking relative to their context
+   - Note: Dropdowns, tooltips, and popovers use BaseUI's overlay system which manages stacking relative to their context
 
 6. DirtyModal close handlers:
    - **X button**: Use Dialog's `close` from render prop (shows unsaved warning if dirty)
@@ -148,10 +156,10 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
                 <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
               </DialogContent>
               <DialogFooter>
-                <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
+                <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
                   <Trans>Cancel</Trans>
                 </Button>
-                <Button type="submit" isDisabled={inviteMutation.isPending}> // ✅ Use isDisabled for pending
+                <Button type="submit" disabled={inviteMutation.isPending}> // ✅ Use disabled for pending
                   {inviteMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
                 </Button>
               </DialogFooter>
@@ -196,15 +204,15 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
             <h1>User Mgmt</h1> // ❌ Native <h1> (use Heading), acronym "Mgmt", missing <Trans>
             <ul> // ❌ Native <ul> - use ListBox
               {filteredUsers.map(user => (
-                <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>, onClick (use onAction)
+                <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>
                   <img src={user.avatarUrl} /> // ❌ Native <img> - use Avatar
                   <Text className="text-sm">{user.email}</Text> // ❌ text-sm with Text causes blur
                   {getDisplayName(user)}
                 </li>
               ))}
             </ul>
-            <Button onPress={close}>Cancel</Button> // ❌ Cancel uses close (shows unwanted warning)
-            <Button type="submit"> // ❌ Missing isDisabled={isPending}
+            <Button onClick={close}>Cancel</Button> // ❌ Cancel uses close (shows unwanted warning)
+            <Button type="submit"> // ❌ Missing disabled={isPending}
               <Trans>Submit</Trans> // ❌ Missing isPending text pattern, generic "Submit" text
             </Button>
           </>
