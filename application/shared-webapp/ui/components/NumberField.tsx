@@ -15,7 +15,7 @@ import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldGroup, fieldBorderStyles } from "./Field";
 import { FieldError } from "./FieldError";
-import { Label } from "./Label";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 import { composeTailwindRenderProps } from "./utils";
 
 export interface NumberFieldProps extends AriaNumberFieldProps {
@@ -27,8 +27,8 @@ export interface NumberFieldProps extends AriaNumberFieldProps {
 
 export function NumberField({ label, description, errorMessage, tooltip, ...props }: Readonly<NumberFieldProps>) {
   return (
-    <AriaNumberField {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}>
-      {label && <Label tooltip={tooltip}>{label}</Label>}
+    <AriaNumberField {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-3")}>
+      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
       <FieldGroup>
         {(renderProps) => (
           <>
