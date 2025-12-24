@@ -1,65 +1,18 @@
-import type { RefAttributes } from "react";
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
- */
-import {
-  TextArea as AriaTextArea,
-  TextField as AriaTextField,
-  type TextFieldProps as AriaTextFieldProps,
-  type ValidationResult
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { Description } from "./Description";
-import { FieldError } from "./FieldError";
-import { fieldBorderStyles } from "./fieldStyles";
-import { focusRing } from "./focusRing";
-import { LabelWithTooltip } from "./LabelWithTooltip";
-import { composeTailwindRenderProps } from "./utils";
+import type * as React from "react";
 
-const textAreaStyles = tv({
-  extend: focusRing,
-  base: "h-auto resize-y rounded-md border bg-input-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
-  variants: {
-    isFocused: fieldBorderStyles.variants.isFocusWithin,
-    isInvalid: {
-      true: "border-destructive",
-      false: "border-input"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    }
-  }
-});
+import { cn } from "../utils";
 
-export interface TextAreaProps
-  extends AriaTextFieldProps,
-    Partial<Pick<HTMLInputElement, "autocomplete" | "placeholder">>,
-    RefAttributes<HTMLInputElement> {
-  label?: string;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
-  tooltip?: string;
-  rows?: number;
-}
-
-export function TextArea({
-  label,
-  description,
-  errorMessage,
-  tooltip,
-  className,
-  rows,
-  ...props
-}: Readonly<TextAreaProps>) {
-  if (props.children) {
-    return <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")} />;
-  }
+function TextArea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
-    <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
-      {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
-      <AriaTextArea name={props.name} className={textAreaStyles} rows={rows} />
-      {description && <Description>{description}</Description>}
-      <FieldError>{errorMessage}</FieldError>
-    </AriaTextField>
+    <textarea
+      data-slot="textarea"
+      className={cn(
+        "field-sizing-content flex min-h-16 w-full rounded-md border border-input bg-transparent px-2.5 py-2 text-base shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 md:text-sm dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
+      {...props}
+    />
   );
 }
+
+export { TextArea };
