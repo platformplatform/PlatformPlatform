@@ -678,8 +678,16 @@ msgstr "Søg"
 msgid "Security, privacy, and compliance information"
 msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
 
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Select {0} {1}"
+msgstr "Vælg {0} {1}"
+
 msgid "Select Account"
 msgstr "Vælg konto"
+
+msgid "Select all users"
+msgstr "Vælg alle brugere"
 
 msgid "Select dates"
 msgstr "Vælg datoer"
