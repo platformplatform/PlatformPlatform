@@ -351,7 +351,7 @@ test.describe("@comprehensive", () => {
 
     await step("Test closing side pane with X button & verify it works")(async () => {
       // Wait for any toast notifications to disappear before clicking
-      await expect(page.locator("[data-react-aria-top-layer]")).not.toBeVisible();
+      await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
 
       // Click close button to close side pane
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
@@ -495,7 +495,7 @@ test.describe("@comprehensive", () => {
 
     await step("Close side pane using close button & verify it closes")(async () => {
       // Wait for any toast notifications to disappear before clicking
-      await expect(page.locator("[data-react-aria-top-layer]")).not.toBeVisible();
+      await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
 
       // Click close button to close side pane
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });

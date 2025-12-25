@@ -12,9 +12,9 @@ import {
 import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { TextField } from "@repo/ui/components/TextField";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
@@ -27,10 +27,8 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite", {
     onSuccess: () => {
       setIsFormDirty(false);
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User invited successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`User invited successfully`
       });
       onOpenChange(false);
     }

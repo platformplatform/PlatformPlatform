@@ -134,7 +134,7 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
   const inviteMutation = api.useMutation("post", "/api/account-management/users/invite", {
     onSuccess: () => { // ✅ Show toast in onSuccess (not useEffect)
       setIsFormDirty(false);
-      toastQueue.add({ title: t`Success`, description: t`User invited`, variant: "success" });
+      toast.success(t`Success`, { description: t`User invited` });
       onOpenChange(false);
     }
   });
@@ -180,7 +180,7 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
 
   useEffect(() => { // ❌ useEffect watching isSuccess causes toast timing issues
     if (inviteMutation.isSuccess) {
-      toastQueue.add({ title: "Success", variant: "success" });
+      toast.success("Success");
     }
   }, [inviteMutation.isSuccess]);
 

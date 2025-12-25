@@ -203,3 +203,87 @@ body {
     overflow: visible;
   }
 }
+
+/* Toast styling - solid colors, larger padding for visibility */
+[data-sonner-toast] {
+  padding: 1rem 1.25rem !important;
+  min-height: 4rem !important;
+}
+
+[data-sonner-toast][data-styled="true"] [data-close-button] {
+  border: 1px solid color-mix(in oklch, currentColor 50%, transparent) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-foreground) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: var(--primary-foreground) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  color: var(--primary-foreground) !important;
+}
+
+[data-sonner-toast][data-type="success"] button[data-close-button] {
+  color: var(--primary-foreground) !important;
+  background: var(--primary) !important;
+  border: 1px solid color-mix(in oklch, currentColor 50%, transparent) !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  --toast-color: oklch(0.75 0.2 25);
+  --toast-bg: oklch(0.42 0.12 25);
+  background: var(--toast-bg) !important;
+  border-color: var(--toast-bg) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: var(--toast-color) !important;
+}
+
+[data-sonner-toast][data-type="error"] button[data-close-button] {
+  color: white !important;
+  background: var(--toast-bg) !important;
+  border: 1px solid var(--toast-color) !important;
+}
+
+[data-sonner-toast][data-type="warning"] {
+  --toast-color: oklch(0.9 0.18 70);
+  --toast-bg: oklch(0.55 0.17 70);
+  background: var(--toast-bg) !important;
+  border-color: var(--toast-bg) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: var(--toast-color) !important;
+}
+
+[data-sonner-toast][data-type="warning"] button[data-close-button] {
+  color: white !important;
+  background: var(--toast-bg) !important;
+  border: 1px solid var(--toast-color) !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  --toast-color: oklch(0.75 0.18 250);
+  --toast-bg: oklch(0.4 0.1 250);
+  background: var(--toast-bg) !important;
+  border-color: var(--toast-bg) !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: var(--toast-color) !important;
+}
+
+[data-sonner-toast][data-type="info"] button[data-close-button] {
+  color: white !important;
+  background: var(--toast-bg) !important;
+  border: 1px solid var(--toast-color) !important;
+}

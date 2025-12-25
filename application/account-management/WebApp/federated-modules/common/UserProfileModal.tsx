@@ -21,13 +21,13 @@ import {
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { TextField } from "@repo/ui/components/TextField";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useContext, useRef, useState } from "react";
 import { FileTrigger } from "react-aria-components";
+import { toast } from "sonner";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -97,10 +97,8 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       setAvatarPreviewUrl(null);
       setRemoveAvatarFlag(false);
       setIsFormDirty(false);
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Profile updated successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`Profile updated successfully`
       });
       onOpenChange(false);
     }

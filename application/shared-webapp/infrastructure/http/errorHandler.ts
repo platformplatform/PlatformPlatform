@@ -9,7 +9,7 @@
  * 5. Shows toast notifications to the user for unhandled errors
  */
 import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
-import { toastQueue } from "@repo/ui/components/Toast";
+import { toast } from "sonner";
 
 // RFC 7807 Problem Details format
 interface ProblemDetails {
@@ -90,11 +90,15 @@ function getToastVariant(status: number): "warning" | "error" {
   return "warning";
 }
 
+const DEFAULT_TOAST_DURATIONS = {
+  warning: 6000,
+  error: 10000
+} as const;
+
 function showTimeoutToast(): void {
-  toastQueue.add({
-    title: "Network Error",
+  toast.error("Network Error", {
     description: "The server is taking too long to respond. Please try again.",
-    variant: "error"
+    duration: DEFAULT_TOAST_DURATIONS.error
   });
 }
 
@@ -102,10 +106,9 @@ function showUnknownErrorToast(error: Error) {
   // Track the error in Application Insights
   applicationInsights.trackException({ exception: error });
 
-  toastQueue.add({
-    title: "Unknown Error",
-    description: `An unknown error occured (${error})`,
-    variant: "error"
+  toast.error("Unknown Error", {
+    description: `An unknown error occurred (${error})`,
+    duration: DEFAULT_TOAST_DURATIONS.error
   });
 }
 
@@ -135,13 +138,19 @@ function showServerErrorToast(error: ServerError) {
   }
 
   const variant = getToastVariant(error.status);
+  const duration = DEFAULT_TOAST_DURATIONS[variant];
 
-  toastQueue.add({
-    variant,
-    title: message.title,
-    description: message.detail ?? ""
-    // Duration will be set based on variant in the Toast component
-  });
+  if (variant === "error") {
+    toast.error(message.title, {
+      description: message.detail ?? "",
+      duration
+    });
+  } else {
+    toast.warning(message.title, {
+      description: message.detail ?? "",
+      duration
+    });
+  }
 }
 
 /**
