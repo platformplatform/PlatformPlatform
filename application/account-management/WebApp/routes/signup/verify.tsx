@@ -4,13 +4,13 @@ import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
-import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
+import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
 import { Link } from "@repo/ui/components/Link";
-import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
@@ -85,8 +85,8 @@ export function CompleteSignupForm() {
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
   const isExpired = secondsRemaining === 0;
-  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef | null>(null);
-  const [isOneTimeCodeComplete, setIsOneTimeCodeComplete] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const isOneTimeCodeComplete = otpValue.length === 6;
   const [showRequestLink, setShowRequestLink] = useState(false);
   const [hasRequestedNewCode, setHasRequestedNewCode] = useState(false);
   const [isRateLimited, setIsRateLimited] = useState(false);
@@ -107,13 +107,13 @@ export function CompleteSignupForm() {
     setExpireAt(newExpireAt);
     getSignupState().expireAt = newExpireAt;
 
-    setIsOneTimeCodeComplete(false);
+    setOtpValue("");
     setShowRequestLink(false);
     setIsRateLimited(false);
 
     setTimeout(() => {
-      oneTimeCodeInputRef.current?.reset?.();
-      oneTimeCodeInputRef.current?.focus?.();
+      const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
+      input?.focus();
     }, 100);
   }, []);
 
@@ -151,10 +151,12 @@ export function CompleteSignupForm() {
         setIsRateLimited(true);
         setExpireAt(new Date(0)); // Force expiration
       } else {
+        // Clear the input and reset auto-submit for next attempt
+        setOtpValue("");
+        setAutoSubmitCode(false);
         setTimeout(() => {
-          if (oneTimeCodeInputRef.current) {
-            oneTimeCodeInputRef.current.focus?.();
-          }
+          const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
+          input?.focus();
         }, 100);
       }
     }
@@ -166,21 +168,24 @@ export function CompleteSignupForm() {
     <div className="w-full max-w-sm space-y-3">
       <Form
         onSubmit={(event) => {
-          const formData = new FormData(event.currentTarget);
-          const oneTimePassword = formData.get("oneTimePassword") as string;
-          if (oneTimePassword.length === 6) {
-            setLastSubmittedCode(oneTimePassword);
+          event.preventDefault();
+          if (otpValue.length === 6) {
+            setLastSubmittedCode(otpValue);
           }
-          const handler = mutationSubmitter(completeSignupMutation, {
-            path: { emailConfirmationId: emailConfirmationId }
+
+          completeSignupMutation.mutate({
+            params: {
+              path: { emailConfirmationId }
+            },
+            body: {
+              oneTimePassword: otpValue,
+              preferredLocale: localStorage.getItem(preferredLocaleKey) ?? ""
+            }
           });
-          return handler(event);
         }}
         validationErrors={completeSignupMutation.error?.errors}
         validationBehavior="aria"
       >
-        <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
-        <input type="hidden" name="preferredLocale" value={localStorage.getItem(preferredLocaleKey) ?? ""} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/" className="cursor-pointer">
@@ -195,29 +200,38 @@ export function CompleteSignupForm() {
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
             </Trans>
           </div>
-          <div className="flex w-full flex-col gap-4">
-            <OneTimeCodeInput
-              ref={oneTimeCodeInputRef}
-              name="oneTimePassword"
-              digitPattern={DigitPattern.DigitsAndChars}
-              length={6}
-              autoFocus={true}
-              ariaLabel={t`Signup verification code`}
-              disabled={isExpired || resendSignupCodeMutation.isPending}
-              onValueChange={(value: string, isComplete: boolean) => {
-                setIsOneTimeCodeComplete(isComplete);
+          <InputOtp
+            containerClassName="justify-center"
+            maxLength={6}
+            value={otpValue}
+            onChange={(value) => {
+              const upperValue = value.toUpperCase();
+              setOtpValue(upperValue);
+              getSignupState().currentOtpValue = upperValue;
 
-                getSignupState().currentOtpValue = value;
-
-                if (isComplete && autoSubmitCode) {
-                  setAutoSubmitCode(false);
-                  setTimeout(() => {
-                    document.querySelector("form")?.requestSubmit();
-                  }, 10);
-                }
-              }}
-            />
-          </div>
+              if (upperValue.length === 6 && autoSubmitCode) {
+                setAutoSubmitCode(false);
+                setTimeout(() => {
+                  document.querySelector("form")?.requestSubmit();
+                }, 10);
+              }
+            }}
+            disabled={isExpired || resendSignupCodeMutation.isPending}
+            autoFocus={true}
+            inputMode="text"
+            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+            aria-label={t`Signup verification code`}
+            autoComplete="one-time-code"
+          >
+            <InputOtpGroup>
+              <InputOtpSlot index={0} className="size-14" />
+              <InputOtpSlot index={1} className="size-14" />
+              <InputOtpSlot index={2} className="size-14" />
+              <InputOtpSlot index={3} className="size-14" />
+              <InputOtpSlot index={4} className="size-14" />
+              <InputOtpSlot index={5} className="size-14" />
+            </InputOtpGroup>
+          </InputOtp>
           {!isExpired ? (
             <p className="text-center text-neutral-500 text-xs">
               <Trans>Your verification code is valid for {expiresInString}</Trans>
