@@ -2,7 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
+import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -140,12 +141,14 @@ export default function UsersPage() {
         sidePane={getSidePane()}
         topMenu={
           <TopMenu>
-            <Breadcrumb href="/admin/users">
-              <Trans>Users</Trans>
-            </Breadcrumb>
-            <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/admin/users" variant="secondary" underline={false} />}>
+                <Trans>Users</Trans>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbPage>
               <Trans>All users</Trans>
-            </Breadcrumb>
+            </BreadcrumbPage>
           </TopMenu>
         }
         title={t`Users`}

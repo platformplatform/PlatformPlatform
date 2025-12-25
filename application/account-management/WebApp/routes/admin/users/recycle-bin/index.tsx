@@ -2,7 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
+import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import FederatedAccessDeniedPage from "@/federated-modules/errorPages/FederatedAccessDeniedPage";
@@ -53,12 +54,14 @@ export default function DeletedUsersPage() {
       <AppLayout
         topMenu={
           <TopMenu>
-            <Breadcrumb href="/admin/users">
-              <Trans>Users</Trans>
-            </Breadcrumb>
-            <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/admin/users" variant="secondary" underline={false} />}>
+                <Trans>Users</Trans>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbPage>
               <Trans>Recycle bin</Trans>
-            </Breadcrumb>
+            </BreadcrumbPage>
           </TopMenu>
         }
         title={t`Users`}
