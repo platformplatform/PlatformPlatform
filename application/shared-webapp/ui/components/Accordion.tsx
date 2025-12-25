@@ -1,159 +1,59 @@
-/**
- * Status: Beta
- * ref: https://react-spectrum.adobe.com/react-spectrum
- * ref: https://ui.shadcn.com/docs/components/accordion
- */
-import type { AccordionItemAriaProps, AriaAccordionProps } from "@react-aria/accordion";
-import { useAccordion, useAccordionItem } from "@react-aria/accordion";
-import { type TreeState, useTreeState } from "@react-stately/tree";
-import { ChevronDown } from "lucide-react";
-import type React from "react";
-import {
-  type AriaRole,
-  type ButtonHTMLAttributes,
-  type CSSProperties,
-  createContext,
-  forwardRef,
-  useContext,
-  useMemo,
-  useRef
-} from "react";
-import { useFocusRing } from "react-aria";
-import { twMerge } from "tailwind-merge";
-import { tv } from "tailwind-variants";
-import { focusRing } from "./focusRing";
+import { Accordion as AccordionPrimitive } from "@base-ui/react/accordion";
+import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+import { cn } from "../utils";
 
-export { Item } from "@react-stately/collections";
+function Accordion({ className, ...props }: AccordionPrimitive.Root.Props) {
+  return <AccordionPrimitive.Root data-slot="accordion" className={cn("flex w-full flex-col", className)} {...props} />;
+}
 
-type AccordionProps<T> = {
-  className?: string;
-} & AriaAccordionProps<T>;
-
-export function Accordion<T extends object>({ className, ...props }: AccordionProps<T>) {
-  const state = useTreeState<T>(props);
-  const ref = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>; // Note(raix): Remove when fixed in react-aria
-  const { accordionProps } = useAccordion<T>(props, state, ref);
-
+function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
-    <div ref={ref} {...accordionProps} className={className}>
-      {[...state.collection].map((item) => (
-        <AccordionItemInstance<T> key={item.key} item={item} state={state} />
-      ))}
-    </div>
+    <AccordionPrimitive.Item data-slot="accordion-item" className={cn("not-last:border-b", className)} {...props} />
   );
 }
 
-type AccordionItemContext = {
-  isOpen?: boolean;
-  isDisabled?: boolean;
-};
-
-const accordionItemContext = createContext<AccordionItemContext>({});
-const useAccordionItemContext = () => useContext(accordionItemContext);
-
-type AccordionItemInstanceProps<T> = {
-  state: TreeState<T>;
-} & AccordionItemAriaProps<T>;
-
-function AccordionItemInstance<T>({ state, ...props }: AccordionItemInstanceProps<T>) {
-  const ref = useRef<HTMLButtonElement>(null) as React.RefObject<HTMLButtonElement>; // Note(raix): Remove when fixed in react-aria
-  const { item } = props;
-  const { buttonProps, regionProps } = useAccordionItem<T>(props, state, ref);
-  const isOpen = state.expandedKeys.has(item.key);
-  const isDisabled = state.disabledKeys.has(item.key);
-
-  const accordionItemRenderProps = useMemo<AccordionItemContext>(() => ({ isOpen, isDisabled }), [isOpen, isDisabled]);
-
+function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.Trigger.Props) {
   return (
-    <accordionItemContext.Provider value={accordionItemRenderProps}>
-      <AccordionItemContainer>
-        <AccordionTrigger {...buttonProps} ref={ref}>
-          {item.props.title}
-        </AccordionTrigger>
-        <AccordionContent {...regionProps}>{item.props.children}</AccordionContent>
-      </AccordionItemContainer>
-    </accordionItemContext.Provider>
+    <AccordionPrimitive.Header className="flex">
+      <AccordionPrimitive.Trigger
+        data-slot="accordion-trigger"
+        className={cn(
+          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-md border border-transparent py-4 text-left font-medium text-sm outline-none transition-all hover:underline focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:after:border-ring disabled:pointer-events-none disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <ChevronDownIcon
+          data-slot="accordion-trigger-icon"
+          className="pointer-events-none shrink-0 group-aria-expanded/accordion-trigger:hidden"
+        />
+        <ChevronUpIcon
+          data-slot="accordion-trigger-icon"
+          className="pointer-events-none hidden shrink-0 group-aria-expanded/accordion-trigger:inline"
+        />
+      </AccordionPrimitive.Trigger>
+    </AccordionPrimitive.Header>
   );
 }
 
-const buttonStyles = tv({
-  extend: focusRing,
-  base: "flex flex-1 items-center justify-between rounded-md py-4 font-medium hover:underline",
-  variants: {
-    isDisabled: {
-      true: "hover:underline-none pointer-events-none opacity-50"
-    }
-  }
-});
-
-type AccordionTriggerProps = {
-  className?: string;
-  children: React.ReactNode;
-} & ButtonHTMLAttributes<HTMLButtonElement>;
-
-const AccordionTrigger = forwardRef<HTMLButtonElement, AccordionTriggerProps>(
-  ({ className, children, ...props }, ref) => {
-    const { focusProps, isFocusVisible } = useFocusRing();
-    const { isOpen, isDisabled } = useAccordionItemContext();
-    return (
-      <div className="flex">
-        <button
-          {...props}
-          {...focusProps}
-          ref={ref}
-          className={buttonStyles({ isFocusVisible, isDisabled, className })}
-        >
-          {children}
-          <ChevronDown
-            aria-hidden="true"
-            className={twMerge("h-4 w-4 shrink-0 transition-transform duration-200", isOpen && "rotate-180")}
-          />
-        </button>
+function AccordionContent({ className, children, ...props }: AccordionPrimitive.Panel.Props) {
+  return (
+    <AccordionPrimitive.Panel
+      data-slot="accordion-content"
+      className="overflow-hidden text-sm data-closed:animate-accordion-up data-open:animate-accordion-down"
+      {...props}
+    >
+      <div
+        className={cn(
+          "h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+          className
+        )}
+      >
+        {children}
       </div>
-    );
-  }
-);
-
-const contentStyles = tv({
-  base: "overflow-hidden text-sm transition-all",
-  variants: {
-    isOpen: {
-      true: "h-auto animate-accordion-down",
-      false: "h-0 animate-accordion-up"
-    },
-    isDisabled: {
-      true: "text-muted-foreground"
-    }
-  },
-  defaultVariants: {
-    isOpen: false
-  }
-});
-
-type AccordionContentProps = {
-  id?: string;
-  role?: AriaRole;
-  tabIndex?: number;
-  style?: CSSProperties;
-  className?: string;
-  children: React.ReactNode;
-};
-
-function AccordionContent({ className, children, ...props }: Readonly<AccordionContentProps>) {
-  const { isOpen, isDisabled } = useAccordionItemContext();
-
-  return (
-    <div {...props} aria-hidden={!isOpen} className={contentStyles({ isOpen, isDisabled })}>
-      <div className={twMerge("pt-1 pb-4", className)}>{children}</div>
-    </div>
+    </AccordionPrimitive.Panel>
   );
 }
 
-type AccordionItemContainerProps = {
-  className?: string;
-  children: React.ReactNode;
-};
-
-function AccordionItemContainer({ className, children }: Readonly<AccordionItemContainerProps>) {
-  return <div className={twMerge("border-b", className)}>{children}</div>;
-}
+export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
