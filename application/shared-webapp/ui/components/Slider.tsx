@@ -1,116 +1,76 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/slider--docs
- * ref: https://ui.shadcn.com/docs/components/slider
- */
-import {
-  Slider as AriaSlider,
-  type SliderProps as AriaSliderProps,
-  SliderOutput,
-  SliderThumb,
-  SliderTrack
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { focusRing } from "./focusRing";
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+
+import { cn } from "../utils";
 import { Label } from "./Label";
-import { composeTailwindRenderProps } from "./utils";
 
-const trackStyles = tv({
-  base: "rounded-full bg-white",
-  variants: {
-    orientation: {
-      horizontal: "h-2 w-full",
-      vertical: "ml-[50%] h-full w-2 -translate-x-[50%]"
-    },
-    isMultiple: {
-      true: "bg-primary forced-colors:bg-[ButtonBorder]",
-      false: "bg-primary/40 forced-colors:bg-[ButtonBorder]"
-    },
-    isDisabled: {
-      true: "bg-muted forced-colors:bg-[GrayText]"
-    }
-  }
-});
-
-const fillStyles = tv({
-  base: "absolute rounded-full bg-primary",
-  variants: {
-    orientation: {
-      horizontal: "top-[50%] left-0 h-2 translate-y-[-50%]",
-      vertical: "bottom-0 left-[50%] w-2 translate-x-[-50%]"
-    },
-    isDisabled: {
-      true: "bg-muted forced-colors:bg-[GrayText]"
-    },
-    isMultiple: {
-      true: "hidden"
-    }
-  }
-});
-
-const thumbStyles = tv({
-  extend: focusRing,
-  base: "h-6 w-6 rounded-full border-2 border-primary bg-background group-orientation-horizontal:mt-6 group-orientation-vertical:ml-3",
-  variants: {
-    isDragging: {
-      true: "bg-accent forced-colors:bg-[ButtonBorder]"
-    },
-    isDisabled: {
-      true: "border-muted forced-colors:border-[GrayText]"
-    }
-  }
-});
-
-export interface SliderProps<T> extends AriaSliderProps<T> {
+export interface SliderProps extends Omit<SliderPrimitive.Root.Props, "defaultValue"> {
   label?: string;
   thumbLabels?: string[];
+  defaultValue?: number | number[];
 }
 
-export function Slider<T extends number | number[]>({ label, thumbLabels, ...props }: Readonly<SliderProps<T>>) {
+export function Slider({ label, thumbLabels, className, defaultValue, value, ...props }: Readonly<SliderProps>) {
+  const normalizedDefaultValue =
+    defaultValue !== undefined ? (Array.isArray(defaultValue) ? defaultValue : [defaultValue]) : undefined;
+  const normalizedValue = value !== undefined ? (Array.isArray(value) ? value : [value]) : undefined;
+  const isMultiple = (normalizedValue ?? normalizedDefaultValue ?? []).length > 1;
+
   return (
-    <AriaSlider
-      {...props}
-      className={composeTailwindRenderProps(
-        props.className,
-        "orientation-vertical:flex orientation-horizontal:grid orientation-horizontal:w-64 grid-cols-[1fr_auto] flex-col items-center gap-2"
+    <SliderPrimitive.Root
+      data-slot="slider"
+      defaultValue={normalizedDefaultValue}
+      value={normalizedValue}
+      className={cn(
+        "group/slider grid w-64 grid-cols-[1fr_auto] items-center gap-2 data-[orientation=vertical]:flex data-[orientation=vertical]:flex-col",
+        className
       )}
+      {...props}
     >
-      <Label>{label}</Label>
-      <SliderOutput className="orientation-vertical:hidden font-medium text-muted-foreground text-sm">
-        {({ state }) => state.values.map((_, i) => state.getThumbValueLabel(i)).join(" - ")}
-      </SliderOutput>
-      <SliderTrack className="group col-span-2 flex orientation-horizontal:h-6 orientation-vertical:h-64 orientation-vertical:w-6 items-center">
-        {({ state, ...renderProps }) => (
-          <>
-            {/* track */}
-            <div
-              className={trackStyles({
-                ...renderProps,
-                isMultiple: state.values.length > 1
-              })}
-            />
-            {/* fill */}
-            <div
-              className={fillStyles({
-                ...renderProps,
-                isMultiple: state.values.length > 1
-              })}
-              style={
-                state.orientation === "horizontal"
-                  ? { width: `${state.getThumbPercent(0) * 100}%` }
-                  : { height: `${state.getThumbPercent(0) * 100}%` }
-              }
-            />
-            {state.values.map((_, i) => (
-              <SliderThumb
-                key={`_slider_thumb_${i.toString()}`}
-                index={i}
-                aria-label={thumbLabels?.[i]}
-                className={thumbStyles}
-              />
-            ))}
-          </>
+      {label && <Label>{label}</Label>}
+      <SliderPrimitive.Value className="font-medium text-muted-foreground text-sm group-data-[orientation=vertical]/slider:hidden">
+        {(formattedValues) => formattedValues.join(" - ")}
+      </SliderPrimitive.Value>
+      <SliderPrimitive.Control
+        className={cn(
+          "col-span-2 flex items-center",
+          "group-data-[orientation=horizontal]/slider:h-6",
+          "group-data-[orientation=vertical]/slider:h-64 group-data-[orientation=vertical]/slider:w-6"
         )}
-      </SliderTrack>
-    </AriaSlider>
+      >
+        <SliderPrimitive.Track
+          className={cn(
+            "relative rounded-full",
+            "group-data-[orientation=horizontal]/slider:h-2 group-data-[orientation=horizontal]/slider:w-full",
+            "group-data-[orientation=vertical]/slider:ml-[50%] group-data-[orientation=vertical]/slider:h-full group-data-[orientation=vertical]/slider:w-2 group-data-[orientation=vertical]/slider:-translate-x-[50%]",
+            isMultiple ? "bg-primary forced-colors:bg-[ButtonBorder]" : "bg-primary/40 forced-colors:bg-[ButtonBorder]",
+            "group-data-[disabled]/slider:bg-muted group-data-[disabled]/slider:forced-colors:bg-[GrayText]"
+          )}
+        >
+          <SliderPrimitive.Indicator
+            className={cn(
+              "absolute rounded-full bg-primary",
+              "group-data-[orientation=horizontal]/slider:top-[50%] group-data-[orientation=horizontal]/slider:left-0 group-data-[orientation=horizontal]/slider:h-2 group-data-[orientation=horizontal]/slider:-translate-y-[50%]",
+              "group-data-[orientation=vertical]/slider:bottom-0 group-data-[orientation=vertical]/slider:left-[50%] group-data-[orientation=vertical]/slider:w-2 group-data-[orientation=vertical]/slider:-translate-x-[50%]",
+              "group-data-[disabled]/slider:bg-muted group-data-[disabled]/slider:forced-colors:bg-[GrayText]",
+              isMultiple && "hidden"
+            )}
+          />
+          {(normalizedValue ?? normalizedDefaultValue ?? [0]).map((_, index) => (
+            <SliderPrimitive.Thumb
+              key={index}
+              aria-label={thumbLabels?.[index]}
+              className={cn(
+                "block size-6 rounded-full border-2 border-primary bg-background",
+                "group-data-[orientation=horizontal]/slider:mt-6",
+                "group-data-[orientation=vertical]/slider:ml-3",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+                "data-[dragging]:bg-accent data-[dragging]:forced-colors:bg-[ButtonBorder]",
+                "group-data-[disabled]/slider:border-muted group-data-[disabled]/slider:forced-colors:border-[GrayText]"
+              )}
+            />
+          ))}
+        </SliderPrimitive.Track>
+      </SliderPrimitive.Control>
+    </SliderPrimitive.Root>
   );
 }
