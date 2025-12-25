@@ -45,6 +45,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/ui/components/Calendar.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
     }
   ],
   "linter": {
