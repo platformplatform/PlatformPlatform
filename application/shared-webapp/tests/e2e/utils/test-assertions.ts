@@ -423,15 +423,14 @@ export async function blurActiveElement(page: Page): Promise<void> {
 /**
  * Type an OTP verification code into the one-time-code inputs.
  *
- * This function dispatches keyboard events directly via page.evaluate() for maximum
- * reliability under parallel test execution in Firefox where Playwright's keyboard
- * API can drop keystrokes:
- * - Events are dispatched synchronously in the browser context
- * - The OTP component (Digit.tsx) uses onKeyUp to capture characters and advance focus
+ * This function uses the native HTMLInputElement value setter to properly trigger
+ * React's onChange handler for the input-otp library. The input-otp library uses
+ * a single hidden input element that's controlled by React state.
  *
- * A microtask yield is included after each character to allow React's state updates
- * to propagate and advance focus to the next input. This is critical for WebKit
- * where the event loop timing differs from Chromium and Firefox.
+ * The native setter approach is required because:
+ * 1. Direct value assignment (input.value = x) doesn't trigger React's synthetic events
+ * 2. The input-otp library relies on React's onChange to update its internal state
+ * 3. Using Object.getOwnPropertyDescriptor to get the native setter bypasses React's wrapper
  *
  * Note: We don't verify values after typing because auto-submit may navigate away
  * before verification completes. Tests verify success via navigation or error toasts.
@@ -440,33 +439,28 @@ export async function blurActiveElement(page: Page): Promise<void> {
  * @param code The verification code to enter (e.g., "UNLOCK", "WRONG1")
  */
 export async function typeOneTimeCode(page: Page, code: string): Promise<void> {
-  const otpInputs = page.locator('input[autocomplete="one-time-code"]');
+  const otpInput = page.locator('input[autocomplete="one-time-code"]');
 
-  // Wait for the first OTP input to be focused before typing
-  await expect(otpInputs.first()).toBeFocused();
+  // Wait for the OTP input to be focused before typing
+  await expect(otpInput).toBeFocused();
 
-  // Dispatch keyboard events directly for each character
-  for (const char of code) {
-    await page.evaluate(async (key) => {
-      const activeElement = document.activeElement as HTMLInputElement;
-      if (!activeElement) return;
+  // Type the entire code at once using native value setter to trigger React's onChange
+  await page.evaluate((codeToType) => {
+    const activeElement = document.activeElement as HTMLInputElement;
+    if (!activeElement) return;
 
-      // Dispatch keydown
-      activeElement.dispatchEvent(
-        new KeyboardEvent("keydown", { key, code: `Key${key}`, bubbles: true, cancelable: true })
-      );
+    // Get the native HTMLInputElement value setter (bypasses React's controlled input wrapper)
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    )?.set;
 
-      // Set value and dispatch input event
-      activeElement.value = key;
-      activeElement.dispatchEvent(new InputEvent("input", { bubbles: true, data: key }));
+    if (nativeInputValueSetter) {
+      // Set the value using native setter
+      nativeInputValueSetter.call(activeElement, codeToType.toUpperCase());
 
-      // Dispatch keyup (triggers OTP component's onKeyUp handler)
-      activeElement.dispatchEvent(
-        new KeyboardEvent("keyup", { key, code: `Key${key}`, bubbles: true, cancelable: true })
-      );
-
-      // Yield to microtask queue to allow React state updates and focus advancement
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    }, char);
-  }
+      // Dispatch input event to trigger React's onChange handler
+      activeElement.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }, code);
 }
