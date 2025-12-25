@@ -109,7 +109,7 @@ export async function expectToastMessage(
   options: AssertToastOptions = { expectNetworkError: true }
 ): Promise<void> {
   const { page } = context;
-  const toastRegionSelector = '[role="region"]';
+  const toastRegionSelector = '[data-sonner-toaster]';
   const timeoutMs = 3000;
 
   // Determine if we have status + message or just message
@@ -117,9 +117,11 @@ export async function expectToastMessage(
   const status = hasStatus ? statusOrMessage : undefined;
   const message = hasStatus ? expectedMessage : String(statusOrMessage);
 
-  // Wait for and validate toast message
+  // Wait for and validate toast message (Sonner uses [data-title] for title-only toasts, [data-description] for toasts with separate description)
   const toastLocator = page
-    .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
+    .locator(
+      `${toastRegionSelector} li[data-sonner-toast]:has([data-title]:has-text("${message}")), ${toastRegionSelector} li[data-sonner-toast]:has([data-description]:has-text("${message}"))`
+    )
     .first();
 
   try {
@@ -127,7 +129,7 @@ export async function expectToastMessage(
   } catch (error) {
     // If expected toast wasn't found, provide helpful error with actual toasts
     const actualToasts = await checkUnexpectedToasts(context);
-    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    const totalToastCount = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).count();
 
     throw new Error(
       `Expected toast with message "${message}" not found within ${timeoutMs}ms.
@@ -146,7 +148,7 @@ Original error: ${error}`
   // Check for multiple toasts
   const allToasts = await checkUnexpectedToasts(context, message);
   if (allToasts.length > 0) {
-    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    const totalToastCount = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).count();
     throw new Error(
       `Expected exactly 1 toast with message "${message}", but found ${totalToastCount} toasts total.
 Expected: 1, Unexpected: ${allToasts.length}
@@ -155,12 +157,14 @@ Ensure tests assert all expected toasts or fix the root cause.`
     );
   }
 
-  // Close the toast
+  // Close the toast and wait for it to disappear
   try {
-    const toastContainer = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message }).last();
-    const closeButton = toastContainer.locator('button[aria-label="Close"]').first();
+    const toastContainer = page.locator(`${toastRegionSelector} li[data-sonner-toast]`).filter({ hasText: message }).last();
+    const closeButton = toastContainer.locator("button[data-close-button]").first();
     if (await closeButton.isVisible()) {
       await closeButton.click();
+      // Wait for toast to be dismissed (Sonner has exit animation)
+      await toastContainer.waitFor({ state: "hidden", timeout: 2000 });
     }
   } catch {
     // Toast might have auto-dismissed, which is fine
@@ -353,80 +357,35 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
   const unexpectedToasts: string[] = [];
 
   try {
-    const toastRegionSelector = '[role="region"]';
+    const toastRegionSelector = "[data-sonner-toaster]";
 
     // Quick non-blocking check - don't wait if no toasts exist
     const toastRegions = page.locator(toastRegionSelector);
     const regionCount = await toastRegions.count();
 
     if (regionCount === 0) {
-      // DEBUG: If no role="region" found, let's look for other potential toast selectors
-      const debugToasts: string[] = await page.evaluate(() => {
-        const toasts: string[] = [];
-
-        // Look for ANY element that might contain toast text patterns
-        document.querySelectorAll("*").forEach((el) => {
-          const text = el.textContent?.trim();
-          if (text && text.length > 0) {
-            // Check for success/deletion patterns
-            if (
-              text.includes("deleted successfully") ||
-              text.includes("User deleted") ||
-              text.includes("Success") ||
-              (text.includes("success") && text.includes("delete"))
-            ) {
-              // Make sure element is visible
-              const rect = el.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                toasts.push(text);
-              }
-            }
-          }
-        });
-
-        // Also specifically look for common toast class patterns
-        // Exclude [data-slot] elements as those are ShadCN components (Badge, etc.)
-        document
-          .querySelectorAll(
-            '[class*="toast"]:not([data-slot]), [class*="notification"]:not([data-slot]), [data-testid*="toast"], [role="status"]:not([data-slot]), [role="alert"]:not([data-slot])'
-          )
-          .forEach((el) => {
-            const text = el.textContent?.trim();
-            if (text && text.length > 0) {
-              const rect = el.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                toasts.push(text);
-              }
-            }
-          });
-
-        return toasts;
-      });
-
-      // If we found potential toasts with alternative selectors, add them
-      if (debugToasts.length > 0) {
-        debugToasts.forEach((toast) => {
-          if (!expectedMessage || !toast.includes(expectedMessage)) {
-            unexpectedToasts.push(toast);
-          }
-        });
-      }
-
       return unexpectedToasts;
     }
 
-    // Get all current toast messages
-    const toastElements = await page.locator(`${toastRegionSelector} > div`).all();
+    // Get all current toast messages (Sonner uses li[data-sonner-toast] for each toast)
+    const toastElements = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).all();
 
     for (const toastElement of toastElements) {
       try {
-        const descriptionElement = toastElement.locator('div[class*="whitespace-pre-line"]').first();
-        const descriptionText = await descriptionElement.textContent();
+        // Sonner uses [data-title] for the main message and optionally [data-description] for details
+        const titleElement = toastElement.locator("[data-title]");
+        const descriptionElement = toastElement.locator("[data-description]");
+        const titleText = (await titleElement.count()) > 0 ? (await titleElement.first().textContent())?.trim() : null;
+        const descriptionText =
+          (await descriptionElement.count()) > 0 ? (await descriptionElement.first().textContent())?.trim() : null;
+        const toastMessage = titleText || descriptionText;
 
-        if (descriptionText?.trim()) {
-          const toastMessage = descriptionText.trim();
-          // Exclude the currently expected message
-          if (!expectedMessage || !toastMessage.includes(expectedMessage)) {
+        if (toastMessage) {
+          // Exclude toast if the expected message matches either title or description
+          const isExpected =
+            expectedMessage &&
+            (toastMessage.includes(expectedMessage) || (descriptionText && descriptionText.includes(expectedMessage)));
+          if (!isExpected) {
             unexpectedToasts.push(toastMessage);
           }
         }

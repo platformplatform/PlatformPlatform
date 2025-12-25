@@ -8,10 +8,10 @@ import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -160,10 +160,8 @@ export function CompleteLoginForm() {
         if (data) {
           resetAfterResend(data.validForSeconds);
           setHasRequestedNewCode(true);
-          toastQueue.add({
-            title: t`Verification code sent`,
-            description: t`A new verification code has been sent to your email.`,
-            variant: "success"
+          toast.success(t`Verification code sent`, {
+            description: t`A new verification code has been sent to your email.`
           });
         }
       }

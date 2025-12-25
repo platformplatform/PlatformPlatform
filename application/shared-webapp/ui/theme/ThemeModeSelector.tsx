@@ -1,23 +1,27 @@
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
-import { toggleThemeMode, useThemeMode } from "./mode/ThemeMode";
-import { SystemThemeMode, ThemeMode } from "./mode/utils";
+import { toggleThemeMode, useTheme } from "./mode/ThemeMode";
 
 /**
  * A button that toggles the theme mode between system, light and dark.
  */
 export function ThemeModeSelector({ "aria-label": ariaLabel }: Readonly<{ "aria-label": string }>) {
-  const { themeMode, resolvedThemeMode, setThemeMode } = useThemeMode();
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
-  const tooltipText = getTooltipText(themeMode, resolvedThemeMode);
+  const tooltipText = getTooltipText(theme, resolvedTheme);
 
   return (
     <Tooltip>
       <TooltipTrigger
         render={
-          <Button variant="ghost" size="icon-lg" onClick={() => setThemeMode(toggleThemeMode)} aria-label={ariaLabel}>
-            <ThemeModeIcon themeMode={themeMode} resolvedThemeMode={resolvedThemeMode} />
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            onClick={() => setTheme(toggleThemeMode(theme))}
+            aria-label={ariaLabel}
+          >
+            <ThemeModeIcon theme={theme} resolvedTheme={resolvedTheme} />
           </Button>
         }
       />
@@ -26,16 +30,16 @@ export function ThemeModeSelector({ "aria-label": ariaLabel }: Readonly<{ "aria-
   );
 }
 
-function getTooltipText(themeMode: ThemeMode, resolvedThemeMode: SystemThemeMode): string {
-  if (resolvedThemeMode === SystemThemeMode.Dark) {
-    return themeMode === ThemeMode.System ? "System mode (dark)" : "Dark mode";
+function getTooltipText(theme: string | undefined, resolvedTheme: string | undefined): string {
+  if (resolvedTheme === "dark") {
+    return theme === "system" ? "System mode (dark)" : "Dark mode";
   }
-  return themeMode === ThemeMode.System ? "System mode (light)" : "Light mode";
+  return theme === "system" ? "System mode (light)" : "Light mode";
 }
 
-function ThemeModeIcon({ themeMode, resolvedThemeMode }: { themeMode: ThemeMode; resolvedThemeMode: SystemThemeMode }) {
-  if (resolvedThemeMode === SystemThemeMode.Dark) {
-    return themeMode === ThemeMode.System ? <MoonStarIcon className="size-5" /> : <MoonIcon className="size-5" />;
+function ThemeModeIcon({ theme, resolvedTheme }: { theme: string | undefined; resolvedTheme: string | undefined }) {
+  if (resolvedTheme === "dark") {
+    return theme === "system" ? <MoonStarIcon className="size-5" /> : <MoonIcon className="size-5" />;
   }
-  return themeMode === ThemeMode.System ? <SunMoonIcon className="size-5" /> : <SunIcon className="size-5" />;
+  return theme === "system" ? <SunMoonIcon className="size-5" /> : <SunIcon className="size-5" />;
 }

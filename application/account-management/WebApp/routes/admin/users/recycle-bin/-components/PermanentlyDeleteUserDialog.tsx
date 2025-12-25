@@ -11,9 +11,9 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { Text } from "@repo/ui/components/Text";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
@@ -48,10 +48,8 @@ export function PermanentlyDeleteUserDialog({
     if (isEmptyRecycleBin) {
       const deletedCount = await emptyRecycleBinMutation.mutateAsync({});
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`
       });
       onUsersDeleted?.();
       onOpenChange(false);
@@ -65,20 +63,16 @@ export function PermanentlyDeleteUserDialog({
     if (isSingleUser) {
       await purgeUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User permanently deleted: ${userDisplayName}`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`User permanently deleted: ${userDisplayName}`
       });
       onUsersDeleted?.();
       onOpenChange(false);
     } else {
       await bulkPurgeUsersMutation.mutateAsync({ body: { userIds: users.map((u) => u.id) } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`${users.length} users permanently deleted`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`${users.length} users permanently deleted`
       });
       onUsersDeleted?.();
       onOpenChange(false);

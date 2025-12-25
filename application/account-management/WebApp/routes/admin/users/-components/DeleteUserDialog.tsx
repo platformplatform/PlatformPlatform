@@ -10,9 +10,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -44,18 +44,14 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
     try {
       if (isSingleUser) {
         await deleteUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-        toastQueue.add({
-          title: t`Success`,
-          description: t`User deleted successfully: ${userDisplayName}`,
-          variant: "success"
+        toast.success(t`Success`, {
+          description: t`User deleted successfully: ${userDisplayName}`
         });
       } else {
         const userIds = users.map((user) => user.id);
         await bulkDeleteUsersMutation.mutateAsync({ body: { userIds: userIds } });
-        toastQueue.add({
-          title: t`Success`,
-          description: t`${users.length} users deleted successfully`,
-          variant: "success"
+        toast.success(t`Success`, {
+          description: t`${users.length} users deleted successfully`
         });
       }
 
