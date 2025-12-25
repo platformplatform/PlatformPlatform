@@ -1,15 +1,40 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/form--docs
- * ref: https://ui.shadcn.com/docs/components/form
- */
-import type { FormProps } from "react-aria-components";
-import { Form as AriaForm } from "react-aria-components";
-import { tv } from "tailwind-variants";
+import { createContext, type FormEvent, type FormHTMLAttributes } from "react";
+import { cn } from "../utils";
 
-const formStyles = tv({
-  base: "flex flex-col gap-4"
-});
+export type ValidationErrors = Record<string, string | string[]>;
 
-export function Form({ className, ...props }: Readonly<FormProps>) {
-  return <AriaForm {...props} className={formStyles({ className })} />;
+export const FormValidationContext = createContext<ValidationErrors>({});
+
+export interface FormProps extends FormHTMLAttributes<HTMLFormElement> {
+  validationErrors?: ValidationErrors;
+  validationBehavior?: "aria" | "native";
+}
+
+export function Form({
+  className,
+  children,
+  validationErrors,
+  validationBehavior,
+  onSubmit,
+  ...props
+}: Readonly<FormProps>) {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    if (validationBehavior === "aria") {
+      event.preventDefault();
+    }
+    onSubmit?.(event);
+  };
+
+  return (
+    <FormValidationContext.Provider value={validationErrors ?? {}}>
+      <form
+        {...props}
+        className={cn("flex flex-col gap-4", className)}
+        onSubmit={handleSubmit}
+        noValidate={validationBehavior === "aria"}
+      >
+        {children}
+      </form>
+    </FormValidationContext.Provider>
+  );
 }

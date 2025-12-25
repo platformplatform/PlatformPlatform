@@ -5,12 +5,12 @@ import {
   Input as AriaInput,
   TextField as AriaTextField,
   type TextFieldProps as AriaTextFieldProps,
-  FormValidationContext,
   type ValidationResult
 } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { Description } from "./Description";
 import { FieldError } from "./FieldError";
+import { FormValidationContext } from "./Form";
 import { fieldBorderStyles } from "./fieldStyles";
 import { focusRing } from "./focusRing";
 import { Group } from "./Group";
