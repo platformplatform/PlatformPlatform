@@ -1,60 +1,58 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/datepicker--docs
- * ref: https://ui.shadcn.com/docs/components/date-picker
- */
-import { CalendarIcon } from "lucide-react";
-import {
-  DatePicker as AriaDatePicker,
-  type DatePickerProps as AriaDatePickerProps,
-  type DateValue,
-  I18nProvider,
-  type ValidationResult
-} from "react-aria-components";
+import { format, parseISO } from "date-fns";
+import { ChevronDownIcon } from "lucide-react";
+import { useState } from "react";
+import { cn } from "../utils";
 import { Button } from "./Button";
 import { Calendar } from "./Calendar";
-import { DateInput } from "./DateField";
-import { Description } from "./Description";
-import { Dialog } from "./Dialog";
-import { FieldError } from "./FieldError";
-import { FieldGroup } from "./fieldStyles";
-import { LabelWithTooltip } from "./LabelWithTooltip";
-import { LegacyPopover } from "./LegacyPopover";
-import { composeTailwindRenderProps } from "./utils";
+import { Field, FieldLabel } from "./Field";
+import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
-export interface DatePickerProps<T extends DateValue> extends AriaDatePickerProps<T> {
+export interface DatePickerProps {
   label?: string;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
-  tooltip?: string;
+  value?: string;
+  onChange?: (value: string | undefined) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
 }
 
-export function DatePicker<T extends DateValue>({
+export function DatePicker({
   label,
-  description,
-  errorMessage,
-  tooltip,
-  ...props
-}: Readonly<DatePickerProps<T>>) {
+  value,
+  onChange,
+  placeholder = "Select date",
+  className,
+  disabled
+}: Readonly<DatePickerProps>) {
+  const [open, setOpen] = useState(false);
+
+  const selectedDate = value ? parseISO(value) : undefined;
+
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onChange?.(format(date, "yyyy-MM-dd"));
+    } else {
+      onChange?.(undefined);
+    }
+    setOpen(false);
+  };
+
   return (
-    // Using Canadian locale to force YYYY-MM-DD format which is unambiguous internationally
-    // This avoids confusion between MM/DD/YYYY (US) and DD/MM/YYYY (EU) formats
-    <I18nProvider locale="en-CA">
-      <AriaDatePicker {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-3")}>
-        {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
-        <FieldGroup className="w-auto min-w-[208px] bg-input-background">
-          <DateInput className="min-w-[150px] flex-1 px-2 py-1.5 text-sm" />
-          <Button variant="ghost" size="icon" className="mr-1 h-6 w-6 rounded-sm outline-offset-0">
-            <CalendarIcon aria-hidden={true} className="h-4 w-4" />
-          </Button>
-        </FieldGroup>
-        {description && <Description>{description}</Description>}
-        <FieldError>{errorMessage}</FieldError>
-        <LegacyPopover className="bg-input-background">
-          <Dialog>
-            <Calendar />
-          </Dialog>
-        </LegacyPopover>
-      </AriaDatePicker>
-    </I18nProvider>
+    <Field className={cn("flex flex-col", className)}>
+      {label && <FieldLabel>{label}</FieldLabel>}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={
+            <Button variant="outline" className="w-48 justify-between font-normal" disabled={disabled}>
+              {selectedDate ? format(selectedDate, "yyyy-MM-dd") : placeholder}
+              <ChevronDownIcon className="size-4" />
+            </Button>
+          }
+        />
+        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+          <Calendar mode="single" selected={selectedDate} onSelect={handleSelect} />
+        </PopoverContent>
+      </Popover>
+    </Field>
   );
 }

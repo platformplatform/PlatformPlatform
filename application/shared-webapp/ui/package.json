@@ -20,7 +20,7 @@
     "lint": "biome check --write --unsafe"
   },
   "devDependencies": {
-    "@repo/config": "*",
-    "@repo/build": "*"
+    "@repo/build": "*",
+    "@repo/config": "*"
   }
 }

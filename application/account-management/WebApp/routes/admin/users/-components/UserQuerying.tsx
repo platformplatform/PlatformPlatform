@@ -1,8 +1,7 @@
-import { parseDate } from "@internationalized/date";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { DateRangePicker } from "@repo/ui/components/DateRangePicker";
+import { DateRangePicker, parseDateString } from "@repo/ui/components/DateRangePicker";
 import {
   Dialog,
   DialogClose,
@@ -18,6 +17,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Too
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
+import { format } from "date-fns";
 import { Filter, FilterX } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
@@ -60,8 +60,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   const dateRange =
     searchParams.startDate && searchParams.endDate
       ? {
-          start: parseDate(searchParams.startDate),
-          end: parseDate(searchParams.endDate)
+          start: parseDateString(searchParams.startDate),
+          end: parseDateString(searchParams.endDate)
         }
       : null;
 
@@ -330,8 +330,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             value={dateRange}
             onChange={(range) => {
               updateFilter({
-                startDate: range?.start.toString() ?? undefined,
-                endDate: range?.end.toString() ?? undefined
+                startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
+                endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
               });
             }}
             label={t`Modified date`}
@@ -485,8 +485,8 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               value={dateRange}
               onChange={(range) => {
                 updateFilter({
-                  startDate: range?.start.toString() ?? undefined,
-                  endDate: range?.end.toString() ?? undefined
+                  startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
+                  endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
                 });
               }}
               label={t`Modified date`}
