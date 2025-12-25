@@ -13,7 +13,6 @@ import {
 import { Form } from "@repo/ui/components/Form";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
@@ -23,6 +22,7 @@ import { CameraIcon, Trash2, Trash2Icon } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileTrigger, Label, Separator } from "react-aria-components";
+import { toast } from "sonner";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
@@ -95,10 +95,8 @@ function useLogoManagement(
       await queryClient.invalidateQueries();
       refetchTenant();
 
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Logo uploaded successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`Logo uploaded successfully`
       });
     },
     [updateTenantLogoMutation, refetchTenant, queryClient]
@@ -114,10 +112,8 @@ function useLogoManagement(
     // Trigger input clearing via state
     setShouldClearInput(true);
 
-    toastQueue.add({
-      title: t`Success`,
-      description: t`Logo removed successfully`,
-      variant: "success"
+    toast.success(t`Success`, {
+      description: t`Logo removed successfully`
     });
   }, [removeTenantLogoMutation, refetchTenant, queryClient]);
 
@@ -270,10 +266,8 @@ export function AccountSettings() {
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current", {
     onSuccess: () => {
       setIsFormDirty(false);
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Account name updated successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`Account name updated successfully`
       });
       refetchTenant();
     }
