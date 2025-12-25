@@ -10,7 +10,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
-import { Text } from "@repo/ui/components/Text";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -114,9 +113,9 @@ export function PermanentlyDeleteUserDialog({
               This will permanently delete <b>{totalDeletedUsersCount} users</b> in the recycle bin.
             </Trans>
           )}
-          <Text className="mt-2">
+          <p className="mt-2">
             <Trans>This action cannot be undone.</Trans>
-          </Text>
+          </p>
         </>
       );
     }
@@ -126,9 +125,9 @@ export function PermanentlyDeleteUserDialog({
           <Trans>
             Are you sure you want to permanently delete <b>{userDisplayName}</b>?
           </Trans>
-          <Text className="mt-2">
+          <p className="mt-2">
             <Trans>This action cannot be undone.</Trans>
-          </Text>
+          </p>
         </>
       );
     }
@@ -137,9 +136,9 @@ export function PermanentlyDeleteUserDialog({
         <Trans>
           Are you sure you want to permanently delete <b>{users.length} users</b>?
         </Trans>
-        <Text className="mt-2">
+        <p className="mt-2">
           <Trans>This action cannot be undone.</Trans>
-        </Text>
+        </p>
       </>
     );
   };

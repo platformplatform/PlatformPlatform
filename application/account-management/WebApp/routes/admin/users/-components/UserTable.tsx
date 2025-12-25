@@ -13,7 +13,6 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
-import { Text } from "@repo/ui/components/Text";
 import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/utils/responsive";
@@ -365,14 +364,14 @@ export function UserTable({
                               </Badge>
                             )}
                           </div>
-                          <Text className="truncate text-muted-foreground text-sm">{user.title ?? ""}</Text>
+                          <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   {isSmallViewportOrLarger() && (
                     <TableCell>
-                      <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                      <span className="block h-full w-full justify-start p-0 text-left font-normal">{user.email}</span>
                     </TableCell>
                   )}
                   {isMediumViewportOrLarger() && (

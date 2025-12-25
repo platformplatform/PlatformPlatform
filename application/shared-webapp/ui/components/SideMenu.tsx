@@ -1,14 +1,13 @@
-import type { Href } from "@react-types/shared";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
+import { cva } from "class-variance-authority";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
+import { cn } from "../utils";
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
 import { Button } from "./Button";
-import { focusRing } from "./focusRing";
 import { Link } from "./Link";
 import { Toggle } from "./Toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
@@ -42,27 +41,32 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
   }
 };
 
-const menuButtonStyles = tv({
-  extend: focusRing,
-  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-  variants: {
-    isCollapsed: {
-      true: "",
-      false: ""
+const menuButtonStyles = cva(
+  "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+  {
+    variants: {
+      isCollapsed: {
+        true: "",
+        false: ""
+      },
+      isActive: {
+        true: "text-foreground",
+        false: "text-muted-foreground hover:text-foreground"
+      },
+      isDisabled: {
+        true: "cursor-not-allowed opacity-50 hover:bg-background",
+        false: ""
+      }
     },
-    isActive: {
-      true: "text-foreground",
-      false: "text-muted-foreground hover:text-foreground"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50 hover:bg-background",
-      false: ""
+    defaultVariants: {
+      isCollapsed: false,
+      isActive: false,
+      isDisabled: false
     }
   }
-});
+);
 
-const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start",
+const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
   variants: {
     isCollapsed: {
       true: "max-w-0 opacity-0",
@@ -72,6 +76,10 @@ const menuTextStyles = tv({
       true: "font-semibold",
       false: "font-normal"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false,
+    isActive: false
   }
 });
 
@@ -82,7 +90,7 @@ type MenuButtonProps = {
 } & (
   | {
       forceReload?: false;
-      href: Href;
+      href: string;
     }
   | {
       forceReload: true;
@@ -95,7 +103,7 @@ type MenuButtonProps = {
 );
 
 // Helper function to get target path from href
-const getTargetPath = (to: Href | string, router: ReturnType<typeof useRouter>): string => {
+const getTargetPath = (to: string, router: ReturnType<typeof useRouter>): string => {
   if (typeof to === "string") {
     return to;
   }
@@ -204,7 +212,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         const matchResult = router.matchRoute({ to });
         if (matchResult !== false) {
           // Route exists in current system - use SPA navigation
-          // Don't do anything, let React Aria handle the navigation
+          // Don't do anything, let the router handle the navigation
           return;
         }
       } catch {
@@ -396,42 +404,45 @@ export function FederatedMenuButton({
   );
 }
 
-const sideMenuStyles = tv({
-  base: "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-background transition-[width] duration-100",
-  variants: {
-    isCollapsed: {
-      true: "w-[72px]",
-      false: "" // Width will be set inline for resizable menu
+const sideMenuStyles = cva(
+  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-background transition-[width] duration-100",
+  {
+    variants: {
+      isCollapsed: {
+        true: "w-[72px]",
+        false: ""
+      },
+      overlayMode: {
+        true: "",
+        false: ""
+      },
+      isOverlayOpen: {
+        true: "shadow-2xl",
+        false: ""
+      },
+      isHidden: {
+        true: "hidden",
+        false: "flex"
+      }
     },
-    overlayMode: {
-      true: "",
-      false: ""
-    },
-    isOverlayOpen: {
-      true: "shadow-2xl",
-      false: ""
-    },
-    isHidden: {
-      true: "hidden",
-      false: "flex"
+    defaultVariants: {
+      isCollapsed: false,
+      overlayMode: false,
+      isOverlayOpen: false,
+      isHidden: false
     }
-  },
-  compoundVariants: [
-    {
-      overlayMode: true,
-      isOverlayOpen: true,
-      class: "z-[46] w-[300px]" // Above side panes when expanded in overlay mode
-    }
-  ]
-});
+  }
+);
 
-const chevronStyles = tv({
-  base: "h-4 w-4 transition-transform duration-100",
+const chevronStyles = cva("h-4 w-4 transition-transform duration-100", {
   variants: {
     isCollapsed: {
       true: "rotate-180 transform",
       false: "rotate-0 transform"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false
   }
 });
 
@@ -881,13 +892,17 @@ const MenuNav = ({
 }) => (
   <nav
     ref={sideMenuRef}
-    className={`${sideMenuStyles({
-      isCollapsed: actualIsCollapsed,
-      overlayMode,
-      isOverlayOpen,
-      isHidden: isHidden && !overlayMode,
+    className={cn(
+      sideMenuStyles({
+        isCollapsed: actualIsCollapsed,
+        overlayMode,
+        isOverlayOpen,
+        isHidden: isHidden && !overlayMode
+      }),
+      overlayMode && isOverlayOpen && "z-[46] w-[300px]",
+      isResizing && "cursor-col-resize select-none",
       className
-    })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
+    )}
     style={canResize ? { width: `${menuWidth}px`, transition: isResizing ? "none" : undefined } : undefined}
     aria-label="Main navigation"
   >
@@ -1156,13 +1171,15 @@ export function SideMenu({
   );
 }
 
-const sideMenuSeparatorStyles = tv({
-  base: "border-b-0 font-semibold text-muted-foreground uppercase leading-4",
+const sideMenuSeparatorStyles = cva("border-b-0 font-semibold text-muted-foreground uppercase leading-4", {
   variants: {
     isCollapsed: {
       true: "-mt-2 mb-2 flex h-8 w-full justify-center",
       false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false
   }
 });
 

@@ -7,7 +7,6 @@ import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
-import { Text } from "@repo/ui/components/Text";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -98,9 +97,9 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
                 isRound={true}
               />
               <div className="min-w-0 flex-1">
-                <Text className="truncate font-medium">{displayName}</Text>
-                {user.title && <Text className="truncate text-muted-foreground text-sm">{user.title}</Text>}
-                <Text className="truncate text-muted-foreground text-sm">{user.email}</Text>
+                <p className="truncate font-medium">{displayName}</p>
+                {user.title && <p className="truncate text-muted-foreground text-sm">{user.title}</p>}
+                <p className="truncate text-muted-foreground text-sm">{user.email}</p>
               </div>
             </div>
 
