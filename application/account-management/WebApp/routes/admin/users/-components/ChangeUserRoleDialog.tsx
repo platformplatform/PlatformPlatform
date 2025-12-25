@@ -8,10 +8,10 @@ import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { Text } from "@repo/ui/components/Text";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -34,10 +34,8 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
 
       setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User role updated successfully for ${userDisplayName}`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`User role updated successfully for ${userDisplayName}`
       });
       queryClient.invalidateQueries({
         queryKey: ["get", "/api/account-management/users"]

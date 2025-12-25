@@ -20,11 +20,11 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType } from "@/shared/lib/api/client";
 
@@ -196,10 +196,8 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
   const revokeSessionMutation = api.useMutation("delete", "/api/account-management/authentication/sessions/{id}", {
     onSuccess: () => {
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Session revoked successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`Session revoked successfully`
       });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/authentication/sessions"] });
       setIsRevokeDialogOpen(false);

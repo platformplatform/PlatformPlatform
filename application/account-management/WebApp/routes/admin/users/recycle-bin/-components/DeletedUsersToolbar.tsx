@@ -1,10 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
@@ -50,19 +50,15 @@ export function DeletedUsersToolbar({
       const user = selectedUsers[0];
       const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User restored successfully: ${userName}`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`User restored successfully: ${userName}`
       });
     } else {
       for (const user of selectedUsers) {
         await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       }
-      toastQueue.add({
-        title: t`Success`,
-        description: t`${selectedUsers.length} users restored successfully`,
-        variant: "success"
+      toast.success(t`Success`, {
+        description: t`${selectedUsers.length} users restored successfully`
       });
     }
 
