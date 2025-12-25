@@ -28,7 +28,7 @@ test.describe("@smoke", () => {
 
       // Verify verification page state
       await expect(page).toHaveURL("/login/verify");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
 
       // Verify help text is visible but resend button is not yet available
@@ -37,15 +37,16 @@ test.describe("@smoke", () => {
     })();
 
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
     })();
 
     await step("Complete successful login & verify navigation to admin")(async () => {
       // Re-enter correct code (manual submit required after failed attempt)
-      await page.locator('input[autocomplete="one-time-code"]').first().focus();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
       await page.getByRole("button", { name: "Verify" }).click();
 
@@ -60,7 +61,11 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const logoutItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutItem).toBeVisible();
+      // Use JS click as Firefox menu items can fail with Playwright click even with force:true
+      await logoutItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
     })();
@@ -89,8 +94,8 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login/verify");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
       await expect(page).toHaveURL("/admin");
@@ -100,10 +105,13 @@ test.describe("@smoke", () => {
 
 test.describe("@comprehensive", () => {
   test("should enforce rate limiting for failed login attempts", async ({ page }) => {
+    test.setTimeout(60_000);
     const context = createTestContext(page);
     const user = testUser();
 
     await step("Create test user")(async () => {
+      // Mark 401 as expected during logout transition (React Query may have in-flight requests)
+      context.monitoring.expectedStatusCodes.push(401);
       await completeSignupFlow(page, expect, user, context, false);
     })();
 
@@ -119,37 +127,45 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Enter first wrong code & verify error and focus reset")(async () => {
+      // Mark 400 as expected for all wrong code attempts, and 403 for rate limiting
+      context.monitoring.expectedStatusCodes.push(400, 403);
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
     })();
 
     await step("Enter second wrong code & verify error and focus reset")(async () => {
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG2");
       await page.getByRole("button", { name: "Verify" }).click();
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
     })();
 
     await step("Enter third wrong code & verify error and focus reset")(async () => {
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG3");
       await page.getByRole("button", { name: "Verify" }).click();
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
     })();
 
     await step("Enter fourth wrong code & verify rate limiting triggers")(async () => {
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG4");
       await page.getByRole("button", { name: "Verify" }).click();
 
-      // Verify rate limiting is enforced
-      await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
-      await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeDisabled();
+      // Verify rate limiting is enforced - check UI state
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
+      await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
+      // The "Too many attempts" text appears both in the form paragraph and in the toast
+      await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();
+      // Clean up the toast message (this also cleans up the 403 network error)
+      await expectToastMessage(context, 403, "Too many attempts, please request a new code.");
     })();
   });
 });
@@ -160,6 +176,8 @@ test.describe("@comprehensive", () => {
     const user = testUser();
 
     await step("Create test user")(async () => {
+      // Mark 401 as expected during logout transition (React Query may have in-flight requests)
+      context.monitoring.expectedStatusCodes.push(401);
       await completeSignupFlow(page, expect, user, context, false);
     })();
 

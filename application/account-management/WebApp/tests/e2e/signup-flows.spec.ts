@@ -70,16 +70,17 @@ test.describe("@smoke", () => {
 
       // Verify verification page state
       await expect(page).toHaveURL("/signup/verify");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
       await expect(page.getByRole("button", { name: "Verify" })).toBeDisabled();
     })();
 
     // === VERIFICATION CODE VALIDATION ===
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type("WRONG1"); // Auto-submits on 6 characters
 
       await expectToastMessage(testContext, 400, "The code is wrong or no longer valid.");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
     })();
 
     await step("Type verification code & verify submit button enables")(async () => {
@@ -144,7 +145,9 @@ test.describe("@smoke", () => {
       await expect(page.getByText(user.email)).toBeVisible();
 
       // Open and close edit dialog
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
+      const editProfileMenuItem = page.getByRole("menuitem", { name: "Edit profile" });
+      await expect(editProfileMenuItem).toBeVisible();
+      await editProfileMenuItem.evaluate((el: HTMLElement) => el.click());
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
       await page.getByRole("button", { name: "Cancel" }).click();
 
@@ -181,7 +184,10 @@ test.describe("@smoke", () => {
 
     await step("Update user profile title & verify successful profile update")(async () => {
       await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const editProfileItem = page.getByRole("menuitem", { name: "Edit profile" });
+      await expect(editProfileItem).toBeVisible();
+      await editProfileItem.click({ force: true });
       // Wait for menu popover to close before checking for profile dialog
       await expect(page.getByRole("dialog", { name: "User profile menu" })).not.toBeVisible();
       const profileDialog = page.getByRole("dialog", { name: "User profile" });

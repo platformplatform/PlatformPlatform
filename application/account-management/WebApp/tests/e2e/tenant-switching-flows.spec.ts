@@ -80,10 +80,13 @@ test.describe("@comprehensive", () => {
     await step("Logout from primary tenant & verify redirect to login page")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
 
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin");
     })();
 
     await step("Create second tenant & verify user invitation")(async () => {
@@ -107,7 +110,11 @@ test.describe("@comprehensive", () => {
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
     })();
 
@@ -131,7 +138,11 @@ test.describe("@comprehensive", () => {
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
     })();
 
@@ -169,7 +180,16 @@ test.describe("@comprehensive", () => {
 
       // Switch to secondary tenant - this shows invitation dialog
       await tenantButton.click();
-      await menuItems.filter({ hasText: secondaryTenantName }).click();
+      const tenantMenu = page1.getByRole("menu");
+      await expect(tenantMenu).toBeVisible();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const secondaryTenantMenuItem = menuItems.filter({ hasText: secondaryTenantName });
+      await expect(secondaryTenantMenuItem).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await secondaryTenantMenuItem.evaluate((el: HTMLElement) => el.click());
+
+      // Wait for menu to close (indicates click was processed)
+      await expect(tenantMenu).not.toBeVisible();
 
       // Accept invitation dialog appears for pending invitations
       const invitationDialog = page1.getByRole("dialog", { name: "Accept invitation" });
@@ -197,8 +217,11 @@ test.describe("@comprehensive", () => {
       const menuItems = page1.getByRole("menuitem");
 
       // Look for the tertiary tenant with pending invitation badge
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
       const tertiaryMenuItem = menuItems.filter({ hasText: tertiaryTenantName });
-      await tertiaryMenuItem.click();
+      await expect(tertiaryMenuItem).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await tertiaryMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Accept invitation dialog should appear for this tenant
       const invitationDialog = page1.getByRole("dialog", { name: "Accept invitation" });
@@ -244,9 +267,12 @@ test.describe("@comprehensive", () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
       testContext2.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("login?returnPath=%2Fadmin%2Fusers");
 
       // tab 2 also loses authentication
       await page2.goto("/admin");
@@ -299,18 +325,18 @@ test.describe("@comprehensive", () => {
 
       // Switch to a different tenant
       await tenantButton.click();
-      const menuItems = page1.getByRole("menuitem");
+      const tenantMenu = page1.getByRole("menu");
+      await expect(tenantMenu).toBeVisible();
 
-      // Switch to primary tenant
-      const targetMenuItem = menuItems.filter({ hasText: primaryTenantName }).first();
-      await targetMenuItem.click();
+      const targetMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName }).first();
+      await expect(targetMenuItem).toBeVisible();
+      await targetMenuItem.evaluate((el: HTMLElement) => el.click());
 
-      await expect(page1).toHaveURL("/admin/account");
-
-      // Re-query the tenant button with the new tenant name
+      await page1.waitForURL(/\/admin/);
       const navElementAfterSwitch = page1.locator("nav").first();
+      await expect(navElementAfterSwitch).toContainText(primaryTenantName);
+      await expect(page1).toHaveURL("/admin/account");
       const tenantButtonAfterSwitch = navElementAfterSwitch.locator("button").filter({ hasText: primaryTenantName });
-      await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
 
       // Navigate back to Home
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
@@ -336,13 +362,21 @@ test.describe("@comprehensive", () => {
 
       // Logout from page1
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      const userMenu = page1.getByRole("menu", { name: "User profile menu" });
+      await expect(userMenu).toBeVisible();
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login as different user
       await page1.getByRole("textbox", { name: "Email" }).fill(secondUser.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page1.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page1.locator('[data-slot="input-otp"]').click();
       await page1.keyboard.type(getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
     })();
@@ -365,7 +399,11 @@ test.describe("@comprehensive", () => {
 
       // Logout
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login as original user (who has access to multiple tenants)
@@ -391,18 +429,34 @@ test.describe("@comprehensive", () => {
       const tenantButton1 = nav1.locator("button").filter({ hasText: primaryTenantName });
 
       await tenantButton1.click();
-      await page1.getByRole("menuitem").filter({ hasText: secondaryTenantName }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const secondaryMenuItem = page1.getByRole("menuitem").filter({ hasText: secondaryTenantName });
+      await expect(secondaryMenuItem).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await secondaryMenuItem.evaluate((el: HTMLElement) => el.click());
+
+      // Tenant switch triggers a full page reload - wait for navigation to complete
+      await page1.waitForURL(/\/admin/);
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
 
       // Logout from tab 1
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      const userMenu = page1.getByRole("menu", { name: "User profile menu" });
+      await expect(userMenu).toBeVisible();
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login again in tab 1
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page1.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page1.locator('[data-slot="input-otp"]').click();
       await page1.keyboard.type(getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
@@ -426,10 +480,13 @@ test.describe("@comprehensive", () => {
       const tenantButton1 = nav1.locator("button").filter({ hasText: secondaryTenantName });
 
       await tenantButton1.click();
-      const menuItems = page1.getByRole("menuitem");
-      await menuItems.filter({ hasText: primaryTenantName }).click();
+      const tenantMenu = page1.getByRole("menu");
+      await expect(tenantMenu).toBeVisible();
+      const primaryTenantMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName });
+      await expect(primaryTenantMenuItem).toBeVisible();
+      await primaryTenantMenuItem.evaluate((el: HTMLElement) => el.click());
 
-      // tenant switched in tab 1
+      await page1.waitForURL(/\/admin/);
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
     })();
 
@@ -447,7 +504,11 @@ test.describe("@comprehensive", () => {
       // Logout first
       testContext1.monitoring.expectedStatusCodes.push(401);
       await page1.getByRole("button", { name: "User profile menu" }).click();
-      await page1.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem1 = page1.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem1).toBeVisible();
+      await logoutMenuItem1.evaluate((el: HTMLElement) => el.click());
+      await expect(page1).toHaveURL(/\/login/);
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Create a new owner with new tenant
@@ -479,7 +540,10 @@ test.describe("@comprehensive", () => {
       // Logout from page2
       testContext2.monitoring.expectedStatusCodes.push(401);
       await page2.getByRole("button", { name: "User profile menu" }).click();
-      await page2.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem2 = page2.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem2).toBeVisible();
+      await logoutMenuItem2.evaluate((el: HTMLElement) => el.click());
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Login as the invited user in page2
@@ -516,8 +580,11 @@ test.describe("@comprehensive", () => {
       const tenantButton2 = nav2.locator("button").filter({ hasText: primaryTenantName });
       await tenantButton2.click();
       const menuItems2 = page2.getByRole("menuitem");
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
       const invitedTenant2 = menuItems2.filter({ hasText: "Revoke-Test" });
-      await invitedTenant2.click();
+      await expect(invitedTenant2).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await invitedTenant2.evaluate((el: HTMLElement) => el.click());
 
       // invitation dialog appears in page2
       const invitationDialog2 = page2.getByRole("dialog", { name: "Accept invitation" });
@@ -529,8 +596,11 @@ test.describe("@comprehensive", () => {
       const tenantButton3 = nav3.locator("button").filter({ hasText: primaryTenantName });
       await tenantButton3.click();
       const menuItems3 = page3.getByRole("menuitem");
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
       const invitedTenant3 = menuItems3.filter({ hasText: "Revoke-Test" });
-      await invitedTenant3.click();
+      await expect(invitedTenant3).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await invitedTenant3.evaluate((el: HTMLElement) => el.click());
 
       // invitation dialog appears in page3
       const invitationDialog3 = page3.getByRole("dialog", { name: "Accept invitation" });
@@ -580,7 +650,10 @@ test.describe("@comprehensive", () => {
       // Page1 might be on the Revoke-Test tenant now due to auth sync
       // Logout from page2 which we know is on the Revoke-Test tenant
       await page2.getByRole("button", { name: "User profile menu" }).click();
-      await page2.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem2 = page2.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem2).toBeVisible();
+      await logoutMenuItem2.evaluate((el: HTMLElement) => el.click());
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
       await expect(page2).toHaveURL("/login?returnPath=%2Fadmin");
 

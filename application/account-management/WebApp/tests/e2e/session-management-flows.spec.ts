@@ -46,7 +46,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Close Sessions modal & create second session from new browser context")(async () => {
-      await sessionsDialog.locator("svg.cursor-pointer").click();
+      await sessionsDialog.getByRole("button", { name: "Close" }).first().click();
       await expect(sessionsDialog).not.toBeVisible();
 
       const browser = page.context().browser() as Browser;

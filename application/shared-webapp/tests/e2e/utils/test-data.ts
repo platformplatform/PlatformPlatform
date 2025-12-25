@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import type { Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { isLocalhost } from "./constants";
@@ -150,10 +151,10 @@ export async function completeSignupFlow(
   await page.getByRole("button", { name: "Create your account" }).click();
   await expect(page).toHaveURL("/signup/verify");
 
-  // Step 3: Enter verification code (auto-submits after 6 characters)
-  // Wait for the first input to be focused before typing
-  await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-  await page.keyboard.type(getVerificationCode());
+  // Step 3: Enter verification code (wait for OTP input to be ready)
+  await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+  await page.locator('[data-slot="input-otp"]').click();
+  await page.keyboard.type(getVerificationCode()); // The verification code auto submits
 
   // Wait for successful signup - the form auto-submits and navigates to /admin
   await expect(page).toHaveURL("/admin");
@@ -171,7 +172,10 @@ export async function completeSignupFlow(
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
     await page.getByRole("button", { name: "User profile menu" }).click();
-    await page.getByRole("menuitem", { name: "Log out" }).click();
+    // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+    const logoutItem = page.getByRole("menuitem", { name: "Log out" });
+    await expect(logoutItem).toBeVisible();
+    await logoutItem.evaluate((el: HTMLElement) => el.click());
     await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
   }
 }

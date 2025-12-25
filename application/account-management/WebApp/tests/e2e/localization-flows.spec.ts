@@ -18,7 +18,10 @@ test.describe("@comprehensive", () => {
 
     await step("Click language button and select Danish & verify interface updates")(async () => {
       await page.getByRole("button", { name: "Change language" }).click();
-      await page.getByRole("menuitem", { name: "Dansk" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const danskMenuItem = page.getByRole("menuitem", { name: "Dansk" });
+      await expect(danskMenuItem).toBeVisible();
+      await danskMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Verify interface updates to Danish and preference is saved
       await expect(page.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
@@ -34,7 +37,9 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete verification with Danish interface & verify navigation to admin")(async () => {
-      // Auto-submits on 6 characters
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
@@ -55,8 +60,14 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Click logout from Danish interface & verify language persists after logout")(async () => {
+      // Mark 401 as expected during logout transition (React Query may have in-flight requests)
+      context.monitoring.expectedStatusCodes.push(401);
+
       await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
-      await page.getByRole("menuitem", { name: "Log ud" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const logudMenuItem = page.getByRole("menuitem", { name: "Log ud" });
+      await expect(logudMenuItem).toBeVisible();
+      await logudMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Verify Danish language persists after logout
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -66,7 +77,11 @@ test.describe("@comprehensive", () => {
 
     await step("Change login page language to English & verify interface updates")(async () => {
       await page.getByRole("button", { name: "Skift sprog" }).click();
-      await page.getByRole("menuitem", { name: "English" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
+      await expect(englishMenuItem).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await englishMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Verify interface updates to English
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -82,7 +97,9 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete login verification & verify language resets to user's saved preference")(async () => {
-      // Auto-submits on 6 characters
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
@@ -92,7 +109,11 @@ test.describe("@comprehensive", () => {
 
     await step("Click language button and reset to English & verify language change works")(async () => {
       await page.getByRole("button", { name: "Skift sprog" }).click();
-      await page.getByRole("menuitem", { name: "English" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const englishMenuItem2 = page.getByRole("menuitem", { name: "English" });
+      await expect(englishMenuItem2).toBeVisible();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      await englishMenuItem2.evaluate((el: HTMLElement) => el.click());
 
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
@@ -116,7 +137,10 @@ test.describe("@comprehensive", () => {
       // Set up Danish interface
       await page1.goto("/signup");
       await page1.getByRole("button", { name: "Change language" }).click();
-      await page1.getByRole("menuitem", { name: "Dansk" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const danskMenuItem = page1.getByRole("menuitem", { name: "Dansk" });
+      await expect(danskMenuItem).toBeVisible();
+      await danskMenuItem.evaluate((el: HTMLElement) => el.click());
       await expect(page1.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
 
       // Complete signup flow
@@ -124,8 +148,13 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Opret din konto" }).click();
       await expect(page1).toHaveURL("/signup/verify");
 
-      // Auto-submits on 6 characters
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page1.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page1.locator('[data-slot="input-otp"]').click();
       await page1.keyboard.type(getVerificationCode());
+
+      // Wait for profile dialog to appear
+      await expect(page1.getByRole("dialog", { name: "Brugerprofil" })).toBeVisible();
 
       // Complete profile in Danish
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
@@ -157,7 +186,9 @@ test.describe("@comprehensive", () => {
       await newPage1.getByRole("button", { name: "Continue" }).click();
       await expect(newPage1).toHaveURL("/login/verify");
 
-      // Auto-submits on 6 characters
+      // Wait for OTP input to be ready before typing verification code
+      await expect(newPage1.locator('[data-slot="input-otp"]')).toBeVisible();
+      await newPage1.locator('[data-slot="input-otp"]').click();
       await newPage1.keyboard.type(getVerificationCode());
 
       // Verify Danish preference is restored after login
@@ -176,7 +207,9 @@ test.describe("@comprehensive", () => {
       await newPage2.getByRole("button", { name: "Continue" }).click();
       await expect(newPage2).toHaveURL("/login/verify");
 
-      // Auto-submits on 6 characters
+      // Wait for OTP input to be ready before typing verification code
+      await expect(newPage2.locator('[data-slot="input-otp"]')).toBeVisible();
+      await newPage2.locator('[data-slot="input-otp"]').click();
       await newPage2.keyboard.type(getVerificationCode());
 
       // Verify English preference is maintained

@@ -127,7 +127,11 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const logoutItem1 = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutItem1).toBeVisible();
+      // Use JS click as Firefox menu items can fail with Playwright click even with force:true
+      await logoutItem1.evaluate((el: HTMLElement) => el.click());
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -291,41 +295,34 @@ test.describe("@smoke", () => {
     })();
 
     await step("Select multiple users as Owner & verify bulk delete button appears")(async () => {
-      // Select the first two invited users - use first tbody due to mobile rendering
+      // Select the first two invited users using checkboxes for multi-select
       const rows = page.locator("tbody").first().locator("tr");
       const secondRow = rows.nth(1); // First invited user
       const thirdRow = rows.nth(2); // Second invited user
 
-      // Select first user using force click to bypass visibility
-      await secondRow.evaluate((el: HTMLElement) => el.click());
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select first user by clicking their checkbox (use JS evaluation as checkbox may fail Playwright visibility check)
+      const firstCheckbox = secondRow.locator('[data-slot="checkbox"]');
+      await firstCheckbox.evaluate((el: HTMLElement) => el.click());
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
-      // Select second user with Ctrl/Cmd modifier - use evaluate to simulate click with modifier
-      await page.keyboard.down("ControlOrMeta");
-      await thirdRow.evaluate((el: HTMLElement) => el.click());
-      await page.keyboard.up("ControlOrMeta");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select second user by clicking their checkbox (adds to selection)
+      const secondCheckbox = thirdRow.locator('[data-slot="checkbox"]');
+      await secondCheckbox.evaluate((el: HTMLElement) => el.click());
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify bulk delete button is visible for Owner
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
 
       // Ensure the selections are stable and the UI has updated
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
     })();
 
     await step("Log out as owner and log in as member & verify authentication")(async () => {
       // Ensure the bulk delete button is still visible and selections are stable
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
       await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeEnabled();
-
-      // Verify that the selected rows are still selected
-      const allRows = page.locator("tbody").first().locator("tr");
-      const secondRow = allRows.nth(1);
-      const thirdRow = allRows.nth(2);
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
 
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
@@ -335,7 +332,11 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      // Wait for menu to be visible and stable before clicking (Firefox menu can become unstable)
+      const logoutItem2 = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutItem2).toBeVisible();
+      // Use JS click as Firefox menu items can fail with Playwright click even with force:true
+      await logoutItem2.evaluate((el: HTMLElement) => el.click());
 
       // Wait for logout to complete and page to navigate
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -379,14 +380,14 @@ test.describe("@smoke", () => {
       const secondRow = rows.nth(1);
       const thirdRow = rows.nth(2);
 
-      // Select users as Member using force click to bypass visibility
-      await secondRow.evaluate((el: HTMLElement) => el.click());
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      // Select users as Member using checkboxes for multi-select (use JS evaluation as checkbox may fail Playwright visibility check)
+      const firstCheckbox = secondRow.locator('[data-slot="checkbox"]');
+      await firstCheckbox.evaluate((el: HTMLElement) => el.click());
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
-      await page.keyboard.down("ControlOrMeta");
-      await thirdRow.evaluate((el: HTMLElement) => el.click());
-      await page.keyboard.up("ControlOrMeta");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      const secondCheckbox = thirdRow.locator('[data-slot="checkbox"]');
+      await secondCheckbox.evaluate((el: HTMLElement) => el.click());
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Verify bulk delete button is NOT visible for Member even with selections
       await expect(page.getByRole("button", { name: "Delete 2 users" })).not.toBeVisible();

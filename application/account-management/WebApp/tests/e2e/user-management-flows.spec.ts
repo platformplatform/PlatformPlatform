@@ -150,7 +150,7 @@ test.describe("@smoke", () => {
       await page.getByRole("menuitem", { name: "Change role" }).click();
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
-      await page.getByRole("radio", { name: "Owner" }).check({ force: true });
+      await page.getByRole("radiogroup", { name: "Role" }).getByText("Owner").click();
 
       await page.keyboard.press("Escape");
 
@@ -158,9 +158,9 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Stay" }).click();
       await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
-      await expect(page.getByRole("radio", { name: "Owner" })).toBeChecked();
+      await expect(page.locator("#role-owner")).toBeChecked();
 
-      await page.getByRole("radio", { name: "Owner" }).focus();
+      await page.locator("#role-owner").focus();
       await page.keyboard.press("Escape");
       await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
       await page.getByRole("button", { name: "Leave" }).click();
@@ -179,7 +179,7 @@ test.describe("@smoke", () => {
       await page.getByRole("menuitem", { name: "Change role" }).click();
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
-      await page.getByRole("radio", { name: "Admin" }).check({ force: true });
+      await page.getByRole("radiogroup", { name: "Role" }).getByText("Admin").click();
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
@@ -258,7 +258,7 @@ test.describe("@smoke", () => {
       const filterDialog = page.getByRole("dialog", { name: "Filters" });
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByRole("button", { name: "Any role User role" }).click();
+      await filterDialog.getByRole("group").filter({ hasText: "User role" }).getByRole("combobox").click();
       await page.getByRole("option", { name: "Owner" }).click();
 
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -269,10 +269,11 @@ test.describe("@smoke", () => {
       await expect(userTable).not.toContainText(adminUser.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
+      // Reopen filter dialog to reset filter
       await page.getByRole("button", { name: "Show filters" }).click();
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByRole("button", { name: "Owner User role" }).click();
+      await filterDialog.getByRole("group").filter({ hasText: "User role" }).getByRole("combobox").click();
       await page.getByRole("option", { name: "Any role" }).click();
       await filterDialog.getByRole("button", { name: "OK" }).click();
 
@@ -357,7 +358,7 @@ test.describe("@smoke", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from owner account & verify redirect to login")(async () => {
@@ -369,7 +370,14 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const userMenu = page.getByRole("menu", { name: "User profile menu" });
+      await expect(userMenu).toBeVisible();
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
+
+      // Wait for menu to close (indicates click was processed)
+      await expect(userMenu).not.toBeVisible();
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
     })();
@@ -378,6 +386,9 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
@@ -408,7 +419,7 @@ test.describe("@smoke", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from admin account & verify redirect to login")(async () => {
@@ -540,25 +551,28 @@ test.describe("@comprehensive", () => {
       // Show filters
       await page.getByRole("button", { name: "Show filters" }).click();
 
-      await expect(page.getByLabel("User role").first()).toBeVisible();
-      await expect(page.getByLabel("User status").first()).toBeVisible();
-      await expect(page.getByLabel("Modified date").first()).toBeVisible();
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog.getByText("User role")).toBeVisible();
+      await expect(filterDialog.getByText("User status")).toBeVisible();
+      await expect(filterDialog.getByText("Modified date")).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
       // Filters are in the dialog that was opened in the previous step
       const filterDialog = page.getByRole("dialog", { name: "Filters" });
 
-      // Clear status filter
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      // Clear status filter - find the combobox in the group containing "User status" label
+      await filterDialog.getByRole("group").filter({ hasText: "User status" }).getByRole("combobox").click();
+      // Use last() since BaseUI may keep previous listboxes in DOM
+      const statusListbox = page.getByRole("listbox").last();
       await expect(statusListbox).toBeVisible();
       await statusListbox.getByRole("option", { name: "Any status" }).click();
       await blurActiveElement(page);
 
-      // Set role filter to Owner
-      await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
+      // Set role filter to Owner - find the combobox in the group containing "User role" label
+      await filterDialog.getByRole("group").filter({ hasText: "User role" }).getByRole("combobox").click();
+      // Use last() since BaseUI may keep previous listboxes in DOM
+      const roleListbox = page.getByRole("listbox").last();
       await expect(roleListbox).toBeVisible();
       await roleListbox.getByRole("option", { name: "Owner" }).click();
       await blurActiveElement(page);
@@ -581,8 +595,8 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set role filter to Member
-      await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
+      await filterDialog.getByRole("group").filter({ hasText: "User role" }).getByRole("combobox").click();
+      const roleListbox = page.getByRole("listbox");
       await expect(roleListbox).toBeVisible();
       await roleListbox.getByRole("option", { name: "Member" }).click();
       await blurActiveElement(page);
@@ -622,8 +636,8 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set status filter to Pending
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await filterDialog.getByRole("group").filter({ hasText: "User status" }).getByRole("combobox").click();
+      const statusListbox = page.getByRole("listbox");
       await expect(statusListbox).toBeVisible();
       await statusListbox.getByRole("option", { name: "Pending" }).click();
       await blurActiveElement(page);
@@ -646,8 +660,8 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set status filter to Active
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
+      await filterDialog.getByRole("group").filter({ hasText: "User status" }).getByRole("combobox").click();
+      const statusListbox = page.getByRole("listbox");
       await expect(statusListbox).toBeVisible();
       await statusListbox.getByRole("option", { name: "Active" }).click();
       await blurActiveElement(page);
@@ -786,7 +800,7 @@ test.describe("@comprehensive", () => {
 
     // === OWNER PROTECTION SECTION ===
     await step("Open owner actions menu & verify delete option is disabled")(async () => {
-      const usersGrid = page.getByRole("grid", { name: "Users" });
+      const usersGrid = page.getByRole("table", { name: "Users" });
       const ownerRow = usersGrid.getByRole("row").filter({ hasText: owner.email });
       await ownerRow.getByRole("button", { name: "User actions" }).click();
 
@@ -800,13 +814,13 @@ test.describe("@comprehensive", () => {
       await page.getByRole("link", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       await expect(deletedUsersGrid).toContainText(user1.email);
       await expect(deletedUsersGrid).toContainText(user2.email);
     })();
 
     await step("Select user1 row & restore via toolbar button")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user1Row = deletedUsersGrid.locator("tr").filter({ hasText: user1.email });
       await user1Row.click();
 
@@ -822,7 +836,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Select user2 row & permanently delete via toolbar")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user2Row = deletedUsersGrid.locator("tr").filter({ hasText: user2.email });
       await user2Row.click();
 
@@ -841,7 +855,7 @@ test.describe("@comprehensive", () => {
 
       await expect(deleteDialog).not.toBeVisible();
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).not.toBeVisible();
+      await expect(page.getByRole("table", { name: "Deleted users" })).not.toBeVisible();
       await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
     })();
 

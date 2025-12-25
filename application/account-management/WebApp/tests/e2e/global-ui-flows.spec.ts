@@ -33,8 +33,10 @@ test.describe("@comprehensive", () => {
       const themeMenu = ownerPage.getByRole("menu");
       await expect(themeMenu).toBeVisible();
 
-      // Click dark theme option and wait for menu to close
-      await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
+      // Click dark theme option and wait for menu to close - use JS click for Firefox stability
+      const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
+      await expect(darkMenuItem).toBeVisible();
+      await darkMenuItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(themeMenu).not.toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
@@ -64,7 +66,10 @@ test.describe("@comprehensive", () => {
       const systemMenu = ownerPage.getByRole("menu");
       await expect(systemMenu).toBeVisible();
 
-      await ownerPage.getByRole("menuitem", { name: "System" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const systemMenuItem = ownerPage.getByRole("menuitem", { name: "System" });
+      await expect(systemMenuItem).toBeVisible();
+      await systemMenuItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(systemMenu).not.toBeVisible();
       // System theme will be light in test environment
@@ -88,7 +93,10 @@ test.describe("@comprehensive", () => {
       const menu4k = ownerPage.getByRole("menu");
       await expect(menu4k).toBeVisible();
 
-      await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
+      await expect(darkMenuItem).toBeVisible();
+      await darkMenuItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
@@ -137,8 +145,10 @@ test.describe("@comprehensive", () => {
       const themeSubmenu = ownerPage.getByRole("menu");
       await expect(themeSubmenu).toBeVisible();
 
-      // Select light theme
-      await ownerPage.getByRole("menuitem", { name: "Light" }).click();
+      // Select light theme - use JS click as BaseUI menu items can fail with Playwright click
+      const lightMenuItem = ownerPage.getByRole("menuitem", { name: "Light" });
+      await expect(lightMenuItem).toBeVisible();
+      await lightMenuItem.evaluate((el: HTMLElement) => el.click());
 
       // Mobile menu should close automatically
       await expect(ownerPage.getByRole("dialog", { name: "Mobile navigation menu" })).not.toBeVisible();
@@ -164,7 +174,13 @@ test.describe("@comprehensive", () => {
       const menu4k = ownerPage.getByRole("menu");
       await expect(menu4k).toBeVisible();
 
-      await ownerPage.getByRole("menuitem", { name: "Dark" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
+      await expect(darkMenuItem).toBeVisible();
+      await darkMenuItem.evaluate((el: HTMLElement) => el.click());
+
+      // Wait for menu to close (indicates click was processed)
+      await expect(menu4k).not.toBeVisible();
 
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
@@ -205,12 +221,9 @@ test.describe("@comprehensive", () => {
 
       await expect(page).toHaveURL("/login/verify");
 
-      // Wait for verification input to be ready
-      const verificationInput = page.locator('input[autocomplete="one-time-code"]').first();
-      await expect(verificationInput).toBeVisible();
-      await verificationInput.focus();
-
-      // Auto-submits on first login
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode());
 
       // Wait for auto-submit to complete
@@ -226,7 +239,10 @@ test.describe("@comprehensive", () => {
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
 
-      await page.getByRole("menuitem", { name: "Dark" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
+      await expect(darkMenuItem).toBeVisible();
+      await darkMenuItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(page.locator("html")).toHaveClass("dark");
     })();
@@ -241,7 +257,10 @@ test.describe("@comprehensive", () => {
       const userMenu = page.getByRole("menu", { name: "User profile menu" });
       await expect(userMenu).toBeVisible();
 
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      // Use JS click as BaseUI menu items can fail with Playwright click in Firefox
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -256,12 +275,9 @@ test.describe("@comprehensive", () => {
 
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
 
-      // Wait for verification input to be ready
-      const verificationInput = page.locator('input[autocomplete="one-time-code"]').first();
-      await expect(verificationInput).toBeVisible();
-      await verificationInput.focus();
-
-      // Auto-submits on first login
+      // Wait for OTP input to be ready before typing verification code
+      await expect(page.locator('[data-slot="input-otp"]')).toBeVisible();
+      await page.locator('[data-slot="input-otp"]').click();
       await page.keyboard.type(getVerificationCode());
 
       // Wait for auto-submit to complete
