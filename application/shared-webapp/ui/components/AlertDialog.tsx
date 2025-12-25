@@ -1,24 +1,25 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
+import { cva } from "class-variance-authority";
 import type * as React from "react";
-import { tv } from "tailwind-variants";
 import { cn } from "../utils";
 
-const overlayStyles = tv({
-  base: "data-[closed]:fade-out-0 data-[open]:fade-in-0 fixed inset-0 isolate flex min-h-dvh w-full items-center justify-center bg-black/15 p-2 text-center duration-200 data-[closed]:animate-out data-[open]:animate-in supports-backdrop-filter:backdrop-blur-xs max-sm:p-0 sm:p-4",
-  variants: {
-    zIndex: {
-      normal: "z-50",
-      high: "z-50"
+const overlayStyles = cva(
+  "data-[closed]:fade-out-0 data-[open]:fade-in-0 fixed inset-0 isolate flex min-h-dvh w-full items-center justify-center bg-black/15 p-2 text-center duration-200 data-[closed]:animate-out data-[open]:animate-in supports-backdrop-filter:backdrop-blur-xs max-sm:p-0 sm:p-4",
+  {
+    variants: {
+      zIndex: {
+        normal: "z-50",
+        high: "z-50"
+      }
+    },
+    defaultVariants: {
+      zIndex: "high"
     }
-  },
-  defaultVariants: {
-    zIndex: "high"
   }
-});
+);
 
-const popupStyles = tv({
-  base: "data-[closed]:fade-out-0 data-[open]:fade-in-0 data-[closed]:zoom-out-95 data-[open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-popover bg-clip-padding p-6 text-left align-middle text-foreground shadow-2xl outline-none duration-200 data-[closed]:animate-out data-[open]:animate-in sm:p-8 dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]"
-});
+const popupStyles =
+  "data-[closed]:fade-out-0 data-[open]:fade-in-0 data-[closed]:zoom-out-95 data-[open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 flex w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-border bg-popover bg-clip-padding p-6 text-left align-middle text-foreground shadow-2xl outline-none duration-200 data-[closed]:animate-out data-[open]:animate-in sm:p-8 dark:backdrop-blur-2xl dark:backdrop-saturate-200 forced-colors:bg-[Canvas]";
 
 type AlertDialogOverlayProps = AlertDialogPrimitive.Backdrop.Props & {
   zIndex?: "normal" | "high";
@@ -60,7 +61,7 @@ function AlertDialogContent({ className, children, zIndex, ...props }: AlertDial
       <AlertDialogOverlay zIndex={zIndex} />
       <AlertDialogPrimitive.Popup
         data-slot="alert-dialog-content"
-        className={cn(popupStyles(), "sm:w-dialog-md", className)}
+        className={cn(popupStyles, "sm:w-dialog-md", className)}
         {...props}
       >
         {children}

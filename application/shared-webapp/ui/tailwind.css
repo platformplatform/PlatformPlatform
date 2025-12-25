@@ -7,7 +7,6 @@
 @import "@fontsource/inter/900.css";
 
 @import "tailwindcss";
-@plugin 'tailwindcss-react-aria-components';
 @plugin 'tailwindcss-animate';
 
 @source "../../node_modules/@repo/ui/components";

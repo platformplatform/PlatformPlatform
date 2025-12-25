@@ -26,7 +26,6 @@ import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
 import { useCallback, useContext, useRef, useState } from "react";
-import { FileTrigger } from "react-aria-components";
 import { toast } from "sonner";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
@@ -169,13 +168,15 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
             className="flex min-h-0 flex-1 flex-col"
           >
             <div className="flex flex-col gap-4">
-              <FileTrigger
+              <input
+                type="file"
                 ref={avatarFileInputRef}
-                onSelect={(files) => {
+                onChange={(e) => {
                   setAvatarMenuOpen(false);
-                  onFileSelect(files);
+                  onFileSelect(e.target.files);
                 }}
-                acceptedFileTypes={ALLOWED_FILE_TYPES}
+                accept={ALLOWED_FILE_TYPES.join(",")}
+                className="hidden"
               />
 
               <Label>

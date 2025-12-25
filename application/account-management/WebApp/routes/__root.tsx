@@ -2,7 +2,6 @@ import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracke
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
-import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
 import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
@@ -27,14 +26,12 @@ function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeModeProvider>
-        <ReactAriaRouterProvider>
-          <AuthenticationProvider navigate={(options) => navigate(options)}>
-            <AddToHomescreen />
-            <PageTracker />
-            <Outlet />
-            <AuthSyncModal modalComponent={AuthSyncModalComponent} />
-          </AuthenticationProvider>
-        </ReactAriaRouterProvider>
+        <AuthenticationProvider navigate={(options) => navigate(options)}>
+          <AddToHomescreen />
+          <PageTracker />
+          <Outlet />
+          <AuthSyncModal modalComponent={AuthSyncModalComponent} />
+        </AuthenticationProvider>
       </ThemeModeProvider>
     </QueryClientProvider>
   );
