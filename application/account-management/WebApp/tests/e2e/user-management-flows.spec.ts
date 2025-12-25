@@ -489,10 +489,10 @@ test.describe("@smoke", () => {
       await expectToastMessage(context, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Verify member sees Users page without Recycle bin tab
+      // Verify member sees Users page without Recycle bin tab (members don't see tab navigation)
       await expect(page).toHaveURL("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "All users" })).toBeVisible();
+      await expect(page.getByText("All users")).toBeVisible();
       await expect(page.getByRole("link", { name: "Recycle bin" })).not.toBeVisible();
     })();
   });
