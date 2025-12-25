@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
+import { BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
 import { Button } from "@repo/ui/components/Button";
 import {
   DropdownMenu,
@@ -311,9 +311,9 @@ export function AccountSettings() {
         variant="center"
         topMenu={
           <TopMenu>
-            <Breadcrumb>
+            <BreadcrumbPage>
               <Trans>Account settings</Trans>
-            </Breadcrumb>
+            </BreadcrumbPage>
           </TopMenu>
         }
         title={t`Account settings`}
