@@ -173,33 +173,29 @@ interface ScrollAwayContentProps {
 
 function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, children }: ScrollAwayContentProps) {
   return (
-    <>
-      {/* Mobile version with scroll-away header */}
-      <div className="flex h-full flex-col sm:hidden">
-        <div
-          className="scroll-away-header"
-          style={{
-            transform: `translateY(-${scrollProgress * 100}%)`,
-            opacity: 1 - scrollProgress
-          }}
-        >
-          <div className="mb-4">
-            <h1 className="font-semibold text-3xl">{title}</h1>
-            {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
-          </div>
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-      </div>
-
-      {/* Desktop version - no scroll away behavior */}
-      <div className="hidden sm:flex sm:h-full sm:flex-col">
-        <div ref={headerRef} className="mb-4">
+    <div className="flex h-full flex-col">
+      {/* Mobile header with scroll-away behavior */}
+      <div
+        className="scroll-away-header sm:hidden"
+        style={{
+          transform: `translateY(-${scrollProgress * 100}%)`,
+          opacity: 1 - scrollProgress
+        }}
+      >
+        <div className="mb-4">
           <h1 className="font-semibold text-3xl">{title}</h1>
           {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </div>
-    </>
+
+      {/* Desktop header - static */}
+      <div ref={headerRef} className="mb-4 hidden sm:block">
+        <h1 className="font-semibold text-3xl">{title}</h1>
+        {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+    </div>
   );
 }
 

@@ -49,7 +49,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
   const containerRef = useRef<HTMLDivElement>(null);
-  const [search, setSearch] = useState<string | undefined>(searchParams.search);
+  const [search, setSearch] = useState(searchParams.search ?? "");
   const debouncedSearch = useDebounce(search, 500);
   const [showAllFilters, setShowAllFilters] = useState(
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
@@ -264,7 +264,13 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      <SearchField placeholder={t`Search`} value={search} onChange={setSearch} label={t`Search`} className="min-w-32" />
+      <SearchField
+        placeholder={t`Search`}
+        value={search}
+        onChange={setSearch}
+        label={t`Search`}
+        className="w-60 shrink-0"
+      />
 
       {showAllFilters && (
         <>
@@ -276,7 +282,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                 updateFilter({ userRole: (userRole as UserRole) || undefined });
               }}
             >
-              <SelectTrigger aria-label={t`User role`}>
+              <SelectTrigger aria-label={t`User role`} className="min-w-28">
                 <SelectValue>
                   {(value: string) => (value ? getUserRoleLabel(value as UserRole) : t`Any role`)}
                 </SelectValue>
@@ -302,7 +308,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                 updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
               }}
             >
-              <SelectTrigger aria-label={t`User status`}>
+              <SelectTrigger aria-label={t`User status`} className="min-w-28">
                 <SelectValue>
                   {(value: string) => (value ? getUserStatusLabel(value as UserStatus) : t`Any status`)}
                 </SelectValue>
@@ -339,7 +345,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           render={
             <Button
               variant="secondary"
-              className="relative mt-6"
+              className={showAllFilters ? "relative mt-auto" : "relative mt-8"}
               aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
               data-testid="filter-button"
               onClick={() => {
