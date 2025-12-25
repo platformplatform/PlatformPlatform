@@ -98,9 +98,7 @@ export function AddToHomescreen() {
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
           <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="h-10 w-10 rounded-lg shadow-sm" />
           <div className="flex-1">
-            <Heading size="md" className="text-sm">
-              Install PlatformPlatform
-            </Heading>
+            <Heading className="text-sm">Install PlatformPlatform</Heading>
             <Text className="text-muted-foreground text-xs">
               Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline h-3 w-3" />{" "}
               then "Add to Home Screen"
