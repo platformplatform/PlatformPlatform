@@ -1,29 +1,29 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/alertdialog--docs
- * ref: https://ui.shadcn.com/docs/components/alert-dialog
- */
+import type * as React from "react";
+import { cn } from "../utils";
 
-import type { HeadingProps } from "react-aria-components";
-import { Heading as AriaHeading } from "react-aria-components";
-import { tv } from "tailwind-variants";
+type HeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+type HeadingSize = "sm" | "md" | "lg" | "xl" | "2xl";
 
-interface ExtendedHeadingProps extends HeadingProps {
-  size?: "md" | "lg";
+interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  level?: HeadingLevel;
+  size?: HeadingSize;
 }
 
-const headingStyles = tv({
-  base: "my-0 font-semibold leading-6",
-  variants: {
-    size: {
-      md: "text-lg",
-      lg: "text-xl"
-    }
-  },
-  defaultVariants: {
-    size: "lg"
-  }
-});
+const sizeStyles: Record<HeadingSize, string> = {
+  sm: "text-sm",
+  md: "text-base",
+  lg: "text-lg",
+  xl: "text-xl",
+  "2xl": "text-2xl"
+};
 
-export function Heading({ className, slot = "title", size, ...props }: Readonly<ExtendedHeadingProps>) {
-  return <AriaHeading {...props} slot={slot} className={headingStyles({ size, className })} />;
+export function Heading({ level = 2, size, className, children, ...props }: Readonly<HeadingProps>) {
+  const Tag = `h${level}` as const;
+  const sizeClass = size ? sizeStyles[size] : undefined;
+
+  return (
+    <Tag data-slot="heading" className={cn("my-0 font-semibold leading-6", sizeClass, className)} {...props}>
+      {children}
+    </Tag>
+  );
 }
