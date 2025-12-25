@@ -1,7 +1,28 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import { ImageIcon } from "lucide-react";
 import { type HTMLAttributes, useCallback, useRef, useState } from "react";
-import { tv } from "tailwind-variants";
 import logoMarkUrl from "../images/logo-mark.svg";
+import { cn } from "../utils";
+
+const backgroundStyles = cva(
+  "relative inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold uppercase",
+  {
+    variants: {
+      isRound: {
+        true: "rounded-full",
+        false: "rounded-md"
+      },
+      size: {
+        xs: "h-8 w-8 text-xs",
+        lg: "h-16 w-16 text-lg"
+      }
+    },
+    defaultVariants: {
+      isRound: false,
+      size: "xs"
+    }
+  }
+);
 
 export type TenantLogoProps = {
   /**
@@ -15,7 +36,7 @@ export type TenantLogoProps = {
   /**
    * The size of the logo.
    */
-  size?: "xs" | "lg";
+  size?: VariantProps<typeof backgroundStyles>["size"];
   /**
    * Whether the logo should be round or rounded.
    */
@@ -25,24 +46,6 @@ export type TenantLogoProps = {
    */
   className?: string;
 } & HTMLAttributes<HTMLImageElement>;
-
-const backgroundStyles = tv({
-  base: "relative inline-flex shrink-0 items-center justify-center overflow-hidden font-semibold uppercase",
-  variants: {
-    isRound: {
-      true: "rounded-full",
-      false: "rounded-md"
-    },
-    size: {
-      xs: "h-8 w-8 text-xs",
-      lg: "h-16 w-16 text-lg"
-    }
-  },
-  defaultVariants: {
-    isRound: false,
-    size: "xs"
-  }
-});
 
 export function TenantLogo({ logoUrl, tenantName, size, isRound, className, ...props }: TenantLogoProps) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -72,7 +75,7 @@ export function TenantLogo({ logoUrl, tenantName, size, isRound, className, ...p
   };
 
   return (
-    <div {...props} className={backgroundStyles({ isRound, size, className })}>
+    <div {...props} className={cn(backgroundStyles({ isRound, size }), className)}>
       {logoUrl && !imageFailed ? (
         <>
           <img

@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
-import { Text } from "@repo/ui/components/Text";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 
@@ -57,17 +56,17 @@ export function AcceptInvitationDialog({
           </DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <Text>
+          <p>
             <Trans>
               You have been invited to join <strong>{tenant.tenantName}</strong>.
             </Trans>
-          </Text>
-          <Text className="text-muted-foreground text-sm">
+          </p>
+          <p className="text-muted-foreground text-sm">
             <Trans>
               When you accept this invitation, your profile information (name, title, and avatar) from your current
               account will be copied to the new account.
             </Trans>
-          </Text>
+          </p>
         </div>
         <DialogFooter>
           <Button

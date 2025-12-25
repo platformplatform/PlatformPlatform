@@ -1,27 +1,25 @@
 import { t } from "@lingui/core/macro";
 import { InfoIcon } from "lucide-react";
-import { Label as AriaLabel, type LabelProps as AriaLabelProps } from "react-aria-components";
+import type * as React from "react";
 import { cn } from "../utils";
+import { Label } from "./Label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
-export interface LabelWithTooltipProps extends AriaLabelProps {
+export interface LabelWithTooltipProps extends React.ComponentProps<"label"> {
   tooltip?: string;
 }
-
-const labelClassName =
-  "flex select-none items-center gap-2 font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-50 group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50";
 
 function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<LabelWithTooltipProps>) {
   if (!tooltip) {
     return (
-      <AriaLabel {...props} className={cn(labelClassName, className)}>
+      <Label {...props} className={className}>
         {children}
-      </AriaLabel>
+      </Label>
     );
   }
 
   return (
-    <AriaLabel {...props} className={cn(labelClassName, className)}>
+    <Label {...props} className={cn("flex items-center gap-2", className)}>
       {children}
       <Tooltip>
         <TooltipTrigger
@@ -32,7 +30,7 @@ function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<L
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
-    </AriaLabel>
+    </Label>
   );
 }
 

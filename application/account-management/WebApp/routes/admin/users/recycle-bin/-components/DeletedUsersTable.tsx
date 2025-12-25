@@ -5,7 +5,6 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Checkbox } from "@repo/ui/components/Checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
-import { Text } from "@repo/ui/components/Text";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -92,9 +91,9 @@ export function DeletedUsersTable({
   if (users.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center py-16">
-        <Text className="text-muted-foreground">
+        <p className="text-muted-foreground">
           <Trans>No deleted users</Trans>
-        </Text>
+        </p>
       </div>
     );
   }
@@ -192,7 +191,7 @@ export function DeletedUsersTable({
                   </TableCell>
                   {isSmallViewportOrLarger() && (
                     <TableCell>
-                      <Text className="h-full w-full justify-start p-0 text-left font-normal">{user.email}</Text>
+                      <span className="block h-full w-full justify-start p-0 text-left font-normal">{user.email}</span>
                     </TableCell>
                   )}
                   {isMediumViewportOrLarger() && (

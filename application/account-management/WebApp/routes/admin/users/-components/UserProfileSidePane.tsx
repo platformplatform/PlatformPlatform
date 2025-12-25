@@ -6,7 +6,6 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
-import { Text } from "@repo/ui/components/Text";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -52,18 +51,18 @@ function UserProfileContent({
         <Heading level={3} className="font-semibold text-lg">
           {user.firstName} {user.lastName}
         </Heading>
-        {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
+        {user.title && <span className="block text-muted-foreground text-sm">{user.title}</span>}
       </div>
 
       {/* Contact Information */}
       <div className="mb-4">
         <div className="space-y-2">
           <div className="flex items-start justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Email</Trans>
-            </Text>
+            </p>
             <div className="flex flex-col items-end gap-1">
-              <Text className="text-right text-sm">{user.email}</Text>
+              <p className="text-right text-sm">{user.email}</p>
               {user.emailConfirmed ? (
                 <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
                   <Trans>Verified</Trans>
@@ -112,16 +111,16 @@ function UserProfileContent({
       <div className="mb-4">
         <div className="space-y-4">
           <div className="flex justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Created</Trans>
-            </Text>
-            <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
+            </p>
+            <p className="text-sm">{formatDate(user.createdAt, true)}</p>
           </div>
           <div className="flex justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Last seen</Trans>
-            </Text>
-            <Text className="text-sm">{formatDate(user.lastSeenAt, true)}</Text>
+            </p>
+            <p className="text-sm">{formatDate(user.lastSeenAt, true)}</p>
           </div>
         </div>
       </div>
@@ -274,9 +273,9 @@ export function UserProfileSidePane({
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <InfoIcon className="h-4 w-4 flex-shrink-0" />
-              <Text className="font-medium text-sm">
+              <p className="font-medium text-sm">
                 <Trans>User not in current view</Trans>
-              </Text>
+              </p>
             </div>
           </div>
         )}
@@ -286,9 +285,9 @@ export function UserProfileSidePane({
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
               <InfoIcon className="h-4 w-4 flex-shrink-0" />
-              <Text className="font-medium text-sm">
+              <p className="font-medium text-sm">
                 <Trans>User data updated</Trans>
-              </Text>
+              </p>
             </div>
           </div>
         )}
