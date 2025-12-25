@@ -238,13 +238,13 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           <TooltipTrigger
             render={
               <Link
-                href={forceReload || federatedNavigation ? undefined : to}
+                href={forceReload || federatedNavigation ? undefined : (to as string)}
                 className={linkClassName}
                 variant="ghost"
                 underline={false}
-                isDisabled={isDisabled}
+                disabled={isDisabled}
                 aria-current={isActive ? "page" : undefined}
-                onPress={handlePress}
+                onClick={handlePress}
               >
                 <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
               </Link>
@@ -260,7 +260,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
 
   // For expanded menu
   if (federatedNavigation) {
-    // For federated navigation, use React Aria Link to handle smart navigation
+    // For federated navigation, use Link to handle smart navigation
     return (
       <div className="relative">
         <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
@@ -269,9 +269,9 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           className={linkClassName}
           variant="ghost"
           underline={false}
-          isDisabled={isDisabled}
+          disabled={isDisabled}
           aria-current={isActive ? "page" : undefined}
-          onPress={handlePress}
+          onClick={handlePress}
         >
           <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
         </Link>
@@ -361,9 +361,9 @@ export function FederatedMenuButton({
                 className={linkClassName}
                 variant="ghost"
                 underline={false}
-                isDisabled={isDisabled}
+                disabled={isDisabled}
                 aria-current={isActive ? "page" : undefined}
-                onPress={handleNavigation}
+                onClick={handleNavigation}
               >
                 <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
               </Link>
@@ -377,7 +377,7 @@ export function FederatedMenuButton({
     );
   }
 
-  // For expanded menu, use React Aria Link for consistent touch handling
+  // For expanded menu, use Link for consistent touch handling
   return (
     <div className="relative">
       <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
@@ -386,9 +386,9 @@ export function FederatedMenuButton({
         className={linkClassName}
         variant="ghost"
         underline={false}
-        isDisabled={isDisabled}
+        disabled={isDisabled}
         aria-current={isActive ? "page" : undefined}
-        onPress={handleNavigation}
+        onClick={handleNavigation}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
       </Link>
