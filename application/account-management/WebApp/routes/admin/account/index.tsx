@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
 import { Form } from "@repo/ui/components/Form";
+import { Label } from "@repo/ui/components/Label";
+import { Separator } from "@repo/ui/components/Separator";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -21,7 +23,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CameraIcon, Trash2, Trash2Icon } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FileTrigger, Label, Separator } from "react-aria-components";
 import { toast } from "sonner";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
@@ -156,13 +157,15 @@ function LogoSection({
 }>) {
   return (
     <>
-      <FileTrigger
+      <input
+        type="file"
         ref={logoFileInputRef}
-        onSelect={(files) => {
+        onChange={(e) => {
           setLogoMenuOpen(false);
-          handleLogoUpload(files);
+          handleLogoUpload(e.target.files);
         }}
-        acceptedFileTypes={ALLOWED_FILE_TYPES}
+        accept={ALLOWED_FILE_TYPES.join(",")}
+        className="hidden"
       />
 
       <Label>

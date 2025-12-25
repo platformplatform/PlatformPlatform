@@ -1,11 +1,10 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter
- */
-import { Text, type TextProps } from "react-aria-components";
-import { twMerge } from "tailwind-merge";
+import type { HTMLAttributes } from "react";
+import { cn } from "../utils";
 
-export function Description({ className, ...props }: Readonly<TextProps>) {
-  return (
-    <Text {...props} slot="description" className={twMerge("mt-1 block text-muted-foreground text-sm", className)} />
-  );
+export interface DescriptionProps extends HTMLAttributes<HTMLSpanElement> {
+  className?: string;
+}
+
+export function Description({ className, ...props }: Readonly<DescriptionProps>) {
+  return <span {...props} className={cn("mt-1 block text-muted-foreground text-sm", className)} />;
 }

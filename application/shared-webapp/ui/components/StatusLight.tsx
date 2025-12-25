@@ -2,11 +2,11 @@
  * ref: https://react-spectrum.adobe.com/react-spectrum/StatusLight.html
  * ref: https://react.fluentui.dev/?path=/docs/components-badge-presencebadge--default
  */
+import { cva, type VariantProps } from "class-variance-authority";
 import type { PropsWithChildren } from "react";
-import { tv } from "tailwind-variants";
+import { cn } from "../utils";
 
-const lightStyles = tv({
-  base: "mr-3 rounded-full",
+const lightStyles = cva("mr-3 rounded-full", {
   variants: {
     variant: {
       neutral: "bg-muted",
@@ -24,17 +24,18 @@ const lightStyles = tv({
       xl: "h-3.5 w-3.5"
     },
     isDisabled: {
-      true: "bg-muted-foreground/50"
+      true: "bg-muted-foreground/50",
+      false: ""
     }
   },
   defaultVariants: {
     variant: "neutral",
-    size: "md"
+    size: "md",
+    isDisabled: false
   }
 });
 
-const statusStyles = tv({
-  base: "font-medium",
+const statusStyles = cva("font-medium", {
   variants: {
     variant: {
       neutral: "text-muted-foreground italic",
@@ -52,29 +53,28 @@ const statusStyles = tv({
       xl: "text-lg"
     },
     isDisabled: {
-      true: "text-muted-foreground/50"
+      true: "text-muted-foreground/50",
+      false: ""
     }
   },
   defaultVariants: {
     variant: "neutral",
-    size: "md"
+    size: "md",
+    isDisabled: false
   }
 });
 
-type Size = keyof typeof statusStyles.variants.size;
-type Variants = keyof typeof lightStyles.variants.variant;
-
 type StatusLightProps = {
-  variant?: Variants;
-  size?: Size;
+  variant?: VariantProps<typeof lightStyles>["variant"];
+  size?: VariantProps<typeof lightStyles>["size"];
   isDisabled?: boolean;
 } & PropsWithChildren;
 
 export function StatusLight({ variant, size, isDisabled, children }: StatusLightProps) {
   return (
     <div className="flex items-center">
-      <div className={lightStyles({ variant, size, isDisabled })} />
-      <span className={statusStyles({ variant, size, isDisabled })}>{children}</span>
+      <div className={cn(lightStyles({ variant, size, isDisabled }))} />
+      <span className={cn(statusStyles({ variant, size, isDisabled }))}>{children}</span>
     </div>
   );
 }

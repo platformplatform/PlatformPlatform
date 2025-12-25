@@ -2,8 +2,41 @@
  * ref: https://react.fluentui.dev/?path=/docs/components-avatar--default
  * ref: https://ui.shadcn.com/docs/components/avatar
  */
+import { cva, type VariantProps } from "class-variance-authority";
 import { type HTMLAttributes, useCallback, useRef, useState } from "react";
-import { tv } from "tailwind-variants";
+import { cn } from "../utils";
+
+const backgroundStyles = cva(
+  "relative inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
+  {
+    variants: {
+      isRound: {
+        true: "rounded-full",
+        false: "rounded-md"
+      },
+      size: {
+        xs: "h-8 w-8 text-xs",
+        sm: "h-10 w-10 text-sm",
+        md: "h-12 w-12 text-base",
+        lg: "h-16 w-16 text-lg"
+      },
+      variant: {
+        background: "bg-background text-foreground",
+        primary: "bg-primary text-primary-foreground",
+        secondary: "bg-secondary text-secondary-foreground",
+        success: "bg-success text-success-foreground",
+        warning: "bg-warning text-warning-foreground",
+        danger: "bg-danger text-danger-foreground",
+        info: "bg-info text-info-foreground"
+      }
+    },
+    defaultVariants: {
+      isRound: false,
+      size: "md",
+      variant: "background"
+    }
+  }
+);
 
 export type AvatarProps = {
   /**
@@ -17,7 +50,7 @@ export type AvatarProps = {
   /**
    * The size of the avatar.
    */
-  size?: "xs" | "sm" | "md" | "lg";
+  size?: VariantProps<typeof backgroundStyles>["size"];
   /**
    * Whether the avatar should be round or rounded.
    */
@@ -25,42 +58,12 @@ export type AvatarProps = {
   /**
    * The variant of the avatar.
    */
-  variant?: "background" | "primary" | "secondary" | "success" | "warning" | "danger" | "info";
+  variant?: VariantProps<typeof backgroundStyles>["variant"];
   /**
    * Additional class names to apply to the avatar.
    */
   className?: string;
 } & HTMLAttributes<HTMLImageElement>;
-
-const backgroundStyles = tv({
-  base: "relative inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
-  variants: {
-    isRound: {
-      true: "rounded-full",
-      false: "rounded-md"
-    },
-    size: {
-      xs: "h-8 w-8 text-xs",
-      sm: "h-10 w-10 text-sm",
-      md: "h-12 w-12 text-base",
-      lg: "h-16 w-16 text-lg"
-    },
-    variant: {
-      background: "bg-background text-foreground",
-      primary: "bg-primary text-primary-foreground",
-      secondary: "bg-secondary text-secondary-foreground",
-      success: "bg-success text-success-foreground",
-      warning: "bg-warning text-warning-foreground",
-      danger: "bg-danger text-danger-foreground",
-      info: "bg-info text-info-foreground"
-    }
-  },
-  defaultVariants: {
-    isRound: false,
-    size: "md",
-    variant: "background"
-  }
-});
 
 export function Avatar({ initials, avatarUrl, size, variant, isRound, className, ...props }: AvatarProps) {
   const imgRef = useRef<HTMLImageElement>(null);
@@ -71,7 +74,7 @@ export function Avatar({ initials, avatarUrl, size, variant, isRound, className,
   const handleLoad = useCallback(() => setImageLoaded(true), []);
 
   return (
-    <div {...props} className={backgroundStyles({ isRound, size, variant, className })}>
+    <div {...props} className={cn(backgroundStyles({ isRound, size, variant }), className)}>
       {avatarUrl && !imageFailed ? (
         <>
           <img
