@@ -1,146 +1,91 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/daterangepicker--docs
- */
+import { format, parseISO } from "date-fns";
 import { CalendarIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-
-import {
-  DateRangePicker as AriaDateRangePicker,
-  type DateRangePickerProps as AriaDateRangePickerProps,
-  type DateValue,
-  I18nProvider,
-  type ValidationResult
-} from "react-aria-components";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { cn } from "../utils";
 import { Button } from "./Button";
-import { DateInput } from "./DateField";
-import { Description } from "./Description";
-import { Dialog } from "./Dialog";
-import { FieldError } from "./FieldError";
-import { FieldGroup } from "./fieldStyles";
-import { LabelWithTooltip } from "./LabelWithTooltip";
-import { LegacyPopover } from "./LegacyPopover";
-import { RangeCalendar } from "./RangeCalendar";
-import { composeTailwindRenderProps } from "./utils";
+import { Calendar } from "./Calendar";
+import { Field, FieldLabel } from "./Field";
+import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
-export interface DateRangePickerProps<T extends DateValue> extends AriaDateRangePickerProps<T> {
-  label?: string;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
-  tooltip?: string;
-  placeholder?: string;
+export interface DateRangeValue {
+  start: Date;
+  end: Date;
 }
 
-export function DateRangePicker<T extends DateValue>({
+export interface DateRangePickerProps {
+  label?: string;
+  value?: DateRangeValue | null;
+  onChange?: (value: DateRangeValue | null) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+}
+
+export function DateRangePicker({
   label,
-  description,
-  errorMessage,
-  tooltip,
   value,
   onChange,
   placeholder = "Select dates",
-  ...props
-}: Readonly<DateRangePickerProps<T>>) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const hasValue = value !== null && value !== undefined;
+  className,
+  disabled
+}: Readonly<DateRangePickerProps>) {
+  const [open, setOpen] = useState(false);
 
-  // Automatically expand when there's a value
-  useEffect(() => {
-    if (hasValue) {
-      setIsExpanded(true);
+  const dateRange: DateRange | undefined = value ? { from: value.start, to: value.end } : undefined;
+
+  const handleSelect = (range: DateRange | undefined) => {
+    if (range?.from && range?.to) {
+      onChange?.({ start: range.from, end: range.to });
+    } else if (!range?.from && !range?.to) {
+      onChange?.(null);
     }
-  }, [hasValue]);
+  };
 
-  // Format date range for compact display
+  const handleClear = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onChange?.(null);
+  };
+
   const formatDateRange = () => {
     if (!value) {
       return "";
     }
-
-    const formatDate = (date: DateValue) => {
-      return date.toString().split("T")[0];
-    };
-
-    return `${formatDate(value.start)} - ${formatDate(value.end)}`;
+    return `${format(value.start, "yyyy-MM-dd")} - ${format(value.end, "yyyy-MM-dd")}`;
   };
 
-  // Clear the date range
-  const clearDateRange = (e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-    onChange?.(null);
-    setIsExpanded(false);
-  };
+  const hasValue = value !== null && value !== undefined;
 
   return (
-    // Using Canadian locale to force YYYY-MM-DD format which is unambiguous internationally
-    // This avoids confusion between MM/DD/YYYY (US) and DD/MM/YYYY (EU) formats
-    <I18nProvider locale="en-CA">
-      <AriaDateRangePicker
-        {...props}
-        value={value}
-        onChange={(newValue) => {
-          onChange?.(newValue);
-          // Keep expanded if a value is selected
-          if (!newValue) {
-            setIsExpanded(false);
-          }
-        }}
-        className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
-      >
-        {label && <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip>}
-
-        {isExpanded ? (
-          // Expanded view - standard date range picker
-          <FieldGroup className="w-auto min-w-[265px]">
-            <DateInput slot="start" className="px-2 py-1.5 text-sm" />
-            <span
-              aria-hidden="true"
-              className="text-foreground group-disabled:text-muted forced-colors:text-[ButtonText] group-disabled:forced-colors:text-[GrayText]"
+    <Field className={cn("flex flex-col gap-1", className)}>
+      {label && <FieldLabel>{label}</FieldLabel>}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger
+          render={
+            <Button
+              variant="outline"
+              className={cn(
+                "flex h-10 items-center justify-between gap-2 font-normal",
+                hasValue ? "min-w-[240px]" : "min-w-[180px]"
+              )}
+              disabled={disabled}
             >
-              –
-            </span>
-            <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
-            {value && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="mr-1 w-6 group-empty:invisible"
-                onClick={() => onChange?.(null)}
-              >
-                <XIcon aria-hidden={true} className="h-4 w-4" />
-              </Button>
-            )}
-            <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm outline-offset-0">
-              <CalendarIcon aria-hidden={true} className="h-4 w-4" />
+              <div className="flex items-center gap-2 truncate">
+                <CalendarIcon className="size-5 shrink-0" />
+                <span className="truncate text-sm">{hasValue ? formatDateRange() : placeholder}</span>
+              </div>
+              {hasValue && <XIcon className="size-5 shrink-0 cursor-pointer" onClick={handleClear} />}
             </Button>
-          </FieldGroup>
-        ) : (
-          // Compact view - just a button with calendar icon
-          <Button
-            variant="outline"
-            aria-label={label}
-            className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
-              hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
-            }`}
-            onClick={() => setIsExpanded(true)}
-          >
-            <div className="flex items-center gap-2 truncate">
-              <CalendarIcon className="h-5 w-5 flex-shrink-0" />
-              <span className="truncate font-normal text-sm">{hasValue ? formatDateRange() : placeholder}</span>
-            </div>
-            {hasValue && <XIcon className="h-5 w-5 flex-shrink-0 cursor-pointer" onClick={clearDateRange} />}
-          </Button>
-        )}
-
-        {description && <Description>{description}</Description>}
-        <FieldError>{errorMessage}</FieldError>
-        <LegacyPopover>
-          <Dialog>
-            <RangeCalendar />
-          </Dialog>
-        </LegacyPopover>
-      </AriaDateRangePicker>
-    </I18nProvider>
+          }
+        />
+        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+          <Calendar mode="range" selected={dateRange} onSelect={handleSelect} numberOfMonths={2} />
+        </PopoverContent>
+      </Popover>
+    </Field>
   );
+}
+
+export function parseDateString(dateString: string): Date {
+  return parseISO(dateString);
 }
