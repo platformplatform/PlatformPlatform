@@ -3,7 +3,6 @@ import { Link as RouterLink, useRouter } from "@tanstack/react-router";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { ToggleButton } from "react-aria-components";
 import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
@@ -11,6 +10,7 @@ import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_
 import { Button } from "./Button";
 import { focusRing } from "./focusRing";
 import { Link } from "./Link";
+import { Toggle } from "./Toggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export const collapsedContext = createContext(false);
@@ -927,14 +927,14 @@ const MenuNav = ({
           />
         ) : (
           <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
-            <ToggleButton
+            <Toggle
               aria-label={sidebarToggleAriaLabel}
-              className="toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
-              isSelected={actualIsCollapsed}
-              onPress={toggleMenu}
+              className="toggle-button flex h-6 w-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+              pressed={actualIsCollapsed}
+              onPressedChange={toggleMenu}
             >
               <ToggleButtonContent isCollapsed={actualIsCollapsed} />
-            </ToggleButton>
+            </Toggle>
           </div>
         )}
       </div>
