@@ -306,6 +306,9 @@ public class ClaudeAgentCommand : Command
 
     private async Task RunInteractiveMode(string? targetAgentType)
     {
+        // Check for optional LSP prerequisites (non-blocking)
+        Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer);
+
         // If no agent type provided, prompt for selection
         if (string.IsNullOrEmpty(targetAgentType))
         {

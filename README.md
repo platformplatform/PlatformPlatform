@@ -252,6 +252,12 @@ PlatformPlatform includes a multi-agent autonomous development workflow powered 
 
 This workflow requires Claude Code and will not work with other AI coding assistants.
 
+(Optional) For enhanced Claude Code LSP support (enables go-to-definition and find-references):
+
+```bash
+npm install -g typescript-language-server typescript
+```
+
 ### 1. Create a feature branch
 
 ```bash
