@@ -29,23 +29,9 @@ file sealed record CommandLineToolPrerequisite(string Command, string DisplayNam
 {
     protected override bool IsValid()
     {
-        // Check if the command line tool is installed
-        var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "where" : "which",
-                Arguments = Command,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            },
-            exitOnError: false
-        );
-
-        var possibleFileLocations = checkOutput.Split(Environment.NewLine);
-
-        if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() || !File.Exists(possibleFileLocations[0]))
+        if (!CheckExists())
         {
             AnsiConsole.MarkupLine($"[red]{DisplayName} of minimum version {MinVersion} should be installed.[/]");
-
             return false;
         }
 

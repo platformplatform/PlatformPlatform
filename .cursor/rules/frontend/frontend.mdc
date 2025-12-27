@@ -7,6 +7,10 @@ alwaysApply: false
 
 Guidelines for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
 
+## Browser Testing
+
+Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP verification code (localhost only). Use `run` MCP tool to restart the server if needed (wait a few seconds after restart).
+
 ## Architecture Overview
 
 1. **SPA Served by .NET Backend**:
