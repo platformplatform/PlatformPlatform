@@ -7,6 +7,14 @@ alwaysApply: false
 
 Guidelines for frontend TypeScript and React development, including component structure, code style, architecture patterns, and build/format steps.
 
+## Code Navigation
+
+Use LSP tools aggressively for code investigation: `goToDefinition`, `findReferences`, `hover`, `documentSymbol`. If LSP returns "No LSP server available", stop and instruct the user: `npm install -g typescript-language-server typescript`
+
+## Browser Testing
+
+Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP verification code (localhost only). Use `run` MCP tool to restart the server if needed (wait a few seconds after restart).
+
 ## Architecture Overview
 
 1. **SPA Served by .NET Backend**:

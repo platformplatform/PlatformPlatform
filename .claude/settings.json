@@ -1,5 +1,7 @@
 {
-  "enabledMcpjsonServers": ["developer-cli"],
+  "enabledMcpjsonServers": [
+    "developer-cli"
+  ],
   "hooks": {
     "PreToolUse": [
       {
@@ -23,5 +25,8 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "typescript-lsp@claude-plugins-official": true
   }
 }

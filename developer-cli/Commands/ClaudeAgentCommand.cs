@@ -306,6 +306,9 @@ public class ClaudeAgentCommand : Command
 
     private async Task RunInteractiveMode(string? targetAgentType)
     {
+        // Check for optional LSP prerequisites (non-blocking)
+        Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer);
+
         // If no agent type provided, prompt for selection
         if (string.IsNullOrEmpty(targetAgentType))
         {
@@ -922,21 +925,17 @@ public class ClaudeAgentCommand : Command
             "--append-system-prompt", systemPromptText
         };
 
+        // Add Chrome integration for agents that need browser testing
+        if (workspace.AgentType is "frontend-engineer" or "frontend-reviewer" or "qa-engineer" or "qa-reviewer")
+        {
+            claudeArgs.Add("--chrome");
+        }
+
         // Add frontend MCP servers for frontend engineers and reviewers
-        if (workspace.AgentType == "frontend-engineer" ||
-            workspace.AgentType == "frontend-reviewer")
+        if (workspace.AgentType is "frontend-engineer" or "frontend-reviewer")
         {
             claudeArgs.Add("--mcp-config");
             claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "frontend-mcp-config.json")); // NOTE: Not using --strict-mcp-config so it merges with user config
-            claudeArgs.Add("--"); // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
-        }
-
-        // Add QA MCP servers for QA engineers and reviewers
-        if (workspace.AgentType == "qa-engineer" ||
-            workspace.AgentType == "qa-reviewer")
-        {
-            claudeArgs.Add("--mcp-config");
-            claudeArgs.Add(Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "mcp-configs", "qa-mcp-config.json")); // NOTE: Not using --strict-mcp-config so it merges with user config
             claudeArgs.Add("--"); // Add -- separator to mark end of options (prevents slash command from being parsed as MCP config value)
         }
 

@@ -12,6 +12,7 @@ public abstract record Prerequisite
     public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(24, 10, 0));
     public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 79));
     public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 83));
+    public static readonly Prerequisite TypeScriptLanguageServer = new CommandLineToolPrerequisite("typescript-language-server", "TypeScript Language Server", new Version(4, 3, 0));
 
     protected abstract bool IsValid();
 
@@ -23,29 +24,39 @@ public abstract record Prerequisite
             Environment.Exit(1);
         }
     }
+
+    public static void Recommend(params Prerequisite[] prerequisites)
+    {
+        var missingPrerequisites = prerequisites.Where(p => !p.CheckExists()).ToList();
+        if (missingPrerequisites.Count == 0) return;
+
+        AnsiConsole.MarkupLine("[yellow]Optional prerequisites for enhanced Claude Code LSP support:[/]");
+        foreach (var prerequisite in missingPrerequisites)
+        {
+            AnsiConsole.MarkupLine($"[yellow]  - {prerequisite} is not installed[/]");
+        }
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[dim]Install with:[/]");
+
+        if (missingPrerequisites.Any(p => p == TypeScriptLanguageServer))
+        {
+            AnsiConsole.MarkupLine("[dim]  npm install -g typescript-language-server typescript[/]");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
+    protected abstract bool CheckExists();
 }
 
 file sealed record CommandLineToolPrerequisite(string Command, string DisplayName, Version MinVersion) : Prerequisite
 {
     protected override bool IsValid()
     {
-        // Check if the command line tool is installed
-        var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
-            {
-                FileName = Configuration.IsWindows ? "where" : "which",
-                Arguments = Command,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            },
-            exitOnError: false
-        );
-
-        var possibleFileLocations = checkOutput.Split(Environment.NewLine);
-
-        if (string.IsNullOrWhiteSpace(checkOutput) || !possibleFileLocations.Any() || !File.Exists(possibleFileLocations[0]))
+        if (!CheckExists())
         {
             AnsiConsole.MarkupLine($"[red]{DisplayName} of minimum version {MinVersion} should be installed.[/]");
-
             return false;
         }
 
@@ -78,5 +89,26 @@ file sealed record CommandLineToolPrerequisite(string Command, string DisplayNam
         );
 
         return false;
+    }
+
+    protected override bool CheckExists()
+    {
+        var checkOutput = ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = Configuration.IsWindows ? "where" : "which",
+                Arguments = Command,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            },
+            exitOnError: false
+        );
+
+        var possibleFileLocations = checkOutput.Split(Environment.NewLine);
+        return !string.IsNullOrWhiteSpace(checkOutput) && possibleFileLocations.Length > 0 && File.Exists(possibleFileLocations[0]);
+    }
+
+    public override string ToString()
+    {
+        return DisplayName;
     }
 }
