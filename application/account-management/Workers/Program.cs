@@ -17,14 +17,22 @@ builder.Services
     .AddAccountManagementServices();
 
 builder.Services.AddTransient<DatabaseMigrationService<AccountManagementDbContext>>();
+builder.Services.AddTransient<DataMigrationRunner<AccountManagementDbContext>>();
 
 var host = builder.Build();
 
+var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+
+using var scope = host.Services.CreateScope();
+
+// Apply migrations to the database only when running locally
 if (!SharedInfrastructureConfiguration.IsRunningInAzure)
 {
-    using var scope = host.Services.CreateScope();
     var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService<AccountManagementDbContext>>();
     migrationService.ApplyMigrations();
 }
+
+var dataMigrationRunner = scope.ServiceProvider.GetRequiredService<DataMigrationRunner<AccountManagementDbContext>>();
+await dataMigrationRunner.RunMigrationsAsync(lifetime.ApplicationStopping);
 
 await host.RunAsync();
