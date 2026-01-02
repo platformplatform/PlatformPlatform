@@ -20,6 +20,9 @@ msgstr "{0} brugere slettet succesfuldt"
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
 
+msgid "100% Security Score"
+msgstr "100% sikkerhedsscore"
+
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
 
@@ -49,6 +52,9 @@ msgstr "Kontoindstillinger"
 
 msgid "Account switched"
 msgstr "Konto skiftet"
+
+msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
+msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -97,11 +103,17 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
 
+msgid "Audit reports and assessments"
+msgstr "Revisions rapporter og vurderinger"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Autentificering deles på tværs af alle faner."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti samtidigt, brug venligst forskellige browsere."
+
+msgid "Azure Compliance"
+msgstr "Azure Overholdelse"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -111,6 +123,9 @@ msgstr "Tilbage til login"
 
 msgid "Back to signup"
 msgstr "Tilbage til tilmelding"
+
+msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
+msgstr "Bygget på <0>PlatformPlatform<1/></0> - en open-source platform af brancheeksperter til professionel B2B SaaS udvikling"
 
 msgid "Built with"
 msgstr "Bygget med"
@@ -161,6 +176,9 @@ msgstr "Luk"
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
 
+msgid "Compliance"
+msgstr "Overholdelse"
+
 msgid "Contact support"
 msgstr "Kontakt support"
 
@@ -181,6 +199,15 @@ msgstr "Mørk"
 
 msgid "Dashboard"
 msgstr "Dashboard"
+
+msgid "Data Processing Agreement"
+msgstr "Databehandleraftale"
+
+msgid "Data protection addendum"
+msgstr "Databeskyttelsestillæg"
+
+msgid "Data residency"
+msgstr "Dataopbevaring"
 
 msgid "Data storage location for privacy and compliance. This cannot be changed later."
 msgstr "Datalagringsplacering for privatliv og compliance. Dette kan ikke ændres senere."
@@ -219,6 +246,9 @@ msgstr "Har du allerede en konto?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
+msgid "DPA"
+msgstr "DBA"
+
 msgid "E.g. Alex"
 msgstr "F.eks. Alex"
 
@@ -243,6 +273,12 @@ msgstr "Indtast din e-mail nedenfor for at logge ind"
 msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
 
+msgid "Enterprise-grade Azure infrastructure"
+msgstr "Azure infrastruktur i virksomhedsklasse"
+
+msgid "Environment isolation"
+msgstr "Miljøisolering"
+
 msgid "Error: Something went wrong!"
 msgstr "Fejl: Noget gik galt!"
 
@@ -261,6 +297,9 @@ msgstr "Filtre"
 msgid "First name"
 msgstr "Fornavn"
 
+msgid "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
+msgstr "For detaljerede certificeringer og revisionsrapporter, besøg Microsofts officielle ressourcer."
+
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
 
@@ -270,11 +309,23 @@ msgstr "Fuld adgang undtagen ændring af brugerroller og kontoindstillinger"
 msgid "Full access including user roles and account settings"
 msgstr "Fuld adgang inklusive brugerroller og kontoindstillinger"
 
+msgid "Fully managed infrastructure"
+msgstr "Fuldt administreret infrastruktur"
+
+msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
+msgstr "GDPR Artikel 28-kompatibel aftale for behandling af data på dine vegne."
+
+msgid "GDPR Compliant"
+msgstr "GDPR-kompatibel"
+
 msgid "Get started"
 msgstr "Kom i gang"
 
 msgid "GitHub"
 msgstr "GitHub"
+
+msgid "GitHub deploys directly to Azure without passwords or API keys"
+msgstr "GitHub deployer direkte til Azure uden adgangskoder eller API-nøgler"
 
 msgid "Go to account settings"
 msgstr "Gå til kontoindstillinger"
@@ -294,6 +345,9 @@ msgstr "Hej! Velkommen tilbage"
 msgid "Home"
 msgstr "Hjem"
 
+msgid "How we collect, use, and protect your personal data in compliance with GDPR."
+msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
 
@@ -311,6 +365,9 @@ msgstr "Sprog"
 
 msgid "Last name"
 msgstr "Efternavn"
+
+msgid "Legal and Compliance"
+msgstr "Juridisk og overholdelse"
 
 msgid "Light"
 msgstr "Lys"
@@ -345,8 +402,26 @@ msgstr "Administrer din konto her."
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
 
+msgid "Managed identities"
+msgstr "Administrerede identiteter"
+
 msgid "Member"
 msgstr "Medlem"
+
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+msgid "Microsoft Azure Platform-as-a-Service (PaaS) with enterprise-grade reliability."
+msgstr "Microsoft Azure Platform-as-a-Service (PaaS) med pålidelighed i virksomhedsklasse."
+
+msgid "Microsoft compliance resources"
+msgstr "Microsofts overholdelsesressourcer"
+
+msgid "Microsoft DPA"
+msgstr "Microsoft DBA"
+
+msgid "Microsoft patches and secures all PaaS infrastructure automatically"
+msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
 
 msgid "Modified"
 msgstr "Ændret"
@@ -372,6 +447,9 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
 
+msgid "Only trusted personnel access data through Azure AD authentication"
+msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificering"
+
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
 
@@ -383,6 +461,9 @@ msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at all
 
 msgid "Owner"
 msgstr "Ejer"
+
+msgid "Passwordless deployments"
+msgstr "Adgangskodeløse implementeringer"
 
 msgid "Pending"
 msgstr "Afventer"
@@ -408,8 +489,14 @@ msgstr "Forhåndsvisning af avatar"
 msgid "Previous"
 msgstr "Forrige"
 
+msgid "Privacy"
+msgstr "Privatliv"
+
 msgid "Privacy policies"
 msgstr "Fortrolighedspolitikker"
+
+msgid "Privacy Policy"
+msgstr "Privatlivspolitik"
 
 msgid "Profile picture"
 msgstr "Profilbillede"
@@ -419,6 +506,9 @@ msgstr "Profil opdateret succesfuldt"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Regulatory standards and certifications"
+msgstr "Lovgivningsmæssige standarder og certificeringer"
 
 msgid "Reload"
 msgstr "Genindlæs"
@@ -450,6 +540,9 @@ msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Security, privacy, and compliance information"
+msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
+
 msgid "Select Account"
 msgstr "Vælg konto"
 
@@ -477,8 +570,14 @@ msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom t
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "SOC and ISO Reports"
+msgstr "SOC og ISO rapporter"
+
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
+
+msgid "Strict separation prevents production data from leaking to other environments"
+msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
 
 msgid "Success"
 msgstr "Succes"
@@ -489,8 +588,17 @@ msgstr "Skifter konto..."
 msgid "System"
 msgstr "System"
 
+msgid "Terms"
+msgstr "Vilkår"
+
+msgid "Terms of Service"
+msgstr "Servicevilkår"
+
 msgid "Terms of use"
 msgstr "Brugsvilkår"
+
+msgid "The agreement governing your use of our Service, including acceptable use and liability."
+msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
@@ -512,6 +620,12 @@ msgstr "Skift sidepanel"
 
 msgid "Total users"
 msgstr "Totalt antal brugere"
+
+msgid "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
+msgstr "Gennemsigtighed, sikkerhed og privatliv er kernen i hvordan vi opererer. Gennemgå vores politikker og lær hvordan vi beskytter dine data."
+
+msgid "Trust Center"
+msgstr "Tillidscenter"
 
 msgid "Try again"
 msgstr "Prøv igen"
@@ -622,6 +736,9 @@ msgstr "Din konto blev skiftet i en anden browsertab."
 
 msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 msgstr "Din konto blev skiftet til <0>{newTenantName}</0> i en anden browsertab."
+
+msgid "Your data stays in the Azure region you select at signup"
+msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 
 msgid "Your professional title or role"
 msgstr "Din professionelle titel eller rolle"
