@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { GithubIcon, LinkedinIcon, MailIcon, YoutubeIcon } from "lucide-react";
+import { Github, Linkedin, Mail, Youtube } from "lucide-react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -50,12 +50,30 @@ export function PublicFooter() {
 
         {/* Bottom Section */}
         <div className="mt-14 flex flex-col items-center gap-6 border-border border-t pt-14 sm:flex-row sm:justify-between">
-          {/* Copyright */}
-          <div className="text-center text-muted-foreground text-sm sm:text-left">
-            <Trans>© {currentYear} PlatformPlatform. All rights reserved.</Trans>
+          {/* Left: Copyright and Legal Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground text-sm sm:justify-start sm:text-left">
+            <div>
+              <Trans>© {currentYear} PlatformPlatform. All rights reserved.</Trans>
+            </div>
+            <span className="hidden sm:inline">·</span>
+            <Link href="/legal/" className="text-muted-foreground hover:text-foreground">
+              <Trans>Compliance</Trans>
+            </Link>
+            <span>·</span>
+            <Link href="/legal/terms" className="text-muted-foreground hover:text-foreground">
+              <Trans>Terms</Trans>
+            </Link>
+            <span>·</span>
+            <Link href="/legal/privacy" className="text-muted-foreground hover:text-foreground">
+              <Trans>Privacy</Trans>
+            </Link>
+            <span>·</span>
+            <Link href="/legal/dpa" className="text-muted-foreground hover:text-foreground">
+              <Trans>DPA</Trans>
+            </Link>
           </div>
 
-          {/* Social Links */}
+          {/* Right: Social Links */}
           <div className="flex items-center gap-4">
             <TooltipTrigger>
               <a
@@ -63,7 +81,7 @@ export function PublicFooter() {
                 aria-label="Email"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
-                <MailIcon className="h-5 w-5" />
+                <Mail className="h-5 w-5" />
               </a>
               <Tooltip>
                 <Trans>Email</Trans>
@@ -77,7 +95,7 @@ export function PublicFooter() {
                 aria-label="LinkedIn"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
-                <LinkedinIcon className="h-5 w-5" />
+                <Linkedin className="h-5 w-5" />
               </Link>
               <Tooltip>
                 <Trans>LinkedIn</Trans>
@@ -91,7 +109,7 @@ export function PublicFooter() {
                 aria-label="YouTube"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
-                <YoutubeIcon className="h-5 w-5" />
+                <Youtube className="h-5 w-5" />
               </Link>
               <Tooltip>
                 <Trans>YouTube</Trans>
@@ -105,7 +123,7 @@ export function PublicFooter() {
                 aria-label="GitHub"
                 className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
               >
-                <GithubIcon className="h-5 w-5" />
+                <Github className="h-5 w-5" />
               </Link>
               <Tooltip>
                 <Trans>GitHub</Trans>

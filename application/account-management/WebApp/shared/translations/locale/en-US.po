@@ -20,6 +20,9 @@ msgstr "{0} users deleted successfully"
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. All rights reserved."
 
+msgid "100% Security Score"
+msgstr "100% Security Score"
+
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
 
@@ -49,6 +52,9 @@ msgstr "Account settings"
 
 msgid "Account switched"
 msgstr "Account switched"
+
+msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
+msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
 
 msgid "Active"
 msgstr "Active"
@@ -97,11 +103,17 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
 
+msgid "Audit reports and assessments"
+msgstr "Audit reports and assessments"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Authentication is shared across all tabs."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+
+msgid "Azure Compliance"
+msgstr "Azure Compliance"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -111,6 +123,9 @@ msgstr "Back to login"
 
 msgid "Back to signup"
 msgstr "Back to signup"
+
+msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
+msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 
 msgid "Built with"
 msgstr "Built with"
@@ -161,6 +176,9 @@ msgstr "Close"
 msgid "Close user profile"
 msgstr "Close user profile"
 
+msgid "Compliance"
+msgstr "Compliance"
+
 msgid "Contact support"
 msgstr "Contact support"
 
@@ -181,6 +199,15 @@ msgstr "Dark"
 
 msgid "Dashboard"
 msgstr "Dashboard"
+
+msgid "Data Processing Agreement"
+msgstr "Data Processing Agreement"
+
+msgid "Data protection addendum"
+msgstr "Data protection addendum"
+
+msgid "Data residency"
+msgstr "Data residency"
 
 msgid "Data storage location for privacy and compliance. This cannot be changed later."
 msgstr "Data storage location for privacy and compliance. This cannot be changed later."
@@ -219,6 +246,9 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
+msgid "DPA"
+msgstr "DPA"
+
 msgid "E.g. Alex"
 msgstr "E.g. Alex"
 
@@ -243,6 +273,12 @@ msgstr "Enter your email below to log in"
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
 
+msgid "Enterprise-grade Azure infrastructure"
+msgstr "Enterprise-grade Azure infrastructure"
+
+msgid "Environment isolation"
+msgstr "Environment isolation"
+
 msgid "Error: Something went wrong!"
 msgstr "Error: Something went wrong!"
 
@@ -261,6 +297,9 @@ msgstr "Filters"
 msgid "First name"
 msgstr "First name"
 
+msgid "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
+msgstr "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
+
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
 
@@ -270,11 +309,23 @@ msgstr "Full access except changing user roles and account settings"
 msgid "Full access including user roles and account settings"
 msgstr "Full access including user roles and account settings"
 
+msgid "Fully managed infrastructure"
+msgstr "Fully managed infrastructure"
+
+msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
+msgstr "GDPR Article 28 compliant agreement for processing data on your behalf."
+
+msgid "GDPR Compliant"
+msgstr "GDPR Compliant"
+
 msgid "Get started"
 msgstr "Get started"
 
 msgid "GitHub"
 msgstr "GitHub"
+
+msgid "GitHub deploys directly to Azure without passwords or API keys"
+msgstr "GitHub deploys directly to Azure without passwords or API keys"
 
 msgid "Go to account settings"
 msgstr "Go to account settings"
@@ -294,6 +345,9 @@ msgstr "Hi! Welcome back"
 msgid "Home"
 msgstr "Home"
 
+msgid "How we collect, use, and protect your personal data in compliance with GDPR."
+msgstr "How we collect, use, and protect your personal data in compliance with GDPR."
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
 
@@ -311,6 +365,9 @@ msgstr "Language"
 
 msgid "Last name"
 msgstr "Last name"
+
+msgid "Legal and Compliance"
+msgstr "Legal and Compliance"
 
 msgid "Light"
 msgstr "Light"
@@ -345,8 +402,26 @@ msgstr "Manage your account here."
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
 
+msgid "Managed identities"
+msgstr "Managed identities"
+
 msgid "Member"
 msgstr "Member"
+
+msgid "Microsoft Azure"
+msgstr "Microsoft Azure"
+
+msgid "Microsoft Azure Platform-as-a-Service (PaaS) with enterprise-grade reliability."
+msgstr "Microsoft Azure Platform-as-a-Service (PaaS) with enterprise-grade reliability."
+
+msgid "Microsoft compliance resources"
+msgstr "Microsoft compliance resources"
+
+msgid "Microsoft DPA"
+msgstr "Microsoft DPA"
+
+msgid "Microsoft patches and secures all PaaS infrastructure automatically"
+msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
 msgid "Modified"
 msgstr "Modified"
@@ -372,6 +447,9 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
 
+msgid "Only trusted personnel access data through Azure AD authentication"
+msgstr "Only trusted personnel access data through Azure AD authentication"
+
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
 
@@ -383,6 +461,9 @@ msgstr "Our support team will assist you with the account deletion process and e
 
 msgid "Owner"
 msgstr "Owner"
+
+msgid "Passwordless deployments"
+msgstr "Passwordless deployments"
 
 msgid "Pending"
 msgstr "Pending"
@@ -408,8 +489,14 @@ msgstr "Preview avatar"
 msgid "Previous"
 msgstr "Previous"
 
+msgid "Privacy"
+msgstr "Privacy"
+
 msgid "Privacy policies"
 msgstr "Privacy policies"
+
+msgid "Privacy Policy"
+msgstr "Privacy Policy"
 
 msgid "Profile picture"
 msgstr "Profile picture"
@@ -419,6 +506,9 @@ msgstr "Profile updated successfully"
 
 msgid "Region"
 msgstr "Region"
+
+msgid "Regulatory standards and certifications"
+msgstr "Regulatory standards and certifications"
 
 msgid "Reload"
 msgstr "Reload"
@@ -450,6 +540,9 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
+msgid "Security, privacy, and compliance information"
+msgstr "Security, privacy, and compliance information"
+
 msgid "Select Account"
 msgstr "Select Account"
 
@@ -477,8 +570,14 @@ msgstr "Sign up in seconds to start building on PlatformPlatform – just like t
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "SOC and ISO Reports"
+msgstr "SOC and ISO Reports"
+
 msgid "Standard user access"
 msgstr "Standard user access"
+
+msgid "Strict separation prevents production data from leaking to other environments"
+msgstr "Strict separation prevents production data from leaking to other environments"
 
 msgid "Success"
 msgstr "Success"
@@ -489,8 +588,17 @@ msgstr "Switching account..."
 msgid "System"
 msgstr "System"
 
+msgid "Terms"
+msgstr "Terms"
+
+msgid "Terms of Service"
+msgstr "Terms of Service"
+
 msgid "Terms of use"
 msgstr "Terms of use"
+
+msgid "The agreement governing your use of our Service, including acceptable use and liability."
+msgstr "The agreement governing your use of our Service, including acceptable use and liability."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
@@ -512,6 +620,12 @@ msgstr "Toggle sidebar"
 
 msgid "Total users"
 msgstr "Total users"
+
+msgid "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
+msgstr "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
+
+msgid "Trust Center"
+msgstr "Trust Center"
 
 msgid "Try again"
 msgstr "Try again"
@@ -622,6 +736,9 @@ msgstr "Your account was switched in another browser tab."
 
 msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 msgstr "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+
+msgid "Your data stays in the Azure region you select at signup"
+msgstr "Your data stays in the Azure region you select at signup"
 
 msgid "Your professional title or role"
 msgstr "Your professional title or role"
