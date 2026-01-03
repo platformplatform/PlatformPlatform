@@ -62,7 +62,7 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
         await DbSet.AddRangeAsync(aggregates, cancellationToken);
     }
 
-    public void UpdateRange(T[] aggregates)
+    protected void UpdateRange(T[] aggregates)
     {
         DbSet.UpdateRange(aggregates);
     }
