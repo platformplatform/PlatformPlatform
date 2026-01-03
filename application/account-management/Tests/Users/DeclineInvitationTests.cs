@@ -37,6 +37,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Id", userId.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
+                ("DeletedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),
                 ("FirstName", null),
@@ -56,13 +57,12 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            [new { userId = userId.ToString() }]
-        ).Should().Be(0);
+        Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserInviteDeclined");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserPurged");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.reason"].Should().Be(nameof(UserPurgeReason.NeverActivated));
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -117,6 +117,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Id", userId2.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
+                ("DeletedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),
                 ("FirstName", null),
@@ -133,6 +134,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Id", userId3.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("ModifiedAt", null),
+                ("DeletedAt", null),
                 ("Email", DatabaseSeeder.Tenant1Member.Email),
                 ("EmailConfirmed", false),
                 ("FirstName", null),
@@ -152,17 +154,12 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            [new { userId = userId2.ToString() }]
-        ).Should().Be(0);
-        Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE Id = @userId",
-            [new { userId = userId3.ToString() }]
-        ).Should().Be(1);
+        Connection.RowExists("Users", userId2.ToString()).Should().BeFalse();
+        Connection.RowExists("Users", userId3.ToString()).Should().BeTrue();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserInviteDeclined");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserPurged");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

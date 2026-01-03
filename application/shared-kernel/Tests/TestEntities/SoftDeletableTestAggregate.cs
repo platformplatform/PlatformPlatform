@@ -12,7 +12,7 @@ public sealed class SoftDeletableTestAggregate(string name) : AggregateRoot<long
     public DateTimeOffset? DeletedAt { get; private set; }
 
     [NotMapped]
-    public bool ForceHardDelete { get; private set; }
+    public bool ForcePurge { get; private set; }
 
     public void MarkAsDeleted(DateTimeOffset deletedAt)
     {
@@ -24,9 +24,9 @@ public sealed class SoftDeletableTestAggregate(string name) : AggregateRoot<long
         DeletedAt = null;
     }
 
-    public void MarkForHardDelete()
+    public void MarkForPurge()
     {
-        ForceHardDelete = true;
+        ForcePurge = true;
     }
 
     public static SoftDeletableTestAggregate Create(string name)

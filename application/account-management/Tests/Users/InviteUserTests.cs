@@ -1,9 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
@@ -34,10 +37,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
     {
         // Arrange
         var tenantName = "Test Company";
-        // Update tenant name using SqliteConnectionExtensions
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(),
-            [("Name", tenantName)]
-        );
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", tenantName)]);
 
         var email = Faker.Internet.UniqueEmail();
         var command = new InviteUserCommand(email);
@@ -91,10 +91,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
     public async Task InviteUser_WhenUserExists_ShouldReturnBadRequest()
     {
         // Arrange
-        // Set tenant name first (required for inviting users)
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(),
-            [("Name", "Test Company")]
-        );
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
 
         var existingUserEmail = DatabaseSeeder.Tenant1Owner.Email;
         var command = new InviteUserCommand(existingUserEmail);
@@ -103,7 +100,43 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountManagementDbContex
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The user with '{existingUserEmail}' already exists.");
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The user '{existingUserEmail}' already exists.");
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task InviteUser_WhenDeletedUserExists_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
+
+        var deletedUserEmail = Faker.Internet.UniqueEmail().ToLower();
+        var deletedUserId = UserId.NewId();
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", deletedUserId.ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-10)),
+                ("ModifiedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("DeletedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("Email", deletedUserEmail),
+                ("FirstName", Faker.Person.FirstName),
+                ("LastName", Faker.Person.LastName),
+                ("Title", "Former Employee"),
+                ("Role", nameof(UserRole.Member)),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
+            ]
+        );
+
+        var command = new InviteUserCommand(deletedUserEmail);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"The user '{deletedUserEmail}' was previously deleted. Please restore or permanently delete the user before inviting again.");
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
