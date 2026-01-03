@@ -13,12 +13,34 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# time siden} other {# timer siden}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
 
+#. placeholder {0}: users.length
+msgid "{0} users permanently deleted"
+msgstr "{0} brugere slettet permanent"
+
+#. placeholder {0}: selectedUsers.length
+msgid "{0} users restored successfully"
+msgstr "{0} brugere genoprettet succesfuldt"
+
+msgid "{deletedCount} users permanently deleted"
+msgstr "{deletedCount} brugere slettet permanent"
+
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
+
+msgid "1 user permanently deleted"
+msgstr "1 bruger slettet permanent"
 
 msgid "100% Security Score"
 msgstr "100% sikkerhedsscore"
@@ -102,6 +124,13 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0>?"
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0>?"
+
+#. placeholder {0}: users.length
+msgid "Are you sure you want to permanently delete <0>{0} users</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0> permanent?"
+
+msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
+msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
@@ -228,6 +257,9 @@ msgstr "Slet {0} brugere"
 msgid "Delete account"
 msgstr "Slet konto"
 
+msgid "Delete permanently"
+msgstr "Slet permanent"
+
 msgid "Delete user"
 msgstr "Slet bruger"
 
@@ -236,6 +268,12 @@ msgstr "Slet brugere"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Slet din konto og alle data. Denne handling kan ikke fortrydes—fortsæt med forsigtighed."
+
+msgid "Deleted"
+msgstr "Slettet"
+
+msgid "Deleted users"
+msgstr "Slettede brugere"
 
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
@@ -266,6 +304,9 @@ msgstr "Rediger profil"
 
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Empty recycle bin"
+msgstr "Tom papirkurv"
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
@@ -360,6 +401,9 @@ msgstr "Inviter bruger"
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Just now"
+msgstr "Lige nu"
+
 msgid "Language"
 msgstr "Sprog"
 
@@ -441,6 +485,9 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
+msgid "No deleted users"
+msgstr "Ingen slettede brugere"
+
 msgid "OK"
 msgstr "OK"
 
@@ -467,6 +514,16 @@ msgstr "Adgangskodeløse implementeringer"
 
 msgid "Pending"
 msgstr "Afventer"
+
+#. placeholder {0}: selectedUsers.length
+msgid "Permanently delete {0} users"
+msgstr "Slet {0} brugere permanent"
+
+msgid "Permanently delete user"
+msgstr "Slet bruger permanent"
+
+msgid "Permanently delete users"
+msgstr "Slet brugere permanent"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -504,6 +561,9 @@ msgstr "Profilbillede"
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
 
+msgid "Recycle bin"
+msgstr "Papirkurv"
+
 msgid "Region"
 msgstr "Region"
 
@@ -524,6 +584,16 @@ msgstr "Erstat denne eksempelsside med dine egne produktoplysninger og branding.
 
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
+
+msgid "Restore"
+msgstr "Gendan"
+
+#. placeholder {0}: selectedUsers.length
+msgid "Restore {0} users"
+msgstr "Gendan {0} brugere"
+
+msgid "Restore user"
+msgstr "Gendan bruger"
 
 msgid "Role"
 msgstr "Rolle"
@@ -606,8 +676,17 @@ msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
 msgid "Theme"
 msgstr "Tema"
 
+msgid "This action cannot be undone."
+msgstr "Denne handling kan ikke fortrydes."
+
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
+
+msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
+msgstr "Dette vil permanent slette <0>{totalDeletedUsersCount} brugere</0> i papirkurven."
+
+msgid "This will permanently delete <0>1 user</0> in the recycle bin."
+msgstr "Dette vil permanent slette <0>1 bruger</0> i papirkurven."
 
 msgid "Title"
 msgstr "Titel"
@@ -660,11 +739,17 @@ msgstr "Bruger inviteret succesfuldt"
 msgid "User not in current view"
 msgstr "Bruger ikke i nuværende visning"
 
+msgid "User permanently deleted: {userDisplayName}"
+msgstr "Bruger slettet permanent: {userDisplayName}"
+
 msgid "User profile"
 msgstr "Brugerprofil"
 
 msgid "User profile menu"
 msgstr "Brugerprofilmenu"
+
+msgid "User restored successfully: {userName}"
+msgstr "Bruger genoprettet succesfuldt: {userName}"
 
 msgid "User role"
 msgstr "Brugerrolle"

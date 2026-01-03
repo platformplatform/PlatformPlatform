@@ -13,12 +13,34 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# hour ago} other {# hours ago}}"
+msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
+
+#. placeholder {0}: result.value
+msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
+msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} users deleted successfully"
 
+#. placeholder {0}: users.length
+msgid "{0} users permanently deleted"
+msgstr "{0} users permanently deleted"
+
+#. placeholder {0}: selectedUsers.length
+msgid "{0} users restored successfully"
+msgstr "{0} users restored successfully"
+
+msgid "{deletedCount} users permanently deleted"
+msgstr "{deletedCount} users permanently deleted"
+
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. All rights reserved."
+
+msgid "1 user permanently deleted"
+msgstr "1 user permanently deleted"
 
 msgid "100% Security Score"
 msgstr "100% Security Score"
@@ -102,6 +124,13 @@ msgstr "Are you sure you want to delete <0>{0} users</0>?"
 
 msgid "Are you sure you want to delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to delete <0>{userDisplayName}</0>?"
+
+#. placeholder {0}: users.length
+msgid "Are you sure you want to permanently delete <0>{0} users</0>?"
+msgstr "Are you sure you want to permanently delete <0>{0} users</0>?"
+
+msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
+msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
@@ -228,6 +257,9 @@ msgstr "Delete {0} users"
 msgid "Delete account"
 msgstr "Delete account"
 
+msgid "Delete permanently"
+msgstr "Delete permanently"
+
 msgid "Delete user"
 msgstr "Delete user"
 
@@ -236,6 +268,12 @@ msgstr "Delete users"
 
 msgid "Delete your account and all data. This action is irreversible—proceed with caution."
 msgstr "Delete your account and all data. This action is irreversible—proceed with caution."
+
+msgid "Deleted"
+msgstr "Deleted"
+
+msgid "Deleted users"
+msgstr "Deleted users"
 
 msgid "Different user logged in"
 msgstr "Different user logged in"
@@ -266,6 +304,9 @@ msgstr "Edit profile"
 
 msgid "Email"
 msgstr "Email"
+
+msgid "Empty recycle bin"
+msgstr "Empty recycle bin"
 
 msgid "Enter your email below to log in"
 msgstr "Enter your email below to log in"
@@ -360,6 +401,9 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Just now"
+msgstr "Just now"
+
 msgid "Language"
 msgstr "Language"
 
@@ -441,6 +485,9 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
+msgid "No deleted users"
+msgstr "No deleted users"
+
 msgid "OK"
 msgstr "OK"
 
@@ -467,6 +514,16 @@ msgstr "Passwordless deployments"
 
 msgid "Pending"
 msgstr "Pending"
+
+#. placeholder {0}: selectedUsers.length
+msgid "Permanently delete {0} users"
+msgstr "Permanently delete {0} users"
+
+msgid "Permanently delete user"
+msgstr "Permanently delete user"
+
+msgid "Permanently delete users"
+msgstr "Permanently delete users"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -504,6 +561,9 @@ msgstr "Profile picture"
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
 
+msgid "Recycle bin"
+msgstr "Recycle bin"
+
 msgid "Region"
 msgstr "Region"
 
@@ -524,6 +584,16 @@ msgstr "Replace this sample page with your own product information and branding.
 
 msgid "Request a new code"
 msgstr "Request a new code"
+
+msgid "Restore"
+msgstr "Restore"
+
+#. placeholder {0}: selectedUsers.length
+msgid "Restore {0} users"
+msgstr "Restore {0} users"
+
+msgid "Restore user"
+msgstr "Restore user"
 
 msgid "Role"
 msgstr "Role"
@@ -606,8 +676,17 @@ msgstr "The name of your account, shown to users and in email notifications"
 msgid "Theme"
 msgstr "Theme"
 
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
+
+msgid "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
+msgstr "This will permanently delete <0>{totalDeletedUsersCount} users</0> in the recycle bin."
+
+msgid "This will permanently delete <0>1 user</0> in the recycle bin."
+msgstr "This will permanently delete <0>1 user</0> in the recycle bin."
 
 msgid "Title"
 msgstr "Title"
@@ -660,11 +739,17 @@ msgstr "User invited successfully"
 msgid "User not in current view"
 msgstr "User not in current view"
 
+msgid "User permanently deleted: {userDisplayName}"
+msgstr "User permanently deleted: {userDisplayName}"
+
 msgid "User profile"
 msgstr "User profile"
 
 msgid "User profile menu"
 msgstr "User profile menu"
+
+msgid "User restored successfully: {userName}"
+msgstr "User restored successfully: {userName}"
 
 msgid "User role"
 msgstr "User role"

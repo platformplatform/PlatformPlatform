@@ -12,13 +12,13 @@ import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useKeyboardNavigation } from "@repo/ui/hooks/useKeyboardNavigation";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
-import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { Selection, SortDescriptor } from "react-aria-components";
 import { MenuTrigger, TableBody } from "react-aria-components";
+import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { useInfiniteUsers } from "../-hooks/useInfiniteUsers";
@@ -250,7 +250,7 @@ export function UserTable({
               </Column>
             )}
             {isMediumViewportOrLarger() && (
-              <Column minWidth={65} defaultWidth={120} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
+              <Column minWidth={65} defaultWidth={140} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
                 <Trans>Modified</Trans>
               </Column>
             )}
@@ -299,16 +299,12 @@ export function UserTable({
                 )}
                 {isMediumViewportOrLarger() && (
                   <Cell>
-                    <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                      {formatDate(user.createdAt)}
-                    </Text>
+                    <SmartDate date={user.createdAt} className="text-foreground" />
                   </Cell>
                 )}
                 {isMediumViewportOrLarger() && (
                   <Cell>
-                    <Text className="h-full w-full justify-start p-0 text-left font-normal">
-                      {formatDate(user.modifiedAt)}
-                    </Text>
+                    <SmartDate date={user.modifiedAt} className="text-foreground" />
                   </Cell>
                 )}
                 {isSmallViewportOrLarger() && (
