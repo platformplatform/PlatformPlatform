@@ -21,7 +21,7 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-        optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor());
+        optionsBuilder.AddInterceptors(new UpdateAuditableEntitiesInterceptor(), new SoftDeleteInterceptor());
         optionsBuilder.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
 
         base.OnConfiguring(optionsBuilder);
@@ -49,35 +49,49 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
         // Ensures that all enum properties are stored as strings in the database.
         modelBuilder.UseStringForEnums();
 
-        ApplyGlobalTenantFilters(modelBuilder);
+        ApplyNamedQueryFilters(modelBuilder);
 
         base.OnModelCreating(modelBuilder);
     }
 
     /// <summary>
-    ///     Applies global tenant filters to all entities implementing <see cref="ITenantScopedEntity" /> interface.
-    ///     This ensures that only data belonging to the current tenant is queried.
+    ///     Applies named query filters to entities implementing <see cref="ITenantScopedEntity" /> and
+    ///     <see cref="ISoftDeletable" /> interfaces. Named filters can be selectively disabled at query time
+    ///     using IgnoreQueryFilters(["FilterName"]).
     /// </summary>
-    private void ApplyGlobalTenantFilters(ModelBuilder modelBuilder)
+    private void ApplyNamedQueryFilters(ModelBuilder modelBuilder)
     {
-        var tenantScopedEntityTypes = modelBuilder.Model.GetEntityTypes()
-            .Where(t => typeof(ITenantScopedEntity).IsAssignableFrom(t.ClrType) && !t.IsOwned())
-            .Select(t => t.ClrType);
+        var entityTypes = modelBuilder.Model.GetEntityTypes()
+            .Where(t => !t.IsOwned())
+            .ToList();
 
-        foreach (var entityType in tenantScopedEntityTypes)
+        foreach (var entityType in entityTypes)
         {
-            var parameter = Expression.Parameter(entityType, "entity");
-            var tenantIdProperty = Expression.Property(parameter, nameof(ITenantScopedEntity.TenantId));
-            var tenantIdValue = Expression.Property(Expression.Constant(this), nameof(TenantId));
+            var clrType = entityType.ClrType;
+            var parameter = Expression.Parameter(clrType, "entity");
 
-            var condition = Expression.AndAlso(
-                Expression.NotEqual(tenantIdValue, Expression.Constant(null, typeof(TenantId))),
-                Expression.Equal(tenantIdProperty, tenantIdValue)
-            );
+            if (typeof(ITenantScopedEntity).IsAssignableFrom(clrType))
+            {
+                var tenantIdProperty = Expression.Property(parameter, nameof(ITenantScopedEntity.TenantId));
+                var tenantIdValue = Expression.Property(Expression.Constant(this), nameof(TenantId));
 
-            var lambda = Expression.Lambda(condition, parameter);
+                var condition = Expression.AndAlso(
+                    Expression.NotEqual(tenantIdValue, Expression.Constant(null, typeof(TenantId))),
+                    Expression.Equal(tenantIdProperty, tenantIdValue)
+                );
 
-            modelBuilder.Entity(entityType).HasQueryFilter(lambda);
+                var lambda = Expression.Lambda(condition, parameter);
+                modelBuilder.Entity(clrType).HasQueryFilter(QueryFilterNames.Tenant, lambda);
+            }
+
+            if (typeof(ISoftDeletable).IsAssignableFrom(clrType))
+            {
+                var deletedAtProperty = Expression.Property(parameter, nameof(ISoftDeletable.DeletedAt));
+                var condition = Expression.Equal(deletedAtProperty, Expression.Constant(null, typeof(DateTimeOffset?)));
+
+                var lambda = Expression.Lambda(condition, parameter);
+                modelBuilder.Entity(clrType).HasQueryFilter(QueryFilterNames.SoftDelete, lambda);
+            }
         }
     }
 }
