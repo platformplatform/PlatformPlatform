@@ -14,12 +14,17 @@ test.describe("@smoke", () => {
    * - Permission system (testing what owners vs admins can/cannot do)
    * - Search and filtering functionality (email search, role filtering)
    * - User permission restrictions (what owners vs admins can/cannot do)
+   * - Soft delete workflow (delete user via actions menu)
+   * - Recycle bin tab visibility (Owner/Admin only, not Members)
+   *
+   * Note: Restore and permanent delete workflows are tested in @comprehensive
    */
   test("should handle user invitation, role management & permissions workflow", async ({ page }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const adminUser = testUser();
     const memberUser = testUser();
+    const deletableUser = testUser();
 
     await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
@@ -61,29 +66,39 @@ test.describe("@smoke", () => {
     // Email validation is comprehensively tested in signup-flows.spec.ts
 
     await step("Invite member user & verify successful invitation")(async () => {
-      await page.getByRole("button", { name: "Invite user" }).click();
+      await page.getByRole("button", { name: "Invite user" }).first().click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
       await expectToastMessage(context, "User invited successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      // Verify both users exist in table - use first() due to mobile rendering with duplicate tables
+      await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
       await expect(page.locator("tbody").first().first()).toContainText(memberUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
     })();
 
     await step("Invite admin user & verify successful invitation")(async () => {
-      await page.getByRole("button", { name: "Invite user" }).click();
+      await page.getByRole("button", { name: "Invite user" }).first().click();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
       await expectToastMessage(context, "User invited successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      // Verify all three users exist in table - use first() due to mobile rendering with duplicate tables
+      await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
       await expect(page.locator("tbody").first().first()).toContainText(adminUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(memberUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
+    })();
+
+    await step("Invite deletable user for soft delete testing")(async () => {
+      await page.getByRole("button", { name: "Invite user" }).first().click();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
+      await page.getByRole("button", { name: "Send invite" }).click();
+
+      await expectToastMessage(context, "User invited successfully");
+      await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
+      await expect(page.locator("tbody").first().first()).toContainText(deletableUser.email);
     })();
 
     await step("Open actions menu for admin user and change role to Admin & verify role updates")(async () => {
@@ -107,19 +122,18 @@ test.describe("@smoke", () => {
     })();
 
     await step("Attempt to invite duplicate user email & verify error message appears")(async () => {
-      await page.getByRole("button", { name: "Invite user" }).click();
+      await page.getByRole("button", { name: "Invite user" }).first().click();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await expectToastMessage(context, 400, `The user with '${memberUser.email}' already exists.`);
+      await expectToastMessage(context, 400, `The user '${memberUser.email}' already exists.`);
 
       await page.getByRole("button", { name: "Cancel" }).click();
-
-      // Wait for dialog to close
-      await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
     })();
 
-    await step("Check users table & verify invited users appear with correct roles")(async () => {
+    await step("Open users table & verify invited users appear with correct roles")(async () => {
       // Set viewport to ensure role badges are visible
       await page.setViewportSize({ width: 1280, height: 720 });
 
@@ -170,21 +184,102 @@ test.describe("@smoke", () => {
     await step("Filter users by role & verify role-based filtering works correctly")(async () => {
       const userTable = page.locator("tbody").first().first();
       await page.getByRole("button", { name: "Show filters" }).click();
-      await page.getByRole("button", { name: "Any role User role" }).click();
+
+      const filterDialog = page.getByRole("dialog", { name: "Filters" });
+      await expect(filterDialog).toBeVisible();
+
+      await filterDialog.getByRole("button", { name: "Any role User role" }).click();
       await page.getByRole("option", { name: "Owner" }).click();
 
+      await filterDialog.getByRole("button", { name: "OK" }).click();
+
       // Verify only owner is shown without counting rows
+      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(owner.email);
       await expect(userTable).not.toContainText(adminUser.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
-      await page.getByRole("button", { name: "Owner User role" }).click();
+      await page.getByRole("button", { name: "Show filters" }).click();
+      await expect(filterDialog).toBeVisible();
+
+      await filterDialog.getByRole("button", { name: "Owner User role" }).click();
       await page.getByRole("option", { name: "Any role" }).click();
+      await filterDialog.getByRole("button", { name: "OK" }).click();
 
       // Verify all users are shown again
+      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(userTable).toContainText(owner.email);
+    })();
+
+    // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
+    await step("Logout from owner to activate deletable user")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
+    })();
+
+    await step("Login as deletable user & complete profile setup to confirm email")(async () => {
+      await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
+
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(deletableUser.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(deletableUser.lastName);
+      await page.getByRole("button", { name: "Save changes" }).click();
+
+      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    })();
+
+    await step("Logout from deletable user & login as owner")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
+
+      await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
+
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+    })();
+
+    // === SOFT DELETE WORKFLOW SECTION ===
+    await step("Soft delete user via actions menu & verify removed from All users tab")(async () => {
+      const deletableUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: deletableUser.email });
+      const deletableActionsButton = deletableUserRow.locator("button[aria-label='User actions']").first();
+      await deletableActionsButton.evaluate((el: HTMLElement) => el.click());
+
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Delete" }).click();
+
+      const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
+      await expect(deleteDialog).toBeVisible();
+      const deletableFullName = `${deletableUser.firstName} ${deletableUser.lastName}`;
+      await expect(page.getByText(`Are you sure you want to delete ${deletableFullName}?`)).toBeVisible();
+      const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
+      await expect(deleteButton).toBeEnabled();
+      await deleteButton.click({ force: true });
+
+      await expectToastMessage(context, `User deleted successfully: ${deletableFullName}`);
+      await expect(deleteDialog).not.toBeVisible();
+      await expect(page.locator("tbody").first()).not.toContainText(deletableUser.email);
+      await expect(page.locator("tbody").first().locator("tr")).toHaveCount(3);
+    })();
+
+    await step("Navigate to Recycle bin tab & verify soft-deleted user appears")(async () => {
+      await page.getByRole("link", { name: "Recycle bin" }).click();
+
+      await expect(page).toHaveURL("/admin/users/recycle-bin");
+      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from owner account & verify redirect to login")(async () => {
@@ -230,15 +325,48 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + admin + member
     })();
 
-    await step("Open member user menu as admin & verify limited actions available")(async () => {
-      const memberUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: memberUser.email });
-      const memberActionsButton = memberUserRow.locator("button[aria-label='User actions']").first();
-      await memberActionsButton.evaluate((el: HTMLElement) => el.click());
+    await step("Navigate to Recycle bin tab as admin & verify deleted user appears")(async () => {
+      await expect(page.getByRole("link", { name: "Recycle bin" })).toBeVisible();
+      await page.getByRole("link", { name: "Recycle bin" }).click();
 
-      // Admin users don't see Change role or Delete options - only View profile
-      await expect(page.getByRole("menuitem", { name: "View profile" })).toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Change role" })).not.toBeVisible();
-      await expect(page.getByRole("menuitem", { name: "Delete" })).not.toBeVisible();
+      await expect(page).toHaveURL("/admin/users/recycle-bin");
+      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+    })();
+
+    await step("Logout from admin account & verify redirect to login")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      const profileMenuButton = page.getByRole("button", { name: "User profile menu" });
+      await profileMenuButton.focus();
+      await page.keyboard.press("Enter");
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
+    })();
+
+    // === MEMBER PERMISSION CHECK SECTION ===
+    await step("Login as member user & complete profile setup")(async () => {
+      await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
+      await page.keyboard.type(getVerificationCode());
+
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "First name" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(memberUser.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(memberUser.lastName);
+      await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
+      await page.getByRole("button", { name: "Save changes" }).click();
+
+      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    })();
+
+    await step("Navigate as member & verify redirect to All users without Recycle bin tab")(async () => {
+      await expect(page).toHaveURL("/admin/users");
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "All users" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Recycle bin" })).not.toBeVisible();
     })();
   });
 });
@@ -250,18 +378,19 @@ test.describe("@comprehensive", () => {
    * Tests comprehensive user deletion functionality with dashboard context including:
    * - Dashboard metrics integration (user count displays)
    * - URL-based filtering (active users link)
-   * - Single user deletion via menu actions
-   * - Bulk user selection by clicking rows with Ctrl/Cmd modifier
-   * - Bulk deletion of multiple users via "Delete X users" button
+   * - Advanced filtering (role, status combinations)
+   * - Single user soft deletion via menu actions
+   * - Bulk user selection and bulk deletion
    * - Owner protection mechanisms (deletion restrictions)
-   * - UI state management after deletions (selection clearing, button visibility)
+   * - Restore user from Recycle bin tab
+   * - Permanent delete user via confirmation dialog
+   * - Empty recycle bin functionality
    */
   test("should handle single and bulk user deletion workflows with dashboard integration", async ({ page }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const user1 = testUser();
     const user2 = testUser();
-    const user3 = testUser();
 
     // === USER SETUP SECTION ===
     await step("Complete owner signup & verify welcome page")(async () => {
@@ -283,7 +412,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Invite multiple users & verify they are added to the list")(async () => {
-      const usersToInvite = [user1, user2, user3];
+      const usersToInvite = [user1, user2];
 
       for (const user of usersToInvite) {
         await page.getByRole("button", { name: "Invite user" }).click();
@@ -294,7 +423,7 @@ test.describe("@comprehensive", () => {
         await expect(page.getByRole("dialog")).not.toBeVisible();
       }
 
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(4); // owner + 3 invited users
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + 2 invited users
     })();
 
     // === DASHBOARD METRICS SECTION ===
@@ -302,9 +431,9 @@ test.describe("@comprehensive", () => {
       await page.goto("/admin");
 
       // Verify dashboard shows correct user counts
-      await expect(page.getByRole("link", { name: "View users" })).toContainText("4");
+      await expect(page.getByRole("link", { name: "View users" })).toContainText("3");
       await expect(page.getByRole("link", { name: "View active users" })).toContainText("1");
-      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("3");
+      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("2");
     })();
 
     // === URL FILTERING SECTION ===
@@ -313,8 +442,8 @@ test.describe("@comprehensive", () => {
 
       // Verify filtering by URL parameter
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
-      await expect(page.url()).toContain("userStatus=Pending");
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
+      await expect(page).toHaveURL(/userStatus=Pending/);
     })();
 
     // === ADVANCED FILTERING SECTION ===
@@ -374,10 +503,9 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).not.toBeVisible();
 
       // Verify only member users are shown
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
       await expect(page.locator("tbody").first()).toContainText(user1.email);
       await expect(page.locator("tbody").first()).toContainText(user2.email);
-      await expect(page.locator("tbody").first()).toContainText(user3.email);
       await expect(page.locator("tbody").first()).not.toContainText(owner.email);
     })();
 
@@ -394,8 +522,8 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Escape");
       await expect(filterDialog).not.toBeVisible();
 
-      // Verify all 4 users are shown (no filters applied)
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(4);
+      // Verify all 3 users are shown (no filters applied)
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
     })();
 
     await step("Filter by Pending status & verify only pending users shown")(async () => {
@@ -416,10 +544,9 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).not.toBeVisible();
 
       // Verify only pending users are shown (invited users who haven't confirmed)
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
       await expect(page.locator("tbody").first()).toContainText(user1.email);
       await expect(page.locator("tbody").first()).toContainText(user2.email);
-      await expect(page.locator("tbody").first()).toContainText(user3.email);
       await expect(page.locator("tbody").first()).not.toContainText(owner.email);
     })();
 
@@ -446,169 +573,197 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("tbody").first()).not.toContainText(user1.email);
     })();
 
-    await step("Filter by past date range & verify no users shown")(async () => {
-      // Reopen dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
+    // === ACTIVATE USERS TO ENABLE SOFT DELETE ===
+    await step("Logout from owner & login as user1 to confirm email")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
 
-      // Clear status filter
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Any status" }).click();
-      await blurActiveElement(page);
+      await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
 
-      // Open date picker
-      await filterDialog.getByLabel("Modified date").click();
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(user1.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(user1.lastName);
+      await page.getByRole("button", { name: "Save changes" }).click();
 
-      // Close the calendar picker to enter keyboard mode
-      await page.keyboard.press("Escape");
-
-      // Click on year field to focus it for keyboard entry
-      await page.locator('[role="spinbutton"][aria-label="year, Start Date, "]').click({ force: true });
-
-      // Set dates via keyboard (auto-advances through fields)
-      await page.keyboard.type("20240101");
-      await page.keyboard.type("20241231");
-
-      // Close the filter dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
-
-      // Verify no users are shown for the past date range (users were created in 2025)
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(0);
+      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
-    // === CLEAR FILTERS FOR CLEAN DELETION TESTS ===
-    await step("Navigate to users page & verify all users shown for clean deletion tests")(async () => {
-      // Navigate to users page without any filters
+    await step("Logout from user1 & login as user2 to confirm email")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
+
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(user2.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(user2.lastName);
+      await page.getByRole("button", { name: "Save changes" }).click();
+
+      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page.getByRole("dialog")).not.toBeVisible();
+    })();
+
+    await step("Logout from user2 & login back as owner")(async () => {
+      context.monitoring.expectedStatusCodes.push(401);
+      await expect(page.getByRole("region", { name: /notification/ })).not.toBeVisible();
+      await page.getByRole("button", { name: "User profile menu" }).click();
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
+      await page.keyboard.type(getVerificationCode());
+
+      await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
+    })();
+
+    await step("Navigate to dashboard & verify updated active user counts")(async () => {
+      await page.goto("/admin");
+
+      await expect(page.getByRole("link", { name: "View users" })).toContainText("3");
+      await expect(page.getByRole("link", { name: "View active users" })).toContainText("3");
+      await expect(page.getByRole("link", { name: "View invited users" })).toContainText("0");
+    })();
+
+    await step("Navigate to users page & verify all users shown for deletion tests")(async () => {
       await page.goto("/admin/users");
 
-      // Verify all users are shown
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(4);
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
       await expect(page.locator("tbody").first()).toContainText(owner.email);
       await expect(page.locator("tbody").first()).toContainText(user1.email);
       await expect(page.locator("tbody").first()).toContainText(user2.email);
-      await expect(page.locator("tbody").first()).toContainText(user3.email);
     })();
 
-    // === SINGLE USER DELETION SECTION ===
-    await step("Delete single user via menu & verify removal")(async () => {
-      // Open actions menu and delete user1
+    // === SOFT DELETION SECTION ===
+    await step("Soft delete user1 via menu & verify removal from All users")(async () => {
+      const user1FullName = `${user1.firstName} ${user1.lastName}`;
+
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
       await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
       await page.getByRole("menuitem", { name: "Delete" }).click();
 
-      // Confirm deletion
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).toBeVisible();
-      await expect(page.getByText(`Are you sure you want to delete ${user1.email}?`)).toBeVisible();
-      await page.getByRole("button", { name: "Delete" }).click();
+      const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
+      await expect(deleteDialog).toBeVisible();
+      await expect(page.getByText(`Are you sure you want to delete ${user1FullName}?`)).toBeVisible();
+      const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
+      await expect(deleteButton).toBeEnabled();
+      await deleteButton.click({ force: true });
 
-      // Verify user is removed from table
-      await expectToastMessage(context, `User deleted successfully: ${user1.email}`);
-      await expect(page.getByRole("alertdialog", { name: "Delete user" })).not.toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + user2 + user3
+      await expectToastMessage(context, `User deleted successfully: ${user1FullName}`);
+      await expect(deleteDialog).not.toBeVisible();
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
       await expect(page.getByText(user1.email)).not.toBeVisible();
       await expect(page.locator("tbody").first()).toContainText(owner.email);
       await expect(page.locator("tbody").first()).toContainText(user2.email);
-      await expect(page.locator("tbody").first()).toContainText(user3.email);
-      await expect(page.locator("tbody").first().locator("tr")).toHaveCount(3);
     })();
 
-    // === BULK USER SELECTION SECTION ===
-    await step("Select remaining two users by clicking rows & verify selection state")(async () => {
-      // Use JavaScript evaluation to click rows since regular click is not working
-      const allRows = page.locator("tbody").first().locator("tr");
+    await step("Soft delete user2 via menu & verify removal from All users")(async () => {
+      const user2FullName = `${user2.firstName} ${user2.lastName}`;
 
-      // Select first non-owner user (index 1)
-      const user2Row = allRows.nth(1);
-      await user2Row.evaluate((el: HTMLElement) => el.click());
-      await expect(user2Row).toHaveAttribute("aria-selected", "true");
+      const user2Row = page.locator("tbody").first().locator("tr").filter({ hasText: user2.email });
+      const user2ActionsButton = user2Row.locator("button[aria-label='User actions']").first();
+      await user2ActionsButton.evaluate((el: HTMLElement) => el.click());
+      await page.getByRole("menuitem", { name: "Delete" }).click();
 
-      // Verify the toolbar delete button is visible (single user selection)
-      await expect(page.getByRole("button", { name: "Delete user" }).first()).toBeVisible();
-
-      // Select second non-owner user (index 2) with Ctrl/Cmd modifier
-      const user3Row = allRows.nth(2);
-      await page.keyboard.down("ControlOrMeta");
-      await user3Row.evaluate((el: HTMLElement) => el.click());
-      await page.keyboard.up("ControlOrMeta");
-
-      // Verify the bulk delete button is visible
-      await expect(user3Row).toHaveAttribute("aria-selected", "true");
-      await expect(user2Row).toHaveAttribute("aria-selected", "true");
-      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
-    })();
-
-    await step("Select owner with Ctrl/Cmd modifier & verify delete button becomes disabled")(async () => {
-      const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
-
-      // Select owner by clicking the row with Ctrl/Cmd modifier
-      await page.keyboard.down("ControlOrMeta");
-      await ownerRow.evaluate((el: HTMLElement) => el.click());
-      await page.keyboard.up("ControlOrMeta");
-
-      // Verify the toolbar bulk delete button is visible but disabled (owner protection)
-      await expect(page.getByRole("button", { name: "Delete 3 users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete 3 users" })).toBeDisabled();
-    })();
-
-    await step("Deselect owner with Ctrl/Cmd modifier & verify delete button becomes enabled")(async () => {
-      const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
-
-      // Deselect owner with Ctrl/Cmd modifier
-      await page.keyboard.down("ControlOrMeta");
-      await ownerRow.evaluate((el: HTMLElement) => el.click());
-      await page.keyboard.up("ControlOrMeta");
-
-      // Verify the toolbar bulk delete button is now enabled
-      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeEnabled();
-    })();
-
-    // === BULK USER DELETION SECTION ===
-    await step("Cancel bulk deletion & verify users remain selected")(async () => {
-      await page.getByRole("button", { name: "Delete 2 users" }).click();
-
-      await expect(page.getByRole("alertdialog", { name: "Delete users" })).toBeVisible();
-      await expect(page.getByText("Are you sure you want to delete 2 users?")).toBeVisible();
-
-      await page.getByRole("button", { name: "Cancel" }).click();
-
-      await expect(page.getByRole("alertdialog")).not.toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // All users still present
-      await expect(page.getByRole("button", { name: "Delete 2 users" })).toBeVisible(); // Selection maintained
-    })();
-
-    await step("Confirm bulk delete selected users & verify removal")(async () => {
-      await page.getByRole("button", { name: "Delete 2 users" }).click();
-
-      const deleteDialog = page.getByRole("alertdialog", { name: "Delete users" });
+      const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
-      await deleteDialog.getByRole("button", { name: "Delete", exact: true }).click();
+      await expect(page.getByText(`Are you sure you want to delete ${user2FullName}?`)).toBeVisible();
+      const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
+      await expect(deleteButton).toBeEnabled();
+      await deleteButton.click({ force: true });
 
-      await expectToastMessage(context, "2 users deleted successfully");
+      await expectToastMessage(context, `User deleted successfully: ${user2FullName}`);
       await expect(deleteDialog).not.toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1); // Only owner left
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
       await expect(page.getByText(user2.email)).not.toBeVisible();
-      await expect(page.getByText(user3.email)).not.toBeVisible();
       await expect(page.locator("tbody").first()).toContainText(owner.email);
-      await expect(page.getByRole("button", { name: "Delete 2 users" })).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Invite user" })).toBeVisible();
     })();
 
     // === OWNER PROTECTION SECTION ===
-    await step("Verify owner menu delete option is disabled")(async () => {
-      const ownerRow = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
-      const ownerActionsButton = ownerRow.locator("button[aria-label='User actions']").first();
-      await ownerActionsButton.evaluate((el: HTMLElement) => el.click());
+    await step("Open owner actions menu & verify delete option is disabled")(async () => {
+      const usersGrid = page.getByRole("grid", { name: "Users" });
+      const ownerRow = usersGrid.getByRole("row").filter({ hasText: owner.email });
+      await ownerRow.getByRole("button", { name: "User actions" }).click();
 
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
 
-      // Click outside the menu to close it
-      await page.locator("body").click({ position: { x: 10, y: 10 } });
+      await page.keyboard.press("Escape");
+    })();
+
+    // === RESTORE AND PERMANENT DELETE SECTION ===
+    await step("Navigate to Recycle bin tab & verify soft-deleted users appear")(async () => {
+      await page.getByRole("link", { name: "Recycle bin" }).click();
+
+      await expect(page).toHaveURL("/admin/users/recycle-bin");
+      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      await expect(deletedUsersGrid).toContainText(user1.email);
+      await expect(deletedUsersGrid).toContainText(user2.email);
+    })();
+
+    await step("Select user1 row & restore via toolbar button")(async () => {
+      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const user1Row = deletedUsersGrid.locator("tr").filter({ hasText: user1.email });
+      await user1Row.click();
+
+      const restoreButton = page.getByRole("button", { name: "Restore user" });
+      await expect(restoreButton).toBeVisible();
+      await restoreButton.click();
+
+      const user1FullName = `${user1.firstName} ${user1.lastName}`;
+      await expectToastMessage(context, `User restored successfully: ${user1FullName}`);
+
+      await expect(deletedUsersGrid).not.toContainText(user1.email);
+      await expect(deletedUsersGrid).toContainText(user2.email);
+    })();
+
+    await step("Select user2 row & permanently delete via toolbar")(async () => {
+      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const user2Row = deletedUsersGrid.locator("tr").filter({ hasText: user2.email });
+      await user2Row.click();
+
+      const deleteButton = page.getByRole("button", { name: "Permanently delete user" });
+      await expect(deleteButton).toBeVisible();
+      await deleteButton.click();
+
+      const deleteDialog = page.getByRole("alertdialog", { name: "Permanently delete user" });
+      await expect(deleteDialog).toBeVisible();
+      const confirmDeleteButton = deleteDialog.getByRole("button", { name: "Delete permanently" });
+      await expect(confirmDeleteButton).toBeEnabled();
+      await confirmDeleteButton.click();
+
+      const user2FullName = `${user2.firstName} ${user2.lastName}`;
+      await expectToastMessage(context, `User permanently deleted: ${user2FullName}`);
+
+      await expect(deleteDialog).not.toBeVisible();
+      await expect(page).toHaveURL("/admin/users/recycle-bin");
+      await expect(page.getByRole("grid", { name: "Deleted users" })).not.toBeVisible();
+      await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
+    })();
+
+    await step("Navigate to All users tab & verify restored user appears")(async () => {
+      await page.getByRole("link", { name: "All users" }).click();
+
+      await expect(page).toHaveURL("/admin/users");
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
+      await expect(page.locator("tbody").first()).toContainText(owner.email);
+      await expect(page.locator("tbody").first()).toContainText(user1.email);
+      await expect(page.locator("tbody").first()).not.toContainText(user2.email);
     })();
   });
 });
