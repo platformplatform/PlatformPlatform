@@ -113,10 +113,13 @@ export async function completeSignupFlow(
   await page.getByRole("button", { name: "Create your account" }).click();
   await expect(page).toHaveURL("/signup/verify");
 
-  // Step 3: Enter verification code
-  await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+  // Step 3: Enter verification code (auto-submits after 6 characters)
+  // Wait for the first input to be focused before typing
+  await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
+  await page.keyboard.type(getVerificationCode());
 
-  // Wait for profile dialog to appear
+  // Wait for successful signup - the form auto-submits and navigates to /admin
+  await expect(page).toHaveURL("/admin");
   await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
   // Step 4: Complete profile setup and verify successful save

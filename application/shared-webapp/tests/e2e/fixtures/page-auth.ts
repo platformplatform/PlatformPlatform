@@ -66,7 +66,7 @@ async function performFreshAuthentication(
     await page.goto("/admin/account");
     await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
     await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
-    await page.getByRole("button", { name: "Save" }).click();
+    await page.getByRole("button", { name: "Save changes" }).click();
 
     const { expectToastMessage } = await import("../utils/test-assertions.js");
     await expectToastMessage(testContext, "Account name updated successfully");
