@@ -55,7 +55,13 @@ Commit messages should be in imperative form, start with a capital letter, avoid
 
 Be very careful with comments, and add them only very sparingly. Never add comments about changes made (these belong in pull requests).
 
-When making changes, always take special care not to change parts of the code that are not in scope.
+## Edit Discipline
+
+When using the Edit tool:
+- The `new_string` must be a minimal transformation of `old_string`
+- Never remove, modify, or add comments unless that is the explicit task
+- Never reformat code, fix whitespace, or "clean up" adjacent lines
+- If you need to include surrounding context for uniqueness, copy it exactly
 
 ## Project Structure
 
