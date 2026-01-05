@@ -1,9 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Platform;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Domain;
 
-public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
+public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDeletable
 {
     private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
         : base(UserId.NewId())
@@ -37,6 +38,26 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity
     public string Locale { get; private set; }
 
     public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
+
+    public DateTimeOffset? DeletedAt { get; private set; }
+
+    [NotMapped]
+    public bool ForcePurge { get; private set; }
+
+    public void MarkAsDeleted(DateTimeOffset deletedAt)
+    {
+        DeletedAt = deletedAt;
+    }
+
+    public void Restore()
+    {
+        DeletedAt = null;
+    }
+
+    public void MarkForPurge()
+    {
+        ForcePurge = true;
+    }
 
     public TenantId TenantId { get; }
 

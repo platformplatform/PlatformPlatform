@@ -32,7 +32,7 @@ public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
             : TimeProvider.System;
 
         var deletedEntities = dbContext.ChangeTracker.Entries<ISoftDeletable>()
-            .Where(e => e.State is EntityState.Deleted && !e.Entity.ForceHardDelete);
+            .Where(e => e.State is EntityState.Deleted && !e.Entity.ForcePurge);
 
         foreach (var entityEntry in deletedEntities)
         {

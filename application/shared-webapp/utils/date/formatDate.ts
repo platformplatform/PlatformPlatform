@@ -1,33 +1,26 @@
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
 /**
  * Format a date string to a consistent format across the application.
- * Format: "day month, year" (e.g., "15 Jan, 2024")
- * Or with time: "day month, year at time" (e.g., "15 Jan, 2024 at 14:30")
+ * Format: "day Mon, year" (e.g., "15 Jan, 2024")
+ * Or with time: "day Mon, year at time" (e.g., "15 Jan, 2024 at 14:30")
  */
 export function formatDate(input: string | undefined | null, includeTime = false): string {
   if (!input) {
     return "";
   }
   const date = new Date(input);
+  const day = date.getDate();
+  const month = MONTH_NAMES[date.getMonth()];
+  const year = date.getFullYear();
 
   if (includeTime) {
-    const dateStr = date.toLocaleDateString(undefined, {
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    });
-    const timeStr = date.toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
-    });
-    return `${dateStr} at ${timeStr}`;
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    return `${day} ${month}, ${year} at ${hours}:${minutes}`;
   }
 
-  return date.toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-    year: "numeric"
-  });
+  return `${day} ${month}, ${year}`;
 }
 
 /**

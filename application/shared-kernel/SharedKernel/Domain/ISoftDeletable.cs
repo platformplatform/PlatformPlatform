@@ -16,10 +16,10 @@ public interface ISoftDeletable
 
     /// <summary>
     ///     When true, the soft delete interceptor will not convert the delete to a soft delete,
-    ///     allowing the entity to be permanently removed from the database.
+    ///     allowing the entity to be permanently removed (purged) from the database.
     /// </summary>
     [NotMapped]
-    bool ForceHardDelete { get; }
+    bool ForcePurge { get; }
 
     /// <summary>
     ///     Marks the entity as deleted by setting the DeletedAt timestamp.
@@ -32,7 +32,7 @@ public interface ISoftDeletable
     void Restore();
 
     /// <summary>
-    ///     Marks the entity for permanent deletion, bypassing the soft delete interceptor.
+    ///     Marks the entity for permanent deletion (purge), bypassing the soft delete interceptor.
     /// </summary>
-    void MarkForHardDelete();
+    void MarkForPurge();
 }

@@ -28,7 +28,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task DeleteUser_WhenUserExists_ShouldDeleteUser()
+    public async Task DeleteUser_WhenUserExists_ShouldSoftDeleteUser()
     {
         // Arrange
         var userId = UserId.NewId();
@@ -37,6 +37,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("Id", userId.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
+                ("DeletedAt", null),
                 ("Email", Faker.Internet.UniqueEmail()),
                 ("FirstName", Faker.Person.FirstName),
                 ("LastName", Faker.Person.LastName),
@@ -53,7 +54,9 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
+        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
@@ -70,7 +73,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task DeleteUser_WhenUserHasLoginHistory_ShouldDeleteUserAndLogins()
+    public async Task DeleteUser_WhenUserHasLoginHistory_ShouldSoftDeleteUserAndKeepLogins()
     {
         // Arrange
         var userId = UserId.NewId();
@@ -79,6 +82,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("Id", userId.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
+                ("DeletedAt", null),
                 ("Email", Faker.Internet.UniqueEmail()),
                 ("FirstName", Faker.Person.FirstName),
                 ("LastName", Faker.Person.LastName),
@@ -90,7 +94,6 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
             ]
         );
 
-        // Create a login record for the user
         var emailConfirmationId = EmailConfirmationId.NewId();
         var loginId = LoginId.NewId();
         Connection.Insert("Logins", [
@@ -109,7 +112,43 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
+        Connection.RowExists("Logins", loginId.ToString()).Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DeleteUser_WhenUserNeverConfirmedEmail_ShouldPermanentlyDeleteUser()
+    {
+        // Arrange
+        var userId = UserId.NewId();
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", userId.ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("ModifiedAt", null),
+                ("DeletedAt", null),
+                ("Email", Faker.Internet.UniqueEmail()),
+                ("FirstName", null),
+                ("LastName", null),
+                ("Title", null),
+                ("Role", nameof(UserRole.Member)),
+                ("EmailConfirmed", false),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account-management/users/{userId}");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
-        Connection.RowExists("Logins", loginId.ToString()).Should().BeFalse();
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserPurged");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.reason"].Should().Be(nameof(UserPurgeReason.NeverActivated));
     }
 }

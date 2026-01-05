@@ -187,7 +187,8 @@ public static class SharedDependencyConfiguration
                     .FromAssemblies(assemblies)
                     .AddClasses(classes => classes.Where(type =>
                             type.BaseType is { IsGenericType: true } &&
-                            type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>)
+                            (type.BaseType.GetGenericTypeDefinition() == typeof(RepositoryBase<,>) ||
+                             type.BaseType.GetGenericTypeDefinition() == typeof(SoftDeletableRepositoryBase<,>))
                         ), false
                     )
                     .AsImplementedInterfaces()

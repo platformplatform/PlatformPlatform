@@ -49,7 +49,13 @@ public sealed class InviteUserHandler(
 
         if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
         {
-            return Result.BadRequest($"The user with '{command.Email}' already exists.");
+            var deletedUser = await userRepository.GetDeletedUserByEmailAsync(command.Email, cancellationToken);
+            if (deletedUser is not null)
+            {
+                return Result.BadRequest($"The user '{command.Email}' was previously deleted. Please restore or permanently delete the user before inviting again.");
+            }
+
+            return Result.BadRequest($"The user '{command.Email}' already exists.");
         }
 
         var result = await mediator.Send(

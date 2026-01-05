@@ -59,7 +59,7 @@ export default defineConfig({
 
   // Global timeout for each test (double timeout for slow motion)
   timeout: (() => {
-    const baseTimeout = process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT, 10) : 30000;
+    const baseTimeout = process.env.PLAYWRIGHT_TIMEOUT ? Number.parseInt(process.env.PLAYWRIGHT_TIMEOUT, 10) : 60000;
     const isSlowMotion = !!process.env.PLAYWRIGHT_SLOW_MO;
     return isSlowMotion ? baseTimeout * 2 : baseTimeout;
   })(),

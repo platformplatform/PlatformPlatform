@@ -49,12 +49,12 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     }
 
     /// <summary>
-    ///     Permanently removes an entity from the database, bypassing soft delete.
+    ///     Permanently removes (purges) an entity from the database, bypassing soft delete.
     /// </summary>
     public void PermanentlyRemove(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
-        aggregate.MarkForHardDelete();
+        aggregate.MarkForPurge();
         Remove(aggregate);
     }
 
@@ -72,13 +72,13 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     }
 
     /// <summary>
-    ///     Permanently removes multiple entities from the database.
+    ///     Permanently removes (purges) multiple entities from the database.
     /// </summary>
     public void PermanentlyRemoveRange(T[] aggregates)
     {
         foreach (var aggregate in aggregates)
         {
-            aggregate.MarkForHardDelete();
+            aggregate.MarkForPurge();
         }
 
         RemoveRange(aggregates);

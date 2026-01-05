@@ -1,5 +1,17 @@
 import { expect } from "@playwright/test";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type { Tenant, User } from "@shared/e2e/types/auth";
+
+/**
+ * Read and parse platform settings from shared-kernel
+ */
+function getPlatformSettings(): { identity: { internalEmailDomain: string } } {
+  const settingsPath = path.resolve(__dirname, "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc");
+  const content = fs.readFileSync(settingsPath, "utf-8");
+  const jsonWithoutComments = content.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  return JSON.parse(jsonWithoutComments);
+}
 
 /**
  * Create a tenant with owner, admin, and member users
@@ -15,10 +27,14 @@ export function createTenantWithUsers(workerIndex: number, selfContainedSystemPr
 
   const tenantName = `${prefix}e2e-tenant-${workerIndex}-${timestamp}`;
 
+  // Back-office requires internal user email domain (read dynamically from platform-settings.jsonc)
+  const internalDomain = getPlatformSettings().identity.internalEmailDomain.replace("@", "");
+  const emailDomain = selfContainedSystemPrefix === "back-office" ? internalDomain : `${workerIndex}.${timestamp}.local`;
+
   // Generate unique emails for each role with timestamp to avoid conflicts across test runs
-  const ownerEmailAddress = `e2e-${prefix}-owner@${workerIndex}.${timestamp}.local`;
-  const adminEmailAddress = `e2e-${prefix}-admin@${workerIndex}.${timestamp}.local`;
-  const memberEmailAddress = `e2e-${prefix}-member@${workerIndex}.${timestamp}.local`;
+  const ownerEmailAddress = `e2e-${prefix}-owner-${workerIndex}-${timestamp}@${emailDomain}`;
+  const adminEmailAddress = `e2e-${prefix}-admin-${workerIndex}-${timestamp}@${emailDomain}`;
+  const memberEmailAddress = `e2e-${prefix}-member-${workerIndex}-${timestamp}@${emailDomain}`;
 
   // Create User objects for each role
   const owner: User = {

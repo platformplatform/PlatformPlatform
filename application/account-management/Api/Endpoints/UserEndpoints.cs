@@ -46,6 +46,26 @@ public sealed class UserEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        group.MapGet("/deleted", async Task<ApiResult<DeletedUsersResponse>> ([AsParameters] GetDeletedUsersQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<DeletedUsersResponse>();
+
+        group.MapPost("/{id}/restore", async Task<ApiResult> (UserId id, IMediator mediator)
+            => await mediator.Send(new RestoreUserCommand(id))
+        );
+
+        group.MapDelete("/{id}/purge", async Task<ApiResult> (UserId id, IMediator mediator)
+            => await mediator.Send(new PurgeUserCommand(id))
+        );
+
+        group.MapPost("/deleted/bulk-purge", async Task<ApiResult> (BulkPurgeUsersCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
+        group.MapPost("/deleted/empty-recycle-bin", async Task<ApiResult<int>> (IMediator mediator)
+            => await mediator.Send(new EmptyRecycleBinCommand())
+        ).Produces<int>();
+
         // The following endpoints are for the current user only
         group.MapGet("/me", async Task<ApiResult<CurrentUserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
             => await mediator.Send(query)

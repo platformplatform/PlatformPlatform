@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
 import { UserProfileSidePane } from "./-components/UserProfileSidePane";
 import { UserTable } from "./-components/UserTable";
+import { UserTabNavigation } from "./-components/UserTabNavigation";
 import { UserToolbar } from "./-components/UserToolbar";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -34,22 +36,23 @@ export const Route = createFileRoute("/admin/users/")({
 });
 
 export default function UsersPage() {
+  const userInfo = useUserInfo();
   const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
   const [profileUser, setProfileUser] = useState<UserDetails | null>(null);
   const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
   const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [tableUsers, setTableUsers] = useState<UserDetails[]>([]);
+
   const navigate = useNavigate({ from: Route.fullPath });
   const { userId } = Route.useSearch();
+
+  const canSeeDeletedUsers = userInfo?.role === "Owner" || userInfo?.role === "Admin";
 
   const handleCloseProfile = () => {
     setProfileUser(null);
     navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
 
-    // On both mobile and desktop, maintain selection when closing side pane
-    // This allows for continuous keyboard navigation
-    // Also restore focus to the selected row to enable keyboard navigation
     if (selectedUsers.length === 1) {
       setTimeout(() => {
         const selectedRow = document.querySelector(`[data-key="${selectedUsers[0].id}"]`);
@@ -104,7 +107,6 @@ export default function UsersPage() {
 
   const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
 
-  // Check if the side pane data is different from table data
   const tableUser = profileUser ? tableUsers.find((u) => u.id === profileUser.id) : null;
   const isDataNewer = !!(
     userData &&
@@ -114,23 +116,28 @@ export default function UsersPage() {
     new Date(userData.modifiedAt).getTime() !== new Date(tableUser.modifiedAt).getTime()
   );
 
+  const getSidePane = () => {
+    if (profileUser) {
+      return (
+        <UserProfileSidePane
+          user={profileUser}
+          isOpen={!!profileUser}
+          onClose={handleCloseProfile}
+          onDeleteUser={handleDeleteUser}
+          isUserInCurrentView={isUserInCurrentView}
+          isDataNewer={isDataNewer}
+          isLoading={isLoadingUser || !!(userId && profileUser.id !== userId)}
+        />
+      );
+    }
+    return undefined;
+  };
+
   return (
     <>
       <FederatedSideMenu currentSystem="account-management" />
       <AppLayout
-        sidePane={
-          profileUser ? (
-            <UserProfileSidePane
-              user={profileUser}
-              isOpen={!!profileUser}
-              onClose={handleCloseProfile}
-              onDeleteUser={handleDeleteUser}
-              isUserInCurrentView={isUserInCurrentView}
-              isDataNewer={isDataNewer}
-              isLoading={isLoadingUser || !!(userId && profileUser.id !== userId)}
-            />
-          ) : undefined
-        }
+        sidePane={getSidePane()}
         topMenu={
           <TopMenu>
             <Breadcrumb href="/admin/users">
@@ -145,19 +152,22 @@ export default function UsersPage() {
         subtitle={t`Manage your users and permissions here.`}
         scrollAwayHeader={true}
       >
-        <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
-          <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
-        </div>
         <div className="flex min-h-0 flex-1 flex-col">
-          <UserTable
-            selectedUsers={selectedUsers}
-            onSelectedUsersChange={setSelectedUsers}
-            onViewProfile={handleViewProfile}
-            onDeleteUser={handleDeleteUser}
-            onChangeRole={handleChangeRole}
-            onUsersLoaded={handleUsersLoaded}
-            isProfileOpen={!!profileUser}
-          />
+          {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
+          <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
+            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+          </div>
+          <div className="flex min-h-0 flex-1 flex-col">
+            <UserTable
+              selectedUsers={selectedUsers}
+              onSelectedUsersChange={setSelectedUsers}
+              onViewProfile={handleViewProfile}
+              onDeleteUser={handleDeleteUser}
+              onChangeRole={handleChangeRole}
+              onUsersLoaded={handleUsersLoaded}
+              isProfileOpen={!!profileUser}
+            />
+          </div>
         </div>
       </AppLayout>
 

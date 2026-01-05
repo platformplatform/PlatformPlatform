@@ -1,12 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
@@ -150,5 +153,48 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
 
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
         await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task StartLogin_WhenUserIsSoftDeleted_ShouldReturnFakeLoginIdAndSendUnknownUserEmail()
+    {
+        // Arrange
+        var email = Faker.Internet.UniqueEmail();
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", UserId.NewId().ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-30)),
+                ("ModifiedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("DeletedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("Email", email.ToLower()),
+                ("FirstName", Faker.Person.FirstName),
+                ("LastName", Faker.Person.LastName),
+                ("Title", "Former Employee"),
+                ("Role", nameof(UserRole.Member)),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US")
+            ]
+        );
+
+        var command = new StartLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.DeserializeResponse<StartLoginResponse>();
+        responseBody.Should().NotBeNull();
+        responseBody.ValidForSeconds.Should().Be(300);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+
+        await EmailClient.Received(1).SendAsync(
+            email.ToLower(),
+            "Unknown user tried to login to PlatformPlatform",
+            Arg.Is<string>(s => s.Contains("You or someone else tried to login to PlatformPlatform")),
+            Arg.Any<CancellationToken>()
+        );
     }
 }

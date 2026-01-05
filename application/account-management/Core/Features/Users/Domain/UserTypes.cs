@@ -28,3 +28,12 @@ public enum SortableUserProperties
     Email,
     Role
 }
+
+[PublicAPI]
+public enum UserPurgeReason
+{
+    SingleUserPurge,
+    BulkUserPurge,
+    RecycleBinPurge,
+    NeverActivated
+}

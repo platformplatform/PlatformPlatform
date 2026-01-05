@@ -49,11 +49,25 @@ public sealed class BulkDeleteUsersHandler(
             return Result.NotFound($"Users with ids '{string.Join(", ", missingUserIds.Select(id => id.ToString()))}' not found.");
         }
 
-        userRepository.RemoveRange(usersToDelete);
+        var usersToSoftDelete = usersToDelete.Where(u => u.EmailConfirmed).ToArray();
+        var usersToHardDelete = usersToDelete.Where(u => !u.EmailConfirmed).ToArray();
 
-        foreach (var userId in command.UserIds)
+        if (usersToSoftDelete.Length > 0)
         {
-            events.CollectEvent(new UserDeleted(userId, true));
+            userRepository.RemoveRange(usersToSoftDelete);
+            foreach (var user in usersToSoftDelete)
+            {
+                events.CollectEvent(new UserDeleted(user.Id, true));
+            }
+        }
+
+        if (usersToHardDelete.Length > 0)
+        {
+            userRepository.PermanentlyRemoveRange(usersToHardDelete);
+            foreach (var user in usersToHardDelete)
+            {
+                events.CollectEvent(new UserPurged(user.Id, UserPurgeReason.NeverActivated));
+            }
         }
 
         events.CollectEvent(new UsersBulkDeleted(command.UserIds.Length));
