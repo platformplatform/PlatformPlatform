@@ -12,7 +12,7 @@ import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -59,11 +59,7 @@ export const Route = createFileRoute("/login/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: (props) => (
-    <HorizontalHeroLayout>
-      <ErrorMessage {...props} />
-    </HorizontalHeroLayout>
-  )
+  errorComponent: FederatedErrorPage
 });
 
 function useCountdown(expireAt: Date) {

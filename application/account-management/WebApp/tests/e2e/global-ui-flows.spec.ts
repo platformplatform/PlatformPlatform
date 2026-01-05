@@ -182,14 +182,20 @@ test.describe("@comprehensive", () => {
   });
 
   /**
-   * Tests theme persistence across logout and login cycles.
-   * Verifies that user theme preferences are maintained when logging out and back in.
+   * Tests theme persistence across logout/login cycles, 404 page, and error page functionality.
+   * Covers:
+   * - Theme persistence across logout and login cycles
+   * - 404 page displays for non-existent routes
+   * - Error page can be triggered via Konami code
+   * - Error details can be shown/hidden
+   * - Navigation from error pages back to the app
    */
-  test("Change theme to dark, logout and login back & verify theme persists", async ({ anonymousPage }) => {
+  test("should handle theme persistence, 404 page, and error page via Konami code", async ({ anonymousPage }) => {
     const { page, tenant } = anonymousPage;
     const existingUser = tenant.owner;
     const context = createTestContext(page);
 
+    // === THEME PERSISTENCE ===
     await step("Log in as owner & verify navigation to admin")(async () => {
       await page.goto("/login");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -264,6 +270,55 @@ test.describe("@comprehensive", () => {
 
       // Dark theme should persist after login
       await expect(page.locator("html")).toHaveClass("dark");
+    })();
+
+    // === 404 PAGE ===
+    await step("Navigate to non-existent admin route & verify 404 page displays")(async () => {
+      await page.goto("/admin/does-not-exist");
+
+      await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+      await expect(page.getByText("The page you are looking for does not exist or has been moved.")).toBeVisible();
+      await expect(page.getByRole("link", { name: "Go to home" })).toBeVisible();
+    })();
+
+    await step("Click Go to home button on 404 page & verify navigation to home")(async () => {
+      await page.getByRole("link", { name: "Go to home" }).click();
+
+      await expect(page).toHaveURL("/");
+    })();
+
+    // === ERROR PAGE VIA KONAMI CODE ===
+    await step("Navigate to admin dashboard & enter Konami code to trigger error page")(async () => {
+      await page.goto("/admin");
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+
+      await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("ArrowLeft");
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("ArrowLeft");
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("b");
+      await page.keyboard.press("a");
+
+      await expect(page.getByRole("heading", { name: "Something went wrong" })).toBeVisible();
+      await expect(page.getByText("We encountered an unexpected error while processing your request.")).toBeVisible();
+    })();
+
+    await step("Click Show details button & verify error message is displayed")(async () => {
+      await page.getByRole("button", { name: "Show details" }).click();
+
+      await expect(page.getByText("Error triggered via Konami code.", { exact: true })).toBeVisible();
+    })();
+
+    await step("Click Try again button & verify error page resets to admin dashboard")(async () => {
+      context.monitoring.consoleMessages = [];
+
+      await page.getByRole("button", { name: "Try again" }).click();
+
+      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
   });
 });

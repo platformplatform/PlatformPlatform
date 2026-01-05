@@ -1,8 +1,7 @@
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
-import { ErrorPage } from "@repo/infrastructure/errorComponents/ErrorPage";
-import { NotFound } from "@repo/infrastructure/errorComponents/NotFoundPage";
+import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
@@ -12,18 +11,20 @@ import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { lazy } from "react";
 import { queryClient } from "@/shared/lib/api/client";
 
-// biome-ignore lint/suspicious/noExplicitAny: Federated module import from account-management where type is not known
-const FederatedAuthSyncModal = lazy(() => import("account-management/AuthSyncModal" as any));
+const FederatedAuthSyncModal = lazy(() => import("account-management/AuthSyncModal"));
+const FederatedErrorPage = lazy(() => import("account-management/FederatedErrorPage"));
+const FederatedNotFoundPage = lazy(() => import("account-management/FederatedNotFoundPage"));
 
 export const Route = createRootRoute({
   component: Root,
-  errorComponent: ErrorPage,
-  notFoundComponent: NotFound
+  errorComponent: FederatedErrorPage,
+  notFoundComponent: FederatedNotFoundPage
 });
 
 function Root() {
   const navigate = useNavigate();
   useInitializeLocale();
+  useErrorTrigger();
 
   return (
     <QueryClientProvider client={queryClient}>

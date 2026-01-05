@@ -12,7 +12,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useState } from "react";
-import { ErrorMessage } from "@/shared/components/ErrorMessage";
+import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -34,11 +34,7 @@ export const Route = createFileRoute("/signup/")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: (props) => (
-    <HorizontalHeroLayout>
-      <ErrorMessage {...props} />
-    </HorizontalHeroLayout>
-  )
+  errorComponent: FederatedErrorPage
 });
 
 export function StartSignupForm() {
