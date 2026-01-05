@@ -6,7 +6,6 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
 import { Radio, RadioGroup } from "@repo/ui/components/RadioGroup";
 import { Text } from "@repo/ui/components/Text";
 import { toastQueue } from "@repo/ui/components/Toast";
@@ -14,6 +13,7 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 import { useState } from "react";
+import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -27,6 +27,8 @@ interface ChangeUserRoleDialogProps {
 export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
   const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+
+  const hasUnsavedChanges = selectedRole !== null && selectedRole !== user?.role;
 
   const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role", {
     onSuccess: () => {
@@ -47,6 +49,14 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     }
   });
 
+  const handleCloseComplete = () => {
+    setSelectedRole(null);
+  };
+
+  const handleClose = () => {
+    onOpenChange(false);
+  };
+
   if (!user) {
     return null;
   }
@@ -64,19 +74,21 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     });
   };
 
-  const handleOpenChange = (open: boolean) => {
-    if (!open) {
-      setSelectedRole(null);
-    }
-    onOpenChange(open);
-  };
-
   return (
-    <Modal isOpen={isOpen} onOpenChange={handleOpenChange} isDismissable={!changeUserRoleMutation.isPending}>
+    <DirtyModal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={hasUnsavedChanges}
+      isDismissable={!changeUserRoleMutation.isPending}
+      onCloseComplete={handleCloseComplete}
+    >
       <Dialog className="sm:w-dialog-lg">
-        {({ close }) => (
+        {() => (
           <>
-            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
+            <XIcon
+              onClick={handleClose}
+              className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
+            />
             <DialogHeader>
               <Heading slot="title" className="text-2xl">
                 <Trans>Change user role</Trans>
@@ -151,7 +163,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
               <DialogFooter>
                 <Button
                   type="reset"
-                  onPress={() => handleOpenChange(false)}
+                  onPress={handleClose}
                   variant="secondary"
                   isDisabled={changeUserRoleMutation.isPending}
                 >
@@ -165,6 +177,6 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
           </>
         )}
       </Dialog>
-    </Modal>
+    </DirtyModal>
   );
 }

@@ -5,12 +5,12 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Form } from "@repo/ui/components/Form";
 import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { XIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
@@ -19,10 +19,20 @@ interface InviteUserDialogProps {
 }
 
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite");
+
+  const handleCloseComplete = () => {
+    setIsFormDirty(false);
+  };
+
+  const handleClose = () => {
+    onOpenChange(false);
+  };
 
   useEffect(() => {
     if (inviteUserMutation.isSuccess) {
+      setIsFormDirty(false);
       toastQueue.add({
         title: t`Success`,
         description: t`User invited successfully`,
@@ -33,12 +43,15 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
   }, [inviteUserMutation.isSuccess, onOpenChange]);
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={true}>
+    <DirtyModal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={isFormDirty}
+      isDismissable={!inviteUserMutation.isPending}
+      onCloseComplete={handleCloseComplete}
+    >
       <Dialog className="sm:w-dialog-md">
-        <XIcon
-          onClick={() => onOpenChange(false)}
-          className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
-        />
+        <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
         <DialogHeader description={<Trans>An email with login instructions will be sent to the user.</Trans>}>
           <Heading slot="title" className="text-2xl">
             <Trans>Invite user</Trans>
@@ -59,15 +72,11 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
               label={t`Email`}
               placeholder={t`user@email.com`}
               className="flex-grow"
+              onChange={() => setIsFormDirty(true)}
             />
           </DialogContent>
           <DialogFooter>
-            <Button
-              type="reset"
-              onPress={() => onOpenChange(false)}
-              variant="secondary"
-              isDisabled={inviteUserMutation.isPending}
-            >
+            <Button type="reset" onPress={handleClose} variant="secondary" isDisabled={inviteUserMutation.isPending}>
               <Trans>Cancel</Trans>
             </Button>
             <Button type="submit" isDisabled={inviteUserMutation.isPending}>
@@ -76,6 +85,6 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           </DialogFooter>
         </Form>
       </Dialog>
-    </Modal>
+    </DirtyModal>
   );
 }

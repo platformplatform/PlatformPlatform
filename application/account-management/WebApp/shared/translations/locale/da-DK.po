@@ -418,6 +418,9 @@ msgstr "Sprog"
 msgid "Last name"
 msgstr "Efternavn"
 
+msgid "Leave"
+msgstr "Forlad"
+
 msgid "Legal and Compliance"
 msgstr "Juridisk og overholdelse"
 
@@ -666,6 +669,9 @@ msgstr "Noget gik galt"
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
 
+msgid "Stay"
+msgstr "Bliv"
+
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
 
@@ -737,6 +743,9 @@ msgstr "Ukendt tilstand"
 
 msgid "Unnamed account"
 msgstr "Unavngivet konto"
+
+msgid "Unsaved changes"
+msgstr "Ugemte ændringer"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
@@ -835,6 +844,9 @@ msgstr "Du har ikke tilladelse til at tilgå denne side."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You have unsaved changes. If you leave now, your changes will be lost."
+msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."
 
 msgid "You successfully deployed PlatformPlatform! 🎉"
 msgstr "Du har succesfuldt udrullet PlatformPlatform! 🎉"

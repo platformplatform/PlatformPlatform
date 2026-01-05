@@ -322,6 +322,28 @@ export function FederatedMenuButton({
 
   const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
 
+  const handleNavigation = useCallback(() => {
+    if (isDisabled) {
+      return;
+    }
+
+    // Small delay to ensure touch events are fully processed
+    setTimeout(() => {
+      // Auto-close overlay after navigation
+      if (overlayCtx?.isOpen) {
+        overlayCtx.close();
+      }
+
+      if (isCurrentSystem) {
+        // Same system - use TanStack Router navigation to respect blockers
+        router.navigate({ to });
+      } else {
+        // Different system - force reload
+        window.location.href = to;
+      }
+    }, 10);
+  }, [isDisabled, overlayCtx, isCurrentSystem, router, to]);
+
   // For collapsed menu, wrap in TooltipTrigger
   if (isCollapsed) {
     return (
@@ -335,29 +357,7 @@ export function FederatedMenuButton({
             underline={false}
             isDisabled={isDisabled}
             aria-current={isActive ? "page" : undefined}
-            onPress={() => {
-              if (isDisabled) {
-                return;
-              }
-
-              // Small delay to ensure touch events are fully processed
-              setTimeout(() => {
-                // Auto-close overlay after navigation
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-
-                if (isCurrentSystem) {
-                  // Same system - use programmatic navigation
-                  window.history.pushState({}, "", to);
-                  // Dispatch a popstate event using the standard Event constructor
-                  window.dispatchEvent(new Event("popstate"));
-                } else {
-                  // Different system - force reload
-                  window.location.href = to;
-                }
-              }, 10);
-            }}
+            onPress={handleNavigation}
           >
             <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
           </Link>
@@ -380,29 +380,7 @@ export function FederatedMenuButton({
         underline={false}
         isDisabled={isDisabled}
         aria-current={isActive ? "page" : undefined}
-        onPress={() => {
-          if (isDisabled) {
-            return;
-          }
-
-          // Small delay to ensure touch events are fully processed
-          setTimeout(() => {
-            // Auto-close overlay after navigation
-            if (overlayCtx?.isOpen) {
-              overlayCtx.close();
-            }
-
-            if (isCurrentSystem) {
-              // Same system - use programmatic navigation
-              window.history.pushState({}, "", to);
-              // Dispatch a popstate event using the standard Event constructor
-              window.dispatchEvent(new Event("popstate"));
-            } else {
-              // Different system - force reload
-              window.location.href = to;
-            }
-          }, 10);
-        }}
+        onPress={handleNavigation}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
       </Link>
