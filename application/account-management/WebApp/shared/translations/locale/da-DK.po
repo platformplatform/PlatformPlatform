@@ -810,6 +810,9 @@ msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, t
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
 
+msgid "You successfully deployed PlatformPlatform! 🎉"
+msgstr "Du har succesfuldt udrullet PlatformPlatform! 🎉"
+
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"
 
