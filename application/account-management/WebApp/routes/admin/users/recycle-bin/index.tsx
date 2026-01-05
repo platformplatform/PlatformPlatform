@@ -1,10 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import FederatedAccessDeniedPage from "@/federated-modules/errorPages/FederatedAccessDeniedPage";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import type { components } from "@/shared/lib/api/client";
@@ -20,17 +21,14 @@ export const Route = createFileRoute("/admin/users/recycle-bin/")({
 });
 
 export default function DeletedUsersPage() {
-  const userInfo = useUserInfo();
   const [selectedDeletedUsers, setSelectedDeletedUsers] = useState<DeletedUserDetails[]>([]);
   const [usersToDelete, setUsersToDelete] = useState<DeletedUserDetails[]>([]);
   const [isEmptyRecycleBin, setIsEmptyRecycleBin] = useState(false);
   const [totalDeletedUsersCount, setTotalDeletedUsersCount] = useState(0);
   const [pageOffset, setPageOffset] = useState(0);
 
-  const canSeeDeletedUsers = userInfo?.role === "Owner" || userInfo?.role === "Admin";
-
-  if (!canSeeDeletedUsers) {
-    return <Navigate to="/admin/users" />;
+  if (!hasPermission({ allowedRoles: ["Owner", "Admin"] })) {
+    return <FederatedAccessDeniedPage />;
   }
 
   const handlePageChange = (page: number) => {

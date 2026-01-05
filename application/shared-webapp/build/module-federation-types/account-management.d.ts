@@ -9,6 +9,9 @@ declare module "account-management/FederatedTopMenu" {
 declare module "account-management/AuthSyncModal" {
   export default ReactNode;
 }
+declare module "account-management/FederatedAccessDeniedPage" {
+  export default ReactNode;
+}
 declare module "account-management/FederatedErrorPage" {
   export default ReactNode;
 }

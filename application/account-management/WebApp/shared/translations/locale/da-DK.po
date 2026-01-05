@@ -57,6 +57,9 @@ msgstr "Accepter invitation"
 msgid "Accepting..."
 msgstr "Accepterer..."
 
+msgid "Access denied"
+msgstr "Adgang nægtet"
+
 msgid "Account"
 msgstr "Konto"
 
@@ -206,6 +209,9 @@ msgstr "Overholdelse"
 
 msgid "Contact support"
 msgstr "Kontakt support"
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -816,6 +822,9 @@ msgstr "Velkommen til PlatformPlatform"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+msgid "You do not have permission to access this page."
+msgstr "Du har ikke tilladelse til at tilgå denne side."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."

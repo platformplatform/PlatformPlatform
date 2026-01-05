@@ -1,0 +1,129 @@
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { loginPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { Button } from "@repo/ui/components/Button";
+import { Image } from "@repo/ui/components/Image";
+import { Link } from "@repo/ui/components/Link";
+import { Home, LogOut, ShieldX } from "lucide-react";
+import { useContext, useState } from "react";
+import logoMark from "@/shared/images/logo-mark.svg";
+import logoWrap from "@/shared/images/logo-wrap.svg";
+import LocaleSwitcher from "../common/LocaleSwitcher";
+import SupportButton from "../common/SupportButton";
+import ThemeModeSelector from "../common/ThemeModeSelector";
+import "@repo/ui/tailwind.css";
+
+function useAuthInfoSafe() {
+  const context = useContext(AuthenticationContext);
+  const hasContext = context.userInfo !== null;
+  const isAuthenticated = useIsAuthenticated();
+  const userInfo = useUserInfo();
+
+  return {
+    isAuthenticated: hasContext && isAuthenticated,
+    userInfo: hasContext ? userInfo : null
+  };
+}
+
+function AccessDeniedNavigation() {
+  const { isAuthenticated, userInfo } = useAuthInfoSafe();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch("/api/account-management/authentication/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-xsrf-token": import.meta.antiforgeryToken
+        }
+      });
+      if (response.ok) {
+        window.location.href = loginPath;
+      }
+    } catch {
+      window.location.href = loginPath;
+    }
+  };
+
+  return (
+    <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
+      <a href="/" className="flex items-center">
+        <Image
+          className="hidden h-10 sm:block"
+          src={logoWrap}
+          alt="PlatformPlatform Logo"
+          width={280}
+          height={40}
+          priority={true}
+        />
+        <Image
+          className="h-10 sm:hidden"
+          src={logoMark}
+          alt="PlatformPlatform Logo"
+          width={40}
+          height={40}
+          priority={true}
+        />
+      </a>
+
+      <div className="flex items-center gap-6">
+        <span className="flex gap-2">
+          <ThemeModeSelector />
+          <SupportButton />
+          <LocaleSwitcher />
+        </span>
+        {isAuthenticated && userInfo && (
+          <Button variant="outline" onPress={handleLogout} isDisabled={isLoggingOut} aria-label={t`Log out`}>
+            <LogOut size={16} />
+            <span className="hidden sm:inline">
+              <Trans>Log out</Trans>
+            </span>
+          </Button>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+export default function FederatedAccessDeniedPage() {
+  return (
+    <main id="account-management" style={{ minHeight: "100vh" }} className="flex w-full flex-col bg-background">
+      <AccessDeniedNavigation />
+
+      <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
+        <div className="flex max-w-lg flex-col items-center gap-6">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
+            <ShieldX className="h-10 w-10 text-destructive" />
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h1 className="font-bold text-3xl text-foreground">
+              <Trans>Access denied</Trans>
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              <Trans>You do not have permission to access this page.</Trans>
+              <br />
+              <Trans>Contact your administrator if you believe this is a mistake.</Trans>
+            </p>
+          </div>
+
+          <div className="flex justify-center gap-3 pt-2">
+            <Link
+              href="/"
+              variant="button"
+              underline={false}
+              className="h-10 rounded-lg bg-primary px-4 text-primary-foreground hover:bg-primary/95"
+            >
+              <Home size={16} />
+              <Trans>Go to home</Trans>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
