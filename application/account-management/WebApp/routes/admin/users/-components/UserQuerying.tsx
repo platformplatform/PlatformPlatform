@@ -13,7 +13,7 @@ import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
-import { ListFilter, ListFilterPlus, XIcon } from "lucide-react";
+import { Filter, FilterX, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -393,9 +393,9 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           }}
         >
           {showAllFilters ? (
-            <ListFilterPlus size={16} aria-label={t`Clear filters`} />
+            <FilterX size={16} aria-label={t`Clear filters`} />
           ) : (
-            <ListFilter size={16} aria-label={t`Show filters`} />
+            <Filter size={16} aria-label={t`Show filters`} />
           )}
           {activeFilterCount > 0 && !showAllFilters && (
             <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
