@@ -625,9 +625,6 @@ msgstr "Send invitation"
 msgid "Sending verification code..."
 msgstr "Sender bekræftelseskode..."
 
-msgid "Settings"
-msgstr "Indstillinger"
-
 msgid "Show filters"
 msgstr "Vis filtre"
 
