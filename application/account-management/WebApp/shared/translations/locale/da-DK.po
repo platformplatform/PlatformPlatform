@@ -306,7 +306,7 @@ msgid "Email"
 msgstr "E-mail"
 
 msgid "Empty recycle bin"
-msgstr "Tom papirkurv"
+msgstr "Tøm papirkurv"
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
