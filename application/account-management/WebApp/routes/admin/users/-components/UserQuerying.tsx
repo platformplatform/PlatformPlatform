@@ -88,8 +88,15 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
   );
 
   useEffect(() => {
-    updateFilter({ search: debouncedSearch || undefined }, true);
-  }, [debouncedSearch, updateFilter]);
+    navigate({
+      to: "/admin/users",
+      search: (prev) => ({
+        ...prev,
+        search: debouncedSearch || undefined,
+        pageOffset: undefined
+      })
+    });
+  }, [debouncedSearch, navigate]);
 
   // Count active filters for badge
   const getActiveFilterCount = () => {
