@@ -295,11 +295,8 @@ export function AccountSettings() {
         variant="center"
         topMenu={
           <TopMenu>
-            <Breadcrumb href="/admin/account">
-              <Trans>Account</Trans>
-            </Breadcrumb>
             <Breadcrumb>
-              <Trans>Settings</Trans>
+              <Trans>Account settings</Trans>
             </Breadcrumb>
           </TopMenu>
         }

@@ -306,7 +306,7 @@ msgid "Email"
 msgstr "E-mail"
 
 msgid "Empty recycle bin"
-msgstr "Tom papirkurv"
+msgstr "Tøm papirkurv"
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
@@ -625,9 +625,6 @@ msgstr "Send invitation"
 msgid "Sending verification code..."
 msgstr "Sender bekræftelseskode..."
 
-msgid "Settings"
-msgstr "Indstillinger"
-
 msgid "Show filters"
 msgstr "Vis filtre"
 
@@ -809,6 +806,9 @@ msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, t
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You successfully deployed PlatformPlatform! 🎉"
+msgstr "Du har succesfuldt udrullet PlatformPlatform! 🎉"
 
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"

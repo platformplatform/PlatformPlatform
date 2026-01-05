@@ -625,9 +625,6 @@ msgstr "Send invite"
 msgid "Sending verification code..."
 msgstr "Sending verification code..."
 
-msgid "Settings"
-msgstr "Settings"
-
 msgid "Show filters"
 msgstr "Show filters"
 
@@ -809,6 +806,9 @@ msgstr "When you accept this invitation, your profile information (name, title, 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
+
+msgid "You successfully deployed PlatformPlatform! 🎉"
+msgstr "You successfully deployed PlatformPlatform! 🎉"
 
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "You successfully installed PlatformPlatform! 🎉"
