@@ -1,6 +1,7 @@
 import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
+import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { ReactAriaRouterProvider } from "@repo/infrastructure/router/ReactAriaRouterProvider";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
@@ -21,6 +22,7 @@ export const Route = createRootRoute({
 function Root() {
   const navigate = useNavigate();
   useInitializeLocale();
+  useErrorTrigger();
 
   return (
     <QueryClientProvider client={queryClient}>
