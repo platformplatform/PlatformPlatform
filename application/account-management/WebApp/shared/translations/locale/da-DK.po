@@ -57,6 +57,9 @@ msgstr "Accepter invitation"
 msgid "Accepting..."
 msgstr "Accepterer..."
 
+msgid "Access denied"
+msgstr "Adgang nægtet"
+
 msgid "Account"
 msgstr "Konto"
 
@@ -104,6 +107,9 @@ msgstr "Alle brugere"
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
+
+msgid "An unexpected error occurred while processing your request."
+msgstr "Der opstod en uventet fejl ved behandlingen."
 
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
@@ -206,6 +212,9 @@ msgstr "Overholdelse"
 
 msgid "Contact support"
 msgstr "Kontakt support"
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
 msgid "Continue"
 msgstr "Fortsæt"
@@ -530,6 +539,9 @@ msgstr "Slet brugere permanent"
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
 
+msgid "Please check the URL or return to the home page."
+msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
@@ -538,6 +550,9 @@ msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
 msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
+
+msgid "Please try again or return to the home page."
+msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
 msgid "Powered by"
 msgstr "Powered by"
@@ -678,8 +693,8 @@ msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
 
-msgid "The page you are looking for does not exist or has been moved. Please check the URL or return to the home page."
-msgstr "Siden du leder efter eksisterer ikke eller er blevet flyttet. Tjek venligst URL'en eller vend tilbage til forsiden."
+msgid "The page you are looking for does not exist or was moved."
+msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 
 msgid "Theme"
 msgstr "Tema"
@@ -801,9 +816,6 @@ msgstr "Se profil"
 msgid "View users"
 msgstr "Se brugere"
 
-msgid "We encountered an unexpected error while processing your request. Please try again or return to the home page."
-msgstr "Vi stødte på en uventet fejl under behandlingen af din anmodning. Prøv venligst igen eller vend tilbage til forsiden."
-
 msgid "Welcome home"
 msgstr "Velkommen hjem"
 
@@ -816,6 +828,9 @@ msgstr "Velkommen til PlatformPlatform"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+msgid "You do not have permission to access this page."
+msgstr "Du har ikke tilladelse til at tilgå denne side."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."

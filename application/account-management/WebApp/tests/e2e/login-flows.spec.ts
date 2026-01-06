@@ -1,11 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import {
-  blurActiveElement,
-  createTestContext,
-  expectNetworkErrors,
-  expectToastMessage
-} from "@shared/e2e/utils/test-assertions";
+import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -71,16 +66,14 @@ test.describe("@smoke", () => {
     })();
 
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
-      // Try accessing users page
+      // Try accessing users page - route guard redirects client-side without API call
       await page.goto("/admin/users");
       // TanStack Router adds default search params, so check that the URL starts with the expected path
       await expect(page).toHaveURL(/\/login\?returnPath=%2Fadmin%2Fusers/);
-      await expectNetworkErrors(context, [401]);
 
       // Try accessing admin dashboard
       await page.goto("/admin");
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
-      await expectNetworkErrors(context, [401]);
     })();
 
     // === SECURITY EDGE CASES ===

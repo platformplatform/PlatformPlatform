@@ -57,6 +57,9 @@ msgstr "Accept invitation"
 msgid "Accepting..."
 msgstr "Accepting..."
 
+msgid "Access denied"
+msgstr "Access denied"
+
 msgid "Account"
 msgstr "Account"
 
@@ -104,6 +107,9 @@ msgstr "All users"
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "An email with login instructions will be sent to the user."
+
+msgid "An unexpected error occurred while processing your request."
+msgstr "An unexpected error occurred while processing your request."
 
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "An unexpected state occurred. Please reload the page."
@@ -206,6 +212,9 @@ msgstr "Compliance"
 
 msgid "Contact support"
 msgstr "Contact support"
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Contact your administrator if you believe this is a mistake."
 
 msgid "Continue"
 msgstr "Continue"
@@ -530,6 +539,9 @@ msgstr "Permanently delete users"
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
 
+msgid "Please check the URL or return to the home page."
+msgstr "Please check the URL or return to the home page."
+
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
@@ -538,6 +550,9 @@ msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
 msgid "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
+
+msgid "Please try again or return to the home page."
+msgstr "Please try again or return to the home page."
 
 msgid "Powered by"
 msgstr "Powered by"
@@ -678,8 +693,8 @@ msgstr "The agreement governing your use of our Service, including acceptable us
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
 
-msgid "The page you are looking for does not exist or has been moved. Please check the URL or return to the home page."
-msgstr "The page you are looking for does not exist or has been moved. Please check the URL or return to the home page."
+msgid "The page you are looking for does not exist or was moved."
+msgstr "The page you are looking for does not exist or was moved."
 
 msgid "Theme"
 msgstr "Theme"
@@ -801,9 +816,6 @@ msgstr "View profile"
 msgid "View users"
 msgstr "View users"
 
-msgid "We encountered an unexpected error while processing your request. Please try again or return to the home page."
-msgstr "We encountered an unexpected error while processing your request. Please try again or return to the home page."
-
 msgid "Welcome home"
 msgstr "Welcome home"
 
@@ -816,6 +828,9 @@ msgstr "Welcome to PlatformPlatform"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
+
+msgid "You do not have permission to access this page."
+msgstr "You do not have permission to access this page."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."

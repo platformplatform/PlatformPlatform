@@ -1,8 +1,32 @@
 import { faker } from "@faker-js/faker";
 import type { Page } from "@playwright/test";
+import * as fs from "node:fs";
+import * as path from "node:path";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
 import { expectToastMessage } from "./test-assertions";
+
+/**
+ * Read platform settings from the shared-kernel JSONC file.
+ * This ensures tests use the same configuration as the application.
+ */
+function readPlatformSettings(): { identity: { internalEmailDomain: string } } {
+  const settingsPath = path.resolve(__dirname, "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc");
+  const content = fs.readFileSync(settingsPath, "utf-8");
+  const jsonWithoutComments = content.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  return JSON.parse(jsonWithoutComments);
+}
+
+const platformSettings = readPlatformSettings();
+
+/**
+ * Get the internal email domain from platform settings.
+ * Internal users have access to back-office features.
+ * @returns Internal email domain suffix (e.g., "@platformplatform.net")
+ */
+export function getInternalEmailDomain(): string {
+  return platformSettings.identity.internalEmailDomain;
+}
 
 /**
  * Generate a unique email with timestamp to ensure uniqueness
@@ -14,6 +38,19 @@ export function uniqueEmail(): string {
 
   const username = faker.internet.username().toLowerCase();
   return `${username}@${timestamp}.local`;
+}
+
+/**
+ * Generate a unique internal user email with the platform's internal domain.
+ * Internal users have access to back-office features.
+ * @returns Unique internal email address (e.g., "john.doe@platformplatform.net")
+ */
+export function internalUserEmail(): string {
+  const first = firstName().toLowerCase();
+  const last = lastName().toLowerCase();
+  const timestamp = new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "");
+  const domain = getInternalEmailDomain().replace("@", "");
+  return `${first}.${last}.${timestamp}@${domain}`;
 }
 
 /**

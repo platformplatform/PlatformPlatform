@@ -6,9 +6,8 @@ import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks
 import { Button } from "@repo/ui/components/Button";
 import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
-import type { ErrorComponentProps } from "@tanstack/react-router";
-import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { Home, LogOut, ShieldX } from "lucide-react";
+import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 import LocaleSwitcher from "../common/LocaleSwitcher";
@@ -28,7 +27,7 @@ function useAuthInfoSafe() {
   };
 }
 
-function ErrorNavigation() {
+function AccessDeniedNavigation() {
   const { isAuthenticated, userInfo } = useAuthInfoSafe();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -90,71 +89,39 @@ function ErrorNavigation() {
   );
 }
 
-export default function FederatedErrorPage({ error, reset }: Readonly<ErrorComponentProps>) {
-  const [showDetails, setShowDetails] = useState(false);
-
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+export default function FederatedAccessDeniedPage() {
   return (
     <main id="account-management" style={{ minHeight: "100vh" }} className="flex w-full flex-col bg-background">
-      <ErrorNavigation />
+      <AccessDeniedNavigation />
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex max-w-lg flex-col items-center gap-6">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
+            <ShieldX className="h-10 w-10 text-destructive" />
           </div>
 
           <div className="flex flex-col gap-3">
             <h1 className="font-bold text-3xl text-foreground">
-              <Trans>Something went wrong</Trans>
+              <Trans>Access denied</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
-              <Trans>An unexpected error occurred while processing your request.</Trans>
+              <Trans>You do not have permission to access this page.</Trans>
               <br />
-              <Trans>Please try again or return to the home page.</Trans>
+              <Trans>Contact your administrator if you believe this is a mistake.</Trans>
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Button variant="primary" onPress={reset}>
-              <RefreshCw size={16} />
-              <Trans>Try again</Trans>
-            </Button>
+          <div className="flex justify-center gap-3 pt-2">
             <Link
               href="/"
               variant="button"
               underline={false}
-              className="h-10 rounded-lg border border-border px-4 text-foreground hover:bg-hover-background"
+              className="h-10 rounded-lg bg-primary px-4 text-primary-foreground hover:bg-primary/95"
             >
               <Home size={16} />
               <Trans>Go to home</Trans>
             </Link>
           </div>
-
-          {error?.message && (
-            <div className="mt-4 w-full">
-              <Button
-                variant="ghost"
-                onPress={() => setShowDetails(!showDetails)}
-                className="text-muted-foreground text-sm"
-              >
-                {showDetails ? <Trans>Hide details</Trans> : <Trans>Show details</Trans>}
-              </Button>
-              {showDetails && (
-                <div className="mt-3 rounded-lg border border-border bg-muted/50 p-4 text-left">
-                  <p className="break-all font-mono text-muted-foreground text-sm">{error.message}</p>
-                  {error.stack && (
-                    <pre className="mt-2 max-h-40 overflow-auto font-mono text-muted-foreground text-xs">
-                      {error.stack}
-                    </pre>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </main>

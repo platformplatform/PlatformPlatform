@@ -345,11 +345,23 @@ test.describe("@smoke", () => {
     })();
 
     // === MEMBER PERMISSION CHECK SECTION ===
-    await step("Login as member user & complete profile setup")(async () => {
+    await step("Login as member user & verify access denied on recycle-bin")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
       await page.keyboard.type(getVerificationCode());
+
+      // Member lands on recycle-bin but sees access denied (requires Owner/Admin role)
+      await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
+      await expect(page.getByText("You do not have permission to access this page.")).toBeVisible();
+    })();
+
+    await step("Navigate to users page & complete profile setup")(async () => {
+      // Navigate to users page where member has access and profile dialog appears
+      await page.getByRole("link", { name: "Go to home" }).click();
+      await expect(page).toHaveURL("/");
+
+      await page.goto("/admin/users");
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "First name" })).toBeVisible();
@@ -360,9 +372,8 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
-    })();
 
-    await step("Navigate as member & verify redirect to All users without Recycle bin tab")(async () => {
+      // Verify member sees Users page without Recycle bin tab
       await expect(page).toHaveURL("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.getByRole("link", { name: "All users" })).toBeVisible();

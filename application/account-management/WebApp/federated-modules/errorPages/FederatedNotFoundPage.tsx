@@ -105,10 +105,9 @@ export default function FederatedNotFoundPage() {
               <Trans>Page not found</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
-              <Trans>
-                The page you are looking for does not exist or has been moved. Please check the URL or return to the
-                home page.
-              </Trans>
+              <Trans>The page you are looking for does not exist or was moved.</Trans>
+              <br />
+              <Trans>Please check the URL or return to the home page.</Trans>
             </p>
           </div>
 

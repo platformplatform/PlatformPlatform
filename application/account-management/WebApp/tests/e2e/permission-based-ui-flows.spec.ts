@@ -12,10 +12,18 @@ test.describe("@smoke", () => {
    * what actions users can perform based on backend authorization rules by creating
    * users with different roles and testing the UI behavior in the same session.
    *
+   * Covers:
+   * - Owner vs Member UI visibility (invite button, danger zone, bulk actions)
+   * - Self-action restrictions (cannot delete or change own role)
+   * - Access denied page for role-restricted routes (recycle-bin requires Owner/Admin)
+   * - Access denied page for internal-user-restricted routes (back-office requires internal user)
+   *
    * Note: Current test fixtures infrastructure creates only Owner users, so we test
    * by creating users with different roles and switching between them in a single session.
    */
-  test("should enforce permission-based UI visibility and self-action restrictions", async ({ page }) => {
+  test("should enforce permission-based UI visibility, self-action restrictions, and access denied pages", async ({
+    page
+  }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const member = testUser();
@@ -194,6 +202,28 @@ test.describe("@smoke", () => {
 
       // Click outside the menu to close it
       await page.locator("body").click({ position: { x: 10, y: 10 } });
+    })();
+
+    // === ACCESS DENIED PAGE TESTS ===
+    await step("Navigate to recycle-bin as Member & verify access denied page displays")(async () => {
+      await page.goto("/admin/users/recycle-bin");
+
+      await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
+      await expect(page.getByText("You do not have permission to access this page.")).toBeVisible();
+      await expect(page.getByRole("link", { name: "Go to home" })).toBeVisible();
+    })();
+
+    await step("Navigate to back-office as Member & verify access denied page displays")(async () => {
+      await page.goto("/back-office");
+
+      await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
+      await expect(page.getByText("You do not have permission to access this page.")).toBeVisible();
+    })();
+
+    await step("Click Go to home on access denied page & verify navigation to home")(async () => {
+      await page.getByRole("link", { name: "Go to home" }).click();
+
+      await expect(page).toHaveURL("/");
     })();
   });
 
