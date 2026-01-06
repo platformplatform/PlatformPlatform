@@ -33,6 +33,9 @@ msgstr "{0} brugere slettet permanent"
 msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
+msgid "{browser} on {os}"
+msgstr "{browser} på {os}"
+
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 
@@ -47,6 +50,9 @@ msgstr "100% sikkerhedsscore"
 
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
+
+msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
+msgstr "En liste over enheder, der har logget ind på din konto. Tilbagekald sessioner, du ikke genkender."
 
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
@@ -77,6 +83,9 @@ msgstr "Kontoindstillinger"
 
 msgid "Account switched"
 msgstr "Konto skiftet"
+
+msgid "Account:"
+msgstr "Konto:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
@@ -133,6 +142,9 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0> permanent?"
 
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
+
+msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
 
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
@@ -225,6 +237,12 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
+msgid "Created:"
+msgstr "Oprettet:"
+
+msgid "Current session"
+msgstr "Nuværende session"
+
 msgid "Danger zone"
 msgstr "Farezone"
 
@@ -279,6 +297,9 @@ msgstr "Slettet"
 
 msgid "Deleted users"
 msgstr "Slettede brugere"
+
+msgid "Desktop"
+msgstr "Stationær"
 
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
@@ -409,11 +430,17 @@ msgstr "Inviter bruger"
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "IP:"
+msgstr "IP:"
+
 msgid "Just now"
 msgstr "Lige nu"
 
 msgid "Language"
 msgstr "Sprog"
+
+msgid "Last active:"
+msgstr "Sidst aktiv:"
 
 msgid "Last name"
 msgstr "Efternavn"
@@ -478,6 +505,9 @@ msgstr "Microsoft DBA"
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
 
+msgid "Mobile"
+msgstr "Mobil"
+
 msgid "Modified"
 msgstr "Ændret"
 
@@ -495,6 +525,9 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 
 msgid "Next"
 msgstr "Næste"
+
+msgid "No active sessions found."
+msgstr "Ingen aktive sessioner fundet."
 
 msgid "No deleted users"
 msgstr "Ingen slettede brugere"
@@ -547,6 +580,9 @@ msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
+
+msgid "Please note that it may take up to 5 minutes before the device is signed out."
+msgstr "Bemærk at det kan tage op til 5 minutter, før enheden er logget ud."
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
@@ -615,6 +651,12 @@ msgstr "Gendan {0} brugere"
 msgid "Restore user"
 msgstr "Gendan bruger"
 
+msgid "Revoke"
+msgstr "Tilbagekald"
+
+msgid "Revoke session"
+msgstr "Tilbagekald session"
+
 msgid "Role"
 msgstr "Rolle"
 
@@ -644,6 +686,12 @@ msgstr "Send invitation"
 
 msgid "Sending verification code..."
 msgstr "Sender bekræftelseskode..."
+
+msgid "Session revoked successfully"
+msgstr "Session tilbagekaldt succesfuldt"
+
+msgid "Sessions"
+msgstr "Sessioner"
 
 msgid "Show details"
 msgstr "Vis detaljer"
@@ -683,6 +731,9 @@ msgstr "Skifter konto..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Tablet"
+msgstr "Tablet"
 
 msgid "Terms"
 msgstr "Vilkår"
@@ -737,6 +788,15 @@ msgstr "Tillidscenter"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Unknown"
+msgstr "Ukendt"
+
+msgid "Unknown browser"
+msgstr "Ukendt browser"
+
+msgid "Unknown OS"
+msgstr "Ukendt OS"
 
 msgid "Unknown state"
 msgstr "Ukendt tilstand"

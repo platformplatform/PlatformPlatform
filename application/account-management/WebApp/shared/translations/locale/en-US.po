@@ -33,6 +33,9 @@ msgstr "{0} users permanently deleted"
 msgid "{0} users restored successfully"
 msgstr "{0} users restored successfully"
 
+msgid "{browser} on {os}"
+msgstr "{browser} on {os}"
+
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} users permanently deleted"
 
@@ -47,6 +50,9 @@ msgstr "100% Security Score"
 
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
+
+msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
+msgstr "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
 
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
@@ -77,6 +83,9 @@ msgstr "Account settings"
 
 msgid "Account switched"
 msgstr "Account switched"
+
+msgid "Account:"
+msgstr "Account:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
@@ -133,6 +142,9 @@ msgstr "Are you sure you want to permanently delete <0>{0} users</0>?"
 
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
+
+msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgstr "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
 
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
@@ -225,6 +237,12 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
+msgid "Created:"
+msgstr "Created:"
+
+msgid "Current session"
+msgstr "Current session"
+
 msgid "Danger zone"
 msgstr "Danger zone"
 
@@ -279,6 +297,9 @@ msgstr "Deleted"
 
 msgid "Deleted users"
 msgstr "Deleted users"
+
+msgid "Desktop"
+msgstr "Desktop"
 
 msgid "Different user logged in"
 msgstr "Different user logged in"
@@ -409,11 +430,17 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "IP:"
+msgstr "IP:"
+
 msgid "Just now"
 msgstr "Just now"
 
 msgid "Language"
 msgstr "Language"
+
+msgid "Last active:"
+msgstr "Last active:"
 
 msgid "Last name"
 msgstr "Last name"
@@ -478,6 +505,9 @@ msgstr "Microsoft DPA"
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
+msgid "Mobile"
+msgstr "Mobile"
+
 msgid "Modified"
 msgstr "Modified"
 
@@ -495,6 +525,9 @@ msgstr "Need help? Our support team is here to assist you."
 
 msgid "Next"
 msgstr "Next"
+
+msgid "No active sessions found."
+msgstr "No active sessions found."
 
 msgid "No deleted users"
 msgstr "No deleted users"
@@ -547,6 +580,9 @@ msgstr "Please check the URL or return to the home page."
 
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
+
+msgid "Please note that it may take up to 5 minutes before the device is signed out."
+msgstr "Please note that it may take up to 5 minutes before the device is signed out."
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
@@ -615,6 +651,12 @@ msgstr "Restore {0} users"
 msgid "Restore user"
 msgstr "Restore user"
 
+msgid "Revoke"
+msgstr "Revoke"
+
+msgid "Revoke session"
+msgstr "Revoke session"
+
 msgid "Role"
 msgstr "Role"
 
@@ -644,6 +686,12 @@ msgstr "Send invite"
 
 msgid "Sending verification code..."
 msgstr "Sending verification code..."
+
+msgid "Session revoked successfully"
+msgstr "Session revoked successfully"
+
+msgid "Sessions"
+msgstr "Sessions"
 
 msgid "Show details"
 msgstr "Show details"
@@ -683,6 +731,9 @@ msgstr "Switching account..."
 
 msgid "System"
 msgstr "System"
+
+msgid "Tablet"
+msgstr "Tablet"
 
 msgid "Terms"
 msgstr "Terms"
@@ -737,6 +788,15 @@ msgstr "Trust Center"
 
 msgid "Try again"
 msgstr "Try again"
+
+msgid "Unknown"
+msgstr "Unknown"
+
+msgid "Unknown browser"
+msgstr "Unknown browser"
+
+msgid "Unknown OS"
+msgstr "Unknown OS"
 
 msgid "Unknown state"
 msgstr "Unknown state"
