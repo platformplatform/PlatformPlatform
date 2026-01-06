@@ -70,7 +70,10 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
           },
           dev: {
             client: {
-              port: options.port
+              port: options.port,
+              overlay: {
+                runtime: process.env.NODE_ENV !== "production"
+              }
             },
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",
@@ -85,6 +88,11 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
                 // Ignore the dist folder to prevent infinite loop as we are writing files to dist
                 ignored: ignoreDistPattern
               }
+            }
+          },
+          performance: {
+            printFileSize: {
+              diff: true
             }
           }
         };
