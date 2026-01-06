@@ -1,7 +1,6 @@
 using System.Net.Http.Headers;
 using Bogus;
 using JetBrains.Annotations;
-using Mapster;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -13,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -124,11 +124,13 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
 
-        var ownerAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>());
+        var ownerUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Owner, DatabaseSeeder.Tenant1OwnerSession.Id);
+        var ownerAccessToken = AccessTokenGenerator.Generate(ownerUserInfo);
         AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
 
-        var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
+        var memberUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Member, DatabaseSeeder.Tenant1MemberSession.Id);
+        var memberAccessToken = AccessTokenGenerator.Generate(memberUserInfo);
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
 
@@ -175,5 +177,24 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Provider.Dispose();
         Connection.Close();
         _webApplicationFactory.Dispose();
+    }
+
+    private static UserInfo CreateUserInfo(User user, SessionId sessionId)
+    {
+        return new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = user.Id,
+            TenantId = user.TenantId,
+            SessionId = sessionId,
+            Role = user.Role.ToString(),
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Title = user.Title,
+            AvatarUrl = user.Avatar.Url,
+            Locale = user.Locale,
+            IsInternalUser = user.IsInternalUser
+        };
     }
 }

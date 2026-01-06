@@ -1,6 +1,8 @@
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Telemetry;
 
@@ -30,6 +32,9 @@ public sealed class EmailConfirmationResend(int secondsSinceSignupStarted)
 public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int resendCount)
     : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("resend_count", resendCount));
 
+public sealed class GravatarUpdated(long size)
+    : TelemetryEvent(("size", size));
+
 public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
     : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
 
@@ -38,6 +43,18 @@ public sealed class LoginStarted(UserId userId)
 
 public sealed class Logout
     : TelemetryEvent;
+
+public sealed class SessionCreated(SessionId sessionId)
+    : TelemetryEvent(("session_id", sessionId));
+
+public sealed class SessionRefreshed(SessionId sessionId)
+    : TelemetryEvent(("session_id", sessionId));
+
+public sealed class SessionReplayDetected(SessionId sessionId, int tokenVersion, int currentVersion)
+    : TelemetryEvent(("session_id", sessionId), ("token_version", tokenVersion), ("current_version", currentVersion));
+
+public sealed class SessionRevoked(SessionRevokedReason reason, int count = 1)
+    : TelemetryEvent(("reason", reason), ("count", count));
 
 public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
     : TelemetryEvent(("tenant_id", tenantId), ("signup_time_in_seconds", signupTimeInSeconds));
@@ -68,9 +85,6 @@ public sealed class UserAvatarRemoved
 
 public sealed class UserAvatarUpdated(string contentType, long size)
     : TelemetryEvent(("content_type", contentType), ("size", size));
-
-public sealed class GravatarUpdated(long size)
-    : TelemetryEvent(("size", size));
 
 public sealed class UserCreated(UserId userId, bool gravatarProfileFound)
     : TelemetryEvent(("user_id", userId), ("gravatar_profile_found", gravatarProfileFound));

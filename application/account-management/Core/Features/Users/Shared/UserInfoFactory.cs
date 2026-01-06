@@ -1,6 +1,7 @@
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Shared;
 
@@ -15,8 +16,9 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
     /// </summary>
     /// <param name="user">The user entity</param>
     /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="sessionId">Optional session ID to include in the UserInfo</param>
     /// <returns>UserInfo with all required properties including tenant name</returns>
-    public async Task<UserInfo> CreateUserInfoAsync(User user, CancellationToken cancellationToken)
+    public async Task<UserInfo> CreateUserInfoAsync(User user, CancellationToken cancellationToken, SessionId? sessionId = null)
     {
         var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
 
@@ -25,6 +27,7 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
             IsAuthenticated = true,
             Id = user.Id,
             TenantId = user.TenantId,
+            SessionId = sessionId,
             Role = user.Role.ToString(),
             Email = user.Email,
             FirstName = user.FirstName,

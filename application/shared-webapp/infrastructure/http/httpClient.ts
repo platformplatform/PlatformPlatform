@@ -11,7 +11,7 @@
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { normalizeError } from "./errorHandler";
 
-// Default timeout for all fetch requests (in milliseconds)
+// Default timeout must match GracePeriodSeconds in account-management/Core/Features/Authentication/Domain/Session.cs
 export const DEFAULT_TIMEOUT = 30000;
 
 /**

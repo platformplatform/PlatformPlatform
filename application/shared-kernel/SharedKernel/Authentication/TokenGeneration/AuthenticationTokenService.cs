@@ -8,20 +8,16 @@ public sealed class AuthenticationTokenService(
     IHttpContextAccessor httpContextAccessor
 )
 {
-    public void CreateAndSetAuthenticationTokens(UserInfo userInfo)
+    public void CreateAndSetAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti)
     {
-        var refreshToken = refreshTokenGenerator.Generate(userInfo);
+        var refreshToken = refreshTokenGenerator.Generate(userInfo, sessionId, jti);
         var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
-    public void RefreshAuthenticationTokens(
-        UserInfo userInfo,
-        RefreshTokenId refreshTokenId,
-        int currentRefreshTokenVersion,
-        DateTimeOffset expires)
+    public void RefreshAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
-        var refreshToken = refreshTokenGenerator.Update(userInfo, refreshTokenId, currentRefreshTokenVersion, expires);
+        var refreshToken = refreshTokenGenerator.Update(userInfo, sessionId, jti, currentRefreshTokenVersion, expires);
         var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }

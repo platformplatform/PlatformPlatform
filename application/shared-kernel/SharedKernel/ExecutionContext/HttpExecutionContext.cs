@@ -34,18 +34,20 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
                 return field;
             }
 
-            if (httpContextAccessor.HttpContext == null)
+            if (httpContextAccessor.HttpContext is null)
             {
                 return field = IPAddress.None;
             }
 
-            var forwardedIps = httpContextAccessor.HttpContext.Request.Headers["X-Forwarded-For"].ToString().Split(',');
-            if (IPAddress.TryParse(forwardedIps.LastOrDefault(), out var clientIpAddress))
-            {
-                return field = clientIpAddress;
-            }
-
-            return field = IPAddress.None;
+            // UseForwardedHeaders() middleware already processes X-Forwarded-For and sets RemoteIpAddress
+            var remoteIpAddress = httpContextAccessor.HttpContext.Connection.RemoteIpAddress ?? IPAddress.None;
+            return field = NormalizeLoopbackAddress(remoteIpAddress);
         }
+    }
+
+    private static IPAddress NormalizeLoopbackAddress(IPAddress ipAddress)
+    {
+        // Normalize IPv6 loopback (::1) to IPv4 loopback (127.0.0.1) for consistent display
+        return IPAddress.IsLoopback(ipAddress) ? IPAddress.Loopback : ipAddress;
     }
 }
