@@ -112,10 +112,9 @@ export default function FederatedErrorPage({ error, reset }: Readonly<ErrorCompo
               <Trans>Something went wrong</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
-              <Trans>
-                We encountered an unexpected error while processing your request. Please try again or return to the home
-                page.
-              </Trans>
+              <Trans>An unexpected error occurred while processing your request.</Trans>
+              <br />
+              <Trans>Please try again or return to the home page.</Trans>
             </p>
           </div>
 
