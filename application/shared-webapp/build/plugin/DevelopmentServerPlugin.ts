@@ -86,6 +86,11 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
                 ignored: ignoreDistPattern
               }
             }
+          },
+          performance: {
+            printFileSize: {
+              diff: true
+            }
           }
         };
 
