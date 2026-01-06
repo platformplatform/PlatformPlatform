@@ -26,7 +26,8 @@ public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient,
                     new Claim("tenant_logo_url", userInfo.TenantLogoUrl ?? string.Empty),
                     new Claim("title", userInfo.Title ?? string.Empty),
                     new Claim("avatar_url", userInfo.AvatarUrl ?? string.Empty),
-                    new Claim("locale", userInfo.Locale!)
+                    new Claim("locale", userInfo.Locale!),
+                    new Claim("session_id", userInfo.SessionId?.ToString() ?? string.Empty)
                 ]
             )
         };

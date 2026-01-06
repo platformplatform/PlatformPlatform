@@ -184,6 +184,36 @@
         }
       }
     },
+    "/api/account-management/authentication/sessions": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationSessions",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSessionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
@@ -1368,6 +1398,90 @@
             "$ref": "#/components/schemas/TenantId"
           }
         }
+      },
+      "UserSessionsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserSessionInfo"
+            }
+          }
+        }
+      },
+      "UserSessionInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/SessionId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deviceType": {
+            "$ref": "#/components/schemas/DeviceType"
+          },
+          "userAgent": {
+            "type": "string"
+          },
+          "ipAddress": {
+            "type": "string"
+          },
+          "lastActivityAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SessionId": {
+        "type": "string",
+        "format": "sess_{string}"
+      },
+      "StronglyTypedUlidOfSessionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSessionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndSessionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeviceType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Unknown",
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ],
+        "enum": [
+          "Unknown",
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ]
       },
       "StartSignupResponse": {
         "type": "object",

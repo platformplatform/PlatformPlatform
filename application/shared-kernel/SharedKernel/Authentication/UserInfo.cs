@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Platform;
 using PlatformPlatform.SharedKernel.SinglePageApp;
@@ -49,6 +50,8 @@ public class UserInfo
 
     public bool IsInternalUser { get; init; }
 
+    public SessionId? SessionId { get; init; }
+
     public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale)
     {
         if (user?.Identity?.IsAuthenticated != true)
@@ -63,12 +66,14 @@ public class UserInfo
 
         var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         var tenantId = user.FindFirstValue("tenant_id");
+        var sessionId = user.FindFirstValue("session_id");
         var email = user.FindFirstValue(ClaimTypes.Email);
         return new UserInfo
         {
             IsAuthenticated = true,
             Id = userId == null ? null : new UserId(userId),
             TenantId = tenantId == null ? null : new TenantId(long.Parse(tenantId)),
+            SessionId = sessionId == null ? null : new SessionId(sessionId),
             Role = user.FindFirstValue(ClaimTypes.Role),
             Email = email,
             FirstName = user.FindFirstValue(ClaimTypes.GivenName),

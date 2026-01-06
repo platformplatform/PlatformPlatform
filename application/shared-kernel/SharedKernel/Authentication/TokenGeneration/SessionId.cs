@@ -3,9 +3,9 @@ using PlatformPlatform.SharedKernel.StronglyTypedIds;
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 [PublicAPI]
-[IdPrefix("rt")]
-[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, RefreshTokenId>))]
-public sealed record RefreshTokenId(string Value) : StronglyTypedUlid<RefreshTokenId>(Value)
+[IdPrefix("sess")]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, SessionId>))]
+public sealed record SessionId(string Value) : StronglyTypedUlid<SessionId>(Value)
 {
     public override string ToString()
     {

@@ -42,11 +42,12 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM Users WHERE Email = @email", [new { email = email.ToLower() }]).Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("TenantCreated");
         TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("UserCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SignupCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[4].GetType().Name.Should().Be("SignupCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         _tenantCreatedEventHandlerLogger.Received().LogInformation("Raise event to send Welcome mail to tenant");

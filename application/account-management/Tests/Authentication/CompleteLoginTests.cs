@@ -40,10 +40,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         );
         updatedLoginCount.Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
@@ -217,10 +218,11 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
         ).Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInviteAccepted");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("LoginCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -270,9 +272,10 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
         response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(user2Id);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(user2Id);
     }
 
     [Fact]
@@ -293,9 +296,10 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
         response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
     }
 
     [Fact]
@@ -325,9 +329,10 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginCompleted");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
     }
 
     private async Task<(LoginId LoginId, EmailConfirmationId emailConfirmationId)> StartLogin(string email)

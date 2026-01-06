@@ -1,5 +1,7 @@
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -16,8 +18,10 @@ public sealed record SwitchTenantCommand(TenantId TenantId) : ICommand, IRequest
 
 public sealed class SwitchTenantHandler(
     IUserRepository userRepository,
+    ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
+    IHttpContextAccessor httpContextAccessor,
     AvatarUpdater avatarUpdater,
     [FromKeyedServices("account-management-storage")]
     IBlobStorageClient blobStorageClient,
@@ -43,9 +47,16 @@ public sealed class SwitchTenantHandler(
             await CopyProfileDataFromCurrentUser(targetUser, cancellationToken);
         }
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo);
+        var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
+        var ipAddress = executionContext.ClientIpAddress;
 
+        var session = Session.Create(targetUser.TenantId, targetUser.Id, userAgent, ipAddress);
+        await sessionRepository.AddAsync(session, cancellationToken);
+
+        var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, cancellationToken, session.Id);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+
+        events.CollectEvent(new SessionCreated(session.Id));
         events.CollectEvent(new TenantSwitched(executionContext.TenantId!, command.TenantId, targetUser.Id));
 
         return Result.Success();

@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -7,6 +8,7 @@ using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
@@ -21,11 +23,14 @@ public sealed record CompleteLoginCommand(string OneTimePassword, TenantId? Pref
 public sealed class CompleteLoginHandler(
     IUserRepository userRepository,
     ILoginRepository loginRepository,
+    ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
     IMediator mediator,
     AvatarUpdater avatarUpdater,
     GravatarClient gravatarClient,
+    IHttpContextAccessor httpContextAccessor,
+    IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     TimeProvider timeProvider,
     ILogger<CompleteLoginHandler> logger
@@ -87,9 +92,16 @@ public sealed class CompleteLoginHandler(
         login.MarkAsCompleted();
         loginRepository.Update(login);
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo);
+        var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
+        var ipAddress = executionContext.ClientIpAddress;
 
+        var session = Session.Create(user.TenantId, user.Id, userAgent, ipAddress);
+        await sessionRepository.AddAsync(session, cancellationToken);
+
+        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken, session.Id);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+
+        events.CollectEvent(new SessionCreated(session.Id));
         events.CollectEvent(new LoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));
 
         return Result.Success();

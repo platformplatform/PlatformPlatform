@@ -61,11 +61,12 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
         response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantSwitched");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.from_tenant_id"].Should().Be(DatabaseSeeder.Tenant1.Id.ToString());
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.to_tenant_id"].Should().Be(tenant2Id.ToString());
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(user2Id.ToString());
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("TenantSwitched");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.from_tenant_id"].Should().Be(DatabaseSeeder.Tenant1.Id.ToString());
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.to_tenant_id"].Should().Be(tenant2Id.ToString());
+        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(user2Id.ToString());
     }
 
     [Fact]
@@ -334,7 +335,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         await response2.ShouldBeSuccessfulPostRequest(hasLocation: false);
         await response3.ShouldBeSuccessfulPostRequest(hasLocation: false);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
-        TelemetryEventsCollectorSpy.CollectedEvents.All(e => e.GetType().Name == "TenantSwitched").Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(6);
+        TelemetryEventsCollectorSpy.CollectedEvents.Where(e => e.GetType().Name == "SessionCreated").Should().HaveCount(3);
+        TelemetryEventsCollectorSpy.CollectedEvents.Where(e => e.GetType().Name == "TenantSwitched").Should().HaveCount(3);
     }
 }

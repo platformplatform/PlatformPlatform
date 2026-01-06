@@ -1,4 +1,6 @@
+using System.Net;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 
@@ -8,7 +10,9 @@ public sealed class DatabaseSeeder
 {
     public readonly Tenant Tenant1;
     public readonly User Tenant1Member;
+    public readonly Session Tenant1MemberSession;
     public readonly User Tenant1Owner;
+    public readonly Session Tenant1OwnerSession;
 
     public DatabaseSeeder(AccountManagementDbContext accountManagementDbContext)
     {
@@ -20,6 +24,12 @@ public sealed class DatabaseSeeder
 
         Tenant1Member = User.Create(Tenant1.Id, "member1@tenant-1.com", UserRole.Member, true, null);
         accountManagementDbContext.Set<User>().AddRange(Tenant1Member);
+
+        Tenant1OwnerSession = Session.Create(Tenant1.Id, Tenant1Owner.Id, "TestUserAgent", IPAddress.Loopback);
+        accountManagementDbContext.Set<Session>().AddRange(Tenant1OwnerSession);
+
+        Tenant1MemberSession = Session.Create(Tenant1.Id, Tenant1Member.Id, "TestUserAgent", IPAddress.Loopback);
+        accountManagementDbContext.Set<Session>().AddRange(Tenant1MemberSession);
 
         accountManagementDbContext.SaveChanges();
     }
