@@ -109,6 +109,9 @@ public sealed class RefreshAuthenticationTokensHandler(
         {
             session.Refresh();
             sessionRepository.Update(session);
+
+            user.UpdateLastSeen(now);
+            userRepository.Update(user);
         }
 
         var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken, session.Id);

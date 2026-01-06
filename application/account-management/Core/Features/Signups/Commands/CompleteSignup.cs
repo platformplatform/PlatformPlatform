@@ -28,7 +28,8 @@ public sealed class CompleteSignupHandler(
     IHttpContextAccessor httpContextAccessor,
     IExecutionContext executionContext,
     IMediator mediator,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    TimeProvider timeProvider
 ) : IRequestHandler<CompleteSignupCommand, Result>
 {
     public async Task<Result> Handle(CompleteSignupCommand command, CancellationToken cancellationToken)
@@ -54,6 +55,9 @@ public sealed class CompleteSignupHandler(
 
         var session = Session.Create(user!.TenantId, user.Id, userAgent, ipAddress);
         await sessionRepository.AddAsync(session, cancellationToken);
+
+        user.UpdateLastSeen(timeProvider.GetUtcNow());
+        userRepository.Update(user);
 
         var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken, session.Id);
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);

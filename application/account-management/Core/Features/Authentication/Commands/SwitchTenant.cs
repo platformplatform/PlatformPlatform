@@ -72,6 +72,9 @@ public sealed class SwitchTenantHandler(
         var session = Session.Create(targetUser.TenantId, targetUser.Id, userAgent, ipAddress);
         await sessionRepository.AddAsync(session, cancellationToken);
 
+        targetUser.UpdateLastSeen(timeProvider.GetUtcNow());
+        userRepository.Update(targetUser);
+
         var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, cancellationToken, session.Id);
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti, currentSession.ExpiresAt);
 

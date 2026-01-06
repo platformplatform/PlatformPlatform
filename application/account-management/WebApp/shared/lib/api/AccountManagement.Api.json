@@ -1708,6 +1708,11 @@
             "format": "date-time",
             "nullable": true
           },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "email": {
             "type": "string"
           },
@@ -1763,14 +1768,14 @@
         "description": "",
         "x-enumNames": [
           "CreatedAt",
-          "ModifiedAt",
+          "LastSeenAt",
           "Name",
           "Email",
           "Role"
         ],
         "enum": [
           "CreatedAt",
-          "ModifiedAt",
+          "LastSeenAt",
           "Name",
           "Email",
           "Role"
