@@ -250,8 +250,8 @@ export function UserTable({
               </Column>
             )}
             {isMediumViewportOrLarger() && (
-              <Column minWidth={65} defaultWidth={140} allowsSorting={true} id={SortableUserProperties.ModifiedAt}>
-                <Trans>Modified</Trans>
+              <Column minWidth={65} defaultWidth={140} allowsSorting={true} id={SortableUserProperties.LastSeenAt}>
+                <Trans>Last seen</Trans>
               </Column>
             )}
             {isSmallViewportOrLarger() && (
@@ -304,7 +304,7 @@ export function UserTable({
                 )}
                 {isMediumViewportOrLarger() && (
                   <Cell>
-                    <SmartDate date={user.modifiedAt} className="text-foreground" />
+                    <SmartDate date={user.lastSeenAt} className="text-foreground" />
                   </Cell>
                 )}
                 {isSmallViewportOrLarger() && (

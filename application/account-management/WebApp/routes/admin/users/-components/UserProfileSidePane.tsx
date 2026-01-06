@@ -119,9 +119,9 @@ function UserProfileContent({
           </div>
           <div className="flex justify-between">
             <Text className="text-sm">
-              <Trans>Modified</Trans>
+              <Trans>Last seen</Trans>
             </Text>
-            <Text className="text-sm">{formatDate(user.modifiedAt, true)}</Text>
+            <Text className="text-sm">{formatDate(user.lastSeenAt, true)}</Text>
           </div>
         </div>
       </div>
