@@ -277,7 +277,7 @@ test.describe("@comprehensive", () => {
       await page.goto("/admin/does-not-exist");
 
       await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
-      await expect(page.getByText("The page you are looking for does not exist or has been moved.")).toBeVisible();
+      await expect(page.getByText("The page you are looking for does not exist or was moved.")).toBeVisible();
       await expect(page.getByRole("link", { name: "Go to home" })).toBeVisible();
     })();
 
@@ -304,7 +304,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("a");
 
       await expect(page.getByRole("heading", { name: "Something went wrong" })).toBeVisible();
-      await expect(page.getByText("We encountered an unexpected error while processing your request.")).toBeVisible();
+      await expect(page.getByText("An unexpected error occurred while processing your request.")).toBeVisible();
     })();
 
     await step("Click Show details button & verify error message is displayed")(async () => {
