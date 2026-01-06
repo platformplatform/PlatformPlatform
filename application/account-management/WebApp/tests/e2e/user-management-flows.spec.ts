@@ -16,6 +16,7 @@ test.describe("@smoke", () => {
    * - User permission restrictions (what owners vs admins can/cannot do)
    * - Soft delete workflow (delete user via actions menu)
    * - Recycle bin tab visibility (Owner/Admin only, not Members)
+   * - Unsaved changes warning (account settings page, dialogs)
    *
    * Note: Restore and permanent delete workflows are tested in @comprehensive
    */
@@ -57,13 +58,52 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Company");
       await page.getByRole("button", { name: "Save changes" }).click();
       await expectToastMessage(context, "Account name updated successfully");
+    })();
 
-      // Return to users page
+    await step("Modify account name, navigate away & verify unsaved changes warning")(async () => {
+      await page.getByRole("textbox", { name: "Account name" }).fill("Modified Company");
       await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await expect(
+        page.getByText("You have unsaved changes. If you leave now, your changes will be lost.")
+      ).toBeVisible();
+
+      await page.getByRole("button", { name: "Stay" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
+      await expect(page).toHaveURL("/admin/account");
+      await expect(page.getByRole("textbox", { name: "Account name" })).toHaveValue("Modified Company");
+
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Leave" }).click();
+
+      await expect(page).toHaveURL("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
     // Email validation is comprehensively tested in signup-flows.spec.ts
+
+    await step("Open Invite dialog, enter email & verify unsaved changes warning on Escape")(async () => {
+      await page.getByRole("button", { name: "Invite user" }).first().click();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
+
+      await page.keyboard.press("Escape");
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Stay" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "Email" })).toHaveValue("test@example.com");
+
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Leave" }).click();
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
+    })();
 
     await step("Invite member user & verify successful invitation")(async () => {
       await page.getByRole("button", { name: "Invite user" }).first().click();
@@ -99,6 +139,34 @@ test.describe("@smoke", () => {
       await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
       await expect(page.locator("tbody").first().first()).toContainText(deletableUser.email);
+    })();
+
+    await step("Open Change Role dialog, select role & verify unsaved changes warning on Escape")(async () => {
+      const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
+      const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
+      await actionsButton.evaluate((el: HTMLElement) => el.click());
+
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
+      await page.getByRole("radio", { name: "Owner" }).check({ force: true });
+
+      await page.keyboard.press("Escape");
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Stay" }).click();
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
+      await expect(page.getByRole("radio", { name: "Owner" })).toBeChecked();
+
+      await page.getByRole("radio", { name: "Owner" }).focus();
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Leave" }).click();
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
     })();
 
     await step("Open actions menu for admin user and change role to Admin & verify role updates")(async () => {
@@ -162,10 +230,9 @@ test.describe("@smoke", () => {
 
       const userTable = page.locator("tbody").first();
 
-      // Search for admin user
-      const searchInput = page.getByRole("searchbox", { name: "Search" });
-      await searchInput.fill(adminUser.email);
-      await page.keyboard.press("Enter"); // Trigger search immediately without debounce
+      // React Aria SearchField uses a controlled input pattern incompatible with Playwright.
+      // Escape key clears the search (real UI interaction); URL sets up filtered state.
+      await page.goto(`/admin/users?search=${encodeURIComponent(adminUser.email)}`);
 
       // Verify only admin user is shown without counting rows
       await expect(userTable).toContainText(adminUser.email);
@@ -173,8 +240,11 @@ test.describe("@smoke", () => {
       await expect(userTable).not.toContainText(memberUser.email);
 
       // Clear search and verify all users are shown again
-      await searchInput.clear();
-      await page.keyboard.press("Enter"); // Trigger search immediately to show all results
+      const searchField = page.getByRole("searchbox", { name: "Search" });
+      await searchField.focus();
+      await page.keyboard.press("Escape"); // Trigger search immediately to show all results
+
+      await expect(page).not.toHaveURL(/search=/);
 
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
@@ -222,7 +292,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
     })();
 
-    await step("Login as deletable user & complete profile setup to confirm email")(async () => {
+    await step("Login as deletable user & verify unsaved changes warning on profile Escape")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
@@ -230,6 +300,14 @@ test.describe("@smoke", () => {
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(deletableUser.firstName);
+
+      await page.keyboard.press("Escape");
+
+      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
+      await page.getByRole("button", { name: "Stay" }).click();
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "First name" })).toHaveValue(deletableUser.firstName);
+
       await page.getByRole("textbox", { name: "Last name" }).fill(deletableUser.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
 

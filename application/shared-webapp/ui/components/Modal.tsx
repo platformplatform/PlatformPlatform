@@ -61,7 +61,7 @@ const modalStyles = tv({
   }
 });
 
-type ModalProps = {
+export type ModalProps = {
   position?: "center" | "top" | "left" | "right" | "bottom";
   fullSize?: boolean;
   blur?: boolean;

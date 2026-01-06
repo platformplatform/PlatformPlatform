@@ -418,6 +418,9 @@ msgstr "Language"
 msgid "Last name"
 msgstr "Last name"
 
+msgid "Leave"
+msgstr "Leave"
+
 msgid "Legal and Compliance"
 msgstr "Legal and Compliance"
 
@@ -666,6 +669,9 @@ msgstr "Something went wrong"
 msgid "Standard user access"
 msgstr "Standard user access"
 
+msgid "Stay"
+msgstr "Stay"
+
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
 
@@ -737,6 +743,9 @@ msgstr "Unknown state"
 
 msgid "Unnamed account"
 msgstr "Unnamed account"
+
+msgid "Unsaved changes"
+msgstr "Unsaved changes"
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
@@ -835,6 +844,9 @@ msgstr "You do not have permission to access this page."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
+
+msgid "You have unsaved changes. If you leave now, your changes will be lost."
+msgstr "You have unsaved changes. If you leave now, your changes will be lost."
 
 msgid "You successfully deployed PlatformPlatform! 🎉"
 msgstr "You successfully deployed PlatformPlatform! 🎉"

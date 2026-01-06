@@ -9,6 +9,7 @@ import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -18,6 +19,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FileTrigger, Label, Separator } from "react-aria-components";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
+import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
@@ -239,6 +241,7 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
 
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
@@ -262,8 +265,13 @@ export function AccountSettings() {
 
   const isOwner = currentUser?.role === UserRole.Owner;
 
+  const { isConfirmDialogOpen, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
+    hasUnsavedChanges: isFormDirty && isOwner
+  });
+
   useEffect(() => {
     if (updateCurrentTenantMutation.isSuccess) {
+      setIsFormDirty(false);
       toastQueue.add({
         title: t`Success`,
         description: t`Account name updated successfully`,
@@ -335,6 +343,7 @@ export function AccountSettings() {
             tooltip={isOwner ? t`The name of your account, shown to users and in email notifications` : undefined}
             description={!isOwner ? t`Only account owners can modify the account name` : undefined}
             validationBehavior="aria"
+            onChange={() => setIsFormDirty(true)}
           />
           {isOwner && (
             <Button type="submit" className="mt-4" isDisabled={updateCurrentTenantMutation.isPending}>
@@ -347,6 +356,8 @@ export function AccountSettings() {
       </AppLayout>
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
+
+      <UnsavedChangesDialog isOpen={isConfirmDialogOpen} onConfirmLeave={confirmLeave} onCancel={cancelLeave} />
     </>
   );
 }

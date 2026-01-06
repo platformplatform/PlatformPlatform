@@ -6,15 +6,15 @@ import { Dialog } from "@repo/ui/components/Dialog";
 import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
 import { Heading } from "@repo/ui/components/Heading";
 import { Menu, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
-import { Modal } from "@repo/ui/components/Modal";
 import { TextField } from "@repo/ui/components/TextField";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { CameraIcon, MailIcon, Trash2Icon, XIcon } from "lucide-react";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FileTrigger, Form, Label } from "react-aria-components";
+import { DirtyModal } from "@/shared/components/DirtyModal";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -31,6 +31,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
+  const [isFormDirty, setIsFormDirty] = useState(false);
 
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,19 +44,25 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     refetch
   } = api.useQuery("get", "/api/account-management/users/me");
 
+  const hasUnsavedChanges = isFormDirty || selectedAvatarFile !== null || removeAvatarFlag;
+
   useEffect(() => {
     setIsLoading(isLoadingUser);
   }, [isLoadingUser]);
 
-  // Close dialog and cleanup
-  const closeDialog = useCallback(() => {
-    onOpenChange(false);
+  const handleCloseComplete = () => {
     setSelectedAvatarFile(null);
+    setRemoveAvatarFlag(false);
+    setIsFormDirty(false);
     if (avatarPreviewUrl) {
       URL.revokeObjectURL(avatarPreviewUrl);
       setAvatarPreviewUrl(null);
     }
-  }, [onOpenChange, avatarPreviewUrl]);
+  };
+
+  const handleClose = () => {
+    onOpenChange(false);
+  };
 
   const updateAvatarMutation = api.useMutation("post", "/api/account-management/users/me/update-avatar");
   const removeAvatarMutation = api.useMutation("delete", "/api/account-management/users/me/remove-avatar");
@@ -95,11 +102,10 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
         description: t`Profile updated successfully`,
         variant: "success"
       });
-      closeDialog();
+      onOpenChange(false);
     }
-  }, [saveMutation.isSuccess, closeDialog]);
+  }, [saveMutation.isSuccess, onOpenChange]);
 
-  // Handle file selection
   const onFileSelect = (files: FileList | null) => {
     if (files?.[0]) {
       const file = files[0];
@@ -126,7 +132,14 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
   }
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isLoading} zIndex="high">
+    <DirtyModal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      hasUnsavedChanges={hasUnsavedChanges}
+      isDismissable={!isLoading && !saveMutation.isPending}
+      onCloseComplete={handleCloseComplete}
+      zIndex="high"
+    >
       {!user ? (
         <Dialog aria-label={t`User profile`}>
           <Heading slot="title">
@@ -139,7 +152,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           aria-label={t`User profile`}
           className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-lg"
         >
-          <XIcon onClick={closeDialog} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
+          <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
           <DialogHeader description={<Trans>Update your profile picture and personal details here.</Trans>}>
             <Heading slot="title" className="text-2xl">
               <Trans>User profile</Trans>
@@ -221,6 +234,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   defaultValue={user?.firstName}
                   placeholder={t`E.g. Alex`}
                   className="sm:w-64"
+                  onChange={() => setIsFormDirty(true)}
                 />
                 <TextField
                   isRequired={true}
@@ -229,6 +243,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                   defaultValue={user?.lastName}
                   placeholder={t`E.g. Taylor`}
                   className="sm:w-64"
+                  onChange={() => setIsFormDirty(true)}
                 />
               </div>
               <TextField
@@ -243,13 +258,14 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 tooltip={t`Your professional title or role`}
                 defaultValue={user?.title}
                 placeholder={t`E.g. Software engineer`}
+                onChange={() => setIsFormDirty(true)}
               />
             </DialogContent>
 
             <DialogFooter>
               <Button
                 type="reset"
-                onPress={closeDialog}
+                onPress={handleClose}
                 variant="secondary"
                 isDisabled={isLoading || saveMutation.isPending}
               >
@@ -262,6 +278,6 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           </Form>
         </Dialog>
       )}
-    </Modal>
+    </DirtyModal>
   );
 }
