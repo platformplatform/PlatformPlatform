@@ -17,5 +17,6 @@ public enum DeviceType
 public enum SessionRevokedReason
 {
     LoggedOut,
+    Revoked,
     ReplayAttackDetected
 }
