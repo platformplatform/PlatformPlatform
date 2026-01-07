@@ -18,5 +18,6 @@ public enum SessionRevokedReason
 {
     LoggedOut,
     Revoked,
-    ReplayAttackDetected
+    ReplayAttackDetected,
+    SwitchTenant
 }

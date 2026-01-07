@@ -42,6 +42,8 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
 
     public bool IsRevoked => RevokedAt is not null;
 
+    public DateTimeOffset ExpiresAt => CreatedAt.AddHours(RefreshTokenGenerator.ValidForHours);
+
     public TenantId TenantId { get; }
 
     public static Session Create(TenantId tenantId, UserId userId, string userAgent, IPAddress ipAddress)

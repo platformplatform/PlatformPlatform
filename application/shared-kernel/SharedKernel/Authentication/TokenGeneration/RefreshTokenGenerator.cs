@@ -9,11 +9,16 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
 {
     // Refresh tokens are stored as a persistent cookie in the user's browser.
     // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
-    private const int ValidForHours = 2160; // 24 hours * 90 days
+    public const int ValidForHours = 2160; // 24 hours * 90 days
 
     public string Generate(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti)
     {
         return GenerateRefreshToken(userInfo, sessionId, jti, 1, timeProvider.GetUtcNow().AddHours(ValidForHours));
+    }
+
+    public string Generate(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, DateTimeOffset expires)
+    {
+        return GenerateRefreshToken(userInfo, sessionId, jti, 1, expires);
     }
 
     public string Update(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int currentRefreshTokenVersion, DateTimeOffset expires)

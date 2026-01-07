@@ -15,6 +15,13 @@ public sealed class AuthenticationTokenService(
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
+    public void CreateAndSetAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, DateTimeOffset expires)
+    {
+        var refreshToken = refreshTokenGenerator.Generate(userInfo, sessionId, jti, expires);
+        var accessToken = accessTokenGenerator.Generate(userInfo);
+        SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
+    }
+
     public void RefreshAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int currentRefreshTokenVersion, DateTimeOffset expires)
     {
         var refreshToken = refreshTokenGenerator.Update(userInfo, sessionId, jti, currentRefreshTokenVersion, expires);
