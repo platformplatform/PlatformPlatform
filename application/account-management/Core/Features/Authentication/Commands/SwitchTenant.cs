@@ -47,6 +47,25 @@ public sealed class SwitchTenantHandler(
             await CopyProfileDataFromCurrentUser(targetUser, cancellationToken);
         }
 
+        var currentSessionId = executionContext.UserInfo.SessionId;
+        var currentSession = await sessionRepository.GetByIdUnfilteredAsync(currentSessionId!, cancellationToken);
+        if (currentSession is null)
+        {
+            logger.LogWarning("Current session '{SessionId}' not found", currentSessionId);
+            return Result.Unauthorized("Current session not found.");
+        }
+
+        if (currentSession.IsRevoked)
+        {
+            logger.LogWarning("Current session '{SessionId}' is already revoked", currentSessionId);
+            return Result.Unauthorized("Session has been revoked.");
+        }
+
+        var now = timeProvider.GetUtcNow();
+        currentSession.Revoke(now, SessionRevokedReason.SwitchTenant);
+        sessionRepository.Update(currentSession);
+        events.CollectEvent(new SessionRevoked(SessionRevokedReason.SwitchTenant));
+
         var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
         var ipAddress = executionContext.ClientIpAddress;
 
@@ -54,7 +73,7 @@ public sealed class SwitchTenantHandler(
         await sessionRepository.AddAsync(session, cancellationToken);
 
         var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, cancellationToken, session.Id);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti, currentSession.ExpiresAt);
 
         events.CollectEvent(new SessionCreated(session.Id));
         events.CollectEvent(new TenantSwitched(executionContext.TenantId!, command.TenantId, targetUser.Id));

@@ -4,6 +4,7 @@ using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Authentication.Queries;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -76,6 +77,34 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountManagementDbC
     }
 
     [Fact]
+    public async Task GetUserSessions_ShouldReturnSessionsAcrossAllTenants()
+    {
+        // Arrange
+        var tenant2Name = "Tenant 2";
+        var tenant2Id = InsertTenant(tenant2Name);
+        var user2Id = UserId.NewId();
+        InsertUser(tenant2Id, user2Id, DatabaseSeeder.Tenant1Owner.Email);
+        var tenant2SessionId = InsertSession(tenant2Id, user2Id);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account-management/authentication/sessions");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var responseBody = await response.DeserializeResponse<UserSessionsResponse>();
+        responseBody.Should().NotBeNull();
+        responseBody.Sessions.Length.Should().Be(2);
+        responseBody.Sessions.Should().Contain(s => s.Id == DatabaseSeeder.Tenant1OwnerSession.Id);
+        responseBody.Sessions.Should().Contain(s => s.Id == new SessionId(tenant2SessionId));
+
+        var tenant1Session = responseBody.Sessions.Single(s => s.Id == DatabaseSeeder.Tenant1OwnerSession.Id);
+        tenant1Session.TenantName.Should().Be(DatabaseSeeder.Tenant1.Name);
+
+        var tenant2Session = responseBody.Sessions.Single(s => s.Id == new SessionId(tenant2SessionId));
+        tenant2Session.TenantName.Should().Be(tenant2Name);
+    }
+
+    [Fact]
     public async Task GetUserSessions_ShouldNotReturnRevokedSessions()
     {
         // Arrange
@@ -92,6 +121,45 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountManagementDbC
         responseBody.Sessions.Length.Should().Be(2);
         responseBody.Sessions.Should().Contain(s => s.Id == new SessionId(activeSessionId));
         responseBody.Sessions.Should().Contain(s => s.Id == DatabaseSeeder.Tenant1OwnerSession.Id);
+    }
+
+    private long InsertTenant(string name)
+    {
+        var tenantId = TenantId.NewId().Value;
+        var now = TimeProvider.System.GetUtcNow();
+
+        Connection.Insert("Tenants", [
+                ("Id", tenantId),
+                ("CreatedAt", now),
+                ("ModifiedAt", null),
+                ("Name", name),
+                ("State", "Active"),
+                ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        return tenantId;
+    }
+
+    private void InsertUser(long tenantId, UserId userId, string email)
+    {
+        var now = TimeProvider.System.GetUtcNow();
+
+        Connection.Insert("Users", [
+                ("TenantId", tenantId),
+                ("Id", userId.ToString()),
+                ("CreatedAt", now),
+                ("ModifiedAt", null),
+                ("Email", email),
+                ("EmailConfirmed", true),
+                ("FirstName", "Test"),
+                ("LastName", "User"),
+                ("Title", null),
+                ("Avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
+                ("Role", "Owner"),
+                ("Locale", "en-US")
+            ]
+        );
     }
 
     private string InsertSession(long tenantId, string userId, bool isRevoked = false)

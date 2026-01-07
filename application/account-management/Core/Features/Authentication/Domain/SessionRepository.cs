@@ -15,6 +15,12 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     Task<Session?> GetByIdUnfilteredAsync(SessionId sessionId, CancellationToken cancellationToken);
 
     Task<Session[]> GetActiveSessionsForUserAsync(UserId userId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves all active sessions for multiple users across all tenants without applying query filters.
+    ///     This method should only be used in the Sessions dialog where users need to see all sessions for their email.
+    /// </summary>
+    Task<Session[]> GetActiveSessionsForUsersUnfilteredAsync(UserId[] userIds, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountManagementDbContext accountManagementDbContext)
@@ -29,6 +35,15 @@ public sealed class SessionRepository(AccountManagementDbContext accountManageme
     {
         var sessions = await DbSet
             .Where(s => s.UserId == userId && s.RevokedAt == null)
+            .ToArrayAsync(cancellationToken);
+        return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+    }
+
+    public async Task<Session[]> GetActiveSessionsForUsersUnfilteredAsync(UserId[] userIds, CancellationToken cancellationToken)
+    {
+        var sessions = await DbSet
+            .IgnoreQueryFilters()
+            .Where(s => userIds.AsEnumerable().Contains(s.UserId) && s.RevokedAt == null)
             .ToArrayAsync(cancellationToken);
         return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
     }

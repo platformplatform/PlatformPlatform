@@ -214,6 +214,37 @@
         }
       }
     },
+    "/api/account-management/authentication/sessions/{id}": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "DeleteApiAccountManagementAuthenticationSessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SessionId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internal-api/account-management/authentication/refresh-authentication-tokens": {
       "post": {
         "operationId": "PostInternalApiAccountManagementAuthenticationRefreshAuthenticationTokens",
@@ -1437,6 +1468,9 @@
           },
           "isCurrent": {
             "type": "boolean"
+          },
+          "tenantName": {
+            "type": "string"
           }
         }
       },

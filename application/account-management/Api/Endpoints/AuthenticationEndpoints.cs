@@ -4,6 +4,7 @@ using PlatformPlatform.AccountManagement.Features.Authentication.Queries;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.SharedKernel.ApiResults;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Endpoints;
 
 namespace PlatformPlatform.AccountManagement.Api.Endpoints;
@@ -39,6 +40,10 @@ public sealed class AuthenticationEndpoints : IEndpoints
         group.MapGet("/sessions", async Task<ApiResult<UserSessionsResponse>> ([AsParameters] GetUserSessionsQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<UserSessionsResponse>();
+
+        group.MapDelete("/sessions/{id}", async Task<ApiResult> (SessionId id, IMediator mediator)
+            => await mediator.Send(new RevokeSessionCommand { Id = id })
+        );
 
         // Note: This endpoint must be called with the refresh token as Bearer token in the Authorization header
         routes.MapPost("/internal-api/account-management/authentication/refresh-authentication-tokens", async Task<ApiResult> (IMediator mediator)

@@ -61,12 +61,20 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
         response.Headers.Count(h => h.Key == "x-refresh-token").Should().Be(1);
         response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("TenantSwitched");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.from_tenant_id"].Should().Be(DatabaseSeeder.Tenant1.Id.ToString());
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.to_tenant_id"].Should().Be(tenant2Id.ToString());
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(user2Id.ToString());
+        var oldSessionRevokedReason = Connection.ExecuteScalar<string>(
+            "SELECT RevokedReason FROM Sessions WHERE Id = @Id",
+            [new { Id = DatabaseSeeder.Tenant1MemberSession.Id.ToString() }]
+        );
+        oldSessionRevokedReason.Should().Be("SwitchTenant");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRevoked");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.reason"].Should().Be("SwitchTenant");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("TenantSwitched");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].Properties["event.from_tenant_id"].Should().Be(DatabaseSeeder.Tenant1.Id.ToString());
+        TelemetryEventsCollectorSpy.CollectedEvents[2].Properties["event.to_tenant_id"].Should().Be(tenant2Id.ToString());
+        TelemetryEventsCollectorSpy.CollectedEvents[2].Properties["event.user_id"].Should().Be(user2Id.ToString());
     }
 
     [Fact]
@@ -287,7 +295,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
     }
 
     [Fact]
-    public async Task SwitchTenant_RapidSwitching_ShouldHandleCorrectly()
+    public async Task SwitchTenant_WhenSessionAlreadyRevoked_ShouldReturnUnauthorized()
     {
         // Arrange
         var tenant2Id = TenantId.NewId();
@@ -319,24 +327,20 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
             ]
         );
 
-        // Act
+        // First switch succeeds and revokes the current session
         var response1 = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
             "/api/account-management/authentication/switch-tenant", new SwitchTenantCommand(tenant2Id)
         );
+        await response1.ShouldBeSuccessfulPostRequest(hasLocation: false);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act - Attempt to switch again with the same (now revoked) session
         var response2 = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
             "/api/account-management/authentication/switch-tenant", new SwitchTenantCommand(DatabaseSeeder.Tenant1.Id)
         );
-        var response3 = await AuthenticatedMemberHttpClient.PostAsJsonAsync(
-            "/api/account-management/authentication/switch-tenant", new SwitchTenantCommand(tenant2Id)
-        );
 
         // Assert
-        await response1.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        await response2.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        await response3.ShouldBeSuccessfulPostRequest(hasLocation: false);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(6);
-        TelemetryEventsCollectorSpy.CollectedEvents.Where(e => e.GetType().Name == "SessionCreated").Should().HaveCount(3);
-        TelemetryEventsCollectorSpy.CollectedEvents.Where(e => e.GetType().Name == "TenantSwitched").Should().HaveCount(3);
+        await response2.ShouldHaveErrorStatusCode(HttpStatusCode.Unauthorized, "Session has been revoked.");
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 }

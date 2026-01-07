@@ -8,14 +8,16 @@ import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOutIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, MonitorSmartphoneIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/shared/lib/api/client";
+import SessionsModal from "../common/SessionsModal";
 import UserProfileModal from "../common/UserProfileModal";
 import "@repo/ui/tailwind.css";
 
 export default function AvatarButton() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
   const [hasAutoOpenedModal, setHasAutoOpenedModal] = useState(false);
   const userInfo = useUserInfo();
   const queryClient = useQueryClient();
@@ -79,6 +81,10 @@ export default function AvatarButton() {
             <UserIcon size={16} />
             <Trans>Edit profile</Trans>
           </MenuItem>
+          <MenuItem id="sessions" onAction={() => setIsSessionsModalOpen(true)}>
+            <MonitorSmartphoneIcon size={16} />
+            <Trans>Sessions</Trans>
+          </MenuItem>
           <MenuSeparator />
           <MenuItem id="logout" onAction={() => logoutMutation.mutate({})}>
             <LogOutIcon size={16} /> <Trans>Log out</Trans>
@@ -87,6 +93,7 @@ export default function AvatarButton() {
       </MenuTrigger>
 
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
+      <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />
     </>
   );
 }
