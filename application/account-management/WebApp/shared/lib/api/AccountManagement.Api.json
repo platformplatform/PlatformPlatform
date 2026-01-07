@@ -1468,6 +1468,9 @@
           },
           "isCurrent": {
             "type": "boolean"
+          },
+          "tenantName": {
+            "type": "string"
           }
         }
       },

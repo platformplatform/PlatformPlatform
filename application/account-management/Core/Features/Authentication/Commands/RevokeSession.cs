@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -16,6 +17,7 @@ public sealed record RevokeSessionCommand : ICommand, IRequest<Result>
 
 public sealed class RevokeSessionHandler(
     ISessionRepository sessionRepository,
+    IUserRepository userRepository,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     TimeProvider timeProvider
@@ -23,15 +25,16 @@ public sealed class RevokeSessionHandler(
 {
     public async Task<Result> Handle(RevokeSessionCommand command, CancellationToken cancellationToken)
     {
-        var userId = executionContext.UserInfo.Id!;
+        var userEmail = executionContext.UserInfo.Email!;
 
-        var session = await sessionRepository.GetByIdAsync(command.Id, cancellationToken);
+        var session = await sessionRepository.GetByIdUnfilteredAsync(command.Id, cancellationToken);
         if (session is null)
         {
             return Result.NotFound($"Session with id '{command.Id}' not found.");
         }
 
-        if (session.UserId != userId)
+        var sessionUser = await userRepository.GetByIdUnfilteredAsync(session.UserId, cancellationToken);
+        if (sessionUser?.Email != userEmail)
         {
             return Result.Forbidden("You can only revoke your own sessions.");
         }
