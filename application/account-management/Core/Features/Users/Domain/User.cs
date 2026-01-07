@@ -39,6 +39,8 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
 
     public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
 
+    public DateTimeOffset? LastSeenAt { get; private set; }
+
     public DateTimeOffset? DeletedAt { get; private set; }
 
     [NotMapped]
@@ -101,6 +103,11 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
     public void ChangeLocale(string locale)
     {
         Locale = locale;
+    }
+
+    public void UpdateLastSeen(DateTimeOffset lastSeenAt)
+    {
+        LastSeenAt = lastSeenAt;
     }
 }
 

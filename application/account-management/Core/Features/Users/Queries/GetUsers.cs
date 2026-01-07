@@ -29,6 +29,7 @@ public sealed record UserDetails(
     UserId Id,
     DateTimeOffset CreatedAt,
     DateTimeOffset? ModifiedAt,
+    DateTimeOffset? LastSeenAt,
     string Email,
     UserRole Role,
     string FirstName,

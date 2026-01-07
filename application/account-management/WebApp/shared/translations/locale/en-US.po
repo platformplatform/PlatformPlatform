@@ -445,6 +445,9 @@ msgstr "Last active:"
 msgid "Last name"
 msgstr "Last name"
 
+msgid "Last seen"
+msgstr "Last seen"
+
 msgid "Leave"
 msgstr "Leave"
 
@@ -507,9 +510,6 @@ msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
 msgid "Mobile"
 msgstr "Mobile"
-
-msgid "Modified"
-msgstr "Modified"
 
 msgid "Modified date"
 msgstr "Modified date"

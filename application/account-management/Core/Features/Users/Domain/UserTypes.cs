@@ -23,7 +23,7 @@ public enum UserStatus
 public enum SortableUserProperties
 {
     CreatedAt,
-    ModifiedAt,
+    LastSeenAt,
     Name,
     Email,
     Role

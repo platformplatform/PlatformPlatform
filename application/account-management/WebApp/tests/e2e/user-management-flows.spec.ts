@@ -462,16 +462,17 @@ test.describe("@smoke", () => {
 
 test.describe("@comprehensive", () => {
   /**
-   * USER DELETION WORKFLOWS WITH DASHBOARD INTEGRATION
+   * USER DELETION WORKFLOWS WITH DASHBOARD INTEGRATION AND LASTSEENAT VERIFICATION
    *
    * Tests comprehensive user deletion functionality with dashboard context including:
    * - Dashboard metrics integration (user count displays)
    * - URL-based filtering (active users link)
    * - Advanced filtering (role, status combinations)
+   * - Role change with LastSeenAt preservation verification
    * - Single user soft deletion via menu actions
    * - Bulk user selection and bulk deletion
    * - Owner protection mechanisms (deletion restrictions)
-   * - Restore user from Recycle bin tab
+   * - Restore user from Recycle bin tab with LastSeenAt preservation verification
    * - Permanent delete user via confirmation dialog
    * - Empty recycle bin functionality
    */
@@ -738,11 +739,38 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("tbody").first()).toContainText(user2.email);
     })();
 
-    // === SOFT DELETION SECTION ===
-    await step("Soft delete user1 via menu & verify removal from All users")(async () => {
-      const user1FullName = `${user1.firstName} ${user1.lastName}`;
-
+    // === ROLE CHANGE WITH LASTSEENAT PRESERVATION SECTION ===
+    await step("Change user1 role to Admin & verify LastSeenAt unchanged")(async () => {
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
+      const user1LastSeenAtBefore = await user1Row.locator("td").nth(3).innerText();
+
+      const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
+      await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
+
+      await expect(page.getByRole("menu")).toBeVisible();
+      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
+      await page.getByRole("radio", { name: "Admin" }).check({ force: true });
+      await page.getByRole("button", { name: "Save changes" }).click();
+
+      const user1FullName = `${user1.firstName} ${user1.lastName}`;
+      await expectToastMessage(context, `User role updated successfully for ${user1FullName}`);
+      await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
+
+      await expect(user1Row.locator("td").nth(3)).toHaveText(user1LastSeenAtBefore);
+      await expect(user1Row).toContainText("Admin");
+    })();
+
+    // === SOFT DELETION WITH LASTSEENAT PRESERVATION SECTION ===
+    let user1LastSeenAtBeforeDelete: string;
+
+    await step("Capture user1 LastSeenAt & soft delete via menu")(async () => {
+      const user1FullName = `${user1.firstName} ${user1.lastName}`;
+      const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
+
+      user1LastSeenAtBeforeDelete = await user1Row.locator("td").nth(3).innerText();
+
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
       await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
       await page.getByRole("menuitem", { name: "Delete" }).click();
@@ -845,7 +873,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
     })();
 
-    await step("Navigate to All users tab & verify restored user appears")(async () => {
+    await step("Navigate to All users & verify restored user LastSeenAt unchanged")(async () => {
       await page.getByRole("link", { name: "All users" }).click();
 
       await expect(page).toHaveURL("/admin/users");
@@ -853,6 +881,9 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("tbody").first()).toContainText(owner.email);
       await expect(page.locator("tbody").first()).toContainText(user1.email);
       await expect(page.locator("tbody").first()).not.toContainText(user2.email);
+
+      const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
+      await expect(user1Row.locator("td").nth(3)).toHaveText(user1LastSeenAtBeforeDelete);
     })();
   });
 });

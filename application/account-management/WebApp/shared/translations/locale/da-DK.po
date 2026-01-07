@@ -445,6 +445,9 @@ msgstr "Sidst aktiv:"
 msgid "Last name"
 msgstr "Efternavn"
 
+msgid "Last seen"
+msgstr "Sidst set"
+
 msgid "Leave"
 msgstr "Forlad"
 
@@ -507,9 +510,6 @@ msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
 
 msgid "Mobile"
 msgstr "Mobil"
-
-msgid "Modified"
-msgstr "Ændret"
 
 msgid "Modified date"
 msgstr "Ændret dato"

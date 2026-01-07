@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Domain;
@@ -115,20 +116,23 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
     {
-        var thirtyDaysAgo = timeProvider.GetUtcNow().AddDays(-30);
+        var thirtyDaysAgo = timeProvider.GetUtcNow().AddDays(-30).ToString("O");
+        var tenantId = executionContext.TenantId!.Value.ToString();
 
-        var summary = await DbSet
-            .GroupBy(_ => 1) // Group all records into a single group to calculate multiple COUNT aggregates in one query
-            .Select(g => new
-                {
-                    TotalUsers = g.Count(),
-                    ActiveUsers = g.Count(u => u.EmailConfirmed && u.ModifiedAt >= thirtyDaysAgo),
-                    PendingUsers = g.Count(u => !u.EmailConfirmed)
-                }
-            )
+        var sql = """
+                  SELECT
+                      COUNT(*) AS TotalUsers,
+                      SUM(CASE WHEN EmailConfirmed = 1 AND LastSeenAt >= {0} THEN 1 ELSE 0 END) AS ActiveUsers,
+                      SUM(CASE WHEN EmailConfirmed = 0 THEN 1 ELSE 0 END) AS PendingUsers
+                  FROM Users
+                  WHERE TenantId = {1} AND DeletedAt IS NULL
+                  """;
+
+        var result = await accountManagementDbContext.Database
+            .SqlQueryRaw<UserSummaryResult>(sql, thirtyDaysAgo, tenantId)
             .SingleAsync(cancellationToken);
 
-        return (summary.TotalUsers, summary.ActiveUsers, summary.PendingUsers);
+        return (result.TotalUsers, result.ActiveUsers, result.PendingUsers);
     }
 
     public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
@@ -182,9 +186,9 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
             SortableUserProperties.CreatedAt => sortOrder == SortOrder.Ascending
                 ? users.OrderBy(u => u.CreatedAt)
                 : users.OrderByDescending(u => u.CreatedAt),
-            SortableUserProperties.ModifiedAt => sortOrder == SortOrder.Ascending
-                ? users.OrderBy(u => u.ModifiedAt)
-                : users.OrderByDescending(u => u.ModifiedAt),
+            SortableUserProperties.LastSeenAt => sortOrder == SortOrder.Ascending
+                ? users.OrderBy(u => u.LastSeenAt)
+                : users.OrderByDescending(u => u.LastSeenAt),
             SortableUserProperties.Name => sortOrder == SortOrder.Ascending
                 ? users.OrderBy(u => u.FirstName == null ? 1 : 0)
                     .ThenBy(u => u.FirstName)
@@ -239,4 +243,7 @@ internal sealed class UserRepository(AccountManagementDbContext accountManagemen
             .Where(u => u.Email == email.ToLowerInvariant())
             .ToArrayAsync(cancellationToken);
     }
+
+    [UsedImplicitly]
+    private sealed record UserSummaryResult(int TotalUsers, int ActiveUsers, int PendingUsers);
 }

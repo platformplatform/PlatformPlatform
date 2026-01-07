@@ -98,6 +98,9 @@ public sealed class CompleteLoginHandler(
         var session = Session.Create(user.TenantId, user.Id, userAgent, ipAddress);
         await sessionRepository.AddAsync(session, cancellationToken);
 
+        user.UpdateLastSeen(timeProvider.GetUtcNow());
+        userRepository.Update(user);
+
         var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken, session.Id);
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
 
