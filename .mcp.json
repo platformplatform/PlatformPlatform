@@ -3,6 +3,10 @@
     "developer-cli": {
       "command": "dotnet",
       "args": ["run", "--project", "developer-cli", "mcp"]
+    },
+    "aspire": {
+      "url": "http://localhost:9096/mcp",
+      "type": "http"
     }
   }
 }
