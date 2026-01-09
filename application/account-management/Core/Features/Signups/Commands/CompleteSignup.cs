@@ -59,7 +59,7 @@ public sealed class CompleteSignupHandler(
         user.UpdateLastSeen(timeProvider.GetUtcNow());
         userRepository.Update(user);
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, cancellationToken, session.Id);
+        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
 
         events.CollectEvent(new SessionCreated(session.Id));
