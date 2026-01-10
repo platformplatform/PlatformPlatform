@@ -41,11 +41,6 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         var updatedVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
         updatedVersion.Should().Be(2);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRefreshed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("AuthenticationTokensRefreshed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
@@ -69,10 +64,6 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         var sessionVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
         sessionVersion.Should().Be(2);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRefreshed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("AuthenticationTokensRefreshed");
     }
 
     [Fact]

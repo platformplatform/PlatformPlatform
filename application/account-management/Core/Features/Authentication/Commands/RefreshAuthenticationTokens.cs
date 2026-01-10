@@ -117,9 +117,6 @@ public sealed class RefreshAuthenticationTokensHandler(
         var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
         authenticationTokenService.RefreshAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti, refreshTokenVersion, refreshTokenExpires);
 
-        events.CollectEvent(new SessionRefreshed(session.Id));
-        events.CollectEvent(new AuthenticationTokensRefreshed());
-
         return Result.Success();
     }
 }
