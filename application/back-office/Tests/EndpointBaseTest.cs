@@ -48,8 +48,8 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Services.AddLogging();
         Services.AddTransient<DatabaseSeeder>();
 
-        // Create connection and add DbContext to the service collection
-        Connection = new SqliteConnection("DataSource=:memory:");
+        // Create connection using shared cache mode so isolated connections can access the same in-memory database
+        Connection = new SqliteConnection($"Data Source=TestDb_{Guid.NewGuid():N};Mode=Memory;Cache=Shared");
         Connection.Open();
 
         // Configure SQLite to behave more like SQL Server

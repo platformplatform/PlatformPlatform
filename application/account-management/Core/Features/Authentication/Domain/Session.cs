@@ -1,4 +1,5 @@
 using System.Net;
+using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.Domain;
 
@@ -24,10 +25,13 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
 
     public UserId UserId { get; private init; }
 
+    [UsedImplicitly] // Updated via raw SQL in SessionRepository.TryRefreshAsync to handle concurrent refresh requests atomically
     public RefreshTokenJti RefreshTokenJti { get; private set; }
 
+    [UsedImplicitly] // Updated via raw SQL in SessionRepository.TryRefreshAsync
     public RefreshTokenJti? PreviousRefreshTokenJti { get; private set; }
 
+    [UsedImplicitly] // Updated via raw SQL in SessionRepository.TryRefreshAsync
     public int RefreshTokenVersion { get; private set; }
 
     public DeviceType DeviceType { get; private init; }
@@ -50,13 +54,6 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
     {
         var deviceType = ParseDeviceType(userAgent);
         return new Session(tenantId, userId, deviceType, userAgent, ipAddress.ToString());
-    }
-
-    public void Refresh()
-    {
-        PreviousRefreshTokenJti = RefreshTokenJti;
-        RefreshTokenJti = RefreshTokenJti.NewId();
-        RefreshTokenVersion++;
     }
 
     public void Revoke(DateTimeOffset now, SessionRevokedReason reason)

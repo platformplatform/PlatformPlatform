@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -21,6 +22,12 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     This method should only be used in the Sessions dialog where users need to see all sessions for their email.
     /// </summary>
     Task<Session[]> GetActiveSessionsForUsersUnfilteredAsync(UserId[] userIds, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Attempts to refresh the session token if the current JTI and version match.
+    ///     Returns false if another concurrent request already refreshed the session.
+    /// </summary>
+    Task<bool> TryRefreshAsync(SessionId sessionId, RefreshTokenJti currentJti, int currentVersion, RefreshTokenJti newJti, DateTimeOffset now, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountManagementDbContext accountManagementDbContext)
@@ -29,6 +36,43 @@ public sealed class SessionRepository(AccountManagementDbContext accountManageme
     public async Task<Session?> GetByIdUnfilteredAsync(SessionId sessionId, CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Uses an atomic UPDATE via raw ADO.NET with a separate connection to ensure complete isolation.
+    ///     This creates an independent database connection that commits immediately, preventing race conditions
+    ///     when multiple concurrent requests attempt to refresh the same token.
+    /// </summary>
+    public async Task<bool> TryRefreshAsync(SessionId sessionId, RefreshTokenJti currentJti, int currentVersion, RefreshTokenJti newJti, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var existingConnection = accountManagementDbContext.Database.GetDbConnection();
+
+        // Create a new connection of the same type to ensure complete isolation from EF Core's transaction.
+        await using var connection = (DbConnection)Activator.CreateInstance(existingConnection.GetType())!;
+        connection.ConnectionString = accountManagementDbContext.Database.GetConnectionString();
+        await connection.OpenAsync(cancellationToken);
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+                              UPDATE Sessions
+                              SET PreviousRefreshTokenJti = RefreshTokenJti,
+                                  RefreshTokenJti = @newJti,
+                                  RefreshTokenVersion = RefreshTokenVersion + 1,
+                                  ModifiedAt = @now
+                              WHERE Id = @sessionId
+                                AND RefreshTokenJti = @currentJti
+                                AND RefreshTokenVersion = @currentVersion
+                              """;
+
+        AddParameter(command, "@newJti", newJti.Value);
+        AddParameter(command, "@now", now.ToString("O"));
+        AddParameter(command, "@sessionId", sessionId.Value);
+        AddParameter(command, "@currentJti", currentJti.Value);
+        AddParameter(command, "@currentVersion", currentVersion);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken);
+
+        return rowsAffected == 1;
     }
 
     public async Task<Session[]> GetActiveSessionsForUserAsync(UserId userId, CancellationToken cancellationToken)
@@ -46,5 +90,13 @@ public sealed class SessionRepository(AccountManagementDbContext accountManageme
             .Where(s => userIds.AsEnumerable().Contains(s.UserId) && s.RevokedAt == null)
             .ToArrayAsync(cancellationToken);
         return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+    }
+
+    private static void AddParameter(DbCommand command, string name, object value)
+    {
+        var parameter = command.CreateParameter();
+        parameter.ParameterName = name;
+        parameter.Value = value;
+        command.Parameters.Add(parameter);
     }
 }

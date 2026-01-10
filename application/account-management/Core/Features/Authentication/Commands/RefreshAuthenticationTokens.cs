@@ -91,7 +91,10 @@ public sealed class RefreshAuthenticationTokensHandler(
 
         if (!session.IsRefreshTokenValid(jti, refreshTokenVersion, now))
         {
-            logger.LogWarning("Replay attack detected for session '{SessionId}'. Token JTI '{TokenJti}', current JTI '{CurrentJti}'. Token version '{TokenVersion}', current version '{CurrentVersion}'", session.Id, jti, session.RefreshTokenJti, refreshTokenVersion, session.RefreshTokenVersion);
+            logger.LogWarning(
+                "Replay attack detected for session '{SessionId}'. Token JTI '{TokenJti}', current JTI '{CurrentJti}'. Token version '{TokenVersion}', current version '{CurrentVersion}'",
+                session.Id, jti, session.RefreshTokenJti, refreshTokenVersion, session.RefreshTokenVersion
+            );
             session.Revoke(now, SessionRevokedReason.ReplayAttackDetected);
             sessionRepository.Update(session);
             events.CollectEvent(new SessionReplayDetected(session.Id, refreshTokenVersion, session.RefreshTokenVersion));
@@ -105,17 +108,43 @@ public sealed class RefreshAuthenticationTokensHandler(
             return Result.Unauthorized($"No user found with user id '{userId}'.");
         }
 
+        RefreshTokenJti tokenJti;
+        int tokenVersion;
+
         if (jti == session.RefreshTokenJti && refreshTokenVersion == session.RefreshTokenVersion)
         {
-            session.Refresh();
-            sessionRepository.Update(session);
+            // Attempt atomic refresh via isolated connection - only one concurrent request can succeed.
+            // TryRefreshAsync commits immediately via its own connection, independent of UnitOfWorkPipelineBehavior.
+            var newJti = RefreshTokenJti.NewId();
+            var refreshed = await sessionRepository.TryRefreshAsync(session.Id, jti, refreshTokenVersion, newJti, now, cancellationToken);
 
-            user.UpdateLastSeen(now);
-            userRepository.Update(user);
+            if (refreshed)
+            {
+                // Atomic refresh succeeded - update User.LastSeenAt (committed by UnitOfWorkPipelineBehavior)
+                user.UpdateLastSeen(now);
+                userRepository.Update(user);
+                tokenJti = newJti;
+                tokenVersion = refreshTokenVersion + 1;
+            }
+            else
+            {
+                // Concurrent request refreshed session after our fetch - re-fetch for updated values.
+                // Grace period via PreviousRefreshTokenJti ensures this request still succeeds.
+                session = await sessionRepository.GetByIdUnfilteredAsync(session.Id, cancellationToken)
+                          ?? throw new InvalidOperationException("Session revoked during refresh.");
+                tokenJti = session.RefreshTokenJti;
+                tokenVersion = session.RefreshTokenVersion;
+            }
+        }
+        else
+        {
+            // Grace period request - token validated via PreviousRefreshTokenJti, use current session values
+            tokenJti = session.RefreshTokenJti;
+            tokenVersion = session.RefreshTokenVersion;
         }
 
         var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
-        authenticationTokenService.RefreshAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti, refreshTokenVersion, refreshTokenExpires);
+        authenticationTokenService.GenerateAuthenticationTokens(userInfo, session.Id, tokenJti, tokenVersion, refreshTokenExpires);
 
         return Result.Success();
     }
