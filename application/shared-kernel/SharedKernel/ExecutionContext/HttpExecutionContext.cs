@@ -39,7 +39,18 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
                 return field = IPAddress.None;
             }
 
-            // UseForwardedHeaders() middleware already processes X-Forwarded-For and sets RemoteIpAddress
+            // Read X-Forwarded-For header directly to get client IP (first IP in the chain is the original client)
+            var forwardedFor = httpContextAccessor.HttpContext.Request.Headers["X-Forwarded-For"].ToString();
+            if (!string.IsNullOrEmpty(forwardedFor))
+            {
+                var clientIp = forwardedFor.Split(',').FirstOrDefault()?.Trim();
+                if (IPAddress.TryParse(clientIp, out var parsedIpAddress))
+                {
+                    return field = NormalizeLoopbackAddress(parsedIpAddress);
+                }
+            }
+
+            // Fall back to RemoteIpAddress for local development without proxies
             var remoteIpAddress = httpContextAccessor.HttpContext.Connection.RemoteIpAddress ?? IPAddress.None;
             return field = NormalizeLoopbackAddress(remoteIpAddress);
         }
