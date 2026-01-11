@@ -137,10 +137,12 @@ public static class DeveloperCliMcpTools
 
     [McpServerTool]
     [Description("Run end-to-end tests")]
-    public static async Task<string> E2E(
+    public static async Task<string> EndToEnd(
         [Description("Search terms")] string[]? searchTerms = null,
         [Description("Browser")] string browser = "all",
-        [Description("Smoke only")] bool smoke = false)
+        [Description("Smoke only")] bool smoke = false,
+        [Description("Wait for Aspire to start (retries server check up to 50 seconds)")]
+        bool waitForAspire = false)
     {
         var args = new List<string> { "e2e", "--quiet" };
         if (searchTerms is { Length: > 0 }) args.AddRange(searchTerms);
@@ -151,6 +153,7 @@ public static class DeveloperCliMcpTools
         }
 
         if (smoke) args.Add("--smoke");
+        if (waitForAspire) args.Add("--wait-for-aspire");
 
         return await ExecuteCliCommandAsync(args.ToArray());
     }

@@ -34,6 +34,7 @@ public class End2EndCommand : Command
         var stopOnFirstFailureOption = new Option<bool>("--stop-on-first-failure", "-x") { Description = "Stop after the first failure" };
         var uiOption = new Option<bool>("--ui") { Description = "Run tests in interactive UI mode with time-travel debugging" };
         var workersOption = new Option<int?>("--workers", "-w") { Description = "Number of worker processes to use for running tests" };
+        var waitForAspireOption = new Option<bool>("--wait-for-aspire") { Description = "Wait for Aspire to start (retries server check up to 50 seconds)" };
 
         Arguments.Add(searchTermsArgument);
         Options.Add(browserOption);
@@ -54,6 +55,7 @@ public class End2EndCommand : Command
         Options.Add(stopOnFirstFailureOption);
         Options.Add(uiOption);
         Options.Add(workersOption);
+        Options.Add(waitForAspireOption);
 
         // SetHandler only supports up to 8 parameters, so we use SetAction for this complex command
         SetAction(parseResult => Execute(
@@ -75,7 +77,8 @@ public class End2EndCommand : Command
                 parseResult.GetValue(smokeOption),
                 parseResult.GetValue(stopOnFirstFailureOption),
                 parseResult.GetValue(uiOption),
-                parseResult.GetValue(workersOption)
+                parseResult.GetValue(workersOption),
+                parseResult.GetValue(waitForAspireOption)
             )
         );
     }
@@ -101,7 +104,8 @@ public class End2EndCommand : Command
         bool smoke,
         bool stopOnFirstFailure,
         bool ui,
-        int? workers)
+        int? workers,
+        bool waitForAspire)
     {
         Prerequisite.Ensure(Prerequisite.Node);
 
@@ -113,7 +117,7 @@ public class End2EndCommand : Command
         }
 
         AnsiConsole.MarkupLine("[blue]Checking server availability...[/]");
-        CheckWebsiteAccessibility();
+        CheckWebsiteAccessibility(waitForAspire);
 
         PlaywrightInstaller.EnsurePlaywrightBrowsers();
 
@@ -341,24 +345,35 @@ public class End2EndCommand : Command
         return !testsFailed;
     }
 
-    private static void CheckWebsiteAccessibility()
+    private static void CheckWebsiteAccessibility(bool waitForAspire)
     {
-        try
+        var maxRetries = waitForAspire ? 10 : 1;
+        var retryDelaySeconds = 5;
+
+        for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
-            using var httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(5);
-
-            var response = httpClient.Send(new HttpRequestMessage(HttpMethod.Head, BaseUrl));
-
-            if (response.IsSuccessStatusCode)
+            try
             {
-                AnsiConsole.MarkupLine($"[green]Server is accessible at {BaseUrl}[/]");
-                return;
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromSeconds(5);
+
+                var response = httpClient.Send(new HttpRequestMessage(HttpMethod.Head, BaseUrl));
+
+                if (response.IsSuccessStatusCode)
+                {
+                    AnsiConsole.MarkupLine($"[green]Server is accessible at {BaseUrl}[/]");
+                    return;
+                }
             }
-        }
-        catch
-        {
-            // Fall through to error handling
+            catch
+            {
+                // Retry if waiting for Aspire and not the last attempt
+                if (waitForAspire && attempt < maxRetries)
+                {
+                    AnsiConsole.MarkupLine($"[yellow]Server not ready yet, retrying in {retryDelaySeconds} seconds... (attempt {attempt}/{maxRetries})[/]");
+                    Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
+                }
+            }
         }
 
         AnsiConsole.MarkupLine($"[red]Server is not accessible at {BaseUrl}[/]");
