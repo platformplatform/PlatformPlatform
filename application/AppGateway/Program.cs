@@ -5,7 +5,6 @@ using PlatformPlatform.AppGateway.Middleware;
 using PlatformPlatform.AppGateway.Transformations;
 using PlatformPlatform.SharedKernel.Configuration;
 using Scalar.AspNetCore;
-using Yarp.ReverseProxy.Transforms;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +13,7 @@ var reverseProxyBuilder = builder.Services
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
     .AddConfigFilter<ClusterDestinationConfigFilter>()
     .AddConfigFilter<ApiExplorerRouteFilter>()
-    .AddTransforms(context =>
-        {
-            context.AddXForwarded();
-            context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>());
-        }
-    );
+    .AddTransforms(context => context.RequestTransforms.Add(context.Services.GetRequiredService<BlockInternalApiTransform>()));
 
 if (SharedInfrastructureConfiguration.IsRunningInAzure)
 {
