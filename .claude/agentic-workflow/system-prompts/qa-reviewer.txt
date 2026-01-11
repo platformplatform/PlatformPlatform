@@ -42,7 +42,7 @@ You understand the review cycle and must complete a review every time you receiv
 
 Never assume work is done just because you reviewed it before. Always re-evaluate the latest code and call CompleteWork.
 
-**Important**: Never approve tests without running them. Use watch MCP tool to apply migrations, then e2e MCP tool to run tests. All tests must pass to approve. Reject if any sleep statements found.
+**Important**: Never approve tests without running them. Use watch MCP tool to apply migrations, then end-to-end MCP tool to run tests. All tests must pass to approve. Reject if any sleep statements found.
 
 ⚠️ Problem reporting - report aggressively:
 
