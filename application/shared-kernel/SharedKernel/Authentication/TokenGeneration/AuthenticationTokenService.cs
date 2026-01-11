@@ -15,16 +15,18 @@ public sealed class AuthenticationTokenService(
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
-    public void CreateAndSetAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, DateTimeOffset expires)
+    /// <summary>Preserves the original expiry to prevent session lifetime extension through repeated tenant switching.</summary>
+    public void SwitchTenantAndSetAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, DateTimeOffset expires)
     {
-        var refreshToken = refreshTokenGenerator.Generate(userInfo, sessionId, jti, expires);
+        var refreshToken = refreshTokenGenerator.Generate(userInfo, sessionId, jti, 1, expires);
         var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }
 
-    public void RefreshAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int currentRefreshTokenVersion, DateTimeOffset expires)
+    /// <summary>Used during token refresh to issue new tokens with incremented version while preserving original expiry.</summary>
+    public void GenerateAuthenticationTokens(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int refreshTokenVersion, DateTimeOffset expires)
     {
-        var refreshToken = refreshTokenGenerator.Update(userInfo, sessionId, jti, currentRefreshTokenVersion, expires);
+        var refreshToken = refreshTokenGenerator.Generate(userInfo, sessionId, jti, refreshTokenVersion, expires);
         var accessToken = accessTokenGenerator.Generate(userInfo);
         SetAuthenticationTokensOnHttpResponse(refreshToken, accessToken);
     }

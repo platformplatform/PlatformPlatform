@@ -15,10 +15,10 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
     ///     Creates a UserInfo instance from a User entity, including tenant name.
     /// </summary>
     /// <param name="user">The user entity</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <param name="sessionId">Optional session ID to include in the UserInfo</param>
+    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>UserInfo with all required properties including tenant name</returns>
-    public async Task<UserInfo> CreateUserInfoAsync(User user, CancellationToken cancellationToken, SessionId? sessionId = null)
+    public async Task<UserInfo> CreateUserInfoAsync(User user, SessionId? sessionId, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
 

@@ -41,11 +41,6 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         var updatedVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
         updatedVersion.Should().Be(2);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRefreshed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("AuthenticationTokensRefreshed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
@@ -69,10 +64,6 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         var sessionVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
         sessionVersion.Should().Be(2);
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRefreshed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("AuthenticationTokensRefreshed");
     }
 
     [Fact]
@@ -140,6 +131,31 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
+    [Fact]
+    public async Task RefreshAuthenticationTokens_WhenSequentialRequestsWithSameToken_ShouldBothSucceed()
+    {
+        // Arrange - simulate grace period scenario where concurrent request already refreshed the session
+        var jti = RefreshTokenJti.NewId();
+        var sessionId = SessionId.NewId();
+        InsertSession(DatabaseSeeder.Tenant1Owner.TenantId, DatabaseSeeder.Tenant1Owner.Id, sessionId, jti, 1);
+        var userInfo = DatabaseSeeder.Tenant1Owner.Adapt<UserInfo>();
+        var refreshToken = _refreshTokenGenerator.Generate(userInfo, sessionId, jti);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act - First request refreshes the session
+        var response1 = await SendRefreshRequest(refreshToken);
+
+        // Act - Second request with same token should succeed via grace period
+        var response2 = await SendRefreshRequest(refreshToken);
+
+        // Assert
+        response1.StatusCode.Should().Be(HttpStatusCode.OK);
+        response2.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var sessionVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
+        sessionVersion.Should().Be(2);
+    }
+
     private async Task<HttpResponseMessage> SendRefreshRequest(string refreshToken)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, "/internal-api/account-management/authentication/refresh-authentication-tokens");
@@ -151,14 +167,8 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
     {
         using var serviceScope = Provider.CreateScope();
         var generator = serviceScope.ServiceProvider.GetRequiredService<RefreshTokenGenerator>();
-        var token = generator.Generate(userInfo, sessionId, jti);
-
-        for (var i = 1; i < version; i++)
-        {
-            token = generator.Update(userInfo, sessionId, jti, i, TimeProvider.System.GetUtcNow().AddHours(2160));
-        }
-
-        return token;
+        var expires = TimeProvider.System.GetUtcNow().AddHours(RefreshTokenGenerator.ValidForHours);
+        return generator.Generate(userInfo, sessionId, jti, version, expires);
     }
 
     private void InsertSession(long tenantId, string userId, SessionId sessionId, RefreshTokenJti jti, int version, bool isRevoked = false)

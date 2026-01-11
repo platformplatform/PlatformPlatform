@@ -11,22 +11,14 @@ public sealed class RefreshTokenGenerator(ITokenSigningClient tokenSigningClient
     // Similar to Facebook and GitHub, when a user logs in, the session will be valid for a very long time.
     public const int ValidForHours = 2160; // 24 hours * 90 days
 
+    /// <summary>Creates initial refresh token for new sessions (login/signup).</summary>
     public string Generate(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti)
     {
-        return GenerateRefreshToken(userInfo, sessionId, jti, 1, timeProvider.GetUtcNow().AddHours(ValidForHours));
+        return Generate(userInfo, sessionId, jti, 1, timeProvider.GetUtcNow().AddHours(ValidForHours));
     }
 
-    public string Generate(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, DateTimeOffset expires)
-    {
-        return GenerateRefreshToken(userInfo, sessionId, jti, 1, expires);
-    }
-
-    public string Update(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int currentRefreshTokenVersion, DateTimeOffset expires)
-    {
-        return GenerateRefreshToken(userInfo, sessionId, jti, currentRefreshTokenVersion + 1, expires);
-    }
-
-    private string GenerateRefreshToken(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int refreshTokenVersion, DateTimeOffset expires)
+    /// <summary>Creates refresh token with explicit version and expiry (for token refresh and tenant switching).</summary>
+    public string Generate(UserInfo userInfo, SessionId sessionId, RefreshTokenJti jti, int refreshTokenVersion, DateTimeOffset expires)
     {
         var tokenDescriptor = new SecurityTokenDescriptor
         {
