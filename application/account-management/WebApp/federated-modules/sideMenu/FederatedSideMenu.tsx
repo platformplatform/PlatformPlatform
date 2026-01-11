@@ -67,7 +67,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
         <NavigationMenuItems currentSystem={currentSystem} />
       </SideMenu>
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
-      <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />
+      {isSessionsModalOpen && <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />}
       <AcceptInvitationDialog
         isOpen={!!invitationDialogTenant}
         onOpenChange={(open) => !open && setInvitationDialogTenant(null)}
