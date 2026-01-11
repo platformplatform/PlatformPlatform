@@ -10,18 +10,18 @@ These rules outline the structure, patterns, and best practices for writing end-
 
 ## Implementation
 
-1. Use the **e2e MCP tool** to run end-to-end tests with these options:
+1. Use the **end-to-end MCP tool** to run end-to-end tests with these options:
    - Test filtering: smoke tests only, specific browser, search terms
    - Change scoping: last failed tests, only changed tests
    - Flaky test detection: repeat tests, retry on failure, stop on first failure
    - Performance: debug timing to see step execution times
-   - **Note**: The **e2e MCP tool** always runs with quiet mode automatically
+   - **Note**: The **end-to-end MCP tool** always runs with quiet mode automatically
 
 2. Test Search and Filtering:
    - Search by test tags: smoke, comprehensive
    - Search by test content: find tests containing specific text
    - Search by filename: find specific test files
-   - Multiple search terms: `e2e(searchTerms=["user", "management"])`
+   - Multiple search terms: `end-to-end(searchTerms=["user", "management"])`
    - The tool automatically detects which self-contained systems contain matching tests and only runs those
 
 3. Test-Driven Debugging Process:

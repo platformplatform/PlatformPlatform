@@ -22,10 +22,40 @@ When working on tasks, follow any specific workflow instructions provided for yo
 3. Develop a clear implementation plan.
 4. Follow established patterns and conventions.
 5. Use MCP tools for building, testing, and formatting.
-   - Use the **build**, **test**, **format**, **inspect**, **run**, and **e2e** MCP tools
-   - **Important**: Always use the MCP **execute** tool instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm` commands directly
-   - **Important**: The **run** MCP tool starts the Aspire AppHost and runs database migrations at https://localhost:9000. The tool runs in the background, so you can continue working while it starts. Use run if you suspect the database needs to be migrated, if you need to restart the server for any reason, or if it's not running.
-   - **MCP Server Setup**: See [.mcp.json](/.mcp.json) for MCP server configuration. For Claude Code, run `claude config set enableAllProjectMcpServers true` once to enable project-scoped MCP servers.
+
+   Always use MCP tools instead of running `dotnet build`, `dotnet test`, `dotnet format`, or equivalent `npm`  and `npx playwright` commands directly.
+
+   **Execution Order** (mandatory):
+   1. Run **build** first: `execute_command(command='build', backend=true, frontend=true)`
+   2. Run remaining tools with `noBuild=true`
+
+   **Slow Operations:**
+   - Aspire restart
+   - Backend format
+   - Backend inspect
+   - End-to-end tests
+
+   **Fast Operations:**
+   - Frontend format, inspect
+   - Backend test
+
+   **Parallelization rule:**
+   - If running only fast operations → run sequentially
+   - If running any slow operation → run EVERYTHING in parallel Task agents
+
+   **Example: running all tools after build (do NOT use run_in_background):**
+   ```
+   Task(subagent_type: "general-purpose", prompt: "Restart Aspire: mcp__developer-cli__run()", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Test backend: mcp__developer-cli__execute_command(command='test', backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Format backend: mcp__developer-cli__execute_command(command='format', backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Inspect backend: mcp__developer-cli__execute_command(command='inspect', backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Run e2e: mcp__developer-cli__end_to_end(browser='chromium', waitForAspire=true)", run_in_background: false)
+   ```
+   Format, inspect, and test run while Aspire starts. End-to-end tests use `waitForAspire=true` to wait until Aspire is ready.
+
+   **About Aspire**: The **run** MCP tool starts the Aspire AppHost at https://localhost:9000. Restart it when the backend has changed, when frontend hot reload stops working, or when it is not running.
+
+   **MCP Server Setup**: See [.mcp.json](/.mcp.json) for MCP server configuration. For Claude Code, run `claude config set enableAllProjectMcpServers true` once to enable project-scoped MCP servers.
 
 **Critical**: If you do NOT see the mentioned developer-cli MCP tool, tell the user. Do NOT just ignore that you cannot find them, and fall back to other tools.
 

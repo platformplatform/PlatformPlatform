@@ -18,7 +18,7 @@ case "$cmd" in
     *"npm run format"*) echo "❌ Use **format MCP tool** instead" >&2; exit 2 ;;
     *"npm test"*) echo "❌ Use **test MCP tool** instead" >&2; exit 2 ;;
     *"npm run build"*) echo "❌ Use **build MCP tool** instead" >&2; exit 2 ;;
-    *"npx playwright test"*) echo "❌ Use **e2e MCP tool** instead" >&2; exit 2 ;;
+    *"npx playwright test"*) echo "❌ Use **end-to-end MCP tool** instead" >&2; exit 2 ;;
     *"docker"*) echo "❌ Docker not allowed. Use **watch MCP tool** for Aspire/migrations" >&2; exit 2 ;;
     *) exit 0 ;;
 esac

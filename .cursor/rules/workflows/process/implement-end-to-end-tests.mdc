@@ -129,9 +129,9 @@ Research the codebase to find similar E2E test implementations. Look for existin
 
 **STEP 7**: Run tests and verify they pass
 
-- Use **e2e MCP tool** to run your tests
-- Start with smoke tests: `e2e(smoke=true)`
-- Then run comprehensive tests with search terms: `e2e(searchTerms=["feature-name"])`
+- Use **end-to-end MCP tool** to run your tests
+- Start with smoke tests: `end-to-end(smoke=true)`
+- Then run comprehensive tests with search terms: `end-to-end(searchTerms=["feature-name"])`
 - All tests must pass before proceeding
 - If tests fail: Fix them and run again (don't proceed with failing tests)
 

@@ -80,7 +80,7 @@ You are reviewing: **{{{title}}}**
 - The tool starts .NET Aspire at https://localhost:9000
 
 **Run E2E tests**:
-- Use **e2e MCP tool** to run tests: `e2e(searchTerms=["feature-name"])`
+- Use **end-to-end MCP tool** to run tests: `end-to-end(searchTerms=["feature-name"])`
 - **ALL tests MUST pass with ZERO failures to approve**
 - **Verify ZERO console errors** during test execution
 - **Verify ZERO network errors** (no unexpected 4xx/5xx responses)
@@ -177,7 +177,7 @@ Don't use `git add -A` or `git add .`
   - `[requirements]` — Requirements clarity, acceptance criteria, task description
   - `[code]` — Code patterns, rules, architecture guidance
 
-  Examples: `[system] e2e MCP tool reported test passed but it actually failed` or `[requirements] Feature requirements didn't specify mobile viewport testing`
+  Examples: `[system] end-to-end MCP tool reported test passed but it actually failed` or `[requirements] Feature requirements didn't specify mobile viewport testing`
 
 ⚠️ Your session terminates IMMEDIATELY after calling CompleteWork.
 
