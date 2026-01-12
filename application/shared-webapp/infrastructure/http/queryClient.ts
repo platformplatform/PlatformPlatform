@@ -127,5 +127,5 @@ export function createApiClient<P extends Record<string, unknown>>() {
   // Create the TanStack Query client
   const api = createClient(apiClient);
 
-  return { api, queryClient };
+  return { api, apiClient, queryClient };
 }

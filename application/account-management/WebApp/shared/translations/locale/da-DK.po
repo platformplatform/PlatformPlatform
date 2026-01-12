@@ -143,8 +143,8 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0> permanent?"
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 
-msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
-msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
+msgid "Are you sure you want to revoke this session?"
+msgstr "Er du sikker på, at du vil tilbagekalde denne session?"
 
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
@@ -657,6 +657,9 @@ msgstr "Tilbagekald"
 msgid "Revoke session"
 msgstr "Tilbagekald session"
 
+msgid "Revoking..."
+msgstr "Tilbagekalder..."
+
 msgid "Role"
 msgstr "Rolle"
 
@@ -746,6 +749,9 @@ msgstr "Brugsvilkår"
 
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
+
+msgid "The device will need to sign in again."
+msgstr "Enheden skal logge ind igen."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
