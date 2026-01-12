@@ -24,6 +24,14 @@ public class ApiResult(ResultBase result, string? routePrefix = null, IDictionar
             }
         }
 
+        if (result.ResponseHeaders is not null)
+        {
+            foreach (var (key, value) in result.ResponseHeaders)
+            {
+                httpContext.Response.Headers[key] = value;
+            }
+        }
+
         return ConvertResult().ExecuteAsync(httpContext);
     }
 

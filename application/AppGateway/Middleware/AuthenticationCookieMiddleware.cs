@@ -14,7 +14,8 @@ public class AuthenticationCookieMiddleware(
     ILogger<AuthenticationCookieMiddleware> logger
 ) : IMiddleware
 {
-    private const string? RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
+    private const string RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
+    private const string UnauthorizedReasonItemKey = "UnauthorizedReason";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -24,7 +25,31 @@ public class AuthenticationCookieMiddleware(
             await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenCookieValue, accessTokenCookieValue);
         }
 
+        // If session was revoked during refresh, handle based on request type
+        if (context.Items.TryGetValue(UnauthorizedReasonItemKey, out var reason) && reason is string unauthorizedReason)
+        {
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                // For API requests: return 401 immediately so JavaScript can handle it
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.Headers[AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey] = unauthorizedReason;
+                return;
+            }
+
+            // For non-API requests (SPA routes): delete cookies and let the page load
+            // The SPA will load without auth and redirect to login as needed
+            context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
+            context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
+        }
+
         await next(context);
+
+        // Ensure all 401 responses have an unauthorized reason header for consistent frontend handling
+        if (context.Response.StatusCode == StatusCodes.Status401Unauthorized &&
+            !context.Response.Headers.ContainsKey(AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey))
+        {
+            context.Response.Headers[AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey] = nameof(UnauthorizedReason.SessionNotFound);
+        }
 
         if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
         {
@@ -71,11 +96,23 @@ public class AuthenticationCookieMiddleware(
 
             context.Request.Headers.Authorization = $"Bearer {accessToken}";
         }
+        catch (SessionRevokedException ex)
+        {
+            DeleteCookiesForApiRequestsOnly(context);
+            context.Items[UnauthorizedReasonItemKey] = ex.RevokedReason;
+            logger.LogWarning(ex, "Session revoked during token refresh. Reason: {Reason}", ex.RevokedReason);
+        }
         catch (SecurityTokenException ex)
         {
-            context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
-            context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
+            DeleteCookiesForApiRequestsOnly(context);
+            context.Items[UnauthorizedReasonItemKey] = nameof(UnauthorizedReason.SessionNotFound);
             logger.LogWarning(ex, "Validating or refreshing the authentication token cookies failed. {Message}", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            DeleteCookiesForApiRequestsOnly(context);
+            context.Items[UnauthorizedReasonItemKey] = nameof(UnauthorizedReason.SessionNotFound);
+            logger.LogError(ex, "Unexpected exception during authentication token validation. Path: {Path}", context.Request.Path);
         }
     }
 
@@ -91,6 +128,12 @@ public class AuthenticationCookieMiddleware(
 
         if (!response.IsSuccessStatusCode)
         {
+            var unauthorizedReason = GetUnauthorizedReason(response);
+            if (unauthorizedReason is not null)
+            {
+                throw new SessionRevokedException(unauthorizedReason);
+            }
+
             throw new SecurityTokenException($"Failed to refresh security tokens. Response status code: {response.StatusCode}.");
         }
 
@@ -103,6 +146,32 @@ public class AuthenticationCookieMiddleware(
         }
 
         return (newRefreshToken, newAccessToken);
+    }
+
+    private static string? GetUnauthorizedReason(HttpResponseMessage response)
+    {
+        if (response.Headers.TryGetValues(AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, out var values))
+        {
+            return values.FirstOrDefault();
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Only delete authentication cookies for API requests. For non-API requests (images, static assets),
+    ///     keep the cookies so subsequent API requests can properly detect session issues like replay attacks.
+    ///     The frontend's AuthenticationMiddleware only intercepts API responses, not image/asset errors.
+    /// </summary>
+    private static void DeleteCookiesForApiRequestsOnly(HttpContext context)
+    {
+        if (!context.Request.Path.StartsWithSegments("/api"))
+        {
+            return;
+        }
+
+        context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName);
+        context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName);
     }
 
     private void ReplaceAuthenticationHeaderWithCookie(HttpContext context, string refreshToken, string accessToken)
@@ -147,4 +216,9 @@ public class AuthenticationCookieMiddleware(
 
         return DateTimeOffset.FromUnixTimeSeconds(long.Parse(expires));
     }
+}
+
+public sealed class SessionRevokedException(string revokedReason) : SecurityTokenException($"Session has been revoked. Reason: {revokedReason}")
+{
+    public string RevokedReason { get; } = revokedReason;
 }

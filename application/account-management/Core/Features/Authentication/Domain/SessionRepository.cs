@@ -28,6 +28,14 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     ///     Returns false if another concurrent request already refreshed the session.
     /// </summary>
     Task<bool> TryRefreshAsync(SessionId sessionId, RefreshTokenJti currentJti, int currentVersion, RefreshTokenJti newJti, DateTimeOffset now, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Attempts to revoke the session for a replay attack without applying tenant query filters.
+    ///     Uses atomic update to handle concurrent requests - only one will succeed, but all callers
+    ///     can safely return ReplayAttackDetected since the session will be revoked either way.
+    ///     This method should only be used during token refresh where tenant context comes from the token claims.
+    /// </summary>
+    Task<bool> TryRevokeForReplayUnfilteredAsync(SessionId sessionId, DateTimeOffset now, CancellationToken cancellationToken);
 }
 
 public sealed class SessionRepository(AccountManagementDbContext accountManagementDbContext)
@@ -71,6 +79,21 @@ public sealed class SessionRepository(AccountManagementDbContext accountManageme
         AddParameter(command, "@currentVersion", currentVersion);
 
         var rowsAffected = await command.ExecuteNonQueryAsync(cancellationToken);
+
+        return rowsAffected == 1;
+    }
+
+    public async Task<bool> TryRevokeForReplayUnfilteredAsync(SessionId sessionId, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var rowsAffected = await DbSet
+            .IgnoreQueryFilters()
+            .Where(s => s.Id == sessionId && s.RevokedAt == null)
+            .ExecuteUpdateAsync(s => s
+                    .SetProperty(x => x.RevokedAt, now)
+                    .SetProperty(x => x.RevokedReason, SessionRevokedReason.ReplayAttackDetected)
+                    .SetProperty(x => x.ModifiedAt, now),
+                cancellationToken
+            );
 
         return rowsAffected == 1;
     }
