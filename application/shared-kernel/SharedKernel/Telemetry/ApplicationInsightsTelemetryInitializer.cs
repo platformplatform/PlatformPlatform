@@ -41,6 +41,7 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
         AddCustomProperty(telemetry, "user.locale", executionContext.UserInfo.Locale);
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
+        AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
     }
 
     public static void SetContext(IExecutionContext executionContext)

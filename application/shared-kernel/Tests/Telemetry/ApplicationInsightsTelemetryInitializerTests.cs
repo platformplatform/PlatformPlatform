@@ -1,0 +1,113 @@
+using System.Net;
+using FluentAssertions;
+using Microsoft.ApplicationInsights.DataContracts;
+using NSubstitute;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.ExecutionContext;
+using PlatformPlatform.SharedKernel.Telemetry;
+using Xunit;
+
+namespace PlatformPlatform.SharedKernel.Tests.Telemetry;
+
+public sealed class ApplicationInsightsTelemetryInitializerTests
+{
+    [Fact]
+    public void Initialize_WhenUserIsAuthenticated_ShouldSetSessionIdInTelemetry()
+    {
+        // Arrange
+        var sessionId = SessionId.NewId();
+        var userId = UserId.NewId();
+        var tenantId = new TenantId(12345);
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = userId,
+            TenantId = tenantId,
+            SessionId = sessionId,
+            Locale = "en-US",
+            Role = "Admin",
+            IsInternalUser = false
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(tenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
+
+        var telemetry = new RequestTelemetry();
+        var initializer = new ApplicationInsightsTelemetryInitializer();
+
+        // Act
+        initializer.Initialize(telemetry);
+
+        // Assert
+        telemetry.Context.GlobalProperties.Should().ContainKey("user.session_id");
+        telemetry.Context.GlobalProperties["user.session_id"].Should().Be(sessionId.Value);
+    }
+
+    [Fact]
+    public void Initialize_WhenUserIsNotAuthenticated_ShouldNotSetSessionIdInTelemetry()
+    {
+        // Arrange
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = false,
+            Locale = "en-US",
+            IsInternalUser = false
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns((TenantId?)null);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
+
+        var telemetry = new RequestTelemetry();
+        var initializer = new ApplicationInsightsTelemetryInitializer();
+
+        // Act
+        initializer.Initialize(telemetry);
+
+        // Assert
+        telemetry.Context.GlobalProperties.Should().NotContainKey("user.session_id");
+    }
+
+    [Fact]
+    public void Initialize_WhenSessionIdIsNull_ShouldNotSetSessionIdInTelemetry()
+    {
+        // Arrange
+        var userId = UserId.NewId();
+        var tenantId = new TenantId(12345);
+        var userInfo = new UserInfo
+        {
+            IsAuthenticated = true,
+            Id = userId,
+            TenantId = tenantId,
+            SessionId = null,
+            Locale = "en-US",
+            Role = "Admin",
+            IsInternalUser = false
+        };
+
+        var executionContext = Substitute.For<IExecutionContext>();
+        executionContext.UserInfo.Returns(userInfo);
+        executionContext.TenantId.Returns(tenantId);
+        executionContext.ClientIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
+
+        ApplicationInsightsTelemetryInitializer.SetContext(executionContext);
+
+        var telemetry = new RequestTelemetry();
+        var initializer = new ApplicationInsightsTelemetryInitializer();
+
+        // Act
+        initializer.Initialize(telemetry);
+
+        // Assert
+        telemetry.Context.GlobalProperties.Should().NotContainKey("user.session_id");
+    }
+}
