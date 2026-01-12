@@ -1995,6 +1995,15 @@
             "type": "string"
           }
         }
+      },
+      "SessionRevokedReason": {
+        "type": "string",
+        "enum": [
+          "LoggedOut",
+          "Revoked",
+          "ReplayAttackDetected",
+          "SwitchTenant"
+        ]
       }
     }
   }
