@@ -120,6 +120,9 @@ msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
+msgid "An unexpected error occurred. Please try again or contact support if the problem persists."
+msgstr "Der opstod en uventet fejl. Prøv igen eller kontakt support, hvis problemet fortsætter."
+
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
 
@@ -364,6 +367,9 @@ msgstr "Fornavn"
 msgid "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
 msgstr "For detaljerede certificeringer og revisionsrapporter, besøg Microsofts officielle ressourcer."
 
+msgid "For your protection, you have been logged out. Please log in again to continue."
+msgstr "For din beskyttelse er du blevet logget ud. Log venligst ind igen for at fortsætte."
+
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
 
@@ -581,6 +587,9 @@ msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
+msgid "Please log in again to continue."
+msgstr "Log venligst ind igen for at fortsætte."
+
 msgid "Please note that it may take up to 5 minutes before the device is signed out."
 msgstr "Bemærk at det kan tage op til 5 minutter, før enheden er logget ud."
 
@@ -675,6 +684,9 @@ msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
 msgid "Search"
 msgstr "Søg"
 
+msgid "Security alert"
+msgstr "Sikkerhedsadvarsel"
+
 msgid "Security, privacy, and compliance information"
 msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
 
@@ -689,6 +701,12 @@ msgstr "Send invitation"
 
 msgid "Sending verification code..."
 msgstr "Sender bekræftelseskode..."
+
+msgid "Session ended"
+msgstr "Session afsluttet"
+
+msgid "Session expired"
+msgstr "Session udløbet"
 
 msgid "Session revoked successfully"
 msgstr "Session tilbagekaldt succesfuldt"
@@ -891,6 +909,9 @@ msgstr "Se profil"
 msgid "View users"
 msgstr "Se brugere"
 
+msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
+msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."
+
 msgid "Welcome home"
 msgstr "Velkommen hjem"
 
@@ -934,6 +955,12 @@ msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 
 msgid "Your professional title or role"
 msgstr "Din professionelle titel eller rolle"
+
+msgid "Your session has expired."
+msgstr "Din session er udløbet."
+
+msgid "Your session was ended from another device."
+msgstr "Din session blev afsluttet fra en anden enhed."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."

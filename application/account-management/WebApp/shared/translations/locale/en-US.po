@@ -120,6 +120,9 @@ msgstr "An email with login instructions will be sent to the user."
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
+msgid "An unexpected error occurred. Please try again or contact support if the problem persists."
+msgstr "An unexpected error occurred. Please try again or contact support if the problem persists."
+
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "An unexpected state occurred. Please reload the page."
 
@@ -364,6 +367,9 @@ msgstr "First name"
 msgid "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
 msgstr "For detailed compliance certifications and audit reports, visit Microsoft's official resources."
 
+msgid "For your protection, you have been logged out. Please log in again to continue."
+msgstr "For your protection, you have been logged out. Please log in again to continue."
+
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
 
@@ -581,6 +587,9 @@ msgstr "Please check the URL or return to the home page."
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
+msgid "Please log in again to continue."
+msgstr "Please log in again to continue."
+
 msgid "Please note that it may take up to 5 minutes before the device is signed out."
 msgstr "Please note that it may take up to 5 minutes before the device is signed out."
 
@@ -675,6 +684,9 @@ msgstr "Screenshots of the dashboard project with desktop and mobile versions"
 msgid "Search"
 msgstr "Search"
 
+msgid "Security alert"
+msgstr "Security alert"
+
 msgid "Security, privacy, and compliance information"
 msgstr "Security, privacy, and compliance information"
 
@@ -689,6 +701,12 @@ msgstr "Send invite"
 
 msgid "Sending verification code..."
 msgstr "Sending verification code..."
+
+msgid "Session ended"
+msgstr "Session ended"
+
+msgid "Session expired"
+msgstr "Session expired"
 
 msgid "Session revoked successfully"
 msgstr "Session revoked successfully"
@@ -891,6 +909,9 @@ msgstr "View profile"
 msgid "View users"
 msgstr "View users"
 
+msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
+msgstr "We detected suspicious activity on your account. Someone may have attempted to take over your session."
+
 msgid "Welcome home"
 msgstr "Welcome home"
 
@@ -934,6 +955,12 @@ msgstr "Your data stays in the Azure region you select at signup"
 
 msgid "Your professional title or role"
 msgstr "Your professional title or role"
+
+msgid "Your session has expired."
+msgstr "Your session has expired."
+
+msgid "Your session was ended from another device."
+msgstr "Your session was ended from another device."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."
