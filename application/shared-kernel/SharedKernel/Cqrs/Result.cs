@@ -11,13 +11,14 @@ public abstract class ResultBase
         StatusCode = httpStatusCode;
     }
 
-    protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
+    protected ResultBase(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors, IDictionary<string, string>? responseHeaders = null)
     {
         IsSuccess = false;
         StatusCode = statusCode;
         ErrorMessage = errorMessage;
         CommitChangesOnFailure = commitChanges;
         Errors = errors;
+        ResponseHeaders = responseHeaders;
     }
 
     public bool IsSuccess { get; }
@@ -29,6 +30,8 @@ public abstract class ResultBase
     public bool CommitChangesOnFailure { get; }
 
     public ErrorDetail[]? Errors { get; }
+
+    public IDictionary<string, string>? ResponseHeaders { get; }
 
     public string GetErrorSummary()
     {
@@ -47,8 +50,8 @@ public sealed class Result : ResultBase
     {
     }
 
-    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
-        : base(statusCode, errorMessage, commitChanges, errors)
+    public Result(HttpStatusCode statusCode, ErrorMessage? errorMessage, bool commitChanges, ErrorDetail[] errors, IDictionary<string, string>? responseHeaders = null)
+        : base(statusCode, errorMessage!, commitChanges, errors, responseHeaders)
     {
     }
 
@@ -62,9 +65,9 @@ public sealed class Result : ResultBase
         return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, []);
     }
 
-    public static Result Unauthorized(string message, bool commitChanges = false)
+    public static Result Unauthorized(string message, bool commitChanges = false, IDictionary<string, string>? responseHeaders = null)
     {
-        return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, []);
+        return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, [], responseHeaders);
     }
 
     public static Result Forbidden(string message, bool commitChanges = false)
@@ -89,7 +92,7 @@ public sealed class Result : ResultBase
 
     public static Result From(ResultBase result)
     {
-        return new Result(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!);
+        return new Result(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!, result.ResponseHeaders);
     }
 }
 
@@ -105,8 +108,8 @@ public sealed class Result<T> : ResultBase
         Value = value;
     }
 
-    public Result(HttpStatusCode statusCode, ErrorMessage errorMessage, bool commitChanges, ErrorDetail[] errors)
-        : base(statusCode, errorMessage, commitChanges, errors)
+    public Result(HttpStatusCode statusCode, ErrorMessage? errorMessage, bool commitChanges, ErrorDetail[] errors, IDictionary<string, string>? responseHeaders = null)
+        : base(statusCode, errorMessage!, commitChanges, errors, responseHeaders)
     {
     }
 
@@ -126,9 +129,9 @@ public sealed class Result<T> : ResultBase
         return new Result<T>(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, []);
     }
 
-    public static Result<T> Unauthorized(string message, bool commitChanges = false)
+    public static Result<T> Unauthorized(string message, bool commitChanges = false, IDictionary<string, string>? responseHeaders = null)
     {
-        return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, []);
+        return new Result<T>(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, [], responseHeaders);
     }
 
     public static Result<T> Forbidden(string message, bool commitChanges = false)
@@ -167,6 +170,6 @@ public sealed class Result<T> : ResultBase
 
     public static Result<T> From(ResultBase result)
     {
-        return new Result<T>(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!);
+        return new Result<T>(result.StatusCode, result.ErrorMessage!, result.CommitChangesOnFailure, result.Errors!, result.ResponseHeaders);
     }
 }

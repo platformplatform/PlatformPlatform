@@ -89,11 +89,7 @@ test.describe("@smoke", () => {
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
       await expect(page.getByRole("alertdialog", { name: "Revoke session" })).toBeVisible();
-      await expect(
-        page.getByText(
-          "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
-        )
-      ).toBeVisible();
+      await expect(page.getByText("Are you sure you want to revoke this session?")).toBeVisible();
     })();
 
     await step("Cancel revoke dialog & verify session remains")(async () => {

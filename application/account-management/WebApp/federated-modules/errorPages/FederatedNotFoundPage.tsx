@@ -5,7 +5,6 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Image } from "@repo/ui/components/Image";
-import { Link } from "@repo/ui/components/Link";
 import { FileQuestion, Home, LogOut } from "lucide-react";
 import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
@@ -42,10 +41,10 @@ function NotFoundNavigation() {
         }
       });
       if (response.ok) {
-        window.location.href = loginPath;
+        globalThis.location.href = loginPath;
       }
     } catch {
-      window.location.href = loginPath;
+      globalThis.location.href = loginPath;
     }
   };
 
@@ -112,15 +111,15 @@ export default function FederatedNotFoundPage() {
           </div>
 
           <div className="flex justify-center gap-3 pt-2">
-            <Link
-              href="/"
-              variant="button"
-              underline={false}
-              className="h-10 rounded-lg bg-primary px-4 text-primary-foreground hover:bg-primary/95"
+            <Button
+              variant="primary"
+              onPress={() => {
+                globalThis.location.href = "/";
+              }}
             >
               <Home size={16} />
               <Trans>Go to home</Trans>
-            </Link>
+            </Button>
           </div>
         </div>
       </div>

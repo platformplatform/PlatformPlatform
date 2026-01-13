@@ -84,6 +84,8 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.Headers.Should().ContainKey("x-unauthorized-reason");
+        response.Headers.GetValues("x-unauthorized-reason").Single().Should().Be("ReplayAttackDetected");
 
         object[] parameters = [new { id = sessionId.ToString() }];
         Connection.ExecuteScalar<string>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().NotBeNull();
@@ -110,6 +112,8 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.Headers.Should().ContainKey("x-unauthorized-reason");
+        response.Headers.GetValues("x-unauthorized-reason").Single().Should().Be("Revoked");
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
@@ -128,6 +132,8 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountM
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        response.Headers.Should().ContainKey("x-unauthorized-reason");
+        response.Headers.GetValues("x-unauthorized-reason").Single().Should().Be("SessionNotFound");
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 

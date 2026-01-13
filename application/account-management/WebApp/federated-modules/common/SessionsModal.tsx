@@ -9,11 +9,11 @@ import { Heading } from "@repo/ui/components/Heading";
 import { Modal } from "@repo/ui/components/Modal";
 import { toastQueue } from "@repo/ui/components/Toast";
 import { formatDate } from "@repo/utils/date/formatDate";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
-import { api, type components, DeviceType } from "@/shared/lib/api/client";
+import { api, apiClient, type components, DeviceType } from "@/shared/lib/api/client";
 
 type UserSessionInfo = components["schemas"]["UserSessionInfo"];
 
@@ -88,8 +88,9 @@ function getDeviceTypeLabel(deviceType: UserSessionInfo["deviceType"]): string {
 
 function SessionCard({
   session,
+  isRevoking,
   onRevoke
-}: Readonly<{ session: UserSessionInfo; onRevoke: (session: UserSessionInfo) => void }>) {
+}: Readonly<{ session: UserSessionInfo; isRevoking: boolean; onRevoke: (session: UserSessionInfo) => void }>) {
   const deviceLabel = getDeviceTypeLabel(session.deviceType);
   const browserInfo = parseUserAgent(session.userAgent);
 
@@ -127,8 +128,13 @@ function SessionCard({
         </div>
       </div>
       {!session.isCurrent && (
-        <Button variant="secondary" onPress={() => onRevoke(session)} className="w-full sm:w-auto">
-          <Trans>Revoke</Trans>
+        <Button
+          variant="secondary"
+          onPress={() => onRevoke(session)}
+          isDisabled={isRevoking}
+          className="w-full sm:w-auto"
+        >
+          {isRevoking ? <Trans>Revoking...</Trans> : <Trans>Revoke</Trans>}
         </Button>
       )}
     </div>
@@ -155,9 +161,9 @@ function RevokeSessionDialog({
         cancelLabel={t`Cancel`}
         onAction={onRevoke}
       >
-        <Trans>
-          Are you sure you want to revoke this session? The device will be signed out and will need to log in again.
-        </Trans>
+        <Trans>Are you sure you want to revoke this session?</Trans>
+        <br />
+        <Trans>The device will need to sign in again.</Trans>
       </AlertDialog>
     </Modal>
   );
@@ -167,6 +173,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
   const [selectedSession, setSelectedSession] = useState<UserSessionInfo | null>(null);
   const [isRevokeDialogOpen, setIsRevokeDialogOpen] = useState(false);
   const [hasRevokedSession, setHasRevokedSession] = useState(false);
+  const [revokingSessionIds, setRevokingSessionIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
   const { data, isLoading } = api.useQuery("get", "/api/account-management/authentication/sessions", {
@@ -175,17 +182,40 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
   const sessions = data?.sessions ?? [];
 
-  const revokeSessionMutation = api.useMutation("delete", "/api/account-management/authentication/sessions/{id}", {
-    onSuccess: () => {
+  const revokeSessionMutation = useMutation({
+    mutationFn: async ({ sessionId }: { sessionId: string }) => {
+      const response = await apiClient.DELETE("/api/account-management/authentication/sessions/{id}", {
+        params: { path: { id: sessionId } }
+      });
+
+      if (response.error) {
+        throw response.error;
+      }
+
+      return response.data;
+    },
+    onSuccess: (_data, variables) => {
+      const sessionId = variables.sessionId;
+      setRevokingSessionIds((prev) => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
       toastQueue.add({
         title: t`Success`,
         description: t`Session revoked successfully`,
         variant: "success"
       });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/authentication/sessions"] });
-      setIsRevokeDialogOpen(false);
-      setSelectedSession(null);
       setHasRevokedSession(true);
+    },
+    onError: (_error, variables) => {
+      const sessionId = variables.sessionId;
+      setRevokingSessionIds((prev) => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
     }
   });
 
@@ -196,7 +226,10 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
   const handleConfirmRevoke = () => {
     if (selectedSession) {
-      revokeSessionMutation.mutate({ params: { path: { id: selectedSession.id } } });
+      setRevokingSessionIds((prev) => new Set(prev).add(selectedSession.id));
+      setIsRevokeDialogOpen(false);
+      revokeSessionMutation.mutate({ sessionId: selectedSession.id });
+      setSelectedSession(null);
     }
   };
 
@@ -248,7 +281,12 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
             ) : (
               <div className="flex max-h-96 flex-col gap-4 overflow-y-auto">
                 {sessions.map((session) => (
-                  <SessionCard key={session.id} session={session} onRevoke={handleRevokeSession} />
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    isRevoking={revokingSessionIds.has(session.id)}
+                    onRevoke={handleRevokeSession}
+                  />
                 ))}
               </div>
             )}

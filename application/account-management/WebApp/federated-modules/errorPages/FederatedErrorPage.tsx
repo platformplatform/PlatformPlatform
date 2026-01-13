@@ -1,11 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Image } from "@repo/ui/components/Image";
-import { Link } from "@repo/ui/components/Link";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -43,10 +43,10 @@ function ErrorNavigation() {
         }
       });
       if (response.ok) {
-        window.location.href = loginPath;
+        globalThis.location.href = loginPath;
       }
     } catch {
-      window.location.href = loginPath;
+      globalThis.location.href = loginPath;
     }
   };
 
@@ -90,10 +90,23 @@ function ErrorNavigation() {
   );
 }
 
-export default function FederatedErrorPage({ error, reset }: Readonly<ErrorComponentProps>) {
+export default function FederatedErrorPage({ error }: Readonly<ErrorComponentProps>) {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
+    const exception = error instanceof Error ? error : new Error(String(error));
+
+    applicationInsights.trackException({
+      exception,
+      properties: {
+        component: "ErrorPage",
+        url: globalThis.location.href,
+        pathname: globalThis.location.pathname,
+        errorName: exception.name,
+        errorMessage: exception.message
+      }
+    });
+
     console.error(error);
   }, [error]);
 
@@ -119,19 +132,24 @@ export default function FederatedErrorPage({ error, reset }: Readonly<ErrorCompo
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Button variant="primary" onPress={reset}>
+            <Button
+              variant="primary"
+              onPress={() => {
+                globalThis.location.reload();
+              }}
+            >
               <RefreshCw size={16} />
               <Trans>Try again</Trans>
             </Button>
-            <Link
-              href="/"
-              variant="button"
-              underline={false}
-              className="h-10 rounded-lg border border-border px-4 text-foreground hover:bg-hover-background"
+            <Button
+              variant="secondary"
+              onPress={() => {
+                globalThis.location.href = "/";
+              }}
             >
               <Home size={16} />
               <Trans>Go to home</Trans>
-            </Link>
+            </Button>
           </div>
 
           {error?.message && (

@@ -10,6 +10,8 @@ public static class AuthenticationTokenHttpKeys
 
     public const string RefreshAuthenticationTokensHeaderKey = "x-refresh-authentication-tokens-required";
 
+    public const string UnauthorizedReasonHeaderKey = "x-unauthorized-reason";
+
     // __Host prefix ensures the cookie is sent only to the host, requires Secure, HTTPS, Path=/ and no Domain specified
     public const string RefreshTokenCookieName = "__Host_Refresh_Token";
 

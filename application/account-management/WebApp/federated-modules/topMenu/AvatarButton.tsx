@@ -93,7 +93,7 @@ export default function AvatarButton() {
       </MenuTrigger>
 
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
-      <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />
+      {isSessionsModalOpen && <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />}
     </>
   );
 }

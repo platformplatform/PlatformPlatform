@@ -10,6 +10,7 @@ using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Endpoints;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Middleware;
+using PlatformPlatform.SharedKernel.OpenApi;
 using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 using PlatformPlatform.SharedKernel.Telemetry;
@@ -155,7 +156,9 @@ public static class ApiDependencyConfiguration
 
                     var options = (SystemTextJsonSchemaGeneratorSettings)settings.SchemaSettings;
                     options.SerializerOptions = SharedDependencyConfiguration.DefaultJsonSerializerOptions;
-                    settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray()));
+                    var allAssemblies = assemblies.Concat([Assembly.GetExecutingAssembly()]).ToArray();
+                    settings.DocumentProcessors.Add(new StronglyTypedDocumentProcessor(allAssemblies));
+                    settings.DocumentProcessors.Add(new PublicApiEnumDocumentProcessor(allAssemblies));
                 }
             );
         }

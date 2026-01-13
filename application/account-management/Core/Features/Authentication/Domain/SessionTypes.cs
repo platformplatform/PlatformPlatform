@@ -12,6 +12,11 @@ public enum DeviceType
     Tablet
 }
 
+/// <summary>
+///     Represents why a session was revoked. This is a domain concept stored in the Session aggregate.
+///     For HTTP header reasons (which include additional cases like SessionNotFound), see
+///     <see cref="SharedKernel.Authentication.UnauthorizedReason" />.
+/// </summary>
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SessionRevokedReason
