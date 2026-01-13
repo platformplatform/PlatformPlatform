@@ -19,7 +19,8 @@ public class AuthenticationCookieMiddleware(
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenCookieValue))
+        var hasAuthenticationCookies = context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenCookieValue);
+        if (hasAuthenticationCookies)
         {
             context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenCookieName, out var accessTokenCookieValue);
             await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenCookieValue, accessTokenCookieValue);
@@ -44,8 +45,10 @@ public class AuthenticationCookieMiddleware(
 
         await next(context);
 
-        // Ensure all 401 responses have an unauthorized reason header for consistent frontend handling
-        if (context.Response.StatusCode == StatusCodes.Status401Unauthorized &&
+        // Only add SessionNotFound for 401 responses when auth cookies were present in the request
+        // This distinguishes between "no session" (redirect to login) vs "invalid session" (show error page)
+        if (hasAuthenticationCookies &&
+            context.Response.StatusCode == StatusCodes.Status401Unauthorized &&
             !context.Response.Headers.ContainsKey(AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey))
         {
             context.Response.Headers[AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey] = nameof(UnauthorizedReason.SessionNotFound);
