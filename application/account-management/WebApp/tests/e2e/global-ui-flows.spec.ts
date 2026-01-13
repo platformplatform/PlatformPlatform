@@ -278,11 +278,11 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
       await expect(page.getByText("The page you are looking for does not exist or was moved.")).toBeVisible();
-      await expect(page.getByRole("link", { name: "Go to home" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Go to home" })).toBeVisible();
     })();
 
     await step("Click Go to home button on 404 page & verify navigation to home")(async () => {
-      await page.getByRole("link", { name: "Go to home" }).click();
+      await page.getByRole("button", { name: "Go to home" }).click();
 
       await expect(page).toHaveURL("/");
     })();

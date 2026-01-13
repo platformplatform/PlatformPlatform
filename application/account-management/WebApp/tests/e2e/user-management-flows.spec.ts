@@ -436,7 +436,7 @@ test.describe("@smoke", () => {
 
     await step("Navigate to users page & complete profile setup")(async () => {
       // Navigate to users page where member has access and profile dialog appears
-      await page.getByRole("link", { name: "Go to home" }).click();
+      await page.getByRole("button", { name: "Go to home" }).click();
       await expect(page).toHaveURL("/");
 
       await page.goto("/admin/users");
