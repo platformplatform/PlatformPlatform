@@ -44,12 +44,6 @@ public class AuthenticationCookieMiddleware(
 
         await next(context);
 
-        // Ensure all 401 responses have an unauthorized reason header for consistent frontend handling
-        if (context.Response.StatusCode == StatusCodes.Status401Unauthorized &&
-            !context.Response.Headers.ContainsKey(AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey))
-        {
-            context.Response.Headers[AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey] = nameof(UnauthorizedReason.SessionNotFound);
-        }
 
         if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
         {

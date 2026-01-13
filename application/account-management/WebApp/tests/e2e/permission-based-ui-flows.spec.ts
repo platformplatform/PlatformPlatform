@@ -210,7 +210,7 @@ test.describe("@smoke", () => {
 
       await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
       await expect(page.getByText("You do not have permission to access this page.")).toBeVisible();
-      await expect(page.getByRole("link", { name: "Go to home" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Go to home" })).toBeVisible();
     })();
 
     await step("Navigate to back-office as Member & verify access denied page displays")(async () => {
@@ -221,7 +221,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Click Go to home on access denied page & verify navigation to home")(async () => {
-      await page.getByRole("link", { name: "Go to home" }).click();
+      await page.getByRole("button", { name: "Go to home" }).click();
 
       await expect(page).toHaveURL("/");
     })();
