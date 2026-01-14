@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -204,16 +204,8 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login/verify");
+      await typeOneTimeCode(page, getVerificationCode());
 
-      // Wait for verification input to be ready
-      const verificationInput = page.locator('input[autocomplete="one-time-code"]').first();
-      await expect(verificationInput).toBeVisible();
-      await verificationInput.focus();
-
-      // Auto-submits on first login
-      await page.keyboard.type(getVerificationCode());
-
-      // Wait for auto-submit to complete
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
@@ -255,16 +247,8 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
+      await typeOneTimeCode(page, getVerificationCode());
 
-      // Wait for verification input to be ready
-      const verificationInput = page.locator('input[autocomplete="one-time-code"]').first();
-      await expect(verificationInput).toBeVisible();
-      await verificationInput.focus();
-
-      // Auto-submits on first login
-      await page.keyboard.type(getVerificationCode());
-
-      // Wait for auto-submit to complete
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 

@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Flaky Tests Database",
+  "description": "Schema for tracking flaky E2E tests over time",
+  "type": "object",
+  "required": ["lastUpdated", "active"],
+  "properties": {
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of last database update"
+    },
+    "active": {
+      "type": "array",
+      "description": "Currently tracked flaky tests",
+      "items": {
+        "$ref": "#/$defs/flakyTest"
+      }
+    }
+  },
+  "$defs": {
+    "flakyTest": {
+      "type": "object",
+      "required": ["testFile", "testName", "stepName", "browser", "status", "lastSeen", "observationCount", "observations"],
+      "description": "Unique key is testFile + testName + stepName + browser. Each browser gets its own entry.",
+      "properties": {
+        "testFile": {
+          "type": "string",
+          "description": "Test file path including self-contained system (e.g., account-management/WebApp/tests/e2e/user-management-flows.spec.ts)"
+        },
+        "testName": {
+          "type": "string",
+          "description": "Full test name from the test description"
+        },
+        "stepName": {
+          "type": "string",
+          "description": "The step where the failure occurred"
+        },
+        "browser": {
+          "type": "string",
+          "enum": ["Chromium", "Firefox", "WebKit"],
+          "description": "Browser where the failure was observed"
+        },
+        "errorPattern": {
+          "type": "string",
+          "description": "Common error message pattern for this flaky test"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["observed", "confirmed", "fix-applied"],
+          "description": "Current status in the flaky test lifecycle"
+        },
+        "observations": {
+          "type": "array",
+          "description": "Individual failure observations",
+          "items": {
+            "$ref": "#/$defs/observation"
+          }
+        },
+        "lastSeen": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp of most recent observation"
+        },
+        "observationCount": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of times this test has been observed failing"
+        },
+        "fix": {
+          "oneOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/fix" }
+          ],
+          "description": "Fix information if a fix has been applied"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional notes about the flaky test (suspected cause, workarounds, etc.)"
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": ["timestamp", "branch", "errorMessage", "observedBy"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp when observed"
+        },
+        "branch": {
+          "type": "string",
+          "description": "Git branch where failure was observed"
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "The actual error message from the test failure"
+        },
+        "artifactPath": {
+          "type": "string",
+          "description": "Relative path to preserved error artifacts in .workspace/flaky-tests/artifacts/"
+        },
+        "observedBy": {
+          "type": "string",
+          "enum": ["qa-engineer", "qa-reviewer", "other"],
+          "description": "Agent type that observed this failure"
+        }
+      }
+    },
+    "fix": {
+      "type": "object",
+      "required": ["appliedAt", "commitHash", "appliedBy"],
+      "properties": {
+        "appliedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "UTC timestamp when fix was applied"
+        },
+        "commitHash": {
+          "type": "string",
+          "description": "Git commit hash containing the fix"
+        },
+        "description": {
+          "type": "string",
+          "description": "Brief description of what was fixed"
+        },
+        "appliedBy": {
+          "type": "string",
+          "description": "Agent type that applied the fix"
+        }
+      }
+    }
+  }
+}

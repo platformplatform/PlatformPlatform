@@ -119,46 +119,6 @@ export function CompleteLoginForm() {
     }
   }, [email]);
 
-  const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete");
-
-  const resendLoginCodeMutation = api.useMutation(
-    "post",
-    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code"
-  );
-
-  useEffect(() => {
-    if (completeLoginMutation.isSuccess) {
-      // Broadcast login event to other tabs
-      // Since the API returns 204 No Content, we don't have the user ID yet
-      const message: Omit<UserLoggedInMessage, "timestamp"> = {
-        type: "USER_LOGGED_IN",
-        userId: "", // We don't have the user ID at this point
-        tenantId: getPreferredTenantId() || "",
-        email: email || ""
-      };
-      authSyncService.broadcast(message);
-
-      clearLoginState();
-      window.location.href = returnPath ?? loggedInPath;
-    }
-  }, [completeLoginMutation.isSuccess, returnPath, email, getPreferredTenantId]);
-
-  useEffect(() => {
-    if (completeLoginMutation.isError) {
-      const statusCode = completeLoginMutation.error?.status;
-      if (statusCode === 403) {
-        setIsRateLimited(true);
-        setExpireAt(new Date(0)); // Force expiration
-      } else {
-        setTimeout(() => {
-          if (oneTimeCodeInputRef.current) {
-            oneTimeCodeInputRef.current.focus?.();
-          }
-        }, 100);
-      }
-    }
-  }, [completeLoginMutation.isError, completeLoginMutation.error]);
-
   const resetAfterResend = useCallback((validForSeconds: number) => {
     const newExpireAt = new Date();
     newExpireAt.setSeconds(newExpireAt.getSeconds() + validForSeconds);
@@ -175,17 +135,56 @@ export function CompleteLoginForm() {
     }, 100);
   }, []);
 
-  useEffect(() => {
-    if (resendLoginCodeMutation.isSuccess && resendLoginCodeMutation.data) {
-      resetAfterResend(resendLoginCodeMutation.data.validForSeconds);
-      setHasRequestedNewCode(true);
-      toastQueue.add({
-        title: t`Verification code sent`,
-        description: t`A new verification code has been sent to your email.`,
-        variant: "success"
-      });
+  const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete", {
+    onSuccess: () => {
+      // Broadcast login event to other tabs
+      // Since the API returns 204 No Content, we don't have the user ID yet
+      const message: Omit<UserLoggedInMessage, "timestamp"> = {
+        type: "USER_LOGGED_IN",
+        userId: "", // We don't have the user ID at this point
+        tenantId: getPreferredTenantId() || "",
+        email: email || ""
+      };
+      authSyncService.broadcast(message);
+
+      clearLoginState();
+      window.location.href = returnPath ?? loggedInPath;
     }
-  }, [resendLoginCodeMutation.isSuccess, resendLoginCodeMutation.data, resetAfterResend]);
+  });
+
+  const resendLoginCodeMutation = api.useMutation(
+    "post",
+    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code",
+    {
+      onSuccess: (data) => {
+        if (data) {
+          resetAfterResend(data.validForSeconds);
+          setHasRequestedNewCode(true);
+          toastQueue.add({
+            title: t`Verification code sent`,
+            description: t`A new verification code has been sent to your email.`,
+            variant: "success"
+          });
+        }
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (completeLoginMutation.isError) {
+      const statusCode = completeLoginMutation.error?.status;
+      if (statusCode === 403) {
+        setIsRateLimited(true);
+        setExpireAt(new Date(0)); // Force expiration
+      } else {
+        setTimeout(() => {
+          if (oneTimeCodeInputRef.current) {
+            oneTimeCodeInputRef.current.focus?.();
+          }
+        }, 100);
+      }
+    }
+  }, [completeLoginMutation.isError, completeLoginMutation.error]);
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 

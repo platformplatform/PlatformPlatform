@@ -100,7 +100,10 @@ export const queryClient = new QueryClient({
     }
   }),
   mutationCache: new MutationCache({
-    onSuccess: () => {
+    onSuccess: (_data, _variables, _context, mutation) => {
+      if (mutation.meta?.skipQueryInvalidation) {
+        return;
+      }
       queryClient.invalidateQueries();
     }
   })

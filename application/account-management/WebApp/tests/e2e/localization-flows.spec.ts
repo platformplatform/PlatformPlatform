@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -34,8 +34,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete verification with Danish interface & verify navigation to admin")(async () => {
-      // Auto-submits on 6 characters
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
     })();
@@ -82,8 +81,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Complete login verification & verify language resets to user's saved preference")(async () => {
-      // Auto-submits on 6 characters
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
@@ -124,8 +122,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Opret din konto" }).click();
       await expect(page1).toHaveURL("/signup/verify");
 
-      // Auto-submits on 6 characters
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
 
       // Complete profile in Danish
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
@@ -157,8 +154,7 @@ test.describe("@comprehensive", () => {
       await newPage1.getByRole("button", { name: "Continue" }).click();
       await expect(newPage1).toHaveURL("/login/verify");
 
-      // Auto-submits on 6 characters
-      await newPage1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(newPage1, getVerificationCode());
 
       // Verify Danish preference is restored after login
       await expect(newPage1).toHaveURL("/admin");
@@ -176,8 +172,7 @@ test.describe("@comprehensive", () => {
       await newPage2.getByRole("button", { name: "Continue" }).click();
       await expect(newPage2).toHaveURL("/login/verify");
 
-      // Auto-submits on 6 characters
-      await newPage2.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(newPage2, getVerificationCode());
 
       // Verify English preference is maintained
       await expect(newPage2).toHaveURL("/admin");

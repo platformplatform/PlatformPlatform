@@ -4,7 +4,8 @@ import {
   blurActiveElement,
   createTestContext,
   expectToastMessage,
-  expectValidationError
+  expectValidationError,
+  typeOneTimeCode
 } from "@shared/e2e/utils/test-assertions";
 import { getVerificationCode, testUser, uniqueEmail } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
@@ -76,20 +77,20 @@ test.describe("@smoke", () => {
 
     // === VERIFICATION CODE VALIDATION ===
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG1"); // Auto-submits on 6 characters
+      await typeOneTimeCode(page, "WRONG1");
 
       await expectToastMessage(testContext, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Type verification code & verify submit button enables")(async () => {
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
     })();
 
     await step("Click verify button & verify navigation to admin with profile dialog")(async () => {
-      await page.getByRole("button", { name: "Verify" }).click();
+      await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       await expect(page).toHaveURL("/admin");
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();

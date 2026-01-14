@@ -73,7 +73,8 @@ function startMonitoring(page: Page): MonitoringResults {
         "Loading CSS chunk", // CSS chunk loading failures in dev environment
         "Error: Loading CSS chunk", // CSS chunk loading error variations
         "downloadable font: download failed", // Firefox font loading failures
-        "downloadable font: glyf:" // Firefox font loading failures
+        "downloadable font: glyf:", // Firefox font loading failures
+        "ResizeObserver loop completed with undelivered notifications" // Benign browser warning, especially in Firefox
       ];
 
       const isExpected = expectedMessages.some((expected) => message.includes(expected));
@@ -457,4 +458,55 @@ export async function blurActiveElement(page: Page): Promise<void> {
       element.blur();
     }
   });
+}
+
+/**
+ * Type an OTP verification code into the one-time-code inputs.
+ *
+ * This function dispatches keyboard events directly via page.evaluate() for maximum
+ * reliability under parallel test execution in Firefox where Playwright's keyboard
+ * API can drop keystrokes:
+ * - Events are dispatched synchronously in the browser context
+ * - The OTP component (Digit.tsx) uses onKeyUp to capture characters and advance focus
+ *
+ * A microtask yield is included after each character to allow React's state updates
+ * to propagate and advance focus to the next input. This is critical for WebKit
+ * where the event loop timing differs from Chromium and Firefox.
+ *
+ * Note: We don't verify values after typing because auto-submit may navigate away
+ * before verification completes. Tests verify success via navigation or error toasts.
+ *
+ * @param page The Playwright page instance
+ * @param code The verification code to enter (e.g., "UNLOCK", "WRONG1")
+ */
+export async function typeOneTimeCode(page: Page, code: string): Promise<void> {
+  const otpInputs = page.locator('input[autocomplete="one-time-code"]');
+
+  // Wait for the first OTP input to be focused before typing
+  await expect(otpInputs.first()).toBeFocused();
+
+  // Dispatch keyboard events directly for each character
+  for (const char of code) {
+    await page.evaluate(async (key) => {
+      const activeElement = document.activeElement as HTMLInputElement;
+      if (!activeElement) return;
+
+      // Dispatch keydown
+      activeElement.dispatchEvent(
+        new KeyboardEvent("keydown", { key, code: `Key${key}`, bubbles: true, cancelable: true })
+      );
+
+      // Set value and dispatch input event
+      activeElement.value = key;
+      activeElement.dispatchEvent(new InputEvent("input", { bubbles: true, data: key }));
+
+      // Dispatch keyup (triggers OTP component's onKeyUp handler)
+      activeElement.dispatchEvent(
+        new KeyboardEvent("keyup", { key, code: `Key${key}`, bubbles: true, cancelable: true })
+      );
+
+      // Yield to microtask queue to allow React state updates and focus advancement
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }, char);
+  }
 }

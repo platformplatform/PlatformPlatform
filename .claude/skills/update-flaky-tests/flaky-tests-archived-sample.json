@@ -1,0 +1,31 @@
+{
+  "lastUpdated": "2026-01-14T14:30:00",
+  "active": [
+    {
+      "testFile": "account-management/WebApp/tests/e2e/login-flows.spec.ts",
+      "testName": "should complete login with OTP verification",
+      "stepName": "Enter verification code & verify redirect to dashboard",
+      "browser": "Firefox",
+      "errorPattern": "keyboard.type drops characters",
+      "status": "fix-applied",
+      "observations": [
+        {
+          "timestamp": "2026-01-05T11:00:00",
+          "branch": "main",
+          "errorMessage": "keyboard.type failed to enter all characters",
+          "artifactPath": "2026-01-05T11-00-00Z-login-flows-enter-verification-code/",
+          "observedBy": "qa-engineer"
+        }
+      ],
+      "lastSeen": "2026-01-05T11:00:00",
+      "observationCount": 1,
+      "fix": {
+        "appliedAt": "2026-01-06T10:00:00",
+        "commitHash": "d6b6b25b5",
+        "description": "Fix OTP typing reliability in Firefox during parallel test execution",
+        "appliedBy": "qa-engineer"
+      },
+      "notes": "Stable for 7+ days after fix"
+    }
+  ]
+}

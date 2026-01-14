@@ -69,6 +69,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **Errors are handled globally**—`shared-webapp/infrastructure/http/errorHandler.ts` automatically shows toast notifications with the server's error message (don't manually show toasts for errors)
    - **Validation errors**: Pass to forms via `validationErrors={mutation.error?.errors}`
    - **`onError` is for UI cleanup only** (resetting loading states, closing dialogs), not for showing errors
+   - **Toast notifications**: Show success toasts in mutation `onSuccess` callbacks, not in `useEffect` watching `isSuccess` (avoids React effect scheduling delays)
 
 4. Responsive design utilities:
    - Use `useViewportResize()` hook to detect mobile viewport (returns `true` when mobile)
@@ -87,16 +88,21 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - `z-[200]`: Mobile full-screen menus
    - Note: Dropdowns, tooltips, and popovers use React Aria's overlay system which manages stacking relative to their context
 
-6. Always follow these steps when implementing changes:
+6. DirtyModal close handlers:
+   - **X button**: Use Dialog's `close` from render prop (shows unsaved warning if dirty)
+   - **Cancel button**: Use `handleCancel` that clears state and closes immediately (bypasses warning)
+   - Always clear dirty state in `onSuccess` and `onCloseComplete`
+
+7. Always follow these steps when implementing changes:
    - Consult relevant rule files and list which ones guided your implementation
    - Search the codebase for similar code before implementing new code
    - Reference existing implementations to maintain consistency
 
-7. Build and format your changes:
+8. Build and format your changes:
    - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend
    - This ensures consistent code style across the codebase
 
-8. Verify your changes:
+9. Verify your changes:
    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
    - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
@@ -106,39 +112,49 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
 
 ```tsx
 // ✅ DO: Correct patterns
-export function UserPicker({ isOpen, isPending, onOpenChange }: UserPickerProps) {
+export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
+  const [isFormDirty, setIsFormDirty] = useState(false);
   const { data } = api.useQuery("get", "/api/account-management/users", { enabled: isOpen });
   const activeUsers = (data?.users ?? []).filter((u) => u.isActive); // ✅ Compute derived values inline
 
-  const handleChangeSelection = (keys: Selection) => { /* ... */ }; // ✅ handleVerbNoun pattern
+  const inviteMutation = api.useMutation("post", "/api/account-management/users/invite", {
+    onSuccess: () => { // ✅ Show toast in onSuccess (not useEffect)
+      setIsFormDirty(false);
+      toastQueue.add({ title: t`Success`, description: t`User invited`, variant: "success" });
+      onOpenChange(false);
+    }
+  });
+
+  const handleCloseComplete = () => setIsFormDirty(false);
+  const handleCancel = () => { setIsFormDirty(false); onOpenChange(false); }; // ✅ Clear state + close (bypasses warning)
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={!isPending}> // ✅ Prevent dismiss during pending
+    <DirtyModal isOpen={isOpen} onOpenChange={onOpenChange} hasUnsavedChanges={isFormDirty}
+                isDismissable={!inviteMutation.isPending} onCloseComplete={handleCloseComplete}>
       <Dialog className="sm:w-dialog-md"> // ✅ Use dialog width classes (not max-w-lg)
         {({ close }) => ( // ✅ Dialog render prop provides close function
           <>
-            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" /> // ✅ Close button pattern (onClick is exception)
+            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" /> // ✅ X uses close (shows warning if dirty)
             <DialogHeader description={t`Select users from the list.`}>
               <Heading slot="title" className="text-2xl"><Trans>Select users</Trans></Heading>
             </DialogHeader>
-            <DialogContent>
-              <ListBox aria-label={t`Users`} selectionMode="multiple" onSelectionChange={handleChangeSelection}>
-                {activeUsers.map((user) => (
-                  <ListBoxItem key={user.id} id={user.id}>
-                    <Text>{`${user.firstName} ${user.lastName}`}</Text>
-                  </ListBoxItem>
-                ))}
-              </ListBox>
-            </DialogContent>
-            <DialogFooter>
-              <Button variant="primary" onPress={handleConfirm} isPending={isPending}> // ✅ Use isPending for loading
-                <Trans>Confirm</Trans>
-              </Button>
-            </DialogFooter>
+            <Form onSubmit={mutationSubmitter(inviteMutation)}>
+              <DialogContent>
+                <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
+              </DialogContent>
+              <DialogFooter>
+                <Button type="reset" onPress={handleCancel} variant="secondary" isDisabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
+                  <Trans>Cancel</Trans>
+                </Button>
+                <Button type="submit" isDisabled={inviteMutation.isPending}> // ✅ Use isDisabled for pending
+                  {inviteMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
+                </Button>
+              </DialogFooter>
+            </Form>
           </>
         )}
       </Dialog>
-    </Modal>
+    </DirtyModal>
   );
 }
 
@@ -147,10 +163,18 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
   const [filteredUsers, setFilteredUsers] = useState([]); // ❌ State for derived values
   const [isAdmin, setIsAdmin] = useState(false); // ❌ Duplicate state that can be calculated
 
+  const inviteMutation = api.useMutation("post", "/api/users/invite");
+
   useEffect(() => { // ❌ useEffect for calculations - compute inline instead
     setFilteredUsers(users.filter(u => u.isActive));
     setIsAdmin(users.some(u => u.id === selectedId && u.role === "admin")); // ❌ Hardcode strings - use API contract types
   }, [users, selectedId]);
+
+  useEffect(() => { // ❌ useEffect watching isSuccess causes toast timing issues
+    if (inviteMutation.isSuccess) {
+      toastQueue.add({ title: "Success", variant: "success" });
+    }
+  }, [inviteMutation.isSuccess]);
 
   const getDisplayName = useCallback((user) => { // ❌ Premature useCallback without performance need
     return `${user.firstName} ${user.lastName}`;
@@ -161,17 +185,25 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
   return (
     <Modal isOpen={isOpen} onOpenChange={onClose}> // ❌ Missing isDismissable={!isPending}
       <Dialog className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
-        <h1>User Mgmt</h1> // ❌ Native <h1> (use Heading), acronym "Mgmt", missing <Trans>
-        <ul> // ❌ Native <ul> - use ListBox
-          {filteredUsers.map(user => (
-            <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>, onClick (use onAction)
-              <img src={user.avatarUrl} /> // ❌ Native <img> - use Avatar
-              <Text className="text-sm">{user.email}</Text> // ❌ text-sm with Text causes blur
-              {getDisplayName(user)}
-            </li>
-          ))}
-        </ul>
-        <Button onPress={handleSelect}>Submit</Button> // ❌ Missing isDisabled/isPending, missing <Trans>
+        {({ close }) => ( // ❌ Both X and Cancel use close (Cancel should use handleCancel)
+          <>
+            <XIcon onClick={close} />
+            <h1>User Mgmt</h1> // ❌ Native <h1> (use Heading), acronym "Mgmt", missing <Trans>
+            <ul> // ❌ Native <ul> - use ListBox
+              {filteredUsers.map(user => (
+                <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>, onClick (use onAction)
+                  <img src={user.avatarUrl} /> // ❌ Native <img> - use Avatar
+                  <Text className="text-sm">{user.email}</Text> // ❌ text-sm with Text causes blur
+                  {getDisplayName(user)}
+                </li>
+              ))}
+            </ul>
+            <Button onPress={close}>Cancel</Button> // ❌ Cancel uses close (shows unwanted warning)
+            <Button type="submit"> // ❌ Missing isDisabled={isPending}
+              <Trans>Submit</Trans> // ❌ Missing isPending text pattern, generic "Submit" text
+            </Button>
+          </>
+        )}
       </Dialog>
     </Modal>
   );

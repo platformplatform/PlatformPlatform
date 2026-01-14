@@ -70,10 +70,7 @@ export function DevelopmentServerPlugin(options: DevelopmentServerPluginOptions)
           },
           dev: {
             client: {
-              port: options.port,
-              overlay: {
-                runtime: process.env.NODE_ENV !== "production"
-              }
+              port: options.port
             },
             // Set publicPath to auto to enable the server to serve the files
             assetPrefix: "auto",

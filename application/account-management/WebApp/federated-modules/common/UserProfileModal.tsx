@@ -60,7 +60,8 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     }
   };
 
-  const handleClose = () => {
+  const handleCancel = () => {
+    handleCloseComplete();
     onOpenChange(false);
   };
 
@@ -92,11 +93,8 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       if (updatedUser) {
         updateUserInfo(updatedUser);
       }
-    }
-  });
-
-  useEffect(() => {
-    if (saveMutation.isSuccess) {
+    },
+    onSuccess: () => {
       toastQueue.add({
         title: t`Success`,
         description: t`Profile updated successfully`,
@@ -104,7 +102,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       });
       onOpenChange(false);
     }
-  }, [saveMutation.isSuccess, onOpenChange]);
+  });
 
   const onFileSelect = (files: FileList | null) => {
     if (files?.[0]) {
@@ -152,130 +150,134 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           aria-label={t`User profile`}
           className="max-sm:flex max-sm:flex-col max-sm:overflow-hidden sm:w-dialog-lg"
         >
-          <XIcon onClick={handleClose} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-          <DialogHeader description={<Trans>Update your profile picture and personal details here.</Trans>}>
-            <Heading slot="title" className="text-2xl">
-              <Trans>User profile</Trans>
-            </Heading>
-          </DialogHeader>
+          {({ close }) => (
+            <>
+              <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
+              <DialogHeader description={<Trans>Update your profile picture and personal details here.</Trans>}>
+                <Heading slot="title" className="text-2xl">
+                  <Trans>User profile</Trans>
+                </Heading>
+              </DialogHeader>
 
-          <Form
-            onSubmit={mutationSubmitter(saveMutation)}
-            validationBehavior="aria"
-            validationErrors={saveMutation.error?.errors}
-            className="flex min-h-0 flex-1 flex-col"
-          >
-            <DialogContent className="flex flex-col gap-4">
-              <FileTrigger
-                ref={avatarFileInputRef}
-                onSelect={(files) => {
-                  setAvatarMenuOpen(false);
-                  onFileSelect(files);
-                }}
-                acceptedFileTypes={ALLOWED_FILE_TYPES}
-              />
-
-              <Label>
-                <Trans>Profile picture</Trans>
-              </Label>
-
-              <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-                <Button
-                  variant="icon"
-                  className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
-                  aria-label={t`Change profile picture`}
-                >
-                  {user.avatarUrl || avatarPreviewUrl ? (
-                    <img
-                      src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
-                      className="h-full w-full rounded-full object-cover"
-                      alt={t`Preview avatar`}
-                    />
-                  ) : (
-                    <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
-                  )}
-                </Button>
-                <Menu>
-                  <MenuItem
-                    onAction={() => {
-                      avatarFileInputRef.current?.click();
+              <Form
+                onSubmit={mutationSubmitter(saveMutation)}
+                validationBehavior="aria"
+                validationErrors={saveMutation.error?.errors}
+                className="flex min-h-0 flex-1 flex-col"
+              >
+                <DialogContent className="flex flex-col gap-4">
+                  <FileTrigger
+                    ref={avatarFileInputRef}
+                    onSelect={(files) => {
+                      setAvatarMenuOpen(false);
+                      onFileSelect(files);
                     }}
-                  >
-                    <CameraIcon className="h-4 w-4" />
-                    <Trans>Upload profile picture</Trans>
-                  </MenuItem>
-                  {(user.avatarUrl || avatarPreviewUrl) && (
-                    <>
-                      <MenuSeparator />
+                    acceptedFileTypes={ALLOWED_FILE_TYPES}
+                  />
+
+                  <Label>
+                    <Trans>Profile picture</Trans>
+                  </Label>
+
+                  <MenuTrigger isOpen={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+                    <Button
+                      variant="icon"
+                      className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
+                      aria-label={t`Change profile picture`}
+                    >
+                      {user.avatarUrl || avatarPreviewUrl ? (
+                        <img
+                          src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
+                          className="h-full w-full rounded-full object-cover"
+                          alt={t`Preview avatar`}
+                        />
+                      ) : (
+                        <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
+                      )}
+                    </Button>
+                    <Menu>
                       <MenuItem
                         onAction={() => {
-                          setAvatarMenuOpen(false);
-                          setRemoveAvatarFlag(true);
-                          setSelectedAvatarFile(null);
-                          setAvatarPreviewUrl(null);
-                          user.avatarUrl = null;
+                          avatarFileInputRef.current?.click();
                         }}
                       >
-                        <Trash2Icon className="h-4 w-4 text-destructive" />
-                        <span className="text-destructive">
-                          <Trans>Remove profile picture</Trans>
-                        </span>
+                        <CameraIcon className="h-4 w-4" />
+                        <Trans>Upload profile picture</Trans>
                       </MenuItem>
-                    </>
-                  )}
-                </Menu>
-              </MenuTrigger>
+                      {(user.avatarUrl || avatarPreviewUrl) && (
+                        <>
+                          <MenuSeparator />
+                          <MenuItem
+                            onAction={() => {
+                              setAvatarMenuOpen(false);
+                              setRemoveAvatarFlag(true);
+                              setSelectedAvatarFile(null);
+                              setAvatarPreviewUrl(null);
+                              user.avatarUrl = null;
+                            }}
+                          >
+                            <Trash2Icon className="h-4 w-4 text-destructive" />
+                            <span className="text-destructive">
+                              <Trans>Remove profile picture</Trans>
+                            </span>
+                          </MenuItem>
+                        </>
+                      )}
+                    </Menu>
+                  </MenuTrigger>
 
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <TextField
-                  isRequired={true}
-                  name="firstName"
-                  label={t`First name`}
-                  defaultValue={user?.firstName}
-                  placeholder={t`E.g. Alex`}
-                  className="sm:w-64"
-                  onChange={() => setIsFormDirty(true)}
-                />
-                <TextField
-                  isRequired={true}
-                  name="lastName"
-                  label={t`Last name`}
-                  defaultValue={user?.lastName}
-                  placeholder={t`E.g. Taylor`}
-                  className="sm:w-64"
-                  onChange={() => setIsFormDirty(true)}
-                />
-              </div>
-              <TextField
-                label={t`Email`}
-                value={user?.email}
-                isDisabled={true}
-                startIcon={<MailIcon className="h-4 w-4" />}
-              />
-              <TextField
-                name="title"
-                label={t`Title`}
-                tooltip={t`Your professional title or role`}
-                defaultValue={user?.title}
-                placeholder={t`E.g. Software engineer`}
-                onChange={() => setIsFormDirty(true)}
-              />
-            </DialogContent>
+                  <div className="flex flex-col gap-4 sm:flex-row">
+                    <TextField
+                      isRequired={true}
+                      name="firstName"
+                      label={t`First name`}
+                      defaultValue={user?.firstName}
+                      placeholder={t`E.g. Alex`}
+                      className="sm:w-64"
+                      onChange={() => setIsFormDirty(true)}
+                    />
+                    <TextField
+                      isRequired={true}
+                      name="lastName"
+                      label={t`Last name`}
+                      defaultValue={user?.lastName}
+                      placeholder={t`E.g. Taylor`}
+                      className="sm:w-64"
+                      onChange={() => setIsFormDirty(true)}
+                    />
+                  </div>
+                  <TextField
+                    label={t`Email`}
+                    value={user?.email}
+                    isDisabled={true}
+                    startIcon={<MailIcon className="h-4 w-4" />}
+                  />
+                  <TextField
+                    name="title"
+                    label={t`Title`}
+                    tooltip={t`Your professional title or role`}
+                    defaultValue={user?.title}
+                    placeholder={t`E.g. Software engineer`}
+                    onChange={() => setIsFormDirty(true)}
+                  />
+                </DialogContent>
 
-            <DialogFooter>
-              <Button
-                type="reset"
-                onPress={handleClose}
-                variant="secondary"
-                isDisabled={isLoading || saveMutation.isPending}
-              >
-                <Trans>Cancel</Trans>
-              </Button>
-              <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>
-                {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-              </Button>
-            </DialogFooter>
-          </Form>
+                <DialogFooter>
+                  <Button
+                    type="reset"
+                    onPress={handleCancel}
+                    variant="secondary"
+                    isDisabled={isLoading || saveMutation.isPending}
+                  >
+                    <Trans>Cancel</Trans>
+                  </Button>
+                  <Button type="submit" isDisabled={isLoading || saveMutation.isPending}>
+                    {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+                  </Button>
+                </DialogFooter>
+              </Form>
+            </>
+          )}
         </Dialog>
       )}
     </DirtyModal>

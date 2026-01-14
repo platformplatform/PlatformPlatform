@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -139,9 +139,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
-      // Wait for navigation to complete after verification
       await page.waitForURL("/admin");
     })();
 
@@ -347,9 +346,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
-      // Wait for navigation to complete after verification
       await page.waitForURL("/admin");
     })();
 

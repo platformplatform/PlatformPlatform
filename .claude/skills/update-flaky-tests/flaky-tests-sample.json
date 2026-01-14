@@ -1,0 +1,80 @@
+{
+  "lastUpdated": "2026-01-14T14:30:00",
+  "active": [
+    {
+      "testFile": "account-management/WebApp/tests/e2e/login-flows.spec.ts",
+      "testName": "should complete login with OTP verification",
+      "stepName": "Click login button & wait for navigation",
+      "browser": "Firefox",
+      "errorPattern": "button click timeout",
+      "status": "observed",
+      "observations": [
+        {
+          "timestamp": "2026-01-14T10:00:00",
+          "branch": "pp-765-stabilize-flaky-e2e-tests",
+          "errorMessage": "Timeout waiting for button to be clickable after 5000ms",
+          "artifactPath": "2026-01-14T10-00-00-login-flows-click-login/",
+          "observedBy": "qa-engineer"
+        }
+      ],
+      "lastSeen": "2026-01-14T10:00:00",
+      "observationCount": 1,
+      "fix": null,
+      "notes": null
+    },
+    {
+      "testFile": "account-management/WebApp/tests/e2e/user-management-flows.spec.ts",
+      "testName": "should handle user invitation and deletion workflow",
+      "stepName": "Delete user & verify confirmation dialog closes",
+      "browser": "Firefox",
+      "errorPattern": "confirmation dialog still visible after close",
+      "status": "confirmed",
+      "observations": [
+        {
+          "timestamp": "2026-01-13T15:00:00",
+          "branch": "pp-765-stabilize-flaky-e2e-tests",
+          "errorMessage": "Expected element to not be visible but it was still present after 5000ms",
+          "artifactPath": "2026-01-13T15-00-00Z-user-management-flows-delete-user/",
+          "observedBy": "qa-engineer"
+        },
+        {
+          "timestamp": "2026-01-14T10:30:00",
+          "branch": "pp-765-stabilize-flaky-e2e-tests",
+          "errorMessage": "Expected element to not be visible but it was still present after 5000ms",
+          "artifactPath": "2026-01-14T10-30-00Z-user-management-flows-delete-user/",
+          "observedBy": "qa-engineer"
+        }
+      ],
+      "lastSeen": "2026-01-14T10:30:00",
+      "observationCount": 2,
+      "fix": null,
+      "notes": "Timing issue with dialog close animation in Firefox"
+    },
+    {
+      "testFile": "account-management/WebApp/tests/e2e/global-ui-flows.spec.ts",
+      "testName": "should handle theme switching and navigation",
+      "stepName": "Navigate to admin dashboard & verify welcome heading",
+      "browser": "WebKit",
+      "errorPattern": "heading not visible after navigation",
+      "status": "fix-applied",
+      "observations": [
+        {
+          "timestamp": "2026-01-12T09:15:00",
+          "branch": "main",
+          "errorMessage": "Timeout waiting for heading 'Welcome home' to be visible",
+          "artifactPath": "2026-01-12T09-15-00Z-global-ui-flows-navigate-dashboard/",
+          "observedBy": "qa-reviewer"
+        }
+      ],
+      "lastSeen": "2026-01-12T09:15:00",
+      "observationCount": 1,
+      "fix": {
+        "appliedAt": "2026-01-13T14:00:00",
+        "commitHash": "abc123def",
+        "description": "Added browser-specific auth state paths to fix cross-browser test isolation",
+        "appliedBy": "qa-engineer"
+      },
+      "notes": "WebKit ownerPage fixture was not properly isolated between tests"
+    }
+  ]
+}
