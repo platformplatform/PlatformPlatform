@@ -11,7 +11,7 @@ cmd=$(echo "$input" | sed -n 's/.*"command":"\([^"]*\)".*/\1/p')
 
 # Check the command and decide whether to block it
 case "$cmd" in
-    *"git merge "*|*"git rebase "*|*"git cherry-pick "*|*"git reset "*|*"git revert "*|*"git tag "*|*"git clean "*|*"git push "*|*"git push"*|*"git remote "*|*"git config "*) echo "❌ Dangerous git operation. Run this yourself." >&2; exit 2 ;;
+    *"git merge "*|*"git rebase "*|*"git reset "*|*"git revert "*|*"git tag "*|*"git clean "*|*"git push "*|*"git push"*|*"git remote "*|*"git config "*) echo "❌ Dangerous git operation. Run this yourself." >&2; exit 2 ;;
     *"dotnet build"*) echo "❌ Use **build MCP tool** instead" >&2; exit 2 ;;
     *"dotnet test"*) echo "❌ Use **test MCP tool** instead" >&2; exit 2 ;;
     *"dotnet format"*) echo "❌ Use **format MCP tool** instead" >&2; exit 2 ;;
