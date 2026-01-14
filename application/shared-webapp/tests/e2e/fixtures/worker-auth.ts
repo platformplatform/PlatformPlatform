@@ -1,4 +1,3 @@
-import { getStorageStatePath, isAuthenticationStateValid } from "@shared/e2e/auth/storage-state";
 import { createTenantWithUsers, ensureTenantUsersExist } from "@shared/e2e/auth/tenant-provisioning";
 import type { Tenant, TenantProvisioningOptions } from "@shared/e2e/types/auth";
 
@@ -33,10 +32,6 @@ export async function getWorkerTenant(
       return cachedTenant;
     }
   }
-
-  // Check if we have valid authentication state for the owner (primary user)
-  const ownerStorageStatePath = getStorageStatePath(workerIndex, "owner", selfContainedSystemPrefix);
-  const _hasValidAuth = await isAuthenticationStateValid(ownerStorageStatePath);
 
   // Always create the tenant object structure
   const tenant = createTenantWithUsers(workerIndex, selfContainedSystemPrefix);

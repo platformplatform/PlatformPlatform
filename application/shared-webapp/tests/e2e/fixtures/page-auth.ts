@@ -108,10 +108,11 @@ async function createAuthenticatedContextAndPage(
   browser: Browser,
   role: UserRole,
   workerIndex: number,
+  browserName: string,
   selfContainedSystemPrefix?: string,
   tenant?: Tenant
 ): Promise<{ context: BrowserContext; page: Page }> {
-  const authManager = createAuthStateManager(workerIndex, selfContainedSystemPrefix);
+  const authManager = createAuthStateManager(workerIndex, browserName, selfContainedSystemPrefix);
 
   // Check if we have valid auth state
   const hasValidAuth = await authManager.hasValidAuthState(role);
@@ -152,6 +153,7 @@ async function createAuthenticatedContextAndPage(
 export const test = base.extend<PageAuthFixtures>({
   ownerPage: async ({ browser }, use, testInfo) => {
     const workerIndex = testInfo.parallelIndex;
+    const browserName = testInfo.project.name;
     const systemPrefix = getSelfContainedSystemPrefix();
 
     // Get tenant for this worker
@@ -162,6 +164,7 @@ export const test = base.extend<PageAuthFixtures>({
       browser,
       "Owner",
       workerIndex,
+      browserName,
       systemPrefix,
       tenant
     );
@@ -174,6 +177,7 @@ export const test = base.extend<PageAuthFixtures>({
 
   adminPage: async ({ browser }, use, testInfo) => {
     const workerIndex = testInfo.parallelIndex;
+    const browserName = testInfo.project.name;
     const systemPrefix = getSelfContainedSystemPrefix();
 
     // Get tenant for this worker
@@ -184,6 +188,7 @@ export const test = base.extend<PageAuthFixtures>({
       browser,
       "Admin",
       workerIndex,
+      browserName,
       systemPrefix,
       tenant
     );
@@ -196,6 +201,7 @@ export const test = base.extend<PageAuthFixtures>({
 
   memberPage: async ({ browser }, use, testInfo) => {
     const workerIndex = testInfo.parallelIndex;
+    const browserName = testInfo.project.name;
     const systemPrefix = getSelfContainedSystemPrefix();
 
     // Get tenant for this worker
@@ -206,6 +212,7 @@ export const test = base.extend<PageAuthFixtures>({
       browser,
       "Member",
       workerIndex,
+      browserName,
       systemPrefix,
       tenant
     );

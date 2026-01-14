@@ -13,10 +13,12 @@ import type { UserRole } from "@shared/e2e/types/auth";
  */
 export class AuthStateManager {
   private readonly workerIndex: number;
+  private readonly browserName: string;
   private readonly selfContainedSystemPrefix?: string;
 
-  constructor(workerIndex: number, selfContainedSystemPrefix?: string) {
+  constructor(workerIndex: number, browserName: string, selfContainedSystemPrefix?: string) {
     this.workerIndex = workerIndex;
+    this.browserName = browserName;
     this.selfContainedSystemPrefix = selfContainedSystemPrefix;
   }
 
@@ -26,7 +28,7 @@ export class AuthStateManager {
    * @returns Path to the storage state file
    */
   getStateFilePath(role: UserRole): string {
-    return getStorageStatePath(this.workerIndex, role.toLowerCase(), this.selfContainedSystemPrefix);
+    return getStorageStatePath(this.workerIndex, role.toLowerCase(), this.browserName, this.selfContainedSystemPrefix);
   }
 
   /**
@@ -98,9 +100,14 @@ export class AuthStateManager {
 /**
  * Create an AuthStateManager instance for the current worker
  * @param workerIndex Playwright worker index
+ * @param browserName Browser name (e.g., "chromium", "firefox", "webkit")
  * @param selfContainedSystemPrefix Optional system prefix
  * @returns AuthStateManager instance
  */
-export function createAuthStateManager(workerIndex: number, selfContainedSystemPrefix?: string): AuthStateManager {
-  return new AuthStateManager(workerIndex, selfContainedSystemPrefix);
+export function createAuthStateManager(
+  workerIndex: number,
+  browserName: string,
+  selfContainedSystemPrefix?: string
+): AuthStateManager {
+  return new AuthStateManager(workerIndex, browserName, selfContainedSystemPrefix);
 }
