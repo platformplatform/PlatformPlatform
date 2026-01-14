@@ -1,6 +1,6 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -141,7 +141,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
       // Wait for navigation to complete - could be Users or Home page
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
       await expect(page1).toHaveURL("/admin/users");
@@ -257,7 +257,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
 
       // Wait for navigation to complete
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
@@ -343,7 +343,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Email" }).fill(secondUser.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
     })();
 
@@ -372,7 +372,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Navigate page2 to admin
@@ -403,7 +403,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue" }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page1.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Tab 1 should login to secondary tenant (last selected)
@@ -486,7 +486,7 @@ test.describe("@comprehensive", () => {
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page2.getByRole("button", { name: "Continue" }).click();
       await expect(page2.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page2.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page2, getVerificationCode());
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Open tenant selector in page2 (should be on primary tenant after login)

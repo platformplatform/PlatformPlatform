@@ -1,6 +1,11 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import {
+  blurActiveElement,
+  createTestContext,
+  expectToastMessage,
+  typeOneTimeCode
+} from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -37,17 +42,15 @@ test.describe("@smoke", () => {
     })();
 
     await step("Enter wrong verification code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
+      await typeOneTimeCode(page, "WRONG1");
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Complete successful login & verify navigation to admin")(async () => {
-      // Re-enter correct code (manual submit required after failed attempt)
-      await page.locator('input[autocomplete="one-time-code"]').first().focus();
-      await page.keyboard.type(getVerificationCode()); // The verification does not auto submit the second time
-      await page.getByRole("button", { name: "Verify" }).click();
+      await typeOneTimeCode(page, getVerificationCode());
+      await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       // Verify successful login
       await expect(page).toHaveURL("/admin");
@@ -89,9 +92,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/login/verify");
-      await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-
-      await page.keyboard.type(getVerificationCode()); // The verification code auto submits
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
     })();
@@ -119,31 +120,31 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Enter first wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG1"); // The verification code auto submits the first time
+      await typeOneTimeCode(page, "WRONG1");
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Enter second wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG2");
-      await page.getByRole("button", { name: "Verify" }).click();
+      await typeOneTimeCode(page, "WRONG2");
+      await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Enter third wrong code & verify error and focus reset")(async () => {
-      await page.keyboard.type("WRONG3");
-      await page.getByRole("button", { name: "Verify" }).click();
+      await typeOneTimeCode(page, "WRONG3");
+      await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       await expectToastMessage(context, 400, "The code is wrong or no longer valid.");
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
     await step("Enter fourth wrong code & verify rate limiting triggers")(async () => {
-      await page.keyboard.type("WRONG4");
-      await page.getByRole("button", { name: "Verify" }).click();
+      await typeOneTimeCode(page, "WRONG4");
+      await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       // Verify rate limiting is enforced
       await expect(page.getByText("Too many attempts, please request a new code.").first()).toBeVisible();

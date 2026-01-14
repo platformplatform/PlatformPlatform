@@ -1,7 +1,7 @@
 import type { Browser, BrowserContext, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -95,7 +95,7 @@ test.describe("@smoke", () => {
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await secondPage.getByRole("button", { name: "Continue" }).click();
       await expect(secondPage).toHaveURL("/login/verify");
-      await secondPage.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(secondPage, getVerificationCode());
 
       await expect(secondPage).toHaveURL("/admin");
       await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
@@ -195,7 +195,7 @@ test.describe("@comprehensive", () => {
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await secondPage.getByRole("button", { name: "Continue" }).click();
       await expect(secondPage).toHaveURL("/login/verify");
-      await secondPage.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(secondPage, getVerificationCode());
 
       await expect(secondPage).toHaveURL("/admin");
       await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();

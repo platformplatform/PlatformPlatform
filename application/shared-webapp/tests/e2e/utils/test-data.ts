@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { expectToastMessage } from "./test-assertions";
+import { expectToastMessage, typeOneTimeCode } from "./test-assertions";
 
 /**
  * Read platform settings from the shared-kernel JSONC file.
@@ -151,11 +151,7 @@ export async function completeSignupFlow(
   await expect(page).toHaveURL("/signup/verify");
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
-  // Wait for the first input to be focused before typing
-  await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
-  await page.keyboard.type(getVerificationCode());
-
-  // Wait for successful signup - the form auto-submits and navigates to /admin
+  await typeOneTimeCode(page, getVerificationCode());
   await expect(page).toHaveURL("/admin");
   await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
