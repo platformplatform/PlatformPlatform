@@ -71,3 +71,11 @@ Do not report (these are not system bugs):
 If you recover from a problem: Report problem + solution (2 calls).
 
 Report system bugs only. Every unreported workflow bug makes the agentic system worse.
+
+## Flaky Test Tracking
+
+**Run `/update-flaky-tests` immediately when:**
+- Test failures occur that are unrelated to your current changes - log them
+- You fix a known flaky test - mark it as fix-applied in the tracker
+
+The flaky test tracker helps the team understand which tests are unreliable. Always update it.
