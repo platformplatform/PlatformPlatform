@@ -43,11 +43,12 @@ You are reviewing: **{{{title}}}**
 {
   "todos": [
     {"content": "Read [feature] and [task] to understand requirements", "status": "pending", "activeForm": "Reading feature and task"},
-    {"content": "Run e2e tests and verify ALL pass with zero tolerance", "status": "pending", "activeForm": "Running E2E tests"},
+    {"content": "Run feature-specific e2e tests", "status": "pending", "activeForm": "Running feature E2E tests"},
     {"content": "Review test file structure and organization", "status": "pending", "activeForm": "Reviewing test structure"},
     {"content": "Review each test step for correct patterns", "status": "pending", "activeForm": "Reviewing test steps"},
     {"content": "Review test efficiency and speed", "status": "pending", "activeForm": "Reviewing test efficiency"},
     {"content": "Make binary decision (approve or reject)", "status": "pending", "activeForm": "Making decision"},
+    {"content": "If approved, run full regression test suite", "status": "pending", "activeForm": "Running full regression tests"},
     {"content": "If approved, commit changes", "status": "pending", "activeForm": "Committing if approved"},
     {"content": "Update [task] status to [Completed] or [Active]", "status": "pending", "activeForm": "Updating task status"},
     {"content": "MANDATORY: Call CompleteWork", "status": "pending", "activeForm": "Calling CompleteWork"}
@@ -76,13 +77,13 @@ You are reviewing: **{{{title}}}**
    - Read [End-to-End Tests](/.agent/rules/end-to-end-tests/end-to-end-tests.md)
    - Ensure engineer followed all patterns
 
-**STEP 2**: Run e2e tests and verify ALL pass with zero tolerance
+**STEP 2**: Run feature-specific e2e tests first
 
 **If tests require backend changes, run the run tool first**:
 - Use **run MCP tool** to restart server and run migrations
 - The tool starts .NET Aspire at https://localhost:9000
 
-**Run E2E tests**:
+**Run feature-specific E2E tests**:
 - Use **end-to-end MCP tool** to run tests: `end-to-end(searchTerms=["feature-name"])`
 - **ALL tests MUST pass with ZERO failures to approve**
 - **Verify ZERO console errors** during test execution
@@ -150,7 +151,15 @@ You are reviewing: **{{{title}}}**
 
 **When rejecting:** Do full review first, then reject with ALL issues listed (avoid multiple rounds).
 
-**STEP 7**: If approved, commit changes
+**STEP 7**: If approved, run full regression test suite
+
+**Before committing, run all e2e tests to ensure no regressions:**
+- Use **end-to-end MCP tool** WITHOUT searchTerms: `end-to-end()`
+- This runs the complete test suite across all browsers
+- **ALL tests MUST pass with ZERO failures**
+- If ANY test fails: REJECT (do not commit)
+
+**STEP 8**: Commit changes
 
 1. Stage test files: `git add <file>` for each test file
 2. Commit: One line, imperative form, no description, no co-author
@@ -158,7 +167,7 @@ You are reviewing: **{{{title}}}**
 
 Don't use `git add -A` or `git add .`
 
-**STEP 8**: Update [task] status to [Completed] or [Active]
+**STEP 9**: Update [task] status to [Completed] or [Active]
 
 **If `featureId` is NOT "ad-hoc" (regular task from a feature):**
 - If APPROVED: Update [task] status to [Completed].
@@ -167,7 +176,7 @@ Don't use `git add -A` or `git add .`
 **If `featureId` is "ad-hoc" (ad-hoc work):**
 - Skip [PRODUCT_MANAGEMENT_TOOL] status updates.
 
-**STEP 9**: Call CompleteWork
+**STEP 10**: Call CompleteWork
 
 **Call MCP CompleteWork tool**:
 - `mode`: "review"
