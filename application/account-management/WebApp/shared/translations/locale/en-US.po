@@ -702,6 +702,9 @@ msgstr "Send invite"
 msgid "Sending verification code..."
 msgstr "Sending verification code..."
 
+msgid "Sending..."
+msgstr "Sending..."
+
 msgid "Session ended"
 msgstr "Session ended"
 
