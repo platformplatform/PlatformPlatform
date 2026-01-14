@@ -251,7 +251,17 @@ export function AccountSettings() {
     refetch: refetchTenant
   } = api.useQuery("get", "/api/account-management/tenants/current");
   const { data: currentUser, isLoading: userLoading } = api.useQuery("get", "/api/account-management/users/me");
-  const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current");
+  const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current", {
+    onSuccess: () => {
+      setIsFormDirty(false);
+      toastQueue.add({
+        title: t`Success`,
+        description: t`Account name updated successfully`,
+        variant: "success"
+      });
+      refetchTenant();
+    }
+  });
   const updateTenantLogoMutation = api.useMutation("post", "/api/account-management/tenants/current/update-logo");
   const removeTenantLogoMutation = api.useMutation("delete", "/api/account-management/tenants/current/remove-logo");
 
@@ -268,18 +278,6 @@ export function AccountSettings() {
   const { isConfirmDialogOpen, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
     hasUnsavedChanges: isFormDirty && isOwner
   });
-
-  useEffect(() => {
-    if (updateCurrentTenantMutation.isSuccess) {
-      setIsFormDirty(false);
-      toastQueue.add({
-        title: t`Success`,
-        description: t`Account name updated successfully`,
-        variant: "success"
-      });
-      refetchTenant();
-    }
-  }, [updateCurrentTenantMutation.isSuccess, refetchTenant]);
 
   // Dispatch event to notify components about tenant updates
   useEffect(() => {

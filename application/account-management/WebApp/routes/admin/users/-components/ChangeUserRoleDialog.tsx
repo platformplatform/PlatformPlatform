@@ -53,7 +53,8 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     setSelectedRole(null);
   };
 
-  const handleClose = () => {
+  const handleCancel = () => {
+    setSelectedRole(null);
     onOpenChange(false);
   };
 
@@ -83,12 +84,9 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
       onCloseComplete={handleCloseComplete}
     >
       <Dialog className="sm:w-dialog-lg">
-        {() => (
+        {({ close }) => (
           <>
-            <XIcon
-              onClick={handleClose}
-              className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted"
-            />
+            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
             <DialogHeader>
               <Heading slot="title" className="text-2xl">
                 <Trans>Change user role</Trans>
@@ -163,7 +161,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
               <DialogFooter>
                 <Button
                   type="reset"
-                  onPress={handleClose}
+                  onPress={handleCancel}
                   variant="secondary"
                   isDisabled={changeUserRoleMutation.isPending}
                 >

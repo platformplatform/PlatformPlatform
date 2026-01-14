@@ -101,39 +101,6 @@ export function CompleteSignupForm() {
     }
   }, [isExpired, showRequestLink, hasRequestedNewCode]);
 
-  const completeSignupMutation = api.useMutation(
-    "post",
-    "/api/account-management/signups/{emailConfirmationId}/complete"
-  );
-
-  const resendSignupCodeMutation = api.useMutation(
-    "post",
-    "/api/account-management/signups/{emailConfirmationId}/resend-code"
-  );
-
-  useEffect(() => {
-    if (completeSignupMutation.isSuccess) {
-      clearSignupState();
-      window.location.href = loggedInPath;
-    }
-  }, [completeSignupMutation.isSuccess]);
-
-  useEffect(() => {
-    if (completeSignupMutation.isError) {
-      const statusCode = completeSignupMutation.error?.status;
-      if (statusCode === 403) {
-        setIsRateLimited(true);
-        setExpireAt(new Date(0)); // Force expiration
-      } else {
-        setTimeout(() => {
-          if (oneTimeCodeInputRef.current) {
-            oneTimeCodeInputRef.current.focus?.();
-          }
-        }, 100);
-      }
-    }
-  }, [completeSignupMutation.isError, completeSignupMutation.error]);
-
   const resetAfterResend = useCallback((validForSeconds: number) => {
     const newExpireAt = new Date();
     newExpireAt.setSeconds(newExpireAt.getSeconds() + validForSeconds);
@@ -150,17 +117,50 @@ export function CompleteSignupForm() {
     }, 100);
   }, []);
 
-  useEffect(() => {
-    if (resendSignupCodeMutation.isSuccess && resendSignupCodeMutation.data) {
-      resetAfterResend(resendSignupCodeMutation.data.validForSeconds);
-      setHasRequestedNewCode(true);
-      toastQueue.add({
-        title: t`Verification code sent`,
-        description: t`A new verification code has been sent to your email.`,
-        variant: "success"
-      });
+  const completeSignupMutation = api.useMutation(
+    "post",
+    "/api/account-management/signups/{emailConfirmationId}/complete",
+    {
+      onSuccess: () => {
+        clearSignupState();
+        window.location.href = loggedInPath;
+      }
     }
-  }, [resendSignupCodeMutation.isSuccess, resendSignupCodeMutation.data, resetAfterResend]);
+  );
+
+  const resendSignupCodeMutation = api.useMutation(
+    "post",
+    "/api/account-management/signups/{emailConfirmationId}/resend-code",
+    {
+      onSuccess: (data) => {
+        if (data) {
+          resetAfterResend(data.validForSeconds);
+          setHasRequestedNewCode(true);
+          toastQueue.add({
+            title: t`Verification code sent`,
+            description: t`A new verification code has been sent to your email.`,
+            variant: "success"
+          });
+        }
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (completeSignupMutation.isError) {
+      const statusCode = completeSignupMutation.error?.status;
+      if (statusCode === 403) {
+        setIsRateLimited(true);
+        setExpireAt(new Date(0)); // Force expiration
+      } else {
+        setTimeout(() => {
+          if (oneTimeCodeInputRef.current) {
+            oneTimeCodeInputRef.current.focus?.();
+          }
+        }, 100);
+      }
+    }
+  }, [completeSignupMutation.isError, completeSignupMutation.error]);
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
