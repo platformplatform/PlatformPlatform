@@ -45,7 +45,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -90,7 +91,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -136,7 +138,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", false),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

@@ -2011,6 +2011,36 @@
           }
         }
       },
+      "ExternalProviderType": {
+        "type": "string",
+        "enum": [
+          "Google"
+        ]
+      },
+      "ExternalFlowType": {
+        "type": "string",
+        "enum": [
+          "Login",
+          "Signup"
+        ]
+      },
+      "ExternalLoginResult": {
+        "type": "string",
+        "enum": [
+          "Success",
+          "IdentityProviderError",
+          "InvalidState",
+          "LoginReplayDetected",
+          "SessionNotFound",
+          "FlowIdMismatch",
+          "SessionHijackingDetected",
+          "LoginExpired",
+          "LoginAlreadyCompleted",
+          "CodeExchangeFailed",
+          "IdentityMismatch",
+          "UserNotFound"
+        ]
+      },
       "SessionRevokedReason": {
         "type": "string",
         "enum": [

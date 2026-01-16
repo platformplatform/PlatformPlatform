@@ -157,7 +157,8 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountManagementDbC
                 ("Title", null),
                 ("Avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
                 ("Role", "Owner"),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
     }

@@ -34,7 +34,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountManagementDbCo
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
         Connection.Insert("Users", [
@@ -50,7 +51,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountManagementDbCo
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
         Connection.Insert("Users", [
@@ -66,7 +68,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountManagementDbCo
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -107,7 +110,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountManagementDbCo
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
