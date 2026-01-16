@@ -3,6 +3,8 @@ using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
+using PlatformPlatform.AccountManagement.Integrations.OAuth;
+using PlatformPlatform.AccountManagement.Integrations.OAuth.Google;
 using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
@@ -32,6 +34,9 @@ public static class Configuration
                     client.Timeout = TimeSpan.FromSeconds(5);
                 }
             );
+
+            services.AddHttpClient<GoogleOAuthProvider>(client => { client.Timeout = TimeSpan.FromSeconds(10); });
+            services.AddScoped<IOAuthProvider, GoogleOAuthProvider>();
 
             return services
                 .AddSharedServices<AccountManagementDbContext>([Assembly])
