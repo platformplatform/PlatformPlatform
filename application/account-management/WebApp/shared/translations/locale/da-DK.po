@@ -409,6 +409,9 @@ msgstr "Gå til app"
 msgid "Go to home"
 msgstr "Gå til forsiden"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
@@ -478,6 +481,9 @@ msgstr "Log ud"
 msgid "Logged out"
 msgstr "Logget ud"
 
+msgid "Login method:"
+msgstr "Login-metode:"
+
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
 
@@ -546,6 +552,9 @@ msgstr "Ingen slettede brugere"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One-time password"
+msgstr "Engangskode"
 
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
