@@ -1453,6 +1453,9 @@
             "type": "string",
             "format": "date-time"
           },
+          "loginMethod": {
+            "$ref": "#/components/schemas/LoginMethod"
+          },
           "deviceType": {
             "$ref": "#/components/schemas/DeviceType"
           },
@@ -1500,6 +1503,18 @@
             "nullable": true
           }
         }
+      },
+      "LoginMethod": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "OneTimePassword",
+          "Google"
+        ],
+        "enum": [
+          "OneTimePassword",
+          "Google"
+        ]
       },
       "DeviceType": {
         "type": "string",

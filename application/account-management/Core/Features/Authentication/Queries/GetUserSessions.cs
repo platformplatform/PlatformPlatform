@@ -18,6 +18,7 @@ public sealed record UserSessionsResponse(UserSessionInfo[] Sessions);
 public sealed record UserSessionInfo(
     SessionId Id,
     DateTimeOffset CreatedAt,
+    LoginMethod LoginMethod,
     DeviceType DeviceType,
     string UserAgent,
     string IpAddress,
@@ -50,6 +51,7 @@ public sealed class GetUserSessionsHandler(
         var sessionInfos = sessions.Select(s => new UserSessionInfo(
                 s.Id,
                 s.CreatedAt,
+                s.LoginMethod,
                 s.DeviceType,
                 s.UserAgent,
                 s.IpAddress,
