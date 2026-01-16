@@ -148,7 +148,6 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
                 ("Email", email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)

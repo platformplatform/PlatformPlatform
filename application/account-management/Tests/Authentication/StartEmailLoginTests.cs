@@ -130,12 +130,11 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
             Connection.Insert("EmailConfirmations", [
                     ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-i)),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
                     ("Email", email.ToLower()),
                     ("Type", nameof(EmailConfirmationType.Login)),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)
