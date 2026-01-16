@@ -1,7 +1,7 @@
 import type { Schemas } from "@/shared/lib/api/client";
 
 interface LoginState {
-  loginId: Schemas["LoginId"];
+  emailLoginId: Schemas["EmailLoginId"];
   emailConfirmationId: Schemas["EmailConfirmationId"];
   email: string;
   expireAt: Date;

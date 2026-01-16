@@ -17,33 +17,33 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Authentication;
 
-public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagementDbContext>
 {
     private const string CorrectOneTimePassword = "UNLOCK"; // UNLOCK is a special global OTP for development and tests
     private const string WrongOneTimePassword = "FAULTY";
 
     [Fact]
-    public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
+    public async Task CompleteEmailLogin_WhenValid_ShouldCompleteEmailLoginAndCreateTokens()
     {
         // Arrange
-        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword);
+        var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        var updatedLoginCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", [new { id = loginId.ToString() }]
+        var updatedEmailLoginCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM EmailLogins WHERE Id = @id AND Completed = 1", [new { id = emailLoginId.ToString() }]
         );
-        updatedLoginCount.Should().Be(1);
+        updatedEmailLoginCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("EmailLoginCompleted");
         TelemetryEventsCollectorSpy.CollectedEvents[2].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
@@ -52,14 +52,14 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenLoginNotFound_ShouldReturnBadRequest()
+    public async Task CompleteEmailLogin_WhenEmailLoginNotFound_ShouldReturnBadRequest()
     {
         // Arrange
-        var invalidLoginId = LoginId.NewId();
-        var command = new CompleteLoginCommand(CorrectOneTimePassword);
+        var invalidEmailLoginId = EmailLoginId.NewId();
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{invalidLoginId}/complete", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{invalidEmailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
@@ -69,78 +69,78 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
+    public async Task CompleteEmailLogin_WhenInvalidOneTimePassword_ShouldReturnBadRequest()
     {
         // Arrange
-        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(WrongOneTimePassword);
+        var (emailLoginId, emailConfirmationId) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(WrongOneTimePassword);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
         // Verify retry count increment and event collection
-        var loginCompleted = Connection.ExecuteScalar<long>("SELECT Completed FROM Logins WHERE Id = @id", [new { id = loginId.ToString() }]);
-        loginCompleted.Should().Be(0);
+        var emailLoginCompleted = Connection.ExecuteScalar<long>("SELECT Completed FROM EmailLogins WHERE Id = @id", [new { id = emailLoginId.ToString() }]);
+        emailLoginCompleted.Should().Be(0);
         var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", [new { id = emailConfirmationId.ToString() }]);
         updatedRetryCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenLoginAlreadyCompleted_ShouldReturnBadRequest()
+    public async Task CompleteEmailLogin_WhenEmailLoginAlreadyCompleted_ShouldReturnBadRequest()
     {
         // Arrange
-        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+        var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(
-            HttpStatusCode.BadRequest, $"The login process '{loginId}' for user '{DatabaseSeeder.Tenant1Owner.Id}' has already been completed."
+            HttpStatusCode.BadRequest, $"The email login process '{emailLoginId}' for user '{DatabaseSeeder.Tenant1Owner.Id}' has already been completed."
         );
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenRetryCountExceeded_ShouldReturnForbidden()
+    public async Task CompleteEmailLogin_WhenRetryCountExceeded_ShouldReturnForbidden()
     {
         // Arrange
-        var (loginId, emailConfirmationId) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(WrongOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+        var (emailLoginId, emailConfirmationId) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(WrongOneTimePassword);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
 
         // Verify retry count increment and event collection
-        var loginCompleted = Connection.ExecuteScalar<long>(
-            "SELECT Completed FROM Logins WHERE Id = @id", [new { id = loginId.ToString() }]
+        var emailLoginCompleted = Connection.ExecuteScalar<long>(
+            "SELECT Completed FROM EmailLogins WHERE Id = @id", [new { id = emailLoginId.ToString() }]
         );
-        loginCompleted.Should().Be(0);
+        emailLoginCompleted.Should().Be(0);
         var updatedRetryCount = Connection.ExecuteScalar<long>(
             "SELECT RetryCount FROM EmailConfirmations WHERE Id = @id", [new { id = emailConfirmationId.ToString() }]
         );
         updatedRetryCount.Should().Be(4);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailConfirmationFailed");
         TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("EmailConfirmationFailed");
         TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("EmailConfirmationFailed");
@@ -149,17 +149,17 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenLoginExpired_ShouldReturnBadRequest()
+    public async Task CompleteEmailLogin_WhenEmailLoginExpired_ShouldReturnBadRequest()
     {
         // Arrange
-        var loginId = LoginId.NewId();
+        var emailLoginId = EmailLoginId.NewId();
         var emailConfirmationId = EmailConfirmationId.NewId();
 
-        // Insert expired login
-        Connection.Insert("Logins", [
+        // Insert expired email login
+        Connection.Insert("EmailLogins", [
                 ("TenantId", DatabaseSeeder.Tenant1Owner.TenantId.ToString()),
                 ("UserId", DatabaseSeeder.Tenant1Owner.Id.ToString()),
-                ("Id", loginId.ToString()),
+                ("Id", emailLoginId.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("ModifiedAt", null),
                 ("EmailConfirmationId", emailConfirmationId.ToString()),
@@ -180,10 +180,10 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             ]
         );
 
-        var command = new CompleteLoginCommand(CorrectOneTimePassword);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
@@ -194,7 +194,7 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
     }
 
     [Fact]
-    public async Task CompleteLogin_WhenUserInviteCompleted_ShouldTrackUserInviteAcceptedEvent()
+    public async Task CompleteEmailLogin_WhenUserInviteCompleted_ShouldTrackUserInviteAcceptedEvent()
     {
         // Arrange
         Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
@@ -204,12 +204,12 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account-management/users/invite", inviteUserCommand);
         TelemetryEventsCollectorSpy.Reset();
 
-        var (loginId, _) = await StartLogin(email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword);
+        var (emailLoginId, _) = await StartEmailLogin(email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -219,15 +219,15 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
         ).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(4);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserInviteAccepted");
         TelemetryEventsCollectorSpy.CollectedEvents[2].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[3].GetType().Name.Should().Be("EmailLoginCompleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task CompleteLogin_WithValidPreferredTenant_ShouldLoginToPreferredTenant()
+    public async Task CompleteEmailLogin_WithValidPreferredTenant_ShouldLoginToPreferredTenant()
     {
         // Arrange
         var tenant2Id = TenantId.NewId();
@@ -259,13 +259,13 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             ]
         );
 
-        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword, tenant2Id);
+        var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword, tenant2Id);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -274,22 +274,22 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailLoginCompleted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(user2Id);
     }
 
     [Fact]
-    public async Task CompleteLogin_WithInvalidPreferredTenant_ShouldLoginToDefaultTenant()
+    public async Task CompleteEmailLogin_WithInvalidPreferredTenant_ShouldLoginToDefaultTenant()
     {
         // Arrange
         var invalidTenantId = TenantId.NewId();
-        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword, invalidTenantId);
+        var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword, invalidTenantId);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -298,12 +298,12 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailLoginCompleted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
     }
 
     [Fact]
-    public async Task CompleteLogin_WithPreferredTenantUserDoesNotHaveAccess_ShouldLoginToDefaultTenant()
+    public async Task CompleteEmailLogin_WithPreferredTenantUserDoesNotHaveAccess_ShouldLoginToDefaultTenant()
     {
         // Arrange
         var tenant2Id = TenantId.NewId();
@@ -318,28 +318,28 @@ public sealed class CompleteLoginTests : EndpointBaseTest<AccountManagementDbCon
             ]
         );
 
-        var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email);
-        var command = new CompleteLoginCommand(CorrectOneTimePassword, tenant2Id);
+        var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
+        var command = new CompleteEmailLoginCommand(CorrectOneTimePassword, tenant2Id);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("EmailLoginCompleted");
         TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
     }
 
-    private async Task<(LoginId LoginId, EmailConfirmationId emailConfirmationId)> StartLogin(string email)
+    private async Task<(EmailLoginId EmailLoginId, EmailConfirmationId emailConfirmationId)> StartEmailLogin(string email)
     {
-        var command = new StartLoginCommand(email);
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
-        var responseBody = await response.DeserializeResponse<StartLoginResponse>();
-        return (responseBody!.LoginId, responseBody.EmailConfirmationId);
+        var command = new StartEmailLoginCommand(email);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
+        return (responseBody!.EmailLoginId, responseBody.EmailConfirmationId);
     }
 }

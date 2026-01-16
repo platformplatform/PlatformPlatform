@@ -87,7 +87,7 @@ function useCountdown(expireAt: Date) {
 
 export function CompleteLoginForm() {
   const initialState = getLoginState();
-  const { email = "", emailConfirmationId = "", loginId } = initialState;
+  const { email = "", emailConfirmationId = "", emailLoginId } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -135,26 +135,30 @@ export function CompleteLoginForm() {
     }, 100);
   }, []);
 
-  const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete", {
-    onSuccess: () => {
-      // Broadcast login event to other tabs
-      // Since the API returns 204 No Content, we don't have the user ID yet
-      const message: Omit<UserLoggedInMessage, "timestamp"> = {
-        type: "USER_LOGGED_IN",
-        userId: "", // We don't have the user ID at this point
-        tenantId: getPreferredTenantId() || "",
-        email: email || ""
-      };
-      authSyncService.broadcast(message);
+  const completeLoginMutation = api.useMutation(
+    "post",
+    "/api/account-management/authentication/email-login/{id}/complete",
+    {
+      onSuccess: () => {
+        // Broadcast login event to other tabs
+        // Since the API returns 204 No Content, we don't have the user ID yet
+        const message: Omit<UserLoggedInMessage, "timestamp"> = {
+          type: "USER_LOGGED_IN",
+          userId: "", // We don't have the user ID at this point
+          tenantId: getPreferredTenantId() || "",
+          email: email || ""
+        };
+        authSyncService.broadcast(message);
 
-      clearLoginState();
-      window.location.href = returnPath ?? loggedInPath;
+        clearLoginState();
+        window.location.href = returnPath ?? loggedInPath;
+      }
     }
-  });
+  );
 
   const resendLoginCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email-login/{emailConfirmationId}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {
@@ -188,7 +192,7 @@ export function CompleteLoginForm() {
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
-  if (!loginId) {
+  if (!emailLoginId) {
     return null;
   }
 
@@ -205,7 +209,7 @@ export function CompleteLoginForm() {
 
           completeLoginMutation.mutate({
             params: {
-              path: { id: loginId }
+              path: { id: emailLoginId }
             },
             body: {
               oneTimePassword,
@@ -216,7 +220,7 @@ export function CompleteLoginForm() {
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"
       >
-        <input type="hidden" name="id" value={getLoginState().loginId} />
+        <input type="hidden" name="id" value={getLoginState().emailLoginId} />
         <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">

@@ -14,15 +14,15 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
 
 [PublicAPI]
-public sealed record CompleteLoginCommand(string OneTimePassword, TenantId? PreferredTenantId = null) : ICommand, IRequest<Result>
+public sealed record CompleteEmailLoginCommand(string OneTimePassword, TenantId? PreferredTenantId = null) : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
-    public LoginId Id { get; init; } = null!;
+    public EmailLoginId Id { get; init; } = null!;
 }
 
-public sealed class CompleteLoginHandler(
+public sealed class CompleteEmailLoginHandler(
     IUserRepository userRepository,
-    ILoginRepository loginRepository,
+    IEmailLoginRepository emailLoginRepository,
     ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
@@ -33,32 +33,32 @@ public sealed class CompleteLoginHandler(
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     TimeProvider timeProvider,
-    ILogger<CompleteLoginHandler> logger
-) : IRequestHandler<CompleteLoginCommand, Result>
+    ILogger<CompleteEmailLoginHandler> logger
+) : IRequestHandler<CompleteEmailLoginCommand, Result>
 {
-    public async Task<Result> Handle(CompleteLoginCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CompleteEmailLoginCommand command, CancellationToken cancellationToken)
     {
-        var login = await loginRepository.GetByIdAsync(command.Id, cancellationToken);
-        if (login is null)
+        var emailLogin = await emailLoginRepository.GetByIdAsync(command.Id, cancellationToken);
+        if (emailLogin is null)
         {
-            // For security, avoid confirming the existence of login IDs
+            // For security, avoid confirming the existence of email login IDs
             return Result.BadRequest("The code is wrong or no longer valid.");
         }
 
-        if (login.Completed)
+        if (emailLogin.Completed)
         {
-            logger.LogWarning("Login with id '{LoginId}' has already been completed", login.Id);
-            return Result.BadRequest($"The login process '{login.Id}' for user '{login.UserId}' has already been completed.");
+            logger.LogWarning("Email login with id '{EmailLoginId}' has already been completed", emailLogin.Id);
+            return Result.BadRequest($"The email login process '{emailLogin.Id}' for user '{emailLogin.UserId}' has already been completed.");
         }
 
         var completeEmailConfirmationResult = await mediator.Send(
-            new CompleteEmailConfirmationCommand(login.EmailConfirmationId, command.OneTimePassword),
+            new CompleteEmailConfirmationCommand(emailLogin.EmailConfirmationId, command.OneTimePassword),
             cancellationToken
         );
 
         if (!completeEmailConfirmationResult.IsSuccess) return Result.From(completeEmailConfirmationResult);
 
-        var user = (await userRepository.GetByIdUnfilteredAsync(login.UserId, cancellationToken))!;
+        var user = (await userRepository.GetByIdUnfilteredAsync(emailLogin.UserId, cancellationToken))!;
 
         // Check if PreferredTenantId is provided and valid
         if (command.PreferredTenantId is not null)
@@ -89,8 +89,8 @@ public sealed class CompleteLoginHandler(
             }
         }
 
-        login.MarkAsCompleted();
-        loginRepository.Update(login);
+        emailLogin.MarkAsCompleted();
+        emailLoginRepository.Update(emailLogin);
 
         var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
         var ipAddress = executionContext.ClientIpAddress;
@@ -105,7 +105,7 @@ public sealed class CompleteLoginHandler(
         authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
 
         events.CollectEvent(new SessionCreated(session.Id));
-        events.CollectEvent(new LoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));
+        events.CollectEvent(new EmailLoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));
 
         return Result.Success();
     }

@@ -14,21 +14,21 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
-public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class StartEmailSignupTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task StartSignup_WhenEmailIsValid_ShouldReturnSuccess()
     {
         // Arrange
         var email = Faker.Internet.UniqueEmail();
-        var command = new StartSignupCommand(email);
+        var command = new StartEmailSignupCommand(email);
 
         // Act
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var responseBody = await response.DeserializeResponse<StartSignupResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailSignupResponse>();
         responseBody.Should().NotBeNull();
         responseBody.EmailConfirmationId.ToString().Should().NotBeNullOrEmpty();
         responseBody.ValidForSeconds.Should().Be(300);
@@ -50,7 +50,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     {
         // Arrange
         var invalidEmail = "invalid email";
-        var command = new StartSignupCommand(invalidEmail);
+        var command = new StartEmailSignupCommand(invalidEmail);
 
         // Act
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
@@ -91,7 +91,7 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
             );
         }
 
-        var command = new StartSignupCommand(email);
+        var command = new StartEmailSignupCommand(email);
 
         // Act
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);

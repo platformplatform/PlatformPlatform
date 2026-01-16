@@ -14,7 +14,7 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
-public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagementDbContext>
 {
     private const string CorrectOneTimePassword = "UNLOCK"; // UNLOCK is a special global OTP for development and tests
     private const string WrongOneTimePassword = "FAULTY";
@@ -32,7 +32,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         var email = Faker.Internet.UniqueEmail();
         var emailConfirmationId = await StartSignup(email);
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US");
+        var command = new CompleteEmailSignupCommand(CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -58,7 +58,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
     {
         // Arrange
         var invalidEmailConfirmationId = EmailConfirmationId.NewId();
-        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US");
+        var command = new CompleteEmailSignupCommand(CorrectOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -75,7 +75,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
-        var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
+        var command = new CompleteEmailSignupCommand(WrongOneTimePassword, "en-US");
 
         // Act
         var response = await AnonymousHttpClient
@@ -96,7 +96,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
+        var command = new CompleteEmailSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
 
         // Act
@@ -113,7 +113,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
         // Arrange
         var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
-        var command = new CompleteSignupCommand(WrongOneTimePassword, "en-US");
+        var command = new CompleteEmailSignupCommand(WrongOneTimePassword, "en-US");
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
         await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
@@ -155,7 +155,7 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
             ]
         );
 
-        var command = new CompleteSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
+        var command = new CompleteEmailSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
 
         // Act
         var response = await AnonymousHttpClient
@@ -171,9 +171,9 @@ public sealed class CompleteSignupTests : EndpointBaseTest<AccountManagementDbCo
 
     private async Task<EmailConfirmationId> StartSignup(string email)
     {
-        var command = new StartSignupCommand(email);
+        var command = new StartEmailSignupCommand(email);
         var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
-        var responseBody = await response.DeserializeResponse<StartSignupResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailSignupResponse>();
         return responseBody!.EmailConfirmationId;
     }
 }

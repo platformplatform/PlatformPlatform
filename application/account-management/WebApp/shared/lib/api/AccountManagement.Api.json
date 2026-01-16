@@ -6,18 +6,18 @@
     "version": "v1"
   },
   "paths": {
-    "/api/account-management/authentication/login/start": {
+    "/api/account-management/authentication/email-login/start": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginStart",
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginStart",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StartLoginCommand"
+                "$ref": "#/components/schemas/StartEmailLoginCommand"
               }
             }
           },
@@ -40,7 +40,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StartLoginResponse"
+                  "$ref": "#/components/schemas/StartEmailLoginResponse"
                 }
               }
             }
@@ -48,19 +48,19 @@
         }
       }
     },
-    "/api/account-management/authentication/login/{id}/complete": {
+    "/api/account-management/authentication/email-login/{id}/complete": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginComplete",
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginComplete",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/LoginId"
+              "$ref": "#/components/schemas/EmailLoginId"
             },
             "x-position": 1
           }
@@ -70,7 +70,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompleteLoginCommand"
+                "$ref": "#/components/schemas/CompleteEmailLoginCommand"
               }
             }
           },
@@ -91,12 +91,12 @@
         }
       }
     },
-    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code": {
+    "/api/account-management/authentication/email-login/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Authentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginResendCode",
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginResendCode",
         "parameters": [
           {
             "name": "emailConfirmationId",
@@ -287,7 +287,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StartSignupCommand"
+                "$ref": "#/components/schemas/StartEmailSignupCommand"
               }
             }
           },
@@ -310,7 +310,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StartSignupResponse"
+                  "$ref": "#/components/schemas/StartEmailSignupResponse"
                 }
               }
             }
@@ -340,7 +340,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CompleteSignupCommand"
+                "$ref": "#/components/schemas/CompleteEmailSignupCommand"
               }
             }
           },
@@ -1289,12 +1289,12 @@
           }
         }
       },
-      "StartLoginResponse": {
+      "StartEmailLoginResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "loginId": {
-            "$ref": "#/components/schemas/LoginId"
+          "emailLoginId": {
+            "$ref": "#/components/schemas/EmailLoginId"
           },
           "emailConfirmationId": {
             "$ref": "#/components/schemas/EmailConfirmationId"
@@ -1305,14 +1305,14 @@
           }
         }
       },
-      "LoginId": {
+      "EmailLoginId": {
         "type": "string",
-        "format": "login_{string}"
+        "format": "emlog_{string}"
       },
-      "StronglyTypedUlidOfLoginId": {
+      "StronglyTypedUlidOfEmailLoginId": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndLoginId"
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailLoginId"
           },
           {
             "type": "object",
@@ -1321,7 +1321,7 @@
           }
         ]
       },
-      "StronglyTypedIdOfStringAndLoginId": {
+      "StronglyTypedIdOfStringAndEmailLoginId": {
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false,
@@ -1359,7 +1359,7 @@
           }
         }
       },
-      "StartLoginCommand": {
+      "StartEmailLoginCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1368,7 +1368,7 @@
           }
         }
       },
-      "CompleteLoginCommand": {
+      "CompleteEmailLoginCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1517,7 +1517,7 @@
           "Tablet"
         ]
       },
-      "StartSignupResponse": {
+      "StartEmailSignupResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1530,7 +1530,7 @@
           }
         }
       },
-      "StartSignupCommand": {
+      "StartEmailSignupCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1539,7 +1539,7 @@
           }
         }
       },
-      "CompleteSignupCommand": {
+      "CompleteEmailSignupCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

@@ -32,10 +32,10 @@ public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConf
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));
 
-public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
+public sealed class EmailLoginCompleted(UserId userId, int loginTimeInSeconds)
     : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
 
-public sealed class LoginStarted(UserId userId)
+public sealed class EmailLoginStarted(UserId userId)
     : TelemetryEvent(("user_id", userId));
 
 public sealed class Logout
