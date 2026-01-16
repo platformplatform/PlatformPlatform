@@ -6,10 +6,10 @@ using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
 namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 
-public sealed class Login : AggregateRoot<LoginId>
+public sealed class EmailLogin : AggregateRoot<EmailLoginId>
 {
-    private Login(TenantId tenantId, UserId userId, EmailConfirmationId emailConfirmationId)
-        : base(LoginId.NewId())
+    private EmailLogin(TenantId tenantId, UserId userId, EmailConfirmationId emailConfirmationId)
+        : base(EmailLoginId.NewId())
     {
         TenantId = tenantId;
         UserId = userId;
@@ -24,23 +24,23 @@ public sealed class Login : AggregateRoot<LoginId>
 
     public bool Completed { get; private set; }
 
-    public static Login Create(User user, EmailConfirmationId emailConfirmationId)
+    public static EmailLogin Create(User user, EmailConfirmationId emailConfirmationId)
     {
-        return new Login(user.TenantId, user.Id, emailConfirmationId);
+        return new EmailLogin(user.TenantId, user.Id, emailConfirmationId);
     }
 
     public void MarkAsCompleted()
     {
-        if (Completed) throw new UnreachableException("The login process id has already been created.");
+        if (Completed) throw new UnreachableException("The email login process has already been completed.");
 
         Completed = true;
     }
 }
 
 [PublicAPI]
-[IdPrefix("login")]
-[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, LoginId>))]
-public sealed record LoginId(string Value) : StronglyTypedUlid<LoginId>(Value)
+[IdPrefix("emlog")]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, EmailLoginId>))]
+public sealed record EmailLoginId(string Value) : StronglyTypedUlid<EmailLoginId>(Value)
 {
     public override string ToString()
     {

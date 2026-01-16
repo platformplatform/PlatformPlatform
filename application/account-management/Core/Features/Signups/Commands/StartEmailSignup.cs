@@ -10,26 +10,26 @@ using PlatformPlatform.SharedKernel.Validation;
 namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
 
 [PublicAPI]
-public sealed record StartSignupCommand(string Email) : ICommand, IRequest<Result<StartSignupResponse>>
+public sealed record StartEmailSignupCommand(string Email) : ICommand, IRequest<Result<StartEmailSignupResponse>>
 {
     public string Email { get; } = Email.Trim().ToLower();
 }
 
 [PublicAPI]
-public sealed record StartSignupResponse(EmailConfirmationId EmailConfirmationId, int ValidForSeconds);
+public sealed record StartEmailSignupResponse(EmailConfirmationId EmailConfirmationId, int ValidForSeconds);
 
-public sealed class StartSignupValidator : AbstractValidator<StartSignupCommand>
+public sealed class StartEmailSignupValidator : AbstractValidator<StartEmailSignupCommand>
 {
-    public StartSignupValidator(ITenantRepository tenantRepository)
+    public StartEmailSignupValidator(ITenantRepository tenantRepository)
     {
         RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 
-public sealed class StartSignupHandler(IMediator mediator, ITelemetryEventsCollector events)
-    : IRequestHandler<StartSignupCommand, Result<StartSignupResponse>>
+public sealed class StartEmailSignupHandler(IMediator mediator, ITelemetryEventsCollector events)
+    : IRequestHandler<StartEmailSignupCommand, Result<StartEmailSignupResponse>>
 {
-    public async Task<Result<StartSignupResponse>> Handle(StartSignupCommand command, CancellationToken cancellationToken)
+    public async Task<Result<StartEmailSignupResponse>> Handle(StartEmailSignupCommand command, CancellationToken cancellationToken)
     {
         var result = await mediator.Send(
             new StartEmailConfirmationCommand(
@@ -45,10 +45,10 @@ public sealed class StartSignupHandler(IMediator mediator, ITelemetryEventsColle
             cancellationToken
         );
 
-        if (!result.IsSuccess) return Result<StartSignupResponse>.From(result);
+        if (!result.IsSuccess) return Result<StartEmailSignupResponse>.From(result);
 
         events.CollectEvent(new SignupStarted());
 
-        return Result<StartSignupResponse>.Success(new StartSignupResponse(result.Value!.EmailConfirmationId, EmailConfirmation.ValidForSeconds));
+        return Result<StartEmailSignupResponse>.Success(new StartEmailSignupResponse(result.Value!.EmailConfirmationId, EmailConfirmation.ValidForSeconds));
     }
 }

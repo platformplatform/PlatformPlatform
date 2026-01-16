@@ -14,13 +14,13 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
 
 [PublicAPI]
-public sealed record CompleteSignupCommand(string OneTimePassword, string PreferredLocale) : ICommand, IRequest<Result>
+public sealed record CompleteEmailSignupCommand(string OneTimePassword, string PreferredLocale) : ICommand, IRequest<Result>
 {
     [JsonIgnore] // Removes this property from the API contract
     public EmailConfirmationId EmailConfirmationId { get; init; } = null!;
 }
 
-public sealed class CompleteSignupHandler(
+public sealed class CompleteEmailSignupHandler(
     IUserRepository userRepository,
     ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
@@ -30,9 +30,9 @@ public sealed class CompleteSignupHandler(
     IMediator mediator,
     ITelemetryEventsCollector events,
     TimeProvider timeProvider
-) : IRequestHandler<CompleteSignupCommand, Result>
+) : IRequestHandler<CompleteEmailSignupCommand, Result>
 {
-    public async Task<Result> Handle(CompleteSignupCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CompleteEmailSignupCommand command, CancellationToken cancellationToken)
     {
         var completeEmailConfirmationResult = await mediator.Send(
             new CompleteEmailConfirmationCommand(command.EmailConfirmationId, command.OneTimePassword),

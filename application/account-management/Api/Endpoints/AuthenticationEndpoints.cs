@@ -17,15 +17,15 @@ public sealed class AuthenticationEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Authentication").RequireAuthorization().ProducesValidationProblem();
 
-        group.MapPost("/login/start", async Task<ApiResult<StartLoginResponse>> (StartLoginCommand command, IMediator mediator)
+        group.MapPost("/email-login/start", async Task<ApiResult<StartEmailLoginResponse>> (StartEmailLoginCommand command, IMediator mediator)
             => await mediator.Send(command)
-        ).Produces<StartLoginResponse>().AllowAnonymous();
+        ).Produces<StartEmailLoginResponse>().AllowAnonymous();
 
-        group.MapPost("/login/{id}/complete", async Task<ApiResult> (LoginId id, CompleteLoginCommand command, IMediator mediator)
+        group.MapPost("/email-login/{id}/complete", async Task<ApiResult> (EmailLoginId id, CompleteEmailLoginCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
         ).AllowAnonymous();
 
-        group.MapPost("/login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+        group.MapPost("/email-login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
             => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
         ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
 
