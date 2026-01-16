@@ -53,7 +53,7 @@ public sealed class CompleteEmailSignupHandler(
         var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
         var ipAddress = executionContext.ClientIpAddress;
 
-        var session = Session.Create(user!.TenantId, user.Id, userAgent, ipAddress);
+        var session = Session.Create(user!.TenantId, user.Id, LoginMethod.OneTimePassword, userAgent, ipAddress);
         await sessionRepository.AddAsync(session, cancellationToken);
 
         user.UpdateLastSeen(timeProvider.GetUtcNow());

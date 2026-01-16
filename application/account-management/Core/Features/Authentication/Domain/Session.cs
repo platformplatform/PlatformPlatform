@@ -11,13 +11,14 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
     // Allows in-flight requests using the previous token version to complete when a parallel request triggers a token refresh.
     public const int GracePeriodSeconds = 30;
 
-    private Session(TenantId tenantId, UserId userId, DeviceType deviceType, string userAgent, string ipAddress)
+    private Session(TenantId tenantId, UserId userId, LoginMethod loginMethod, DeviceType deviceType, string userAgent, string ipAddress)
         : base(SessionId.NewId())
     {
         TenantId = tenantId;
         UserId = userId;
         RefreshTokenJti = RefreshTokenJti.NewId();
         RefreshTokenVersion = 1;
+        LoginMethod = loginMethod;
         DeviceType = deviceType;
         UserAgent = userAgent;
         IpAddress = ipAddress;
@@ -33,6 +34,8 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
 
     [UsedImplicitly] // Updated via raw SQL in SessionRepository.TryRefreshAsync
     public int RefreshTokenVersion { get; private set; }
+
+    public LoginMethod LoginMethod { get; private init; }
 
     public DeviceType DeviceType { get; private init; }
 
@@ -50,10 +53,10 @@ public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
 
     public TenantId TenantId { get; }
 
-    public static Session Create(TenantId tenantId, UserId userId, string userAgent, IPAddress ipAddress)
+    public static Session Create(TenantId tenantId, UserId userId, LoginMethod loginMethod, string userAgent, IPAddress ipAddress)
     {
         var deviceType = ParseDeviceType(userAgent);
-        return new Session(tenantId, userId, deviceType, userAgent, ipAddress.ToString());
+        return new Session(tenantId, userId, loginMethod, deviceType, userAgent, ipAddress.ToString());
     }
 
     public void Revoke(DateTimeOffset now, SessionRevokedReason reason)

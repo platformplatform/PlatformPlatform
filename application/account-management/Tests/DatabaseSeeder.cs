@@ -25,10 +25,10 @@ public sealed class DatabaseSeeder
         Tenant1Member = User.Create(Tenant1.Id, "member1@tenant-1.com", UserRole.Member, true, null);
         accountManagementDbContext.Set<User>().AddRange(Tenant1Member);
 
-        Tenant1OwnerSession = Session.Create(Tenant1.Id, Tenant1Owner.Id, "TestUserAgent", IPAddress.Loopback);
+        Tenant1OwnerSession = Session.Create(Tenant1.Id, Tenant1Owner.Id, LoginMethod.OneTimePassword, "TestUserAgent", IPAddress.Loopback);
         accountManagementDbContext.Set<Session>().AddRange(Tenant1OwnerSession);
 
-        Tenant1MemberSession = Session.Create(Tenant1.Id, Tenant1Member.Id, "TestUserAgent", IPAddress.Loopback);
+        Tenant1MemberSession = Session.Create(Tenant1.Id, Tenant1Member.Id, LoginMethod.OneTimePassword, "TestUserAgent", IPAddress.Loopback);
         accountManagementDbContext.Set<Session>().AddRange(Tenant1MemberSession);
 
         accountManagementDbContext.SaveChanges();
