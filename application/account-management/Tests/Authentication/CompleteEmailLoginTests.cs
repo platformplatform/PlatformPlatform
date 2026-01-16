@@ -173,7 +173,6 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
                 ("Email", DatabaseSeeder.Tenant1Owner.Email),
                 ("Type", EmailConfirmationType.Signup),
                 ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-10)),
                 ("RetryCount", 0),
                 ("ResendCount", 0),
                 ("Completed", false)

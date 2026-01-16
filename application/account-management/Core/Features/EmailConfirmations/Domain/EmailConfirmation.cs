@@ -1,3 +1,4 @@
+using System.Security;
 using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
@@ -16,7 +17,6 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
         Email = email;
         Type = type;
         OneTimePasswordHash = oneTimePasswordHash;
-        ValidUntil = CreatedAt.AddSeconds(ValidForSeconds);
     }
 
     public string Email { get; private set; }
@@ -25,18 +25,22 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 
     public string OneTimePasswordHash { get; private set; }
 
-    [UsedImplicitly]
-    public DateTimeOffset ValidUntil { get; private set; }
-
     public int RetryCount { get; private set; }
 
     public int ResendCount { get; private set; }
 
     public bool Completed { get; private set; }
 
-    public bool HasExpired(DateTimeOffset now)
+    public bool IsExpired(DateTimeOffset now)
     {
-        return ValidUntil < now;
+        if (CreatedAt > now)
+        {
+            throw new SecurityException($"EmailConfirmation '{Id}' has CreatedAt in the future. Possible data tampering.");
+        }
+
+        if (CreatedAt.AddSeconds(ValidForSeconds * (MaxResends + 1)) < now) return true;
+        if ((ModifiedAt ?? CreatedAt).AddSeconds(ValidForSeconds) < now) return true;
+        return false;
     }
 
     public static EmailConfirmation Create(string email, string oneTimePasswordHash, EmailConfirmationType type)
@@ -51,7 +55,7 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 
     public void MarkAsCompleted(DateTimeOffset now)
     {
-        if (HasExpired(now) || RetryCount >= MaxAttempts)
+        if (IsExpired(now) || RetryCount >= MaxAttempts)
         {
             throw new UnreachableException("This email confirmation has expired.");
         }
@@ -73,7 +77,6 @@ public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
             throw new UnreachableException("Cannot regenerate verification code for email confirmation that has been resent too many times.");
         }
 
-        ValidUntil = now.AddSeconds(ValidForSeconds);
         OneTimePasswordHash = oneTimePasswordHash;
         ResendCount++;
     }

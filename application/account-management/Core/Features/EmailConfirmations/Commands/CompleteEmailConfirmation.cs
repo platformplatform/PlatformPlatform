@@ -53,7 +53,7 @@ public sealed class CompleteEmailConfirmationHandler(
         }
 
         var confirmationTimeInSeconds = (int)(timeProvider.GetUtcNow() - emailConfirmation.CreatedAt).TotalSeconds;
-        if (emailConfirmation.HasExpired(timeProvider.GetUtcNow()))
+        if (emailConfirmation.IsExpired(timeProvider.GetUtcNow()))
         {
             events.CollectEvent(new EmailConfirmationExpired(emailConfirmation.Id, emailConfirmation.Type, confirmationTimeInSeconds));
             return Result<CompleteEmailConfirmationResponse>.BadRequest("The code is no longer valid, please request a new code.", true);
