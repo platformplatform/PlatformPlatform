@@ -13,7 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
-import { api, apiClient, type components, DeviceType } from "@/shared/lib/api/client";
+import { api, apiClient, type components, DeviceType, LoginMethod } from "@/shared/lib/api/client";
 
 type UserSessionInfo = components["schemas"]["UserSessionInfo"];
 
@@ -86,6 +86,17 @@ function getDeviceTypeLabel(deviceType: UserSessionInfo["deviceType"]): string {
   }
 }
 
+function getLoginMethodLabel(loginMethod: UserSessionInfo["loginMethod"]): string {
+  switch (loginMethod) {
+    case LoginMethod.OneTimePassword:
+      return t`One-time password`;
+    case LoginMethod.Google:
+      return t`Google`;
+    default:
+      return t`Unknown`;
+  }
+}
+
 function SessionCard({
   session,
   isRevoking,
@@ -114,6 +125,9 @@ function SessionCard({
           <div className="flex flex-col gap-0.5 text-muted-foreground text-sm">
             <span>
               <Trans>Account:</Trans> {session.tenantName || <Trans>Unnamed account</Trans>}
+            </span>
+            <span>
+              <Trans>Login method:</Trans> {getLoginMethodLabel(session.loginMethod)}
             </span>
             <span>
               <Trans>IP:</Trans> {session.ipAddress}

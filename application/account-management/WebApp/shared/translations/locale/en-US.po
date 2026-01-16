@@ -406,6 +406,9 @@ msgstr "Go to app"
 msgid "Go to home"
 msgstr "Go to home"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
@@ -475,6 +478,9 @@ msgstr "Log out"
 msgid "Logged out"
 msgstr "Logged out"
 
+msgid "Login method:"
+msgstr "Login method:"
+
 msgid "Login verification code"
 msgstr "Login verification code"
 
@@ -540,6 +546,9 @@ msgstr "No deleted users"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One-time password"
+msgstr "One-time password"
 
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
