@@ -45,7 +45,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "")
+                ("Locale", ""),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -125,7 +126,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "")
+                ("Locale", ""),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -142,7 +144,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "")
+                ("Locale", ""),
+                ("ExternalIdentities", "[]")
             ]
         );
 

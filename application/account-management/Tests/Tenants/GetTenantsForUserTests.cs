@@ -45,7 +45,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -118,7 +119,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -162,7 +164,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -207,7 +210,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountManagementD
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

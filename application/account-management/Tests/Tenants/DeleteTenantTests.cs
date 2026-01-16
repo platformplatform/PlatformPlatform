@@ -45,7 +45,8 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

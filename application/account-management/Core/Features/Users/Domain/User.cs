@@ -1,4 +1,6 @@
+using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations.Schema;
+using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Platform;
 
@@ -15,6 +17,7 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
         EmailConfirmed = emailConfirmed;
         Locale = locale ?? string.Empty;
         Avatar = new Avatar();
+        ExternalIdentities = [];
     }
 
     public string Email
@@ -40,6 +43,8 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
     public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
 
     public DateTimeOffset? LastSeenAt { get; private set; }
+
+    public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
 
     public DateTimeOffset? DeletedAt { get; private set; }
 
@@ -109,6 +114,23 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
     {
         LastSeenAt = lastSeenAt;
     }
+
+    public void AddExternalIdentity(ExternalProviderType provider, string providerUserId)
+    {
+        if (ExternalIdentities.Any(e => e.Provider == provider))
+        {
+            throw new UnreachableException($"User already has an external identity for provider {provider}.");
+        }
+
+        ExternalIdentities = ExternalIdentities.Add(new ExternalIdentity(provider, providerUserId));
+    }
+
+    public ExternalIdentity? GetExternalIdentity(ExternalProviderType provider)
+    {
+        return ExternalIdentities.FirstOrDefault(e => e.Provider == provider);
+    }
 }
 
 public sealed record Avatar(string? Url = null, int Version = 0, bool IsGravatar = false);
+
+public sealed record ExternalIdentity(ExternalProviderType Provider, string ProviderUserId);

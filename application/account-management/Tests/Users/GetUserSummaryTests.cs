@@ -36,7 +36,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountManagementDbCo
                 ("EmailConfirmed", true),
                 ("LastSeenAt", now.AddDays(-5)),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -54,7 +55,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountManagementDbCo
                 ("EmailConfirmed", true),
                 ("LastSeenAt", thirtyOneDaysAgo),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -72,7 +74,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountManagementDbCo
                 ("EmailConfirmed", false),
                 ("LastSeenAt", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

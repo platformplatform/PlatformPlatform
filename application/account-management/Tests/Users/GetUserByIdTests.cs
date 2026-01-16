@@ -29,7 +29,8 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountManagementDbConte
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
     }

@@ -45,7 +45,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -122,7 +123,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -181,7 +183,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -249,7 +252,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Title", "Manager"), // Has a title that will be overwritten
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
@@ -323,7 +327,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountManagementDbCont
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 
