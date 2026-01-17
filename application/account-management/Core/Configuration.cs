@@ -5,6 +5,7 @@ using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.Integrations.OAuth;
 using PlatformPlatform.AccountManagement.Integrations.OAuth.Google;
+using PlatformPlatform.AccountManagement.Integrations.OAuth.Mock;
 using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
@@ -36,7 +37,9 @@ public static class Configuration
             );
 
             services.AddHttpClient<GoogleOAuthProvider>(client => { client.Timeout = TimeSpan.FromSeconds(10); });
-            services.AddScoped<IOAuthProvider, GoogleOAuthProvider>();
+            services.AddKeyedScoped<IOAuthProvider, GoogleOAuthProvider>("google");
+            services.AddKeyedScoped<IOAuthProvider, MockOAuthProvider>("mock-google");
+            services.AddScoped<OAuthProviderFactory>();
 
             return services
                 .AddSharedServices<AccountManagementDbContext>([Assembly])

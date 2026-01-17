@@ -23,7 +23,7 @@ public sealed record StartExternalLoginResponse(string AuthorizationUrl);
 
 public sealed class StartExternalLoginHandler(
     IExternalLoginRepository externalLoginRepository,
-    IEnumerable<IOAuthProvider> oauthProviders,
+    OAuthProviderFactory oauthProviderFactory,
     IHttpContextAccessor httpContextAccessor,
     IDataProtectionProvider dataProtectionProvider,
     ITelemetryEventsCollector events
@@ -36,7 +36,9 @@ public sealed class StartExternalLoginHandler(
     {
         var httpContext = httpContextAccessor.HttpContext!;
 
-        var oauthProvider = oauthProviders.SingleOrDefault(p => p.ProviderType == command.ProviderType);
+        var useMockProvider = oauthProviderFactory.ShouldUseMockProvider(httpContext);
+
+        var oauthProvider = oauthProviderFactory.GetProvider(command.ProviderType, useMockProvider);
         if (oauthProvider is null)
         {
             return Result<StartExternalLoginResponse>.BadRequest($"Provider '{command.ProviderType}' is not configured.");
