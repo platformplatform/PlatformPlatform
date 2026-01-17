@@ -78,6 +78,9 @@ msgstr "Kontonavn"
 msgid "Account name updated successfully"
 msgstr "Kontonavn opdateret succesfuldt"
 
+msgid "Account not found"
+msgstr "Konto ikke fundet"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
@@ -152,11 +155,17 @@ msgstr "Er du sikker på, at du vil tilbagekalde denne session?"
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
 
+msgid "Authentication failed"
+msgstr "Godkendelse mislykkedes"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Autentificering deles på tværs af alle faner."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti samtidigt, brug venligst forskellige browsere."
+
+msgid "Authentication was cancelled or denied. Please try again if you want to continue."
+msgstr "Godkendelse blev annulleret eller afvist. Prøv venligst igen, hvis du vil fortsætte."
 
 msgid "Azure Compliance"
 msgstr "Azure Overholdelse"
@@ -430,8 +439,14 @@ msgstr "Hjem"
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."
 
+msgid "Identity mismatch"
+msgstr "Identitetsuoverensstemmelse"
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
+
+msgid "Invalid request"
+msgstr "Ugyldig anmodning"
 
 msgid "Invitation pending"
 msgstr "Invitation afventer"
@@ -541,6 +556,9 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
+msgid "No account found for this email address. Please sign up to create an account."
+msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
+
 msgid "No active sessions found."
 msgstr "Ingen aktive sessioner fundet."
 
@@ -646,6 +664,9 @@ msgstr "Papirkurv"
 
 msgid "Redirecting..."
 msgstr "Omdirigerer..."
+
+msgid "Reference ID: {id}"
+msgstr "Reference-ID: {id}"
 
 msgid "Region"
 msgstr "Region"
@@ -792,6 +813,9 @@ msgstr "Brugsvilkår"
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
 
+msgid "The authentication request was invalid. Please try again."
+msgstr "Godkendelsesanmodningen var ugyldig. Prøv venligst igen."
+
 msgid "The device will need to sign in again."
 msgstr "Enheden skal logge ind igen."
 
@@ -804,8 +828,14 @@ msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 msgid "Theme"
 msgstr "Tema"
 
+msgid "This account is linked to a different Google identity."
+msgstr "Denne konto er knyttet til en anden Google-identitet."
+
 msgid "This action cannot be undone."
 msgstr "Denne handling kan ikke fortrydes."
+
+msgid "This can happen when email ownership has changed. Contact your account administrator."
+msgstr "Dette kan ske, når e-mailejerskabet er ændret. Kontakt din kontoadministrator."
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -932,6 +962,9 @@ msgstr "Se profil"
 
 msgid "View users"
 msgstr "Se brugere"
+
+msgid "We detected a security issue with your login attempt. Please try again."
+msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst igen."
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."
