@@ -97,9 +97,10 @@ public sealed class CompleteExternalLoginHandler(
             {
                 var acceptLanguage = httpContext.Request.Headers.AcceptLanguage.ToString();
                 var currentFingerprint = ComputeBrowserFingerprint(userAgent, acceptLanguage);
-                if (currentFingerprint != externalLoginCookie.FingerprintHash || currentFingerprint != externalLogin.BrowserFingerprint)
+
+                if (currentFingerprint != externalLoginCookie.FingerprintHash)
                 {
-                    logger.LogWarning("Session hijacking detected for external login {ExternalLoginId}", externalLoginIdFromState);
+                    logger.LogWarning("Session hijacking detected for external login '{ExternalLoginId}'", externalLoginIdFromState);
                     return LoginFailedRedirect(externalLogin, ExternalLoginResult.SessionHijackingDetected);
                 }
             }

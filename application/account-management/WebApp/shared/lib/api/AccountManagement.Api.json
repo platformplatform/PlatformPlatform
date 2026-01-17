@@ -403,11 +403,11 @@
       }
     },
     "/api/account-management/authentication/{provider}/login/start": {
-      "post": {
+      "get": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationLoginStart",
+        "operationId": "GetApiAccountManagementAuthenticationLoginStart",
         "parameters": [
           {
             "name": "provider",
@@ -417,20 +417,26 @@
               "$ref": "#/components/schemas/ExternalProviderType"
             },
             "x-position": 1
+          },
+          {
+            "name": "ReturnPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Locale",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartExternalLoginCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "400": {
             "description": "",
@@ -438,16 +444,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartExternalLoginResponse"
                 }
               }
             }
@@ -524,11 +520,11 @@
       }
     },
     "/api/account-management/authentication/{provider}/signup/start": {
-      "post": {
+      "get": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "PostApiAccountManagementAuthenticationSignupStart",
+        "operationId": "GetApiAccountManagementAuthenticationSignupStart",
         "parameters": [
           {
             "name": "provider",
@@ -538,20 +534,26 @@
               "$ref": "#/components/schemas/ExternalProviderType"
             },
             "x-position": 1
+          },
+          {
+            "name": "ReturnPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Locale",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
           }
         ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartExternalSignupCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "400": {
             "description": "",
@@ -559,16 +561,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartExternalSignupResponse"
                 }
               }
             }
@@ -1808,15 +1800,6 @@
           }
         }
       },
-      "StartExternalLoginResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "authorizationUrl": {
-            "type": "string"
-          }
-        }
-      },
       "ExternalProviderType": {
         "type": "string",
         "description": "",
@@ -1826,43 +1809,6 @@
         "enum": [
           "Google"
         ]
-      },
-      "StartExternalLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "returnPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "locale": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "StartExternalSignupResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "authorizationUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "StartExternalSignupCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "returnPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "locale": {
-            "type": "string",
-            "nullable": true
-          }
-        }
       },
       "TenantResponse": {
         "type": "object",

@@ -13,14 +13,11 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Commands;
 
 [PublicAPI]
-public sealed record StartExternalSignupCommand(string? ReturnPath, string? Locale) : ICommand, IRequest<Result<StartExternalSignupResponse>>
+public sealed record StartExternalSignupCommand(string? ReturnPath, string? Locale) : ICommand, IRequest<Result<string>>
 {
     [JsonIgnore]
     public ExternalProviderType ProviderType { get; init; }
 }
-
-[PublicAPI]
-public sealed record StartExternalSignupResponse(string AuthorizationUrl);
 
 public sealed class StartExternalSignupHandler(
     IExternalLoginRepository externalLoginRepository,
@@ -28,7 +25,7 @@ public sealed class StartExternalSignupHandler(
     IHttpContextAccessor httpContextAccessor,
     IDataProtectionProvider dataProtectionProvider,
     ITelemetryEventsCollector events
-) : IRequestHandler<StartExternalSignupCommand, Result<StartExternalSignupResponse>>
+) : IRequestHandler<StartExternalSignupCommand, Result<string>>
 {
     private const string DataProtectionPurpose = "ExternalLogin";
     private const string ExternalLoginCookieName = "__Host_External_Login";
@@ -36,7 +33,7 @@ public sealed class StartExternalSignupHandler(
     private static readonly string PublicUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)
                                                ?? throw new InvalidOperationException($"'{SinglePageAppConfiguration.PublicUrlKey}' environment variable is not configured.");
 
-    public async Task<Result<StartExternalSignupResponse>> Handle(StartExternalSignupCommand command, CancellationToken cancellationToken)
+    public async Task<Result<string>> Handle(StartExternalSignupCommand command, CancellationToken cancellationToken)
     {
         var httpContext = httpContextAccessor.HttpContext!;
 
@@ -45,7 +42,7 @@ public sealed class StartExternalSignupHandler(
         var oauthProvider = oauthProviderFactory.GetProvider(command.ProviderType, useMockProvider);
         if (oauthProvider is null)
         {
-            return Result<StartExternalSignupResponse>.BadRequest($"Provider '{command.ProviderType}' is not configured.");
+            return Result<string>.BadRequest($"Provider '{command.ProviderType}' is not configured.");
         }
 
         var codeVerifier = PkceUtilities.GenerateCodeVerifier();
@@ -82,7 +79,7 @@ public sealed class StartExternalSignupHandler(
 
         events.CollectEvent(new ExternalSignupStarted(command.ProviderType));
 
-        return new StartExternalSignupResponse(authorizationUrl);
+        return Result<string>.Redirect(authorizationUrl);
     }
 
     private static string ComputeBrowserFingerprint(string userAgent, string acceptLanguage)
