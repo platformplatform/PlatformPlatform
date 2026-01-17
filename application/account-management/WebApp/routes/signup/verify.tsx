@@ -119,7 +119,7 @@ export function CompleteSignupForm() {
 
   const completeSignupMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/complete",
+    "/api/account-management/authentication/email/signup/{emailConfirmationId}/complete",
     {
       onSuccess: () => {
         clearSignupState();
@@ -130,7 +130,7 @@ export function CompleteSignupForm() {
 
   const resendSignupCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email/signup/{emailConfirmationId}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {

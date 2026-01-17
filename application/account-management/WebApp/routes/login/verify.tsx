@@ -137,7 +137,7 @@ export function CompleteLoginForm() {
 
   const completeLoginMutation = api.useMutation(
     "post",
-    "/api/account-management/authentication/email-login/{id}/complete",
+    "/api/account-management/authentication/email/login/{id}/complete",
     {
       onSuccess: () => {
         // Broadcast login event to other tabs
@@ -158,7 +158,7 @@ export function CompleteLoginForm() {
 
   const resendLoginCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/authentication/email-login/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email/login/{emailConfirmationId}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {

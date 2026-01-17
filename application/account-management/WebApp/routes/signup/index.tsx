@@ -44,13 +44,16 @@ export function StartSignupForm() {
   const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
-  const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
-  const startGoogleSignupMutation = api.useMutation("post", "/api/account-management/external-auth/signup/start");
+  const startSignupMutation = api.useMutation("post", "/api/account-management/authentication/email/signup/start");
+  const startGoogleSignupMutation = api.useMutation(
+    "post",
+    "/api/account-management/authentication/{provider}/signup/start"
+  );
 
   const handleGoogleSignup = () => {
     const locale = localStorage.getItem(preferredLocaleKey);
     startGoogleSignupMutation.mutate(
-      { body: { providerType: ExternalProviderType.Google, returnPath: null, locale } },
+      { params: { path: { provider: ExternalProviderType.Google } }, body: { returnPath: null, locale } },
       {
         onSuccess: (data) => {
           window.location.href = data.authorizationUrl;
