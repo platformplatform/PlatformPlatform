@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
@@ -11,7 +11,7 @@ using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record CompleteEmailLoginCommand(string OneTimePassword, TenantId? PreferredTenantId = null) : ICommand, IRequest<Result>

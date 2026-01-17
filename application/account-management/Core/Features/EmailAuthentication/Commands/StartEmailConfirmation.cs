@@ -1,13 +1,13 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record StartEmailConfirmationCommand(string Email, string EmailSubject, string EmailBody, EmailConfirmationType Type)

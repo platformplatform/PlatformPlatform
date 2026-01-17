@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 
 public sealed class EmailLoginConfiguration : IEntityTypeConfiguration<EmailLogin>
 {

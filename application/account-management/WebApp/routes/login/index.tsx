@@ -48,7 +48,7 @@ export function LoginForm() {
   const [email, setEmail] = useState(savedEmail || signupEmail || "");
   const { returnPath } = Route.useSearch();
 
-  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email-login/start");
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email/login/start");
   const startGoogleLoginMutation = api.useMutation("post", "/api/account-management/external-auth/login/start");
 
   const handleGoogleLogin = () => {

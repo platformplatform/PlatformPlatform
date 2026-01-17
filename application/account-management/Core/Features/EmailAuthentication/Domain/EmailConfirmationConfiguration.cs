@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlatformPlatform.SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 
 public sealed class EmailConfirmationConfiguration : IEntityTypeConfiguration<EmailConfirmation>
 {
