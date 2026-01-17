@@ -1,10 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { ErrorCode } from "@repo/infrastructure/auth/AuthenticationMiddleware";
+import { signUpPath } from "@repo/infrastructure/auth/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, LogIn, LogOut, ShieldAlert } from "lucide-react";
+import { AlertCircle, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
 import type { ReactNode } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
@@ -14,20 +15,24 @@ import logoWrap from "@/shared/images/logo-wrap.svg";
 
 export const Route = createFileRoute("/error")({
   validateSearch: (search) => {
-    const params = search as { error?: string; returnPath?: string };
+    const params = search as { error?: string; returnPath?: string; id?: string };
     return {
       error: params.error,
-      returnPath: params.returnPath?.startsWith("/") ? params.returnPath : undefined
+      returnPath: params.returnPath?.startsWith("/") ? params.returnPath : undefined,
+      id: params.id
     };
   },
   component: ErrorPage
 });
+
+type ErrorAction = "login" | "signup" | "contact";
 
 function getErrorDisplay(error: string): {
   icon: ReactNode;
   iconBackground: string;
   title: ReactNode;
   message: ReactNode;
+  action: ErrorAction;
 } {
   switch (error) {
     case ErrorCode.ReplayAttack:
@@ -43,7 +48,8 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>For your protection, you have been logged out. Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
       };
 
     case ErrorCode.SessionRevoked:
@@ -57,10 +63,12 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
       };
 
     case ErrorCode.SessionNotFound:
+    case ErrorCode.SessionExpired:
       return {
         icon: <LogOut className="size-10 text-muted-foreground" />,
         iconBackground: "bg-muted",
@@ -71,7 +79,59 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
+      };
+
+    case ErrorCode.UserNotFound:
+      return {
+        icon: <UserX className="size-10 text-muted-foreground" />,
+        iconBackground: "bg-muted",
+        title: <Trans>Account not found</Trans>,
+        message: <Trans>No account found for this email address. Please sign up to create an account.</Trans>,
+        action: "signup"
+      };
+
+    case ErrorCode.IdentityMismatch:
+      return {
+        icon: <ShieldAlert className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Identity mismatch</Trans>,
+        message: (
+          <>
+            <Trans>This account is linked to a different Google identity.</Trans>
+            <br />
+            <Trans>This can happen when email ownership has changed. Contact your account administrator.</Trans>
+          </>
+        ),
+        action: "contact"
+      };
+
+    case ErrorCode.AuthenticationFailed:
+      return {
+        icon: <AlertCircle className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Authentication failed</Trans>,
+        message: <Trans>We detected a security issue with your login attempt. Please try again.</Trans>,
+        action: "login"
+      };
+
+    case ErrorCode.InvalidRequest:
+      return {
+        icon: <AlertCircle className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Invalid request</Trans>,
+        message: <Trans>The authentication request was invalid. Please try again.</Trans>,
+        action: "login"
+      };
+
+    case ErrorCode.AccessDenied:
+      return {
+        icon: <AlertCircle className="size-10 text-muted-foreground" />,
+        iconBackground: "bg-muted",
+        title: <Trans>Access denied</Trans>,
+        message: <Trans>Authentication was cancelled or denied. Please try again if you want to continue.</Trans>,
+        action: "login"
       };
 
     default:
@@ -81,7 +141,8 @@ function getErrorDisplay(error: string): {
         title: <Trans>Something went wrong</Trans>,
         message: (
           <Trans>An unexpected error occurred. Please try again or contact support if the problem persists.</Trans>
-        )
+        ),
+        action: "login"
       };
   }
 }
@@ -106,7 +167,7 @@ function ErrorNavigation() {
 }
 
 function ErrorPage() {
-  const { error, returnPath } = Route.useSearch();
+  const { error, returnPath, id } = Route.useSearch();
   const navigate = useNavigate();
 
   if (!error) {
@@ -117,6 +178,10 @@ function ErrorPage() {
 
   const handleLogIn = () => {
     navigate({ to: "/login", search: { returnPath } });
+  };
+
+  const handleSignUp = () => {
+    navigate({ to: signUpPath });
   };
 
   return (
@@ -135,11 +200,24 @@ function ErrorPage() {
           </div>
 
           <div className="flex justify-center gap-3 pt-2">
-            <Button variant="default" onClick={handleLogIn} aria-label={t`Log in`}>
-              <LogIn size={16} />
-              <Trans>Log in</Trans>
-            </Button>
+            {errorDisplay.action === "signup" ? (
+              <Button variant="default" onClick={handleSignUp} aria-label={t`Sign up`}>
+                <UserPlus size={16} />
+                <Trans>Sign up</Trans>
+              </Button>
+            ) : errorDisplay.action === "contact" ? null : (
+              <Button variant="default" onClick={handleLogIn} aria-label={t`Log in`}>
+                <LogIn size={16} />
+                <Trans>Log in</Trans>
+              </Button>
+            )}
           </div>
+
+          {id && (
+            <p className="text-muted-foreground text-sm">
+              <Trans>Reference ID: {id}</Trans>
+            </p>
+          )}
         </div>
       </div>
     </main>

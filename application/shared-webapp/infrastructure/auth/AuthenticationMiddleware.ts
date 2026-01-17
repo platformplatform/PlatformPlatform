@@ -17,7 +17,13 @@ const UnauthorizedReason = {
 export const ErrorCode = {
   ReplayAttack: "replay-attack",
   SessionRevoked: "session-revoked",
-  SessionNotFound: "session-not-found"
+  SessionNotFound: "session-not-found",
+  UserNotFound: "user_not_found",
+  IdentityMismatch: "identity_mismatch",
+  SessionExpired: "session_expired",
+  AuthenticationFailed: "authentication_failed",
+  InvalidRequest: "invalid_request",
+  AccessDenied: "access_denied"
 } as const;
 
 const unauthorizedReasonHeaderKey = "x-unauthorized-reason";
