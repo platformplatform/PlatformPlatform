@@ -5,8 +5,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Domain;
@@ -15,7 +15,7 @@ using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Authentication;
+namespace PlatformPlatform.AccountManagement.Tests.EmailAuthentication;
 
 public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbContext>
 {
@@ -27,7 +27,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -55,7 +55,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand("");
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -80,7 +80,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand(invalidEmail);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -101,7 +101,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -145,7 +145,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
@@ -180,7 +180,7 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
         var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();

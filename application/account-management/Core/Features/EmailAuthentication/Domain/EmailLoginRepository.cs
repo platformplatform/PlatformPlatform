@@ -2,7 +2,7 @@ using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Persistence;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 
 public interface IEmailLoginRepository : IAppendRepository<EmailLogin, EmailLoginId>
 {

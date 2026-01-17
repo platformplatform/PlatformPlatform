@@ -4,9 +4,8 @@ using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
-using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -15,7 +14,7 @@ using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Authentication;
+namespace PlatformPlatform.AccountManagement.Tests.EmailAuthentication;
 
 public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagementDbContext>
 {
@@ -31,7 +30,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -59,7 +58,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
         var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{invalidEmailLoginId}/complete", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{invalidEmailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
@@ -77,7 +76,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
@@ -100,11 +99,11 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
         // Arrange
         var (emailLoginId, _) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(
@@ -118,13 +117,13 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
         // Arrange
         var (emailLoginId, emailConfirmationId) = await StartEmailLogin(DatabaseSeeder.Tenant1Owner.Email);
         var command = new CompleteEmailLoginCommand(WrongOneTimePassword);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
@@ -182,7 +181,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
         var command = new CompleteEmailLoginCommand(CorrectOneTimePassword);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
@@ -208,7 +207,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -265,7 +264,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -289,7 +288,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -324,7 +323,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/authentication/email-login/{emailLoginId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/login/{emailLoginId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -338,7 +337,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
     private async Task<(EmailLoginId EmailLoginId, EmailConfirmationId emailConfirmationId)> StartEmailLogin(string email)
     {
         var command = new StartEmailLoginCommand(email);
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email-login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
         var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
         return (responseBody!.EmailLoginId, responseBody.EmailConfirmationId);
     }

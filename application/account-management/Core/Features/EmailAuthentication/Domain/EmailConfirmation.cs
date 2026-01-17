@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 
 public sealed class EmailConfirmation : AggregateRoot<EmailConfirmationId>
 {

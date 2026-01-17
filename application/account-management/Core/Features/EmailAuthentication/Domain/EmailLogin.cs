@@ -1,10 +1,9 @@
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 
 public sealed class EmailLogin : AggregateRoot<EmailLoginId>
 {

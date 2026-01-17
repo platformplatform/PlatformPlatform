@@ -6,132 +6,6 @@
     "version": "v1"
   },
   "paths": {
-    "/api/account-management/authentication/email-login/start": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "PostApiAccountManagementAuthenticationEmailLoginStart",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StartEmailLoginCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartEmailLoginResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account-management/authentication/email-login/{id}/complete": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "PostApiAccountManagementAuthenticationEmailLoginComplete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/EmailLoginId"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CompleteEmailLoginCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account-management/authentication/email-login/{emailConfirmationId}/resend-code": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "operationId": "PostApiAccountManagementAuthenticationEmailLoginResendCode",
-        "parameters": [
-          {
-            "name": "emailConfirmationId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/EmailConfirmationId"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account-management/authentication/logout": {
       "post": {
         "tags": [
@@ -272,6 +146,132 @@
         "responses": {
           "200": {
             "description": ""
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/email/login/start": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartEmailLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartEmailLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/email/login/{id}/complete": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailLoginId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteEmailLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/email/login/{emailConfirmationId}/resend-code": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountManagementAuthenticationEmailLoginResendCode",
+        "parameters": [
+          {
+            "name": "emailConfirmationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailConfirmationId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -1509,99 +1509,12 @@
           }
         }
       },
-      "StartEmailLoginResponse": {
+      "SwitchTenantCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "emailLoginId": {
-            "$ref": "#/components/schemas/EmailLoginId"
-          },
-          "emailConfirmationId": {
-            "$ref": "#/components/schemas/EmailConfirmationId"
-          },
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "EmailLoginId": {
-        "type": "string",
-        "format": "emlog_{string}"
-      },
-      "StronglyTypedUlidOfEmailLoginId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailLoginId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndEmailLoginId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "EmailConfirmationId": {
-        "type": "string",
-        "format": "econf_{string}"
-      },
-      "StronglyTypedUlidOfEmailConfirmationId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndEmailConfirmationId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "StartEmailLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          }
-        }
-      },
-      "CompleteEmailLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "oneTimePassword": {
-            "type": "string"
-          },
-          "preferredTenantId": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/TenantId"
-              }
-            ]
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
           }
         }
       },
@@ -1628,25 +1541,6 @@
           "value": {
             "type": "integer",
             "format": "int64"
-          }
-        }
-      },
-      "ResendEmailConfirmationCodeResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "validForSeconds": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "SwitchTenantCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "tenantId": {
-            "$ref": "#/components/schemas/TenantId"
           }
         }
       },
@@ -1751,6 +1645,112 @@
           "Mobile",
           "Tablet"
         ]
+      },
+      "StartEmailLoginResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "emailLoginId": {
+            "$ref": "#/components/schemas/EmailLoginId"
+          },
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EmailLoginId": {
+        "type": "string",
+        "format": "emlog_{string}"
+      },
+      "StronglyTypedUlidOfEmailLoginId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailLoginId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailLoginId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "EmailConfirmationId": {
+        "type": "string",
+        "format": "econf_{string}"
+      },
+      "StronglyTypedUlidOfEmailConfirmationId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailConfirmationId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StartEmailLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "CompleteEmailLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oneTimePassword": {
+            "type": "string"
+          },
+          "preferredTenantId": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TenantId"
+              }
+            ]
+          }
+        }
+      },
+      "ResendEmailConfirmationCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "StartExternalLoginResponse": {
         "type": "object",

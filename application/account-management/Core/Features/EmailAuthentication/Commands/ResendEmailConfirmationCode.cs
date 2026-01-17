@@ -1,12 +1,12 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record ResendEmailConfirmationCodeCommand : ICommand, IRequest<Result<ResendEmailConfirmationCodeResponse>>
