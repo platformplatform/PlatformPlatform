@@ -8,7 +8,7 @@ namespace PlatformPlatform.AccountManagement.Api.Endpoints;
 
 public sealed class SignupEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/account-management/signups";
+    private const string RoutesPrefix = "/api/account-management/authentication/email/signup";
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {

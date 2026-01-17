@@ -289,7 +289,7 @@ public sealed class CompleteExternalSignupHandler(
     {
         var scheme = httpContext.Request.Scheme;
         var host = httpContext.Request.Host;
-        return $"{scheme}://{host}/api/account-management/external-auth/signup/callback/{providerType.ToString().ToLowerInvariant()}";
+        return $"{scheme}://{host}/api/account-management/authentication/{providerType}/signup/callback";
     }
 
     private static LoginMethod GetLoginMethod(ExternalProviderType providerType)

@@ -12,7 +12,11 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Commands;
 
 [PublicAPI]
-public sealed record StartExternalLoginCommand(ExternalProviderType ProviderType, string? ReturnPath, string? Locale) : ICommand, IRequest<Result<StartExternalLoginResponse>>;
+public sealed record StartExternalLoginCommand(string? ReturnPath, string? Locale) : ICommand, IRequest<Result<StartExternalLoginResponse>>
+{
+    [JsonIgnore]
+    public ExternalProviderType ProviderType { get; init; }
+}
 
 [PublicAPI]
 public sealed record StartExternalLoginResponse(string AuthorizationUrl);
@@ -103,6 +107,6 @@ public sealed class StartExternalLoginHandler(
     {
         var scheme = httpContext.Request.Scheme;
         var host = httpContext.Request.Host;
-        return $"{scheme}://{host}/api/account-management/external-auth/login/callback/{providerType.ToString().ToLowerInvariant()}";
+        return $"{scheme}://{host}/api/account-management/authentication/{providerType}/login/callback";
     }
 }

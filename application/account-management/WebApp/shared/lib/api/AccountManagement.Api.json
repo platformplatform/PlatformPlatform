@@ -276,12 +276,23 @@
         }
       }
     },
-    "/api/account-management/external-auth/login/start": {
+    "/api/account-management/authentication/{provider}/login/start": {
       "post": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "PostApiAccountManagementExternalAuthLoginStart",
+        "operationId": "PostApiAccountManagementAuthenticationLoginStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          }
+        ],
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -292,7 +303,7 @@
             }
           },
           "required": true,
-          "x-position": 1
+          "x-position": 2
         },
         "responses": {
           "400": {
@@ -318,19 +329,19 @@
         }
       }
     },
-    "/api/account-management/external-auth/login/callback/{provider}": {
+    "/api/account-management/authentication/{provider}/login/callback": {
       "get": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "GetApiAccountManagementExternalAuthLoginCallback",
+        "operationId": "GetApiAccountManagementAuthenticationLoginCallback",
         "parameters": [
           {
             "name": "provider",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/ExternalProviderType"
             },
             "x-position": 1
           },
@@ -386,12 +397,23 @@
         }
       }
     },
-    "/api/account-management/external-auth/signup/start": {
+    "/api/account-management/authentication/{provider}/signup/start": {
       "post": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "PostApiAccountManagementExternalAuthSignupStart",
+        "operationId": "PostApiAccountManagementAuthenticationSignupStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          }
+        ],
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -402,7 +424,7 @@
             }
           },
           "required": true,
-          "x-position": 1
+          "x-position": 2
         },
         "responses": {
           "400": {
@@ -428,19 +450,19 @@
         }
       }
     },
-    "/api/account-management/external-auth/signup/callback/{provider}": {
+    "/api/account-management/authentication/{provider}/signup/callback": {
       "get": {
         "tags": [
           "ExternalAuthentication"
         ],
-        "operationId": "GetApiAccountManagementExternalAuthSignupCallback",
+        "operationId": "GetApiAccountManagementAuthenticationSignupCallback",
         "parameters": [
           {
             "name": "provider",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/ExternalProviderType"
             },
             "x-position": 1
           },
@@ -496,12 +518,12 @@
         }
       }
     },
-    "/api/account-management/signups/start": {
+    "/api/account-management/authentication/email/signup/start": {
       "post": {
         "tags": [
           "Signups"
         ],
-        "operationId": "PostApiAccountManagementSignupsStart",
+        "operationId": "PostApiAccountManagementAuthenticationEmailSignupStart",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -538,12 +560,12 @@
         }
       }
     },
-    "/api/account-management/signups/{emailConfirmationId}/complete": {
+    "/api/account-management/authentication/email/signup/{emailConfirmationId}/complete": {
       "post": {
         "tags": [
           "Signups"
         ],
-        "operationId": "PostApiAccountManagementSignupsComplete",
+        "operationId": "PostApiAccountManagementAuthenticationEmailSignupComplete",
         "parameters": [
           {
             "name": "emailConfirmationId",
@@ -581,12 +603,12 @@
         }
       }
     },
-    "/api/account-management/signups/{emailConfirmationId}/resend-code": {
+    "/api/account-management/authentication/email/signup/{emailConfirmationId}/resend-code": {
       "post": {
         "tags": [
           "Signups"
         ],
-        "operationId": "PostApiAccountManagementSignupsResendCode",
+        "operationId": "PostApiAccountManagementAuthenticationEmailSignupResendCode",
         "parameters": [
           {
             "name": "emailConfirmationId",
@@ -1761,23 +1783,6 @@
           }
         }
       },
-      "StartExternalLoginCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "providerType": {
-            "$ref": "#/components/schemas/ExternalProviderType"
-          },
-          "returnPath": {
-            "type": "string",
-            "nullable": true
-          },
-          "locale": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "ExternalProviderType": {
         "type": "string",
         "description": "",
@@ -1787,6 +1792,20 @@
         "enum": [
           "Google"
         ]
+      },
+      "StartExternalLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "returnPath": {
+            "type": "string",
+            "nullable": true
+          },
+          "locale": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "StartExternalSignupResponse": {
         "type": "object",
@@ -1801,9 +1820,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "providerType": {
-            "$ref": "#/components/schemas/ExternalProviderType"
-          },
           "returnPath": {
             "type": "string",
             "nullable": true

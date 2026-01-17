@@ -49,11 +49,17 @@ export function LoginForm() {
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email/login/start");
-  const startGoogleLoginMutation = api.useMutation("post", "/api/account-management/external-auth/login/start");
+  const startGoogleLoginMutation = api.useMutation(
+    "post",
+    "/api/account-management/authentication/{provider}/login/start"
+  );
 
   const handleGoogleLogin = () => {
     startGoogleLoginMutation.mutate(
-      { body: { providerType: ExternalProviderType.Google, returnPath: returnPath ?? null, locale: null } },
+      {
+        params: { path: { provider: ExternalProviderType.Google } },
+        body: { returnPath: returnPath ?? null, locale: null }
+      },
       {
         onSuccess: (data) => {
           window.location.href = data.authorizationUrl;

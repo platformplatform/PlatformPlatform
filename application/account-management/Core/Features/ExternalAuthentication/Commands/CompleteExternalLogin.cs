@@ -304,7 +304,7 @@ public sealed class CompleteExternalLoginHandler(
     {
         var scheme = httpContext.Request.Scheme;
         var host = httpContext.Request.Host;
-        return $"{scheme}://{host}/api/account-management/external-auth/login/callback/{providerType.ToString().ToLowerInvariant()}";
+        return $"{scheme}://{host}/api/account-management/authentication/{providerType}/login/callback";
     }
 
     private static LoginMethod GetLoginMethod(ExternalProviderType providerType)
