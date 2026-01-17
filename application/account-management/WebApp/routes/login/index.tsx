@@ -49,23 +49,14 @@ export function LoginForm() {
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email/login/start");
-  const startGoogleLoginMutation = api.useMutation(
-    "post",
-    "/api/account-management/authentication/{provider}/login/start"
-  );
+  const [isGoogleRedirecting, setIsGoogleRedirecting] = useState(false);
 
   const handleGoogleLogin = () => {
-    startGoogleLoginMutation.mutate(
-      {
-        params: { path: { provider: ExternalProviderType.Google } },
-        body: { returnPath: returnPath ?? null, locale: null }
-      },
-      {
-        onSuccess: (data) => {
-          window.location.href = data.authorizationUrl;
-        }
-      }
-    );
+    setIsGoogleRedirecting(true);
+    const loginUrl = returnPath
+      ? `/api/account-management/authentication/${ExternalProviderType.Google}/login/start?returnPath=${encodeURIComponent(returnPath)}`
+      : `/api/account-management/authentication/${ExternalProviderType.Google}/login/start`;
+    window.location.href = loginUrl;
   };
 
   if (startLoginMutation.isSuccess) {
@@ -82,7 +73,7 @@ export function LoginForm() {
     return <Navigate to="/login/verify" search={{ returnPath }} />;
   }
 
-  const isPending = startLoginMutation.isPending || startGoogleLoginMutation.isPending;
+  const isPending = startLoginMutation.isPending || isGoogleRedirecting;
 
   return (
     <Form
@@ -125,7 +116,7 @@ export function LoginForm() {
       </div>
       <Button type="button" variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={isPending}>
         <img src={googleIconUrl} alt="" aria-hidden="true" className="h-5 w-5" />
-        {startGoogleLoginMutation.isPending ? <Trans>Redirecting...</Trans> : <Trans>Continue with Google</Trans>}
+        {isGoogleRedirecting ? <Trans>Redirecting...</Trans> : <Trans>Continue with Google</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>
