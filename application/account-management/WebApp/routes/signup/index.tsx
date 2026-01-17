@@ -45,21 +45,15 @@ export function StartSignupForm() {
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/authentication/email/signup/start");
-  const startGoogleSignupMutation = api.useMutation(
-    "post",
-    "/api/account-management/authentication/{provider}/signup/start"
-  );
+  const [isGoogleRedirecting, setIsGoogleRedirecting] = useState(false);
 
   const handleGoogleSignup = () => {
+    setIsGoogleRedirecting(true);
     const locale = localStorage.getItem(preferredLocaleKey);
-    startGoogleSignupMutation.mutate(
-      { params: { path: { provider: ExternalProviderType.Google } }, body: { returnPath: null, locale } },
-      {
-        onSuccess: (data) => {
-          window.location.href = data.authorizationUrl;
-        }
-      }
-    );
+    const signupUrl = locale
+      ? `/api/account-management/authentication/${ExternalProviderType.Google}/signup/start?locale=${encodeURIComponent(locale)}`
+      : `/api/account-management/authentication/${ExternalProviderType.Google}/signup/start`;
+    window.location.href = signupUrl;
   };
 
   if (startSignupMutation.isSuccess) {
@@ -75,7 +69,7 @@ export function StartSignupForm() {
     return <Navigate to="/signup/verify" />;
   }
 
-  const isPending = startSignupMutation.isPending || startGoogleSignupMutation.isPending;
+  const isPending = startSignupMutation.isPending || isGoogleRedirecting;
 
   return (
     <Form
@@ -136,7 +130,7 @@ export function StartSignupForm() {
       </div>
       <Button type="button" variant="outline" className="w-full" onPress={handleGoogleSignup} isDisabled={isPending}>
         <img src={googleIconUrl} alt="" aria-hidden="true" className="h-5 w-5" />
-        {startGoogleSignupMutation.isPending ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
+        {isGoogleRedirecting ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}
