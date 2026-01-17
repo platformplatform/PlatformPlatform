@@ -33,7 +33,7 @@ public sealed class ExternalLogin : AggregateRoot<ExternalLoginId>
 
     public ExternalFlowType FlowType { get; private init; }
 
-    public string StateToken { get; private init; }
+    public string StateToken { get; private set; }
 
     public string CodeVerifier { get; private init; }
 
@@ -60,14 +60,23 @@ public sealed class ExternalLogin : AggregateRoot<ExternalLoginId>
     public static ExternalLogin Create(
         ExternalProviderType providerType,
         ExternalFlowType flowType,
-        string stateToken,
         string codeVerifier,
         string browserFingerprint,
         string? returnPath,
         string? locale
     )
     {
-        return new ExternalLogin(providerType, flowType, stateToken, codeVerifier, browserFingerprint, returnPath, locale);
+        return new ExternalLogin(providerType, flowType, string.Empty, codeVerifier, browserFingerprint, returnPath, locale);
+    }
+
+    public void SetStateToken(string stateToken)
+    {
+        if (!string.IsNullOrEmpty(StateToken))
+        {
+            throw new UnreachableException("State token has already been set.");
+        }
+
+        StateToken = stateToken;
     }
 
     public void MarkCompleted()
