@@ -29,7 +29,7 @@ test.describe("@smoke", () => {
     await step("Enter valid email & verify navigation to verification page")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await blurActiveElement(page);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       // Verify verification page state
       await expect(page).toHaveURL("/login/verify");
@@ -98,7 +98,7 @@ test.describe("@smoke", () => {
 
     await step("Complete login after security check & verify authentication works")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
@@ -120,7 +120,7 @@ test.describe("@comprehensive", () => {
     await step("Navigate to login and submit email & verify navigation to verification page")(async () => {
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       // Verify initial verification page state
       await expect(page).toHaveURL("/login/verify");
@@ -180,7 +180,7 @@ test.describe("@comprehensive", () => {
         await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-        await page.getByRole("button", { name: "Continue" }).click();
+        await page.getByRole("button", { name: "Continue", exact: true }).click();
 
         await expect(page).toHaveURL("/login/verify");
       }
@@ -191,7 +191,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       // Verify rate limiting prevents navigation
       await expect(page).toHaveURL("/login");
@@ -219,7 +219,7 @@ test.describe("@slow", () => {
       await completeSignupFlow(page, expect, user, context, false);
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       // Verify initial state
       await expect(page).toHaveURL("/login/verify");

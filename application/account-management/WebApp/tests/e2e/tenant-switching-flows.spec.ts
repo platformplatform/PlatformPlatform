@@ -159,7 +159,7 @@ test.describe("@comprehensive", () => {
     await step("Login with multiple tenants & verify tenant switching UI displays correctly")(async () => {
       // Login
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
+      await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
       // Wait for navigation to complete - could be Users or Home page
@@ -288,7 +288,7 @@ test.describe("@comprehensive", () => {
 
       // Login again
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
+      await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
 
@@ -381,7 +381,7 @@ test.describe("@comprehensive", () => {
 
       // Login as different user
       await page1.getByRole("textbox", { name: "Email" }).fill(secondUser.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
+      await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
@@ -416,7 +416,7 @@ test.describe("@comprehensive", () => {
 
       // Login as original user (who has access to multiple tenants)
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
+      await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
@@ -461,7 +461,7 @@ test.describe("@comprehensive", () => {
 
       // Login again in tab 1
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page1.getByRole("button", { name: "Continue" }).click();
+      await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
@@ -563,7 +563,7 @@ test.describe("@comprehensive", () => {
 
       // Login as the invited user in page2
       await page2.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page2.getByRole("button", { name: "Continue" }).click();
+      await page2.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page2.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page2, getVerificationCode());
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();

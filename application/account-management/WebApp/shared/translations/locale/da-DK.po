@@ -234,6 +234,9 @@ msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 msgid "Continue"
 msgstr "Fortsæt"
 
+msgid "Continue with Google"
+msgstr "Fortsæt med Google"
+
 msgid "Create your account"
 msgstr "Opret din konto"
 
@@ -565,6 +568,9 @@ msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificeri
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
 
+msgid "or"
+msgstr "eller"
+
 msgid "Organization"
 msgstr "Organisation"
 
@@ -646,6 +652,9 @@ msgstr "Profil opdateret succesfuldt"
 
 msgid "Recycle bin"
 msgstr "Papirkurv"
+
+msgid "Redirecting..."
+msgstr "Omdirigerer..."
 
 msgid "Region"
 msgstr "Region"
@@ -755,8 +764,11 @@ msgstr "Vis filtre"
 msgid "Sign up"
 msgstr "Tilmeld dig"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
+msgid "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
+msgstr "Tilmeld dig på sekunder og begynd at bygge på PlatformPlatform - ligesom tusindvis af andre."
+
+msgid "Sign up with Google"
+msgstr "Tilmeld dig med Google"
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"

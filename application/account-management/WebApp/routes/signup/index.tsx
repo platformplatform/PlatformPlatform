@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
@@ -14,10 +15,11 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useState } from "react";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
-import { api } from "@/shared/lib/api/client";
+import { api, ExternalProviderType } from "@/shared/lib/api/client";
 import { getLoginState } from "../login/-shared/loginState";
 import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
@@ -44,6 +46,19 @@ export function StartSignupForm() {
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
   const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
+  const startGoogleSignupMutation = api.useMutation("post", "/api/account-management/external-auth/signup/start");
+
+  const handleGoogleSignup = () => {
+    const locale = localStorage.getItem(preferredLocaleKey);
+    startGoogleSignupMutation.mutate(
+      { body: { providerType: ExternalProviderType.Google, returnPath: null, locale } },
+      {
+        onSuccess: (data) => {
+          window.location.href = data.authorizationUrl;
+        }
+      }
+    );
+  };
 
   if (startSignupMutation.isSuccess) {
     const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
@@ -57,6 +72,8 @@ export function StartSignupForm() {
 
     return <Navigate to="/signup/verify" />;
   }
+
+  const isPending = startSignupMutation.isPending || startGoogleSignupMutation.isPending;
 
   return (
     <Form
@@ -72,7 +89,7 @@ export function StartSignupForm() {
         <Trans>Create your account</Trans>
       </h2>
       <div className="text-center text-muted-foreground text-sm">
-        <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
+        <Trans>Sign up in seconds to start building on PlatformPlatform - just like thousands of others.</Trans>
       </div>
       <TextField
         name="email"
@@ -85,6 +102,7 @@ export function StartSignupForm() {
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
+        isDisabled={isPending}
       />
       <Field className="flex w-full flex-col">
         <FieldLabel>
@@ -94,7 +112,7 @@ export function StartSignupForm() {
             {t`Region`}
           </LabelWithTooltip>
         </FieldLabel>
-        <Select name="region" defaultValue="europe" required={true}>
+        <Select name="region" defaultValue="europe" required={true} disabled={isPending}>
           <SelectTrigger className="w-full" aria-label={t`Region`}>
             <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
           </SelectTrigger>
@@ -106,12 +124,23 @@ export function StartSignupForm() {
         </Select>
         <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
       </Field>
-      <Button type="submit" disabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
+      <Button type="submit" disabled={isPending} className="mt-4 w-full text-center">
         {startSignupMutation.isPending ? (
           <Trans>Sending verification code...</Trans>
         ) : (
           <Trans>Create your account</Trans>
         )}
+      </Button>
+      <div className="flex w-full items-center gap-4">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-muted-foreground text-sm">
+          <Trans>or</Trans>
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+      <Button type="button" variant="outline" className="w-full" onClick={handleGoogleSignup} disabled={isPending}>
+        <img src={googleIconUrl} alt="" aria-hidden="true" className="h-5 w-5" />
+        {startGoogleSignupMutation.isPending ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}
