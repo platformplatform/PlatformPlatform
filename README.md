@@ -198,6 +198,40 @@ Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/local-development-exp.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
+## (Optional) Set up Google OAuth for "Sign in with Google"
+
+PlatformPlatform supports authentication via Google OAuth. This is optional for local development since email-based one-time passwords work without any configuration.
+
+<details>
+
+<summary>Google Cloud Console setup</summary>
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (e.g., "YourProduct OAuth")
+3. Navigate to **APIs & Services** > **Credentials**
+4. Configure OAuth consent screen (first time only):
+   - App name, support email, audience (External), contact info
+   - Agree to Google API Services: User Data Policy
+5. Create OAuth client ID:
+   - Application type: "Web application"
+   - Name: "YourProduct Localhost"
+6. Add Authorized redirect URIs:
+   - `https://localhost:9000/api/account-management/oauth/google/login/callback`
+   - `https://localhost:9000/api/account-management/oauth/google/signup/callback`
+7. Note the Client ID and Client Secret
+
+</details>
+
+**Aspire parameter configuration**: When running locally without Google OAuth credentials configured, the Aspire dashboard shows "Unresolved parameters" with a warning icon. Click **Parameters** and enter your Google OAuth Client ID and Client Secret. These values are stored securely in .NET user secrets and persist across restarts.
+
+**Production setup**: For staging and production environments, use the Developer CLI to configure GitHub secrets:
+
+```bash
+pp set-github-config
+```
+
+This stores the secrets in GitHub, which are deployed to Azure Key Vault during infrastructure deployment. Remember to add production redirect URIs to your Google Cloud Console configuration.
+
 ## 4. Set up CI/CD with passwordless deployments from GitHub to Azure
 
 Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](./cloud-infrastructure) (using Bicep) and compiling [application code](./application) to Docker images deployed to Azure Container Apps:
