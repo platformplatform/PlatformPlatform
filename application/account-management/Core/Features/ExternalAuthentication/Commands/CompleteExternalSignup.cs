@@ -19,7 +19,11 @@ namespace PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Com
 
 [PublicAPI]
 public sealed record CompleteExternalSignupCommand(string? Code, string? State, string? Error, string? ErrorDescription)
-    : ICommand, IRequest<Result<string>>;
+    : ICommand, IRequest<Result<string>>
+{
+    [JsonIgnore]
+    public string? Provider { get; init; }
+}
 
 public sealed class CompleteExternalSignupHandler(
     IExternalLoginRepository externalLoginRepository,
