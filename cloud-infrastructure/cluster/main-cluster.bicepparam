@@ -13,3 +13,5 @@ param accountManagementVersion = readEnvironmentVariable('ACCOUNT_MANAGEMENT_VER
 param backOfficeVersion = readEnvironmentVariable('BACK_OFFICE_VERSION')
 param applicationInsightsConnectionString = readEnvironmentVariable('APPLICATIONINSIGHTS_CONNECTION_STRING')
 param revisionSuffix = readEnvironmentVariable('REVISION_SUFFIX')
+param googleOAuthClientId = readEnvironmentVariable('GOOGLE_OAUTH_CLIENT_ID', '')
+param googleOAuthClientSecret = readEnvironmentVariable('GOOGLE_OAUTH_CLIENT_SECRET', '')
