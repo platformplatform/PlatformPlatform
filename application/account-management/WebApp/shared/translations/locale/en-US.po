@@ -234,6 +234,9 @@ msgstr "Contact your administrator if you believe this is a mistake."
 msgid "Continue"
 msgstr "Continue"
 
+msgid "Continue with Google"
+msgstr "Continue with Google"
+
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -559,6 +562,9 @@ msgstr "Only trusted personnel access data through Azure AD authentication"
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
 
+msgid "or"
+msgstr "or"
+
 msgid "Organization"
 msgstr "Organization"
 
@@ -637,6 +643,9 @@ msgstr "Profile updated successfully"
 
 msgid "Recycle bin"
 msgstr "Recycle bin"
+
+msgid "Redirecting..."
+msgstr "Redirecting..."
 
 msgid "Region"
 msgstr "Region"
@@ -735,8 +744,11 @@ msgstr "Show filters"
 msgid "Sign up"
 msgstr "Sign up"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgid "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
+msgstr "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
+
+msgid "Sign up with Google"
+msgstr "Sign up with Google"
 
 msgid "Signup verification code"
 msgstr "Signup verification code"

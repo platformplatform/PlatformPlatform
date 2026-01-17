@@ -11,10 +11,11 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useState } from "react";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
-import { api } from "@/shared/lib/api/client";
+import { api, ExternalProviderType } from "@/shared/lib/api/client";
 import { getSignupState } from "../signup/-shared/signupState";
 import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
@@ -49,6 +50,18 @@ export function LoginForm() {
   const { returnPath } = Route.useSearch();
 
   const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email-login/start");
+  const startGoogleLoginMutation = api.useMutation("post", "/api/account-management/external-auth/login/start");
+
+  const handleGoogleLogin = () => {
+    startGoogleLoginMutation.mutate(
+      { body: { providerType: ExternalProviderType.Google, returnPath: returnPath ?? null, locale: null } },
+      {
+        onSuccess: (data) => {
+          window.location.href = data.authorizationUrl;
+        }
+      }
+    );
+  };
 
   if (startLoginMutation.isSuccess) {
     const { emailLoginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
@@ -63,6 +76,8 @@ export function LoginForm() {
 
     return <Navigate to="/login/verify" search={{ returnPath }} />;
   }
+
+  const isPending = startLoginMutation.isPending || startGoogleLoginMutation.isPending;
 
   return (
     <Form
@@ -91,9 +106,21 @@ export function LoginForm() {
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
+        isDisabled={isPending}
       />
-      <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
+      <Button type="submit" isDisabled={isPending} className="mt-4 w-full text-center">
         {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Continue</Trans>}
+      </Button>
+      <div className="flex w-full items-center gap-4">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-muted-foreground text-sm">
+          <Trans>or</Trans>
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+      <Button type="button" variant="outline" className="w-full" onPress={handleGoogleLogin} isDisabled={isPending}>
+        <img src={googleIconUrl} alt="" aria-hidden="true" className="h-5 w-5" />
+        {startGoogleLoginMutation.isPending ? <Trans>Redirecting...</Trans> : <Trans>Continue with Google</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>
