@@ -4,8 +4,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
-using PlatformPlatform.AccountManagement.Features.Signups.Commands;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -24,7 +24,7 @@ public sealed class StartEmailSignupTests : EndpointBaseTest<AccountManagementDb
         var command = new StartEmailSignupCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -53,7 +53,7 @@ public sealed class StartEmailSignupTests : EndpointBaseTest<AccountManagementDb
         var command = new StartEmailSignupCommand(invalidEmail);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -93,7 +93,7 @@ public sealed class StartEmailSignupTests : EndpointBaseTest<AccountManagementDb
         var command = new StartEmailSignupCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");

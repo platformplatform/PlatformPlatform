@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
-using PlatformPlatform.AccountManagement.Features.Signups.Commands;
 using PlatformPlatform.AccountManagement.Features.Tenants.EventHandlers;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -36,7 +36,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
@@ -62,7 +62,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{invalidEmailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{invalidEmailConfirmationId}/complete", command);
 
         // Assert
         var expectedDetail = $"Email confirmation with id '{invalidEmailConfirmationId}' not found.";
@@ -79,7 +79,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
@@ -97,11 +97,11 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
         var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
         var command = new CompleteEmailSignupCommand(CorrectOneTimePassword, "en-US") { EmailConfirmationId = emailConfirmationId };
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"Email confirmation with id {emailConfirmationId} has already been completed.");
@@ -114,13 +114,13 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
         var emailConfirmationId = await StartSignup(Faker.Internet.UniqueEmail());
 
         var command = new CompleteEmailSignupCommand(WrongOneTimePassword, "en-US");
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
-        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
+        await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
@@ -158,7 +158,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
 
         // Act
         var response = await AnonymousHttpClient
-            .PostAsJsonAsync($"/api/account-management/signups/{emailConfirmationId}/complete", command);
+            .PostAsJsonAsync($"/api/account-management/authentication/email/signup/{emailConfirmationId}/complete", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is no longer valid, please request a new code.");
@@ -171,7 +171,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountManagemen
     private async Task<EmailConfirmationId> StartSignup(string email)
     {
         var command = new StartEmailSignupCommand(email);
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
         var responseBody = await response.DeserializeResponse<StartEmailSignupResponse>();
         return responseBody!.EmailConfirmationId;
     }

@@ -18,7 +18,7 @@ public sealed class AddExternalLogins : Migration
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 ProviderType = table.Column<string>("varchar(20)", nullable: false),
                 FlowType = table.Column<string>("varchar(20)", nullable: false),
-                StateToken = table.Column<string>("varchar(100)", nullable: false),
+                StateToken = table.Column<string>("varchar(512)", nullable: false),
                 CodeVerifier = table.Column<string>("char(128)", nullable: false),
                 BrowserFingerprint = table.Column<string>("char(64)", nullable: false),
                 ReturnPath = table.Column<string>("varchar(200)", nullable: true),
