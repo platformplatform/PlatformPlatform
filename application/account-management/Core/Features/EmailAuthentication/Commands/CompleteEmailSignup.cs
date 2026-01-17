@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Commands;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
@@ -11,7 +10,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.AccountManagement.Features.Signups.Commands;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record CompleteEmailSignupCommand(string OneTimePassword, string PreferredLocale) : ICommand, IRequest<Result>

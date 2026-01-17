@@ -24,5 +24,17 @@ public sealed class EmailAuthenticationEndpoints : IEndpoints
         group.MapPost("/login/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
             => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
         ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
+
+        group.MapPost("/signup/start", async Task<ApiResult<StartEmailSignupResponse>> (StartEmailSignupCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        ).Produces<StartEmailSignupResponse>().AllowAnonymous();
+
+        group.MapPost("/signup/{emailConfirmationId}/complete", async Task<ApiResult> (EmailConfirmationId emailConfirmationId, CompleteEmailSignupCommand command, IMediator mediator)
+            => await mediator.Send(command with { EmailConfirmationId = emailConfirmationId })
+        ).AllowAnonymous();
+
+        group.MapPost("/signup/{emailConfirmationId}/resend-code", async Task<ApiResult<ResendEmailConfirmationCodeResponse>> (EmailConfirmationId emailConfirmationId, IMediator mediator)
+            => await mediator.Send(new ResendEmailConfirmationCodeCommand { Id = emailConfirmationId })
+        ).Produces<ResendEmailConfirmationCodeResponse>().AllowAnonymous();
     }
 }
