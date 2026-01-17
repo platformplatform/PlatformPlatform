@@ -14,17 +14,17 @@ public sealed class ExternalAuthenticationEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("ExternalAuthentication").RequireAuthorization().ProducesValidationProblem();
 
-        group.MapPost("/{provider}/login/start", async Task<ApiResult<StartExternalLoginResponse>> (ExternalProviderType provider, StartExternalLoginCommand command, IMediator mediator)
+        group.MapGet("/{provider}/login/start", async Task<ApiResult<string>> (ExternalProviderType provider, [AsParameters] StartExternalLoginCommand command, IMediator mediator)
             => await mediator.Send(command with { ProviderType = provider })
-        ).Produces<StartExternalLoginResponse>().AllowAnonymous();
+        ).AllowAnonymous();
 
         group.MapGet("/{provider}/login/callback", async Task<ApiResult<string>> (ExternalProviderType provider, string? code, string? state, string? error, [FromQuery(Name = "error_description")] string? errorDescription, IMediator mediator)
             => await mediator.Send(new CompleteExternalLoginCommand(code, state, error, errorDescription) { Provider = provider.ToString() })
         ).AllowAnonymous();
 
-        group.MapPost("/{provider}/signup/start", async Task<ApiResult<StartExternalSignupResponse>> (ExternalProviderType provider, StartExternalSignupCommand command, IMediator mediator)
+        group.MapGet("/{provider}/signup/start", async Task<ApiResult<string>> (ExternalProviderType provider, [AsParameters] StartExternalSignupCommand command, IMediator mediator)
             => await mediator.Send(command with { ProviderType = provider })
-        ).Produces<StartExternalSignupResponse>().AllowAnonymous();
+        ).AllowAnonymous();
 
         group.MapGet("/{provider}/signup/callback", async Task<ApiResult<string>> (ExternalProviderType provider, string? code, string? state, string? error, [FromQuery(Name = "error_description")] string? errorDescription, IMediator mediator)
             => await mediator.Send(new CompleteExternalSignupCommand(code, state, error, errorDescription) { Provider = provider.ToString() })
