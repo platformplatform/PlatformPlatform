@@ -46,7 +46,8 @@ function SelectContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
-  alignItemWithTrigger = true,
+  // Changed from stock ShadCN: default false instead of true to show dropdown below trigger
+  alignItemWithTrigger = false,
   container,
   ...props
 }: SelectPrimitive.Popup.Props &
