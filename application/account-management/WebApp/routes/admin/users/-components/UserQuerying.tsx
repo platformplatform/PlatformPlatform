@@ -4,6 +4,7 @@ import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker, parseDateString } from "@repo/ui/components/DateRangePicker";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogFooter,
@@ -420,7 +421,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4">
+          <DialogBody>
             <SearchField
               placeholder={t`Search`}
               value={search}
@@ -493,7 +494,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
               placeholder={t`Select dates`}
               className="w-full"
             />
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button

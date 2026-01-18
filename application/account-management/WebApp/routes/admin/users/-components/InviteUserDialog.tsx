@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import {
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -65,7 +66,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
           validationBehavior="aria"
           className="flex flex-col max-sm:h-full"
         >
-          <div className="flex flex-col gap-4">
+          <DialogBody>
             <TextField
               autoFocus={true}
               isRequired={true}
@@ -75,7 +76,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
               className="flex-grow"
               onChange={() => setIsFormDirty(true)}
             />
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose render={<Button type="reset" variant="secondary" disabled={inviteUserMutation.isPending} />}>
               <Trans>Cancel</Trans>

@@ -102,7 +102,8 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - `z-[60]`: Toasts (always visible, even when dialogs are open)
    - Note: ShadCN components use z-50 as the standard overlay layer. Keep all app UI below z-50 unless it must appear above dialogs (like toasts)
 
-6. DirtyDialog close handlers:
+6. Dialog structure and DirtyDialog patterns:
+   - **Always use DialogBody** for content between DialogHeader and DialogFooter - it provides proper scrolling for tall content
    - **X button**: Built-in close button shows unsaved warning if dirty
    - **Cancel button**: Use `handleCancel` that clears state and closes immediately (bypasses warning)
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
@@ -151,7 +152,9 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
           <DialogDescription>{t`Select users from the list.`}</DialogDescription>
         </DialogHeader>
         <Form onSubmit={mutationSubmitter(inviteMutation)}>
-          <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
+          <DialogBody> // ✅ Always wrap content in DialogBody
+            <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
+          </DialogBody>
           <DialogFooter>
             <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
               <Trans>Cancel</Trans>
@@ -194,6 +197,7 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
     <DirtyDialog open={isOpen} onOpenChange={onClose} hasUnsavedChanges={true}>
       <DialogContent className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
         <h1>User Mgmt</h1> // ❌ Native <h1> (use DialogTitle), acronym "Mgmt", missing <Trans>
+        // ❌ Missing DialogBody wrapper - content won't scroll properly
         <ul> // ❌ Native <ul> - use ListBox
           {filteredUsers.map(user => (
             <li key={user.id} onClick={() => handleSelect(user.id)}> // ❌ Native <li>

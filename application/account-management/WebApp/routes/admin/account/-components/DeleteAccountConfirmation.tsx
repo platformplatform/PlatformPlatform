@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -24,7 +25,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
           <DialogTitle>{t`Delete account`}</DialogTitle>
           <DialogDescription>{t`To delete your account, please contact our support team.`}</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+        <DialogBody>
           <div className="flex items-center gap-3 rounded-lg border border-input bg-input-background p-4 opacity-50">
             <MailIcon className="h-5 w-5 text-muted-foreground" />
             <a href="mailto:support@platformplatform.net" className="text-primary hover:underline">
@@ -32,7 +33,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
             </a>
           </div>
           <p className="text-muted-foreground text-sm">{t`Our support team will assist you with the account deletion process and ensure all your data is properly removed.`}</p>
-        </div>
+        </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button />}>{t`Close`}</DialogClose>
         </DialogFooter>

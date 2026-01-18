@@ -2,7 +2,14 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Avatar } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
+import {
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
 import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { Label } from "@repo/ui/components/Label";
@@ -88,7 +95,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
           validationBehavior="aria"
           className="flex flex-col max-sm:h-full"
         >
-          <div className="flex flex-col gap-6">
+          <DialogBody>
             <div className="flex items-center gap-3">
               <Avatar
                 initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
@@ -148,7 +155,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
                 </Label>
               </div>
             </RadioGroup>
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose
               render={<Button type="reset" variant="secondary" disabled={changeUserRoleMutation.isPending} />}
