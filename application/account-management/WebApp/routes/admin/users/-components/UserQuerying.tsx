@@ -443,7 +443,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                     {(value: string) => (value ? getUserRoleLabel(value as UserRole) : t`Any role`)}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent container={null}>
+                <SelectContent>
                   <SelectItem value="">
                     <Trans>Any role</Trans>
                   </SelectItem>
@@ -469,7 +469,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                     {(value: string) => (value ? getUserStatusLabel(value as UserStatus) : t`Any status`)}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent container={null}>
+                <SelectContent>
                   <SelectItem value="">
                     <Trans>Any status</Trans>
                   </SelectItem>
