@@ -101,7 +101,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
 
 6. DirtyDialog close handlers:
    - **X button**: Built-in close button shows unsaved warning if dirty
-   - **Cancel button**: Use `handleCancel` that clears state and closes immediately (bypasses warning)
+   - **Cancel button**: Use `<DialogClose render={<Button type="reset" .../>}>` - the `type="reset"` bypasses the warning
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
 
 7. Always follow these steps when implementing changes:
@@ -137,7 +137,6 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
   });
 
   const handleCloseComplete = () => setIsFormDirty(false);
-  const handleCancel = () => { setIsFormDirty(false); onOpenChange(false); }; // ✅ Clear state + close (bypasses warning)
 
   return (
     <DirtyDialog open={isOpen} onOpenChange={onOpenChange} hasUnsavedChanges={isFormDirty}
@@ -145,14 +144,13 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
       <DialogContent className="sm:w-dialog-md"> // ✅ Use dialog width classes (not max-w-lg)
         <DialogHeader>
           <DialogTitle><Trans>Select users</Trans></DialogTitle>
-          <DialogDescription>{t`Select users from the list.`}</DialogDescription>
         </DialogHeader>
         <Form onSubmit={mutationSubmitter(inviteMutation)}>
           <TextField name="email" label={t`Email`} onChange={() => setIsFormDirty(true)} />
           <DialogFooter>
-            <Button type="reset" onClick={handleCancel} variant="secondary" disabled={inviteMutation.isPending}> // ✅ Cancel uses handleCancel
+            <DialogClose render={<Button type="reset" variant="secondary" disabled={inviteMutation.isPending} />}> // ✅ type="reset" bypasses warning
               <Trans>Cancel</Trans>
-            </Button>
+            </DialogClose>
             <Button type="submit" disabled={inviteMutation.isPending}> // ✅ Use disabled for pending
               {inviteMutation.isPending ? <Trans>Sending...</Trans> : <Trans>Send invite</Trans>}
             </Button>
@@ -201,7 +199,9 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
           ))}
         </ul>
         <DialogFooter>
-          <Button onClick={() => onClose(false)}>Cancel</Button> // ❌ Missing handleCancel pattern (shows unwanted warning)
+          <DialogClose render={<Button variant="secondary" />}> // ❌ Missing type="reset" (will show unwanted warning)
+            Cancel
+          </DialogClose>
           <Button type="submit"> // ❌ Missing disabled={isPending}
             <Trans>Submit</Trans> // ❌ Missing isPending text pattern, generic "Submit" text
           </Button>
