@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -29,14 +30,14 @@ export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<Tena
           <DialogDescription>{t`Help your team recognize your invites`}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-4">
+        <DialogBody>
           <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
             <AlertCircleIcon className="h-5 w-5 text-warning" />
             <p className="text-sm">
               <Trans>Your team needs to know who's inviting them. Add an account name to get started.</Trans>
             </p>
           </div>
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>

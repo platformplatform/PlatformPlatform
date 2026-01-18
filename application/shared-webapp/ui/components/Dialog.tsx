@@ -35,6 +35,8 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
   );
 }
 
+// NOTE: This diverges from stock ShadCN for mobile full-screen dialogs with scrollable content.
+// Mobile: full-screen (top-0, h-dvh), Desktop: centered modal (sm:top-1/2, sm:-translate-y-1/2).
 function DialogContent({
   className,
   children,
@@ -49,7 +51,9 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-background p-6 text-sm outline-none ring-1 ring-foreground/10 duration-100 data-closed:animate-out data-open:animate-in sm:max-w-md",
+          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed left-1/2 z-50 flex w-full -translate-x-1/2 flex-col gap-6 bg-background p-6 text-sm outline-none ring-1 ring-foreground/10 transition-[opacity,transform] duration-100 data-closed:animate-out data-open:animate-in",
+          "top-0 h-dvh max-h-dvh max-w-full",
+          "sm:top-1/2 sm:h-auto sm:max-h-[calc(100dvh-theme(spacing.16))] sm:max-w-md sm:-translate-y-1/2 sm:rounded-xl",
           className
         )}
         {...props}
@@ -73,6 +77,18 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="dialog-header" className={cn("flex flex-col gap-2", className)} {...props} />;
 }
 
+// NOTE: This diverges from stock ShadCN to add padding for focus ring visibility.
+// The overflow-y-auto clips focus rings, so p-1 -m-1 provides space for the 3px ring.
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="dialog-body"
+      className={cn("-m-1 mb-2 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-1", className)}
+      {...props}
+    />
+  );
+}
+
 function DialogFooter({
   className,
   showCloseButton = false,
@@ -84,7 +100,7 @@ function DialogFooter({
   return (
     <div
       data-slot="dialog-footer"
-      className={cn("flex flex-col-reverse gap-2 gap-2 sm:flex-row sm:justify-end", className)}
+      className={cn("mt-auto flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)}
       {...props}
     >
       {children}
@@ -114,6 +130,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
 
 export {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,

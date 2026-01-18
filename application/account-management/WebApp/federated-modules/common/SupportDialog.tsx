@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -25,7 +26,7 @@ export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogPr
           <DialogTitle>{t`Contact support`}</DialogTitle>
           <DialogDescription>{t`Need help? Our support team is here to assist you.`}</DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+        <DialogBody>
           <TextField
             name="email"
             label={t`Email`}
@@ -34,7 +35,7 @@ export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogPr
             startIcon={<MailIcon className="size-4" />}
           />
           <p className="text-muted-foreground text-sm">{t`Feel free to reach out with any questions or issues you may have.`}</p>
-        </div>
+        </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button />}>{t`Close`}</DialogClose>
         </DialogFooter>

@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { Button } from "@repo/ui/components/Button";
 import {
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -167,7 +168,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
             validationErrors={saveMutation.error?.errors}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <div className="flex flex-col gap-4">
+            <DialogBody>
               <input
                 type="file"
                 ref={avatarFileInputRef}
@@ -269,9 +270,9 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 placeholder={t`E.g. Software engineer`}
                 onChange={() => setIsFormDirty(true)}
               />
-            </div>
+            </DialogBody>
 
-            <DialogFooter className="pt-6">
+            <DialogFooter>
               <DialogClose
                 render={<Button type="reset" variant="secondary" disabled={isLoadingUser || saveMutation.isPending} />}
               >
