@@ -25,12 +25,14 @@ function BreadcrumbItem({ className, ...props }: React.ComponentProps<"li">) {
   return <li data-slot="breadcrumb-item" className={cn("inline-flex items-center gap-1.5", className)} {...props} />;
 }
 
+// NOTE: This diverges from stock ShadCN to include text-sm styling.
+// This avoids needing size="sm" on every Link rendered inside BreadcrumbLink.
 function BreadcrumbLink({ className, render, ...props }: useRender.ComponentProps<"a">) {
   return useRender({
     defaultTagName: "a",
     props: mergeProps<"a">(
       {
-        className: cn("transition-colors hover:text-foreground", className)
+        className: cn("text-sm transition-colors hover:text-foreground", className)
       },
       props
     ),
