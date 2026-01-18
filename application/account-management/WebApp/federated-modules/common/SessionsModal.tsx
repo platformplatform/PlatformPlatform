@@ -13,6 +13,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
+  DialogBody,
   DialogClose,
   DialogContent,
   DialogDescription,
@@ -266,7 +267,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex flex-col gap-4">
+          <DialogBody className="flex flex-col gap-4">
             {hasRevokedSession && (
               <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
                 <InfoIcon className="h-5 w-5 shrink-0 text-info" />
@@ -297,7 +298,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                 ))}
               </div>
             )}
-          </div>
+          </DialogBody>
           <DialogFooter>
             <DialogClose render={<Button variant="default" />} onClick={handleClose}>
               <Trans>Close</Trans>
