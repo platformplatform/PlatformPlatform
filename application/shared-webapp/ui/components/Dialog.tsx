@@ -1,8 +1,10 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
+import { cloneElement, isValidElement, type ReactNode, useContext } from "react";
 import { cn } from "../utils";
 import { Button } from "./Button";
+import { DirtyDialogContext } from "./DirtyDialog";
 
 export type DialogProps = DialogPrimitive.Root.Props;
 
@@ -18,8 +20,26 @@ function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
-function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+// NOTE: This diverges from stock ShadCN to integrate with DirtyDialog.
+// When inside a DirtyDialog and the rendered element has type="reset",
+// the cancel button bypasses the unsaved changes warning.
+function DialogClose({ render, children, ...props }: DialogPrimitive.Close.Props) {
+  const dirtyDialogContext = useContext(DirtyDialogContext);
+  if (dirtyDialogContext && render && isValidElement(render)) {
+    const renderProps = render.props as { type?: string };
+    if (renderProps.type === "reset") {
+      return cloneElement(render as React.ReactElement<{ onClick?: () => void; children?: ReactNode }>, {
+        onClick: dirtyDialogContext.cancel,
+        children
+      });
+    }
+  }
+
+  return (
+    <DialogPrimitive.Close data-slot="dialog-close" render={render} {...props}>
+      {children}
+    </DialogPrimitive.Close>
+  );
 }
 
 function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) {
