@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
@@ -41,13 +41,10 @@ function UserProfileContent({
     <>
       {/* User Avatar and Basic Info */}
       <div className="mb-6 text-center">
-        <Avatar
-          initials={getInitials(user.firstName, user.lastName, user.email)}
-          avatarUrl={user.avatarUrl}
-          size="lg"
-          isRound={true}
-          className="mx-auto mb-3"
-        />
+        <Avatar className="mx-auto mb-3 size-16">
+          <AvatarImage src={user.avatarUrl ?? undefined} />
+          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+        </Avatar>
         <Heading level={3} className="font-semibold text-lg">
           {user.firstName} {user.lastName}
         </Heading>
