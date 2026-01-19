@@ -8,9 +8,11 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
@@ -78,6 +80,9 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10">
+            <Trash2Icon className="text-destructive" />
+          </AlertDialogMedia>
           <AlertDialogTitle>{isSingleUser ? t`Delete user` : t`Delete users`}</AlertDialogTitle>
           <AlertDialogDescription>
             {isSingleUser ? (

@@ -8,9 +8,11 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { AlertTriangleIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
@@ -147,6 +149,9 @@ export function PermanentlyDeleteUserDialog({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10">
+            <AlertTriangleIcon className="text-destructive" />
+          </AlertDialogMedia>
           <AlertDialogTitle>{getDialogTitle()}</AlertDialogTitle>
           <AlertDialogDescription>{getDialogContent()}</AlertDialogDescription>
         </AlertDialogHeader>
