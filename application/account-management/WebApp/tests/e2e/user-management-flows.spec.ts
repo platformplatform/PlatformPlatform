@@ -1,6 +1,11 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/e2e/utils/test-assertions";
+import {
+  createTestContext,
+  expectToastMessage,
+  selectOption,
+  typeOneTimeCode
+} from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -267,8 +272,7 @@ test.describe("@smoke", () => {
       const filterDialog = page.getByRole("dialog", { name: "Filters" });
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByLabel("User role").click();
-      await page.getByRole("option", { name: "Owner" }).click();
+      await selectOption(filterDialog.getByLabel("User role"), page, "Owner");
 
       await filterDialog.getByRole("button", { name: "OK" }).click();
 
@@ -281,8 +285,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Show filters" }).click();
       await expect(filterDialog).toBeVisible();
 
-      await filterDialog.getByLabel("User role").click();
-      await page.getByRole("option", { name: "Any role" }).click();
+      await selectOption(filterDialog.getByLabel("User role"), page, "Any role");
       await filterDialog.getByRole("button", { name: "OK" }).click();
 
       // Verify all users are shown again
@@ -589,12 +592,10 @@ test.describe("@comprehensive", () => {
       const filterDialog = page.getByRole("dialog", { name: "Filters" });
 
       // Clear status filter
-      await filterDialog.getByLabel("User status").click();
-      await page.getByRole("option", { name: "Any status" }).click();
+      await selectOption(filterDialog.getByLabel("User status"), page, "Any status");
 
       // Set role filter to Owner
-      await filterDialog.getByLabel("User role").click();
-      await page.getByRole("option", { name: "Owner" }).click();
+      await selectOption(filterDialog.getByLabel("User role"), page, "Owner");
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -614,8 +615,7 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set role filter to Member
-      await filterDialog.getByLabel("User role").click();
-      await page.getByRole("option", { name: "Member" }).click();
+      await selectOption(filterDialog.getByLabel("User role"), page, "Member");
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -652,8 +652,7 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set status filter to Pending
-      await filterDialog.getByLabel("User status").click();
-      await page.getByRole("option", { name: "Pending" }).click();
+      await selectOption(filterDialog.getByLabel("User status"), page, "Pending");
 
       // Close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();
@@ -673,8 +672,7 @@ test.describe("@comprehensive", () => {
       await expect(filterDialog).toBeVisible();
 
       // Set status filter to Active
-      await filterDialog.getByLabel("User status").click();
-      await page.getByRole("option", { name: "Active" }).click();
+      await selectOption(filterDialog.getByLabel("User status"), page, "Active");
 
       // Click OK to apply and close dialog
       await filterDialog.getByRole("button", { name: "OK" }).click();

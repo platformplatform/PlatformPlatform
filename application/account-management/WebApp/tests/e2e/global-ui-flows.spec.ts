@@ -27,13 +27,12 @@ test.describe("@comprehensive", () => {
 
     await step("Click theme button and select dark mode & verify dark theme applies")(async () => {
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.click();
+      await themeButton.dispatchEvent("click");
 
       // Wait for menu to open and animation to complete
       const themeMenu = ownerPage.getByRole("menu");
       await expect(themeMenu).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -60,13 +59,12 @@ test.describe("@comprehensive", () => {
 
     await step("Click theme button and select system mode & verify theme follows system preference")(async () => {
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.click();
+      await themeButton.dispatchEvent("click");
 
       // Wait for menu to open and animation to complete
       const systemMenu = ownerPage.getByRole("menu");
       await expect(systemMenu).toBeVisible();
 
-      // Wait for menu item to be stable before clicking with JavaScript evaluate
       const systemMenuItem = ownerPage.getByRole("menuitem", { name: "System" });
       await expect(systemMenuItem).toBeVisible();
       await systemMenuItem.dispatchEvent("click");
@@ -87,14 +85,12 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Click theme button and select dark at 4K & verify theme applies")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
       await themeButton.dispatchEvent("click");
 
       const menu4k = ownerPage.getByRole("menu");
       await expect(menu4k).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -140,14 +136,12 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Change theme via mobile menu & verify theme updates")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
       const themeButton = ownerPage.getByRole("button", { name: "Theme" });
       await themeButton.dispatchEvent("click");
 
       const themeSubmenu = ownerPage.getByRole("menu");
       await expect(themeSubmenu).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const lightMenuItem = ownerPage.getByRole("menuitem", { name: "Light" });
       await expect(lightMenuItem).toBeVisible();
       await lightMenuItem.dispatchEvent("click");
@@ -170,14 +164,12 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Set dark theme before logout & verify theme applies")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
       const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
       await themeButton.dispatchEvent("click");
 
       const menu = ownerPage.getByRole("menu");
       await expect(menu).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -228,13 +220,12 @@ test.describe("@comprehensive", () => {
 
     await step("Click theme button and select dark mode & verify it applies")(async () => {
       const themeButton = page.getByRole("button", { name: "Change theme" });
-      await themeButton.click();
+      await themeButton.dispatchEvent("click");
 
       // Wait for menu to open and animation to complete
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -246,14 +237,12 @@ test.describe("@comprehensive", () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
       const triggerButton = page.getByRole("button", { name: "User profile menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu", { name: "User profile menu" });
       await expect(userMenu).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");

@@ -1,4 +1,4 @@
-import type { ConsoleMessage, Page } from "@playwright/test";
+import type { ConsoleMessage, Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 /**
@@ -418,6 +418,43 @@ export async function blurActiveElement(page: Page): Promise<void> {
       element.blur();
     }
   });
+}
+
+/**
+ * Select an option from a Select dropdown, handling Firefox animation timing issues.
+ *
+ * The Select component (Base UI) has a 100ms animation that causes Firefox to report
+ * "element is not stable" during the animation. This function:
+ * 1. Clicks the trigger to open the dropdown
+ * 2. Waits for the popup to be fully open (data-open attribute)
+ * 3. Clicks the option with force to bypass stability checks
+ * 4. Waits for the popup to close before returning
+ *
+ * @param trigger The Playwright locator for the Select trigger (e.g., page.getByLabel("User role"))
+ * @param page The Playwright page instance
+ * @param optionName The name of the option to click (used with getByRole("option", { name }))
+ */
+export async function selectOption(trigger: Locator, page: Page, optionName: string): Promise<void> {
+  // Use dispatchEvent for more reliable click in Firefox under load
+  await trigger.dispatchEvent("click");
+  const popup = page.locator('[data-slot="select-content"][data-open]');
+  await expect(popup).toBeVisible();
+  const option = page.getByRole("option", { name: optionName });
+  await expect(option).toBeVisible();
+  await option.click({ force: true });
+  await expect(popup).not.toBeVisible();
+}
+
+/**
+ * @deprecated Use selectOption instead which handles the full open/select/close sequence
+ */
+export async function clickSelectOption(page: Page, optionName: string): Promise<void> {
+  const popup = page.locator('[data-slot="select-content"][data-open]');
+  await expect(popup).toBeVisible();
+  const option = page.getByRole("option", { name: optionName });
+  await expect(option).toBeVisible();
+  await option.click({ force: true });
+  await expect(popup).not.toBeVisible();
 }
 
 /**
