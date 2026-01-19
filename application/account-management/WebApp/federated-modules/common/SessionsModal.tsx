@@ -8,6 +8,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogMedia,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { Badge } from "@repo/ui/components/Badge";
@@ -24,7 +25,7 @@ import {
 } from "@repo/ui/components/Dialog";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { InfoIcon, LaptopIcon, LoaderIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
+import { InfoIcon, LaptopIcon, LoaderIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SmartDate } from "@/shared/components/SmartDate";
@@ -170,6 +171,9 @@ function RevokeSessionDialog({
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10">
+            <LogOutIcon className="text-destructive" />
+          </AlertDialogMedia>
           <AlertDialogTitle>{t`Revoke session`}</AlertDialogTitle>
           <AlertDialogDescription>
             <Trans>
