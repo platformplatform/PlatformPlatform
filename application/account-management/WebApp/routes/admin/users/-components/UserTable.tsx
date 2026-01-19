@@ -446,7 +446,6 @@ export function UserTable({
       {!isMobile && users && (
         <div className="flex-shrink-0 pt-4">
           <TablePagination
-            paginationSize={9}
             currentPage={currentPage}
             totalPages={users.totalPages ?? 1}
             onPageChange={handlePageChange}
