@@ -1,2 +1,5 @@
 # Enforce consistent line endings for all text files
 * text=auto
+
+# Shell scripts must use LF line endings (even on Windows)
+*.sh text eol=lf
