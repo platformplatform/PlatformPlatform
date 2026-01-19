@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
@@ -50,7 +50,10 @@ function MobileMenuHeader({
         {/* User Profile */}
         {userInfo && (
           <div className="flex items-center gap-3 px-3">
-            <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="md" />
+            <Avatar className="size-12">
+              <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+              <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <div className="truncate font-medium text-foreground text-sm">{userInfo.fullName}</div>
               <div className="truncate text-muted-foreground text-xs">{userInfo.title ?? userInfo.email}</div>

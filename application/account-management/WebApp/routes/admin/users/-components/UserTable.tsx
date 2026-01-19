@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import {
@@ -343,12 +343,10 @@ export function UserTable({
                   <TableCell>
                     <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
                       <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
-                        <Avatar
-                          initials={getInitials(user.firstName, user.lastName, user.email)}
-                          avatarUrl={user.avatarUrl}
-                          size="sm"
-                          isRound={true}
-                        />
+                        <Avatar size="lg">
+                          <AvatarImage src={user.avatarUrl ?? undefined} />
+                          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+                        </Avatar>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-center gap-2 truncate text-foreground">
                             <span className="truncate">

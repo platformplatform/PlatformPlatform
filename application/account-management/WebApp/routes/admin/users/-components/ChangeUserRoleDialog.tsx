@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -97,12 +97,12 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
         >
           <DialogBody>
             <div className="flex items-center gap-3">
-              <Avatar
-                initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
-                avatarUrl={user.avatarUrl}
-                size="lg"
-                isRound={true}
-              />
+              <Avatar className="size-16">
+                <AvatarImage src={user.avatarUrl ?? undefined} />
+                <AvatarFallback>
+                  {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{displayName}</p>
                 {user.title && <p className="truncate text-muted-foreground text-sm">{user.title}</p>}

@@ -4,7 +4,7 @@ import { authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import {
   DropdownMenu,
@@ -74,7 +74,10 @@ export default function AvatarButton() {
         <DropdownMenuTrigger
           render={
             <Button aria-label={t`User profile menu`} variant="ghost" size="icon-lg" className="rounded-full">
-              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
+              <Avatar size="lg">
+                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                <AvatarFallback>{userInfo.initials}</AvatarFallback>
+              </Avatar>
             </Button>
           }
         />
@@ -82,7 +85,10 @@ export default function AvatarButton() {
           <DropdownMenuGroup>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-row items-center gap-2">
-                <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
+                <Avatar size="lg">
+                  <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                  <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
+                </Avatar>
                 <div className="my-1 flex flex-col">
                   <h4>{userInfo.fullName}</h4>
                   <p className="text-muted-foreground text-xs">{userInfo.email}</p>
