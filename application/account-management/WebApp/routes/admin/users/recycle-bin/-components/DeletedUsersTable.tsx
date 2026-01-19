@@ -214,7 +214,6 @@ export function DeletedUsersTable({
       {!isMobile && totalPages > 1 && (
         <div className="flex-shrink-0 pt-4">
           <TablePagination
-            paginationSize={9}
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={onPageChange}
