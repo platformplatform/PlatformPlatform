@@ -138,13 +138,7 @@ interface HeaderContentProps {
 
 const HeaderContent = React.forwardRef<HTMLDivElement, HeaderContentProps>(({ title, subtitle, isSticky }, ref) => (
   <div ref={ref} className="mb-4">
-    <h1
-      className={cn(
-        "font-semibold text-3xl",
-        "transition-opacity duration-200",
-        isSticky ? "opacity-0 sm:opacity-100" : "opacity-100"
-      )}
-    >
+    <h1 className={cn("transition-opacity duration-200", isSticky ? "opacity-0 sm:opacity-100" : "opacity-100")}>
       {title}
     </h1>
     {subtitle && (
@@ -183,14 +177,14 @@ function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, childre
         }}
       >
         <div className="mb-4">
-          <h1 className="font-semibold text-3xl">{title}</h1>
+          <h1>{title}</h1>
           {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
         </div>
       </div>
 
       {/* Desktop header - static */}
       <div ref={headerRef} className="mb-4 hidden sm:block">
-        <h1 className="font-semibold text-3xl">{title}</h1>
+        <h1>{title}</h1>
         {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
       </div>
 

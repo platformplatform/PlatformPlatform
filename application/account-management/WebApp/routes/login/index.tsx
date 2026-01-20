@@ -4,7 +4,6 @@ import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -74,9 +73,9 @@ export function LoginForm() {
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">
+      <h2>
         <Trans>Hi! Welcome back</Trans>
-      </Heading>
+      </h2>
       <div className="text-center text-muted-foreground text-sm">
         <Trans>Enter your email below to log in</Trans>
       </div>

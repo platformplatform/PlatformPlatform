@@ -4,7 +4,6 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
-import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
@@ -45,9 +44,9 @@ function UserProfileContent({
           <AvatarImage src={user.avatarUrl ?? undefined} />
           <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
         </Avatar>
-        <Heading level={3} className="font-semibold text-lg">
+        <h4>
           {user.firstName} {user.lastName}
-        </Heading>
+        </h4>
         {user.title && <span className="block text-muted-foreground text-sm">{user.title}</span>}
       </div>
 
@@ -78,9 +77,9 @@ function UserProfileContent({
 
       {/* Role Information */}
       <div className="mb-4 flex items-center justify-between">
-        <Heading level={4} className="font-medium text-sm">
+        <span className="font-semibold text-sm">
           <Trans>Role</Trans>
-        </Heading>
+        </span>
         {canModifyUser ? (
           <Button
             variant="ghost"
@@ -260,9 +259,9 @@ export function UserProfileSidePane({
         />
 
         <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
-          <Heading level={2} className="flex h-full items-center font-semibold text-base">
+          <h4 className="flex h-full items-center">
             <Trans>User profile</Trans>
-          </Heading>
+          </h4>
         </div>
 
         {/* Notice when user is not in current filtered view - only show on desktop with pagination */}

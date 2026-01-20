@@ -130,7 +130,7 @@ function ErrorPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="font-bold text-3xl text-foreground">{errorDisplay.title}</h1>
+            <h1>{errorDisplay.title}</h1>
             <p className="text-lg text-muted-foreground">{errorDisplay.message}</p>
           </div>
 

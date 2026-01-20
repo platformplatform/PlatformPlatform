@@ -192,9 +192,9 @@ export function CompleteSignupForm() {
               <img src={logoMarkUrl} alt={t`Logo`} className="h-12 w-12" />
             </Link>
           </div>
-          <h1 className="mb-3 w-full text-center text-2xl">
+          <h2 className="mb-3 text-center">
             <Trans>Enter your verification code</Trans>
-          </h1>
+          </h2>
           <div className="text-center text-gray-500 text-sm">
             <Trans>
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>

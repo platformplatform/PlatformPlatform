@@ -85,7 +85,7 @@ export default function FederatedNotFoundPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="font-bold text-3xl text-foreground">
+            <h1>
               <Trans>Page not found</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">

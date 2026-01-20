@@ -57,7 +57,8 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
    - Don't introduce new npm dependencies
-   - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>`, `<img>` are acceptable)
+   - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>`, `<img>`, `<h1>`-`<h4>` are acceptable)
+   - **Headings**: Use native `<h1>`-`<h4>` elements with global styles from `tailwind.css`. Never override font sizes or weights - use the correct semantic level for the visual hierarchy. Allowed overrides: alignment (`text-center`), margins (`mb-X`), visibility (`hidden sm:block`). Exception: Hero/marketing pages can override sizes
    - Use native `<img>` for images. Keep it simple for small logos/icons. For large images:
      - **LCP images** (large hero images): Add `fetchPriority="high"`
      - **Below-the-fold images**: Add `loading="lazy"`
@@ -195,7 +196,7 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
   return (
     <DirtyDialog open={isOpen} onOpenChange={onClose} hasUnsavedChanges={true}>
       <DialogContent className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
-        <h1>User Mgmt</h1> // ❌ Native <h1> (use DialogTitle), acronym "Mgmt", missing <Trans>
+        <h2>User Mgmt</h2> // ❌ Use DialogTitle in dialogs (not h2), acronym "Mgmt", missing <Trans>
         // ❌ Missing DialogBody wrapper - content won't scroll properly
         <ul> // ❌ Native <ul> - use ListBox
           {filteredUsers.map(user => (
