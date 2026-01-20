@@ -24,9 +24,9 @@ function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<L
       <Tooltip>
         <TooltipTrigger
           aria-label={t`More information`}
-          className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-md p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          className="inline-flex size-4 shrink-0 items-center justify-center rounded-md p-0 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <InfoIcon className="h-4 w-4 text-muted-foreground" />
+          <InfoIcon className="size-4 text-muted-foreground" />
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>

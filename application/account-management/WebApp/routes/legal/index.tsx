@@ -113,7 +113,7 @@ function LegalIndex() {
             {/* Compliance Badges */}
             <div className="mb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-12">
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-24 w-24 items-center justify-center">
+                <div className="flex size-24 items-center justify-center">
                   <img src={gdprBadge} alt={t`GDPR compliant`} className="h-20 w-auto object-contain" />
                 </div>
                 <span className="font-semibold text-foreground">
@@ -121,8 +121,8 @@ function LegalIndex() {
                 </span>
               </div>
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#0078d4]/10">
-                  <svg viewBox="0 0 96 96" className="h-14 w-14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="flex size-24 items-center justify-center rounded-full bg-[#0078d4]/10">
+                  <svg viewBox="0 0 96 96" className="size-14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <title>Microsoft Azure</title>
                     <path d="M48 12L12 30v36l36 18 36-18V30L48 12z" fill="#0078d4" />
                     <path d="M48 12v36L12 30l36-18z" fill="#50e6ff" />
@@ -139,8 +139,8 @@ function LegalIndex() {
             {/* Security Features - 6 items in 3x2 grid */}
             <div className="mb-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ServerIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <ServerIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>Fully managed infrastructure</Trans>
@@ -150,8 +150,8 @@ function LegalIndex() {
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <FingerprintIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <FingerprintIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>Managed identities</Trans>
@@ -161,8 +161,8 @@ function LegalIndex() {
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <LayersIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <LayersIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>Environment isolation</Trans>
@@ -172,8 +172,8 @@ function LegalIndex() {
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <KeyIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <KeyIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>Passwordless deployments</Trans>
@@ -183,8 +183,8 @@ function LegalIndex() {
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <DatabaseIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <DatabaseIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>Data residency</Trans>
@@ -194,8 +194,8 @@ function LegalIndex() {
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ShieldCheckIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <ShieldCheckIcon className="size-6 text-primary" />
                 </div>
                 <h4 className="mb-1">
                   <Trans>100% Security Score</Trans>
@@ -211,9 +211,9 @@ function LegalIndex() {
               <img
                 src={platformLogo}
                 alt={t`PlatformPlatform logo`}
-                className="h-8 w-8"
-                width={32}
-                height={32}
+                className="size-10"
+                width={40}
+                height={40}
                 loading="lazy"
               />
               <p className="text-muted-foreground text-sm">
@@ -227,7 +227,7 @@ function LegalIndex() {
                     className="inline-flex items-center gap-1 font-medium text-primary"
                   >
                     PlatformPlatform
-                    <ExternalLinkIcon className="h-3 w-3" />
+                    <ExternalLinkIcon className="size-3" />
                   </Link>{" "}
                   - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS
                   products
@@ -260,13 +260,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureSecurity} alt="" className="h-10 w-10" />
+                  <img src={azureSecurity} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Trust Center</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Security, privacy, and compliance information</Trans>
@@ -281,13 +281,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureCompliance} alt="" className="h-10 w-10" />
+                  <img src={azureCompliance} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Azure Compliance</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Regulatory standards and certifications</Trans>
@@ -302,13 +302,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureActivityLog} alt="" className="h-10 w-10" />
+                  <img src={azureActivityLog} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>SOC and ISO Reports</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Audit reports and assessments</Trans>
@@ -323,13 +323,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azurePolicy} alt="" className="h-10 w-10" />
+                  <img src={azurePolicy} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Microsoft DPA</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Data protection addendum</Trans>

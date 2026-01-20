@@ -94,16 +94,16 @@ export function AddToHomescreen() {
     >
       <div className="border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
-          <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="h-10 w-10 rounded-lg shadow-sm" />
+          <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="size-10 rounded-lg shadow-sm" />
           <div className="flex-1">
             <h5>Install PlatformPlatform</h5>
             <p className="text-muted-foreground text-xs">
-              Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline h-3 w-3" />{" "}
+              Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline size-3" />{" "}
               then "Add to Home Screen"
             </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={handleDismiss}>
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={handleDismiss}>
+            <X className="size-4" />
           </Button>
         </div>
       </div>

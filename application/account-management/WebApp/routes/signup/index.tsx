@@ -66,7 +66,7 @@ export function StartSignupForm() {
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
+        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Create your account</Trans>
@@ -125,7 +125,7 @@ export function StartSignupForm() {
           <Link href="/legal/terms">
             <Trans>Terms of use</Trans>
           </Link>
-          <DotIcon className="h-4 w-4" />
+          <DotIcon className="size-4" />
           <Link href="/legal/privacy">
             <Trans>Privacy policies</Trans>
           </Link>

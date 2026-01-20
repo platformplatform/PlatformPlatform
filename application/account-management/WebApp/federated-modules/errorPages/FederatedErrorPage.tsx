@@ -101,8 +101,8 @@ export default function FederatedErrorPage({ error }: Readonly<ErrorComponentPro
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex max-w-lg flex-col items-center gap-6">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
-            <AlertTriangle className="h-10 w-10 text-destructive" />
+          <div className="flex size-20 items-center justify-center rounded-full bg-destructive/10">
+            <AlertTriangle className="size-10 text-destructive" />
           </div>
 
           <div className="flex flex-col gap-3">

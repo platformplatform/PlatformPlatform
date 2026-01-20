@@ -396,13 +396,13 @@ export function UserTable({
                           <DropdownMenuTrigger
                             render={
                               <Button variant="ghost" size="icon" aria-label={t`User actions`}>
-                                <EllipsisVerticalIcon className="h-5 w-5 text-muted-foreground" />
+                                <EllipsisVerticalIcon className="size-5 text-muted-foreground" />
                               </Button>
                             }
                           />
                           <DropdownMenuContent className="w-auto">
                             <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
-                              <UserIcon className="h-4 w-4" />
+                              <UserIcon className="size-4" />
                               <Trans>View profile</Trans>
                             </DropdownMenuItem>
                             {userInfo?.role === "Owner" && (
@@ -411,7 +411,7 @@ export function UserTable({
                                   disabled={user.id === userInfo?.id}
                                   onClick={() => onChangeRole(user)}
                                 >
-                                  <SettingsIcon className="h-4 w-4" />
+                                  <SettingsIcon className="size-4" />
                                   <Trans>Change role</Trans>
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
@@ -420,7 +420,7 @@ export function UserTable({
                                   variant="destructive"
                                   onClick={() => onDeleteUser(user)}
                                 >
-                                  <Trash2Icon className="h-4 w-4" />
+                                  <Trash2Icon className="size-4" />
                                   <Trans>Delete</Trans>
                                 </DropdownMenuItem>
                               </>
@@ -469,9 +469,9 @@ function SortIndicator({ sortDescriptor, columnId }: Readonly<SortIndicatorProps
 
   return (
     <span
-      className={`flex h-4 w-4 items-center justify-center transition ${sortDescriptor.direction === "descending" ? "rotate-180" : ""}`}
+      className={`flex size-4 items-center justify-center transition ${sortDescriptor.direction === "descending" ? "rotate-180" : ""}`}
     >
-      <ArrowUp aria-hidden={true} className="h-4 w-4 text-muted-foreground" />
+      <ArrowUp aria-hidden={true} className="size-4 text-muted-foreground" />
     </span>
   );
 }

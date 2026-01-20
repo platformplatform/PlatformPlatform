@@ -179,7 +179,7 @@ function LogoSection({
             <Button
               variant="ghost"
               size="icon"
-              className="h-16 w-16 rounded-md"
+              className="size-16 rounded-md"
               aria-label={t`Change logo`}
               disabled={!isOwner}
             >
@@ -199,7 +199,7 @@ function LogoSection({
               logoFileInputRef.current?.click();
             }}
           >
-            <CameraIcon className="h-4 w-4" />
+            <CameraIcon className="size-4" />
             <Trans>Upload logo</Trans>
           </DropdownMenuItem>
           {(tenant?.logoUrl || logoPreviewUrl) && (
@@ -212,7 +212,7 @@ function LogoSection({
                   handleLogoRemoval();
                 }}
               >
-                <Trash2Icon className="h-4 w-4" />
+                <Trash2Icon className="size-4" />
                 <Trans>Remove logo</Trans>
               </DropdownMenuItem>
             </>

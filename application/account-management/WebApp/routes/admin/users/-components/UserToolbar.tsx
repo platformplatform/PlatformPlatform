@@ -46,7 +46,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
 
   const inviteButton = (
     <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
-      <PlusIcon className="h-5 w-5" />
+      <PlusIcon className="size-5" />
       <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
         <Trans>Invite user</Trans>
       </span>
@@ -60,7 +60,7 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       disabled={hasSelectedSelf}
       aria-label={t`Delete ${selectedUsers.length} users`}
     >
-      <Trash2Icon className="h-5 w-5" />
+      <Trash2Icon className="size-5" />
       <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
         <Trans>Delete {selectedUsers.length} users</Trans>
       </span>

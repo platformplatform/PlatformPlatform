@@ -78,7 +78,7 @@ function MobileMenuHeader({
                 className="rounded border border-border bg-background px-2 py-1 text-sm hover:bg-hover-background"
                 style={{ pointerEvents: "auto", position: "relative", touchAction: "none" }}
               >
-                <UserIcon className="mr-1 inline h-4 w-4" />
+                <UserIcon className="mr-1 inline size-4" />
                 <Trans>Edit</Trans>
               </button>
             </div>
@@ -100,8 +100,8 @@ function MobileMenuHeader({
             className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <MonitorSmartphoneIcon className="h-5 w-5 stroke-current" />
+            <div className="flex size-6 shrink-0 items-center justify-center">
+              <MonitorSmartphoneIcon className="size-5 stroke-current" />
             </div>
             <div className="overflow-hidden whitespace-nowrap text-start">
               <Trans>Sessions</Trans>
@@ -125,8 +125,8 @@ function MobileMenuHeader({
             className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <LogOutIcon className="h-5 w-5 stroke-current" />
+            <div className="flex size-6 shrink-0 items-center justify-center">
+              <LogOutIcon className="size-5 stroke-current" />
             </div>
             <div className="overflow-hidden whitespace-nowrap text-start">
               <Trans>Log out</Trans>
@@ -174,8 +174,8 @@ function MobileMenuHeader({
             className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <MailQuestion className="h-5 w-5 stroke-current" />
+            <div className="flex size-6 shrink-0 items-center justify-center">
+              <MailQuestion className="size-5 stroke-current" />
             </div>
             <div className="overflow-hidden whitespace-nowrap text-start">
               <Trans>Contact support</Trans>

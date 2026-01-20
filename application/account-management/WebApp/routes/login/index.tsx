@@ -71,7 +71,7 @@ export function LoginForm() {
       className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
+        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
       </Link>
       <h2>
         <Trans>Hi! Welcome back</Trans>

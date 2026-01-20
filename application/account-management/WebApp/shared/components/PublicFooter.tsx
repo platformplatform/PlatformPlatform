@@ -81,9 +81,9 @@ export function PublicFooter() {
                   <a
                     href="mailto:support@platformplatform.net"
                     aria-label="Email"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <MailIcon className="h-5 w-5" />
+                    <MailIcon className="size-5" />
                   </a>
                 }
               />
@@ -99,9 +99,9 @@ export function PublicFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <LinkedinIcon className="h-5 w-5" />
+                    <LinkedinIcon className="size-5" />
                   </Link>
                 }
               />
@@ -117,9 +117,9 @@ export function PublicFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="YouTube"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <YoutubeIcon className="h-5 w-5" />
+                    <YoutubeIcon className="size-5" />
                   </Link>
                 }
               />
@@ -135,9 +135,9 @@ export function PublicFooter() {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub"
-                    className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <GithubIcon className="h-5 w-5" />
+                    <GithubIcon className="size-5" />
                   </Link>
                 }
               />

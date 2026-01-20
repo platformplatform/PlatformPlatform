@@ -48,7 +48,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
           <DropdownMenuItem key={item.id} onClick={() => handleLocaleChange(item.id)}>
             <div className="flex items-center gap-2">
               <span>{item.label}</span>
-              {item.id === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+              {item.id === currentLocale && <CheckIcon className="ml-auto size-4" />}
             </div>
           </DropdownMenuItem>
         ))}

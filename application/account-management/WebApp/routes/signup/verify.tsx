@@ -189,7 +189,7 @@ export function CompleteSignupForm() {
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/" className="cursor-pointer">
-              <img src={logoMarkUrl} alt={t`Logo`} className="h-12 w-12" />
+              <img src={logoMarkUrl} alt={t`Logo`} className="size-12" />
             </Link>
           </div>
           <h2 className="mb-3 text-center">
