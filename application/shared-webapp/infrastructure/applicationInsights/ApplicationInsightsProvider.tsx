@@ -1,7 +1,7 @@
 import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import type { ReactNode } from "react";
+import { useUserInfo } from "../auth/hooks";
 
 const reactPlugin = new ReactPlugin();
 const ErrorFallback = () => <h1>Something went wrong, please try again</h1>;

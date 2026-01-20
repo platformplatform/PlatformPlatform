@@ -60,6 +60,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
    - Don't introduce new npm dependencies
+   - **Workspace package imports**: Within the same package (e.g., within `@repo/ui`), use relative imports (`../components/Button`) to avoid circular dependencies. Between different packages, use absolute imports (`@repo/ui/components/Button`)
    - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>`, `<img>`, `<h1>`-`<h4>` are acceptable)
    - **Headings**: Use native `<h1>`-`<h4>` elements with global styles from `tailwind.css`. Never override font sizes or weights - use the correct semantic level for the visual hierarchy. Allowed overrides: alignment (`text-center`), margins (`mb-X`), visibility (`hidden sm:block`). Exception: Hero/marketing pages can override sizes
    - Use native `<img>` for images. Keep it simple for small logos/icons. For large images:
