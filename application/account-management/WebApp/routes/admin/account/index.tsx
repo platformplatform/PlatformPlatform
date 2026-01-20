@@ -183,22 +183,13 @@ function LogoSection({
               aria-label={t`Change logo`}
               disabled={!isOwner}
             >
-              {tenant?.logoUrl || logoPreviewUrl ? (
-                <img
-                  src={logoPreviewUrl ?? tenant?.logoUrl ?? ""}
-                  className="h-full w-full rounded-md object-contain"
-                  alt={t`Logo`}
-                />
-              ) : (
-                <TenantLogo
-                  key={tenant?.logoUrl || "no-logo"}
-                  logoUrl={null}
-                  tenantName={tenant?.name ?? ""}
-                  size="lg"
-                  isRound={false}
-                  className="h-full w-full"
-                />
-              )}
+              <TenantLogo
+                key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
+                logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
+                tenantName={tenant?.name ?? ""}
+                size="lg"
+                className="h-full w-full"
+              />
             </Button>
           }
         />

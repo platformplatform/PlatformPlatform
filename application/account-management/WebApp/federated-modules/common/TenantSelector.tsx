@@ -134,13 +134,7 @@ function TenantMenuDropdown({
       className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
     >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-        <TenantLogo
-          logoUrl={currentTenantLogoUrl}
-          tenantName={currentTenantNameForLogo}
-          size="xs"
-          isRound={false}
-          className="shrink-0"
-        />
+        <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
       </div>
       {!isCollapsed && (
         <>
@@ -184,14 +178,7 @@ function TenantMenuDropdown({
             <DropdownMenuSeparator />
             {sortedTenants.map((tenant: TenantInfo) => (
               <DropdownMenuItem key={tenant.tenantId} onClick={() => handleTenantSwitch(tenant)}>
-                <TenantLogo
-                  logoUrl={tenant.logoUrl}
-                  tenantName={tenant.tenantName || ""}
-                  size="xs"
-                  isRound={false}
-                  className="shrink-0"
-                  style={{ width: "24px", height: "24px" }}
-                />
+                <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.tenantName || ""} />
                 <div className="flex flex-1 items-center justify-between gap-2">
                   <div className="flex flex-col overflow-hidden">
                     <span className="overflow-hidden text-ellipsis whitespace-nowrap">
@@ -238,13 +225,7 @@ function SingleTenantDisplay({
           className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
         >
           <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-            <TenantLogo
-              logoUrl={currentTenantLogoUrl}
-              tenantName={currentTenantNameForLogo}
-              size="xs"
-              isRound={false}
-              className="shrink-0"
-            />
+            <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
           </div>
           {!isCollapsed && (
             <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
