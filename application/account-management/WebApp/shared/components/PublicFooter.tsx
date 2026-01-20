@@ -38,7 +38,7 @@ export function PublicFooter() {
           <div className="flex flex-1 flex-col gap-8 text-center sm:text-left">
             {/* Description */}
             <div className="space-y-3">
-              <h3 className="hidden font-semibold text-foreground text-lg sm:block">
+              <h3 className="hidden sm:block">
                 <Trans>PlatformPlatform</Trans>
               </h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -51,7 +51,7 @@ export function PublicFooter() {
         {/* Bottom Section */}
         <div className="mt-14 flex flex-col items-center gap-6 border-border border-t pt-14 sm:flex-row sm:justify-between">
           {/* Left: Copyright and Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground text-sm sm:justify-start sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground sm:justify-start sm:text-left">
             <div>
               <Trans>© {currentYear} PlatformPlatform. All rights reserved.</Trans>
             </div>

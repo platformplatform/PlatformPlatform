@@ -90,7 +90,7 @@ export default function AvatarButton() {
                   <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
                 </Avatar>
                 <div className="my-1 flex flex-col">
-                  <h4>{userInfo.fullName}</h4>
+                  <h5>{userInfo.fullName}</h5>
                   <p className="text-muted-foreground text-xs">{userInfo.email}</p>
                 </div>
               </div>

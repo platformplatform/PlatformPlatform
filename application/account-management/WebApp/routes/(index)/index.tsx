@@ -22,7 +22,7 @@ export const Route = createFileRoute("/(index)/")({
             <div className="flex max-w-5xl flex-col gap-8">
               {/* Title */}
               <div className="flex flex-col gap-4">
-                <h1 className="font-bold text-4xl leading-tight md:text-6xl">
+                <h1 className="marketing">
                   <Trans>Welcome to PlatformPlatform</Trans>
                 </h1>
                 <p className="text-muted-foreground text-xl md:text-2xl">

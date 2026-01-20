@@ -226,10 +226,10 @@ function LogoSection({
 // Danger zone component
 function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boolean) => void }) {
   return (
-    <div className="mt-6 flex flex-col gap-4">
-      <h2>
+    <div className="mt-12 flex flex-col gap-4">
+      <h3>
         <Trans>Danger zone</Trans>
-      </h2>
+      </h3>
       <Separator />
       <div className="flex flex-col gap-4">
         <p>
@@ -319,9 +319,9 @@ export function AccountSettings() {
           validationBehavior="aria"
           className="flex flex-col gap-4"
         >
-          <h2>
+          <h3>
             <Trans>Account information</Trans>
-          </h2>
+          </h3>
           <Separator />
 
           <LogoSection

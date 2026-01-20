@@ -129,9 +129,15 @@ function DialogFooter({
   );
 }
 
+// NOTE: This diverges from stock ShadCN to add top margin.
+// Removed mt-6 from global h2 styles, so DialogTitle (which is an h2) needs explicit top margin.
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
-    <DialogPrimitive.Title data-slot="dialog-title" className={cn("font-medium leading-none", className)} {...props} />
+    <DialogPrimitive.Title
+      data-slot="dialog-title"
+      className={cn("mt-4 font-medium leading-none", className)}
+      {...props}
+    />
   );
 }
 

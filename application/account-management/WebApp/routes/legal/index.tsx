@@ -37,9 +37,9 @@ function LegalIndex() {
           <div className="mx-auto max-w-5xl">
             {/* Hero */}
             <div className="mb-12 text-center">
-              <h1 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Legal and Compliance</Trans>
-              </h1>
+              </h2>
               <p className="text-muted-foreground">
                 <Trans>
                   Transparency, security, and privacy are at the core of how we operate. Review our policies and learn
@@ -55,7 +55,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <ScrollTextIcon className="mb-4 h-10 w-10 text-primary" />
+                <ScrollTextIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Terms of Service</Trans>
                 </h3>
@@ -71,7 +71,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <ShieldCheckIcon className="mb-4 h-10 w-10 text-primary" />
+                <ShieldCheckIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Privacy Policy</Trans>
                 </h3>
@@ -85,7 +85,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <FileTextIcon className="mb-4 h-10 w-10 text-primary" />
+                <FileTextIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Data Processing Agreement</Trans>
                 </h3>
@@ -102,7 +102,7 @@ function LegalIndex() {
           <div className="mx-auto max-w-5xl">
             {/* Header */}
             <div className="mb-12 text-center">
-              <h2 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Enterprise-grade Azure infrastructure</Trans>
               </h2>
               <p className="text-muted-foreground">
@@ -142,9 +142,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <ServerIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Fully managed infrastructure</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Microsoft patches and secures all PaaS infrastructure automatically</Trans>
                 </p>
@@ -153,9 +153,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <FingerprintIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Managed identities</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Only trusted personnel access data through Azure AD authentication</Trans>
                 </p>
@@ -164,9 +164,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <LayersIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Environment isolation</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Strict separation prevents production data from leaking to other environments</Trans>
                 </p>
@@ -175,9 +175,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <KeyIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Passwordless deployments</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>GitHub deploys directly to Azure without passwords or API keys</Trans>
                 </p>
@@ -186,9 +186,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <DatabaseIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Data residency</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Your data stays in the Azure region you select at signup</Trans>
                 </p>
@@ -197,9 +197,9 @@ function LegalIndex() {
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                   <ShieldCheckIcon className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>100% Security Score</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Achieved in Microsoft Defender for Cloud following Azure best practices</Trans>
                 </p>
@@ -241,7 +241,7 @@ function LegalIndex() {
         <section className="bg-background px-6 py-16">
           <div className="mx-auto max-w-5xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Microsoft compliance resources</Trans>
               </h2>
               <p className="text-muted-foreground">

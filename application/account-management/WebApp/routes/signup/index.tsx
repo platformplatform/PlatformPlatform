@@ -5,7 +5,6 @@ import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
 import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
@@ -69,9 +68,9 @@ export function StartSignupForm() {
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">
+      <h2>
         <Trans>Create your account</Trans>
-      </Heading>
+      </h2>
       <div className="text-center text-muted-foreground text-sm">
         <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
       </div>

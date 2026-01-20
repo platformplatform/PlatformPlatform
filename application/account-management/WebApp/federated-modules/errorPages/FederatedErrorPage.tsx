@@ -106,7 +106,7 @@ export default function FederatedErrorPage({ error }: Readonly<ErrorComponentPro
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="font-bold text-3xl text-foreground">
+            <h1>
               <Trans>Something went wrong</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
