@@ -1,5 +1,5 @@
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { GithubIcon, LinkedinIcon, MailIcon, YoutubeIcon } from "lucide-react";
@@ -16,21 +16,21 @@ export function PublicFooter() {
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-6">
           {/* Logo - Full logo on mobile, mark on desktop */}
           <div className="shrink-0">
-            <Image
+            <img
               src={logoWrap}
-              alt="PlatformPlatform"
+              alt={t`PlatformPlatform logo`}
               className="h-10 opacity-90 transition-opacity hover:opacity-100 sm:hidden"
               width={280}
               height={40}
-              priority={true}
+              loading="lazy"
             />
-            <Image
+            <img
               src={logoMark}
-              alt="PlatformPlatform"
+              alt={t`PlatformPlatform logo`}
               className="hidden h-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
               width={64}
               height={64}
-              priority={true}
+              loading="lazy"
             />
           </div>
 

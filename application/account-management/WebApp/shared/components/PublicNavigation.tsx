@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
@@ -18,22 +17,8 @@ export function PublicNavigation() {
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       {/* Logo */}
       <a href="/" className="flex items-center">
-        <Image
-          className="hidden h-10 sm:block"
-          src={logoWrap}
-          alt="PlatformPlatform Logo"
-          width={280}
-          height={40}
-          priority={true}
-        />
-        <Image
-          className="h-10 sm:hidden"
-          src={logoMark}
-          alt="PlatformPlatform Logo"
-          width={40}
-          height={40}
-          priority={true}
-        />
+        <img className="hidden h-10 sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} width={280} height={40} />
+        <img className="h-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} width={40} height={40} />
       </a>
 
       {/* Right side actions */}

@@ -4,7 +4,6 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
-import { Image } from "@repo/ui/components/Image";
 import { FileQuestion, Home, LogOut } from "lucide-react";
 import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
@@ -51,22 +50,8 @@ function NotFoundNavigation() {
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       <a href="/" className="flex items-center">
-        <Image
-          className="hidden h-10 sm:block"
-          src={logoWrap}
-          alt="PlatformPlatform Logo"
-          width={280}
-          height={40}
-          priority={true}
-        />
-        <Image
-          className="h-10 sm:hidden"
-          src={logoMark}
-          alt="PlatformPlatform Logo"
-          width={40}
-          height={40}
-          priority={true}
-        />
+        <img className="hidden h-10 sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} width={280} height={40} />
+        <img className="h-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} width={40} height={40} />
       </a>
 
       <div className="flex items-center gap-6">

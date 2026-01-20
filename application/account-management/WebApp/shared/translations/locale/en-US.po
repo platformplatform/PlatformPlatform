@@ -385,6 +385,9 @@ msgstr "Fully managed infrastructure"
 msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
 msgstr "GDPR Article 28 compliant agreement for processing data on your behalf."
 
+msgid "GDPR compliant"
+msgstr "GDPR compliant"
+
 msgid "GDPR Compliant"
 msgstr "GDPR Compliant"
 
@@ -583,6 +586,9 @@ msgstr "Permanently delete users"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Please check the URL or return to the home page."
