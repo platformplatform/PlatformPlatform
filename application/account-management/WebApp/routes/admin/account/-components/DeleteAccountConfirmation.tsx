@@ -27,7 +27,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
         </DialogHeader>
         <DialogBody>
           <div className="flex items-center gap-3 rounded-lg border border-input bg-input-background p-4 opacity-50">
-            <MailIcon className="h-5 w-5 text-muted-foreground" />
+            <MailIcon className="size-5 text-muted-foreground" />
             <a href="mailto:support@platformplatform.net" className="text-primary hover:underline">
               support@platformplatform.net
             </a>

@@ -32,7 +32,7 @@ function getErrorDisplay(error: string): {
   switch (error) {
     case ErrorCode.ReplayAttack:
       return {
-        icon: <ShieldAlert className="h-10 w-10 text-destructive" />,
+        icon: <ShieldAlert className="size-10 text-destructive" />,
         iconBackground: "bg-destructive/10",
         title: <Trans>Security alert</Trans>,
         message: (
@@ -48,7 +48,7 @@ function getErrorDisplay(error: string): {
 
     case ErrorCode.SessionRevoked:
       return {
-        icon: <LogOut className="h-10 w-10 text-muted-foreground" />,
+        icon: <LogOut className="size-10 text-muted-foreground" />,
         iconBackground: "bg-muted",
         title: <Trans>Session ended</Trans>,
         message: (
@@ -62,7 +62,7 @@ function getErrorDisplay(error: string): {
 
     case ErrorCode.SessionNotFound:
       return {
-        icon: <LogOut className="h-10 w-10 text-muted-foreground" />,
+        icon: <LogOut className="size-10 text-muted-foreground" />,
         iconBackground: "bg-muted",
         title: <Trans>Session expired</Trans>,
         message: (
@@ -76,7 +76,7 @@ function getErrorDisplay(error: string): {
 
     default:
       return {
-        icon: <AlertCircle className="h-10 w-10 text-destructive" />,
+        icon: <AlertCircle className="size-10 text-destructive" />,
         iconBackground: "bg-destructive/10",
         title: <Trans>Something went wrong</Trans>,
         message: (
@@ -125,7 +125,7 @@ function ErrorPage() {
 
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex max-w-lg flex-col items-center gap-6">
-          <div className={`flex h-20 w-20 items-center justify-center rounded-full ${errorDisplay.iconBackground}`}>
+          <div className={`flex size-20 items-center justify-center rounded-full ${errorDisplay.iconBackground}`}>
             {errorDisplay.icon}
           </div>
 

@@ -80,7 +80,7 @@ export function DeletedUsersToolbar({
             disabled={isRestoring}
             aria-label={selectedUsers.length === 1 ? t`Restore user` : t`Restore ${selectedUsers.length} users`}
           >
-            <RotateCcwIcon className="h-5 w-5" />
+            <RotateCcwIcon className="size-5" />
             <span className="hidden sm:inline">
               {selectedUsers.length === 1 ? (
                 isRestoring ? (
@@ -105,7 +105,7 @@ export function DeletedUsersToolbar({
                 : t`Permanently delete ${selectedUsers.length} users`
             }
           >
-            <Trash2Icon className="h-5 w-5" />
+            <Trash2Icon className="size-5" />
             <span className="hidden sm:inline">
               {selectedUsers.length === 1 ? <Trans>Delete</Trans> : <Trans>Delete {selectedUsers.length} users</Trans>}
             </span>
@@ -117,7 +117,7 @@ export function DeletedUsersToolbar({
           onClick={() => onEmptyRecycleBin(deletedUsersData?.totalCount ?? 0)}
           aria-label={t`Empty recycle bin`}
         >
-          <Trash2Icon className="h-5 w-5" />
+          <Trash2Icon className="size-5" />
           <span className="hidden sm:inline">
             <Trans>Empty recycle bin</Trans>
           </span>

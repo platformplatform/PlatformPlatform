@@ -131,9 +131,9 @@ function MenuLinkContent({
 }) {
   return (
     <>
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+      <div className="flex size-6 shrink-0 items-center justify-center">
         <Icon
-          className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
+          className={`size-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
         />
       </div>
       <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
@@ -434,7 +434,7 @@ const sideMenuStyles = cva(
   }
 );
 
-const chevronStyles = cva("h-4 w-4 transition-transform duration-100", {
+const chevronStyles = cva("size-4 transition-transform duration-100", {
   variants: {
     isCollapsed: {
       true: "rotate-180 transform",
@@ -768,7 +768,7 @@ const DefaultLogoSection = ({ actualIsCollapsed }: { actualIsCollapsed: boolean 
           }
     }
   >
-    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
+    <img src={logoMarkUrl} alt="Logo" className="size-8 shrink-0" />
     {!actualIsCollapsed && (
       <span
         className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
@@ -829,7 +829,7 @@ const ResizableToggleButton = ({
     <button
       ref={toggleButtonRef}
       type="button"
-      className="toggle-button flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
       onMouseDown={handleResizeStart}
       onTouchStart={handleResizeStart}
       onClick={handleClick}
@@ -944,7 +944,7 @@ const MenuNav = ({
           <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
             <Toggle
               aria-label={sidebarToggleAriaLabel}
-              className="toggle-button flex h-6 w-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+              className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
               pressed={actualIsCollapsed}
               onPressedChange={toggleMenu}
             >
@@ -1260,10 +1260,10 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
         <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
+            className="m-0 inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
             onClick={() => setIsOpen(true)}
           >
-            <Menu className="h-7 w-7 text-foreground" />
+            <Menu className="size-7 text-foreground" />
           </Button>
         </div>
       )}
@@ -1312,9 +1312,9 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   size="icon"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="h-12 w-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="size-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="size-5" />
                 </Button>
               </div>
             </nav>

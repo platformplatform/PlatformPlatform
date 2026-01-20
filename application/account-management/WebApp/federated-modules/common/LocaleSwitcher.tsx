@@ -88,8 +88,8 @@ export default function LocaleSwitcher({
               className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
               style={{ pointerEvents: "auto" }}
             >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <GlobeIcon className="h-5 w-5 stroke-current" />
+              <div className="flex size-6 shrink-0 items-center justify-center">
+                <GlobeIcon className="size-5 stroke-current" />
               </div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
                 <Trans>Language</Trans>
@@ -103,7 +103,7 @@ export default function LocaleSwitcher({
             <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
               <div className="flex items-center gap-2">
                 <span>{locale.label}</span>
-                {locale.id === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+                {locale.id === currentLocale && <CheckIcon className="ml-auto size-4" />}
               </div>
             </DropdownMenuItem>
           ))}
@@ -134,7 +134,7 @@ export default function LocaleSwitcher({
           <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
             <div className="flex items-center gap-2">
               <span>{locale.label}</span>
-              {locale.id === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+              {locale.id === currentLocale && <CheckIcon className="ml-auto size-4" />}
             </div>
           </DropdownMenuItem>
         ))}

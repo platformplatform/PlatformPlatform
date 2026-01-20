@@ -133,7 +133,7 @@ function TenantMenuDropdown({
       variant="ghost"
       className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
     >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+      <div className="flex size-8 shrink-0 items-center justify-center">
         <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
       </div>
       {!isCollapsed && (
@@ -141,8 +141,8 @@ function TenantMenuDropdown({
           <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
             {currentTenantName}
           </div>
-          {newTenantsCount > 0 && <div className="ml-2 h-2 w-2 shrink-0 rounded-full bg-warning" />}
-          <ChevronDown className="ml-2 h-3.5 w-3.5 shrink-0 text-foreground opacity-70" />
+          {newTenantsCount > 0 && <div className="ml-2 size-2 shrink-0 rounded-full bg-warning" />}
+          <ChevronDown className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
         </>
       )}
     </Button>
@@ -194,7 +194,7 @@ function TenantMenuDropdown({
                         <Trans>Invitation pending</Trans>
                       </Badge>
                     )}
-                    {tenant.tenantId === currentTenantId && <Check className="h-4 w-4" />}
+                    {tenant.tenantId === currentTenantId && <Check className="size-4" />}
                   </div>
                 </div>
               </DropdownMenuItem>
@@ -224,7 +224,7 @@ function SingleTenantDisplay({
         <div
           className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+          <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
           </div>
           {!isCollapsed && (

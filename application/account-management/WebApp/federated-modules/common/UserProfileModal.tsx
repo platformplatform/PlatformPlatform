@@ -190,7 +190,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="mb-3 h-16 w-16 rounded-full bg-secondary hover:bg-secondary/80"
+                      className="mb-3 size-16 rounded-full bg-secondary hover:bg-secondary/80"
                       aria-label={t`Change profile picture`}
                     >
                       {user.avatarUrl || avatarPreviewUrl ? (
@@ -211,7 +211,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                       avatarFileInputRef.current?.click();
                     }}
                   >
-                    <CameraIcon className="h-4 w-4" />
+                    <CameraIcon className="size-4" />
                     <Trans>Upload profile picture</Trans>
                   </DropdownMenuItem>
                   {(user.avatarUrl || avatarPreviewUrl) && (
@@ -227,7 +227,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                           user.avatarUrl = null;
                         }}
                       >
-                        <Trash2Icon className="h-4 w-4" />
+                        <Trash2Icon className="size-4" />
                         <Trans>Remove profile picture</Trans>
                       </DropdownMenuItem>
                     </>
@@ -260,7 +260,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 label={t`Email`}
                 value={user?.email}
                 isDisabled={true}
-                startIcon={<MailIcon className="h-4 w-4" />}
+                startIcon={<MailIcon className="size-4" />}
               />
               <TextField
                 name="title"

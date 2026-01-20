@@ -253,7 +253,7 @@ export function UserProfileSidePane({
         <XIcon
           ref={closeButtonRef}
           onClick={() => onClose()}
-          className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute top-3 right-2 z-10 size-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={t`Close user profile`}
           tabIndex={-1}
         />
@@ -268,7 +268,7 @@ export function UserProfileSidePane({
         {!isUserInCurrentView && !isSmallScreen && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="h-4 w-4 flex-shrink-0" />
+              <InfoIcon className="size-4 flex-shrink-0" />
               <p className="font-medium text-sm">
                 <Trans>User not in current view</Trans>
               </p>
@@ -280,7 +280,7 @@ export function UserProfileSidePane({
         {isDataNewer && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="h-4 w-4 flex-shrink-0" />
+              <InfoIcon className="size-4 flex-shrink-0" />
               <p className="font-medium text-sm">
                 <Trans>User data updated</Trans>
               </p>
@@ -294,7 +294,7 @@ export function UserProfileSidePane({
             <div className="p-4">
               {/* Avatar skeleton matching exact position */}
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-3 h-20 w-20 animate-pulse rounded-full bg-muted" />
+                <div className="mx-auto mb-3 size-20 animate-pulse rounded-full bg-muted" />
                 <div className="mx-auto mb-2 h-6 w-32 animate-pulse rounded bg-muted" />
                 <div className="mx-auto h-4 w-24 animate-pulse rounded bg-muted" />
               </div>
@@ -324,7 +324,7 @@ export function UserProfileSidePane({
               className="w-full justify-center text-sm"
               disabled={isCurrentUser}
             >
-              <Trash2Icon className="h-4 w-4" />
+              <Trash2Icon className="size-4" />
               <Trans>Delete user</Trans>
             </Button>
           </div>

@@ -68,6 +68,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
      - **LCP images** (large hero images): Add `fetchPriority="high"`
      - **Below-the-fold images**: Add `loading="lazy"`
      - Always include `width`, `height`, and localized `alt` text using the `t` macro (e.g., `alt={t\`Description\`}`)
+   - **Square dimensions**: Use Tailwind's `size-N` utility instead of `h-N w-N` for any square element (e.g., `size-4` not `h-4 w-4`). Only use separate `h-N w-N` for rectangular dimensions
 
 2. Use the following React patterns and libraries:
    - Use ShadCN components from `@repo/ui/components/ComponentName`:

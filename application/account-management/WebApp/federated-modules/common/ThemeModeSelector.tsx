@@ -58,7 +58,7 @@ export default function ThemeModeSelector({
               className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
               style={{ pointerEvents: "auto" }}
             >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">{getThemeIcon()}</div>
+              <div className="flex size-6 shrink-0 items-center justify-center">{getThemeIcon()}</div>
               <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
                 <Trans>Theme</Trans>
               </div>
@@ -70,26 +70,26 @@ export default function ThemeModeSelector({
           <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
             <div className="flex items-center gap-2">
               {resolvedTheme === ThemeMode.Dark ? (
-                <MoonStarIcon className="h-5 w-5" />
+                <MoonStarIcon className="size-5" />
               ) : (
-                <SunMoonIcon className="h-5 w-5" />
+                <SunMoonIcon className="size-5" />
               )}
               <Trans>System</Trans>
-              {theme === ThemeMode.System && <CheckIcon className="ml-auto h-5 w-5" />}
+              {theme === ThemeMode.System && <CheckIcon className="ml-auto size-5" />}
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
             <div className="flex items-center gap-2">
-              <SunIcon className="h-5 w-5" />
+              <SunIcon className="size-5" />
               <Trans>Light</Trans>
-              {theme === ThemeMode.Light && <CheckIcon className="ml-auto h-5 w-5" />}
+              {theme === ThemeMode.Light && <CheckIcon className="ml-auto size-5" />}
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
             <div className="flex items-center gap-2">
-              <MoonIcon className="h-5 w-5" />
+              <MoonIcon className="size-5" />
               <Trans>Dark</Trans>
-              {theme === ThemeMode.Dark && <CheckIcon className="ml-auto h-5 w-5" />}
+              {theme === ThemeMode.Dark && <CheckIcon className="ml-auto size-5" />}
             </div>
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -117,26 +117,26 @@ export default function ThemeModeSelector({
         <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
           <div className="flex items-center gap-2">
             {resolvedTheme === ThemeMode.Dark ? (
-              <MoonStarIcon className="h-5 w-5" />
+              <MoonStarIcon className="size-5" />
             ) : (
-              <SunMoonIcon className="h-5 w-5" />
+              <SunMoonIcon className="size-5" />
             )}
             <Trans>System</Trans>
-            {theme === ThemeMode.System && <CheckIcon className="ml-auto h-5 w-5" />}
+            {theme === ThemeMode.System && <CheckIcon className="ml-auto size-5" />}
           </div>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
           <div className="flex items-center gap-2">
-            <SunIcon className="h-5 w-5" />
+            <SunIcon className="size-5" />
             <Trans>Light</Trans>
-            {theme === ThemeMode.Light && <CheckIcon className="ml-auto h-5 w-5" />}
+            {theme === ThemeMode.Light && <CheckIcon className="ml-auto size-5" />}
           </div>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
           <div className="flex items-center gap-2">
-            <MoonIcon className="h-5 w-5" />
+            <MoonIcon className="size-5" />
             <Trans>Dark</Trans>
-            {theme === ThemeMode.Dark && <CheckIcon className="ml-auto h-5 w-5" />}
+            {theme === ThemeMode.Dark && <CheckIcon className="ml-auto size-5" />}
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>

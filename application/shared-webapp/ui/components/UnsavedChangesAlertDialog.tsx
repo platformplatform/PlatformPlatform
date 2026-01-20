@@ -33,7 +33,7 @@ export function UnsavedChangesAlertDialog({
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
-        <div className="absolute top-6 right-6 h-6 w-6 stroke-2 text-destructive">
+        <div className="absolute top-6 right-6 size-6 stroke-2 text-destructive">
           <AlertCircleIcon aria-hidden={true} />
         </div>
         <AlertDialogHeader>

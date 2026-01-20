@@ -41,13 +41,13 @@ type SessionsModalProps = {
 function getDeviceIcon(deviceType: UserSessionInfo["deviceType"]) {
   switch (deviceType) {
     case DeviceType.Mobile:
-      return <SmartphoneIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />;
+      return <SmartphoneIcon className="size-6 text-muted-foreground" aria-hidden="true" />;
     case DeviceType.Tablet:
-      return <TabletIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />;
+      return <TabletIcon className="size-6 text-muted-foreground" aria-hidden="true" />;
     case DeviceType.Desktop:
-      return <LaptopIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />;
+      return <LaptopIcon className="size-6 text-muted-foreground" aria-hidden="true" />;
     default:
-      return <MonitorIcon className="h-6 w-6 text-muted-foreground" aria-hidden="true" />;
+      return <MonitorIcon className="size-6 text-muted-foreground" aria-hidden="true" />;
   }
 }
 
@@ -113,7 +113,7 @@ function SessionCard({
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-start gap-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
           {getDeviceIcon(session.deviceType)}
         </div>
         <div className="flex flex-col gap-1">
@@ -275,7 +275,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
           <DialogBody>
             {hasRevokedSession && (
               <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-                <InfoIcon className="h-5 w-5 shrink-0 text-info" />
+                <InfoIcon className="size-5 shrink-0 text-info" />
                 <p className="text-sm">
                   <Trans>Please note that it may take up to 5 minutes before the device is signed out.</Trans>
                 </p>
@@ -283,7 +283,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
             )}
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
-                <LoaderIcon className="h-8 w-8 animate-spin text-muted-foreground" />
+                <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
               </div>
             ) : sessions.length === 0 ? (
               <div className="rounded-lg border border-border bg-card p-8 text-center">
