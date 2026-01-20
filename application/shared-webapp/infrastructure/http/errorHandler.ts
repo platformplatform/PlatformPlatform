@@ -8,8 +8,9 @@
  * 4. Used by both httpClient.ts and queryClient.ts to ensure consistent error handling
  * 5. Shows toast notifications to the user for unhandled errors
  */
-import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
+
 import { toast } from "sonner";
+import { applicationInsights } from "../applicationInsights/ApplicationInsightsProvider";
 
 // RFC 7807 Problem Details format
 interface ProblemDetails {
