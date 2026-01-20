@@ -147,7 +147,7 @@ msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 
 msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
-msgstr ""
+msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
 
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
@@ -385,6 +385,9 @@ msgstr "Fuldt administreret infrastruktur"
 msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
 msgstr "GDPR Artikel 28-kompatibel aftale for behandling af data på dine vegne."
 
+msgid "GDPR compliant"
+msgstr "GDPR-kompatibel"
+
 msgid "GDPR Compliant"
 msgstr "GDPR-kompatibel"
 
@@ -583,6 +586,9 @@ msgstr "Slet brugere permanent"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."

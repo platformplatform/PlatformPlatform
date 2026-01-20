@@ -1,5 +1,5 @@
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -114,7 +114,7 @@ function LegalIndex() {
             <div className="mb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-12">
               <div className="flex flex-col items-center gap-3">
                 <div className="flex h-24 w-24 items-center justify-center">
-                  <img src={gdprBadge} alt="GDPR Compliant" className="h-20 w-auto object-contain" />
+                  <img src={gdprBadge} alt={t`GDPR compliant`} className="h-20 w-auto object-contain" />
                 </div>
                 <span className="font-semibold text-foreground">
                   <Trans>GDPR Compliant</Trans>
@@ -208,7 +208,14 @@ function LegalIndex() {
 
             {/* PlatformPlatform Credit */}
             <div className="flex items-center justify-center gap-3">
-              <Image src={platformLogo} alt="PlatformPlatform" className="h-8 w-8" width={32} height={32} />
+              <img
+                src={platformLogo}
+                alt={t`PlatformPlatform logo`}
+                className="h-8 w-8"
+                width={32}
+                height={32}
+                loading="lazy"
+              />
               <p className="text-muted-foreground text-sm">
                 <Trans>
                   Built on{" "}

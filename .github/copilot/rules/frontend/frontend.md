@@ -57,7 +57,11 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
    - Don't introduce new npm dependencies
-   - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<img>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>` are acceptable)
+   - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<h1>`-`<h6>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>`, `<img>` are acceptable)
+   - Use native `<img>` for images. Keep it simple for small logos/icons. For large images:
+     - **LCP images** (large hero images): Add `fetchPriority="high"`
+     - **Below-the-fold images**: Add `loading="lazy"`
+     - Always include `width`, `height`, and localized `alt` text using the `t` macro (e.g., `alt={t\`Description\`}`)
 
 2. Use the following React patterns and libraries:
    - Use ShadCN components from `@repo/ui/components/ComponentName`:
