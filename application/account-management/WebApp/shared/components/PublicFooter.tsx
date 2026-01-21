@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { GithubIcon, LinkedinIcon, MailIcon, YoutubeIcon } from "lucide-react";
+import { Github, Linkedin, MailIcon, Youtube } from "lucide-react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -94,15 +94,15 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
+                  <a
                     href="https://www.linkedin.com/company/platformplatform/"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="LinkedIn"
                     className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <LinkedinIcon className="size-5" />
-                  </Link>
+                    <Linkedin className="size-5" />
+                  </a>
                 }
               />
               <TooltipContent>
@@ -112,15 +112,15 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
+                  <a
                     href="https://www.youtube.com/@PlatformPlatform"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="YouTube"
                     className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <YoutubeIcon className="size-5" />
-                  </Link>
+                    <Youtube className="size-5" />
+                  </a>
                 }
               />
               <TooltipContent>
@@ -130,15 +130,15 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link
+                  <a
                     href="https://github.com/platformplatform/PlatformPlatform"
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label="GitHub"
                     className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
                   >
-                    <GithubIcon className="size-5" />
-                  </Link>
+                    <Github className="size-5" />
+                  </a>
                 }
               />
               <TooltipContent>
