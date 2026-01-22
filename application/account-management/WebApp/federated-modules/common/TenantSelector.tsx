@@ -4,7 +4,6 @@ import type { UserInfo } from "@repo/infrastructure/auth/AuthenticationProvider"
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Badge } from "@repo/ui/components/Badge";
-import { Button } from "@repo/ui/components/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -128,10 +127,15 @@ function TenantMenuDropdown({
   setIsMenuOpen: (open: boolean) => void;
   showTooltip?: boolean;
 }) {
+  // NOTE: Using native button instead of Button component to prevent logo flash during collapse/expand.
+  // Button component has transition-colors which causes Avatar to re-render and show fallback during width change.
   const triggerButton = (
-    <Button
-      variant="ghost"
-      className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${isCollapsed || variant === "mobile-menu" ? "pl-2" : "pl-2.5"} `}
+    <button
+      type="button"
+      aria-label={t`Select account`}
+      className={`relative flex h-11 cursor-pointer items-center gap-0 overflow-visible rounded-md border-0 bg-transparent py-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+        isCollapsed ? "ml-[6px] w-11 justify-center" : "w-full pr-2 pl-2"
+      }`}
     >
       <div className="flex size-8 shrink-0 items-center justify-center">
         <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
@@ -145,11 +149,11 @@ function TenantMenuDropdown({
           <ChevronDown className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
         </>
       )}
-    </Button>
+    </button>
   );
 
   return (
-    <div className="relative w-full px-3">
+    <div className={`relative w-full ${isCollapsed ? "px-2" : "px-3"}`}>
       <div className="">
         <DropdownMenu onOpenChange={setIsMenuOpen}>
           {showTooltip ? (
@@ -171,7 +175,7 @@ function TenantMenuDropdown({
             <DropdownMenuGroup>
               <DropdownMenuLabel>
                 <div className="flex flex-col gap-1 font-semibold text-sm">
-                  <Trans>Select Account</Trans>
+                  <Trans>Select account</Trans>
                 </div>
               </DropdownMenuLabel>
             </DropdownMenuGroup>
@@ -211,20 +215,20 @@ function SingleTenantDisplay({
   currentTenantName,
   currentTenantNameForLogo,
   currentTenantLogoUrl,
-  isCollapsed,
-  variant
+  isCollapsed
 }: {
   currentTenantName: string;
   currentTenantNameForLogo: string;
   currentTenantLogoUrl: string | null | undefined;
   isCollapsed: boolean;
-  variant: "default" | "mobile-menu";
 }) {
   return (
-    <div className="relative w-full px-3">
+    <div className={`relative w-full ${isCollapsed ? "px-2" : "px-3"}`}>
       <div className="">
         <div
-          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed || variant === "mobile-menu" ? "pl-2" : "pl-2.5"}`}
+          className={`flex h-11 items-center rounded-md py-2 text-sm ${
+            isCollapsed ? "ml-[6px] w-11 justify-center" : "w-full pr-2 pl-2"
+          }`}
         >
           <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
@@ -336,7 +340,6 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
         currentTenantNameForLogo={currentTenantNameForLogo}
         currentTenantLogoUrl={currentTenantLogoUrl}
         isCollapsed={isCollapsed}
-        variant={variant}
       />
     );
   }
