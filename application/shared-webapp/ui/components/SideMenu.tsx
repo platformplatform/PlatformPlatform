@@ -926,42 +926,42 @@ const MenuNav = ({
     {/* Fixed header section with logo */}
     <div className="relative flex h-[72px] w-full shrink-0 items-center">
       {logoContent || <DefaultLogoSection actualIsCollapsed={actualIsCollapsed} />}
-
-      {/* Toggle button centered on divider, at intersection with topbar border */}
-      <div
-        className={`absolute top-[72px] right-0 translate-x-1/2 -translate-y-1/2 ${
-          !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
-        } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
-      >
-        {shouldShowResizeHandle ? (
-          <ResizableToggleButton
-            toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
-            handleResizeStart={handleResizeStart}
-            hasDraggedRef={hasDraggedRef}
-            toggleMenu={toggleMenu}
-            menuWidth={menuWidth}
-            setMenuWidth={setMenuWidth}
-            ariaLabel={sidebarToggleAriaLabel || ""}
-            actualIsCollapsed={actualIsCollapsed}
-          />
-        ) : (
-          <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
-            <Toggle
-              aria-label={sidebarToggleAriaLabel}
-              className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
-              pressed={actualIsCollapsed}
-              onPressedChange={toggleMenu}
-            >
-              <ToggleButtonContent isCollapsed={actualIsCollapsed} />
-            </Toggle>
-          </div>
-        )}
-      </div>
     </div>
 
     {/* Scrollable menu content */}
     <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
       <div className="-mx-1.5 flex flex-col gap-2 px-1.5 py-1 pt-1.5">{children}</div>
+    </div>
+
+    {/* Toggle button centered on divider, at intersection with topbar border */}
+    <div
+      className={`absolute top-[72px] right-0 translate-x-1/2 -translate-y-1/2 ${
+        !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
+      } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
+    >
+      {shouldShowResizeHandle ? (
+        <ResizableToggleButton
+          toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
+          handleResizeStart={handleResizeStart}
+          hasDraggedRef={hasDraggedRef}
+          toggleMenu={toggleMenu}
+          menuWidth={menuWidth}
+          setMenuWidth={setMenuWidth}
+          ariaLabel={sidebarToggleAriaLabel || ""}
+          actualIsCollapsed={actualIsCollapsed}
+        />
+      ) : (
+        <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
+          <Toggle
+            aria-label={sidebarToggleAriaLabel}
+            className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+            pressed={actualIsCollapsed}
+            onPressedChange={toggleMenu}
+          >
+            <ToggleButtonContent isCollapsed={actualIsCollapsed} />
+          </Toggle>
+        </div>
+      )}
     </div>
   </nav>
 );
@@ -1165,6 +1165,13 @@ export function SideMenu({
 
   return (
     <>
+      {/* Skip navigation link for keyboard users - hidden on mobile where it's not needed */}
+      <a
+        href="#main-content"
+        className="sr-only outline-primary focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2 max-sm:hidden"
+      >
+        Skip to main content
+      </a>
       {overlayMode && isOverlayOpen && <OverlayBackdrop closeOverlay={closeOverlay} />}
       {menuContent}
       {/* Mobile floating button */}
