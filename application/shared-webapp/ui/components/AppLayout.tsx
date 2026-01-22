@@ -243,13 +243,6 @@ export function AppLayout({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Skip navigation link for keyboard users */}
-      <a
-        href="#main-content"
-        className="sr-only outline-primary focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2"
-      >
-        Skip to main content
-      </a>
       <div
         className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
