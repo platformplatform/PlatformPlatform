@@ -276,7 +276,7 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
+          className={`fixed top-0 right-0 left-0 z-30 bg-sidebar px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"
@@ -288,7 +288,7 @@ export function AppLayout({
         <main
           ref={contentRef}
           className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
           }
           id="main-content"
           aria-label="Main content"
@@ -315,7 +315,7 @@ export function AppLayout({
         {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-[46] md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            className="fixed inset-0 z-[46] bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}
