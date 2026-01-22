@@ -22,17 +22,18 @@ const buttonVariants = cva(
         destructive: "bg-destructive text-destructive-foreground outline-destructive hover:bg-destructive/90",
         link: "text-primary underline-offset-4 outline-ring hover:underline"
       },
+      // NOTE: This diverges from stock ShadCN to use CSS variable heights for Apple HIG compliance (44px default tap targets).
       size: {
         default:
-          "h-9 gap-1.5 in-data-[slot=button-group]:rounded-md px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),8px)] px-2 text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),10px)] px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
-        lg: "h-10 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
-        icon: "size-9",
+          "h-[var(--control-height)] min-w-11 gap-1.5 in-data-[slot=button-group]:rounded-md px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
+        xs: "h-[var(--control-height-xs)] min-w-7 gap-1 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),8px)] px-2 text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-[var(--control-height-sm)] min-w-9 gap-1 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),10px)] px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5",
+        lg: "h-[var(--control-height-lg)] min-w-12 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        icon: "h-11 w-11 min-w-11 p-0",
         "icon-xs":
-          "size-6 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),8px)] [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),10px)]",
-        "icon-lg": "size-10"
+          "h-7 w-7 min-w-7 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),8px)] p-0 [&_svg:not([class*='size-'])]:size-3",
+        "icon-sm": "h-9 w-9 min-w-9 in-data-[slot=button-group]:rounded-md rounded-[min(var(--radius-md),10px)] p-0",
+        "icon-lg": "h-12 w-12 min-w-12 p-0"
       }
     },
     defaultVariants: {

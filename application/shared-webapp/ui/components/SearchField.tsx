@@ -86,7 +86,7 @@ export function SearchField({
             aria-label="Clear search"
             size="icon-xs"
           >
-            <XIcon aria-hidden={true} />
+            <XIcon className="size-5" aria-hidden={true} />
           </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>

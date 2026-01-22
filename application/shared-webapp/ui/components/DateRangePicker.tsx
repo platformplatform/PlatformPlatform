@@ -73,7 +73,7 @@ export function DateRangePicker({
                 // NOTE: This diverges from stock ShadCN to prevent hover background change on the trigger button.
                 className={cn(
                   "w-full min-w-40 justify-between border border-input font-normal hover:bg-white dark:hover:bg-input/30",
-                  hasValue && "pr-8"
+                  hasValue && "pr-9"
                 )}
                 disabled={disabled}
               >
@@ -97,7 +97,7 @@ export function DateRangePicker({
             disabled={disabled}
             aria-label="Clear dates"
           >
-            <XIcon className="size-4" />
+            <XIcon className="size-5" />
           </Button>
         )}
       </div>

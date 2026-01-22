@@ -75,7 +75,7 @@ export default function AvatarButton() {
             <Button
               aria-label={t`User profile menu`}
               variant="ghost"
-              size="icon-lg"
+              size="icon"
               className="rounded-full focus-visible:outline-offset-1"
             >
               <Avatar size="lg">
@@ -95,7 +95,7 @@ export default function AvatarButton() {
                 </Avatar>
                 <div className="my-1 flex flex-col">
                   <h5>{userInfo.fullName}</h5>
-                  <p className="text-muted-foreground text-xs">{userInfo.email}</p>
+                  <p className="text-muted-foreground text-sm">{userInfo.email}</p>
                 </div>
               </div>
             </DropdownMenuLabel>

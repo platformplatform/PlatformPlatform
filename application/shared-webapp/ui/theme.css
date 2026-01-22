@@ -48,6 +48,12 @@
   --info: oklch(0.55 0.2 260);
   --info-foreground: oklch(0.985 0 0);
   --panel-opacity: 0.5;
+  /* Control heights - interactive elements (buttons, inputs, selects, toggles) */
+  /* Apple HIG compliant: 44pt minimum touch targets */
+  --control-height-xs: 1.75rem; /* 28px - compact elements */
+  --control-height-sm: 2.25rem; /* 36px - matches stock ShadCN default */
+  --control-height: 2.75rem; /* 44px - Apple HIG compliant default */
+  --control-height-lg: 3rem; /* 48px - Material Design compliant */
 }
 
 .dark {

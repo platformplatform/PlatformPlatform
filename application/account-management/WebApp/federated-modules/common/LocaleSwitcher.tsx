@@ -120,7 +120,7 @@ export default function LocaleSwitcher({
           render={
             <DropdownMenuTrigger
               render={
-                <Button variant="ghost" size="icon-lg" aria-label={t`Change language`}>
+                <Button variant="ghost" size="icon" aria-label={t`Change language`}>
                   <GlobeIcon className="size-5" />
                 </Button>
               }

@@ -61,7 +61,7 @@ function MobileMenuHeader({
             <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
               <Button
                 variant="outline"
-                size="sm"
+                size="default"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -207,7 +207,7 @@ export function MobileMenu({
       onTouchStart={(e) => e.stopPropagation()}
       style={{ touchAction: "pan-y" }}
     >
-      <div className="flex-1 overflow-y-auto p-1">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-1">
         <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} />
 
         {/* Divider */}

@@ -410,7 +410,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = cva(
-  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-sidebar transition-[width] duration-100",
+  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width] duration-100",
   {
     variants: {
       isCollapsed: {
@@ -911,18 +911,16 @@ const MenuNav = ({
     style={canResize ? { width: `${menuWidth}px`, transition: isResizing ? "none" : undefined } : undefined}
     aria-label="Main navigation"
   >
-    {/* Vertical divider line - draggable on XL screens */}
-    {shouldShowResizeHandle ? (
+    {/* Resize handle - draggable on XL screens */}
+    {shouldShowResizeHandle && (
       <button
         type="button"
         tabIndex={-1}
-        className="absolute top-0 right-0 h-full w-2 cursor-col-resize border-border border-r bg-transparent p-0"
+        className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent p-0"
         onMouseDown={handleResizeStart}
         onTouchStart={handleResizeStart}
         aria-label="Resize sidebar"
       />
-    ) : (
-      <div className="absolute top-0 right-0 h-full border-border border-r" />
     )}
 
     {/* Fixed header section with logo */}
@@ -1266,11 +1264,12 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
         <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
             variant="ghost"
+            size="icon-lg"
             aria-label={ariaLabel}
-            className="m-0 inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
+            className="size-16 rounded-full border border-border bg-background pressed:bg-muted shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
             onClick={() => setIsOpen(true)}
           >
-            <Menu className="size-7 text-foreground" />
+            <Menu className="size-8 text-foreground" />
           </Button>
         </div>
       )}
@@ -1316,12 +1315,12 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
               <div className="absolute right-4 bottom-4 z-10 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))]">
                 <Button
                   variant="ghost"
-                  size="icon"
+                  size="icon-lg"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="size-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="size-16 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >
-                  <X className="size-5" />
+                  <X className="size-8" />
                 </Button>
               </div>
             </nav>

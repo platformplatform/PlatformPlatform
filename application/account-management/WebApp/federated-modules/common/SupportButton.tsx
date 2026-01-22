@@ -14,7 +14,7 @@ export default function SupportButton() {
       <Tooltip>
         <TooltipTrigger
           render={
-            <Button variant="ghost" size="icon-lg" aria-label={t`Contact support`} onClick={() => setIsOpen(true)}>
+            <Button variant="ghost" size="icon" aria-label={t`Contact support`} onClick={() => setIsOpen(true)}>
               <MailQuestion className="size-5" />
             </Button>
           }
