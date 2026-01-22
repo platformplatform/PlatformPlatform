@@ -10,6 +10,7 @@
 @plugin 'tailwindcss-animate';
 
 @source "../../node_modules/@repo/ui/components";
+@source "../../account-management/WebApp/federated-modules";
 
 @custom-variant dark (&:where(.dark, .dark *));
 

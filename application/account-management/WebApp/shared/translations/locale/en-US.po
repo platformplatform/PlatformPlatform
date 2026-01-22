@@ -707,8 +707,8 @@ msgstr "Security, privacy, and compliance information"
 msgid "Select {0} {1}"
 msgstr "Select {0} {1}"
 
-msgid "Select Account"
-msgstr "Select Account"
+msgid "Select account"
+msgstr "Select account"
 
 msgid "Select all users"
 msgstr "Select all users"
