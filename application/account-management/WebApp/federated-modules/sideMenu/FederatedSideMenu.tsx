@@ -7,6 +7,7 @@ import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
 import type { components } from "@/shared/lib/api/api.generated";
 import { AcceptInvitationDialog } from "../common/AcceptInvitationDialog";
 import SessionsModal from "../common/SessionsModal";
+import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import TenantSelector from "../common/TenantSelector";
 import UserProfileModal from "../common/UserProfileModal";
@@ -24,6 +25,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
   const _userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
+  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
   const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
 
@@ -59,6 +61,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
             currentSystem={currentSystem}
             onEditProfile={() => setIsProfileModalOpen(true)}
             onShowSessions={() => setIsSessionsModalOpen(true)}
+            onShowSupport={() => setIsSupportDialogOpen(true)}
             onShowInvitationDialog={setInvitationDialogTenant}
           />
         }
@@ -68,6 +71,7 @@ export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedS
       </SideMenu>
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
       {isSessionsModalOpen && <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />}
+      <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />
       <AcceptInvitationDialog
         isOpen={!!invitationDialogTenant}
         onOpenChange={(open) => !open && setInvitationDialogTenant(null)}

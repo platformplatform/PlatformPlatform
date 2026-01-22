@@ -7,11 +7,10 @@ import { Button } from "@repo/ui/components/Button";
 import { overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MailQuestion, MonitorSmartphoneIcon, UserIcon } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import LocaleSwitcher from "../common/LocaleSwitcher";
-import { SupportDialog } from "../common/SupportDialog";
 import TenantSelector from "../common/TenantSelector";
 import ThemeModeSelector from "../common/ThemeModeSelector";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
@@ -20,12 +19,13 @@ import { NavigationMenuItems } from "./NavigationMenuItems";
 // Mobile menu header section with user profile and settings
 function MobileMenuHeader({
   onEditProfile,
-  onShowSessions
+  onShowSessions,
+  onShowSupport
 }: {
   onEditProfile: () => void;
   onShowSessions: () => void;
+  onShowSupport: () => void;
 }) {
-  const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
   const userInfo = useUserInfo();
   const queryClient = useQueryClient();
   const overlayCtx = useContext(overlayContext);
@@ -170,7 +170,16 @@ function MobileMenuHeader({
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => setIsSupportDialogOpen(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              setTimeout(() => {
+                onShowSupport();
+                if (overlayCtx?.isOpen) {
+                  overlayCtx.close();
+                }
+              }, 10);
+            }}
             className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
@@ -182,8 +191,6 @@ function MobileMenuHeader({
             </div>
           </Button>
         </div>
-
-        <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />
       </div>
     </div>
   );
@@ -194,11 +201,13 @@ export function MobileMenu({
   currentSystem,
   onEditProfile,
   onShowSessions,
+  onShowSupport,
   onShowInvitationDialog
 }: Readonly<{
   currentSystem: FederatedSideMenuProps["currentSystem"];
   onEditProfile: () => void;
   onShowSessions: () => void;
+  onShowSupport: () => void;
   onShowInvitationDialog?: (tenant: components["schemas"]["TenantInfo"]) => void;
 }>) {
   return (
@@ -208,7 +217,7 @@ export function MobileMenu({
       style={{ touchAction: "pan-y" }}
     >
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-1">
-        <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} />
+        <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} onShowSupport={onShowSupport} />
 
         {/* Divider */}
         <div className="mx-2 my-5 border-border border-b" />
