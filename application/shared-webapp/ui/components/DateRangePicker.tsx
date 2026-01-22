@@ -70,6 +70,7 @@ export function DateRangePicker({
             render={
               <Button
                 variant="outline"
+                // NOTE: This diverges from stock ShadCN to prevent hover background change on the trigger button.
                 className={cn(
                   "w-full min-w-40 justify-between border border-input font-normal hover:bg-white dark:hover:bg-input/30",
                   hasValue && "pr-8"

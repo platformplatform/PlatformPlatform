@@ -78,13 +78,9 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <a
-                    href="mailto:support@platformplatform.net"
-                    aria-label="Email"
-                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-                  >
+                  <Link href="mailto:support@platformplatform.net" aria-label="Email" variant="icon" underline={false}>
                     <MailIcon className="size-5" />
-                  </a>
+                  </Link>
                 }
               />
               <TooltipContent>
@@ -94,15 +90,14 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <a
+                  <Link
                     href="https://www.linkedin.com/company/platformplatform/"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     aria-label="LinkedIn"
-                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    variant="icon"
+                    underline={false}
                   >
                     <Linkedin className="size-5" />
-                  </a>
+                  </Link>
                 }
               />
               <TooltipContent>
@@ -112,15 +107,14 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <a
+                  <Link
                     href="https://www.youtube.com/@PlatformPlatform"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     aria-label="YouTube"
-                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    variant="icon"
+                    underline={false}
                   >
                     <Youtube className="size-5" />
-                  </a>
+                  </Link>
                 }
               />
               <TooltipContent>
@@ -130,15 +124,14 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <a
+                  <Link
                     href="https://github.com/platformplatform/PlatformPlatform"
-                    target="_blank"
-                    rel="noopener noreferrer"
                     aria-label="GitHub"
-                    className="flex size-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
+                    variant="icon"
+                    underline={false}
                   >
                     <Github className="size-5" />
-                  </a>
+                  </Link>
                 }
               />
               <TooltipContent>

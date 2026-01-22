@@ -45,9 +45,8 @@ export default function AvatarButton() {
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
-      // Cancel all ongoing queries and remove them from cache to prevent 401 errors
+      // Cancel all ongoing queries to prevent 401 errors during logout transition
       await queryClient.cancelQueries();
-      queryClient.clear();
       setHasAutoOpenedModal(false); // Reset for clean state
     },
     onSuccess: () => {
@@ -73,7 +72,12 @@ export default function AvatarButton() {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button aria-label={t`User profile menu`} variant="ghost" size="icon-lg" className="rounded-full">
+            <Button
+              aria-label={t`User profile menu`}
+              variant="ghost"
+              size="icon-lg"
+              className="rounded-full focus-visible:outline-offset-1"
+            >
               <Avatar size="lg">
                 <AvatarImage src={userInfo.avatarUrl ?? undefined} />
                 <AvatarFallback>{userInfo.initials}</AvatarFallback>

@@ -82,7 +82,7 @@ test.describe("@smoke", () => {
       await expect(sessionsDialog.getByText("Created:")).toBeVisible();
 
       const currentSessionCard = sessionsDialog
-        .locator("div.rounded-lg.border")
+        .locator("div.rounded-lg.bg-card")
         .filter({ hasText: "Current session" })
         .first();
       await expect(currentSessionCard.getByRole("button", { name: "Revoke" })).not.toBeVisible();
@@ -127,7 +127,7 @@ test.describe("@smoke", () => {
       await expect(sessionsDialog).toBeVisible();
       await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
 
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
@@ -135,7 +135,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Click Revoke button on other session & verify confirmation dialog")(async () => {
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
@@ -147,12 +147,12 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("alertdialog", { name: "Revoke session" })).not.toBeVisible();
 
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
     })();
 
     await step("Revoke other session & verify success toast and only current session remains")(async () => {
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
@@ -162,7 +162,7 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Session revoked successfully");
 
-      const remainingSessionCards = sessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const remainingSessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       await expect(remainingSessionCards).toHaveCount(1);
       await expect(sessionsDialog.getByText("Current session")).toBeVisible();
     })();
@@ -235,7 +235,7 @@ test.describe("@comprehensive", () => {
 
       await expect(secondSessionsDialog).toBeVisible();
 
-      const sessionCards = secondSessionsDialog.locator("div.rounded-lg.border").filter({ hasText: "IP:" });
+      const sessionCards = secondSessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
 
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
@@ -329,6 +329,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Navigate in victim browser after replay & verify replay-attack error page")(async () => {
+      await secondPage.route("**/api/**", (route) => route.abort());
       await deleteAccessTokenCookie(page);
       context.monitoring.expectedStatusCodes.push(401);
 
@@ -340,12 +341,16 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("button", { name: "Log in" })).toBeVisible();
     })();
 
-    await step("Navigate in attacker browser after replay & verify replay-attack error page")(async () => {
+    await step("Attacker browser detects replay & shows replay-attack error page")(async () => {
       const secondPageContext = createTestContext(secondPage);
       secondPageContext.monitoring.expectedStatusCodes.push(401);
       await deleteAccessTokenCookie(secondPage);
+      await secondPage.unroute("**/api/**");
 
-      await secondPage.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
+      await secondPage.evaluate(() => {
+        window.dispatchEvent(new Event("offline"));
+        window.dispatchEvent(new Event("online"));
+      });
 
       await expect(secondPage).toHaveURL(/\/error\?.*error=replay-attack/);
       await expect(secondPage.getByRole("heading", { name: "Security alert" })).toBeVisible();

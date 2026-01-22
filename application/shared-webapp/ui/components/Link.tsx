@@ -4,15 +4,20 @@ import type { ComponentProps, MouseEvent, ReactNode } from "react";
 import { cn } from "../utils";
 
 const linkVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-1 py-0.5 font-medium outline-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
   {
     variants: {
       variant: {
-        primary: "text-primary hover:text-primary/90",
-        secondary: "text-secondary-foreground hover:text-secondary-foreground/90",
-        destructive: "text-destructive hover:text-destructive/90",
-        ghost: "text-accent-foreground hover:bg-hover-background hover:text-accent-foreground/90",
-        button: "hover:opacity-90"
+        primary: "text-primary outline-ring hover:text-primary/90",
+        secondary: "text-secondary-foreground outline-ring hover:text-secondary-foreground/90",
+        destructive: "text-destructive outline-ring hover:text-destructive/90",
+        ghost: "text-accent-foreground outline-ring hover:bg-hover-background hover:text-accent-foreground/90",
+        logo: "p-0 outline-ring hover:bg-transparent",
+        icon: "size-10 rounded-lg bg-background/50 text-muted-foreground outline-ring hover:bg-background hover:text-foreground",
+        button: "outline-ring",
+        "button-primary": "bg-primary text-primary-foreground outline-primary hover:bg-primary/90",
+        "button-secondary": "border border-border bg-background text-foreground outline-ring hover:bg-hover-background",
+        "button-destructive": "bg-destructive text-destructive-foreground outline-destructive hover:bg-destructive/90"
       },
       underline: {
         true: "underline",
@@ -28,6 +33,12 @@ const linkVariants = cva(
         true: "pointer-events-none opacity-50"
       }
     },
+    compoundVariants: [
+      { variant: "button", class: "no-underline hover:no-underline" },
+      { variant: "button-primary", class: "no-underline hover:no-underline" },
+      { variant: "button-secondary", class: "no-underline hover:no-underline" },
+      { variant: "button-destructive", class: "no-underline hover:no-underline" }
+    ],
     defaultVariants: {
       variant: "primary",
       underline: "hover"

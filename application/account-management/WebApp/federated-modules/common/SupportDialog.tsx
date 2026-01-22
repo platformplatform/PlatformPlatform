@@ -37,7 +37,7 @@ export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogPr
           <p className="text-muted-foreground text-sm">{t`Feel free to reach out with any questions or issues you may have.`}</p>
         </DialogBody>
         <DialogFooter>
-          <DialogClose render={<Button />}>{t`Close`}</DialogClose>
+          <DialogClose render={<Button autoFocus={true} />}>{t`Close`}</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

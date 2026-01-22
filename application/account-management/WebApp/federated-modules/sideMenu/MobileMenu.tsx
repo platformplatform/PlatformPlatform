@@ -49,7 +49,7 @@ function MobileMenuHeader({
       <div className="flex flex-col gap-3">
         {/* User Profile */}
         {userInfo && (
-          <div className="flex items-center gap-3 px-3">
+          <div className="flex items-center gap-3">
             <Avatar className="size-12">
               <AvatarImage src={userInfo.avatarUrl ?? undefined} />
               <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
@@ -59,8 +59,9 @@ function MobileMenuHeader({
               <div className="truncate text-muted-foreground text-xs">{userInfo.title ?? userInfo.email}</div>
             </div>
             <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -75,12 +76,11 @@ function MobileMenuHeader({
                   e.stopPropagation();
                   e.preventDefault();
                 }}
-                className="rounded border border-border bg-background px-2 py-1 text-sm hover:bg-hover-background"
                 style={{ pointerEvents: "auto", position: "relative", touchAction: "none" }}
               >
-                <UserIcon className="mr-1 inline size-4" />
+                <UserIcon />
                 <Trans>Edit</Trans>
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -97,7 +97,7 @@ function MobileMenuHeader({
                 }
               }, 10);
             }}
-            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
             <div className="flex size-6 shrink-0 items-center justify-center">
@@ -122,7 +122,7 @@ function MobileMenuHeader({
                 logoutMutation.mutate({});
               }, 10);
             }}
-            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
             <div className="flex size-6 shrink-0 items-center justify-center">
@@ -171,7 +171,7 @@ function MobileMenuHeader({
           <Button
             variant="ghost"
             onClick={() => setIsSupportDialogOpen(true)}
-            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
             style={{ pointerEvents: "auto", touchAction: "none" }}
           >
             <div className="flex size-6 shrink-0 items-center justify-center">
@@ -207,11 +207,11 @@ export function MobileMenu({
       onTouchStart={(e) => e.stopPropagation()}
       style={{ touchAction: "pan-y" }}
     >
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto p-1">
         <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} />
 
         {/* Divider */}
-        <div className="mx-3 my-5 border-border border-b" />
+        <div className="mx-2 my-5 border-border border-b" />
 
         {/* Tenant Selector */}
         <div className="-mx-3">

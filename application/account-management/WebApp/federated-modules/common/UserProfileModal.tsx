@@ -259,7 +259,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 name="email"
                 label={t`Email`}
                 value={user?.email}
-                isDisabled={true}
+                isDisabled={false}
                 startIcon={<MailIcon className="size-4" />}
               />
               <TextField

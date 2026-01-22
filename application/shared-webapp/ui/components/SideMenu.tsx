@@ -42,12 +42,12 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 };
 
 const menuButtonStyles = cva(
-  "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
   {
     variants: {
       isCollapsed: {
-        true: "",
-        false: ""
+        true: "ml-[5px] w-11 justify-center",
+        false: "w-full pr-2 pl-[11px]"
       },
       isActive: {
         true: "text-foreground",
@@ -56,12 +56,17 @@ const menuButtonStyles = cva(
       isDisabled: {
         true: "cursor-not-allowed opacity-50 hover:bg-sidebar",
         false: ""
+      },
+      isMobileMenu: {
+        true: "pl-3",
+        false: ""
       }
     },
     defaultVariants: {
       isCollapsed: false,
       isActive: false,
-      isDisabled: false
+      isDisabled: false,
+      isMobileMenu: false
     }
   }
 );
@@ -69,8 +74,8 @@ const menuButtonStyles = cva(
 const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
   variants: {
     isCollapsed: {
-      true: "max-w-0 opacity-0",
-      false: "max-w-[200px] opacity-100"
+      true: "hidden",
+      false: "relative opacity-100"
     },
     isActive: {
       true: "font-semibold",
@@ -179,7 +184,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   // Check if we're in the mobile menu context
   const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
 
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isDisabled) {
@@ -332,7 +337,7 @@ export function FederatedMenuButton({
   // Check if we're in the mobile menu context
   const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
 
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
   const handleNavigation = useCallback(() => {
     if (isDisabled) {
@@ -829,7 +834,7 @@ const ResizableToggleButton = ({
     <button
       ref={toggleButtonRef}
       type="button"
-      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100"
       onMouseDown={handleResizeStart}
       onTouchStart={handleResizeStart}
       onClick={handleClick}
@@ -910,6 +915,7 @@ const MenuNav = ({
     {shouldShowResizeHandle ? (
       <button
         type="button"
+        tabIndex={-1}
         className="absolute top-0 right-0 h-full w-2 cursor-col-resize border-border border-r bg-transparent p-0"
         onMouseDown={handleResizeStart}
         onTouchStart={handleResizeStart}
@@ -944,7 +950,7 @@ const MenuNav = ({
           <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
             <Toggle
               aria-label={sidebarToggleAriaLabel}
-              className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+              className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
               pressed={actualIsCollapsed}
               onPressedChange={toggleMenu}
             >
@@ -957,7 +963,7 @@ const MenuNav = ({
 
     {/* Scrollable menu content */}
     <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
-      <div className="flex flex-col gap-2 pt-1.5">{children}</div>
+      <div className="-mx-1.5 flex flex-col gap-2 px-1.5 py-1 pt-1.5">{children}</div>
     </div>
   </nav>
 );
@@ -1259,6 +1265,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {!isOpen && (
         <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
+            variant="ghost"
             aria-label={ariaLabel}
             className="m-0 inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
             onClick={() => setIsOpen(true)}

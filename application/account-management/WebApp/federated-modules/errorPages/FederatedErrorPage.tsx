@@ -5,6 +5,7 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
+import { Link } from "@repo/ui/components/Link";
 import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
@@ -51,10 +52,10 @@ function ErrorNavigation() {
 
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
-      <a href="/" className="flex items-center">
+      <Link href="/" variant="logo" underline={false}>
         <img className="hidden h-10 sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} width={280} height={40} />
         <img className="h-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} width={40} height={40} />
-      </a>
+      </Link>
 
       <div className="flex items-center gap-6">
         <span className="flex gap-2">
