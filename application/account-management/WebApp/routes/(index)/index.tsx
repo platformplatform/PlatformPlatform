@@ -40,29 +40,19 @@ export const Route = createFileRoute("/(index)/")({
               {/* CTAs */}
               <div className="flex justify-center gap-4">
                 {isAuthenticated ? (
-                  <Link
-                    href="/admin"
-                    variant="button"
-                    underline={false}
-                    className="h-12 rounded-lg bg-primary px-8 text-primary-foreground hover:bg-primary/95"
-                  >
+                  <Link href="/admin" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                     <Trans>Go to app</Trans>
                   </Link>
                 ) : (
                   <>
-                    <Link
-                      href={signUpPath}
-                      variant="button"
-                      underline={false}
-                      className="h-12 rounded-lg bg-primary px-8 text-primary-foreground hover:bg-primary/95"
-                    >
+                    <Link href={signUpPath} variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                       <Trans>Get started</Trans>
                     </Link>
                     <Link
                       href={loginPath}
-                      variant="button"
+                      variant="button-secondary"
                       underline={false}
-                      className="h-12 rounded-lg border border-border px-8 text-foreground hover:bg-hover-background"
+                      className="h-12 rounded-lg px-8"
                     >
                       <Trans>Log in</Trans>
                     </Link>

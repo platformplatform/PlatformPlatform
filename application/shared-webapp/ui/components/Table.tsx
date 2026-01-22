@@ -32,7 +32,11 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
-      className={cn("border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted", className)}
+      // NOTE: This diverges from stock ShadCN to add focus ring styles using outline instead of ring utilities.
+      className={cn(
+        "rounded-md border-b outline-ring transition-colors hover:bg-muted/50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 data-[state=selected]:bg-muted",
+        className
+      )}
       {...props}
     />
   );

@@ -42,6 +42,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **ShadCN 2.0**: Pre-styled components built on BaseUI, using class-variance-authority (cva)
    - Install components via `npx shadcn add <component>` - never copy manually
    - After installing: change `@/utils` to `../utils` and rename file to PascalCase (e.g., `button.tsx` to `Button.tsx`)
+   - **Focus ring**: Replace ShadCN's default `focus-visible:ring-*` / `focus-visible:border-ring` utilities with `outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`. Use `outline-primary` or `outline-destructive` for colored variants instead of `outline-ring`
    - Import from `@repo/ui/components/`, never from BaseUI directly
    - Only create custom components when no ShadCN equivalent exists (edge cases)
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`

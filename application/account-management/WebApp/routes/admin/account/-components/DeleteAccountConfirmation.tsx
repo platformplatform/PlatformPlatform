@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { TextField } from "@repo/ui/components/TextField";
 import { MailIcon } from "lucide-react";
 
 type DeleteAccountConfirmationProps = {
@@ -26,16 +27,17 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
           <DialogDescription>{t`To delete your account, please contact our support team.`}</DialogDescription>
         </DialogHeader>
         <DialogBody>
-          <div className="flex items-center gap-3 rounded-lg border border-input bg-input-background p-4 opacity-50">
-            <MailIcon className="size-5 text-muted-foreground" />
-            <a href="mailto:support@platformplatform.net" className="text-primary hover:underline">
-              support@platformplatform.net
-            </a>
-          </div>
+          <TextField
+            name="email"
+            label={t`Email`}
+            value="support@platformplatform.net"
+            isReadOnly={true}
+            startIcon={<MailIcon className="size-4" />}
+          />
           <p className="text-muted-foreground text-sm">{t`Our support team will assist you with the account deletion process and ensure all your data is properly removed.`}</p>
         </DialogBody>
         <DialogFooter>
-          <DialogClose render={<Button />}>{t`Close`}</DialogClose>
+          <DialogClose render={<Button autoFocus={true} />}>{t`Close`}</DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>

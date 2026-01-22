@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
-import { Link } from "@tanstack/react-router";
+import { Link } from "@repo/ui/components/Link";
 import { AlertCircleIcon } from "lucide-react";
 
 interface TenantNameRequiredDialogProps {
@@ -43,15 +43,9 @@ export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<Tena
           <DialogClose render={<Button variant="secondary" />}>
             <Trans>Cancel</Trans>
           </DialogClose>
-          <DialogClose
-            render={
-              <Link to="/admin/account" className="max-sm:w-full">
-                <Button variant="default" className="max-sm:w-full">
-                  <Trans>Go to account settings</Trans>
-                </Button>
-              </Link>
-            }
-          />
+          <Link href="/admin/account" variant="button-primary" className="max-sm:w-full">
+            <Trans>Go to account settings</Trans>
+          </Link>
         </DialogFooter>
       </DialogContent>
     </Dialog>

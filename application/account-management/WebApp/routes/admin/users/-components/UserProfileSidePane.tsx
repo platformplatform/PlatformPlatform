@@ -253,7 +253,7 @@ export function UserProfileSidePane({
         <XIcon
           ref={closeButtonRef}
           onClick={() => onClose()}
-          className="absolute top-3 right-2 z-10 size-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute top-3 right-2 z-10 size-10 cursor-pointer rounded-md p-2 outline-ring hover:bg-muted focus:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           aria-label={t`Close user profile`}
           tabIndex={-1}
         />

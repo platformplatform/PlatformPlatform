@@ -48,8 +48,9 @@ function InputOtpSlot({
     <div
       data-slot="input-otp-slot"
       data-active={isActive}
+      // NOTE: This diverges from stock ShadCN to use a before pseudo-element for the focus ring (outline-offset gap is transparent and box-shadow gets clipped by adjacent slots; the pseudo-element as a child of the z-10 context renders above adjacent z-0 slots). Transparent left border ensures consistent spacing on all sides.
       className={cn(
-        "relative flex size-9 items-center justify-center border-input border-y border-r text-sm shadow-xs outline-none transition-all first:rounded-l-md first:border-l last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:border-ring data-[active=true]:ring-[3px] data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:border-destructive data-[active=true]:aria-invalid:ring-destructive/20 dark:bg-input/30 dark:data-[active=true]:aria-invalid:ring-destructive/40",
+        "relative z-0 flex size-9 items-center justify-center border border-input border-l-transparent text-sm shadow-xs transition-all first:rounded-l-md first:border-l-input last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:before:pointer-events-none data-[active=true]:before:absolute data-[active=true]:before:-inset-[5px] data-[active=true]:before:z-[-1] data-[active=true]:before:rounded-[inherit] data-[active=true]:before:border-2 data-[active=true]:before:border-ring data-[active=true]:before:bg-background data-[active=true]:aria-invalid:border-destructive dark:bg-input/30",
         className
       )}
       {...props}

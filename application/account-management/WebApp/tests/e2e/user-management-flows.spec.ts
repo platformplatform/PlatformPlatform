@@ -54,7 +54,7 @@ test.describe("@smoke", () => {
       await expect(page.getByText("Your team needs to know who's inviting them")).toBeVisible();
 
       // Navigate to account settings via dialog
-      await page.getByRole("button", { name: "Go to account settings" }).click();
+      await page.getByRole("link", { name: "Go to account settings" }).click();
       await expect(page).toHaveURL("/admin/account");
     })();
 

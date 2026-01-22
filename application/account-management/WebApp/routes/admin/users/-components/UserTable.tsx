@@ -259,7 +259,10 @@ export function UserTable({
 
   return (
     <>
-      <div ref={tableContainerRef} className="min-h-48 flex-1 overflow-auto">
+      <div
+        ref={tableContainerRef}
+        className="min-h-48 flex-1 overflow-auto rounded-md outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
         <Table aria-label={t`Users`}>
           <TableHeader className="sticky top-0 z-10 bg-inherit">
             <TableRow>
@@ -395,7 +398,7 @@ export function UserTable({
                         >
                           <DropdownMenuTrigger
                             render={
-                              <Button variant="ghost" size="icon" aria-label={t`User actions`}>
+                              <Button variant="ghost" size="icon" tabIndex={-1} aria-label={t`User actions`}>
                                 <EllipsisVerticalIcon className="size-5 text-muted-foreground" />
                               </Button>
                             }

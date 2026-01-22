@@ -131,7 +131,7 @@ function TenantMenuDropdown({
   const triggerButton = (
     <Button
       variant="ghost"
-      className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isCollapsed ? "pl-2" : "pl-2.5"} `}
+      className={`relative flex h-11 w-full items-center gap-0 overflow-visible rounded-md py-2 pr-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${isCollapsed || variant === "mobile-menu" ? "pl-2" : "pl-2.5"} `}
     >
       <div className="flex size-8 shrink-0 items-center justify-center">
         <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
@@ -211,18 +211,20 @@ function SingleTenantDisplay({
   currentTenantName,
   currentTenantNameForLogo,
   currentTenantLogoUrl,
-  isCollapsed
+  isCollapsed,
+  variant
 }: {
   currentTenantName: string;
   currentTenantNameForLogo: string;
   currentTenantLogoUrl: string | null | undefined;
   isCollapsed: boolean;
+  variant: "default" | "mobile-menu";
 }) {
   return (
     <div className="relative w-full px-3">
       <div className="">
         <div
-          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed ? "pl-2" : "pl-2.5"}`}
+          className={`flex h-11 w-full items-center rounded-md py-2 pr-2 text-sm ${isCollapsed || variant === "mobile-menu" ? "pl-2" : "pl-2.5"}`}
         >
           <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
@@ -334,6 +336,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
         currentTenantNameForLogo={currentTenantNameForLogo}
         currentTenantLogoUrl={currentTenantLogoUrl}
         isCollapsed={isCollapsed}
+        variant={variant}
       />
     );
   }
