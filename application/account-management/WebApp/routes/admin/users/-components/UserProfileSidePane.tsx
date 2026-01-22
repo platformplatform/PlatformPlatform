@@ -258,7 +258,7 @@ export function UserProfileSidePane({
           tabIndex={-1}
         />
 
-        <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
+        <div className="h-16 border-border border-t border-b px-4 py-8">
           <h4 className="flex h-full items-center">
             <Trans>User profile</Trans>
           </h4>

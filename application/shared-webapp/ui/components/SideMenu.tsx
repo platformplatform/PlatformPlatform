@@ -54,7 +54,7 @@ const menuButtonStyles = cva(
         false: "text-muted-foreground hover:text-foreground"
       },
       isDisabled: {
-        true: "cursor-not-allowed opacity-50 hover:bg-background",
+        true: "cursor-not-allowed opacity-50 hover:bg-sidebar",
         false: ""
       }
     },
@@ -405,7 +405,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = cva(
-  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-background transition-[width] duration-100",
+  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-sidebar transition-[width] duration-100",
   {
     variants: {
       isCollapsed: {
@@ -1260,7 +1260,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
         <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
             aria-label={ariaLabel}
-            className="m-0 inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
+            className="m-0 inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
             onClick={() => setIsOpen(true)}
           >
             <Menu className="size-7 text-foreground" />
@@ -1270,7 +1270,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-[49] h-full w-full bg-background"
+            className="fixed inset-0 z-[49] h-full w-full bg-sidebar"
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
@@ -1285,7 +1285,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
             }}
           >
             <nav
-              className="flex h-full w-full flex-col bg-background"
+              className="flex h-full w-full flex-col bg-sidebar"
               ref={dialogRef}
               style={{ margin: 0, padding: 0 }}
               aria-label="Mobile navigation"

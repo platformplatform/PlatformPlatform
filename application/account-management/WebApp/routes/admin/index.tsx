@@ -27,7 +27,7 @@ export default function Home() {
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             to="/admin/users"
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="flex flex-col justify-between rounded-xl bg-card p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View users`}
           >
             <div>
@@ -47,7 +47,7 @@ export default function Home() {
               startDate: getDateDaysAgo(30),
               endDate: getTodayIsoDate()
             }}
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="flex flex-col justify-between rounded-xl bg-card p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View active users`}
           >
             <div>
@@ -63,7 +63,7 @@ export default function Home() {
           <Link
             to="/admin/users"
             search={{ userStatus: UserStatus.Pending }}
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="flex flex-col justify-between rounded-xl bg-card p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
             aria-label={t`View invited users`}
           >
             <div>

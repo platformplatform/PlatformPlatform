@@ -70,10 +70,13 @@ export function DateRangePicker({
             render={
               <Button
                 variant="outline"
-                className={cn("w-full min-w-40 justify-between border border-input font-normal", hasValue && "pr-8")}
+                className={cn(
+                  "w-full min-w-40 justify-between border border-input font-normal hover:bg-white dark:hover:bg-input/30",
+                  hasValue && "pr-8"
+                )}
                 disabled={disabled}
               >
-                <div className="flex items-center gap-2">
+                <div className={cn("flex items-center gap-2", !hasValue && "text-muted-foreground")}>
                   <CalendarIcon />
                   <span className="flex-1 text-right">{formatDateRange()}</span>
                 </div>

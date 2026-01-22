@@ -111,7 +111,7 @@ function SessionCard({
   const browserInfo = parseUserAgent(session.userAgent);
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-lg bg-card p-4 transition-colors hover:bg-hover-background sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-start gap-4">
         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
           {getDeviceIcon(session.deviceType)}

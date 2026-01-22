@@ -157,7 +157,7 @@ export default function UsersPage() {
       >
         <div className="flex min-h-0 flex-1 flex-col">
           {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
-          <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
+          <div className="max-sm:sticky max-sm:top-12">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
