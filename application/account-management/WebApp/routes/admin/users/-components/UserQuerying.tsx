@@ -346,6 +346,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
           render={
             <Button
               variant="secondary"
+              size="icon"
               className={showAllFilters ? "relative mt-auto" : "relative mt-8"}
               aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
               data-testid="filter-button"

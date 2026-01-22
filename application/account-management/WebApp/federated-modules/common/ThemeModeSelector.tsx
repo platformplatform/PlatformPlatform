@@ -104,7 +104,7 @@ export default function ThemeModeSelector({
           render={
             <DropdownMenuTrigger
               render={
-                <Button variant="ghost" size="icon-lg" aria-label={t`Change theme`}>
+                <Button variant="ghost" size="icon" aria-label={t`Change theme`}>
                   {getThemeIcon()}
                 </Button>
               }
