@@ -7,6 +7,7 @@ using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Integrations.OAuth;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.OpenIdConnect;
+using PlatformPlatform.SharedKernel.SinglePageApp;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Commands;
@@ -31,6 +32,9 @@ public sealed class StartExternalSignupHandler(
 {
     private const string DataProtectionPurpose = "ExternalLogin";
     private const string ExternalLoginCookieName = "__Host_External_Login";
+
+    private static readonly string PublicUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)
+                                               ?? throw new InvalidOperationException($"'{SinglePageAppConfiguration.PublicUrlKey}' environment variable is not configured.");
 
     public async Task<Result<StartExternalSignupResponse>> Handle(StartExternalSignupCommand command, CancellationToken cancellationToken)
     {
@@ -73,7 +77,7 @@ public sealed class StartExternalSignupHandler(
             ReturnPathHelper.SetReturnPathCookie(httpContext, command.ReturnPath);
         }
 
-        var redirectUri = GetRedirectUri(httpContext, command.ProviderType);
+        var redirectUri = GetRedirectUri(command.ProviderType);
         var authorizationUrl = oauthProvider.BuildAuthorizationUrl(stateToken, codeChallenge, redirectUri);
 
         events.CollectEvent(new ExternalSignupStarted(command.ProviderType));
@@ -105,10 +109,8 @@ public sealed class StartExternalSignupHandler(
         );
     }
 
-    private static string GetRedirectUri(HttpContext httpContext, ExternalProviderType providerType)
+    private static string GetRedirectUri(ExternalProviderType providerType)
     {
-        var scheme = httpContext.Request.Scheme;
-        var host = httpContext.Request.Host;
-        return $"{scheme}://{host}/api/account-management/authentication/{providerType}/signup/callback";
+        return $"{PublicUrl}/api/account-management/authentication/{providerType}/signup/callback";
     }
 }
