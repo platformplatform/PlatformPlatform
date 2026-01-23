@@ -29,7 +29,7 @@ public sealed class CompleteExternalLoginHandler(
     IExternalLoginRepository externalLoginRepository,
     IUserRepository userRepository,
     ISessionRepository sessionRepository,
-    IEnumerable<IOAuthProvider> oauthProviders,
+    OAuthProviderFactory oauthProviderFactory,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
     AvatarUpdater avatarUpdater,
@@ -120,7 +120,8 @@ public sealed class CompleteExternalLoginHandler(
                 return LoginFailedRedirect(externalLogin, ExternalLoginResult.CodeExchangeFailed);
             }
 
-            var oauthProvider = oauthProviders.SingleOrDefault(p => p.ProviderType == externalLogin.ProviderType);
+            var useMockProvider = oauthProviderFactory.ShouldUseMockProvider(httpContext);
+            var oauthProvider = oauthProviderFactory.GetProvider(externalLogin.ProviderType, useMockProvider);
             if (oauthProvider is null)
             {
                 logger.LogWarning("Provider {ProviderType} not configured", externalLogin.ProviderType);
