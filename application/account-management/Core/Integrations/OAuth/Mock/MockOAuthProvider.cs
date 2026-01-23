@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 
 namespace PlatformPlatform.AccountManagement.Integrations.OAuth.Mock;
 
-public sealed class MockOAuthProvider(IConfiguration configuration) : IOAuthProvider
+public sealed class MockOAuthProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, OAuthProviderFactory oauthProviderFactory) : IOAuthProvider
 {
     public const string MockEmail = "mockuser@test.com";
     public const string MockProviderUserId = "mock-google-user-id-12345";
@@ -47,9 +48,13 @@ public sealed class MockOAuthProvider(IConfiguration configuration) : IOAuthProv
             throw new InvalidOperationException("Mock OAuth provider is not enabled.");
         }
 
+        var emailPrefix = oauthProviderFactory.GetMockEmailPrefix(httpContextAccessor.HttpContext!);
+        var email = emailPrefix is not null ? $"{emailPrefix}@test.com" : MockEmail;
+        var providerUserId = emailPrefix is not null ? $"mock-google-{emailPrefix}" : MockProviderUserId;
+
         return new OAuthUserProfile(
-            MockProviderUserId,
-            MockEmail,
+            providerUserId,
+            email,
             true,
             MockFirstName,
             MockLastName,

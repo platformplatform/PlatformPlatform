@@ -21,6 +21,17 @@ public sealed class OAuthProviderFactory(IServiceProvider serviceProvider, IConf
         return httpContext.Request.Cookies.ContainsKey(UseMockProviderCookieName);
     }
 
+    public string? GetMockEmailPrefix(HttpContext httpContext)
+    {
+        if (!_allowMockProvider)
+        {
+            return null;
+        }
+
+        var cookieValue = httpContext.Request.Cookies[UseMockProviderCookieName];
+        return cookieValue is not null && cookieValue != "true" ? cookieValue : null;
+    }
+
     public IOAuthProvider? GetProvider(ExternalProviderType providerType, bool useMock)
     {
         if (useMock && !_allowMockProvider)

@@ -72,6 +72,7 @@ var accountManagementApi = builder
     .WithReference(azureStorage)
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
+    .WithEnvironment("OAuth__AllowMockProvider", "true")
     .WaitFor(accountManagementWorkers);
 
 var backOfficeDatabase = sqlServer
