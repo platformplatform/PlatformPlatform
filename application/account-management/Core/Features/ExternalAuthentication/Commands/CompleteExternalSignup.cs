@@ -91,12 +91,16 @@ public sealed class CompleteExternalSignupHandler(
             }
 
             var userAgent = httpContext.Request.Headers.UserAgent.ToString();
-            var acceptLanguage = httpContext.Request.Headers.AcceptLanguage.ToString();
-            var currentFingerprint = ComputeBrowserFingerprint(userAgent, acceptLanguage);
-            if (currentFingerprint != externalLoginCookie.FingerprintHash || currentFingerprint != externalLogin.BrowserFingerprint)
+            var useMockProvider = oauthProviderFactory.ShouldUseMockProvider(httpContext);
+            if (!useMockProvider)
             {
-                logger.LogWarning("Session hijacking detected for external login {ExternalLoginId}", externalLoginIdFromState);
-                return SignupFailedRedirect(externalLogin, ExternalLoginResult.SessionHijackingDetected);
+                var acceptLanguage = httpContext.Request.Headers.AcceptLanguage.ToString();
+                var currentFingerprint = ComputeBrowserFingerprint(userAgent, acceptLanguage);
+                if (currentFingerprint != externalLoginCookie.FingerprintHash || currentFingerprint != externalLogin.BrowserFingerprint)
+                {
+                    logger.LogWarning("Session hijacking detected for external login {ExternalLoginId}", externalLoginIdFromState);
+                    return SignupFailedRedirect(externalLogin, ExternalLoginResult.SessionHijackingDetected);
+                }
             }
 
             if (externalLogin.IsExpired(timeProvider.GetUtcNow()))
@@ -123,7 +127,6 @@ public sealed class CompleteExternalSignupHandler(
                 return SignupFailedRedirect(externalLogin, ExternalLoginResult.CodeExchangeFailed);
             }
 
-            var useMockProvider = oauthProviderFactory.ShouldUseMockProvider(httpContext);
             var oauthProvider = oauthProviderFactory.GetProvider(externalLogin.ProviderType, useMockProvider);
             if (oauthProvider is null)
             {
