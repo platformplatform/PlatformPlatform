@@ -42,11 +42,26 @@ msgstr "{deletedCount} users permanently deleted"
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. All rights reserved."
 
+msgid "1 TB storage"
+msgstr "1 TB storage"
+
 msgid "1 user permanently deleted"
 msgstr "1 user permanently deleted"
 
+msgid "10 GB storage"
+msgstr "10 GB storage"
+
+msgid "10 users"
+msgstr "10 users"
+
+msgid "100 GB storage"
+msgstr "100 GB storage"
+
 msgid "100% Security Score"
 msgstr "100% Security Score"
+
+msgid "5 users"
+msgstr "5 users"
 
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
@@ -65,6 +80,9 @@ msgstr "Accepting..."
 
 msgid "Access denied"
 msgstr "Access denied"
+
+msgid "Access until {formattedPeriodEnd}"
+msgstr "Access until {formattedPeriodEnd}"
 
 msgid "Account"
 msgstr "Account"
@@ -114,8 +132,14 @@ msgstr "Add your account name"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Advanced analytics"
+msgstr "Advanced analytics"
+
 msgid "All users"
 msgstr "All users"
+
+msgid "Amount"
+msgstr "Amount"
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "An email with login instructions will be sent to the user."
@@ -128,6 +152,9 @@ msgstr "An unexpected error occurred. Please try again or contact support if the
 
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "An unexpected state occurred. Please reload the page."
+
+msgid "Analytics"
+msgstr "Analytics"
 
 msgid "Any role"
 msgstr "Any role"
@@ -179,6 +206,15 @@ msgstr "Back to login"
 msgid "Back to signup"
 msgstr "Back to signup"
 
+msgid "Basic support"
+msgstr "Basic support"
+
+msgid "Billing history"
+msgstr "Billing history"
+
+msgid "Billing is not configured. Please contact support to enable payment processing."
+msgstr "Billing is not configured. Please contact support to enable payment processing."
+
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 
@@ -193,6 +229,18 @@ msgstr "Can't find your code?"
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Cancel subscription"
+msgstr "Cancel subscription"
+
+msgid "Cancel your subscription. You will keep access to your current plan until the end of your billing period."
+msgstr "Cancel your subscription. You will keep access to your current plan until the end of your billing period."
+
+msgid "Cancelling"
+msgstr "Cancelling"
+
+msgid "Cancelling..."
+msgstr "Cancelling..."
 
 msgid "Change language"
 msgstr "Change language"
@@ -219,6 +267,9 @@ msgstr "Change user role for {0}"
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 
+msgid "Choose a plan to reactivate"
+msgstr "Choose a plan to reactivate"
+
 msgid "Clear"
 msgstr "Clear"
 
@@ -233,6 +284,9 @@ msgstr "Close user profile"
 
 msgid "Compliance"
 msgstr "Compliance"
+
+msgid "Confirm downgrade"
+msgstr "Confirm downgrade"
 
 msgid "Contact support"
 msgstr "Contact support"
@@ -254,6 +308,12 @@ msgstr "Created"
 
 msgid "Created:"
 msgstr "Created:"
+
+msgid "Current"
+msgstr "Current"
+
+msgid "Current plan"
+msgstr "Current plan"
 
 msgid "Current session"
 msgstr "Current session"
@@ -278,6 +338,9 @@ msgstr "Data residency"
 
 msgid "Data storage location for privacy and compliance. This cannot be changed later."
 msgstr "Data storage location for privacy and compliance. This cannot be changed later."
+
+msgid "Date"
+msgstr "Date"
 
 msgid "Decline"
 msgstr "Decline"
@@ -325,6 +388,16 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
+msgid "Downgrade"
+msgstr "Downgrade"
+
+msgid "Downgrade to {planName}"
+msgstr "Downgrade to {planName}"
+
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+msgid "Downgrading to {0}"
+msgstr "Downgrading to {0}"
+
 msgid "DPA"
 msgstr "DPA"
 
@@ -346,6 +419,9 @@ msgstr "Edit profile"
 msgid "Email"
 msgstr "Email"
 
+msgid "Email support"
+msgstr "Email support"
+
 msgid "Empty recycle bin"
 msgstr "Empty recycle bin"
 
@@ -361,8 +437,17 @@ msgstr "Enterprise-grade Azure infrastructure"
 msgid "Environment isolation"
 msgstr "Environment isolation"
 
+msgid "EUR 19/month"
+msgstr "EUR 19/month"
+
+msgid "EUR 39/month"
+msgstr "EUR 39/month"
+
 msgid "Europe"
 msgstr "Europe"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
@@ -381,6 +466,9 @@ msgstr "For detailed compliance certifications and audit reports, visit Microsof
 
 msgid "For your protection, you have been logged out. Please log in again to continue."
 msgstr "For your protection, you have been logged out. Please log in again to continue."
+
+msgid "Free"
+msgstr "Free"
 
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
@@ -460,11 +548,17 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Invoice"
+msgstr "Invoice"
+
 msgid "IP:"
 msgstr "IP:"
 
 msgid "Just now"
 msgstr "Just now"
+
+msgid "Keep subscription"
+msgstr "Keep subscription"
 
 msgid "Language"
 msgstr "Language"
@@ -490,6 +584,9 @@ msgstr "Light"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
+msgid "Loading..."
+msgstr "Loading..."
+
 msgid "Log in"
 msgstr "Log in"
 
@@ -514,8 +611,14 @@ msgstr "Logo removed successfully"
 msgid "Logo uploaded successfully"
 msgstr "Logo uploaded successfully"
 
+msgid "Manage payment method"
+msgstr "Manage payment method"
+
 msgid "Manage your account here."
 msgstr "Manage your account here."
+
+msgid "Manage your subscription and billing."
+msgstr "Manage your subscription and billing."
 
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
@@ -562,6 +665,9 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
+msgid "Next billing date: {formattedPeriodEnd}"
+msgstr "Next billing date: {formattedPeriodEnd}"
+
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "No account found for this email address. Please sign up to create an account."
 
@@ -571,11 +677,17 @@ msgstr "No active sessions found."
 msgid "No deleted users"
 msgstr "No deleted users"
 
+msgid "No payment history available."
+msgstr "No payment history available."
+
 msgid "OK"
 msgstr "OK"
 
 msgid "One-time password"
 msgstr "One-time password"
+
+msgid "Only account owners can manage the subscription."
+msgstr "Only account owners can manage the subscription."
 
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
@@ -604,6 +716,12 @@ msgstr "Page not found"
 msgid "Passwordless deployments"
 msgstr "Passwordless deployments"
 
+msgid "Payment failed"
+msgstr "Payment failed"
+
+msgid "Payment failed. Your subscription will be suspended soon."
+msgstr "Payment failed. Your subscription will be suspended soon."
+
 msgid "Pending"
 msgstr "Pending"
 
@@ -616,6 +734,9 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
+
+msgid "Plans"
+msgstr "Plans"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -644,14 +765,23 @@ msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
+msgid "Please wait while we confirm your payment. This may take a few moments."
+msgstr "Please wait while we confirm your payment. This may take a few moments."
+
 msgid "Powered by"
 msgstr "Powered by"
+
+msgid "Premium"
+msgstr "Premium"
 
 msgid "Preview avatar"
 msgstr "Preview avatar"
 
 msgid "Previous"
 msgstr "Previous"
+
+msgid "Priority support"
+msgstr "Priority support"
 
 msgid "Privacy"
 msgstr "Privacy"
@@ -662,11 +792,23 @@ msgstr "Privacy policies"
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
+msgid "Processing payment"
+msgstr "Processing payment"
+
+msgid "Processing..."
+msgstr "Processing..."
+
 msgid "Profile picture"
 msgstr "Profile picture"
 
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
+
+msgid "Reactivate"
+msgstr "Reactivate"
+
+msgid "Reactivate subscription"
+msgstr "Reactivate subscription"
 
 msgid "Recycle bin"
 msgstr "Recycle bin"
@@ -676,6 +818,9 @@ msgstr "Redirecting..."
 
 msgid "Reference ID: {id}"
 msgstr "Reference ID: {id}"
+
+msgid "Refunded"
+msgstr "Refunded"
 
 msgid "Region"
 msgstr "Region"
@@ -728,6 +873,9 @@ msgstr "Save changes"
 
 msgid "Saving..."
 msgstr "Saving..."
+
+msgid "Scheduled"
+msgstr "Scheduled"
 
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Screenshots of the dashboard project with desktop and mobile versions"
@@ -794,20 +942,38 @@ msgstr "Sign up with Google"
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "SLA"
+msgstr "SLA"
+
 msgid "SOC and ISO Reports"
 msgstr "SOC and ISO Reports"
 
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+msgid "Standard"
+msgstr "Standard"
+
 msgid "Standard user access"
 msgstr "Standard user access"
+
+msgid "Status"
+msgstr "Status"
 
 msgid "Stay"
 msgstr "Stay"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
+
+msgid "Subscribe"
+msgstr "Subscribe"
+
+msgid "Subscription"
+msgstr "Subscription"
+
+msgid "Succeeded"
+msgstr "Succeeded"
 
 msgid "Switching account..."
 msgstr "Switching account..."
@@ -875,6 +1041,9 @@ msgstr "Total users"
 msgid "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
 msgstr "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
 
+msgid "Trial"
+msgstr "Trial"
+
 msgid "Trust Center"
 msgstr "Trust Center"
 
@@ -893,14 +1062,23 @@ msgstr "Unknown OS"
 msgid "Unknown state"
 msgstr "Unknown state"
 
+msgid "Unlimited users"
+msgstr "Unlimited users"
+
 msgid "Unnamed account"
 msgstr "Unnamed account"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
+msgid "Update payment method"
+msgstr "Update payment method"
+
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
+
+msgid "Upgrade"
+msgstr "Upgrade"
 
 msgid "Upload logo"
 msgstr "Upload logo"
@@ -1024,6 +1202,18 @@ msgstr "Your account was switched to <0>{newTenantName}</0> in another browser t
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"
 
+msgid "Your downgrade has been scheduled."
+msgstr "Your downgrade has been scheduled."
+
+msgid "Your plan has been upgraded."
+msgstr "Your plan has been upgraded."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
+msgstr "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+msgstr "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+
 msgid "Your professional title or role"
 msgstr "Your professional title or role"
 
@@ -1032,6 +1222,27 @@ msgstr "Your session has expired."
 
 msgid "Your session was ended from another device."
 msgstr "Your session was ended from another device."
+
+msgid "Your subscription has been activated."
+msgstr "Your subscription has been activated."
+
+msgid "Your subscription has been cancelled."
+msgstr "Your subscription has been cancelled."
+
+msgid "Your subscription has been reactivated."
+msgstr "Your subscription has been reactivated."
+
+msgid "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
+msgstr "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
+
+msgid "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+msgstr "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+
+msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+msgstr "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+
+msgid "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
+msgstr "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."

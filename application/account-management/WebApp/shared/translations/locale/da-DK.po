@@ -42,11 +42,26 @@ msgstr "{deletedCount} brugere slettet permanent"
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
 
+msgid "1 TB storage"
+msgstr "1 TB lagerplads"
+
 msgid "1 user permanently deleted"
 msgstr "1 bruger slettet permanent"
 
+msgid "10 GB storage"
+msgstr "10 GB lagerplads"
+
+msgid "10 users"
+msgstr "10 brugere"
+
+msgid "100 GB storage"
+msgstr "100 GB lagerplads"
+
 msgid "100% Security Score"
 msgstr "100% sikkerhedsscore"
+
+msgid "5 users"
+msgstr "5 brugere"
 
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
@@ -65,6 +80,9 @@ msgstr "Accepterer..."
 
 msgid "Access denied"
 msgstr "Adgang nægtet"
+
+msgid "Access until {formattedPeriodEnd}"
+msgstr "Adgang indtil {formattedPeriodEnd}"
 
 msgid "Account"
 msgstr "Konto"
@@ -114,8 +132,14 @@ msgstr "Tilføj dit kontonavn"
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Advanced analytics"
+msgstr "Avanceret analyse"
+
 msgid "All users"
 msgstr "Alle brugere"
+
+msgid "Amount"
+msgstr "Beløb"
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
@@ -128,6 +152,9 @@ msgstr "Der opstod en uventet fejl. Prøv igen eller kontakt support, hvis probl
 
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "Der opstod en uventet tilstand. Venligst genindlæs siden."
+
+msgid "Analytics"
+msgstr "Analyse"
 
 msgid "Any role"
 msgstr "Enhver rolle"
@@ -179,6 +206,15 @@ msgstr "Tilbage til login"
 msgid "Back to signup"
 msgstr "Tilbage til tilmelding"
 
+msgid "Basic support"
+msgstr "Basal support"
+
+msgid "Billing history"
+msgstr "Betalingshistorik"
+
+msgid "Billing is not configured. Please contact support to enable payment processing."
+msgstr "Betaling er ikke konfigureret. Kontakt support for at aktivere betalingsbehandling."
+
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Bygget på <0>PlatformPlatform<1/></0> - en open-source platform af brancheeksperter til professionel B2B SaaS udvikling"
 
@@ -193,6 +229,18 @@ msgstr "Kan du ikke finde din kode?"
 
 msgid "Cancel"
 msgstr "Annuller"
+
+msgid "Cancel subscription"
+msgstr "Annuller abonnement"
+
+msgid "Cancel your subscription. You will keep access to your current plan until the end of your billing period."
+msgstr "Annuller dit abonnement. Du beholder adgang til din nuværende plan indtil slutningen af din faktureringsperiode."
+
+msgid "Cancelling"
+msgstr "Annullerer"
+
+msgid "Cancelling..."
+msgstr "Annullerer..."
 
 msgid "Change language"
 msgstr "Skift sprog"
@@ -219,6 +267,9 @@ msgstr "Skift brugerrolle for {0}"
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
 
+msgid "Choose a plan to reactivate"
+msgstr "Vaelg en plan for at genaktivere"
+
 msgid "Clear"
 msgstr "Ryd"
 
@@ -233,6 +284,9 @@ msgstr "Luk brugerprofil"
 
 msgid "Compliance"
 msgstr "Overholdelse"
+
+msgid "Confirm downgrade"
+msgstr "Bekraeft nedgradering"
 
 msgid "Contact support"
 msgstr "Kontakt support"
@@ -254,6 +308,12 @@ msgstr "Oprettet"
 
 msgid "Created:"
 msgstr "Oprettet:"
+
+msgid "Current"
+msgstr "Nuvaerende"
+
+msgid "Current plan"
+msgstr "Nuvaerende plan"
 
 msgid "Current session"
 msgstr "Nuværende session"
@@ -278,6 +338,9 @@ msgstr "Dataopbevaring"
 
 msgid "Data storage location for privacy and compliance. This cannot be changed later."
 msgstr "Datalagringsplacering for privatliv og compliance. Dette kan ikke ændres senere."
+
+msgid "Date"
+msgstr "Dato"
 
 msgid "Decline"
 msgstr "Afslå"
@@ -325,6 +388,16 @@ msgstr "Har du allerede en konto?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Har du ikke en konto? <0>Opret en</0>"
 
+msgid "Downgrade"
+msgstr "Nedgrader"
+
+msgid "Downgrade to {planName}"
+msgstr "Nedgrader til {planName}"
+
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+msgid "Downgrading to {0}"
+msgstr "Nedgraderer til {0}"
+
 msgid "DPA"
 msgstr "DBA"
 
@@ -346,6 +419,9 @@ msgstr "Rediger profil"
 msgid "Email"
 msgstr "E-mail"
 
+msgid "Email support"
+msgstr "E-mail-support"
+
 msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
 
@@ -361,8 +437,17 @@ msgstr "Azure infrastruktur i virksomhedsklasse"
 msgid "Environment isolation"
 msgstr "Miljøisolering"
 
+msgid "EUR 19/month"
+msgstr "EUR 19/måned"
+
+msgid "EUR 39/month"
+msgstr "EUR 39/måned"
+
 msgid "Europe"
 msgstr "Europa"
+
+msgid "Failed"
+msgstr "Mislykket"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
@@ -381,6 +466,9 @@ msgstr "For detaljerede certificeringer og revisionsrapporter, besøg Microsofts
 
 msgid "For your protection, you have been logged out. Please log in again to continue."
 msgstr "For din beskyttelse er du blevet logget ud. Log venligst ind igen for at fortsætte."
+
+msgid "Free"
+msgstr "Gratis"
 
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Gratis, open-source .NET og React startpakke til at bygge moderne SaaS-applikationer."
@@ -460,11 +548,17 @@ msgstr "Inviter bruger"
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
+msgid "Invoice"
+msgstr "Faktura"
+
 msgid "IP:"
 msgstr "IP:"
 
 msgid "Just now"
 msgstr "Lige nu"
+
+msgid "Keep subscription"
+msgstr "Behold abonnement"
 
 msgid "Language"
 msgstr "Sprog"
@@ -490,6 +584,9 @@ msgstr "Lys"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
+msgid "Loading..."
+msgstr "Indlæser..."
+
 msgid "Log in"
 msgstr "Log ind"
 
@@ -514,8 +611,14 @@ msgstr "Logo fjernet succesfuldt"
 msgid "Logo uploaded successfully"
 msgstr "Logo uploadet succesfuldt"
 
+msgid "Manage payment method"
+msgstr "Administrer betalingsmetode"
+
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
+
+msgid "Manage your subscription and billing."
+msgstr "Administrer dit abonnement og betaling."
 
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
@@ -562,6 +665,9 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
+msgid "Next billing date: {formattedPeriodEnd}"
+msgstr "Naeste faktureringsdato: {formattedPeriodEnd}"
+
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
 
@@ -571,11 +677,17 @@ msgstr "Ingen aktive sessioner fundet."
 msgid "No deleted users"
 msgstr "Ingen slettede brugere"
 
+msgid "No payment history available."
+msgstr "Ingen betalingshistorik tilgaengelig."
+
 msgid "OK"
 msgstr "OK"
 
 msgid "One-time password"
 msgstr "Engangskode"
+
+msgid "Only account owners can manage the subscription."
+msgstr "Kun kontoejere kan administrere abonnementet."
 
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
@@ -604,6 +716,12 @@ msgstr "Siden blev ikke fundet"
 msgid "Passwordless deployments"
 msgstr "Adgangskodeløse implementeringer"
 
+msgid "Payment failed"
+msgstr "Betaling mislykkedes"
+
+msgid "Payment failed. Your subscription will be suspended soon."
+msgstr "Betaling mislykkedes. Dit abonnement vil blive suspenderet snart."
+
 msgid "Pending"
 msgstr "Afventer"
 
@@ -616,6 +734,9 @@ msgstr "Slet bruger permanent"
 
 msgid "Permanently delete users"
 msgstr "Slet brugere permanent"
+
+msgid "Plans"
+msgstr "Planer"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -644,14 +765,23 @@ msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
 msgid "Please try again or return to the home page."
 msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
+msgid "Please wait while we confirm your payment. This may take a few moments."
+msgstr "Vent venligst mens vi bekraefter din betaling. Det kan tage et øjeblik."
+
 msgid "Powered by"
 msgstr "Powered by"
+
+msgid "Premium"
+msgstr "Premium"
 
 msgid "Preview avatar"
 msgstr "Forhåndsvisning af avatar"
 
 msgid "Previous"
 msgstr "Forrige"
+
+msgid "Priority support"
+msgstr "Prioriteret support"
 
 msgid "Privacy"
 msgstr "Privatliv"
@@ -662,11 +792,23 @@ msgstr "Fortrolighedspolitikker"
 msgid "Privacy Policy"
 msgstr "Privatlivspolitik"
 
+msgid "Processing payment"
+msgstr "Behandler betaling"
+
+msgid "Processing..."
+msgstr "Behandler..."
+
 msgid "Profile picture"
 msgstr "Profilbillede"
 
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
+
+msgid "Reactivate"
+msgstr "Genaktiver"
+
+msgid "Reactivate subscription"
+msgstr "Genaktiver abonnement"
 
 msgid "Recycle bin"
 msgstr "Papirkurv"
@@ -676,6 +818,9 @@ msgstr "Omdirigerer..."
 
 msgid "Reference ID: {id}"
 msgstr "Reference-ID: {id}"
+
+msgid "Refunded"
+msgstr "Refunderet"
 
 msgid "Region"
 msgstr "Region"
@@ -728,6 +873,9 @@ msgstr "Gem ændringer"
 
 msgid "Saving..."
 msgstr "Gemmer..."
+
+msgid "Scheduled"
+msgstr "Planlagt"
 
 msgid "Screenshots of the dashboard project with desktop and mobile versions"
 msgstr "Skærmbilleder af dashboard-projektet med desktop- og mobilversioner"
@@ -794,20 +942,38 @@ msgstr "Tilmeld dig med Google"
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
 
+msgid "SLA"
+msgstr "SLA"
+
 msgid "SOC and ISO Reports"
 msgstr "SOC og ISO rapporter"
 
 msgid "Something went wrong"
 msgstr "Noget gik galt"
 
+msgid "Standard"
+msgstr "Standard"
+
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
+
+msgid "Status"
+msgstr "Status"
 
 msgid "Stay"
 msgstr "Bliv"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
+
+msgid "Subscribe"
+msgstr "Abonner"
+
+msgid "Subscription"
+msgstr "Abonnement"
+
+msgid "Succeeded"
+msgstr "Gennemført"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."
@@ -875,6 +1041,9 @@ msgstr "Totalt antal brugere"
 msgid "Transparency, security, and privacy are at the core of how we operate. Review our policies and learn how we protect your data."
 msgstr "Gennemsigtighed, sikkerhed og privatliv er kernen i hvordan vi opererer. Gennemgå vores politikker og lær hvordan vi beskytter dine data."
 
+msgid "Trial"
+msgstr "Prøveperiode"
+
 msgid "Trust Center"
 msgstr "Tillidscenter"
 
@@ -893,14 +1062,23 @@ msgstr "Ukendt OS"
 msgid "Unknown state"
 msgstr "Ukendt tilstand"
 
+msgid "Unlimited users"
+msgstr "Ubegrænset antal brugere"
+
 msgid "Unnamed account"
 msgstr "Unavngivet konto"
 
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"
 
+msgid "Update payment method"
+msgstr "Opdater betalingsmetode"
+
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
+
+msgid "Upgrade"
+msgstr "Opgrader"
 
 msgid "Upload logo"
 msgstr "Upload logo"
@@ -1024,6 +1202,18 @@ msgstr "Din konto blev skiftet til <0>{newTenantName}</0> i en anden browsertab.
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 
+msgid "Your downgrade has been scheduled."
+msgstr "Din nedgradering er blevet planlagt."
+
+msgid "Your plan has been upgraded."
+msgstr "Dit abonnement er blevet opgraderet."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
+msgstr "Dit abonnement vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode den {formattedDate}. Du beholder dine nuværende funktioner indtil da."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+msgstr "Dit abonnement vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende funktioner indtil da."
+
 msgid "Your professional title or role"
 msgstr "Din professionelle titel eller rolle"
 
@@ -1032,6 +1222,27 @@ msgstr "Din session er udløbet."
 
 msgid "Your session was ended from another device."
 msgstr "Din session blev afsluttet fra en anden enhed."
+
+msgid "Your subscription has been activated."
+msgstr "Dit abonnement er blevet aktiveret."
+
+msgid "Your subscription has been cancelled."
+msgstr "Dit abonnement er blevet annulleret."
+
+msgid "Your subscription has been reactivated."
+msgstr "Dit abonnement er blevet genaktiveret."
+
+msgid "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
+msgstr "Dit abonnement er blevet suspenderet på grund af en mislykket betaling. Kontakt venligst kontoejeren for at gendanne adgangen."
+
+msgid "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+msgstr "Dit abonnement er blevet suspenderet på grund af en mislykket betaling. Opdater venligst din betalingsmetode for at gendanne adgangen."
+
+msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+msgstr "Dit abonnement vil blive annulleret ved udgangen af den nuværende faktureringsperiode. Herefter vil din konto blive suspenderet."
+
+msgid "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
+msgstr "Dit abonnement forbliver aktivt indtil {formattedDate}. Herefter vil din konto blive suspenderet, og du vil miste adgang til betalte funktioner."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."
