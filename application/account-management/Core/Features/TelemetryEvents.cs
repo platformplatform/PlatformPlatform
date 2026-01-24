@@ -1,6 +1,7 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Subscriptions.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -15,6 +16,9 @@ namespace PlatformPlatform.AccountManagement.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class EmailConfirmationBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
     : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
 
@@ -74,6 +78,9 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 
 public sealed class SignupStarted
     : TelemetryEvent;
+
+public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

@@ -6,6 +6,7 @@ using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.Integrations.OAuth;
 using PlatformPlatform.AccountManagement.Integrations.OAuth.Google;
 using PlatformPlatform.AccountManagement.Integrations.OAuth.Mock;
+using PlatformPlatform.AccountManagement.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Configuration;
 
 namespace PlatformPlatform.AccountManagement;
@@ -40,6 +41,11 @@ public static class Configuration
             services.AddKeyedScoped<IOAuthProvider, GoogleOAuthProvider>("google");
             services.AddKeyedScoped<IOAuthProvider, MockOAuthProvider>("mock-google");
             services.AddScoped<OAuthProviderFactory>();
+
+            services.AddKeyedScoped<IStripeClient, StripeClient>("stripe");
+            services.AddKeyedScoped<IStripeClient, MockStripeClient>("mock-stripe");
+            services.AddKeyedScoped<IStripeClient, UnconfiguredStripeClient>("unconfigured-stripe");
+            services.AddScoped<StripeClientFactory>();
 
             return services
                 .AddSharedServices<AccountManagementDbContext>([Assembly])
