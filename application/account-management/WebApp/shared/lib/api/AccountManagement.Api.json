@@ -636,6 +636,26 @@
         }
       }
     },
+    "/api/account-management/subscriptions/stripe-webhook": {
+      "post": {
+        "tags": [
+          "StripeWebhook"
+        ],
+        "operationId": "PostApiAccountManagementSubscriptionsStripeWebhook",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/subscriptions/current": {
       "get": {
         "tags": [

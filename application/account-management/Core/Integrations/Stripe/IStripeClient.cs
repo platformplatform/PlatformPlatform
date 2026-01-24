@@ -23,7 +23,11 @@ public interface IStripeClient
     Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, CancellationToken cancellationToken);
 
     StripeHealthResult GetHealth();
+
+    StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 }
+
+public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId);
 
 public sealed record CheckoutSessionResult(string SessionId, string Url);
 

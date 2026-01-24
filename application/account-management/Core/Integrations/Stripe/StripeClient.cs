@@ -347,6 +347,39 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         );
     }
 
+    public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
+    {
+        try
+        {
+            if (_webhookSecret is null)
+            {
+                logger.LogError("Webhook secret is not configured");
+                return null;
+            }
+
+            var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
+            var customerId = ExtractCustomerId(stripeEvent);
+
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe webhook signature verification failed");
+            return null;
+        }
+    }
+
+    private static string? ExtractCustomerId(Event stripeEvent)
+    {
+        return stripeEvent.Data.Object switch
+        {
+            StripeSubscription subscription => subscription.CustomerId,
+            Invoice invoice => invoice.CustomerId,
+            Session session => session.CustomerId,
+            _ => null
+        };
+    }
+
     private RequestOptions GetRequestOptions()
     {
         return new RequestOptions { ApiKey = _apiKey };

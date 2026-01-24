@@ -68,4 +68,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
             false
         );
     }
+
+    public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");
+        return null;
+    }
 }

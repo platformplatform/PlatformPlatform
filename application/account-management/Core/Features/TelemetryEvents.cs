@@ -67,6 +67,12 @@ public sealed class ExternalSignupStarted(ExternalProviderType providerType)
 public sealed class Logout
     : TelemetryEvent;
 
+public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class SessionCreated(SessionId sessionId)
     : TelemetryEvent(("session_id", sessionId));
 
@@ -92,6 +98,9 @@ public sealed class SubscriptionDowngradeScheduled(SubscriptionId subscriptionId
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan));
 
 public sealed class SubscriptionReactivated(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class SubscriptionUpgraded(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
@@ -153,3 +162,6 @@ public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole t
 
 public sealed class UserUpdated
     : TelemetryEvent;
+
+public sealed class WebhookProcessed(SubscriptionId subscriptionId, string eventType)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("event_type", eventType));
