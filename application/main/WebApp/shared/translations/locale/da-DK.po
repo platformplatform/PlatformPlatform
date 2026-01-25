@@ -49,9 +49,6 @@ msgstr "God morgen, {firstName}"
 msgid "Here's your overview of what's happening."
 msgstr "Her er dit overblik over hvad der sker."
 
-msgid "Home"
-msgstr "Hjem"
-
 msgid "Log in"
 msgstr "Log ind"
 

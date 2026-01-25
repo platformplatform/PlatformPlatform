@@ -1291,7 +1291,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-40 h-full w-full bg-sidebar"
+            className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-40 h-auto w-full bg-sidebar"
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
