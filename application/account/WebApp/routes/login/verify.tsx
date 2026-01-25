@@ -135,42 +135,34 @@ export function CompleteLoginForm() {
     }, 100);
   }, []);
 
-  const completeLoginMutation = api.useMutation(
-    "post",
-    "/api/account/authentication/email/login/{id}/complete",
-    {
-      onSuccess: () => {
-        // Broadcast login event to other tabs
-        // Since the API returns 204 No Content, we don't have the user ID yet
-        const message: Omit<UserLoggedInMessage, "timestamp"> = {
-          type: "USER_LOGGED_IN",
-          userId: "", // We don't have the user ID at this point
-          tenantId: getPreferredTenantId() || "",
-          email: email || ""
-        };
-        authSyncService.broadcast(message);
+  const completeLoginMutation = api.useMutation("post", "/api/account/authentication/email/login/{id}/complete", {
+    onSuccess: () => {
+      // Broadcast login event to other tabs
+      // Since the API returns 204 No Content, we don't have the user ID yet
+      const message: Omit<UserLoggedInMessage, "timestamp"> = {
+        type: "USER_LOGGED_IN",
+        userId: "", // We don't have the user ID at this point
+        tenantId: getPreferredTenantId() || "",
+        email: email || ""
+      };
+      authSyncService.broadcast(message);
 
-        clearLoginState();
-        window.location.href = returnPath ?? loggedInPath;
+      clearLoginState();
+      window.location.href = returnPath ?? loggedInPath;
+    }
+  });
+
+  const resendLoginCodeMutation = api.useMutation("post", "/api/account/authentication/email/login/{id}/resend-code", {
+    onSuccess: (data) => {
+      if (data) {
+        resetAfterResend(data.validForSeconds);
+        setHasRequestedNewCode(true);
+        toast.success(t`Verification code sent`, {
+          description: t`A new verification code has been sent to your email.`
+        });
       }
     }
-  );
-
-  const resendLoginCodeMutation = api.useMutation(
-    "post",
-    "/api/account/authentication/email/login/{id}/resend-code",
-    {
-      onSuccess: (data) => {
-        if (data) {
-          resetAfterResend(data.validForSeconds);
-          setHasRequestedNewCode(true);
-          toast.success(t`Verification code sent`, {
-            description: t`A new verification code has been sent to your email.`
-          });
-        }
-      }
-    }
-  );
+  });
 
   useEffect(() => {
     if (completeLoginMutation.isError) {

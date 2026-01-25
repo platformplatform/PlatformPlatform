@@ -11,10 +11,10 @@ export function UserTabNavigation({ activeTab }: UserTabNavigationProps) {
   return (
     <Tabs value={activeTab} className="relative z-10 mb-4 sm:mb-8">
       <TabsList aria-label={t`User tabs`}>
-        <TabsTrigger value="all-users" nativeButton={false} render={<Link to="/admin/users" />}>
+        <TabsTrigger value="all-users" nativeButton={false} render={<Link to="/account/users" />}>
           <Trans>All users</Trans>
         </TabsTrigger>
-        <TabsTrigger value="recycle-bin" nativeButton={false} render={<Link to="/admin/users/recycle-bin" />}>
+        <TabsTrigger value="recycle-bin" nativeButton={false} render={<Link to="/account/users/recycle-bin" />}>
           <Trans>Recycle bin</Trans>
         </TabsTrigger>
       </TabsList>

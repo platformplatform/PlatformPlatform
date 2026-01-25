@@ -117,16 +117,12 @@ export function CompleteSignupForm() {
     }, 100);
   }, []);
 
-  const completeSignupMutation = api.useMutation(
-    "post",
-    "/api/account/authentication/email/signup/{id}/complete",
-    {
-      onSuccess: () => {
-        clearSignupState();
-        window.location.href = loggedInPath;
-      }
+  const completeSignupMutation = api.useMutation("post", "/api/account/authentication/email/signup/{id}/complete", {
+    onSuccess: () => {
+      clearSignupState();
+      window.location.href = loggedInPath;
     }
-  );
+  });
 
   const resendSignupCodeMutation = api.useMutation(
     "post",

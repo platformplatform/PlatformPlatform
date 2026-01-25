@@ -14,7 +14,7 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/admin" variant="secondary" underline={false} />}>
+            <BreadcrumbLink render={<Link href="/account" variant="secondary" underline={false} />}>
               <Trans>Home</Trans>
             </BreadcrumbLink>
           </BreadcrumbItem>

@@ -29,7 +29,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/admin/account");
+      await page.goto("/account/settings");
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Nav Test");
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -37,7 +37,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Navigate to admin dashboard & verify mobile layout")(async () => {
-      await page.goto("/admin");
+      await page.goto("/account");
 
       // Wait for page to load - heading contains the user's name
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
@@ -207,7 +207,7 @@ test.describe("@comprehensive", () => {
       await expect(mobileDialog).not.toBeVisible();
 
       // Verify navigation to users page
-      await expect(page).toHaveURL("/admin/users");
+      await expect(page).toHaveURL("/account/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
@@ -386,7 +386,7 @@ test.describe("@comprehensive", () => {
     await ownerPage.setViewportSize({ width: 375, height: 667 });
 
     await step("Set account name & verify save confirmation")(async () => {
-      await ownerPage.goto("/admin/account");
+      await ownerPage.goto("/account/settings");
       await expect(ownerPage.getByRole("heading", { name: "Account settings" })).toBeVisible();
 
       await ownerPage.getByRole("textbox", { name: "Account name" }).clear();
@@ -396,7 +396,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Navigate to users page & open invite user dialog")(async () => {
-      await ownerPage.goto("/admin/users");
+      await ownerPage.goto("/account/users");
       // Check for either English or Danish heading
       await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
 
@@ -443,7 +443,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/admin/account");
+      await page.goto("/account/settings");
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Selection Test");
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -452,7 +452,7 @@ test.describe("@comprehensive", () => {
 
     // === SETUP ===
     await step("Navigate to users page & invite 3 test users")(async () => {
-      await page.goto("/admin/users");
+      await page.goto("/account/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Create 3 test users for selection testing

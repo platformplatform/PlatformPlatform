@@ -56,12 +56,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
     setIsFormDirty(false);
   }, []);
 
-  const {
-    data: user,
-    isLoading: isLoadingUser,
-    error,
-    refetch
-  } = api.useQuery("get", "/api/account/users/me");
+  const { data: user, isLoading: isLoadingUser, error, refetch } = api.useQuery("get", "/api/account/users/me");
 
   const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar");
   const removeAvatarMutation = api.useMutation("delete", "/api/account/users/me/remove-avatar");

@@ -45,7 +45,7 @@ test.describe("@comprehensive", () => {
     await step("Complete verification with Danish interface & verify navigation to admin")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/admin");
+      await expect(page).toHaveURL("/account");
     })();
 
     await step("Complete profile setup in Danish & verify profile form works")(async () => {
@@ -76,7 +76,7 @@ test.describe("@comprehensive", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Verify Danish language persists after logout
-      await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
       await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
@@ -103,14 +103,14 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
 
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Faccount");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
     })();
 
     await step("Complete login verification & verify language resets to user's saved preference")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/admin");
+      await expect(page).toHaveURL("/account");
       await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
@@ -203,7 +203,7 @@ test.describe("@comprehensive", () => {
       await typeOneTimeCode(newPage1, getVerificationCode());
 
       // Verify Danish preference is restored after login
-      await expect(newPage1).toHaveURL("/admin");
+      await expect(newPage1).toHaveURL("/account");
       await expect(newPage1.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
       await expect(newPage1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
@@ -221,7 +221,7 @@ test.describe("@comprehensive", () => {
       await typeOneTimeCode(newPage2, getVerificationCode());
 
       // Verify English preference is maintained
-      await expect(newPage2).toHaveURL("/admin");
+      await expect(newPage2).toHaveURL("/account");
       await expect(newPage2.getByRole("heading", { name: "Welcome home" })).toBeVisible();
       await expect(newPage2.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();
