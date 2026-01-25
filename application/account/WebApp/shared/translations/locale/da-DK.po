@@ -33,9 +33,6 @@ msgstr "{0} brugere slettet permanent"
 msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
-msgid "{browser} on {os}"
-msgstr "{browser} på {os}"
-
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 
@@ -50,9 +47,6 @@ msgstr "100% sikkerhedsscore"
 
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
-
-msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
-msgstr "En liste over enheder, der har logget ind på din konto. Tilbagekald sessioner, du ikke genkender."
 
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
@@ -92,9 +86,6 @@ msgstr "Kontoindstillinger"
 
 msgid "Account switched"
 msgstr "Konto skiftet"
-
-msgid "Account:"
-msgstr "Konto:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
@@ -261,12 +252,6 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
-msgid "Created:"
-msgstr "Oprettet:"
-
-msgid "Current session"
-msgstr "Nuværende session"
-
 msgid "Danger zone"
 msgstr "Farezone"
 
@@ -330,6 +315,9 @@ msgstr "Slettede brugere vil blive vist her til gendannelse"
 
 msgid "Desktop"
 msgstr "Stationær"
+
+msgid "Devices that have logged into your account. Revoke any sessions you do not recognize."
+msgstr "Enheder, der har logget ind på din konto. Tilbagekald alle sessioner, du ikke genkender."
 
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
@@ -463,8 +451,11 @@ msgstr "Inviter bruger"
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
-msgid "IP:"
-msgstr "IP:"
+msgid "IP address"
+msgstr "IP-adresse"
+
+msgid "It may take up to 5 minutes before the device is signed out."
+msgstr "Det kan tage op til 5 minutter før enheden bliver logget ud."
 
 msgid "Just now"
 msgstr "Lige nu"
@@ -472,8 +463,8 @@ msgstr "Lige nu"
 msgid "Language"
 msgstr "Sprog"
 
-msgid "Last active:"
-msgstr "Sidst aktiv:"
+msgid "Last active"
+msgstr "Sidst aktiv"
 
 msgid "Last name"
 msgstr "Efternavn"
@@ -511,8 +502,8 @@ msgstr "Log ud"
 msgid "Logged out"
 msgstr "Logget ud"
 
-msgid "Login method:"
-msgstr "Login-metode:"
+msgid "Login method"
+msgstr "Login-metode"
 
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
@@ -580,7 +571,7 @@ msgstr "Næste"
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
 
-msgid "No active sessions"
+msgid "No active sessions found."
 msgstr "Ingen aktive sessioner"
 
 msgid "No users found"
@@ -652,9 +643,6 @@ msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
 msgid "Please log in again to continue."
 msgstr "Log venligst ind igen for at fortsætte."
-
-msgid "Please note that it may take up to 5 minutes before the device is signed out."
-msgstr "Bemærk at det kan tage op til 5 minutter, før enheden er logget ud."
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
@@ -884,6 +872,9 @@ msgstr "Denne handling kan ikke fortrydes."
 msgid "This can happen when email ownership has changed. Contact your account administrator."
 msgstr "Dette kan ske, når e-mailejerskabet er ændret. Kontakt din kontoadministrator."
 
+msgid "This device"
+msgstr "Denne enhed"
+
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
 
@@ -925,12 +916,6 @@ msgstr "Kunne ikke indlæse profil"
 
 msgid "Unknown"
 msgstr "Ukendt"
-
-msgid "Unknown browser"
-msgstr "Ukendt browser"
-
-msgid "Unknown OS"
-msgstr "Ukendt OS"
 
 msgid "Unknown state"
 msgstr "Ukendt tilstand"
@@ -1060,9 +1045,6 @@ msgstr "Du har {invitationCount} afventende invitationer."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
-
-msgid "You have no other active sessions"
-msgstr "Du har ingen andre aktive sessioner"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."

@@ -140,7 +140,7 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Sign up with Google" }).click();
 
       await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     let tenantId: string;
@@ -157,7 +157,7 @@ test.describe("@comprehensive", () => {
       expect(tenantId).toBeTruthy();
 
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
@@ -182,14 +182,14 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Log in with Google" }).click();
 
       await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
       expect(capturedUrl).toContain(`PreferredTenantId=${tenantId}`);
     })();
 
     await step("Log out to prepare for error path tests")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });

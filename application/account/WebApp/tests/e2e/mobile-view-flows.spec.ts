@@ -55,11 +55,8 @@ test.describe("@comprehensive", () => {
       await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Account" })).not.toBeVisible();
       await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Users" })).not.toBeVisible();
 
-      // Verify top menu buttons are hidden on mobile
-      await expect(page.getByRole("button", { name: "Change theme" })).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Contact support" })).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "Change language" })).not.toBeVisible();
-      await expect(page.getByRole("button", { name: "User profile menu" })).not.toBeVisible();
+      // Verify account menu is hidden on mobile (theme, language, etc. are in mobile menu)
+      await expect(page.getByRole("button", { name: "Account menu" })).not.toBeVisible();
     })();
 
     await step("Open mobile menu & verify all navigation and settings are accessible")(async () => {
@@ -84,38 +81,38 @@ test.describe("@comprehensive", () => {
     })();
 
     // === USER PROFILE EDITING ===
-    await step("Edit user profile through mobile menu & verify profile modal opens")(async () => {
+    await step("Edit user profile through mobile menu & verify navigation to profile page")(async () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Edit" }).click();
 
-      // Wait for mobile menu to close and profile modal to open
+      // Wait for mobile menu to close and navigation to profile page
       await expect(mobileDialog).not.toBeVisible();
 
-      // Profile modal should open - wait for it to be visible
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
-      await expect(profileModal).toBeVisible();
+      // Profile page should open
+      await expect(page).toHaveURL("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       // Verify form fields are present
-      await expect(profileModal.getByLabel("First name")).toBeVisible();
-      await expect(profileModal.getByLabel("Last name")).toBeVisible();
-      await expect(profileModal.getByLabel("Email")).toBeVisible();
-      await expect(profileModal.getByRole("textbox", { name: "Title" })).toBeVisible();
+      await expect(page.getByLabel("First name")).toBeVisible();
+      await expect(page.getByLabel("Last name")).toBeVisible();
+      await expect(page.getByLabel("Email")).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "Title" })).toBeVisible();
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
-      await profileModal.getByRole("textbox", { name: "Title" }).fill(newTitle);
+      await page.getByRole("textbox", { name: "Title" }).fill(newTitle);
       // Click save button
-      await profileModal.getByRole("button", { name: "Save" }).click();
+      await page.getByRole("button", { name: "Save changes" }).click();
 
       // Wait for success toast
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(profileModal).not.toBeVisible();
 
-      // Verify changes are reflected in mobile menu
+      // Navigate back to account page and verify changes are reflected in mobile menu
+      await page.goto("/account");
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await page.getByRole("button", { name: "Open navigation menu" }).click();
       await expect(page.getByText(newTitle)).toBeVisible();
 

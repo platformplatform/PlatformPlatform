@@ -93,7 +93,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     // === PROFILE FORM VALIDATION & COMPLETION ===
@@ -136,8 +136,6 @@ test.describe("@smoke", () => {
 
       // Verify success
       await expectToastMessage(testContext, 200, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     // === AVATAR & PROFILE FUNCTIONALITY ===

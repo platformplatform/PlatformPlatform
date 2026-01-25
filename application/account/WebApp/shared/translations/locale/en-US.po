@@ -33,9 +33,6 @@ msgstr "{0} users permanently deleted"
 msgid "{0} users restored successfully"
 msgstr "{0} users restored successfully"
 
-msgid "{browser} on {os}"
-msgstr "{browser} on {os}"
-
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} users permanently deleted"
 
@@ -50,9 +47,6 @@ msgstr "100% Security Score"
 
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
-
-msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
-msgstr "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
 
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
@@ -92,9 +86,6 @@ msgstr "Account settings"
 
 msgid "Account switched"
 msgstr "Account switched"
-
-msgid "Account:"
-msgstr "Account:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
@@ -261,12 +252,6 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
-msgid "Created:"
-msgstr "Created:"
-
-msgid "Current session"
-msgstr "Current session"
-
 msgid "Danger zone"
 msgstr "Danger zone"
 
@@ -330,6 +315,9 @@ msgstr "Deleted users will appear here for recovery"
 
 msgid "Desktop"
 msgstr "Desktop"
+
+msgid "Devices that have logged into your account. Revoke any sessions you do not recognize."
+msgstr "Devices that have logged into your account. Revoke any sessions you do not recognize."
 
 msgid "Different user logged in"
 msgstr "Different user logged in"
@@ -463,8 +451,11 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
-msgid "IP:"
-msgstr "IP:"
+msgid "IP address"
+msgstr "IP address"
+
+msgid "It may take up to 5 minutes before the device is signed out."
+msgstr "It may take up to 5 minutes before the device is signed out."
 
 msgid "Just now"
 msgstr "Just now"
@@ -472,8 +463,8 @@ msgstr "Just now"
 msgid "Language"
 msgstr "Language"
 
-msgid "Last active:"
-msgstr "Last active:"
+msgid "Last active"
+msgstr "Last active"
 
 msgid "Last name"
 msgstr "Last name"
@@ -511,8 +502,8 @@ msgstr "Log out"
 msgid "Logged out"
 msgstr "Logged out"
 
-msgid "Login method:"
-msgstr "Login method:"
+msgid "Login method"
+msgstr "Login method"
 
 msgid "Login verification code"
 msgstr "Login verification code"
@@ -580,8 +571,8 @@ msgstr "Next"
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "No account found for this email address. Please sign up to create an account."
 
-msgid "No active sessions"
-msgstr "No active sessions"
+msgid "No active sessions found."
+msgstr "No active sessions found."
 
 msgid "No users found"
 msgstr "No users found"
@@ -652,9 +643,6 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
 msgid "Please log in again to continue."
 msgstr "Please log in again to continue."
-
-msgid "Please note that it may take up to 5 minutes before the device is signed out."
-msgstr "Please note that it may take up to 5 minutes before the device is signed out."
 
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
@@ -884,6 +872,9 @@ msgstr "This action cannot be undone."
 msgid "This can happen when email ownership has changed. Contact your account administrator."
 msgstr "This can happen when email ownership has changed. Contact your account administrator."
 
+msgid "This device"
+msgstr "This device"
+
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
 
@@ -925,12 +916,6 @@ msgstr "Unable to load profile"
 
 msgid "Unknown"
 msgstr "Unknown"
-
-msgid "Unknown browser"
-msgstr "Unknown browser"
-
-msgid "Unknown OS"
-msgstr "Unknown OS"
 
 msgid "Unknown state"
 msgstr "Unknown state"
@@ -1060,9 +1045,6 @@ msgstr "You have {invitationCount} pending invitations."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
-
-msgid "You have no other active sessions"
-msgstr "You have no other active sessions"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "You have unsaved changes. If you leave now, your changes will be lost."
