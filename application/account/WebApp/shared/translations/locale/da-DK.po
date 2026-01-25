@@ -421,9 +421,6 @@ msgstr "GDPR-kompatibel"
 msgid "GDPR Compliant"
 msgstr "GDPR-kompatibel"
 
-msgid "Get started"
-msgstr "Kom i gang"
-
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -432,9 +429,6 @@ msgstr "GitHub deployer direkte til Azure uden adgangskoder eller API-nøgler"
 
 msgid "Go to account settings"
 msgstr "Gå til kontoindstillinger"
-
-msgid "Go to app"
-msgstr "Gå til app"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -727,9 +721,6 @@ msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
-
-msgid "Replace this sample page with your own product information and branding."
-msgstr "Erstat denne eksempelsside med dine egne produktoplysninger og branding."
 
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
@@ -1044,9 +1035,6 @@ msgstr "Velkommen hjem"
 msgid "Welcome home, {0}"
 msgstr "Velkommen hjem, {0}"
 
-msgid "Welcome to PlatformPlatform"
-msgstr "Velkommen til PlatformPlatform"
-
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
@@ -1068,12 +1056,6 @@ msgstr "Du har ingen andre aktive sessioner"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."
-
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "Du har succesfuldt udrullet PlatformPlatform! 🎉"
-
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."

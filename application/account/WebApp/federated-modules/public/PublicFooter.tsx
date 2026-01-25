@@ -6,7 +6,7 @@ import { Github, Linkedin, MailIcon, Youtube } from "lucide-react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
-export function PublicFooter() {
+export default function PublicFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
