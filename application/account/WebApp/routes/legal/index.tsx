@@ -14,8 +14,8 @@ import {
   ServerIcon,
   ShieldCheckIcon
 } from "lucide-react";
-import { PublicFooter } from "@/shared/components/PublicFooter";
-import { PublicNavigation } from "@/shared/components/PublicNavigation";
+import PublicFooter from "@/federated-modules/public/PublicFooter";
+import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 import gdprBadge from "@/shared/images/compliance/gdpr.png";
 import azureActivityLog from "@/shared/images/icons/azure-activity-log.svg";
 import azureCompliance from "@/shared/images/icons/azure-compliance.svg";

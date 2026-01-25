@@ -18,6 +18,18 @@ declare module "account/FederatedErrorPage" {
 declare module "account/FederatedNotFoundPage" {
   export default ReactNode;
 }
+declare module "account/LocaleSwitcher" {
+  export default ReactNode;
+}
+declare module "account/ThemeModeSelector" {
+  export default ReactNode;
+}
+declare module "account/PublicFooter" {
+  export default ReactNode;
+}
+declare module "account/PublicNavigation" {
+  export default ReactNode;
+}
 declare module "account/translations/en-US" {
   import type { Messages } from "@lingui/core";
   export const messages: Messages;

@@ -415,9 +415,6 @@ msgstr "GDPR compliant"
 msgid "GDPR Compliant"
 msgstr "GDPR Compliant"
 
-msgid "Get started"
-msgstr "Get started"
-
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -426,9 +423,6 @@ msgstr "GitHub deploys directly to Azure without passwords or API keys"
 
 msgid "Go to account settings"
 msgstr "Go to account settings"
-
-msgid "Go to app"
-msgstr "Go to app"
 
 msgid "Go to home"
 msgstr "Go to home"
@@ -721,9 +715,6 @@ msgstr "Remove logo"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
-
-msgid "Replace this sample page with your own product information and branding."
-msgstr "Replace this sample page with your own product information and branding."
 
 msgid "Request a new code"
 msgstr "Request a new code"
@@ -1038,9 +1029,6 @@ msgstr "Welcome home"
 msgid "Welcome home, {0}"
 msgstr "Welcome home, {0}"
 
-msgid "Welcome to PlatformPlatform"
-msgstr "Welcome to PlatformPlatform"
-
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
@@ -1062,12 +1050,6 @@ msgstr "You have no other active sessions"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "You have unsaved changes. If you leave now, your changes will be lost."
-
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "You successfully deployed PlatformPlatform! 🎉"
-
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "You successfully installed PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."

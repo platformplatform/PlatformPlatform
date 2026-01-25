@@ -3,24 +3,30 @@ import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
-import { PublicFooter } from "@/shared/components/PublicFooter";
-import { PublicNavigation } from "@/shared/components/PublicNavigation";
+import { lazy } from "react";
 
-export const Route = createFileRoute("/(index)/")({
-  beforeLoad: () => ({ disableAuthSync: true }),
+const PublicFooter = lazy(() => import("account/PublicFooter"));
+const PublicNavigation = lazy(() => import("account/PublicNavigation"));
+
+export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    const { isAuthenticated } = import.meta.user_info_env;
+    if (isAuthenticated) {
+      window.location.href = "/dashboard";
+      return;
+    }
+    return { disableAuthSync: true };
+  },
   component: function LandingPage() {
     const isAuthenticated = useIsAuthenticated();
 
     return (
       <main className="flex min-h-screen w-full flex-col">
-        {/* Hero Section */}
         <div className="flex flex-1 flex-col items-center bg-background">
           <PublicNavigation />
 
-          {/* Hero Content */}
           <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 py-20 text-center">
             <div className="flex max-w-5xl flex-col gap-8">
-              {/* Title */}
               <div className="flex flex-col gap-4">
                 <h1 className="marketing">
                   <Trans>Welcome to PlatformPlatform</Trans>
@@ -37,10 +43,9 @@ export const Route = createFileRoute("/(index)/")({
                 </p>
               </div>
 
-              {/* CTAs */}
               <div className="flex justify-center gap-4">
                 {isAuthenticated ? (
-                  <Link href="/account" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
+                  <Link href="/dashboard" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                     <Trans>Go to app</Trans>
                   </Link>
                 ) : (
