@@ -20,7 +20,7 @@ import { DowngradeConfirmationDialog } from "./-components/DowngradeConfirmation
 import { PlanCard } from "./-components/PlanCard";
 import { ProcessingPaymentModal } from "./-components/ProcessingPaymentModal";
 
-export const Route = createFileRoute("/admin/subscription/")({
+export const Route = createFileRoute("/account/subscription/")({
   component: SubscriptionPage
 });
 
@@ -143,8 +143,8 @@ function SubscriptionPage() {
     checkoutMutation.mutate({
       body: {
         plan,
-        successUrl: `${window.location.origin}/admin/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/admin/subscription/`
+        successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/account/subscription/`
       }
     });
   };
@@ -170,8 +170,8 @@ function SubscriptionPage() {
     reactivateMutation.mutate({
       body: {
         plan,
-        successUrl: `${window.location.origin}/admin/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/admin/subscription/`
+        successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/account/subscription/`
       }
     });
   };

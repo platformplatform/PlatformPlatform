@@ -14,13 +14,13 @@ export function UserTabNavigation({ activeTab }: UserTabNavigationProps) {
   return (
     <nav className="mb-8 flex gap-4 border-border border-b" aria-label="User tabs">
       <Link
-        to="/admin/users"
+        to="/account/users"
         className={`${baseTabClasses} ${activeTab === "all-users" ? selectedClasses : unselectedClasses}`}
       >
         <Trans>All users</Trans>
       </Link>
       <Link
-        to="/admin/users/recycle-bin"
+        to="/account/users/recycle-bin"
         className={`${baseTabClasses} ${activeTab === "recycle-bin" ? selectedClasses : unselectedClasses}`}
       >
         <Trans>Recycle bin</Trans>

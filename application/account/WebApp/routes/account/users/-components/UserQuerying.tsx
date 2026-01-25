@@ -84,7 +84,7 @@ export function UserQuerying({ onFiltersUpdated }: UserQueryingProps = {}) {
   const updateFilter = useCallback(
     (params: Partial<SearchParams>, isSearchUpdate = false) => {
       navigate({
-        to: "/admin/users",
+        to: "/account/users",
         search: (prev) => ({
           ...prev,
           ...params,
@@ -100,7 +100,7 @@ export function UserQuerying({ onFiltersUpdated }: UserQueryingProps = {}) {
 
   useEffect(() => {
     navigate({
-      to: "/admin/users",
+      to: "/account/users",
       search: (prev) => ({
         ...prev,
         search: debouncedSearch || undefined,

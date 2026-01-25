@@ -152,7 +152,7 @@ export async function completeSignupFlow(
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
-  await expect(page).toHaveURL("/admin");
+  await expect(page).toHaveURL("/account");
   await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
   // Step 4: Complete profile setup and verify successful save
@@ -179,6 +179,6 @@ export async function completeSignupFlow(
     await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
     await expect(userMenu).not.toBeVisible();
-    await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
+    await expect(page).toHaveURL("/login?returnPath=%2Faccount");
   }
 }

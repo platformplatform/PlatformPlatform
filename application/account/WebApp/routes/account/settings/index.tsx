@@ -30,7 +30,7 @@ import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
-export const Route = createFileRoute("/admin/account/")({
+export const Route = createFileRoute("/account/settings/")({
   component: AccountSettings
 });
 

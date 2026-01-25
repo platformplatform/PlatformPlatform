@@ -5,16 +5,16 @@ import { PastDueBanner } from "@/shared/components/PastDueBanner";
 import { SuspendedPage } from "@/shared/components/SuspendedPage";
 import { api, TenantState } from "@/shared/lib/api/client";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/account")({
   beforeLoad: () => requireAuthentication(),
-  component: AdminLayout,
+  component: AccountLayout,
   notFoundComponent: FederatedNotFoundPage
 });
 
-function AdminLayout() {
+function AccountLayout() {
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
   const location = useLocation();
-  const isSubscriptionPage = location.pathname.startsWith("/admin/subscription");
+  const isSubscriptionPage = location.pathname.startsWith("/account/subscription");
 
   if (tenant?.state === TenantState.Suspended && !isSubscriptionPage) {
     return <SuspendedPage />;

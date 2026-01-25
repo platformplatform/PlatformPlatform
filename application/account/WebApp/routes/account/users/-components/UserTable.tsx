@@ -154,7 +154,7 @@ function UserTableContent({
   const handlePageChange = useCallback(
     (page: number) => {
       navigate({
-        to: "/admin/users",
+        to: "/account/users",
         search: (prev) => ({
           ...prev,
           pageOffset: page === 1 ? undefined : page - 1
@@ -180,7 +180,7 @@ function UserTableContent({
       const newSortOrder = newDirection === "ascending" ? SortOrder.Ascending : SortOrder.Descending;
 
       navigate({
-        to: "/admin/users",
+        to: "/account/users",
         search: (prev) => ({
           ...prev,
           orderBy: newOrderBy === SortableUserProperties.Name ? undefined : newOrderBy,

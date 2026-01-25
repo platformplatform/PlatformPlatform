@@ -16,7 +16,7 @@ export function NavigationMenuItems({
       <FederatedMenuButton
         icon={HomeIcon}
         label={t`Home`}
-        href="/admin"
+        href="/account"
         isCurrentSystem={currentSystem === "account"}
       />
 
@@ -27,20 +27,20 @@ export function NavigationMenuItems({
       <FederatedMenuButton
         icon={CircleUserIcon}
         label={t`Account`}
-        href="/admin/account"
+        href="/account/settings"
         isCurrentSystem={currentSystem === "account"}
       />
       <FederatedMenuButton
         icon={UsersIcon}
         label={t`Users`}
-        href="/admin/users"
+        href="/account/users"
         isCurrentSystem={currentSystem === "account"}
       />
       {userInfo?.role === "Owner" && (
         <FederatedMenuButton
           icon={CreditCardIcon}
           label={t`Subscription`}
-          href="/admin/subscription"
+          href="/account/subscription"
           isCurrentSystem={currentSystem === "account"}
         />
       )}

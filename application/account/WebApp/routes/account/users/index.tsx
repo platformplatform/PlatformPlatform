@@ -31,7 +31,7 @@ const userPageSearchSchema = z.object({
   userId: z.string().optional()
 });
 
-export const Route = createFileRoute("/admin/users/")({
+export const Route = createFileRoute("/account/users/")({
   component: UsersPage,
   validateSearch: userPageSearchSchema
 });
@@ -143,7 +143,7 @@ export default function UsersPage() {
         topMenu={
           <TopMenu>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/admin/users" variant="secondary" underline={false} />}>
+              <BreadcrumbLink render={<Link href="/account/users" variant="secondary" underline={false} />}>
                 <Trans>Users</Trans>
               </BreadcrumbLink>
             </BreadcrumbItem>

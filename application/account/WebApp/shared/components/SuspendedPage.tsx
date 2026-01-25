@@ -53,7 +53,7 @@ export function SuspendedPage() {
           >
             {billingPortalMutation.isPending ? t`Loading...` : t`Update payment method`}
           </Button>
-          <Link href="/admin/subscription" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/account/subscription" className={buttonVariants({ variant: "outline" })}>
             <Trans>Reactivate subscription</Trans>
           </Link>
         </div>
