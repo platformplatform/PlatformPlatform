@@ -1022,6 +1022,9 @@ msgstr "Bekræfter..."
 msgid "View active users"
 msgstr "Se aktive brugere"
 
+msgid "View invitation"
+msgstr "Se invitation"
+
 msgid "View invited users"
 msgstr "Se inviterede brugere"
 
@@ -1056,6 +1059,10 @@ msgstr "Du kan ikke slette dig selv"
 msgid "You do not have permission to access this page."
 msgstr "Du har ikke tilladelse til at tilgå denne side."
 
+msgid "You have {invitationCount} pending invitations."
+msgstr "Du har {invitationCount} afventende invitationer."
+
+#. placeholder {0}: firstInvitation.tenantName
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."

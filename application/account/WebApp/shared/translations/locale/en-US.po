@@ -1022,6 +1022,9 @@ msgstr "Verifying..."
 msgid "View active users"
 msgstr "View active users"
 
+msgid "View invitation"
+msgstr "View invitation"
+
 msgid "View invited users"
 msgstr "View invited users"
 
@@ -1056,6 +1059,10 @@ msgstr "You cannot delete yourself"
 msgid "You do not have permission to access this page."
 msgstr "You do not have permission to access this page."
 
+msgid "You have {invitationCount} pending invitations."
+msgstr "You have {invitationCount} pending invitations."
+
+#. placeholder {0}: firstInvitation.tenantName
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."

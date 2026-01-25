@@ -266,7 +266,7 @@ export function AppLayout({
         {/* Height matches collapsed side menu width for visual consistency */}
         {topMenu && (
           <aside
-            className={`fixed top-[var(--past-due-banner-height,0rem)] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
+            className={`fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
               isMobileMenuOpen ? "hidden" : ""
             } hidden sm:flex sm:items-center`}
             aria-label="Secondary navigation"
@@ -281,8 +281,10 @@ export function AppLayout({
         <main
           ref={contentRef}
           className={cn(
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
-            topMenu ? "sm:pt-28" : "sm:pt-4"
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
+            topMenu
+              ? "sm:pt-[calc(7rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
+              : "sm:pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
           )}
           id="main-content"
           aria-label="Main content"
@@ -315,7 +317,7 @@ export function AppLayout({
         {/* Side pane area - fullscreen mode uses portal, side-by-side uses this wrapper */}
         {sidePane && (
           <aside
-            className="fixed inset-0 bg-card md:inset-auto md:top-[var(--side-menu-collapsed-width)] md:right-0 md:bottom-0 md:z-10 md:w-96"
+            className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-40 bg-card md:left-auto md:w-96"
             aria-label="Side panel"
           >
             {sidePane}
