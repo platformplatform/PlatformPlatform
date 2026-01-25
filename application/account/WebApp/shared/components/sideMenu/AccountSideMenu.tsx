@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
-import { ArrowLeftIcon, CircleUserIcon, CreditCardIcon, HomeIcon, UsersIcon } from "lucide-react";
+import { ArrowLeftIcon, CircleUserIcon, CreditCardIcon, HomeIcon, UserIcon, UsersIcon } from "lucide-react";
 import { useContext } from "react";
 import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
@@ -18,6 +18,12 @@ function AccountNavigationMenuItems() {
   return (
     <>
       <MenuButton icon={ArrowLeftIcon} label={t`Back to app`} href="/home" forceReload={true} />
+
+      <SideMenuSeparator>
+        <Trans>User</Trans>
+      </SideMenuSeparator>
+
+      <MenuButton icon={UserIcon} label={t`Profile`} href="/account/profile" />
 
       <SideMenuSeparator>
         <Trans>Account</Trans>

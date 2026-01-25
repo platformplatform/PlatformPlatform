@@ -449,9 +449,6 @@ msgstr "Mislykket"
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
 
-msgid "Fetching data..."
-msgstr "Henter data..."
-
 msgid "Filters"
 msgstr "Filtre"
 
@@ -762,9 +759,6 @@ msgstr "Powered by"
 msgid "Premium"
 msgstr "Premium"
 
-msgid "Preview avatar"
-msgstr "Forhåndsvisning af avatar"
-
 msgid "Previous"
 msgstr "Forrige"
 
@@ -785,6 +779,12 @@ msgstr "Behandler betaling"
 
 msgid "Processing..."
 msgstr "Behandler..."
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Profile avatar"
+msgstr "Profilavatar"
 
 msgid "Profile picture"
 msgstr "Profilbillede"
@@ -1041,6 +1041,9 @@ msgstr "Tillidscenter"
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Unable to load profile"
+msgstr "Kunne ikke indlæse profil"
+
 msgid "Unknown"
 msgstr "Ukendt"
 
@@ -1076,6 +1079,9 @@ msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
+
+msgid "User"
+msgstr "Bruger"
 
 msgid "User actions"
 msgstr "Brugerhandlinger"

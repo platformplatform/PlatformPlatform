@@ -449,9 +449,6 @@ msgstr "Failed"
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
 
-msgid "Fetching data..."
-msgstr "Fetching data..."
-
 msgid "Filters"
 msgstr "Filters"
 
@@ -762,9 +759,6 @@ msgstr "Powered by"
 msgid "Premium"
 msgstr "Premium"
 
-msgid "Preview avatar"
-msgstr "Preview avatar"
-
 msgid "Previous"
 msgstr "Previous"
 
@@ -785,6 +779,12 @@ msgstr "Processing payment"
 
 msgid "Processing..."
 msgstr "Processing..."
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Profile avatar"
+msgstr "Profile avatar"
 
 msgid "Profile picture"
 msgstr "Profile picture"
@@ -1041,6 +1041,9 @@ msgstr "Trust Center"
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Unable to load profile"
+msgstr "Unable to load profile"
+
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -1076,6 +1079,9 @@ msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
+
+msgid "User"
+msgstr "User"
 
 msgid "User actions"
 msgstr "User actions"
