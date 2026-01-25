@@ -36,7 +36,7 @@ import { Form, TextField, Button } from "@repo/ui/components";
 import { Trans } from "@lingui/react/macro";
 
 export function UserProfileForm({ user }) {
-  const updateUserMutation = api.useMutation("put", "/api/account-management/users/me");
+  const updateUserMutation = api.useMutation("put", "/api/account/users/me");
   
   return (
     <Form
@@ -86,7 +86,7 @@ function BadUserProfileForm({ user }) {
       const formData = new FormData(event.target);
       const data = Object.fromEntries(formData.entries());
       
-      await fetch("/api/account-management/users/me", {
+      await fetch("/api/account/users/me", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -121,9 +121,9 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
   const [selectedAvatarFile, setSelectedAvatarFile] = useState(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   
-  const updateUserMutation = api.useMutation("put", "/api/account-management/users/me");
-  const updateAvatarMutation = api.useMutation("post", "/api/account-management/users/me/avatar");
-  const removeAvatarMutation = api.useMutation("delete", "/api/account-management/users/me/avatar");
+  const updateUserMutation = api.useMutation("put", "/api/account/users/me");
+  const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/avatar");
+  const removeAvatarMutation = api.useMutation("delete", "/api/account/users/me/avatar");
   
   const queryClient = useQueryClient();
   

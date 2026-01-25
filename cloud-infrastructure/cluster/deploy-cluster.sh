@@ -38,7 +38,7 @@ export GLOBAL_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT-global"
 export CLUSTER_RESOURCE_GROUP_NAME="$UNIQUE_PREFIX-$ENVIRONMENT-$CLUSTER_LOCATION_ACRONYM"
 
 export APP_GATEWAY_VERSION=$(get_active_version "app-gateway" $CLUSTER_RESOURCE_GROUP_NAME)
-export ACCOUNT_MANAGEMENT_VERSION=$(get_active_version "account-management-api" $CLUSTER_RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
+export ACCOUNT_VERSION=$(get_active_version "account-api" $CLUSTER_RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 export BACK_OFFICE_VERSION=$(get_active_version "back-office-api" $CLUSTER_RESOURCE_GROUP_NAME) # The version from the API is use for both API and Workers
 
 az extension add --name application-insights --allow-preview true --only-show-errors
@@ -94,13 +94,13 @@ then
   fi
 
   # Extract the ID of the Managed Identities, which can be used to grant access to SQL Database
-  ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.accountManagementIdentityClientId.value')
+  ACCOUNT_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.accountIdentityClientId.value')
   BACK_OFFICE_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.backOfficeIdentityClientId.value')
   if [[ -n "$GITHUB_OUTPUT" ]]; then
-    echo "ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID=$ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
+    echo "ACCOUNT_IDENTITY_CLIENT_ID=$ACCOUNT_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
     echo "BACK_OFFICE_IDENTITY_CLIENT_ID=$BACK_OFFICE_IDENTITY_CLIENT_ID" >> $GITHUB_OUTPUT
   else
-    . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'account-management' $ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID
+    . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'account' $ACCOUNT_IDENTITY_CLIENT_ID
     . ./grant-database-permissions.sh $UNIQUE_PREFIX $ENVIRONMENT $CLUSTER_LOCATION_ACRONYM 'back-office' $BACK_OFFICE_IDENTITY_CLIENT_ID
   fi
 fi

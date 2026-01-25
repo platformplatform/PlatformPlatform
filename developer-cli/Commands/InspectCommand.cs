@@ -13,7 +13,7 @@ public class InspectCommand : Command
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Run backend inspections" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run frontend inspections" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Run developer-cli inspections" };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to inspect (e.g., account-management, back-office)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to inspect (e.g., account, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running inspections" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 

@@ -9,8 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\account-management\Api\AccountManagement.Api.csproj"/>
-        <ProjectReference Include="..\account-management\Workers\AccountManagement.Workers.csproj"/>
+        <ProjectReference Include="..\account\Api\Account.Api.csproj"/>
+        <ProjectReference Include="..\account\Workers\Account.Workers.csproj"/>
         <ProjectReference Include="..\AppGateway\AppGateway.csproj"/>
         <ProjectReference Include="..\back-office\Api\BackOffice.Api.csproj"/>
         <ProjectReference Include="..\back-office\Workers\BackOffice.Workers.csproj"/>

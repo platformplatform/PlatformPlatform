@@ -2,7 +2,7 @@
   "lastUpdated": "2026-01-14T14:30:00",
   "active": [
     {
-      "testFile": "account-management/WebApp/tests/e2e/login-flows.spec.ts",
+      "testFile": "account/WebApp/tests/e2e/login-flows.spec.ts",
       "testName": "should complete login with OTP verification",
       "stepName": "Enter verification code & verify redirect to dashboard",
       "browser": "Firefox",

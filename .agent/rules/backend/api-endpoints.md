@@ -13,7 +13,7 @@ Guidelines for implementing minimal API endpoints in the backend, including stru
 2. Create an endpoint class implementing `IEndpoints` with proper naming (`[Feature]Endpoints.cs`)
 3. Define a constant string for `RoutesPrefix`: `/api/[scs-name]/[Feature]`:
    ```csharp
-   private const string RoutesPrefix = "/api/account-management/users";
+   private const string RoutesPrefix = "/api/account/users";
    ```
 4. Set up the route group with a tag name, `.RequireAuthorization()`, and `.ProducesValidationProblem()`:
    ```csharp
@@ -39,7 +39,7 @@ Guidelines for implementing minimal API endpoints in the backend, including stru
 // ✅ DO: Structure endpoints in exactly 3 lines with no logic in the body
 public sealed class UserEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/account-management/users";
+    private const string RoutesPrefix = "/api/account/users";
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
@@ -68,7 +68,7 @@ public sealed class UserEndpoints : IEndpoints
 // ❌ DON'T: Add business logic inside endpoint methods or break the 3-line structure
 public sealed class BadUserEndpoints : IEndpoints
 {
-    private const string RoutesPrefix = "/api/account-management/users";
+    private const string RoutesPrefix = "/api/account/users";
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {

@@ -1,0 +1,324 @@
+name: Account
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "application/*"
+      - "application/shared-kernel/**"
+      - "application/shared-webapp/**"
+      - "application/account/**"
+      - ".github/workflows/account.yml"
+      - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_migrate-database.yml"
+      - ".github/workflows/_preview-migrations.yml"
+      - "!**.md"
+  pull_request:
+    paths:
+      - "application/*"
+      - "application/shared-kernel/**"
+      - "application/shared-webapp/**"
+      - "application/account/**"
+      - ".github/workflows/account.yml"
+      - ".github/workflows/_deploy-container.yml"
+      - ".github/workflows/_migrate-database.yml"
+      - ".github/workflows/_preview-migrations.yml"
+      - "!**.md"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.generate_version.outputs.version }}
+      deploy_staging: ${{ steps.determine_deployment.outputs.deploy_staging }}
+      deploy_production: ${{ steps.determine_deployment.outputs.deploy_production }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Generate Version
+        id: generate_version
+        run: |
+          # Strip leading 0s of Hours and Minutes after midnight
+          MINUTE=$(printf "%s" $(date +"%-H%M") | sed 's/^0*//')
+          VERSION=$(date +"%Y.%-m.%-d.")$MINUTE
+          echo "Generated version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Determine Deployment Conditions
+        id: determine_deployment
+        run: |
+          deploy_staging="${{ github.ref == 'refs/heads/main' && vars.STAGING_CLUSTER_ENABLED == 'true' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'Deploy to Staging')) }}"
+          echo "deploy_staging=$deploy_staging" >> $GITHUB_OUTPUT
+
+          deploy_production="${{ github.ref == 'refs/heads/main' && vars.PRODUCTION_CLUSTER1_ENABLED == 'true' }}"
+          echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Node Modules
+        working-directory: application
+        run: npm ci
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: application/global.json
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Generate and Set User Secret for Token Signing Key
+        working-directory: application/shared-kernel/SharedKernel
+        run: |
+          # Extract UserSecretsId from the .csproj file
+          USER_SECRETS_ID=$(grep -oP '(?<=<UserSecretsId>).*?(?=</UserSecretsId>)' SharedKernel.csproj)
+
+          # Generate a 512-bit key and set it as a user secret that can be use for token signing when running tests
+          dotnet user-secrets set "authentication-token-signing-key" "$(openssl rand -base64 64)" --id $USER_SECRETS_ID
+
+      - name: Setup Java JDK for SonarScanner
+        uses: actions/setup-java@v4
+        with:
+          distribution: "microsoft"
+          java-version: "17"
+
+      - name: Run Tests with dotCover and SonarScanner Reporting
+        working-directory: application
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          if [[ "${{ vars.SONAR_PROJECT_KEY }}" == "" ]] || [[ "${{ vars.SONAR_ORGANIZATION }}" == "" ]] || [[ "${{ secrets.SONAR_TOKEN }}" == "" ]]; then
+            echo "SonarCloud is not enabled. Skipping SonarCloud analysis."
+            dotnet build account/Account.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
+            dotnet test account/Account.slnf --no-build
+          else
+            dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
+            dotnet build account/Account.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
+            dotnet dotcover test account/Account.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+            dotnet sonarscanner end
+          fi
+
+      - name: Build Frontend Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        working-directory: application
+        run: npm run build
+
+      - name: Publish Frontend Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        working-directory: application/account/WebApp
+        run: npm run publish
+
+      - name: Publish API Build
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        working-directory: application/account
+        run: |
+          dotnet publish ./Api/Account.Api.csproj --no-restore --configuration Release --output ./Api/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save API Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: account-api
+          path: application/account/Api/publish/**/*
+
+      - name: Publish Workers Build
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        working-directory: application/account
+        run: |
+          dotnet publish ./Workers/Account.Workers.csproj --no-restore --configuration Release --output ./Workers/publish /p:Version=${{ steps.generate_version.outputs.version }}
+
+      - name: Save Workers Artifacts
+        if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: account-workers
+          path: application/account/Workers/publish/**/*
+
+  code-style-and-linting:
+    name: Code Style and Linting
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install Node Modules
+        working-directory: application
+        run: npm ci
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: application/global.json
+
+      - name: Restore .NET Tools
+        working-directory: application
+        run: dotnet tool restore
+
+      - name: Restore .NET Dependencies
+        working-directory: application
+        run: dotnet restore
+
+      - name: Build Backend Solution
+        working-directory: application
+        run: dotnet build account/Account.slnf --no-restore
+
+      - name: Run Code Inspections
+        working-directory: developer-cli
+        run: |
+          dotnet run inspect --backend --self-contained-system account | tee inspection-output.log
+
+          if ! grep -q "No backend issues found!" inspection-output.log; then
+            echo "Code inspection issues found."
+            exit 1
+          fi
+
+      - name: Check for Code Formatting Issues
+        working-directory: developer-cli
+        run: |
+          dotnet run format --backend --self-contained-system account
+
+          # Check for any changes made by the code formatter
+          git diff --exit-code || {
+            echo "Formatting issues detected. Please run 'dotnet run format --backend --self-contained-system account' from /developer-cli folder locally and commit the formatted code."
+            exit 1
+          }
+
+      - name: Build Frontend Artifacts
+        working-directory: application
+        run: npm run build
+
+      - name: Run Check
+        working-directory: application/account/WebApp
+        run: npm run check
+
+  database-migrations-stage:
+    name: Database Staging
+    if: ${{ vars.STAGING_CLUSTER_ENABLED == 'true' }}
+    needs: build-and-test
+    uses: ./.github/workflows/_migrate-database.yml
+    secrets: inherit
+    with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      database_name: account
+      relative_project_path: account/Core/Account.csproj
+      relative_startup_project: account/Api/Account.Api.csproj
+      db_context: AccountDbContext
+      apply_migrations: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+
+  api-stage:
+    name: API Staging
+    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    needs: [build-and-test, database-migrations-stage]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      image_name: account-api
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-api
+      artifacts_path: application/account/Api/publish
+      docker_context: ./application/account
+      docker_file: ./Api/Dockerfile
+
+  workers-stage:
+    name: Workers Staging
+    if: ${{ needs.build-and-test.outputs.deploy_staging == 'true' }}
+    needs: [build-and-test, database-migrations-stage]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "stage"
+      cluster_location_acronym: ${{ vars.STAGING_CLUSTER_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.STAGING_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.STAGING_SUBSCRIPTION_ID }}
+      image_name: account-workers
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-workers
+      artifacts_path: application/account/Workers/publish
+      docker_context: ./application/account
+      docker_file: ./Workers/Dockerfile
+
+  database-migrations-prod1:
+    name: Database Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, api-stage, workers-stage]
+    uses: ./.github/workflows/_migrate-database.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      database_name: account
+      relative_project_path: account/Core/Account.csproj
+      relative_startup_project: account/Api/Account.Api.csproj
+      db_context: AccountDbContext
+      apply_migrations: true
+
+  api-prod1:
+    name: API Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, database-migrations-prod1]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      image_name: account-api
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-api
+      artifacts_path: application/account/Api/publish
+      docker_context: ./application/account
+      docker_file: ./Api/Dockerfile
+
+  workers-prod1:
+    name: Workers Production
+    if: ${{ needs.build-and-test.outputs.deploy_production == 'true' }}
+    needs: [build-and-test, database-migrations-prod1]
+    uses: ./.github/workflows/_deploy-container.yml
+    secrets: inherit
+    with:
+      azure_environment: "prod"
+      cluster_location_acronym: ${{ vars.PRODUCTION_CLUSTER1_LOCATION_ACRONYM }}
+      service_principal_id: ${{ vars.PRODUCTION_SERVICE_PRINCIPAL_ID }}
+      subscription_id: ${{ vars.PRODUCTION_SUBSCRIPTION_ID }}
+      image_name: account-workers
+      version: ${{ needs.build-and-test.outputs.version }}
+      artifacts_name: account-workers
+      artifacts_path: application/account/Workers/publish
+      docker_context: ./application/account
+      docker_file: ./Workers/Dockerfile
