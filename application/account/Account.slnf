@@ -1,0 +1,16 @@
+{
+  "solution": {
+    "path": "..\\PlatformPlatform.slnx",
+    "projects": [
+      "AppHost\\AppHost.csproj",
+      "AppGateway\\AppGateway.csproj",
+      "shared-kernel\\SharedKernel\\SharedKernel.csproj",
+      "shared-kernel\\Tests\\SharedKernel.Tests.csproj",
+      "account\\Core\\Account.csproj",
+      "account\\Workers\\Account.Workers.csproj",
+      "account\\Api\\Account.Api.csproj",
+      "account\\WebApp\\Account.WebApp.esproj",
+      "account\\Tests\\Account.Tests.csproj"
+    ]
+  }
+}

@@ -6,7 +6,7 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
  * current working directory. This is used to identify the application in the
  * Application Insights telemetry.
  *
- * @example "account-management/webapp"
+ * @example "account/webapp"
  */
 const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
 const BUILD_TYPE = process.env.NODE_ENV === "production" ? "production" : "development";

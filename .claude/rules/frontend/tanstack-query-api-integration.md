@@ -21,7 +21,7 @@ Note: All .NET API endpoints are available as strongly typed API contracts in th
 
 ```json
 "scripts": {
-  "swagger": "openapi-typescript shared/lib/api/AccountManagement.Api.json -o shared/lib/api/api.generated.d.ts --properties-required-by-default -t --enum --alphabetize",
+  "swagger": "openapi-typescript shared/lib/api/Account.Api.json -o shared/lib/api/api.generated.d.ts --properties-required-by-default -t --enum --alphabetize",
 },
 ```
 

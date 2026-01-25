@@ -3,7 +3,7 @@
 <h4 align="center">
 
 [![App Gateway](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml?query=branch%3Amain)
-[![Account Management](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml?query=branch%3Amain)
+[![Account](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml?query=branch%3Amain)
 [![Back Office](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml?query=branch%3Amain)
 [![Cloud Infrastructure](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml?query=branch%3Amain)
 
@@ -216,8 +216,8 @@ PlatformPlatform supports authentication via Google OAuth. This is optional for 
    - Application type: "Web application"
    - Name: "YourProduct Localhost"
 6. Add Authorized redirect URIs:
-   - `https://localhost:9000/api/account-management/oauth/google/login/callback`
-   - `https://localhost:9000/api/account-management/oauth/google/signup/callback`
+   - `https://localhost:9000/api/account/oauth/google/login/callback`
+   - `https://localhost:9000/api/account/oauth/google/signup/callback`
 7. Note the Client ID and Client Secret
 
 </details>
@@ -353,7 +353,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
-│  ├─ account-management # Self-contained system with account sign-up, user management, etc.
+│  ├─ account            # Self-contained system with account sign-up, user management, etc.
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure

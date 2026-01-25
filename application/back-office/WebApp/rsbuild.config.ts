@@ -47,7 +47,7 @@ export default defineConfig({
     DevelopmentServerPlugin({ port: 9201 }),
     ModuleFederationPlugin({
       remotes: {
-        "account-management": { port: 9101 }
+        account: { port: 9101 }
       }
     })
   ]

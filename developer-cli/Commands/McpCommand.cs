@@ -46,7 +46,7 @@ public static class DeveloperCliMcpTools
         string command,
         [Description("Backend")] bool backend = false,
         [Description("Frontend")] bool frontend = false,
-        [Description("Self-contained system, e.g., 'account-management' (optional)")]
+        [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null,
         [Description("Skip build (for test, format, inspect only)")]
         bool noBuild = false,

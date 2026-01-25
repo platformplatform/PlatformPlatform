@@ -14,7 +14,7 @@ public class AuthenticationCookieMiddleware(
     ILogger<AuthenticationCookieMiddleware> logger
 ) : IMiddleware
 {
-    private const string RefreshAuthenticationTokensEndpoint = "/internal-api/account-management/authentication/refresh-authentication-tokens";
+    private const string RefreshAuthenticationTokensEndpoint = "/internal-api/account/authentication/refresh-authentication-tokens";
     private const string UnauthorizedReasonItemKey = "UnauthorizedReason";
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -117,8 +117,8 @@ public class AuthenticationCookieMiddleware(
         // Use refresh Token as Bearer when refreshing Access Token
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", refreshToken);
 
-        var accountManagementHttpClient = httpClientFactory.CreateClient("AccountManagement");
-        var response = await accountManagementHttpClient.SendAsync(request);
+        var accountHttpClient = httpClientFactory.CreateClient("Account");
+        var response = await accountHttpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {

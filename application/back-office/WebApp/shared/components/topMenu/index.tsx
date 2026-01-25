@@ -8,7 +8,7 @@ import {
 } from "@repo/ui/components/Breadcrumb";
 import { Children, lazy, type ReactNode, Suspense } from "react";
 
-const FederatedTopMenu = lazy(() => import("account-management/FederatedTopMenu"));
+const FederatedTopMenu = lazy(() => import("account/FederatedTopMenu"));
 
 interface TopMenuProps {
   children?: ReactNode;

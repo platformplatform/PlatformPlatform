@@ -37,7 +37,7 @@ Guidelines for creating database migrations.
 ### Example 1 - Simple table
 
 ```csharp
-[DbContext(typeof(AccountManagementDbContext))]
+[DbContext(typeof(AccountDbContext))]
 [Migration("20250507141500_AddUserPreferences")] // ✅ DO: Use 14-digit timestamp
 public sealed class AddUserPreferences : Migration
 {

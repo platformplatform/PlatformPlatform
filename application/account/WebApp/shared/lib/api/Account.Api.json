@@ -1,0 +1,2958 @@
+{
+  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PlatformPlatform API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/account/authentication/logout": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationLogout",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/switch-tenant": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationSwitchTenant",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchTenantCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/sessions": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "GetApiAccountAuthenticationSessions",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSessionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/sessions/{id}": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "operationId": "DeleteApiAccountAuthenticationSessions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SessionId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internal-api/account/authentication/refresh-authentication-tokens": {
+      "post": {
+        "operationId": "PostInternalApiAccountAuthenticationRefreshAuthenticationTokens",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/internal-api/account/tenants/{id}": {
+      "delete": {
+        "operationId": "DeleteInternalApiAccountTenants",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TenantId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/login/start": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailLoginStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartEmailLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartEmailLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/login/{id}/complete": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailLoginComplete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailLoginId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteEmailLoginCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/login/{emailConfirmationId}/resend-code": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailLoginResendCode",
+        "parameters": [
+          {
+            "name": "emailConfirmationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailConfirmationId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/signup/start": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailSignupStart",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartEmailSignupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartEmailSignupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/signup/{emailConfirmationId}/complete": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailSignupComplete",
+        "parameters": [
+          {
+            "name": "emailConfirmationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailConfirmationId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteEmailSignupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/email/signup/{emailConfirmationId}/resend-code": {
+      "post": {
+        "tags": [
+          "EmailAuthentication"
+        ],
+        "operationId": "PostApiAccountAuthenticationEmailSignupResendCode",
+        "parameters": [
+          {
+            "name": "emailConfirmationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailConfirmationId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResendEmailConfirmationCodeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/{provider}/login/start": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountAuthenticationLoginStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "ReturnPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Locale",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/{provider}/login/callback": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountAuthenticationLoginCallback",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "error_description",
+            "x-originalName": "errorDescription",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/{provider}/signup/start": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountAuthenticationSignupStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "ReturnPath",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Locale",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/authentication/{provider}/signup/callback": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountAuthenticationSignupCallback",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "error_description",
+            "x-originalName": "errorDescription",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/stripe-webhook": {
+      "post": {
+        "tags": [
+          "StripeWebhook"
+        ],
+        "operationId": "PostApiAccountSubscriptionsStripeWebhook",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/current": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsCurrent",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/payment-history": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsPaymentHistory",
+        "parameters": [
+          {
+            "name": "PageOffset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentHistoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/stripe-health": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsStripeHealth",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StripeHealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/checkout": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCheckout",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckoutSessionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCheckoutSessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/checkout-success": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCheckoutSuccess",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutSuccessCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/upgrade": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsUpgrade",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpgradeSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/schedule-downgrade": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsScheduleDowngrade",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleDowngradeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/cancel": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCancel",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/reactivate": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsReactivate",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactivateSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactivateSubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/billing-portal": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsBillingPortal",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBillingPortalSessionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBillingPortalSessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/tenants/current": {
+      "get": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "GetApiAccountTenantsCurrent",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "PutApiAccountTenantsCurrent",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentTenantCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/tenants": {
+      "get": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "GetApiAccountTenants",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetTenantsForUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/tenants/current/update-logo": {
+      "post": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "PostApiAccountTenantsCurrentUpdateLogo",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/tenants/current/remove-logo": {
+      "delete": {
+        "tags": [
+          "Tenants"
+        ],
+        "operationId": "DeleteApiAccountTenantsCurrentRemoveLogo",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountUsers",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "UserRole",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UserRole"
+                }
+              ]
+            },
+            "x-position": 2
+          },
+          {
+            "name": "UserStatus",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/UserStatus"
+                }
+              ]
+            },
+            "x-position": 3
+          },
+          {
+            "name": "StartDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "EndDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "OrderBy",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortableUserProperties"
+            },
+            "x-position": 6
+          },
+          {
+            "name": "SortOrder",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortOrder"
+            },
+            "x-position": 7
+          },
+          {
+            "name": "PageOffset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 8
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 9
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountUsers2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "DeleteApiAccountUsers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/summary": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountUsersSummary",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/bulk-delete": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersBulkDelete",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteUsersCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/{id}/change-user-role": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountUsersChangeUserRole",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeUserRoleCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/invite": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersInvite",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/decline-invitation": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersDeclineInvitation",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeclineInvitationCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/deleted": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountUsersDeleted",
+        "parameters": [
+          {
+            "name": "PageOffset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedUsersResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/{id}/restore": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersRestore",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/{id}/purge": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "DeleteApiAccountUsersPurge",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserId"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/deleted/bulk-purge": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersDeletedBulkPurge",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPurgeUsersCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/deleted/empty-recycle-bin": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersDeletedEmptyRecycleBin",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/me": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetApiAccountUsersMe",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrentUserResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountUsersMe",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCurrentUserCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/me/update-avatar": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PostApiAccountUsersMeUpdateAvatar",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/me/remove-avatar": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "DeleteApiAccountUsersMeRemoveAvatar",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/me/change-locale": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountUsersMeChangeLocale",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeLocaleCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HttpValidationProblemDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProblemDetails"
+          },
+          {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "properties": {
+              "errors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "additionalProperties": {
+          "nullable": true
+        },
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SwitchTenantCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          }
+        }
+      },
+      "TenantId": {
+        "type": "string"
+      },
+      "StronglyTypedLongIdOfTenantId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfLongAndTenantId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfLongAndTenantId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UserSessionsResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserSessionInfo"
+            }
+          }
+        }
+      },
+      "UserSessionInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/SessionId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "loginMethod": {
+            "$ref": "#/components/schemas/LoginMethod"
+          },
+          "deviceType": {
+            "$ref": "#/components/schemas/DeviceType"
+          },
+          "userAgent": {
+            "type": "string"
+          },
+          "ipAddress": {
+            "type": "string"
+          },
+          "lastActivityAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "tenantName": {
+            "type": "string"
+          }
+        }
+      },
+      "SessionId": {
+        "type": "string",
+        "format": "sess_{string}"
+      },
+      "StronglyTypedUlidOfSessionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSessionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndSessionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "LoginMethod": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "OneTimePassword",
+          "Google"
+        ],
+        "enum": [
+          "OneTimePassword",
+          "Google"
+        ]
+      },
+      "DeviceType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Unknown",
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ],
+        "enum": [
+          "Unknown",
+          "Desktop",
+          "Mobile",
+          "Tablet"
+        ]
+      },
+      "StartEmailLoginResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "emailLoginId": {
+            "$ref": "#/components/schemas/EmailLoginId"
+          },
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "EmailLoginId": {
+        "type": "string",
+        "format": "emlog_{string}"
+      },
+      "StronglyTypedUlidOfEmailLoginId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailLoginId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailLoginId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "EmailConfirmationId": {
+        "type": "string",
+        "format": "econf_{string}"
+      },
+      "StronglyTypedUlidOfEmailConfirmationId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndEmailConfirmationId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndEmailConfirmationId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StartEmailLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "CompleteEmailLoginCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oneTimePassword": {
+            "type": "string"
+          },
+          "preferredTenantId": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TenantId"
+              }
+            ]
+          }
+        }
+      },
+      "ResendEmailConfirmationCodeResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StartEmailSignupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "emailConfirmationId": {
+            "$ref": "#/components/schemas/EmailConfirmationId"
+          },
+          "validForSeconds": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "StartEmailSignupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "CompleteEmailSignupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "oneTimePassword": {
+            "type": "string"
+          },
+          "preferredLocale": {
+            "type": "string"
+          }
+        }
+      },
+      "ExternalProviderType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Google"
+        ],
+        "enum": [
+          "Google"
+        ]
+      },
+      "SubscriptionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/SubscriptionId"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "scheduledPlan": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SubscriptionPlan"
+              }
+            ]
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "hasStripeSubscription": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SubscriptionId": {
+        "type": "string",
+        "format": "sub_{string}"
+      },
+      "StronglyTypedUlidOfSubscriptionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSubscriptionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndSubscriptionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SubscriptionPlan": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Trial",
+          "Standard",
+          "Premium"
+        ],
+        "enum": [
+          "Trial",
+          "Standard",
+          "Premium"
+        ]
+      },
+      "PaymentHistoryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentTransactionResponse"
+            }
+          }
+        }
+      },
+      "PaymentTransactionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PaymentTransactionId"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentTransactionStatus"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "invoiceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionId": {
+        "type": "string",
+        "format": "pymnt_{string}"
+      },
+      "StronglyTypedUlidOfPaymentTransactionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndPaymentTransactionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndPaymentTransactionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ],
+        "enum": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ]
+      },
+      "StripeHealthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "hasApiKey": {
+            "type": "boolean"
+          },
+          "hasWebhookSecret": {
+            "type": "boolean"
+          },
+          "hasStandardPriceId": {
+            "type": "boolean"
+          },
+          "hasPremiumPriceId": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateCheckoutSessionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkoutUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCheckoutSessionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "successUrl": {
+            "type": "string"
+          },
+          "cancelUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CheckoutSuccessCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpgradeSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newPlan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          }
+        }
+      },
+      "ScheduleDowngradeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newPlan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          }
+        }
+      },
+      "CancelSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ReactivateSubscriptionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkoutUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ReactivateSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "successUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateBillingPortalSessionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "portalUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateBillingPortalSessionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "returnUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "TenantResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/TenantState"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TenantState": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Trial",
+          "Active",
+          "PastDue",
+          "Suspended"
+        ],
+        "enum": [
+          "Trial",
+          "Active",
+          "PastDue",
+          "Suspended"
+        ]
+      },
+      "UpdateCurrentTenantCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "GetTenantsForUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TenantInfo"
+            }
+          }
+        }
+      },
+      "TenantInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          },
+          "tenantName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isNew": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserId": {
+        "type": "string",
+        "format": "usr_{string}"
+      },
+      "StronglyTypedUlidOfUserId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndUserId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndUserId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UsersResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentPageOffset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetails"
+            }
+          }
+        }
+      },
+      "UserDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "emailConfirmed": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UserRole": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Member",
+          "Admin",
+          "Owner"
+        ],
+        "enum": [
+          "Member",
+          "Admin",
+          "Owner"
+        ]
+      },
+      "UserStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Pending"
+        ],
+        "enum": [
+          "Active",
+          "Pending"
+        ]
+      },
+      "SortableUserProperties": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "CreatedAt",
+          "LastSeenAt",
+          "Name",
+          "Email",
+          "Role"
+        ],
+        "enum": [
+          "CreatedAt",
+          "LastSeenAt",
+          "Name",
+          "Email",
+          "Role"
+        ]
+      },
+      "SortOrder": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Ascending",
+          "Descending"
+        ],
+        "enum": [
+          "Ascending",
+          "Descending"
+        ]
+      },
+      "UserSummaryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeUsers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingUsers": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BulkDeleteUsersCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        }
+      },
+      "ChangeUserRoleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userRole": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        }
+      },
+      "InviteUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "DeclineInvitationCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": {
+            "$ref": "#/components/schemas/TenantId"
+          }
+        }
+      },
+      "DeletedUsersResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "currentPageOffset": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeletedUserDetails"
+            }
+          }
+        }
+      },
+      "DeletedUserDetails": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "emailConfirmed": {
+            "type": "boolean"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BulkPurgeUsersCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userIds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserId"
+            }
+          }
+        }
+      },
+      "CurrentUserResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/UserId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "modifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "avatarUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateCurrentUserCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeLocaleCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "locale": {
+            "type": "string"
+          }
+        }
+      },
+      "ExternalFlowType": {
+        "type": "string",
+        "enum": [
+          "Login",
+          "Signup"
+        ]
+      },
+      "ExternalLoginResult": {
+        "type": "string",
+        "enum": [
+          "Success",
+          "IdentityProviderError",
+          "InvalidState",
+          "LoginReplayDetected",
+          "SessionNotFound",
+          "FlowIdMismatch",
+          "SessionHijackingDetected",
+          "LoginExpired",
+          "LoginAlreadyCompleted",
+          "CodeExchangeFailed",
+          "IdentityMismatch",
+          "UserNotFound"
+        ]
+      },
+      "SessionRevokedReason": {
+        "type": "string",
+        "enum": [
+          "LoggedOut",
+          "Revoked",
+          "ReplayAttackDetected",
+          "SwitchTenant"
+        ]
+      }
+    }
+  }
+}
