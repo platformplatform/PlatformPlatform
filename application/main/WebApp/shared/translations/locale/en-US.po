@@ -13,8 +13,29 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "Get started"
+msgstr "Get started"
+
+msgid "Go to app"
+msgstr "Go to app"
+
 msgid "Home"
 msgstr "Home"
 
+msgid "Log in"
+msgstr "Log in"
+
 msgid "More information"
 msgstr "More information"
+
+msgid "Replace this sample page with your own product information and branding."
+msgstr "Replace this sample page with your own product information and branding."
+
+msgid "Welcome to PlatformPlatform"
+msgstr "Welcome to PlatformPlatform"
+
+msgid "You successfully deployed PlatformPlatform! 🎉"
+msgstr "You successfully deployed PlatformPlatform! 🎉"
+
+msgid "You successfully installed PlatformPlatform! 🎉"
+msgstr "You successfully installed PlatformPlatform! 🎉"
