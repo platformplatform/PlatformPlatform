@@ -64,6 +64,7 @@ export default defineConfig({
         "./FederatedNotFoundPage": "./federated-modules/errorPages/FederatedNotFoundPage.tsx",
         "./PublicFooter": "./federated-modules/public/PublicFooter.tsx",
         "./PublicNavigation": "./federated-modules/public/PublicNavigation.tsx",
+        "./Banners": "./federated-modules/banners/Banners.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",
         "./translations/da-DK": "./shared/translations/locale/da-DK.ts"
       }

@@ -409,7 +409,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = cva(
-  "group fixed top-[var(--past-due-banner-height,0rem)] left-0 z-30 flex h-[calc(100vh-var(--past-due-banner-height,0rem))] flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width,top] duration-100",
+  "group fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] left-0 z-30 flex h-[calc(100vh-var(--past-due-banner-height,0rem)-var(--invitation-banner-height,0rem))] flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width,top] duration-100",
   {
     variants: {
       isCollapsed: {

@@ -166,14 +166,21 @@ function SidePane({ children, isOpen, onOpenChange, className, "aria-label": ari
   const content = (
     <>
       {/* Backdrop for fullscreen mode */}
-      {needsFullscreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" onClick={onClose} />}
+      {needsFullscreen && (
+        <div
+          className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-[35] bg-black/50"
+          aria-hidden="true"
+          onClick={onClose}
+        />
+      )}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
         className={cn(
           "relative flex h-full w-full flex-col border-border border-l bg-card",
-          needsFullscreen && "fixed inset-0 z-[45]",
+          needsFullscreen &&
+            "fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-[45] h-auto",
           className
         )}
         aria-label={ariaLabel}

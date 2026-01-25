@@ -9,7 +9,6 @@ import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
-import { Badge } from "@repo/ui/components/Badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,6 +56,7 @@ interface TenantInfo {
   tenantName: string | null;
   logoUrl: string | null;
   isNew: boolean;
+  userId: string;
 }
 
 interface TenantsResponse {
@@ -219,12 +219,12 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   }
 
   const currentTenantId = userInfo.tenantId;
-  const sortedTenants = sortTenants(tenants);
+  const acceptedTenants = tenants.filter((t) => !t.isNew);
+  const sortedTenants = sortTenants(acceptedTenants);
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
-  const newTenantsCount = tenants.filter((t) => t.isNew && t.tenantId !== currentTenantId).length;
   const currentLocaleLabel = locales.find((l) => l.id === currentLocale)?.label || currentLocale;
 
   const handleThemeChange = (newTheme: string) => {
@@ -250,10 +250,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
   const handleTenantSwitch = async (tenant: TenantInfo) => {
     if (tenant.tenantId === currentTenantId) {
-      return;
-    }
-
-    if (tenant.isNew) {
       return;
     }
 
@@ -345,7 +341,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
               <div className="ml-3 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-foreground">
                 {currentTenantName}
               </div>
-              {newTenantsCount > 0 && <div className="ml-2 size-2 shrink-0 rounded-full bg-warning" />}
               <ChevronsUpDownIcon className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
             </>
           )}
@@ -395,14 +390,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                             {userInfo?.email}
                           </span>
                         </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          {tenant.isNew && (
-                            <Badge variant="secondary" className="bg-warning text-warning-foreground text-xs">
-                              <Trans>Invitation pending</Trans>
-                            </Badge>
-                          )}
-                          {tenant.tenantId === currentTenantId && <Check className="size-4" />}
-                        </div>
+                        {tenant.tenantId === currentTenantId && <Check className="ml-2 size-4 shrink-0" />}
                       </div>
                     </DropdownMenuItem>
                   ))

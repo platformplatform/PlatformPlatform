@@ -1,5 +1,6 @@
 import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
+import Banners from "@/federated-modules/banners/Banners";
 import FederatedNotFoundPage from "@/federated-modules/errorPages/FederatedNotFoundPage";
 
 export const Route = createFileRoute("/account")({
@@ -9,5 +10,10 @@ export const Route = createFileRoute("/account")({
 });
 
 function AccountLayout() {
-  return <Outlet />;
+  return (
+    <>
+      <Banners />
+      <Outlet />
+    </>
+  );
 }
