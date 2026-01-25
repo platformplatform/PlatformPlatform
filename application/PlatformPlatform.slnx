@@ -13,6 +13,13 @@
         <Project Path="back-office\WebApp\BackOffice.WebApp.esproj"/>
         <Project Path="back-office\Workers\BackOffice.Workers.csproj"/>
     </Folder>
+    <Folder Name="/main/">
+        <Project Path="main\Api\Main.Api.csproj"/>
+        <Project Path="main\Core\Main.csproj"/>
+        <Project Path="main\Tests\Main.Tests.csproj"/>
+        <Project Path="main\WebApp\Main.WebApp.esproj"/>
+        <Project Path="main\Workers\Main.Workers.csproj"/>
+    </Folder>
     <Folder Name="/shared-kernel/">
         <Project Path="shared-kernel\SharedKernel\SharedKernel.csproj"/>
         <Project Path="shared-kernel\Tests\SharedKernel.Tests.csproj"/>

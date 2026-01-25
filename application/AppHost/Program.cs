@@ -89,11 +89,28 @@ var backOfficeApi = builder
     .WithReference(azureStorage)
     .WaitFor(backOfficeWorkers);
 
+var mainDatabase = sqlServer
+    .AddDatabase("main-database", "main");
+
+var mainWorkers = builder
+    .AddProject<Main_Workers>("main-workers")
+    .WithReference(mainDatabase)
+    .WithReference(azureStorage)
+    .WaitFor(mainDatabase);
+
+var mainApi = builder
+    .AddProject<Main_Api>("main-api")
+    .WithUrlConfiguration("")
+    .WithReference(mainDatabase)
+    .WithReference(azureStorage)
+    .WaitFor(mainWorkers);
+
 var appGateway = builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(frontendBuild)
     .WithReference(accountApi)
     .WithReference(backOfficeApi)
+    .WithReference(mainApi)
     .WaitFor(accountApi)
     .WaitFor(frontendBuild)
     .WithUrlForEndpoint("https", url => url.DisplayText = "Web App");
