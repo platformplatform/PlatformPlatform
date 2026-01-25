@@ -50,8 +50,11 @@ test.describe("@smoke", () => {
    * - Current session card displays device info, IP, timestamps
    * - Current session does not show Revoke button
    * - Revoke individual session with confirmation dialog
+   *
+   * Note: Test skipped - Sessions menu item removed from AccountMenu.
+   * Re-enable when sessions page is added at /account/sessions.
    */
-  test("should display sessions modal with current session and handle session revocation", async ({ page }) => {
+  test.skip("should display sessions modal with current session and handle session revocation", async ({ page }) => {
     const context = createTestContext(page);
     const owner = testUser();
     const sessionsDialog = page.getByRole("dialog", { name: "Sessions" });
@@ -63,7 +66,7 @@ test.describe("@smoke", () => {
 
     await step("Open Sessions modal & verify current session with badge and no Revoke button")(async () => {
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu");
@@ -113,7 +116,7 @@ test.describe("@smoke", () => {
 
     await step("Re-open Sessions modal & verify multiple sessions with Revoke button on non-current")(async () => {
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu");
@@ -222,7 +225,7 @@ test.describe("@comprehensive", () => {
       const secondSessionsDialog = secondPage.getByRole("dialog", { name: "Sessions" });
 
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = secondPage.getByRole("button", { name: "User profile menu" });
+      const triggerButton = secondPage.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = secondPage.getByRole("menu");

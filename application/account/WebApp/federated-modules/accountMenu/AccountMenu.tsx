@@ -307,6 +307,13 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     window.location.href = "/account";
   };
 
+  const handleNavigateToProfile = () => {
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+    window.location.href = "/account/profile";
+  };
+
   const handleLogout = async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -412,6 +419,13 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                   <span className="font-medium">{userInfo.fullName}</span>
                   <span className="text-muted-foreground text-sm">{userInfo.email}</span>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleNavigateToProfile}
+                  className="rounded-md bg-secondary px-2.5 py-1 text-secondary-foreground text-sm hover:bg-secondary/80"
+                >
+                  <Trans>Edit</Trans>
+                </button>
               </div>
             </DropdownMenuLabel>
           </DropdownMenuGroup>

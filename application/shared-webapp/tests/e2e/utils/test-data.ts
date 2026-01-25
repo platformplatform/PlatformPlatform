@@ -1,7 +1,7 @@
-import { faker } from "@faker-js/faker";
-import type { Page } from "@playwright/test";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { faker } from "@faker-js/faker";
+import type { Page } from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
 import { expectToastMessage, typeOneTimeCode } from "./test-assertions";
@@ -11,7 +11,10 @@ import { expectToastMessage, typeOneTimeCode } from "./test-assertions";
  * This ensures tests use the same configuration as the application.
  */
 function readPlatformSettings(): { identity: { internalEmailDomain: string } } {
-  const settingsPath = path.resolve(__dirname, "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc");
+  const settingsPath = path.resolve(
+    __dirname,
+    "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc"
+  );
   const content = fs.readFileSync(settingsPath, "utf-8");
   const jsonWithoutComments = content.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
   return JSON.parse(jsonWithoutComments);
@@ -153,9 +156,10 @@ export async function completeSignupFlow(
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
   await expect(page).toHaveURL("/dashboard");
-  await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
-  // Step 4: Complete profile setup and verify successful save
+  // Step 4: Navigate to profile page and complete profile setup
+  await page.goto("/account/profile");
+  await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
@@ -167,7 +171,7 @@ export async function completeSignupFlow(
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
     // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-    const triggerButton = page.getByRole("button", { name: "User profile menu" });
+    const triggerButton = page.getByRole("button", { name: "Account menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
 
     const userMenu = page.getByRole("menu");

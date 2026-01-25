@@ -126,7 +126,7 @@ test.describe("@smoke", () => {
       await page.goto("/account");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -152,14 +152,14 @@ test.describe("@smoke", () => {
     })();
 
     await step("Complete member profile setup & verify profile saved")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify invite button is hidden")(async () => {
@@ -345,7 +345,7 @@ test.describe("@smoke", () => {
       await page.goto("/account");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -371,14 +371,14 @@ test.describe("@smoke", () => {
     })();
 
     await step("Complete member profile setup & verify profile saved")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify no bulk operations available")(async () => {
