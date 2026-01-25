@@ -30,7 +30,7 @@ declare module "account/PublicFooter" {
 declare module "account/PublicNavigation" {
   export default ReactNode;
 }
-declare module "account/PastDueBanner" {
+declare module "account/Banners" {
   export default ReactNode;
 }
 declare module "account/SuspendedPage" {

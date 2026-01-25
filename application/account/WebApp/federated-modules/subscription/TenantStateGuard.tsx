@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { api, TenantState } from "@/shared/lib/api/client";
-import PastDueBanner from "./PastDueBanner";
 import SuspendedPage from "./SuspendedPage";
 
 interface TenantStateGuardProps {
@@ -17,10 +16,5 @@ export default function TenantStateGuard({ children, pathname }: Readonly<Tenant
     return <SuspendedPage />;
   }
 
-  return (
-    <>
-      <PastDueBanner />
-      {children}
-    </>
-  );
+  return children;
 }

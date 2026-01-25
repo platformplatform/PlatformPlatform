@@ -1,7 +1,7 @@
 import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+import Banners from "@/federated-modules/banners/Banners";
 import FederatedNotFoundPage from "@/federated-modules/errorPages/FederatedNotFoundPage";
-import PastDueBanner from "@/federated-modules/subscription/PastDueBanner";
 import SuspendedPage from "@/federated-modules/subscription/SuspendedPage";
 import { api, TenantState } from "@/shared/lib/api/client";
 
@@ -22,7 +22,7 @@ function AccountLayout() {
 
   return (
     <>
-      <PastDueBanner />
+      <Banners />
       <Outlet />
     </>
   );
