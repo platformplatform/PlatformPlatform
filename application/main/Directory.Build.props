@@ -1,0 +1,16 @@
+<Project>
+
+    <PropertyGroup>
+        <UseArtifactsOutput>false</UseArtifactsOutput>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="MediatR"/>
+        <Using Include="Microsoft.Extensions.Logging"/>
+        <Using Include="System.ComponentModel"/>
+        <Using Include="System.Diagnostics"/>
+        <Using Include="System.Reflection"/>
+        <Using Include="System.Text.Json.Serialization"/>
+    </ItemGroup>
+
+</Project>

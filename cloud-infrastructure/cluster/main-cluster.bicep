@@ -10,6 +10,7 @@ param sqlAdminObjectId string
 param appGatewayVersion string
 param accountVersion string
 param backOfficeVersion string
+param mainVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
@@ -240,10 +241,6 @@ var accountEnvironmentVariables = [
     name: 'SENDER_EMAIL_ADDRESS'
     value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
   }
-  {
-    name: 'PUBLIC_GOOGLE_OAUTH_ENABLED'
-    value: !empty(googleOAuthClientId) && !empty(googleOAuthClientSecret) ? 'true' : 'false'
-  }
 ]
 
 module accountWorkers '../modules/container-app.bicep' = {
@@ -425,6 +422,138 @@ module backOfficeApi '../modules/container-app.bicep' = {
   dependsOn: [backOfficeWorkers]
 }
 
+// Main
+
+var mainIdentityName = '${clusterResourceGroupName}-main'
+module mainIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: '${clusterResourceGroupName}-main-managed-identity'
+  scope: clusterResourceGroup
+  params: {
+    name: mainIdentityName
+    location: location
+    tags: tags
+    containerRegistryName: containerRegistryName
+    globalResourceGroupName: globalResourceGroupName
+    keyVaultName: keyVault.outputs.name
+  }
+}
+
+module mainDatabase '../modules/microsoft-sql-database.bicep' = {
+  name: '${clusterResourceGroupName}-main-sql-database'
+  scope: clusterResourceGroup
+  params: {
+    sqlServerName: clusterResourceGroupName
+    databaseName: 'main'
+    location: location
+    tags: tags
+  }
+  dependsOn: [microsoftSqlServer]
+}
+
+var mainStorageAccountName = '${storageAccountUniquePrefix}main'
+module mainStorageAccount '../modules/storage-account.bicep' = {
+  scope: clusterResourceGroup
+  name: '${clusterResourceGroupName}-main-storage-account'
+  params: {
+    location: location
+    name: mainStorageAccountName
+    tags: tags
+    sku: 'Standard_GRS'
+    userAssignedIdentityName: mainIdentityName
+  }
+  dependsOn: [mainIdentity]
+}
+
+var mainEnvironmentVariables = [
+  {
+    name: 'AZURE_CLIENT_ID'
+    value: '${mainIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
+  }
+  {
+    name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+    value: applicationInsightsConnectionString
+  }
+  {
+    name: 'DATABASE_CONNECTION_STRING'
+    value: '${mainDatabase.outputs.connectionString};User Id=${mainIdentity.outputs.clientId};'
+  }
+  {
+    name: 'KEYVAULT_URL'
+    value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
+  }
+  {
+    name: 'BLOB_STORAGE_URL'
+    value: 'https://${mainStorageAccountName}.blob.${az.environment().suffixes.storage}'
+  }
+  {
+    name: 'PUBLIC_URL'
+    value: publicUrl
+  }
+  {
+    name: 'CDN_URL'
+    value: '${cdnUrl}/main'
+  }
+  {
+    name: 'SENDER_EMAIL_ADDRESS'
+    value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
+  }
+  {
+    name: 'PUBLIC_GOOGLE_OAUTH_ENABLED'
+    value: !empty(googleOAuthClientId) && !empty(googleOAuthClientSecret) ? 'true' : 'false'
+  }
+]
+
+module mainWorkers '../modules/container-app.bicep' = {
+  name: '${clusterResourceGroupName}-main-workers-container-app'
+  scope: clusterResourceGroup
+  params: {
+    name: 'main-workers'
+    location: location
+    tags: tags
+    clusterResourceGroupName: clusterResourceGroupName
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
+    containerRegistryName: containerRegistryName
+    containerImageName: 'main-workers'
+    containerImageTag: mainVersion
+    cpu: '0.25'
+    memory: '0.5Gi'
+    minReplicas: 0
+    maxReplicas: 1
+    userAssignedIdentityName: mainIdentityName
+    ingress: true
+    hasProbesEndpoint: false
+    revisionSuffix: revisionSuffix
+    environmentVariables: mainEnvironmentVariables
+  }
+}
+
+module mainApi '../modules/container-app.bicep' = {
+  name: '${clusterResourceGroupName}-main-api-container-app'
+  scope: clusterResourceGroup
+  params: {
+    name: 'main-api'
+    location: location
+    tags: tags
+    clusterResourceGroupName: clusterResourceGroupName
+    containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
+    containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
+    containerRegistryName: containerRegistryName
+    containerImageName: 'main-api'
+    containerImageTag: mainVersion
+    cpu: '0.25'
+    memory: '0.5Gi'
+    minReplicas: 0
+    maxReplicas: 1
+    userAssignedIdentityName: mainIdentityName
+    ingress: true
+    hasProbesEndpoint: true
+    revisionSuffix: revisionSuffix
+    environmentVariables: mainEnvironmentVariables
+  }
+  dependsOn: [mainWorkers]
+}
+
 // App Gateway
 
 var appGatewayIdentityName = '${clusterResourceGroupName}-app-gateway'
@@ -490,6 +619,10 @@ module appGateway '../modules/container-app.bicep' = {
         name: 'BACK_OFFICE_API_URL'
         value: 'https://back-office-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
       }
+      {
+        name: 'MAIN_API_URL'
+        value: 'https://main-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
+      }
     ]
   }
 }
@@ -506,3 +639,4 @@ module appGatewayAccountStorageBlobDataReaderRoleAssignment '../modules/role-ass
 
 output accountIdentityClientId string = accountIdentity.outputs.clientId
 output backOfficeIdentityClientId string = backOfficeIdentity.outputs.clientId
+output mainIdentityClientId string = mainIdentity.outputs.clientId
