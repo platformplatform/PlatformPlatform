@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.Main</AssemblyName>
+        <RootNamespace>PlatformPlatform.Main</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj"/>
+    </ItemGroup>
+
+</Project>
