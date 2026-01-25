@@ -78,6 +78,9 @@ msgstr "Account deleted"
 msgid "Account information"
 msgstr "Account information"
 
+msgid "Account menu"
+msgstr "Account menu"
+
 msgid "Account name"
 msgstr "Account name"
 
@@ -502,6 +505,9 @@ msgstr "Light"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
+msgid "Loading..."
+msgstr "Loading..."
+
 msgid "Log in"
 msgstr "Log in"
 
@@ -841,6 +847,9 @@ msgstr "Stay"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
+
+msgid "Switch account"
+msgstr "Switch account"
 
 msgid "Switching account..."
 msgstr "Switching account..."

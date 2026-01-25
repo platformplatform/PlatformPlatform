@@ -7,7 +7,7 @@ type AppLayoutVariant = "full" | "center";
 
 type AppLayoutProps = {
   children: React.ReactNode;
-  topMenu: React.ReactNode;
+  topMenu?: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
   sidePane?: React.ReactNode;
@@ -264,23 +264,26 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         {/* Height matches collapsed side menu width for visual consistency */}
-        <aside
-          className={`fixed top-[var(--past-due-banner-height,0px)] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
-            isMobileMenuOpen ? "hidden" : ""
-          } hidden sm:flex sm:items-center`}
-          aria-label="Secondary navigation"
-        >
-          <div className="w-full" style={{ marginLeft: style.marginLeft }}>
-            {topMenu}
-          </div>
-        </aside>
+        {topMenu && (
+          <aside
+            className={`fixed top-[var(--past-due-banner-height,0rem)] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
+              isMobileMenuOpen ? "hidden" : ""
+            } hidden sm:flex sm:items-center`}
+            aria-label="Secondary navigation"
+          >
+            <div className="w-full" style={{ marginLeft: style.marginLeft }}>
+              {topMenu}
+            </div>
+          </aside>
+        )}
 
         {/* Main content area */}
         <main
           ref={contentRef}
-          className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 pb-0 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:pt-28 sm:pb-4 supports-[padding:max(0px)]:sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
-          }
+          className={cn(
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
+            topMenu ? "sm:pt-28" : "sm:pt-4"
+          )}
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
