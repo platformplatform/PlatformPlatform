@@ -13,8 +13,29 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "Get started"
+msgstr "Kom i gang"
+
+msgid "Go to app"
+msgstr "Gå til app"
+
 msgid "Home"
 msgstr "Hjem"
 
+msgid "Log in"
+msgstr "Log ind"
+
 msgid "More information"
 msgstr "Mere information"
+
+msgid "Replace this sample page with your own product information and branding."
+msgstr "Erstat denne eksempelside med dine egne produktinformationer og branding."
+
+msgid "Welcome to PlatformPlatform"
+msgstr "Velkommen til PlatformPlatform"
+
+msgid "You successfully deployed PlatformPlatform! 🎉"
+msgstr "Du har installeret PlatformPlatform med succes! 🎉"
+
+msgid "You successfully installed PlatformPlatform! 🎉"
+msgstr "Du har installeret PlatformPlatform med succes! 🎉"

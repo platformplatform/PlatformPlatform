@@ -1,7 +1,7 @@
 import { MarkdownRenderer } from "@repo/ui/components/MarkdownRenderer";
 import { createFileRoute } from "@tanstack/react-router";
-import { PublicFooter } from "@/shared/components/PublicFooter";
-import { PublicNavigation } from "@/shared/components/PublicNavigation";
+import PublicFooter from "@/federated-modules/public/PublicFooter";
+import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 
 export const Route = createFileRoute("/legal/terms")({
   component: TermsOfUse
