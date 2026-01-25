@@ -42,8 +42,8 @@ public interface ILoginRepository : IAppendRepository<Login, LoginId> // ✅ DO:
     void Update(Login aggregate); // ✅ DO: Add only needed methods
 }
 
-public sealed class LoginRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and primary constructor
-    : RepositoryBase<Login, LoginId>(accountManagementDbContext), ILoginRepository;
+public sealed class LoginRepository(AccountDbContext accountDbContext) // ✅ DO: Use sealed class and primary constructor
+    : RepositoryBase<Login, LoginId>(accountDbContext), ILoginRepository;
 
 // ❌ DON'T: Use ICrudRepository if not all CRUD ops needed, or return DTOs
 internal interface IBadLoginRepository : ICrudRepository<Login, LoginId> // ❌ DON'T: Make repositories internal
@@ -57,15 +57,15 @@ public interface IEmailConfirmationRepository : IAppendRepository<EmailConfirmat
     EmailConfirmation[] GetByEmail(string email); // ✅ DO: Custom query method allowed
 }
 
-public sealed class EmailConfirmationRepository(AccountManagementDbContext accountManagementDbContext) // ✅ DO: Use sealed class and inherit RepositoryBase
-    : RepositoryBase<EmailConfirmation, EmailConfirmationId>(accountManagementDbContext), IEmailConfirmationRepository
+public sealed class EmailConfirmationRepository(AccountDbContext accountDbContext) // ✅ DO: Use sealed class and inherit RepositoryBase
+    : RepositoryBase<EmailConfirmation, EmailConfirmationId>(accountDbContext), IEmailConfirmationRepository
 {
     public EmailConfirmation[] GetByEmail(string email)
         => DbSet.Where(ec => !ec.Completed && ec.Email == email.ToLowerInvariant()).ToArray(); // ✅ DO: Implement custom query
 }
 
-public sealed class AccountManagementDbContext(DbContextOptions<AccountManagementDbContext> options, IExecutionContext executionContext)
-    : SharedKernelDbContext<AccountManagementDbContext>(options, executionContext)
+public sealed class AccountDbContext(DbContextOptions<AccountDbContext> options, IExecutionContext executionContext)
+    : SharedKernelDbContext<AccountDbContext>(options, executionContext)
 {
     public DbSet<EmailConfirmation> EmailConfirmations => Set<EmailConfirmation>(); // ❌ DON'T: Add DbSet<T> to DbContext, this is automatically handled in RepositoryBase
 }

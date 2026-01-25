@@ -3,7 +3,7 @@ using Yarp.ReverseProxy.Transforms;
 
 namespace PlatformPlatform.AppGateway.Transformations;
 
-public class SharedAccessSignatureRequestTransform([FromKeyedServices("account-management-storage")] IBlobStorageClient accountManagementBlobStorageClient)
+public class SharedAccessSignatureRequestTransform([FromKeyedServices("account-storage")] IBlobStorageClient accountBlobStorageClient)
     : RequestTransform
 {
     public override ValueTask ApplyAsync(RequestTransformContext context)
@@ -22,7 +22,7 @@ public class SharedAccessSignatureRequestTransform([FromKeyedServices("account-m
             return ValueTask.CompletedTask;
         }
 
-        var sharedAccessSignature = accountManagementBlobStorageClient.GetSharedAccessSignature(containerName, TimeSpan.FromMinutes(10));
+        var sharedAccessSignature = accountBlobStorageClient.GetSharedAccessSignature(containerName, TimeSpan.FromMinutes(10));
         context.HttpContext.Request.QueryString = new QueryString(sharedAccessSignature);
 
         return ValueTask.CompletedTask;

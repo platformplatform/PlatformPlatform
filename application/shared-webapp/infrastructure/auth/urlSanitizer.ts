@@ -19,12 +19,8 @@ const ENTITY_ID_PATTERN = /[a-z]{2,5}_[A-Z0-9]{26}/;
  * @returns The sanitized URL safe for cross-tenant navigation
  *
  * @example
- * sanitizeUrl('/admin/users?userId=usr_01K1FYBDQ2NSPQ4NPJQ8Q5XCNY')
- * // Returns: '/admin/users'
- *
- * @example
- * sanitizeUrl('/engagement-management/eng_01JSNZ5NBF6RRBE2GK1K2PY0WM?tab=details')
- * // Returns: '/engagement-management'
+ * sanitizeUrl('/account/users?userId=usr_01K1FYBDQ2NSPQ4NPJQ8Q5XCNY')
+ * // Returns: '/account/users'
  */
 export function sanitizeUrl(url: string): string {
   try {

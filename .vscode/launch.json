@@ -7,7 +7,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
       "args": ["test"],
-      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "cwd": "${workspaceFolder}/application/account/WebApp/tests",
       "env": {
         "PUBLIC_URL": "https://localhost:9000"
       },
@@ -20,7 +20,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
       "args": ["test", "--grep", "@smoke"],
-      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "cwd": "${workspaceFolder}/application/account/WebApp/tests",
       "env": {
         "PUBLIC_URL": "https://localhost:9000"
       },
@@ -33,7 +33,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
       "args": ["test", "${relativeFile}", "--headed", "--project=chromium", "--timeout=0"],
-      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "cwd": "${workspaceFolder}/application/account/WebApp/tests",
       "env": {
         "PUBLIC_URL": "https://localhost:9000",
         "PWDEBUG": "0"
@@ -53,7 +53,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/application/node_modules/@playwright/test/cli.js",
       "args": ["test", "${relativeFile}", "--debug", "--project=chromium"],
-      "cwd": "${workspaceFolder}/application/account-management/WebApp/tests",
+      "cwd": "${workspaceFolder}/application/account/WebApp/tests",
       "env": {
         "PUBLIC_URL": "https://localhost:9000"
       },

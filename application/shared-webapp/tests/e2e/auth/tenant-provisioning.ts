@@ -94,7 +94,7 @@ export async function ensureTenantUsersExist(tenant: Tenant): Promise<void> {
     await completeSignupFlow(page, expect, tenant.owner, testContext);
 
     // Save authentication state for reuse
-    const authManager = createAuthStateManager(0, "account-management"); // Use worker 0 for shared users
+    const authManager = createAuthStateManager(0, "account"); // Use worker 0 for shared users
     await authManager.saveAuthState(page, "Owner");
   } finally {
     // Cleanup - always close browser resources

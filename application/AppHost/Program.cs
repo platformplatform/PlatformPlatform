@@ -53,25 +53,25 @@ var frontendBuild = builder
     .AddJavaScriptApp("frontend-build", "../")
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
-var accountManagementDatabase = sqlServer
-    .AddDatabase("account-management-database", "account-management");
+var accountDatabase = sqlServer
+    .AddDatabase("account-database", "account");
 
-var accountManagementWorkers = builder
-    .AddProject<AccountManagement_Workers>("account-management-workers")
-    .WithReference(accountManagementDatabase)
+var accountWorkers = builder
+    .AddProject<Account_Workers>("account-workers")
+    .WithReference(accountDatabase)
     .WithReference(azureStorage)
-    .WaitFor(accountManagementDatabase);
+    .WaitFor(accountDatabase);
 
-var accountManagementApi = builder
-    .AddProject<AccountManagement_Api>("account-management-api")
-    .WithUrlConfiguration("/account-management")
-    .WithReference(accountManagementDatabase)
+var accountApi = builder
+    .AddProject<Account_Api>("account-api")
+    .WithUrlConfiguration("/account")
+    .WithReference(accountDatabase)
     .WithReference(azureStorage)
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
     .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
-    .WaitFor(accountManagementWorkers);
+    .WaitFor(accountWorkers);
 
 var backOfficeDatabase = sqlServer
     .AddDatabase("back-office-database", "back-office");
@@ -92,9 +92,9 @@ var backOfficeApi = builder
 var appGateway = builder
     .AddProject<AppGateway>("app-gateway")
     .WithReference(frontendBuild)
-    .WithReference(accountManagementApi)
+    .WithReference(accountApi)
     .WithReference(backOfficeApi)
-    .WaitFor(accountManagementApi)
+    .WaitFor(accountApi)
     .WaitFor(frontendBuild)
     .WithUrlForEndpoint("https", url => url.DisplayText = "Web App");
 
