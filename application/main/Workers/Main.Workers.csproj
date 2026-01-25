@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <AssemblyName>PlatformPlatform.Main.Workers</AssemblyName>
+        <RootNamespace>PlatformPlatform.Main.Workers</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;Dockerfile</DefaultItemExcludes>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\Main.csproj"/>
+    </ItemGroup>
+
+</Project>

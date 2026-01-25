@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.751930">
+
+    <PropertyGroup>
+        <ShouldRunNpmInstall>false</ShouldRunNpmInstall>
+        <ShouldRunBuildScript>false</ShouldRunBuildScript>
+        <TargetFrameworkMoniker>net10.0</TargetFrameworkMoniker>
+        <DefaultItemExcludes>$(DefaultItemExcludes);dist\**;*.config.*;*.d.ts</DefaultItemExcludes>
+        <NpmInstallCheck>$(MSBuildProjectDirectory)\..\..\package-lock.json</NpmInstallCheck>
+    </PropertyGroup>
+
+</Project>
