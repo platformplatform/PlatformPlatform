@@ -57,7 +57,6 @@ export default defineConfig({
         "./AccountMenu": "./federated-modules/accountMenu/AccountMenu.tsx",
         "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
         "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
-        "./FederatedTopMenu": "./federated-modules/topMenu/FederatedTopMenu.tsx",
         "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
         "./FederatedAccessDeniedPage": "./federated-modules/errorPages/FederatedAccessDeniedPage.tsx",
         "./FederatedErrorPage": "./federated-modules/errorPages/FederatedErrorPage.tsx",

@@ -355,9 +355,6 @@ msgstr "F.eks. Taylor"
 msgid "Edit"
 msgstr "Rediger"
 
-msgid "Edit profile"
-msgstr "Rediger profil"
-
 msgid "Email"
 msgstr "E-mail"
 
@@ -970,9 +967,6 @@ msgstr "Bruger slettet permanent: {userDisplayName}"
 
 msgid "User profile"
 msgstr "Brugerprofil"
-
-msgid "User profile menu"
-msgstr "Brugerprofilmenu"
 
 msgid "User restored successfully: {userName}"
 msgstr "Bruger genoprettet succesfuldt: {userName}"

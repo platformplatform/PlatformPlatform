@@ -9,9 +9,6 @@ declare module "account/MobileMenu" {
 declare module "account/FederatedSideMenu" {
   export default ReactNode;
 }
-declare module "account/FederatedTopMenu" {
-  export default ReactNode;
-}
 declare module "account/AuthSyncModal" {
   export default ReactNode;
 }

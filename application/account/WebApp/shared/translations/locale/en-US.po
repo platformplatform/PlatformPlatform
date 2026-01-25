@@ -355,9 +355,6 @@ msgstr "E.g. Taylor"
 msgid "Edit"
 msgstr "Edit"
 
-msgid "Edit profile"
-msgstr "Edit profile"
-
 msgid "Email"
 msgstr "Email"
 
@@ -970,9 +967,6 @@ msgstr "User permanently deleted: {userDisplayName}"
 
 msgid "User profile"
 msgstr "User profile"
-
-msgid "User profile menu"
-msgstr "User profile menu"
 
 msgid "User restored successfully: {userName}"
 msgstr "User restored successfully: {userName}"
