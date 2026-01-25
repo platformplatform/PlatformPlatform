@@ -13,4 +13,4 @@ export const loginPath = "/login";
 /**
  * Path to the default page shown after successful login
  */
-export const loggedInPath = "/account";
+export const loggedInPath = "/dashboard";
