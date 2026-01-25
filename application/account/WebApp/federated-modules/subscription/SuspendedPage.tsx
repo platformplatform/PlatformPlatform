@@ -6,7 +6,7 @@ import { Link } from "@repo/ui/components/Link";
 import { AlertTriangleIcon } from "lucide-react";
 import { api } from "@/shared/lib/api/client";
 
-export function SuspendedPage() {
+export default function SuspendedPage() {
   const userInfo = useUserInfo();
   const isOwner = userInfo?.role === "Owner";
 

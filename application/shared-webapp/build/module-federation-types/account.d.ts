@@ -30,6 +30,15 @@ declare module "account/PublicFooter" {
 declare module "account/PublicNavigation" {
   export default ReactNode;
 }
+declare module "account/PastDueBanner" {
+  export default ReactNode;
+}
+declare module "account/SuspendedPage" {
+  export default ReactNode;
+}
+declare module "account/TenantStateGuard" {
+  export default ReactNode;
+}
 declare module "account/translations/en-US" {
   import type { Messages } from "@lingui/core";
   export const messages: Messages;

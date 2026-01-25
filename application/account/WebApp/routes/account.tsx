@@ -1,8 +1,8 @@
 import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import FederatedNotFoundPage from "@/federated-modules/errorPages/FederatedNotFoundPage";
-import { PastDueBanner } from "@/shared/components/PastDueBanner";
-import { SuspendedPage } from "@/shared/components/SuspendedPage";
+import PastDueBanner from "@/federated-modules/subscription/PastDueBanner";
+import SuspendedPage from "@/federated-modules/subscription/SuspendedPage";
 import { api, TenantState } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account")({

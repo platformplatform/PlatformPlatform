@@ -269,7 +269,7 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
+          className={`fixed top-[var(--past-due-banner-height,0px)] right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"

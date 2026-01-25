@@ -28,8 +28,23 @@ msgstr "Log ind"
 msgid "More information"
 msgstr "Mere information"
 
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
 msgid "Replace this sample page with your own product information and branding."
 msgstr "Erstat denne eksempelside med dine egne produktinformationer og branding."
+
+msgid "This is where your personalized dashboard content will appear. Stay tuned for updates."
+msgstr "Her vil dit personaliserede dashboardindhold vises. Hold dig opdateret."
+
+msgid "Toggle sidebar"
+msgstr "Skift sidepanel"
+
+msgid "Welcome to {accountName}"
+msgstr "Velkommen til {accountName}"
 
 msgid "Welcome to PlatformPlatform"
 msgstr "Velkommen til PlatformPlatform"
@@ -39,3 +54,6 @@ msgstr "Du har installeret PlatformPlatform med succes! 🎉"
 
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "Du har installeret PlatformPlatform med succes! 🎉"
+
+msgid "Your dashboard is empty"
+msgstr "Dit dashboard er tomt"
