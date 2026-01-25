@@ -385,9 +385,6 @@ msgstr "Europa"
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
 
-msgid "Fetching data..."
-msgstr "Henter data..."
-
 msgid "Filters"
 msgstr "Filtre"
 
@@ -677,9 +674,6 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 msgid "Powered by"
 msgstr "Powered by"
 
-msgid "Preview avatar"
-msgstr "Forhåndsvisning af avatar"
-
 msgid "Previous"
 msgstr "Forrige"
 
@@ -691,6 +685,12 @@ msgstr "Fortrolighedspolitikker"
 
 msgid "Privacy Policy"
 msgstr "Privatlivspolitik"
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Profile avatar"
+msgstr "Profilavatar"
 
 msgid "Profile picture"
 msgstr "Profilbillede"
@@ -926,6 +926,9 @@ msgstr "Prøv at justere din søgning eller filtre"
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Unable to load profile"
+msgstr "Kunne ikke indlæse profil"
+
 msgid "Unknown"
 msgstr "Ukendt"
 
@@ -952,6 +955,9 @@ msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
+
+msgid "User"
+msgstr "Bruger"
 
 msgid "User actions"
 msgstr "Brugerhandlinger"

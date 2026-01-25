@@ -385,9 +385,6 @@ msgstr "Europe"
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
 
-msgid "Fetching data..."
-msgstr "Fetching data..."
-
 msgid "Filters"
 msgstr "Filters"
 
@@ -677,9 +674,6 @@ msgstr "Please try again or return to the home page."
 msgid "Powered by"
 msgstr "Powered by"
 
-msgid "Preview avatar"
-msgstr "Preview avatar"
-
 msgid "Previous"
 msgstr "Previous"
 
@@ -691,6 +685,12 @@ msgstr "Privacy policies"
 
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
+
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Profile avatar"
+msgstr "Profile avatar"
 
 msgid "Profile picture"
 msgstr "Profile picture"
@@ -926,6 +926,9 @@ msgstr "Try adjusting your search or filters"
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Unable to load profile"
+msgstr "Unable to load profile"
+
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -952,6 +955,9 @@ msgstr "Upload logo"
 
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
+
+msgid "User"
+msgstr "User"
 
 msgid "User actions"
 msgstr "User actions"
