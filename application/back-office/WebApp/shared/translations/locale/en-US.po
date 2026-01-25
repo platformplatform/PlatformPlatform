@@ -13,11 +13,23 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 
 msgid "More information"
 msgstr "More information"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
+msgid "Toggle sidebar"
+msgstr "Toggle sidebar"
 
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"

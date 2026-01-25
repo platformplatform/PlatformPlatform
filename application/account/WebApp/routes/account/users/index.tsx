@@ -1,10 +1,9 @@
 import { t } from "@lingui/core/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { AppLayout } from "@/shared/components/AppLayout";
 import { api, type components, SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
@@ -133,7 +132,6 @@ export default function UsersPage() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout
         sidePane={getSidePane()}
         title={t`Users`}

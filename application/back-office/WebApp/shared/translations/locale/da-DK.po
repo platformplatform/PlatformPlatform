@@ -13,11 +13,23 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
 
 msgid "More information"
 msgstr "Mere information"
+
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
+msgid "Toggle sidebar"
+msgstr "Vis/skjul sidepanel"
 
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"

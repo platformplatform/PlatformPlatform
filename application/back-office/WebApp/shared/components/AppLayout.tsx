@@ -1,0 +1,283 @@
+import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
+import { cn } from "@repo/ui/utils";
+import React, { useEffect, useRef, useState } from "react";
+
+type AppLayoutVariant = "full" | "center";
+
+type AppLayoutProps = {
+  children: React.ReactNode;
+  variant?: AppLayoutVariant;
+  maxWidth?: string;
+  sidePane?: React.ReactNode;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  scrollAwayHeader?: boolean;
+};
+
+function useBodyScrollLock(isLocked: boolean) {
+  useEffect(() => {
+    if (isLocked) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isLocked]);
+}
+
+function useStickyHeader(enabled: boolean, headerRef: React.RefObject<HTMLDivElement | null>) {
+  const [isSticky, setIsSticky] = useState(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
+    const threshold = 0.1;
+
+    observerRef.current = new IntersectionObserver(
+      ([entry]) => {
+        setIsSticky(!entry.isIntersecting);
+      },
+      {
+        threshold,
+        rootMargin: "-60px 0px 0px 0px"
+      }
+    );
+
+    if (headerRef.current) {
+      observerRef.current.observe(headerRef.current);
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [enabled, headerRef]);
+
+  return isSticky;
+}
+
+function useScrollAwayHeader(enabled: boolean, contentRef: React.RefObject<HTMLDivElement | null>) {
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!enabled || !contentRef.current) {
+      return;
+    }
+
+    const updateHeaderHeight = () => {
+      const header = contentRef.current?.querySelector(".scroll-away-header") as HTMLDivElement;
+      if (header) {
+        headerRef.current = header;
+        const headerContent = header.querySelector(".mb-4") as HTMLDivElement;
+        setHeaderHeight(headerContent ? headerContent.offsetHeight : header.offsetHeight);
+      }
+    };
+
+    const handleScroll = () => {
+      if (!contentRef.current || !headerRef.current) {
+        return;
+      }
+
+      const scrollTop = contentRef.current.scrollTop;
+      const maxScroll = Math.max(headerHeight - 60, 0);
+      const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
+
+      setScrollProgress(progress);
+    };
+
+    updateHeaderHeight();
+    window.addEventListener("resize", updateHeaderHeight);
+
+    const scrollElement = contentRef.current;
+    scrollElement.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("resize", updateHeaderHeight);
+      scrollElement.removeEventListener("scroll", handleScroll);
+    };
+  }, [enabled, contentRef, headerHeight]);
+
+  return { scrollProgress, isFullyScrolled: scrollProgress >= 1 };
+}
+
+interface HeaderContentProps {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  isSticky: boolean;
+}
+
+const HeaderContent = React.forwardRef<HTMLDivElement, HeaderContentProps>(({ title, subtitle, isSticky }, ref) => (
+  <div ref={ref} className="mb-4">
+    <h1 className={cn("transition-opacity duration-200", isSticky ? "opacity-0 sm:opacity-100" : "opacity-100")}>
+      {title}
+    </h1>
+    {subtitle && (
+      <p
+        className={cn(
+          "mt-2 text-muted-foreground",
+          "transition-opacity duration-200",
+          isSticky ? "opacity-0 sm:opacity-100" : "opacity-100"
+        )}
+      >
+        {subtitle}
+      </p>
+    )}
+  </div>
+));
+
+HeaderContent.displayName = "HeaderContent";
+
+interface ScrollAwayContentProps {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  scrollProgress: number;
+  headerRef: React.RefObject<HTMLDivElement | null>;
+  children: React.ReactNode;
+}
+
+function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, children }: ScrollAwayContentProps) {
+  return (
+    <div className="flex h-full flex-col">
+      <div
+        className="scroll-away-header sm:hidden"
+        style={{
+          transform: `translateY(-${scrollProgress * 100}%)`,
+          opacity: 1 - scrollProgress
+        }}
+      >
+        <div className="mb-4">
+          <h1>{title}</h1>
+          {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+        </div>
+      </div>
+
+      <div ref={headerRef} className="mb-4 hidden sm:block">
+        <h1>{title}</h1>
+        {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+    </div>
+  );
+}
+
+interface StandardContentProps {
+  variant: AppLayoutVariant;
+  maxWidth: string;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  headerRef: React.RefObject<HTMLDivElement | null>;
+  isSticky: boolean;
+  children: React.ReactNode;
+}
+
+function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isSticky, children }: StandardContentProps) {
+  if (variant === "center") {
+    return (
+      <div className="flex w-full flex-col items-center">
+        <div className="flex w-full flex-col" style={{ maxWidth }}>
+          {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
+          <div className="flex flex-col">{children}</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col pb-4">
+      {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+    </div>
+  );
+}
+
+export function AppLayout({
+  children,
+  variant = "full",
+  maxWidth = "640px",
+  sidePane,
+  title,
+  subtitle,
+  scrollAwayHeader = false
+}: Readonly<AppLayoutProps>) {
+  const { className, style, isOverlayOpen } = useSideMenuLayout();
+  const headerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useBodyScrollLock(isOverlayOpen);
+  const isSticky = useStickyHeader(!!title && !scrollAwayHeader, headerRef);
+  const { scrollProgress, isFullyScrolled } = useScrollAwayHeader(scrollAwayHeader && !!title, contentRef);
+
+  return (
+    <div className="flex h-full flex-col">
+      <div
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
+        style={style}
+      >
+        {title && (
+          <div
+            className={cn(
+              "fixed top-0 right-0 left-0 z-40 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
+              "flex flex-col items-center justify-center text-center sm:hidden",
+              "transform transition-all duration-200",
+              scrollAwayHeader
+                ? isFullyScrolled
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-full opacity-0"
+                : isSticky
+                  ? "translate-y-0 opacity-100"
+                  : "-translate-y-full opacity-0"
+            )}
+            aria-hidden={scrollAwayHeader ? !isFullyScrolled : !isSticky}
+          >
+            <div className="max-w-[80%] truncate font-medium text-sm">{title}</div>
+          </div>
+        )}
+
+        <main
+          ref={contentRef}
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-8 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none"
+          id="main-content"
+          aria-label="Main content"
+          tabIndex={-1}
+        >
+          {scrollAwayHeader && title ? (
+            <ScrollAwayContent title={title} subtitle={subtitle} scrollProgress={scrollProgress} headerRef={headerRef}>
+              {children}
+            </ScrollAwayContent>
+          ) : (
+            <StandardContent
+              variant={variant}
+              maxWidth={maxWidth}
+              title={title}
+              subtitle={subtitle}
+              headerRef={headerRef}
+              isSticky={isSticky}
+            >
+              {children}
+            </StandardContent>
+          )}
+        </main>
+
+        {sidePane && (
+          <aside
+            className="fixed inset-0 z-[46] bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            aria-label="Side panel"
+          >
+            {sidePane}
+          </aside>
+        )}
+      </div>
+    </div>
+  );
+}

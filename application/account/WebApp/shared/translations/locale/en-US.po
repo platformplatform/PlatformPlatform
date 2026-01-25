@@ -200,8 +200,8 @@ msgstr "Authentication was cancelled or denied. Please try again if you want to 
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
 
-msgid "Back Office"
-msgstr "Back Office"
+msgid "Back to app"
+msgstr "Back to app"
 
 msgid "Back to login"
 msgstr "Back to login"
@@ -326,9 +326,6 @@ msgstr "Danger zone"
 
 msgid "Dark"
 msgstr "Dark"
-
-msgid "Dashboard"
-msgstr "Dashboard"
 
 msgid "Data Processing Agreement"
 msgstr "Data Processing Agreement"
@@ -695,9 +692,6 @@ msgstr "Open navigation menu"
 msgid "or"
 msgstr "or"
 
-msgid "Organization"
-msgstr "Organization"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 
@@ -914,6 +908,9 @@ msgstr "Session revoked successfully"
 
 msgid "Sessions"
 msgstr "Sessions"
+
+msgid "Settings"
+msgstr "Settings"
 
 msgid "Show details"
 msgstr "Show details"

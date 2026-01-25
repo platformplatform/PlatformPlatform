@@ -200,8 +200,8 @@ msgstr "Godkendelse blev annulleret eller afvist. Prøv venligst igen, hvis du v
 msgid "Azure Compliance"
 msgstr "Azure Overholdelse"
 
-msgid "Back Office"
-msgstr "Back Office"
+msgid "Back to app"
+msgstr "Tilbage til appen"
 
 msgid "Back to login"
 msgstr "Tilbage til login"
@@ -326,9 +326,6 @@ msgstr "Farezone"
 
 msgid "Dark"
 msgstr "Mørk"
-
-msgid "Dashboard"
-msgstr "Dashboard"
 
 msgid "Data Processing Agreement"
 msgstr "Databehandleraftale"
@@ -695,9 +692,6 @@ msgstr "Åbn navigationsmenu"
 msgid "or"
 msgstr "eller"
 
-msgid "Organization"
-msgstr "Organisation"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at alle dine data bliver fjernet."
 
@@ -914,6 +908,9 @@ msgstr "Session tilbagekaldt succesfuldt"
 
 msgid "Sessions"
 msgstr "Sessioner"
+
+msgid "Settings"
+msgstr "Indstillinger"
 
 msgid "Show details"
 msgstr "Vis detaljer"

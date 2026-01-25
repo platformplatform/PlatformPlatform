@@ -1,6 +1,7 @@
 import { hasPermission, requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
+import { BackOfficeSideMenu } from "@/shared/components/sideMenu";
 
 const FederatedAccessDeniedPage = lazy(() => import("account/FederatedAccessDeniedPage"));
 const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
@@ -19,5 +20,10 @@ function BackOfficeLayout() {
       </Suspense>
     );
   }
-  return <Outlet />;
+  return (
+    <>
+      <BackOfficeSideMenu />
+      <Outlet />
+    </>
+  );
 }

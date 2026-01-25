@@ -1,6 +1,5 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import {
   DropdownMenu,
@@ -23,7 +22,7 @@ import { CameraIcon, Trash2, Trash2Icon } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { AppLayout } from "@/shared/components/AppLayout";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
@@ -292,7 +291,6 @@ export function AccountSettings() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout variant="center" title={t`Account settings`} subtitle={t`Manage your account here.`}>
         <Form
           onSubmit={isOwner ? mutationSubmitter(updateCurrentTenantMutation) : undefined}

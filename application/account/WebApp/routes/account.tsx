@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import Banners from "@/federated-modules/banners/Banners";
 import FederatedNotFoundPage from "@/federated-modules/errorPages/FederatedNotFoundPage";
 import SuspendedPage from "@/federated-modules/subscription/SuspendedPage";
+import { AccountSideMenu } from "@/shared/components/sideMenu";
 import { api, TenantState } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account")({
@@ -23,6 +24,7 @@ function AccountLayout() {
   return (
     <>
       <Banners />
+      <AccountSideMenu />
       <Outlet />
     </>
   );

@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
-import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
@@ -10,7 +9,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangleIcon, ExternalLinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
+import { AppLayout } from "@/shared/components/AppLayout";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { CancelSubscriptionDialog } from "./-components/CancelSubscriptionDialog";
@@ -24,16 +23,9 @@ export const Route = createFileRoute("/account/subscription/")({
 
 function AccessDenied() {
   return (
-    <>
-      <FederatedSideMenu currentSystem="account" />
-      <AppLayout
-        variant="center"
-        title={t`Access denied`}
-        subtitle={t`Only account owners can manage the subscription.`}
-      >
-        <div />
-      </AppLayout>
-    </>
+    <AppLayout variant="center" title={t`Access denied`} subtitle={t`Only account owners can manage the subscription.`}>
+      <div />
+    </AppLayout>
   );
 }
 
@@ -201,7 +193,6 @@ function SubscriptionPage() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout
         variant="center"
         maxWidth="960px"

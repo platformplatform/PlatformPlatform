@@ -1,38 +1,19 @@
+import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
+import { cn } from "@repo/ui/utils";
 import React, { useEffect, useRef, useState } from "react";
-import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
-import { cn } from "../utils";
 
 type AppLayoutVariant = "full" | "center";
 
 type AppLayoutProps = {
   children: React.ReactNode;
-  topMenu?: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
   sidePane?: React.ReactNode;
-  paddingBottom?: string;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   scrollAwayHeader?: boolean;
 };
 
-/**
- * AppLayout provides the fixed layout structure for applications with a side menu.
- * - Fixed TopMenu that doesn't scroll with content (contains secondary navigation/functions)
- * - Scrollable content area that respects the side menu width
- * - Proper margin adjustments based on side menu state
- * - SideMenu (rendered separately) contains the main navigation
- *
- * Accessibility landmarks:
- * - SideMenu: <nav role="navigation"> (main navigation)
- * - TopMenu: <div role="complementary"> (secondary navigation/functions)
- * - Content: <main> (main content area)
- * - SidePane: <aside> (complementary content)
- *
- * Variants:
- * - full: Content takes full width with standard padding
- * - center: Content is always centered with configurable max width (default: 640px)
- */
 function useBodyScrollLock(isLocked: boolean) {
   useEffect(() => {
     if (isLocked) {
@@ -96,7 +77,6 @@ function useScrollAwayHeader(enabled: boolean, contentRef: React.RefObject<HTMLD
       const header = contentRef.current?.querySelector(".scroll-away-header") as HTMLDivElement;
       if (header) {
         headerRef.current = header;
-        // Only count the header height, not the entire content
         const headerContent = header.querySelector(".mb-4") as HTMLDivElement;
         setHeaderHeight(headerContent ? headerContent.offsetHeight : header.offsetHeight);
       }
@@ -108,7 +88,7 @@ function useScrollAwayHeader(enabled: boolean, contentRef: React.RefObject<HTMLD
       }
 
       const scrollTop = contentRef.current.scrollTop;
-      const maxScroll = Math.max(headerHeight - 60, 0); // Leave 60px for sticky header
+      const maxScroll = Math.max(headerHeight - 60, 0);
       const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
 
       setScrollProgress(progress);
@@ -168,7 +148,6 @@ interface ScrollAwayContentProps {
 function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, children }: ScrollAwayContentProps) {
   return (
     <div className="flex h-full flex-col">
-      {/* Mobile header with scroll-away behavior */}
       <div
         className="scroll-away-header sm:hidden"
         style={{
@@ -182,7 +161,6 @@ function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, childre
         </div>
       </div>
 
-      {/* Desktop header - static */}
       <div ref={headerRef} className="mb-4 hidden sm:block">
         <h1>{title}</h1>
         {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
@@ -206,17 +184,17 @@ interface StandardContentProps {
 function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isSticky, children }: StandardContentProps) {
   if (variant === "center") {
     return (
-      <div className="flex h-full w-full flex-col items-center">
-        <div className="flex h-full w-full flex-col" style={{ maxWidth }}>
+      <div className="flex w-full flex-col items-center">
+        <div className="flex w-full flex-col" style={{ maxWidth }}>
           {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
-          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          <div className="flex flex-col">{children}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col pb-4">
       {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
@@ -225,7 +203,6 @@ function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isStic
 
 export function AppLayout({
   children,
-  topMenu,
   variant = "full",
   maxWidth = "640px",
   sidePane,
@@ -233,7 +210,7 @@ export function AppLayout({
   subtitle,
   scrollAwayHeader = false
 }: Readonly<AppLayoutProps>) {
-  const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
+  const { className, style, isOverlayOpen } = useSideMenuLayout();
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -247,7 +224,6 @@ export function AppLayout({
         className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
       >
-        {/* Mobile sticky header - shown differently based on scroll mode */}
         {title && (
           <div
             className={cn(
@@ -267,25 +243,10 @@ export function AppLayout({
             <div className="max-w-[80%] truncate font-medium text-sm">{title}</div>
           </div>
         )}
-        {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
-        {topMenu && (
-          <aside
-            className={`fixed top-[calc(var(--past-due-banner-height,0px)+var(--invitation-banner-height,0px))] right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
-              isMobileMenuOpen ? "hidden" : ""
-            } hidden sm:block`}
-            aria-label="Secondary navigation"
-          >
-            <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
-          </aside>
-        )}
 
-        {/* Main content area */}
         <main
           ref={contentRef}
-          className={cn(
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
-            topMenu ? "sm:pt-28" : "sm:pt-4"
-          )}
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-8 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none"
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
@@ -308,7 +269,6 @@ export function AppLayout({
           )}
         </main>
 
-        {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
             className="fixed inset-0 z-40 bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"

@@ -59,7 +59,6 @@ export default defineConfig({
       exposes: {
         "./AccountMenu": "./federated-modules/accountMenu/AccountMenu.tsx",
         "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
-        "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
         "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
         "./FederatedAccessDeniedPage": "./federated-modules/errorPages/FederatedAccessDeniedPage.tsx",
         "./FederatedErrorPage": "./federated-modules/errorPages/FederatedErrorPage.tsx",
