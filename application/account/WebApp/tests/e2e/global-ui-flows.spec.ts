@@ -214,8 +214,8 @@ test.describe("@comprehensive", () => {
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Click theme button and select dark mode & verify it applies")(async () => {
@@ -247,7 +247,7 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
 
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       // Dark theme should persist after logout
@@ -258,11 +258,11 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
 
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Fdashboard");
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
       // Dark theme should persist after login
       await expect(page.locator("html")).toHaveClass("dark");
@@ -280,7 +280,7 @@ test.describe("@comprehensive", () => {
     await step("Click Go to home button on 404 page & verify navigation to home")(async () => {
       await page.getByRole("button", { name: "Go to home" }).click();
 
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/dashboard");
     })();
 
     // === ERROR PAGE VIA KONAMI CODE ===

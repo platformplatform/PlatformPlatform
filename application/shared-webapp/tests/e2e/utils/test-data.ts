@@ -152,7 +152,7 @@ export async function completeSignupFlow(
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
-  await expect(page).toHaveURL("/account");
+  await expect(page).toHaveURL("/dashboard");
   await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
 
   // Step 4: Complete profile setup and verify successful save
@@ -162,7 +162,7 @@ export async function completeSignupFlow(
   await expectToastMessage(context, "Profile updated successfully");
 
   // Step 5: Wait for successful completion
-  await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
@@ -179,6 +179,6 @@ export async function completeSignupFlow(
     await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
     await expect(userMenu).not.toBeVisible();
-    await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+    await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
   }
 }

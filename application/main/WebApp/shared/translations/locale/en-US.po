@@ -13,11 +13,41 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "Burning the midnight oil, {firstName}?"
+msgstr "Burning the midnight oil, {firstName}?"
+
+msgid "Burning the midnight oil?"
+msgstr "Burning the midnight oil?"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Get started"
 msgstr "Get started"
 
 msgid "Go to app"
 msgstr "Go to app"
+
+msgid "Good afternoon"
+msgstr "Good afternoon"
+
+msgid "Good afternoon, {firstName}"
+msgstr "Good afternoon, {firstName}"
+
+msgid "Good evening"
+msgstr "Good evening"
+
+msgid "Good evening, {firstName}"
+msgstr "Good evening, {firstName}"
+
+msgid "Good morning"
+msgstr "Good morning"
+
+msgid "Good morning, {firstName}"
+msgstr "Good morning, {firstName}"
+
+msgid "Here's your overview of what's happening."
+msgstr "Here's your overview of what's happening."
 
 msgid "Home"
 msgstr "Home"
@@ -28,8 +58,20 @@ msgstr "Log in"
 msgid "More information"
 msgstr "More information"
 
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
 msgid "Replace this sample page with your own product information and branding."
 msgstr "Replace this sample page with your own product information and branding."
+
+msgid "This is where your personalized dashboard content will appear. Stay tuned for updates."
+msgstr "This is where your personalized dashboard content will appear. Stay tuned for updates."
+
+msgid "Toggle sidebar"
+msgstr "Toggle sidebar"
 
 msgid "Welcome to PlatformPlatform"
 msgstr "Welcome to PlatformPlatform"
@@ -39,3 +81,6 @@ msgstr "You successfully deployed PlatformPlatform! 🎉"
 
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "You successfully installed PlatformPlatform! 🎉"
+
+msgid "Your dashboard is empty"
+msgstr "Your dashboard is empty"

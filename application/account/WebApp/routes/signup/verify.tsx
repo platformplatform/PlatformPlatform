@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -27,22 +26,23 @@ import {
 } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
+  beforeLoad: () => {
+    const { isAuthenticated } = import.meta.user_info_env;
+    if (isAuthenticated) {
+      window.location.href = loggedInPath;
+    }
+    return {};
+  },
   component: function SignupVerifyRoute() {
     const navigate = useNavigate();
-    const isAuthenticated = useIsAuthenticated();
 
     useEffect(() => {
-      if (isAuthenticated) {
-        navigate({ to: loggedInPath });
-        return;
-      }
-
       if (!hasSignupState()) {
         navigate({ to: "/signup", replace: true });
       }
-    }, [isAuthenticated, navigate]);
+    }, [navigate]);
 
-    if (isAuthenticated || !hasSignupState()) {
+    if (!hasSignupState()) {
       return null;
     }
 

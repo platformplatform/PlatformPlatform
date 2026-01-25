@@ -13,11 +13,41 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "Burning the midnight oil, {firstName}?"
+msgstr "Sidder du stadig oppe, {firstName}?"
+
+msgid "Burning the midnight oil?"
+msgstr "Sidder du stadig oppe?"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
 msgid "Get started"
 msgstr "Kom i gang"
 
 msgid "Go to app"
 msgstr "Gå til app"
+
+msgid "Good afternoon"
+msgstr "God eftermiddag"
+
+msgid "Good afternoon, {firstName}"
+msgstr "God eftermiddag, {firstName}"
+
+msgid "Good evening"
+msgstr "God aften"
+
+msgid "Good evening, {firstName}"
+msgstr "God aften, {firstName}"
+
+msgid "Good morning"
+msgstr "God morgen"
+
+msgid "Good morning, {firstName}"
+msgstr "God morgen, {firstName}"
+
+msgid "Here's your overview of what's happening."
+msgstr "Her er dit overblik over hvad der sker."
 
 msgid "Home"
 msgstr "Hjem"
@@ -28,8 +58,20 @@ msgstr "Log ind"
 msgid "More information"
 msgstr "Mere information"
 
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
 msgid "Replace this sample page with your own product information and branding."
 msgstr "Erstat denne eksempelside med dine egne produktinformationer og branding."
+
+msgid "This is where your personalized dashboard content will appear. Stay tuned for updates."
+msgstr "Her vil dit personaliserede dashboardindhold vises. Hold dig opdateret."
+
+msgid "Toggle sidebar"
+msgstr "Skift sidepanel"
 
 msgid "Welcome to PlatformPlatform"
 msgstr "Velkommen til PlatformPlatform"
@@ -39,3 +81,6 @@ msgstr "Du har installeret PlatformPlatform med succes! 🎉"
 
 msgid "You successfully installed PlatformPlatform! 🎉"
 msgstr "Du har installeret PlatformPlatform med succes! 🎉"
+
+msgid "Your dashboard is empty"
+msgstr "Dit dashboard er tomt"

@@ -58,7 +58,7 @@ test.describe("@smoke", () => {
 
     await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Open Sessions modal & verify current session with badge and no Revoke button")(async () => {
@@ -105,8 +105,8 @@ test.describe("@smoke", () => {
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
-      await expect(secondPage).toHaveURL("/account");
-      await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(secondPage).toHaveURL("/dashboard");
+      await expect(secondPage.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
       await secondContext.close();
     })();
@@ -197,7 +197,7 @@ test.describe("@comprehensive", () => {
 
     await step("Sign up user in primary browser & verify dashboard")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     const secondContext = await browser.newContext();
@@ -213,8 +213,8 @@ test.describe("@comprehensive", () => {
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
-      await expect(secondPage).toHaveURL("/account");
-      await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(secondPage).toHaveURL("/dashboard");
+      await expect(secondPage.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Revoke primary session from secondary browser & verify success")(async () => {
@@ -299,7 +299,7 @@ test.describe("@comprehensive", () => {
 
     await step("Sign up user & verify dashboard")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     const stolenRefreshToken = await getRefreshTokenCookie(page.context());

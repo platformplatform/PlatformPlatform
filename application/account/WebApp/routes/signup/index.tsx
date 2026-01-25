@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
@@ -24,13 +23,14 @@ import { getLoginState } from "../login/-shared/loginState";
 import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
-  component: function SignupRoute() {
-    const isAuthenticated = useIsAuthenticated();
-
+  beforeLoad: () => {
+    const { isAuthenticated } = import.meta.user_info_env;
     if (isAuthenticated) {
-      return <Navigate to={loggedInPath} />;
+      window.location.href = loggedInPath;
     }
-
+    return {};
+  },
+  component: function SignupRoute() {
     return (
       <HorizontalHeroLayout>
         <StartSignupForm />
