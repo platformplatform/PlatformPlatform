@@ -105,7 +105,7 @@ test.describe("@smoke", () => {
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
-      await expect(secondPage).toHaveURL("/admin");
+      await expect(secondPage).toHaveURL("/account");
       await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       await secondContext.close();
@@ -213,7 +213,7 @@ test.describe("@comprehensive", () => {
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
-      await expect(secondPage).toHaveURL("/admin");
+      await expect(secondPage).toHaveURL("/account");
       await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
@@ -318,13 +318,13 @@ test.describe("@comprehensive", () => {
       const secondPageContext = createTestContext(secondPage);
       secondPageContext.monitoring.expectedStatusCodes.push(401);
 
-      await secondPage.goto("/admin");
-      await expect(secondPage).toHaveURL("/admin");
+      await secondPage.goto("/account");
+      await expect(secondPage).toHaveURL("/account");
       await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
       await deleteAccessTokenCookie(secondPage);
       await secondPage.getByRole("link", { name: "Users", exact: true }).click();
-      await expect(secondPage).toHaveURL("/admin/users");
+      await expect(secondPage).toHaveURL("/account/users");
       await expect(secondPage.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 

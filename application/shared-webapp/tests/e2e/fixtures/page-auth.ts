@@ -63,7 +63,7 @@ async function performFreshAuthentication(
 
   // Set account name for Owner role to allow user invitations
   if (role === "Owner") {
-    await page.goto("/admin/account");
+    await page.goto("/account/settings");
     await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
     await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
     await page.getByRole("button", { name: "Save changes" }).click();

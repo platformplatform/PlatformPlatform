@@ -10,7 +10,7 @@ import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 import { api, UserStatus } from "@/shared/lib/api/client";
 
-export const Route = createFileRoute("/admin/")({
+export const Route = createFileRoute("/account/")({
   component: Home
 });
 
@@ -28,7 +28,7 @@ export default function Home() {
       >
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
-            to="/admin/users"
+            to="/account/users"
             className="rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label={t`View users`}
           >
@@ -51,7 +51,7 @@ export default function Home() {
             </Card>
           </Link>
           <Link
-            to="/admin/users"
+            to="/account/users"
             search={{
               userStatus: UserStatus.Active,
               startDate: getDateDaysAgo(30),
@@ -79,7 +79,7 @@ export default function Home() {
             </Card>
           </Link>
           <Link
-            to="/admin/users"
+            to="/account/users"
             search={{ userStatus: UserStatus.Pending }}
             className="rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label={t`View invited users`}

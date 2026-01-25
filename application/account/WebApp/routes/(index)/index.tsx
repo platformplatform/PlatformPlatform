@@ -40,7 +40,7 @@ export const Route = createFileRoute("/(index)/")({
               {/* CTAs */}
               <div className="flex justify-center gap-4">
                 {isAuthenticated ? (
-                  <Link href="/admin" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
+                  <Link href="/account" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                     <Trans>Go to app</Trans>
                   </Link>
                 ) : (

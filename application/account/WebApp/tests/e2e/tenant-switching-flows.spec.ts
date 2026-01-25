@@ -89,7 +89,7 @@ test.describe("@comprehensive", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin");
+      await expect(page1).toHaveURL("/login?returnPath=%2Faccount");
     })();
 
     await step("Create second tenant & verify user invitation")(async () => {
@@ -164,7 +164,7 @@ test.describe("@comprehensive", () => {
       await typeOneTimeCode(page1, getVerificationCode());
       // Wait for navigation to complete - could be Users or Home page
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin/users");
+      await expect(page1).toHaveURL("/account/users");
 
       // tenant selector is visible with dropdown
       const navElement = page1.locator("nav").first();
@@ -204,7 +204,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin/users");
+      await expect(page1).toHaveURL("/account/users");
 
       // Re-query the tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
@@ -235,7 +235,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin/users");
+      await expect(page1).toHaveURL("/account/users");
 
       // Re-query tenant button after page changes
       const navElementAfter = page1.locator("nav").first();
@@ -246,7 +246,7 @@ test.describe("@comprehensive", () => {
     // === OPEN SECOND TAB ===
     await step("Open second tab & verify shared authentication")(async () => {
       // Navigate page2 to home (it shares authentication with page1)
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // both pages show navigation (confirms authentication is shared)
@@ -279,12 +279,12 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("login?returnPath=%2Fadmin%2Fusers");
+      await expect(page1).toHaveURL("login?returnPath=%2Faccount%2Fusers");
 
       // tab 2 also loses authentication
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL("/login?returnPath=%2Fadmin");
+      await expect(page2).toHaveURL("/login?returnPath=%2Faccount");
 
       // Login again
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
@@ -294,7 +294,7 @@ test.describe("@comprehensive", () => {
 
       // Wait for navigation to complete
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/admin/users");
+      await expect(page1).toHaveURL("/account/users");
 
       // Should login to tertiary tenant (last selected)
       const navElementAfter = page1.locator("nav").first();
@@ -302,7 +302,7 @@ test.describe("@comprehensive", () => {
       await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
 
       // page2 also shows tertiary tenant when navigated
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(tertiaryTenantName);
     })();
@@ -339,7 +339,7 @@ test.describe("@comprehensive", () => {
       await expect(targetMenuItem).toBeVisible();
       await targetMenuItem.dispatchEvent("click");
 
-      await expect(page1).toHaveURL("/admin/account");
+      await expect(page1).toHaveURL("/account/settings");
 
       // Re-query the tenant button with the new tenant name
       const navElementAfterSwitch = page1.locator("nav").first();
@@ -389,7 +389,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate tab 2 to admin & verify it shows different user")(async () => {
       // Navigate page2 to trigger auth check
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // both tabs now show the secondary tenant (different user's tenant)
@@ -422,7 +422,7 @@ test.describe("@comprehensive", () => {
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Navigate page2 to admin
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // both on primary tenant
@@ -472,7 +472,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate tab 2 to admin & verify it shows tenant switch from login")(async () => {
       // Navigate page2 to admin to get latest auth state
-      await page2.goto("/admin");
+      await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // tab 2 now shows secondary tenant (switched during login)
@@ -547,7 +547,7 @@ test.describe("@comprehensive", () => {
 
     await step("Login as invited user in both tabs & verify invitation appears")(async () => {
       // Open new tab (page2 is already authenticated as user)
-      await page2.goto("/admin");
+      await page2.goto("/account");
 
       // Logout from page2
       testContext2.monitoring.expectedStatusCodes.push(401);
@@ -587,7 +587,7 @@ test.describe("@comprehensive", () => {
       const page3 = await context.newPage();
 
       // Navigate page3 to admin (shares authentication)
-      await page3.goto("/admin");
+      await page3.goto("/account");
       await expect(page3.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Open tenant selector in page2 (still on primary tenant)
@@ -675,12 +675,12 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem2).toBeVisible();
       await logoutMenuItem2.dispatchEvent("click");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL("/login?returnPath=%2Fadmin");
+      await expect(page2).toHaveURL("/login?returnPath=%2Faccount");
 
       // tab 1 also loses authentication due to auth sync
-      await page1.goto("/admin");
+      await page1.goto("/account");
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("/login?returnPath=%2Fadmin");
+      await expect(page1).toHaveURL("/login?returnPath=%2Faccount");
     })();
   });
 });

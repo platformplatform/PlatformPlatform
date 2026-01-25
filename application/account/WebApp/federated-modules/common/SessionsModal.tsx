@@ -122,7 +122,11 @@ function SessionCard({
   session,
   isRevoking,
   onRevoke
-}: Readonly<{ session: UserSessionInfo; isRevoking: boolean; onRevoke: (session: UserSessionInfo) => void }>) {
+}: Readonly<{
+  session: UserSessionInfo;
+  isRevoking: boolean;
+  onRevoke: (session: UserSessionInfo) => void;
+}>) {
   const formatDate = useFormatDate();
   const deviceLabel = getDeviceTypeLabel(session.deviceType);
   const browserInfo = parseUserAgent(session.userAgent);
@@ -223,12 +227,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
   const [revokingSessionIds, setRevokingSessionIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = api.useQuery(
-    "get",
-    "/api/account/authentication/sessions",
-    {},
-    { enabled: isOpen }
-  );
+  const { data, isLoading } = api.useQuery("get", "/api/account/authentication/sessions", {}, { enabled: isOpen });
 
   const sessions = data?.sessions ?? [];
 
