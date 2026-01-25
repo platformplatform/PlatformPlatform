@@ -495,7 +495,7 @@ export default function MobileMenu({ navigationContent }: Readonly<MobileMenuPro
       onTouchStart={(e) => e.stopPropagation()}
       style={{ touchAction: "pan-y" }}
     >
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-1">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 pt-[calc(0.25rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]">
         <MobileMenuHeader />
 
         <div className="mx-2 my-5 border-border border-b" />
