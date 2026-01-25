@@ -42,33 +42,30 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Indtast din bekræftelseskode" })).toBeVisible();
     })();
 
-    await step("Complete verification with Danish interface & verify navigation to admin")(async () => {
+    await step("Complete verification with Danish interface & verify navigation to dashboard")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/dashboard");
     })();
 
-    await step("Complete profile setup in Danish & verify profile form works")(async () => {
-      // Fill profile form in Danish
-      await expect(page.getByRole("dialog", { name: "Brugerprofil" })).toBeVisible();
+    await step("Navigate to profile page & complete profile setup in Danish")(async () => {
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profil" })).toBeVisible();
       await page.getByRole("textbox", { name: "Fornavn" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Efternavn" }).fill(user.lastName);
       await page.getByRole("textbox", { name: "Titel" }).fill("CEO");
       await page.getByRole("button", { name: "Gem ændringer" }).click();
 
-      // Verify Danish success message and navigation
       await expectToastMessage(context, "Profil opdateret succesfuldt");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      await expect(page.getByRole("heading", { name: "Dit dashboard er tomt" })).toBeVisible();
     })();
 
     await step("Click logout from Danish interface & verify language persists after logout")(async () => {
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "Brugerprofilmenu" });
+      const triggerButton = page.getByRole("button", { name: "Kontomenu" });
       await triggerButton.dispatchEvent("click");
 
-      const userMenu = page.getByRole("menu");
-      await expect(userMenu).toBeVisible();
+      const accountMenu = page.getByRole("menu", { name: "Kontomenu" });
+      await expect(accountMenu).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log ud" });
@@ -76,7 +73,7 @@ test.describe("@comprehensive", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Verify Danish language persists after logout
-      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
+      await expect(page).toHaveURL("/login?returnPath=%2Faccount%2Fprofile");
       await expect(page.getByRole("heading", { name: "Hej! Velkommen tilbage" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
@@ -103,33 +100,31 @@ test.describe("@comprehensive", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
 
-      await expect(page).toHaveURL("/login/verify?returnPath=%2Fdashboard");
+      await expect(page).toHaveURL("/login/verify?returnPath=%2Faccount%2Fprofile");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
     })();
 
     await step("Complete login verification & verify language resets to user's saved preference")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page).toHaveURL("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profil" })).toBeVisible();
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
 
-    await step("Click language button and reset to English & verify language change works")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const languageButton = page.getByRole("button", { name: "Skift sprog" });
-      await languageButton.dispatchEvent("click");
+    await step("Open account menu & reset language to English & verify language change works")(async () => {
+      // Open account menu to access language submenu
+      await page.getByRole("button", { name: "Kontomenu" }).dispatchEvent("click");
+      const accountMenu = page.getByRole("menu", { name: "Kontomenu" });
+      await expect(accountMenu).toBeVisible();
 
-      const languageMenu = page.getByRole("menu");
-      await expect(languageMenu).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      await accountMenu.getByText("Sprog").dispatchEvent("click");
       const englishMenuItem = page.getByRole("menuitem", { name: "English" });
       await expect(englishMenuItem).toBeVisible();
-      await englishMenuItem.click();
+      await englishMenuItem.dispatchEvent("click");
 
-      // Language change triggers page reload - wait for heading to be visible
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      // Language change triggers page reload - wait for English heading to confirm reload completed
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();
@@ -167,15 +162,17 @@ test.describe("@comprehensive", () => {
       await expect(page1).toHaveURL("/signup/verify");
 
       await typeOneTimeCode(page1, getVerificationCode());
+      await expect(page1).toHaveURL("/dashboard");
 
-      // Complete profile in Danish
+      // Navigate to profile and complete in Danish
+      await page1.goto("/account/profile");
+      await expect(page1.getByRole("heading", { name: "Profil" })).toBeVisible();
       await page1.getByRole("textbox", { name: "Fornavn" }).fill(user1.firstName);
       await page1.getByRole("textbox", { name: "Efternavn" }).fill(user1.lastName);
       await page1.getByRole("button", { name: "Gem ændringer" }).click();
 
       // Verify Danish preference saved
       await expectToastMessage(testContext1, 200, "Profil opdateret succesfuldt");
-      await expect(page1.getByRole("heading", { name: "Dit dashboard er tomt" })).toBeVisible();
       await expect(page1.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
 

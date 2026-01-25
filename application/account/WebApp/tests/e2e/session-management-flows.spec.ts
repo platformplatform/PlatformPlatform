@@ -50,51 +50,31 @@ test.describe("@smoke", () => {
    * - Current session card displays device info, IP, timestamps
    * - Current session does not show Revoke button
    * - Revoke individual session with confirmation dialog
-   *
-   * Note: Test skipped - Sessions menu item removed from AccountMenu.
-   * Re-enable when sessions page is added at /account/sessions.
    */
-  test.skip("should display sessions modal with current session and handle session revocation", async ({ page }) => {
+  test("should display sessions page with current session and handle session revocation", async ({ page }) => {
     const context = createTestContext(page);
     const owner = testUser();
-    const sessionsDialog = page.getByRole("dialog", { name: "Sessions" });
 
-    await step("Complete owner signup & verify welcome page")(async () => {
+    await step("Complete owner signup & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
-    await step("Open Sessions modal & verify current session with badge and no Revoke button")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
-      await triggerButton.dispatchEvent("click");
+    await step("Navigate to Sessions page & verify current session with badge and no Revoke button")(async () => {
+      // Navigate to sessions page via URL
+      await page.goto("/account/sessions");
 
-      const userMenu = page.getByRole("menu");
-      await expect(userMenu).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
+      await expect(page.getByText("This device")).toBeVisible();
+      await expect(page.getByText("IP address")).toBeVisible();
+      await expect(page.getByText("Last active")).toBeVisible();
+      await expect(page.getByText("Created")).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const sessionsMenuItem = page.getByRole("menuitem", { name: "Sessions" });
-      await expect(sessionsMenuItem).toBeVisible();
-      await sessionsMenuItem.dispatchEvent("click");
-
-      await expect(sessionsDialog).toBeVisible();
-      await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
-      await expect(sessionsDialog.getByText("Current session")).toBeVisible();
-      await expect(sessionsDialog.getByText("IP:")).toBeVisible();
-      await expect(sessionsDialog.getByText("Last active:")).toBeVisible();
-      await expect(sessionsDialog.getByText("Created:")).toBeVisible();
-
-      const currentSessionCard = sessionsDialog
-        .locator('[data-slot="card"]')
-        .filter({ hasText: "Current session" })
-        .first();
+      const currentSessionCard = page.locator("div.rounded-xl").filter({ hasText: "This device" }).first();
       await expect(currentSessionCard.getByRole("button", { name: "Revoke" })).not.toBeVisible();
     })();
 
-    await step("Close Sessions modal & create second session from new browser context")(async () => {
-      await sessionsDialog.getByRole("button", { name: "Close" }).last().click();
-      await expect(sessionsDialog).not.toBeVisible();
-
+    await step("Create second session from new browser context")(async () => {
       const browser = page.context().browser() as Browser;
       const secondContext = await browser.newContext();
       const secondPage = await secondContext.newPage();
@@ -114,32 +94,22 @@ test.describe("@smoke", () => {
       await secondContext.close();
     })();
 
-    await step("Re-open Sessions modal & verify multiple sessions with Revoke button on non-current")(async () => {
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
-      await triggerButton.dispatchEvent("click");
+    await step("Refresh Sessions page & verify multiple sessions with Revoke button on non-current")(async () => {
+      // Refresh page to see the new session
+      await page.reload();
 
-      const userMenu = page.getByRole("menu");
-      await expect(userMenu).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const sessionsMenuItem = page.getByRole("menuitem", { name: "Sessions" });
-      await expect(sessionsMenuItem).toBeVisible();
-      await sessionsMenuItem.dispatchEvent("click");
-
-      await expect(sessionsDialog).toBeVisible();
-      await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
-
-      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
+      const sessionCards = page.locator("div.rounded-xl").filter({ hasText: "IP address" });
       await expect(sessionCards).toHaveCount(2);
 
-      const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
+      const otherSessionCard = sessionCards.filter({ hasNotText: "This device" }).first();
       await expect(otherSessionCard.getByRole("button", { name: "Revoke" })).toBeVisible();
     })();
 
     await step("Click Revoke button on other session & verify confirmation dialog")(async () => {
-      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
-      const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
+      const sessionCards = page.locator("div.rounded-xl").filter({ hasText: "IP address" });
+      const otherSessionCard = sessionCards.filter({ hasNotText: "This device" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
       await expect(page.getByRole("alertdialog", { name: "Revoke session" })).toBeVisible();
@@ -150,13 +120,13 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("alertdialog", { name: "Revoke session" })).not.toBeVisible();
 
-      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
+      const sessionCards = page.locator("div.rounded-xl").filter({ hasText: "IP address" });
       await expect(sessionCards).toHaveCount(2);
     })();
 
     await step("Revoke other session & verify success toast and only current session remains")(async () => {
-      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
-      const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
+      const sessionCards = page.locator("div.rounded-xl").filter({ hasText: "IP address" });
+      const otherSessionCard = sessionCards.filter({ hasNotText: "This device" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
       const revokeDialog = page.getByRole("alertdialog", { name: "Revoke session" });
@@ -165,9 +135,9 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Session revoked successfully");
 
-      const remainingSessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
+      const remainingSessionCards = page.locator("div.rounded-xl").filter({ hasText: "IP address" });
       await expect(remainingSessionCards).toHaveCount(1);
-      await expect(sessionsDialog.getByText("Current session")).toBeVisible();
+      await expect(page.getByText("This device")).toBeVisible();
     })();
   });
 });
@@ -186,7 +156,7 @@ test.describe("@comprehensive", () => {
    * 4. Browser A deletes its access token and navigates (triggering refresh)
    * 5. Browser A is redirected to /error?error=session_revoked
    */
-  test("should redirect to session_revoked error page when session is revoked from another browser", async ({
+  test("should redirect to session-revoked error page when session is revoked from another browser", async ({
     page
   }, testInfo) => {
     test.skip(
@@ -198,7 +168,7 @@ test.describe("@comprehensive", () => {
     const owner = testUser();
     const browser = page.context().browser() as Browser;
 
-    await step("Sign up user in primary browser & verify dashboard")(async () => {
+    await step("Sign up user in primary browser & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
@@ -207,7 +177,7 @@ test.describe("@comprehensive", () => {
     const secondPage = await secondContext.newPage();
     createTestContext(secondPage);
 
-    await step("Login same user in secondary browser & verify dashboard")(async () => {
+    await step("Login same user in secondary browser & verify home page")(async () => {
       await secondPage.goto("/login");
       await expect(secondPage.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
@@ -222,26 +192,15 @@ test.describe("@comprehensive", () => {
 
     await step("Revoke primary session from secondary browser & verify success")(async () => {
       const secondPageContext = createTestContext(secondPage);
-      const secondSessionsDialog = secondPage.getByRole("dialog", { name: "Sessions" });
 
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = secondPage.getByRole("button", { name: "Account menu" });
-      await triggerButton.dispatchEvent("click");
+      // Navigate to sessions page
+      await secondPage.goto("/account/sessions");
+      await expect(secondPage.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
-      const userMenu = secondPage.getByRole("menu");
-      await expect(userMenu).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const sessionsMenuItem = secondPage.getByRole("menuitem", { name: "Sessions" });
-      await expect(sessionsMenuItem).toBeVisible();
-      await sessionsMenuItem.dispatchEvent("click");
-
-      await expect(secondSessionsDialog).toBeVisible();
-
-      const sessionCards = secondSessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
+      const sessionCards = secondPage.locator("div.rounded-xl").filter({ hasText: "IP address" });
       await expect(sessionCards).toHaveCount(2);
 
-      const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
+      const otherSessionCard = sessionCards.filter({ hasNotText: "This device" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
       const revokeDialog = secondPage.getByRole("alertdialog", { name: "Revoke session" });
@@ -249,14 +208,17 @@ test.describe("@comprehensive", () => {
       await revokeDialog.getByRole("button", { name: "Revoke", exact: true }).click();
 
       await expectToastMessage(secondPageContext, "Session revoked successfully");
-      await secondSessionsDialog.getByRole("button", { name: "Close" }).last().click();
     })();
 
     await step("Navigate in revoked session & verify session_revoked error page")(async () => {
       await deleteAccessTokenCookie(page);
       context.monitoring.expectedStatusCodes.push(401);
 
-      await page.getByRole("link", { name: "Users", exact: true }).click();
+      // Trigger offline/online event to force the app to make an API call
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event("offline"));
+        window.dispatchEvent(new Event("online"));
+      });
 
       await expect(page).toHaveURL(/\/error\?.*error=session_revoked/);
       await expect(page.getByRole("heading", { name: "Session ended" })).toBeVisible();
@@ -300,7 +262,7 @@ test.describe("@comprehensive", () => {
     const owner = testUser();
     const browser = page.context().browser() as Browser;
 
-    await step("Sign up user & verify dashboard")(async () => {
+    await step("Sign up user & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
@@ -321,12 +283,12 @@ test.describe("@comprehensive", () => {
       const secondPageContext = createTestContext(secondPage);
       secondPageContext.monitoring.expectedStatusCodes.push(401);
 
-      await secondPage.goto("/account");
-      await expect(secondPage).toHaveURL("/account");
-      await expect(secondPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await secondPage.goto("/dashboard");
+      await expect(secondPage).toHaveURL("/dashboard");
+      await expect(secondPage.getByRole("button", { name: "Account menu" })).toBeVisible();
 
       await deleteAccessTokenCookie(secondPage);
-      await secondPage.getByRole("link", { name: "Users", exact: true }).click();
+      await secondPage.goto("/account/users");
       await expect(secondPage).toHaveURL("/account/users");
       await expect(secondPage.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
@@ -336,7 +298,11 @@ test.describe("@comprehensive", () => {
       await deleteAccessTokenCookie(page);
       context.monitoring.expectedStatusCodes.push(401);
 
-      await page.getByRole("link", { name: "Users", exact: true }).click();
+      // Trigger offline/online event to force the app to make an API call
+      await page.evaluate(() => {
+        window.dispatchEvent(new Event("offline"));
+        window.dispatchEvent(new Event("online"));
+      });
 
       await expect(page).toHaveURL(/\/error\?.*error=replay_attack/);
       await expect(page.getByRole("heading", { name: "Security alert" })).toBeVisible();
