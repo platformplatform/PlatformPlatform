@@ -5,7 +5,6 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { LayoutDashboardIcon } from "lucide-react";
 import { MainSideMenu } from "@/shared/components/MainSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardPage
@@ -50,7 +49,6 @@ function DashboardPage() {
     <>
       <MainSideMenu />
       <AppLayout
-        topMenu={<TopMenu />}
         title={getTimeBasedGreeting(userInfo?.firstName)}
         subtitle={t`Here's your overview of what's happening.`}
       >

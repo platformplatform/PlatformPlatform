@@ -7,11 +7,9 @@ type AppLayoutVariant = "full" | "center";
 
 type AppLayoutProps = {
   children: React.ReactNode;
-  topMenu?: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
   sidePane?: React.ReactNode;
-  paddingBottom?: string;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   scrollAwayHeader?: boolean;
@@ -19,14 +17,12 @@ type AppLayoutProps = {
 
 /**
  * AppLayout provides the fixed layout structure for applications with a side menu.
- * - Fixed TopMenu that doesn't scroll with content (contains secondary navigation/functions)
  * - Scrollable content area that respects the side menu width
  * - Proper margin adjustments based on side menu state
  * - SideMenu (rendered separately) contains the main navigation
  *
  * Accessibility landmarks:
  * - SideMenu: <nav role="navigation"> (main navigation)
- * - TopMenu: <div role="complementary"> (secondary navigation/functions)
  * - Content: <main> (main content area)
  * - SidePane: <aside> (complementary content)
  *
@@ -167,21 +163,21 @@ interface ScrollAwayContentProps {
 
 function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxWidth }: ScrollAwayContentProps) {
   const content = (
-    <div className="flex h-full flex-col">
+    <>
       {/* Header - scrolls naturally with content */}
       <div ref={headerRef} className="scroll-away-header mb-4">
         <h1>{title}</h1>
         {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-    </div>
+      {children}
+    </>
   );
 
   if (variant === "center") {
     return (
-      <div className="flex h-full w-full flex-col items-center">
-        <div className="flex h-full w-full flex-col" style={{ maxWidth }}>
+      <div className="flex w-full flex-col items-center">
+        <div className="w-full" style={{ maxWidth }}>
           {content}
         </div>
       </div>
@@ -204,26 +200,25 @@ interface StandardContentProps {
 function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isSticky, children }: StandardContentProps) {
   if (variant === "center") {
     return (
-      <div className="flex h-full w-full flex-col items-center">
-        <div className="flex h-full w-full flex-col" style={{ maxWidth }}>
+      <div className="flex w-full flex-col items-center">
+        <div className="w-full" style={{ maxWidth }}>
           {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
-          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+          {children}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col">
+    <>
       {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
-      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-    </div>
+      {children}
+    </>
   );
 }
 
 export function AppLayout({
   children,
-  topMenu,
   variant = "full",
   maxWidth = "40rem",
   sidePane,
@@ -231,7 +226,7 @@ export function AppLayout({
   subtitle,
   scrollAwayHeader = true
 }: Readonly<AppLayoutProps>) {
-  const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
+  const { className, style, isOverlayOpen } = useSideMenuLayout();
   const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -250,7 +245,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-0 right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
+              "fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               (scrollAwayHeader ? isFullyScrolled : isSticky)
@@ -262,30 +257,11 @@ export function AppLayout({
             <div className="max-w-[80%] truncate font-medium text-sm">{title}</div>
           </div>
         )}
-        {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
-        {/* Height matches collapsed side menu width for visual consistency */}
-        {topMenu && (
-          <aside
-            className={`fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
-              isMobileMenuOpen ? "hidden" : ""
-            } hidden sm:flex sm:items-center`}
-            aria-label="Secondary navigation"
-          >
-            <div className="w-full" style={{ marginLeft: style.marginLeft }}>
-              {topMenu}
-            </div>
-          </aside>
-        )}
 
         {/* Main content area */}
         <main
           ref={contentRef}
-          className={cn(
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
-            topMenu
-              ? "sm:pt-[calc(7rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
-              : "sm:pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
-          )}
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-[calc(2rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
