@@ -90,6 +90,9 @@ msgstr "Konto"
 msgid "Account information"
 msgstr "Kontoinformation"
 
+msgid "Account menu"
+msgstr "Kontomenu"
+
 msgid "Account name"
 msgstr "Kontonavn"
 
@@ -199,6 +202,9 @@ msgstr "Azure Overholdelse"
 
 msgid "Back Office"
 msgstr "Back Office"
+
+msgid "Back to app"
+msgstr "Tilbage til appen"
 
 msgid "Back to login"
 msgstr "Tilbage til login"
@@ -965,6 +971,9 @@ msgstr "Abonnement"
 
 msgid "Succeeded"
 msgstr "Gennemført"
+
+msgid "Switch account"
+msgstr "Skift konto"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."

@@ -6,7 +6,7 @@ type AppLayoutVariant = "full" | "center";
 
 type AppLayoutProps = {
   children: React.ReactNode;
-  topMenu: React.ReactNode;
+  topMenu?: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
   sidePane?: React.ReactNode;
@@ -268,21 +268,24 @@ export function AppLayout({
           </div>
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
-        <aside
-          className={`fixed top-[var(--past-due-banner-height,0px)] right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
-            isMobileMenuOpen ? "hidden" : ""
-          } hidden sm:block`}
-          aria-label="Secondary navigation"
-        >
-          <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
-        </aside>
+        {topMenu && (
+          <aside
+            className={`fixed top-[var(--past-due-banner-height,0px)] right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
+              isMobileMenuOpen ? "hidden" : ""
+            } hidden sm:block`}
+            aria-label="Secondary navigation"
+          >
+            <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
+          </aside>
+        )}
 
         {/* Main content area */}
         <main
           ref={contentRef}
-          className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
-          }
+          className={cn(
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))]",
+            topMenu ? "sm:pt-28" : "sm:pt-4"
+          )}
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}

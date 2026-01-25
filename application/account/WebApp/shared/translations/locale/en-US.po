@@ -90,6 +90,9 @@ msgstr "Account"
 msgid "Account information"
 msgstr "Account information"
 
+msgid "Account menu"
+msgstr "Account menu"
+
 msgid "Account name"
 msgstr "Account name"
 
@@ -199,6 +202,9 @@ msgstr "Azure Compliance"
 
 msgid "Back Office"
 msgstr "Back Office"
+
+msgid "Back to app"
+msgstr "Back to app"
 
 msgid "Back to login"
 msgstr "Back to login"
@@ -965,6 +971,9 @@ msgstr "Subscription"
 
 msgid "Succeeded"
 msgstr "Succeeded"
+
+msgid "Switch account"
+msgstr "Switch account"
 
 msgid "Switching account..."
 msgstr "Switching account..."

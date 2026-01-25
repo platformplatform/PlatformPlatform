@@ -5,7 +5,6 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 import { api, UserStatus } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account/")({
@@ -20,7 +19,6 @@ export default function Home() {
     <>
       <FederatedSideMenu currentSystem="account" />
       <AppLayout
-        topMenu={<TopMenu />}
         title={userInfo?.firstName ? t`Welcome home, ${userInfo.firstName}` : t`Welcome home`}
         subtitle={t`Here's your overview of what's happening.`}
       >

@@ -1,14 +1,10 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
-import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 import { api, type components, SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
@@ -140,18 +136,6 @@ export default function UsersPage() {
       <FederatedSideMenu currentSystem="account" />
       <AppLayout
         sidePane={getSidePane()}
-        topMenu={
-          <TopMenu>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/account/users" variant="secondary" underline={false} />}>
-                <Trans>Users</Trans>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbPage>
-              <Trans>All users</Trans>
-            </BreadcrumbPage>
-          </TopMenu>
-        }
         title={t`Users`}
         subtitle={t`Manage your users and permissions here.`}
         scrollAwayHeader={true}

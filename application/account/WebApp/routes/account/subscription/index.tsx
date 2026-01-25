@@ -3,7 +3,6 @@ import { Trans } from "@lingui/react/macro";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
-import { BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { useQueryClient } from "@tanstack/react-query";
@@ -12,7 +11,6 @@ import { AlertTriangleIcon, ExternalLinkIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { CancelSubscriptionDialog } from "./-components/CancelSubscriptionDialog";
@@ -30,13 +28,6 @@ function AccessDenied() {
       <FederatedSideMenu currentSystem="account" />
       <AppLayout
         variant="center"
-        topMenu={
-          <TopMenu>
-            <BreadcrumbPage>
-              <Trans>Subscription</Trans>
-            </BreadcrumbPage>
-          </TopMenu>
-        }
         title={t`Access denied`}
         subtitle={t`Only account owners can manage the subscription.`}
       >
@@ -214,13 +205,6 @@ function SubscriptionPage() {
       <AppLayout
         variant="center"
         maxWidth="960px"
-        topMenu={
-          <TopMenu>
-            <BreadcrumbPage>
-              <Trans>Subscription</Trans>
-            </BreadcrumbPage>
-          </TopMenu>
-        }
         title={t`Subscription`}
         subtitle={t`Manage your subscription and billing.`}
       >

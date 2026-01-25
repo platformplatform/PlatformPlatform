@@ -90,7 +90,10 @@ function getAllRemotes(currentSystem: string, remotes: Record<string, { port: nu
       throw new Error(`Cannot find system: ${system}`);
     }
 
-    result[system] = `${snakeCase(system)}@/${system}/${manifestFile}`;
+    // Main SCS is the root, so its remoteEntry.js is at /remoteEntry.js
+    // Other SCSs have their remoteEntry.js at /{system}/remoteEntry.js
+    const remotePath = system === "main" ? `/${manifestFile}` : `/${system}/${manifestFile}`;
+    result[system] = `${snakeCase(system)}@${remotePath}`;
 
     logger.info(`[Module Federation] Remote: "${system}" => ${result[system]}`);
   }
