@@ -48,7 +48,7 @@ test.describe("@smoke", () => {
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
-    await step("Complete successful login & verify navigation to admin")(async () => {
+    await step("Complete successful login & verify navigation to dashboard")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
@@ -58,12 +58,12 @@ test.describe("@smoke", () => {
     })();
 
     // === AUTHENTICATION PROTECTION ===
-    await step("Click logout from user menu & verify redirect to login")(async () => {
+    await step("Click logout from account menu & verify redirect to login")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      // Click trigger with dispatchEvent for reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu");

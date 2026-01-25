@@ -38,7 +38,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to users page & verify owner is listed")(async () => {
-      await page.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
+      await page.goto("/account/users");
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       // Wait for table to load and verify content exists - use first() due to mobile rendering with duplicate tables
@@ -292,7 +292,7 @@ test.describe("@smoke", () => {
     // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
     await step("Logout from owner to activate deletable user")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -305,32 +305,27 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
     })();
 
-    await step("Login as deletable user & verify unsaved changes warning on profile Escape")(async () => {
+    await step("Login as deletable user & complete profile setup")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      // Wait for login redirect to complete before navigating
+      await expect(page).toHaveURL(/\/(home|account)/);
+
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(deletableUser.firstName);
-
-      await page.keyboard.press("Escape");
-
-      await expect(page.getByRole("alertdialog", { name: "Unsaved changes" })).toBeVisible();
-      await page.getByRole("button", { name: "Stay" }).click();
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await expect(page.getByRole("textbox", { name: "First name" })).toHaveValue(deletableUser.firstName);
-
       await page.getByRole("textbox", { name: "Last name" }).fill(deletableUser.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Logout from deletable user & login as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -346,7 +341,9 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
+      await expect(page).toHaveURL(/\/(home|account)/);
 
+      await page.goto("/account/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
@@ -392,7 +389,7 @@ test.describe("@smoke", () => {
       await page.goto("/account");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -415,15 +412,14 @@ test.describe("@smoke", () => {
     })();
 
     await step("Complete admin user profile setup & verify profile saved")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(adminUser.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(adminUser.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Administrator");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
     await step("Navigate to users page as admin & verify admin can see all users")(async () => {
@@ -444,7 +440,7 @@ test.describe("@smoke", () => {
 
     await step("Logout from admin account & verify redirect to login")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const profileMenuButton = page.getByRole("button", { name: "User profile menu" });
+      const profileMenuButton = page.getByRole("button", { name: "Account menu" });
       await profileMenuButton.focus();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("menu")).toBeVisible();
@@ -469,27 +465,24 @@ test.describe("@smoke", () => {
       await expect(page.getByText("You do not have permission to access this page.")).toBeVisible();
     })();
 
-    await step("Navigate to users page & complete profile setup")(async () => {
-      // Navigate to users page where member has access and profile dialog appears
+    await step("Navigate to profile page & complete profile setup")(async () => {
+      // Navigate to profile page to complete setup
       await page.getByRole("button", { name: "Go to home" }).click();
       await expect(page).toHaveURL("/dashboard");
 
-      await page.goto("/account/users");
-
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
-      await expect(page.getByRole("textbox", { name: "First name" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(memberUser.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(memberUser.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Verify member sees Users page without Recycle bin tab (members don't see tab navigation)
-      await expect(page).toHaveURL("/account/users");
+      // Navigate to users page and verify member sees Users page without tab navigation (tabs only visible to Owner/Admin)
+      await page.goto("/account/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByText("All users")).toBeVisible();
+      await expect(page.getByRole("tab", { name: "All users" })).not.toBeVisible();
       await expect(page.getByRole("tab", { name: "Recycle bin" })).not.toBeVisible();
     })();
   });
@@ -639,7 +632,7 @@ test.describe("@comprehensive", () => {
     // === ACTIVATE USERS TO ENABLE SOFT DELETE ===
     await step("Logout from owner & login as user1 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 
@@ -653,19 +646,20 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
+      await expect(page).toHaveURL(/\/(home|account)/);
 
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user1.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(user1.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Logout from user1 & login as user2 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 
@@ -679,20 +673,21 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
+      await expect(page).toHaveURL(/\/(home|account)/);
 
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user2.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(user2.lastName);
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Logout from user2 & login back as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await expect(page.getByRole("region", { name: /notification/ })).not.toBeVisible();
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 
@@ -706,7 +701,9 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
+      await expect(page).toHaveURL(/\/(home|account)/);
 
+      await page.goto("/account/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
