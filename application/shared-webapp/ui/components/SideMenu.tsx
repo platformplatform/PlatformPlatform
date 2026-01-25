@@ -49,7 +49,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 // NOTE: Menu items have active:bg-hover-background for press feedback on interactive menu buttons.
 const menuButtonStyles = cva(
-  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
   {
     variants: {
       isCollapsed: {
@@ -409,7 +409,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = cva(
-  "group fixed top-[var(--past-due-banner-height,0px)] left-0 z-30 flex h-[calc(100vh-var(--past-due-banner-height,0px))] flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width,top] duration-100",
+  "group fixed top-[var(--past-due-banner-height,0rem)] left-0 z-30 flex h-[calc(100vh-var(--past-due-banner-height,0rem))] flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width,top] duration-100",
   {
     variants: {
       isCollapsed: {

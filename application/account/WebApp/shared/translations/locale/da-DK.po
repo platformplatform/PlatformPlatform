@@ -75,6 +75,9 @@ msgstr "Konto findes allerede"
 msgid "Account information"
 msgstr "Kontoinformation"
 
+msgid "Account menu"
+msgstr "Kontomenu"
+
 msgid "Account name"
 msgstr "Kontonavn"
 
@@ -496,6 +499,9 @@ msgstr "Lys"
 msgid "LinkedIn"
 msgstr "LinkedIn"
 
+msgid "Loading..."
+msgstr "Indlæser..."
+
 msgid "Log in"
 msgstr "Log ind"
 
@@ -835,6 +841,9 @@ msgstr "Bliv"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
+
+msgid "Switch account"
+msgstr "Skift konto"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."

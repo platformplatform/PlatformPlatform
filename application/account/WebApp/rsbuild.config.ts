@@ -54,14 +54,14 @@ export default defineConfig({
     DevelopmentServerPlugin({ port: 9101 }),
     ModuleFederationPlugin({
       exposes: {
+        "./AccountMenu": "./federated-modules/accountMenu/AccountMenu.tsx",
+        "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
         "./FederatedSideMenu": "./federated-modules/sideMenu/FederatedSideMenu.tsx",
         "./FederatedTopMenu": "./federated-modules/topMenu/FederatedTopMenu.tsx",
         "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
         "./FederatedAccessDeniedPage": "./federated-modules/errorPages/FederatedAccessDeniedPage.tsx",
         "./FederatedErrorPage": "./federated-modules/errorPages/FederatedErrorPage.tsx",
         "./FederatedNotFoundPage": "./federated-modules/errorPages/FederatedNotFoundPage.tsx",
-        "./LocaleSwitcher": "./federated-modules/common/LocaleSwitcher.tsx",
-        "./ThemeModeSelector": "./federated-modules/common/ThemeModeSelector.tsx",
         "./PublicFooter": "./federated-modules/public/PublicFooter.tsx",
         "./PublicNavigation": "./federated-modules/public/PublicNavigation.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",
