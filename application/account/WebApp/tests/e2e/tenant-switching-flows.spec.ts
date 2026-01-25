@@ -48,7 +48,7 @@ test.describe("@comprehensive", () => {
     // === SINGLE TENANT DISPLAY ===
     await step("Create single tenant & verify dropdown is hidden")(async () => {
       await completeSignupFlow(page1, expect, user, testContext1);
-      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page1.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
       // Update the first tenant name
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
@@ -56,24 +56,18 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).fill(primaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
       await expectToastMessage(testContext1, "Account name updated successfully");
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
+      await page1.goto("/dashboard");
 
-      const navElement = page1.locator("nav").first();
+      // Account menu shows tenant name
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      await expect(accountMenuButton).toBeVisible();
+      await expect(accountMenuButton).toContainText(primaryTenantName);
 
-      // With single tenant, there's just a logo - no tenant selector button
-      // The tenant has a name (primaryTenantName) so it will show the initial letter, not an img
-      const tenantLogoElement = navElement
-        .locator('[class*="TenantLogo"], [class*="tenant-logo"], div')
-        .filter({ hasText: primaryTenantName.charAt(0) });
-      await expect(tenantLogoElement.first()).toBeVisible();
-
-      // there's no tenant button (it only appears with multiple tenants)
-      // With single tenant, there's no dropdown button with ChevronDown icon
-      const tenantButton = navElement
-        .locator("button")
-        .filter({ has: page1.locator("svg") })
-        .filter({ hasText: primaryTenantName });
-      await expect(tenantButton).not.toBeVisible();
+      // With single tenant, "Switch account" option should not appear in menu
+      await accountMenuButton.dispatchEvent("click");
+      await expect(page1.getByRole("menu")).toBeVisible();
+      await expect(page1.getByRole("menuitem", { name: "Switch account" })).not.toBeVisible();
+      await page1.keyboard.press("Escape");
     })();
 
     // === MULTIPLE TENANT SETUP ===
@@ -89,7 +83,7 @@ test.describe("@comprehensive", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page1).toHaveURL("/login?returnPath=%2Fdashboard");
     })();
 
     await step("Create second tenant & verify user invitation")(async () => {
@@ -347,8 +341,8 @@ test.describe("@comprehensive", () => {
       await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
 
       // Navigate back to Home
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
-      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await page1.goto("/dashboard");
+      await expect(page1.getByRole("heading", { level: 1 })).toBeVisible();
 
       // Tenant should still be primary tenant
       await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);

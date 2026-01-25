@@ -265,7 +265,7 @@ export function AppLayout({
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         {/* Height matches collapsed side menu width for visual consistency */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
+          className={`fixed top-[var(--past-due-banner-height,0px)] right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:flex sm:items-center`}
           aria-label="Secondary navigation"

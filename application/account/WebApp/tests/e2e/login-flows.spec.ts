@@ -53,8 +53,8 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       // Verify successful login
-      await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     // === AUTHENTICATION PROTECTION ===
@@ -74,7 +74,7 @@ test.describe("@smoke", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
 
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
     })();
 
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
@@ -103,7 +103,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/account");
+      await expect(page).toHaveURL("/dashboard");
     })();
   });
 });

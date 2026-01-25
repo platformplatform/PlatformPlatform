@@ -31,7 +31,7 @@ test.describe("@smoke", () => {
     // Create owner and member users
     await step("Create owner account with signup flow & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
@@ -229,7 +229,7 @@ test.describe("@smoke", () => {
     await step("Click Go to home on access denied page & verify navigation to home")(async () => {
       await page.getByRole("button", { name: "Go to home" }).click();
 
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/dashboard");
     })();
   });
 
@@ -248,7 +248,7 @@ test.describe("@smoke", () => {
 
     await step("Create owner account with signup flow & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Set account name & verify save confirmation")(async () => {

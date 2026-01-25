@@ -139,7 +139,7 @@ test.describe("@comprehensive", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Sign up with Google" }).click();
 
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/dashboard");
       await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
     })();
 
@@ -181,7 +181,7 @@ test.describe("@comprehensive", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Log in with Google" }).click();
 
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/dashboard");
       await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
 
       expect(capturedUrl).toContain(`PreferredTenantId=${tenantId}`);

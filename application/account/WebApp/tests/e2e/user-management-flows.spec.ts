@@ -34,7 +34,7 @@ test.describe("@smoke", () => {
 
     await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Navigate to users page & verify owner is listed")(async () => {
@@ -472,7 +472,7 @@ test.describe("@smoke", () => {
     await step("Navigate to users page & complete profile setup")(async () => {
       // Navigate to users page where member has access and profile dialog appears
       await page.getByRole("button", { name: "Go to home" }).click();
-      await expect(page).toHaveURL("/");
+      await expect(page).toHaveURL("/dashboard");
 
       await page.goto("/account/users");
 
@@ -520,7 +520,7 @@ test.describe("@comprehensive", () => {
     // === USER SETUP SECTION ===
     await step("Complete owner signup & verify welcome page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     await step("Set account name for user invitations")(async () => {

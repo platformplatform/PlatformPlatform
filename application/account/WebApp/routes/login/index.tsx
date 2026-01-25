@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -26,13 +25,14 @@ export const Route = createFileRoute("/login/")({
       returnPath: returnPath && isValidReturnPath(returnPath) ? returnPath : undefined
     };
   },
-  component: function LoginRoute() {
-    const isAuthenticated = useIsAuthenticated();
-
+  beforeLoad: () => {
+    const { isAuthenticated } = import.meta.user_info_env;
     if (isAuthenticated) {
-      return <Navigate to={loggedInPath} />;
+      window.location.href = loggedInPath;
     }
-
+    return {};
+  },
+  component: function LoginRoute() {
     return (
       <HorizontalHeroLayout>
         <LoginForm />
