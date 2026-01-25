@@ -166,6 +166,7 @@ export async function completeSignupFlow(
   await expectToastMessage(context, "Profile updated successfully");
 
   // Step 5: Wait for successful completion
+ await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)

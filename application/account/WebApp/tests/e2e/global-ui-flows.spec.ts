@@ -21,23 +21,21 @@ test.describe("@comprehensive", () => {
       await ownerPage.goto("/account");
 
       // Verify dashboard loads with default light theme
-      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
 
-    await step("Click theme button and select dark mode & verify dark theme applies")(async () => {
-      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.dispatchEvent("click");
+    await step("Open account menu & select dark theme & verify dark theme applies")(async () => {
+      await ownerPage.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = ownerPage.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
-      // Wait for menu to open and animation to complete
-      const themeMenu = ownerPage.getByRole("menu");
-      await expect(themeMenu).toBeVisible();
-
+      await accountMenu.getByText("Theme").dispatchEvent("click");
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
 
-      await expect(themeMenu).not.toBeVisible();
+      await expect(accountMenu).not.toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -45,7 +43,7 @@ test.describe("@comprehensive", () => {
       await ownerPage.reload();
 
       // Verify theme persists after reload
-      await expect(ownerPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -57,19 +55,17 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Click theme button and select system mode & verify theme follows system preference")(async () => {
-      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.dispatchEvent("click");
+    await step("Open account menu & select system theme & verify theme follows system preference")(async () => {
+      await ownerPage.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = ownerPage.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
-      // Wait for menu to open and animation to complete
-      const systemMenu = ownerPage.getByRole("menu");
-      await expect(systemMenu).toBeVisible();
-
+      await accountMenu.getByText("Theme").dispatchEvent("click");
       const systemMenuItem = ownerPage.getByRole("menuitem", { name: "System" });
       await expect(systemMenuItem).toBeVisible();
       await systemMenuItem.dispatchEvent("click");
 
-      await expect(systemMenu).not.toBeVisible();
+      await expect(accountMenu).not.toBeVisible();
       // System theme will be light in test environment
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
@@ -78,19 +74,17 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 2560, height: 1440 });
 
       // Verify 4K layout and theme state
-      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await expect(themeButton).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
 
-    await step("Click theme button and select dark at 4K & verify theme applies")(async () => {
-      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.dispatchEvent("click");
+    await step("Open account menu & select dark theme at 4K & verify theme applies")(async () => {
+      await ownerPage.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = ownerPage.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
-      const menu4k = ownerPage.getByRole("menu");
-      await expect(menu4k).toBeVisible();
-
+      await accountMenu.getByText("Theme").dispatchEvent("click");
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -102,19 +96,19 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 768, height: 1024 });
 
       // Verify tablet layout and theme persistence
-      await expect(ownerPage.getByRole("button", { name: "Change theme" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Collapse sidebar at tablet size & verify theme button remains accessible")(async () => {
+    await step("Collapse sidebar at tablet size & verify account menu remains accessible")(async () => {
       const toggleButton = ownerPage.getByRole("button", { name: "Toggle sidebar" });
       await expect(toggleButton).toBeVisible();
 
       await toggleButton.click();
 
-      // Theme button in top menu should still be visible
-      await expect(ownerPage.getByRole("button", { name: "Change theme" })).toBeVisible();
+      // Account menu in sidebar should still be visible
+      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -126,8 +120,8 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
 
-      // Theme button should not be visible in top menu on mobile
-      await expect(ownerPage.getByRole("button", { name: "Change theme" })).not.toBeVisible();
+      // Account menu should not be visible on mobile
+      await expect(ownerPage.getByRole("button", { name: "Account menu" })).not.toBeVisible();
 
       // Open mobile menu and verify theme option
       await ownerPage.getByRole("button", { name: "Open navigation menu" }).click();
@@ -157,19 +151,18 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 1920, height: 1080 });
 
       // Verify desktop layout restoration
-      await expect(ownerPage.getByRole("button", { name: "Change theme" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
       await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
     })();
 
-    await step("Set dark theme before logout & verify theme applies")(async () => {
-      const themeButton = ownerPage.getByRole("button", { name: "Change theme" });
-      await themeButton.dispatchEvent("click");
+    await step("Open account menu & set dark theme before logout & verify theme applies")(async () => {
+      await ownerPage.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = ownerPage.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
-      const menu = ownerPage.getByRole("menu");
-      await expect(menu).toBeVisible();
-
+      await accountMenu.getByText("Theme").dispatchEvent("click");
       const darkMenuItem = ownerPage.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
@@ -182,7 +175,7 @@ test.describe("@comprehensive", () => {
       const newPage = await ownerPage.context().newPage();
       await newPage.goto("/account");
 
-      await expect(newPage.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(newPage.getByRole("heading", { level: 1 })).toBeVisible();
       await expect(newPage.locator("html")).toHaveClass("dark");
 
       await newPage.close();
@@ -218,30 +211,27 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
-    await step("Click theme button and select dark mode & verify it applies")(async () => {
-      const themeButton = page.getByRole("button", { name: "Change theme" });
-      await themeButton.dispatchEvent("click");
+    await step("Open account menu & select dark theme & verify it applies")(async () => {
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = page.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
-      // Wait for menu to open and animation to complete
-      const menu = page.getByRole("menu");
-      await expect(menu).toBeVisible();
-
+      await accountMenu.getByText("Theme").dispatchEvent("click");
       const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
       await expect(darkMenuItem).toBeVisible();
       await darkMenuItem.dispatchEvent("click");
 
+      await expect(accountMenu).not.toBeVisible();
       await expect(page.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Log out & verify dark theme persists on login page")(async () => {
+    await step("Log out via account menu & verify dark theme persists on login page")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
-      await triggerButton.dispatchEvent("click");
-
-      const userMenu = page.getByRole("menu", { name: "User profile menu" });
-      await expect(userMenu).toBeVisible();
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const accountMenu = page.getByRole("menu", { name: "Account menu" });
+      await expect(accountMenu).toBeVisible();
 
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
       await expect(logoutMenuItem).toBeVisible();
@@ -286,7 +276,7 @@ test.describe("@comprehensive", () => {
     // === ERROR PAGE VIA KONAMI CODE ===
     await step("Navigate to admin dashboard & enter Konami code to trigger error page")(async () => {
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("ArrowUp");
@@ -314,7 +304,7 @@ test.describe("@comprehensive", () => {
 
       await page.getByRole("button", { name: "Try again" }).click();
 
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     })();
   });
 });
