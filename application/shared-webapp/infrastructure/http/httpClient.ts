@@ -11,7 +11,7 @@
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { normalizeError } from "./errorHandler";
 
-// Default timeout must match GracePeriodSeconds in account-management/Core/Features/Authentication/Domain/Session.cs
+// Default timeout must match GracePeriodSeconds in account/Core/Features/Authentication/Domain/Session.cs
 export const DEFAULT_TIMEOUT = 30000;
 
 /**

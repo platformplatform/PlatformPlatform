@@ -803,7 +803,7 @@ public class DeployCommand : Command
         );
 
         StartGithubWorkflow("Cloud Infrastructure - Deployment", "cloud-infrastructure.yml");
-        StartGithubWorkflow("Account Management - Build and Deploy", "account-management.yml");
+        StartGithubWorkflow("Account - Build and Deploy", "account.yml");
         StartGithubWorkflow("AppGateway - Build and Deploy", "app-gateway.yml");
         return;
 

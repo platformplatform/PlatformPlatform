@@ -161,5 +161,5 @@ jobs:
 
       - name: Grant Database Permissions
         run: |
-          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.cluster_location_acronym }} 'account-management' ${{ steps.deploy_cluster.outputs.ACCOUNT_MANAGEMENT_IDENTITY_CLIENT_ID }}
+          bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.cluster_location_acronym }} 'account' ${{ steps.deploy_cluster.outputs.ACCOUNT_IDENTITY_CLIENT_ID }}
           bash ./cloud-infrastructure/cluster/grant-database-permissions.sh ${{ inputs.unique_prefix }} ${{ inputs.azure_environment }} ${{ inputs.cluster_location_acronym }} 'back-office' ${{ steps.deploy_cluster.outputs.BACK_OFFICE_IDENTITY_CLIENT_ID }}

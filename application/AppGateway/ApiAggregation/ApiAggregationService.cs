@@ -37,13 +37,12 @@ public class ApiAggregationService(
             OpenApiDocument openApiDocument;
             switch (cluster.ClusterId)
             {
-                case "account-management-api":
-                    openApiDocument = await FetchOpenApiDocument(cluster, "ACCOUNT_MANAGEMENT_API_URL");
+                case "account-api":
+                    openApiDocument = await FetchOpenApiDocument(cluster, "ACCOUNT_API_URL");
                     break;
                 case "back-office-api":
                     openApiDocument = await FetchOpenApiDocument(cluster, "BACK_OFFICE_API_URL");
                     break;
-                // Add all clusters that should be part of the public aggregated contract here
                 default:
                     continue;
             }

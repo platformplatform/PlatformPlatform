@@ -133,7 +133,7 @@ Read `/.claude/skills/update-flaky-tests/status-output-sample.md` first. Output 
 **Test entry structure** (unique key = testFile + testName + stepName + browser):
 ```json
 {
-  "testFile": "account-management/WebApp/tests/e2e/user-management-flows.spec.ts",
+  "testFile": "account/WebApp/tests/e2e/user-management-flows.spec.ts",
   "testName": "should handle user invitation and deletion workflow",
   "stepName": "Delete user & verify confirmation dialog closes",
   "browser": "Firefox",

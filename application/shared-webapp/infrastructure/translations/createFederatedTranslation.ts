@@ -15,7 +15,7 @@ const translationModuleCache = new Map<string, Messages>();
  * which remotes might provide translations
  */
 const FEDERATED_TRANSLATION_REMOTES = [
-  "account-management"
+  "account"
   // Add more remotes here as they are created
 ] as const;
 

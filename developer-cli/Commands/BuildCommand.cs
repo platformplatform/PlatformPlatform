@@ -13,7 +13,7 @@ public class BuildCommand : Command
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Build backend code" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Build frontend code" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Build developer-cli code" };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to build (e.g., account-management, back-office)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to build (e.g., account, back-office)" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);

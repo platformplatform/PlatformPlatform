@@ -2,7 +2,7 @@
   "lastUpdated": "2026-01-14T14:30:00",
   "active": [
     {
-      "testFile": "account-management/WebApp/tests/e2e/login-flows.spec.ts",
+      "testFile": "account/WebApp/tests/e2e/login-flows.spec.ts",
       "testName": "should complete login with OTP verification",
       "stepName": "Click login button & wait for navigation",
       "browser": "Firefox",
@@ -23,7 +23,7 @@
       "notes": null
     },
     {
-      "testFile": "account-management/WebApp/tests/e2e/user-management-flows.spec.ts",
+      "testFile": "account/WebApp/tests/e2e/user-management-flows.spec.ts",
       "testName": "should handle user invitation and deletion workflow",
       "stepName": "Delete user & verify confirmation dialog closes",
       "browser": "Firefox",
@@ -51,7 +51,7 @@
       "notes": "Timing issue with dialog close animation in Firefox"
     },
     {
-      "testFile": "account-management/WebApp/tests/e2e/global-ui-flows.spec.ts",
+      "testFile": "account/WebApp/tests/e2e/global-ui-flows.spec.ts",
       "testName": "should handle theme switching and navigation",
       "stepName": "Navigate to admin dashboard & verify welcome heading",
       "browser": "WebKit",
