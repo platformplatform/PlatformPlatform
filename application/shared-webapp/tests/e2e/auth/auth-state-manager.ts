@@ -71,15 +71,15 @@ export class AuthStateManager {
   async validateAuthState(page: Page): Promise<boolean> {
     try {
       // Navigate to a protected route
-      await page.goto("/admin");
+      await page.goto("/account");
 
-      // Wait for page content to stabilize (admin sidebar or login form)
+      // Wait for page content to stabilize (account sidebar or login form)
       await Promise.race([
         page.locator("[data-sidebar]").waitFor({ state: "visible" }),
         page.locator('form input[type="email"]').waitFor({ state: "visible" })
       ]);
 
-      // If we stayed on /admin, auth is valid. If redirected to /login, auth is invalid.
+      // If we stayed on /account, auth is valid. If redirected to /login, auth is invalid.
       return !page.url().includes("/login");
     } catch {
       // If any error occurs during validation, consider auth invalid

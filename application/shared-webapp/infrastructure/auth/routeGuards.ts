@@ -12,9 +12,9 @@ export interface RoutePermissions {
  * Use this in beforeLoad to prevent unauthorized access before the route renders.
  *
  * @example
- * export const Route = createFileRoute("/admin")({
+ * export const Route = createFileRoute("/account")({
  *   beforeLoad: () => requireAuthentication(),
- *   component: AdminLayout
+ *   component: AccountLayout
  * });
  */
 export function requireAuthentication(): void {

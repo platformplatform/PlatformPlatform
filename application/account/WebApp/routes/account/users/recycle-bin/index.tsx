@@ -17,7 +17,7 @@ import { PermanentlyDeleteUserDialog } from "./-components/PermanentlyDeleteUser
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
 
-export const Route = createFileRoute("/admin/users/recycle-bin/")({
+export const Route = createFileRoute("/account/users/recycle-bin/")({
   component: DeletedUsersPage
 });
 
@@ -55,7 +55,7 @@ export default function DeletedUsersPage() {
         topMenu={
           <TopMenu>
             <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/admin/users" variant="secondary" underline={false} />}>
+              <BreadcrumbLink render={<Link href="/account/users" variant="secondary" underline={false} />}>
                 <Trans>Users</Trans>
               </BreadcrumbLink>
             </BreadcrumbItem>

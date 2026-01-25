@@ -92,7 +92,7 @@ test.describe("@smoke", () => {
     await step("Click verify button & verify navigation to admin with profile dialog")(async () => {
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
-      await expect(page).toHaveURL("/admin");
+      await expect(page).toHaveURL("/account");
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
     })();
 
@@ -164,7 +164,7 @@ test.describe("@smoke", () => {
     await step("Navigate to signup page while authenticated & verify redirect to admin")(async () => {
       await page.goto("/signup");
 
-      await expect(page).toHaveURL("/admin");
+      await expect(page).toHaveURL("/account");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
     })();
 
