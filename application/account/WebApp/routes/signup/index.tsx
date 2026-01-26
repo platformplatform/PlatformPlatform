@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
+import { loginPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
@@ -12,8 +12,9 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -23,14 +24,20 @@ import { getLoginState } from "../login/-shared/loginState";
 import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/")({
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function SignupRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
+    const { navigateToHome } = useMainNavigation();
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigateToHome();
+      }
+    }, [isAuthenticated, navigateToHome]);
+
+    if (isAuthenticated) {
+      return null;
+    }
+
     return (
       <HorizontalHeroLayout>
         <StartSignupForm />

@@ -26,23 +26,19 @@ import {
 } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function SignupVerifyRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!hasSignupState()) {
+      if (isAuthenticated) {
+        window.location.href = loggedInPath;
+      } else if (!hasSignupState()) {
         navigate({ to: "/signup", replace: true });
       }
-    }, [navigate]);
+    }, [isAuthenticated, navigate]);
 
-    if (!hasSignupState()) {
+    if (isAuthenticated || !hasSignupState()) {
       return null;
     }
 
