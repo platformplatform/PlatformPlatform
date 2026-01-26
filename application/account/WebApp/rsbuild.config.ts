@@ -49,7 +49,7 @@ export default defineConfig({
       sourceField: "source"
     }),
     FileSystemRouterPlugin(),
-    RunTimeEnvironmentPlugin(customBuildEnv),
+    RunTimeEnvironmentPlugin(customBuildEnv, { federationOnly: true }),
     LinguiPlugin(),
     DevelopmentServerPlugin({ port: 9101 }),
     ModuleFederationPlugin({
