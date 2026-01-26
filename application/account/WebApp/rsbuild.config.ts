@@ -57,6 +57,7 @@ export default defineConfig({
         main: { port: 9301 }
       },
       exposes: {
+        "./AccountApp": "./federated-modules/AccountApp.tsx",
         "./AccountMenu": "./federated-modules/accountMenu/AccountMenu.tsx",
         "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
         "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
