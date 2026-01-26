@@ -179,6 +179,9 @@ msgstr "Azure Compliance (opens in new window)"
 msgid "Back Office"
 msgstr "Back Office"
 
+msgid "Back to app"
+msgstr "Back to app"
+
 msgid "Back to login"
 msgstr "Back to login"
 
@@ -432,9 +435,6 @@ msgstr "Hi! Welcome back"
 
 msgid "Hide details"
 msgstr "Hide details"
-
-msgid "Home"
-msgstr "Home"
 
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "How we collect, use, and protect your personal data in compliance with GDPR."

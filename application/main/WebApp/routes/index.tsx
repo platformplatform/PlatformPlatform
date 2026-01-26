@@ -1,8 +1,8 @@
 import { Trans } from "@lingui/react/macro";
-import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
+import { loggedInPath, loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Link } from "@repo/ui/components/Link";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { lazy } from "react";
 
 const PublicFooter = lazy(() => import("account/PublicFooter"));
@@ -12,8 +12,7 @@ export const Route = createFileRoute("/")({
   beforeLoad: () => {
     const { isAuthenticated } = import.meta.user_info_env;
     if (isAuthenticated) {
-      window.location.href = "/dashboard";
-      return;
+      throw redirect({ to: loggedInPath });
     }
     return { disableAuthSync: true };
   },

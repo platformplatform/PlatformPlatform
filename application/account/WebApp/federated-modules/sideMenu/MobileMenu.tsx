@@ -20,6 +20,7 @@ import {
 import { MenuButton, overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRightIcon,
   Check,
@@ -107,10 +108,11 @@ async function logoutApi(): Promise<void> {
   });
 }
 
-function MobileMenuHeader() {
+function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void }) {
   const userInfo = useUserInfo();
   const overlayCtx = useContext(overlayContext);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const [isSwitching, setIsSwitching] = useState(false);
@@ -216,6 +218,8 @@ function MobileMenuHeader() {
         userId: userInfo?.id || ""
       });
 
+      // Use window.location.href for logout to ensure a full page reload,
+      // clearing all React state and preventing stale queries
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     } catch {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
@@ -227,7 +231,11 @@ function MobileMenuHeader() {
       overlayCtx.close();
     }
     setTimeout(() => {
-      window.location.href = "/account";
+      if (onNavigate) {
+        onNavigate("/account");
+      } else {
+        navigate({ to: "/account" });
+      }
     }, 10);
   };
 
@@ -236,7 +244,11 @@ function MobileMenuHeader() {
       overlayCtx.close();
     }
     setTimeout(() => {
-      window.location.href = "/account/profile";
+      if (onNavigate) {
+        onNavigate("/account/profile");
+      } else {
+        navigate({ to: "/account/profile" });
+      }
     }, 10);
   };
 
@@ -486,9 +498,10 @@ function MobileMenuHeader() {
 
 export interface MobileMenuProps {
   navigationContent?: React.ReactNode;
+  onNavigate?: (path: string) => void;
 }
 
-export default function MobileMenu({ navigationContent }: Readonly<MobileMenuProps>) {
+export default function MobileMenu({ navigationContent, onNavigate }: Readonly<MobileMenuProps>) {
   return (
     <div
       className="flex h-full flex-col overflow-hidden"
@@ -496,7 +509,7 @@ export default function MobileMenu({ navigationContent }: Readonly<MobileMenuPro
       style={{ touchAction: "pan-y" }}
     >
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-1 pt-[calc(0.25rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]">
-        <MobileMenuHeader />
+        <MobileMenuHeader onNavigate={onNavigate} />
 
         <div className="mx-2 my-5 border-border border-b" />
 
@@ -504,7 +517,15 @@ export default function MobileMenu({ navigationContent }: Readonly<MobileMenuPro
           <SideMenuSeparator>
             <Trans>Navigation</Trans>
           </SideMenuSeparator>
-          {navigationContent ?? <MenuButton icon={LayoutDashboardIcon} label={t`Dashboard`} href="/dashboard" />}
+          {navigationContent ?? (
+            <MenuButton
+              icon={LayoutDashboardIcon}
+              label={t`Dashboard`}
+              href="/dashboard"
+              federatedNavigation={true}
+              onNavigate={onNavigate}
+            />
+          )}
         </div>
       </div>
     </div>

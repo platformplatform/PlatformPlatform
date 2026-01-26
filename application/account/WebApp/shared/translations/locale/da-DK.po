@@ -179,6 +179,9 @@ msgstr "Azure Overholdelse (åbner i nyt vindue)"
 msgid "Back Office"
 msgstr "Back Office"
 
+msgid "Back to app"
+msgstr "Tilbage til app"
+
 msgid "Back to login"
 msgstr "Tilbage til login"
 
@@ -432,9 +435,6 @@ msgstr "Hej! Velkommen tilbage"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
-
-msgid "Home"
-msgstr "Hjem"
 
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."

@@ -25,6 +25,7 @@ import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { getRootFontSize, getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH_REM } from "@repo/ui/utils/responsive";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRightIcon,
   Check,
@@ -172,6 +173,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const isCollapsed = isCollapsedProp ?? isCollapsedContext;
   const overlayCtx = useContext(overlayContext);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
@@ -304,14 +306,14 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    window.location.href = "/account";
+    navigate({ to: "/account" });
   };
 
   const handleNavigateToProfile = () => {
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    window.location.href = "/account/profile";
+    navigate({ to: "/account/profile" });
   };
 
   const handleLogout = async () => {
@@ -326,6 +328,8 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
         userId: userInfo?.id || ""
       });
 
+      // Use window.location.href for logout to ensure a full page reload,
+      // clearing all React state and preventing stale queries
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     } catch {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
@@ -409,25 +413,19 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
           {(canAccessAccountSettings || sortedTenants.length > 1) && <DropdownMenuSeparator />}
 
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-row items-center gap-2">
-                <Avatar size="lg">
-                  <AvatarImage src={userInfo.avatarUrl ?? undefined} />
-                  <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
-                </Avatar>
-                <div className="my-1 flex flex-1 flex-col">
-                  <span className="font-medium">{userInfo.fullName}</span>
-                  <span className="text-muted-foreground text-sm">{userInfo.email}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleNavigateToProfile}
-                  className="rounded-md bg-secondary px-2.5 py-1 text-secondary-foreground text-sm hover:bg-secondary/80"
-                >
-                  <Trans>Edit</Trans>
-                </button>
+            <DropdownMenuItem onClick={handleNavigateToProfile} className="py-3">
+              <Avatar size="lg">
+                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
+              </Avatar>
+              <div className="my-1 flex flex-1 flex-col">
+                <span className="font-medium">{userInfo.fullName}</span>
+                <span className="text-muted-foreground text-sm">{userInfo.email}</span>
               </div>
-            </DropdownMenuLabel>
+              <span className="rounded-md bg-secondary px-2.5 py-1 text-secondary-foreground text-sm hover:bg-secondary/80 active:bg-secondary/60">
+                <Trans>Edit</Trans>
+              </span>
+            </DropdownMenuItem>
           </DropdownMenuGroup>
 
           <DropdownMenuSub>
