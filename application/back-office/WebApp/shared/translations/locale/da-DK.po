@@ -13,11 +13,68 @@ msgstr ""
 "Plural-Forms: \n"
 "X-Generator: @lingui/cli\n"
 
+msgid "Access denied"
+msgstr "Adgang nægtet"
+
+msgid "An unexpected error occurred while processing your request."
+msgstr "Der opstod en uventet fejl ved behandlingen."
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Go to home"
+msgstr "Gå til forsiden"
+
+msgid "Hide details"
+msgstr "Skjul detaljer"
+
+msgid "Log out"
+msgstr "Log ud"
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
 
 msgid "More information"
 msgstr "Mere information"
 
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Åbn navigationsmenu"
+
+msgid "Page not found"
+msgstr "Siden blev ikke fundet"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
+
+msgid "Please check the URL or return to the home page."
+msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
+
+msgid "Please try again or return to the home page."
+msgstr "Prøv venligst igen eller vend tilbage til forsiden."
+
+msgid "Show details"
+msgstr "Vis detaljer"
+
+msgid "Something went wrong"
+msgstr "Noget gik galt"
+
+msgid "The page you are looking for does not exist or was moved."
+msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
+
+msgid "Toggle sidebar"
+msgstr "Vis/skjul sidepanel"
+
+msgid "Try again"
+msgstr "Prøv igen"
+
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"
+
+msgid "You do not have permission to access this page."
+msgstr "Du har ikke tilladelse til at tilgaa denne side."
