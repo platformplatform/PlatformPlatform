@@ -10,7 +10,13 @@
 @plugin 'tailwindcss-animate';
 
 @source "../../node_modules/@repo/ui/components";
+/* Source paths for federated SCSs must be explicit (not WebApp/) to exclude dist/ folders,
+   which would cause circular rebuild loops during development */
 @source "../../account/WebApp/federated-modules";
+@source "../../account/WebApp/routes";
+@source "../../account/WebApp/shared";
+@source "../../back-office/WebApp/routes";
+@source "../../back-office/WebApp/shared";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
