@@ -1,23 +1,23 @@
 import { hasPermission, requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
-
-const FederatedAccessDeniedPage = lazy(() => import("account/FederatedAccessDeniedPage"));
-const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
+import { BackOfficeSideMenu } from "@/shared/components/BackOfficeSideMenu";
+import { AccessDeniedPage } from "@/shared/components/errorPages/AccessDeniedPage";
+import { NotFoundPage } from "@/shared/components/errorPages/NotFoundPage";
 
 export const Route = createFileRoute("/back-office")({
   beforeLoad: () => requireAuthentication(),
   component: BackOfficeLayout,
-  notFoundComponent: FederatedNotFoundPage
+  notFoundComponent: NotFoundPage
 });
 
 function BackOfficeLayout() {
   if (!hasPermission({ requiresInternalUser: true })) {
-    return (
-      <Suspense fallback={null}>
-        <FederatedAccessDeniedPage />
-      </Suspense>
-    );
+    return <AccessDeniedPage />;
   }
-  return <Outlet />;
+  return (
+    <>
+      <BackOfficeSideMenu />
+      <Outlet />
+    </>
+  );
 }
