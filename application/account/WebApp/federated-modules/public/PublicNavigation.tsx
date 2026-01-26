@@ -22,7 +22,11 @@ export default function PublicNavigation() {
 
       {isAuthenticated ? (
         <Suspense fallback={<div className="h-10" />}>
-          <AccountMenu />
+          <AccountMenu
+            onNavigate={(path) => {
+              window.location.href = path;
+            }}
+          />
         </Suspense>
       ) : (
         <div className="flex items-center gap-6">

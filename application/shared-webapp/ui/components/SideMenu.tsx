@@ -95,16 +95,13 @@ type MenuButtonProps = {
   isDisabled?: boolean;
 } & (
   | {
-      forceReload?: false;
       href: Href;
-    }
-  | {
-      forceReload: true;
-      href: string;
+      federatedNavigation?: false;
     }
   | {
       federatedNavigation: true;
       href: string;
+      onNavigate?: (path: string) => void;
     }
 );
 
@@ -171,8 +168,8 @@ function ActiveIndicator({
 }
 
 export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
-  const forceReload = "forceReload" in props ? props.forceReload : false;
   const federatedNavigation = "federatedNavigation" in props ? props.federatedNavigation : false;
+  const onNavigate = "onNavigate" in props ? props.onNavigate : undefined;
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const router = useRouter();
@@ -197,12 +194,6 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-
-    // Handle force reload
-    if (forceReload) {
-      e.preventDefault();
-      window.location.href = to;
-    }
   };
 
   const navigateWithDelay = useCallback(() => {
@@ -213,6 +204,12 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
 
     // Smart navigation for federated modules
     if (federatedNavigation) {
+      // Use onNavigate callback if provided (preferred for SPA navigation)
+      if (onNavigate) {
+        onNavigate(to);
+        return;
+      }
+
       // Check if the target route exists in the current router
       try {
         const matchResult = router.matchRoute({ to });
@@ -225,14 +222,10 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         // Route doesn't exist in current system
       }
 
-      // Route doesn't exist in current system - force reload
+      // Route doesn't exist in current system - force reload (fallback)
       window.location.href = to;
     }
-    // Legacy forceReload behavior
-    else if (forceReload) {
-      window.location.href = to;
-    }
-  }, [overlayCtx, federatedNavigation, forceReload, router, to]);
+  }, [overlayCtx, federatedNavigation, onNavigate, router, to]);
 
   const handlePress = () => {
     if (isDisabled) {
@@ -252,7 +245,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           <TooltipTrigger
             render={
               <Link
-                href={forceReload || federatedNavigation ? undefined : (to as string)}
+                href={federatedNavigation ? undefined : (to as string)}
                 className={linkClassName}
                 variant="ghost"
                 underline={false}

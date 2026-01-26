@@ -107,7 +107,7 @@ async function logoutApi(): Promise<void> {
   });
 }
 
-function MobileMenuHeader() {
+function MobileMenuHeader({ onNavigate }: { onNavigate: (path: string) => void }) {
   const userInfo = useUserInfo();
   const overlayCtx = useContext(overlayContext);
   const queryClient = useQueryClient();
@@ -218,6 +218,8 @@ function MobileMenuHeader() {
         userId: userInfo?.id || ""
       });
 
+      // Use window.location.href for logout to ensure a full page reload,
+      // clearing all React state and preventing stale queries
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     } catch {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
@@ -229,7 +231,7 @@ function MobileMenuHeader() {
       overlayCtx.close();
     }
     setTimeout(() => {
-      window.location.href = "/account";
+      onNavigate("/account");
     }, 10);
   };
 
@@ -238,7 +240,7 @@ function MobileMenuHeader() {
       overlayCtx.close();
     }
     setTimeout(() => {
-      window.location.href = "/account/profile";
+      onNavigate("/account/profile");
     }, 10);
   };
 
@@ -488,9 +490,10 @@ function MobileMenuHeader() {
 
 export interface MobileMenuProps {
   navigationContent?: React.ReactNode;
+  onNavigate: (path: string) => void;
 }
 
-export default function MobileMenu({ navigationContent }: Readonly<MobileMenuProps>) {
+export default function MobileMenu({ navigationContent, onNavigate }: Readonly<MobileMenuProps>) {
   return (
     <div
       className="flex h-full flex-col overflow-hidden"
@@ -498,7 +501,7 @@ export default function MobileMenu({ navigationContent }: Readonly<MobileMenuPro
       style={{ touchAction: "pan-y" }}
     >
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-1">
-        <MobileMenuHeader />
+        <MobileMenuHeader onNavigate={onNavigate} />
 
         <div className="mx-2 my-5 border-border border-b" />
 

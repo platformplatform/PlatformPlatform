@@ -65,6 +65,7 @@ interface TenantsResponse {
 
 interface AccountMenuProps {
   isCollapsed?: boolean;
+  onNavigate: (path: string) => void;
 }
 
 function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
@@ -162,7 +163,7 @@ async function logoutApi(): Promise<void> {
   });
 }
 
-export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<AccountMenuProps>) {
+export default function AccountMenu({ isCollapsed: isCollapsedProp, onNavigate }: Readonly<AccountMenuProps>) {
   const userInfo = useUserInfo();
   const isCollapsedContext = useContext(collapsedContext);
   const isCollapsed = isCollapsedProp ?? isCollapsedContext;
@@ -302,14 +303,14 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    window.location.href = "/account";
+    onNavigate("/account");
   };
 
   const handleNavigateToProfile = () => {
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    window.location.href = "/account/profile";
+    onNavigate("/account/profile");
   };
 
   const handleLogout = async () => {
@@ -324,6 +325,8 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
         userId: userInfo?.id || ""
       });
 
+      // Use window.location.href for logout to ensure a full page reload,
+      // clearing all React state and preventing stale queries
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     } catch {
       window.location.href = createLoginUrlWithReturnPath(loginPath);

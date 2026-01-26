@@ -14,18 +14,25 @@ import {
 import { useContext } from "react";
 import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 
-function LogoContent() {
+function LogoContent({ onNavigate }: { onNavigate: (path: string) => void }) {
   const isCollapsed = useContext(collapsedContext);
-  return <AccountMenu isCollapsed={isCollapsed} />;
+  return <AccountMenu isCollapsed={isCollapsed} onNavigate={onNavigate} />;
 }
 
-function AccountNavigationMenuItems() {
+function AccountNavigationMenuItems({ onNavigate }: { onNavigate: (path: string) => void }) {
   const userInfo = useUserInfo();
 
   return (
     <>
-      <MenuButton icon={ArrowLeftIcon} label={t`Back to app`} href="/home" forceReload={true} />
+      <MenuButton
+        icon={ArrowLeftIcon}
+        label={t`Back to app`}
+        href="/home"
+        federatedNavigation={true}
+        onNavigate={onNavigate}
+      />
 
       <SideMenuSeparator>
         <Trans>User</Trans>
@@ -49,14 +56,21 @@ function AccountNavigationMenuItems() {
 }
 
 export function AccountSideMenu() {
+  const { navigateToMain } = useMainNavigation();
+
   return (
     <SideMenu
       sidebarToggleAriaLabel={t`Toggle sidebar`}
       mobileMenuAriaLabel={t`Open navigation menu`}
-      topMenuContent={<MobileMenu navigationContent={<AccountNavigationMenuItems />} />}
-      logoContent={<LogoContent />}
+      topMenuContent={
+        <MobileMenu
+          navigationContent={<AccountNavigationMenuItems onNavigate={navigateToMain} />}
+          onNavigate={navigateToMain}
+        />
+      }
+      logoContent={<LogoContent onNavigate={navigateToMain} />}
     >
-      <AccountNavigationMenuItems />
+      <AccountNavigationMenuItems onNavigate={navigateToMain} />
     </SideMenu>
   );
 }
