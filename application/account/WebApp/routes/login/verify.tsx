@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { authSyncService, type UserLoggedInMessage } from "@repo/infrastructure/auth/AuthSyncService";
-import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
@@ -12,6 +11,7 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -28,28 +28,24 @@ import {
 export const Route = createFileRoute("/login/verify")({
   validateSearch: (search) => {
     const returnPath = search.returnPath as string | undefined;
-    // Only allow paths starting with / to prevent open redirect attacks to external domains
     return {
       returnPath: returnPath?.startsWith("/") ? returnPath : undefined
     };
   },
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function LoginVerifyRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
+    const { navigateToHome } = useMainNavigation();
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!hasLoginState()) {
+      if (isAuthenticated) {
+        navigateToHome();
+      } else if (!hasLoginState()) {
         navigate({ to: "/login", search: { returnPath: "" }, replace: true });
       }
-    }, [navigate]);
+    }, [isAuthenticated, navigateToHome, navigate]);
 
-    if (!hasLoginState()) {
+    if (isAuthenticated || !hasLoginState()) {
       return null;
     }
 
@@ -99,6 +95,7 @@ export function CompleteLoginForm() {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [autoSubmitCode, setAutoSubmitCode] = useState(true);
   const { returnPath } = Route.useSearch();
+  const { navigateToHome } = useMainNavigation();
 
   useEffect(() => {
     if (!isExpired && !showRequestLink && !hasRequestedNewCode) {
@@ -148,7 +145,7 @@ export function CompleteLoginForm() {
       authSyncService.broadcast(message);
 
       clearLoginState();
-      window.location.href = returnPath ?? loggedInPath;
+      navigateToHome(returnPath);
     }
   });
 

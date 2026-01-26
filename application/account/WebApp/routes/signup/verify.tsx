@@ -1,6 +1,5 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -12,6 +11,7 @@ import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -26,23 +26,20 @@ import {
 } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function SignupVerifyRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
+    const { navigateToHome } = useMainNavigation();
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!hasSignupState()) {
+      if (isAuthenticated) {
+        navigateToHome();
+      } else if (!hasSignupState()) {
         navigate({ to: "/signup", replace: true });
       }
-    }, [navigate]);
+    }, [isAuthenticated, navigateToHome, navigate]);
 
-    if (!hasSignupState()) {
+    if (isAuthenticated || !hasSignupState()) {
       return null;
     }
 
@@ -91,6 +88,7 @@ export function CompleteSignupForm() {
   const [hasRequestedNewCode, setHasRequestedNewCode] = useState(false);
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [autoSubmitCode, setAutoSubmitCode] = useState(true);
+  const { navigateToHome } = useMainNavigation();
 
   useEffect(() => {
     if (!isExpired && !showRequestLink && !hasRequestedNewCode) {
@@ -123,7 +121,7 @@ export function CompleteSignupForm() {
     {
       onSuccess: () => {
         clearSignupState();
-        window.location.href = loggedInPath;
+        navigateToHome();
       }
     }
   );
