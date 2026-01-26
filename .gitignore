@@ -397,6 +397,7 @@ FodyWeavers.xsd
 dist/
 .turbo/
 **/translations/locale/*.ts
+application/account/WebApp/tsconfig.tsbuildinfo
 
 # AI Rules
 .windsurfrules
