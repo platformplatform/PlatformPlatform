@@ -1,5 +1,6 @@
 import { useBlocker } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { registerNavigationGuard } from "./federatedNavigationGuard";
 
 type UseUnsavedChangesGuardOptions = {
   hasUnsavedChanges: boolean;
@@ -19,6 +20,10 @@ export function useUnsavedChangesGuard({
   const [pendingCloseHandler, setPendingCloseHandler] = useState<(() => void) | null>(null);
 
   const shouldBlockNavigation = useCallback(() => hasUnsavedChanges, [hasUnsavedChanges]);
+
+  useEffect(() => {
+    return registerNavigationGuard(() => hasUnsavedChanges);
+  }, [hasUnsavedChanges]);
 
   // Handle browser back/forward navigation and in-app navigation using TanStack Router
   const { proceed, reset, status } = useBlocker({
