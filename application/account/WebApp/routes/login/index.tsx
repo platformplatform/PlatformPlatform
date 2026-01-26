@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
+import { signUpPath } from "@repo/infrastructure/auth/constants";
 import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -8,8 +8,9 @@ import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -25,14 +26,20 @@ export const Route = createFileRoute("/login/")({
       returnPath: returnPath && isValidReturnPath(returnPath) ? returnPath : undefined
     };
   },
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function LoginRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
+    const { navigateToHome } = useMainNavigation();
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigateToHome();
+      }
+    }, [isAuthenticated, navigateToHome]);
+
+    if (isAuthenticated) {
+      return null;
+    }
+
     return (
       <HorizontalHeroLayout>
         <LoginForm />
