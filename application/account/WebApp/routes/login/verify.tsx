@@ -33,23 +33,19 @@ export const Route = createFileRoute("/login/verify")({
       returnPath: returnPath && isValidReturnPath(returnPath) ? returnPath : undefined
     };
   },
-  beforeLoad: () => {
-    const { isAuthenticated } = import.meta.user_info_env;
-    if (isAuthenticated) {
-      window.location.href = loggedInPath;
-    }
-    return {};
-  },
   component: function LoginVerifyRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
     const navigate = useNavigate();
 
     useEffect(() => {
-      if (!hasLoginState()) {
+      if (isAuthenticated) {
+        window.location.href = loggedInPath;
+      } else if (!hasLoginState()) {
         navigate({ to: "/login", search: { returnPath: "" }, replace: true });
       }
-    }, [navigate]);
+    }, [isAuthenticated, navigate]);
 
-    if (!hasLoginState()) {
+    if (isAuthenticated || !hasLoginState()) {
       return null;
     }
 
@@ -148,7 +144,8 @@ export function CompleteLoginForm() {
       authSyncService.broadcast(message);
 
       clearLoginState();
-      window.location.href = returnPath ?? loggedInPath;
+      // Full page reload to get new antiforgery token with authenticated user
+      window.location.href = returnPath || loggedInPath;
     }
   });
 
