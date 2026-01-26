@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { collapsedContext, SideMenu } from "@repo/ui/components/SideMenu";
 import { useContext } from "react";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import AccountMenu from "../accountMenu/AccountMenu";
 import MobileMenu from "./MobileMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
@@ -16,14 +17,21 @@ function LogoContent() {
 }
 
 export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedSideMenuProps>) {
+  const { navigateToMain } = useMainNavigation();
+
   return (
     <SideMenu
       sidebarToggleAriaLabel={t`Toggle sidebar`}
       mobileMenuAriaLabel={t`Open navigation menu`}
-      topMenuContent={<MobileMenu navigationContent={<NavigationMenuItems currentSystem={currentSystem} />} />}
+      topMenuContent={
+        <MobileMenu
+          navigationContent={<NavigationMenuItems currentSystem={currentSystem} onNavigate={navigateToMain} />}
+          onNavigate={navigateToMain}
+        />
+      }
       logoContent={<LogoContent />}
     >
-      <NavigationMenuItems currentSystem={currentSystem} />
+      <NavigationMenuItems currentSystem={currentSystem} onNavigate={navigateToMain} />
     </SideMenu>
   );
 }

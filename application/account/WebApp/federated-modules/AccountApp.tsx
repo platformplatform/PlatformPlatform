@@ -1,18 +1,12 @@
 import "@repo/ui/tailwind.css";
-import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracker";
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
-import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
-import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
 import { createBlockableMemoryHistory } from "@repo/infrastructure/router/createBlockableMemoryHistory";
-import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
-import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
-import { ThemeModeProvider } from "@repo/ui/theme/mode/ThemeMode";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { shouldBlockNavigation } from "@repo/ui/hooks/federatedNavigationGuard";
 import { createRouter, type NavigateOptions, RouterProvider } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
-import { queryClient } from "../shared/lib/api/client";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { UnsavedChangesDialog } from "../shared/components/UnsavedChangesDialog";
+import { MainNavigationContext } from "../shared/hooks/useMainNavigation";
 import { routeTree } from "../shared/lib/router/routeTree.generated";
-import AuthSyncModalComponent from "./common/AuthSyncModal";
 
 export interface AccountAppProps {
   initialPath: string;
@@ -20,22 +14,22 @@ export interface AccountAppProps {
 }
 
 export default function AccountApp({ initialPath, onNavigateToMain }: Readonly<AccountAppProps>) {
+  // Store initialPath in a ref to prevent router recreation when main's router re-renders
+  // due to URL changes from window.history.pushState() calls within this component
+  const initialPathRef = useRef(initialPath);
+
   const router = useMemo(() => {
-    const memoryHistory = createBlockableMemoryHistory({ initialEntries: [initialPath] });
+    const memoryHistory = createBlockableMemoryHistory({ initialEntries: [initialPathRef.current] });
     return createRouter({
       routeTree,
       history: memoryHistory,
       defaultPreload: "intent"
     });
-  }, [initialPath]);
-
-  useInitializeLocale();
-  useErrorTrigger();
+  }, []);
 
   useEffect(() => {
     return router.subscribe("onResolved", ({ toLocation }) => {
-      const searchString = toLocation.searchStr || "";
-      const newPath = toLocation.pathname + searchString;
+      const newPath = toLocation.pathname + (toLocation.searchStr || "");
       if (window.location.pathname + window.location.search !== newPath) {
         window.history.pushState({}, "", newPath);
       }
@@ -51,11 +45,24 @@ export default function AccountApp({ initialPath, onNavigateToMain }: Readonly<A
     return () => window.removeEventListener("popstate", handlePopState);
   }, [router]);
 
+  const [pendingNavigation, setPendingNavigation] = useState<{ proceed: () => void } | null>(null);
+
+  const guardedNavigateToMain = useCallback(
+    (path: string) => {
+      if (shouldBlockNavigation()) {
+        setPendingNavigation({ proceed: () => onNavigateToMain(path) });
+        return;
+      }
+      onNavigateToMain(path);
+    },
+    [onNavigateToMain]
+  );
+
   const handleNavigate = (options: NavigateOptions) => {
     const mainRoutes = ["/", "/dashboard"];
     const targetPath = options.to?.toString() ?? "";
     if (mainRoutes.some((route) => targetPath === route || targetPath.startsWith("/dashboard"))) {
-      onNavigateToMain(targetPath);
+      guardedNavigateToMain(targetPath);
     } else {
       router.navigate(options);
     }
@@ -63,16 +70,19 @@ export default function AccountApp({ initialPath, onNavigateToMain }: Readonly<A
 
   return (
     <div id="account" className="contents">
-      <QueryClientProvider client={queryClient}>
-        <ThemeModeProvider>
-          <AuthenticationProvider navigate={handleNavigate}>
-            <AddToHomescreen />
-            <PageTracker />
-            <RouterProvider router={router} />
-            <AuthSyncModal modalComponent={AuthSyncModalComponent} />
-          </AuthenticationProvider>
-        </ThemeModeProvider>
-      </QueryClientProvider>
+      <MainNavigationContext.Provider value={guardedNavigateToMain}>
+        <AuthenticationProvider navigate={handleNavigate}>
+          <RouterProvider router={router} />
+        </AuthenticationProvider>
+      </MainNavigationContext.Provider>
+      <UnsavedChangesDialog
+        isOpen={pendingNavigation !== null}
+        onConfirmLeave={() => {
+          pendingNavigation?.proceed();
+          setPendingNavigation(null);
+        }}
+        onCancel={() => setPendingNavigation(null)}
+      />
     </div>
   );
 }
