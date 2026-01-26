@@ -13,8 +13,71 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+msgid "A different user logged in from another browser tab."
+msgstr "A different user logged in from another browser tab."
+
+msgid "Access denied"
+msgstr "Access denied"
+
+msgid "Account switched"
+msgstr "Account switched"
+
+msgid "An unexpected error occurred while processing your request."
+msgstr "An unexpected error occurred while processing your request."
+
+msgid "An unexpected state occurred. Please reload the page."
+msgstr "An unexpected state occurred. Please reload the page."
+
+msgid "Authentication is shared across all tabs."
+msgstr "Authentication is shared across all tabs."
+
+msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+msgstr "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+
+msgid "Change language"
+msgstr "Change language"
+
+msgid "Change theme"
+msgstr "Change theme"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Contact support"
+msgstr "Contact support"
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Contact your administrator if you believe this is a mistake."
+
+msgid "Dark"
+msgstr "Dark"
+
 msgid "Dashboard"
 msgstr "Dashboard"
+
+msgid "Different user logged in"
+msgstr "Different user logged in"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Feel free to reach out with any questions or issues you may have."
+msgstr "Feel free to reach out with any questions or issues you may have."
+
+msgid "Go to home"
+msgstr "Go to home"
+
+msgid "Hide details"
+msgstr "Hide details"
+
+msgid "Light"
+msgstr "Light"
+
+msgid "Log out"
+msgstr "Log out"
+
+msgid "Logged out"
+msgstr "Logged out"
 
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
@@ -25,11 +88,59 @@ msgstr "More information"
 msgid "Navigation"
 msgstr "Navigation"
 
+msgid "Need help? Our support team is here to assist you."
+msgstr "Need help? Our support team is here to assist you."
+
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
+
+msgid "Page not found"
+msgstr "Page not found"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
+
+msgid "Please check the URL or return to the home page."
+msgstr "Please check the URL or return to the home page."
+
+msgid "Please try again or return to the home page."
+msgstr "Please try again or return to the home page."
+
+msgid "Reload"
+msgstr "Reload"
+
+msgid "Show details"
+msgstr "Show details"
+
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+msgid "System"
+msgstr "System"
+
+msgid "The page you are looking for does not exist or was moved."
+msgstr "The page you are looking for does not exist or was moved."
 
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
 
+msgid "Try again"
+msgstr "Try again"
+
+msgid "Unknown state"
+msgstr "Unknown state"
+
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"
+
+msgid "You do not have permission to access this page."
+msgstr "You do not have permission to access this page."
+
+msgid "You were logged out from another browser tab."
+msgstr "You were logged out from another browser tab."
+
+msgid "Your account was switched in another browser tab."
+msgstr "Your account was switched in another browser tab."
+
+msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
+msgstr "Your account was switched to <0>{newTenantName}</0> in another browser tab."

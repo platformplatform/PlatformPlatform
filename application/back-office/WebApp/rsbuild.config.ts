@@ -45,10 +45,6 @@ export default defineConfig({
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
     DevelopmentServerPlugin({ port: 9201 }),
-    ModuleFederationPlugin({
-      remotes: {
-        account: { port: 9101 }
-      }
-    })
+    ModuleFederationPlugin()
   ]
 });
