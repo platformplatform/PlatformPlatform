@@ -1,11 +1,19 @@
 /**
- * This file serves as the entry point for the SPA, dynamically importing the main application module `bootstrap.tsx`.
- * Separating the files ensures they are loaded correctly in a Module Federation (micro frontend) setup.
+ * Entry point for this SCS (Self-Contained System) SPA.
  *
- * Using Module Federation to build micro frontends, this approach allows one micro frontend to dynamically load UI
- * from another micro frontend at runtime (e.g. the User Profile editor dialog).
+ * This file exists for build tooling compatibility only. This SCS is loaded as a federated
+ * module by Main SCS (the shell application), never as a standalone application.
  *
- * This enables independent development and deployment of shared UI without having to use NPM packages or deploy all
- * frontends when the UI is updated.
+ * Architecture: Module Federation (Micro Frontends)
+ * -------------------------------------------------
+ * Each SCS is a small monolith with its own frontend SPA that can be developed, tested,
+ * and deployed independently. Using Module Federation, one micro frontend can dynamically
+ * load UI components from another at runtime without page reloads.
+ *
+ * Benefits:
+ * - Independent development: Teams can work on different SCS frontends without conflicts
+ * - Independent deployment: Update shared UI without redeploying all frontends
+ * - Runtime integration: No NPM packages needed for cross-SCS UI sharing
+ * - Seamless navigation: Users navigate between SCS boundaries without page reloads
  */
-import("./bootstrap");
+export {};
