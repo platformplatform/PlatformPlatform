@@ -70,7 +70,6 @@ var accountApi = builder
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
-    .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
     .WaitFor(accountWorkers);
 
 var backOfficeDatabase = sqlServer
@@ -103,6 +102,7 @@ var mainApi = builder
     .WithUrlConfiguration("")
     .WithReference(mainDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
     .WaitFor(mainWorkers);
 
 var appGateway = builder

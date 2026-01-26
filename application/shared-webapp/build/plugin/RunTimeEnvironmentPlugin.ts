@@ -11,7 +11,14 @@ import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
 const APPLICATION_ID = path.relative(path.join(process.cwd(), "..", ".."), process.cwd()).toLowerCase();
 const BUILD_TYPE = process.env.NODE_ENV === "production" ? "production" : "development";
 
-export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(customBuildEnv: E): RsbuildPlugin {
+interface PluginOptions {
+  federationOnly?: boolean;
+}
+
+export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>(
+  customBuildEnv: E,
+  options: PluginOptions = {}
+): RsbuildPlugin {
   return {
     name: "RunTimeEnvironmentPlugin",
     setup(api) {
@@ -42,8 +49,11 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
             assetPrefix: "auto",
             // Clean the dist folder before building
             cleanDistPath: true
-          },
-          html: {
+          }
+        };
+
+        if (!options.federationOnly) {
+          extraConfig.html = {
             // Use the template file from the public directory
             template: "./public/index.html",
             // Define the runtime environment variables as part of the template
@@ -64,8 +74,8 @@ export function RunTimeEnvironmentPlugin<E extends {} = Record<string, unknown>>
                 return tag;
               });
             }
-          }
-        };
+          };
+        }
 
         return mergeRsbuildConfig(userConfig, extraConfig);
       });
