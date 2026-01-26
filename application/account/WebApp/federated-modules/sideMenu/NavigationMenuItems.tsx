@@ -1,23 +1,25 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { FederatedMenuButton, SideMenuSeparator } from "@repo/ui/components/SideMenu";
-import { BoxIcon, CircleUserIcon, HomeIcon, MonitorSmartphoneIcon, UserIcon, UsersIcon } from "lucide-react";
+import { FederatedMenuButton, MenuButton, SideMenuSeparator } from "@repo/ui/components/SideMenu";
+import { ArrowLeftIcon, BoxIcon, CircleUserIcon, MonitorSmartphoneIcon, UserIcon, UsersIcon } from "lucide-react";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 
 // Navigation items shared between mobile and desktop menus
 export function NavigationMenuItems({
-  currentSystem
-}: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"] }>) {
+  currentSystem,
+  onNavigate
+}: Readonly<{ currentSystem: FederatedSideMenuProps["currentSystem"]; onNavigate: (path: string) => void }>) {
   const userInfo = useUserInfo();
 
   return (
     <>
-      <FederatedMenuButton
-        icon={HomeIcon}
-        label={t`Home`}
-        href="/account"
-        isCurrentSystem={currentSystem === "account"}
+      <MenuButton
+        icon={ArrowLeftIcon}
+        label={t`Back to app`}
+        href="/dashboard"
+        federatedNavigation={true}
+        onNavigate={onNavigate}
       />
 
       <SideMenuSeparator>

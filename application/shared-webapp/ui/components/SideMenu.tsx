@@ -101,16 +101,13 @@ type MenuButtonProps = {
   isDisabled?: boolean;
 } & (
   | {
-      forceReload?: false;
       href: string;
-    }
-  | {
-      forceReload: true;
-      href: string;
+      federatedNavigation?: false;
     }
   | {
       federatedNavigation: true;
       href: string;
+      onNavigate?: (path: string) => void;
     }
 );
 
@@ -165,8 +162,8 @@ function ActiveIndicator({ isActive }: { isActive: boolean }) {
 }
 
 export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
-  const forceReload = "forceReload" in props ? props.forceReload : false;
   const federatedNavigation = "federatedNavigation" in props ? props.federatedNavigation : false;
+  const onNavigate = "onNavigate" in props ? props.onNavigate : undefined;
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const router = useRouter();
@@ -177,7 +174,8 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   const isActive = normalizePath(currentPath) === normalizePath(targetPath);
 
   // Check if we're in the mobile menu context
-  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
+  const isMobileViewport = !window.matchMedia(MEDIA_QUERIES.sm).matches;
+  const isMobileMenu = isMobileViewport && !!overlayCtx?.isOpen;
 
   const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
@@ -192,10 +190,9 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
       overlayCtx.close();
     }
 
-    // Handle force reload
-    if (forceReload) {
-      e.preventDefault();
-      window.location.href = to;
+    // Dispatch event to close mobile menu (always on mobile viewport as fallback for module federation)
+    if (isMobileViewport) {
+      window.dispatchEvent(new CustomEvent("close-mobile-menu"));
     }
   };
 
@@ -205,8 +202,19 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
       overlayCtx.close();
     }
 
+    // Dispatch event to close mobile menu (always on mobile viewport as fallback for module federation)
+    if (isMobileViewport) {
+      window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+    }
+
     // Smart navigation for federated modules
     if (federatedNavigation) {
+      // Use onNavigate callback if provided (preferred for SPA navigation)
+      if (onNavigate) {
+        onNavigate(to);
+        return;
+      }
+
       // Check if the target route exists in the current router
       try {
         const matchResult = router.matchRoute({ to });
@@ -219,14 +227,10 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         // Route doesn't exist in current system
       }
 
-      // Route doesn't exist in current system - force reload
+      // Route doesn't exist in current system - force reload (fallback)
       window.location.href = to;
     }
-    // Legacy forceReload behavior
-    else if (forceReload) {
-      window.location.href = to;
-    }
-  }, [overlayCtx, federatedNavigation, forceReload, router, to]);
+  }, [overlayCtx, federatedNavigation, onNavigate, router, to, isMobileViewport]);
 
   const handlePress = () => {
     if (isDisabled) {
@@ -246,7 +250,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           <TooltipTrigger
             render={
               <Link
-                href={forceReload || federatedNavigation ? undefined : (to as string)}
+                href={federatedNavigation ? undefined : (to as string)}
                 className={linkClassName}
                 variant="ghost"
                 underline={false}
