@@ -250,7 +250,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane to be fully interactive and close button to be visible
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane to ensure Escape key is handled
@@ -287,7 +287,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane animation to complete and close button to be visible
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
     })();
 
@@ -296,7 +296,7 @@ test.describe("@comprehensive", () => {
 
       // Ensure side pane is fully open
       await expect(sidePane).toBeVisible();
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane to ensure Escape key is handled
@@ -325,7 +325,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
 
       // Wait for close button to ensure side pane is fully rendered
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane before pressing Escape
@@ -355,7 +355,7 @@ test.describe("@comprehensive", () => {
 
       // Click close button to close side pane
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       await expect(sidePane).not.toBeVisible();
@@ -499,7 +499,7 @@ test.describe("@comprehensive", () => {
 
       // Click close button to close side pane
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       // Verify side pane closes
@@ -544,7 +544,7 @@ test.describe("@comprehensive", () => {
 
     await step("Click X button to close side pane & verify selection maintained")(async () => {
       const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       // Verify side pane closes
@@ -603,7 +603,7 @@ test.describe("@comprehensive", () => {
         const closeButton = page
           .locator("aside")
           .filter({ hasText: "User profile" })
-          .locator("svg[aria-label='Close user profile']");
+          .getByRole("button", { name: "Close user profile" });
         await closeButton.click();
         await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
 
