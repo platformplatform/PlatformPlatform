@@ -44,6 +44,12 @@ function Table({ className, selectedIndex, onNavigate, onActivate, ...props }: T
       }
 
       const target = event.target as HTMLElement;
+
+      // Only handle keyboard navigation when focus is inside the table body.
+      // Column headers, buttons, and other elements handle their own keyboard events.
+      if (!target.closest("tbody")) {
+        return;
+      }
       if (target.tagName === "BUTTON" || target.closest("button")) {
         return;
       }
@@ -143,14 +149,32 @@ function TableRow({ className, index, ...props }: TableRowProps) {
   );
 }
 
-function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+// NOTE: This diverges from stock ShadCN to make clickable column headers keyboard-accessible.
+// When onClick is present, the header gets tabIndex={0} and responds to Enter/Space.
+function TableHead({ className, onClick, onKeyDown, ...props }: React.ComponentProps<"th">) {
+  const isInteractive = onClick != null;
+
+  const handleKeyDown = isInteractive
+    ? (event: React.KeyboardEvent<HTMLTableCellElement>) => {
+        onKeyDown?.(event);
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          event.stopPropagation();
+          onClick(event as unknown as React.MouseEvent<HTMLTableCellElement>);
+        }
+      }
+    : onKeyDown;
+
   return (
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground [&:has([role=checkbox])]:pr-0",
+        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 [&:has([role=checkbox])]:pr-0",
         className
       )}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={isInteractive ? 0 : undefined}
       {...props}
     />
   );

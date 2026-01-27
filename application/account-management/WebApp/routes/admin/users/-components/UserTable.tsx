@@ -125,6 +125,7 @@ export function UserTable({
         direction: newDirection
       };
       setSortDescriptor(newSortDescriptor);
+      onSelectedUsersChange([]);
 
       const newOrderBy = columnId as SortableUserProperties;
       const newSortOrder = newDirection === "ascending" ? SortOrder.Ascending : SortOrder.Descending;
