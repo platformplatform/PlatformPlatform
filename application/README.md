@@ -22,7 +22,7 @@ The [AccountManagement.slnf](/application/AccountManagement.slnf) solution file 
 
 Self-contained systems in PlatformPlatform are divided into the following core projects following the design principles of Vertical Slice Architecture, Domain-Driven Design (DDD), and Command Query Responsibility Segregation (CQRS):
 
-1. `WebApp`: The WebApp is built with React, React Aria Components, Rsbuild, Turborepo, and more. It’s completely separated from the Backend, ensuring that it can be developed in isolation using e.g. Visual Studio Code (or Rider or Visual Studio).
+1. `WebApp`: The WebApp is built with React, ShadCN 2.0 with Base UI, Rsbuild, Turborepo, and more. It’s completely separated from the Backend, ensuring that it can be developed in isolation using e.g. Visual Studio Code (or Rider or Visual Studio).
 
 2. `Api`: Built with ASP.NET Minimal API, this project implements the REST API. The API also serves the `index.html` from the SPA as a fallback (if no server endpoint was matched). This eliminates the need for separate web server to serve the static frontend. This, in turn, also means the frontend and API are guaranteed to be in sync. When the SPA `index.html` is served it injects environment configurations (app version, CDN URLs) and user info to avoid an extra API call.
 
