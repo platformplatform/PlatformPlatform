@@ -49,9 +49,7 @@ export function PermanentlyDeleteUserDialog({
     if (isEmptyRecycleBin) {
       const deletedCount = await emptyRecycleBinMutation.mutateAsync({});
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toast.success(t`Success`, {
-        description: deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`
-      });
+      toast.success(deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
       return;
@@ -64,17 +62,13 @@ export function PermanentlyDeleteUserDialog({
     if (isSingleUser) {
       await purgeUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toast.success(t`Success`, {
-        description: t`User permanently deleted: ${userDisplayName}`
-      });
+      toast.success(t`User permanently deleted: ${userDisplayName}`);
       onUsersDeleted?.();
       onOpenChange(false);
     } else {
       await bulkPurgeUsersMutation.mutateAsync({ body: { userIds: users.map((u) => u.id) } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toast.success(t`Success`, {
-        description: t`${users.length} users permanently deleted`
-      });
+      toast.success(t`${users.length} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
     }

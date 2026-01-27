@@ -93,7 +93,7 @@ function getToastVariant(status: number): "warning" | "error" {
 
 const DEFAULT_TOAST_DURATIONS = {
   warning: 6000,
-  error: 10000
+  error: 8000
 } as const;
 
 function showTimeoutToast(): void {
@@ -126,31 +126,26 @@ function showServerErrorToast(error: ServerError) {
     return;
   }
 
-  let message: { title: string; detail: string };
-
-  if (error.problemDetails) {
-    const { title, detail, traceId } = error.problemDetails;
-    message = {
-      title,
-      detail: traceId ? `${detail ?? ""}\n\nReference ID: ${traceId}` : (detail ?? "")
-    };
-  } else {
-    message = getServerErrorMessage(error.status);
-  }
-
   const variant = getToastVariant(error.status);
   const duration = DEFAULT_TOAST_DURATIONS[variant];
 
-  if (variant === "error") {
-    toast.error(message.title, {
-      description: message.detail ?? "",
-      duration
-    });
+  if (error.problemDetails) {
+    const { detail, traceId } = error.problemDetails;
+    const title = detail ?? "";
+    const referenceId = variant === "error" && traceId ? `Reference ID: ${traceId}` : "";
+
+    if (variant === "error") {
+      toast.error(title, { description: referenceId, duration });
+    } else {
+      toast.warning(title, { duration });
+    }
   } else {
-    toast.warning(message.title, {
-      description: message.detail ?? "",
-      duration
-    });
+    const message = getServerErrorMessage(error.status);
+    if (variant === "error") {
+      toast.error(message.title, { description: message.detail, duration });
+    } else {
+      toast.warning(message.title, { duration });
+    }
   }
 }
 

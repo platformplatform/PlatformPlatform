@@ -40,9 +40,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
 
       setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
-      toast.success(t`Success`, {
-        description: t`User role updated successfully for ${userDisplayName}`
-      });
+      toast.success(t`User role updated successfully for ${userDisplayName}`);
       queryClient.invalidateQueries({
         queryKey: ["get", "/api/account-management/users"]
       });

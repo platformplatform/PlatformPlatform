@@ -28,9 +28,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
   const inviteUserMutation = api.useMutation("post", "/api/account-management/users/invite", {
     onSuccess: () => {
       setIsFormDirty(false);
-      toast.success(t`Success`, {
-        description: t`User invited successfully`
-      });
+      toast.success(t`User invited successfully`);
       onOpenChange(false);
     }
   });

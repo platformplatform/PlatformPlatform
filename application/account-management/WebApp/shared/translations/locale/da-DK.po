@@ -767,9 +767,6 @@ msgstr "Bliv"
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
 
-msgid "Success"
-msgstr "Succes"
-
 msgid "Switching account..."
 msgstr "Skifter konto..."
 

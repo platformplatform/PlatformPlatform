@@ -767,9 +767,6 @@ msgstr "Stay"
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
 
-msgid "Success"
-msgstr "Success"
-
 msgid "Switching account..."
 msgstr "Switching account..."
 

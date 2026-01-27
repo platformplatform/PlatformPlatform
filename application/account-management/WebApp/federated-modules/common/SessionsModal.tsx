@@ -216,9 +216,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
           return next;
         });
       }
-      toast.success(t`Success`, {
-        description: t`Session revoked successfully`
-      });
+      toast.success(t`Session revoked successfully`);
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/authentication/sessions"] });
       setIsRevokeDialogOpen(false);
       setSelectedSession(null);

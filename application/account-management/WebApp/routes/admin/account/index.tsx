@@ -96,9 +96,7 @@ function useLogoManagement(
       await queryClient.invalidateQueries();
       refetchTenant();
 
-      toast.success(t`Success`, {
-        description: t`Logo uploaded successfully`
-      });
+      toast.success(t`Logo uploaded successfully`);
     },
     [updateTenantLogoMutation, refetchTenant, queryClient]
   );
@@ -113,9 +111,7 @@ function useLogoManagement(
     // Trigger input clearing via state
     setShouldClearInput(true);
 
-    toast.success(t`Success`, {
-      description: t`Logo removed successfully`
-    });
+    toast.success(t`Logo removed successfully`);
   }, [removeTenantLogoMutation, refetchTenant, queryClient]);
 
   const cleanupLogoPreview = useCallback(() => {
@@ -260,9 +256,7 @@ export function AccountSettings() {
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account-management/tenants/current", {
     onSuccess: () => {
       setIsFormDirty(false);
-      toast.success(t`Success`, {
-        description: t`Account name updated successfully`
-      });
+      toast.success(t`Account name updated successfully`);
       refetchTenant();
     }
   });
