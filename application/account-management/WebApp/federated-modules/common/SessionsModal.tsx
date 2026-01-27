@@ -201,9 +201,12 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
   const [revokingSessionIds, setRevokingSessionIds] = useState<Set<string>>(new Set());
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = api.useQuery("get", "/api/account-management/authentication/sessions", {
-    enabled: isOpen
-  });
+  const { data, isLoading } = api.useQuery(
+    "get",
+    "/api/account-management/authentication/sessions",
+    {},
+    { enabled: isOpen }
+  );
 
   const sessions = data?.sessions ?? [];
 
