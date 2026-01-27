@@ -22,13 +22,35 @@ interface TableProps extends React.ComponentProps<"table"> {
 function Table({ className, selectedIndex, onNavigate, onActivate, ...props }: TableProps) {
   const hasKeyboardNavigation = onNavigate != null;
   const containerRef = useRef<HTMLDivElement>(null);
-  const [focusedRowIndex, setFocusedRowIndex] = useState<number>(
-    selectedIndex != null && selectedIndex >= 0 ? selectedIndex : 0
-  );
+  const [focusedRowIndex, setFocusedRowIndex] = useState<number>(0);
 
+  // NOTE: This diverges from stock ShadCN to scroll the selected row into view (e.g., deep links).
+  // Uses manual scrollTop instead of scrollIntoView to avoid changing the browser's sequential
+  // focus navigation starting point, which would make Tab skip the "Skip to main content" link.
   useEffect(() => {
-    if (selectedIndex != null && selectedIndex >= 0) {
-      setFocusedRowIndex(selectedIndex);
+    if (selectedIndex == null || selectedIndex < 0) {
+      return;
+    }
+    const container = containerRef.current;
+    const row = container?.querySelectorAll("tbody tr")[selectedIndex] as HTMLElement | undefined;
+    if (!row) {
+      return;
+    }
+
+    let scrollable: HTMLElement | null = row.parentElement;
+    while (scrollable && scrollable.scrollHeight <= scrollable.clientHeight) {
+      scrollable = scrollable.parentElement;
+    }
+    if (!scrollable) {
+      return;
+    }
+
+    const rowRect = row.getBoundingClientRect();
+    const scrollableRect = scrollable.getBoundingClientRect();
+    if (rowRect.top < scrollableRect.top) {
+      scrollable.scrollTop -= scrollableRect.top - rowRect.top;
+    } else if (rowRect.bottom > scrollableRect.bottom) {
+      scrollable.scrollTop += rowRect.bottom - scrollableRect.bottom;
     }
   }, [selectedIndex]);
 
