@@ -50,16 +50,12 @@ export function DeletedUsersToolbar({
       const user = selectedUsers[0];
       const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      toast.success(t`Success`, {
-        description: t`User restored successfully: ${userName}`
-      });
+      toast.success(t`User restored successfully: ${userName}`);
     } else {
       for (const user of selectedUsers) {
         await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       }
-      toast.success(t`Success`, {
-        description: t`${selectedUsers.length} users restored successfully`
-      });
+      toast.success(t`${selectedUsers.length} users restored successfully`);
     }
 
     setIsRestoring(false);

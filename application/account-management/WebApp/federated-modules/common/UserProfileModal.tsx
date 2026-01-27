@@ -97,9 +97,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
       setAvatarPreviewUrl(null);
       setRemoveAvatarFlag(false);
       setIsFormDirty(false);
-      toast.success(t`Success`, {
-        description: t`Profile updated successfully`
-      });
+      toast.success(t`Profile updated successfully`);
       onOpenChange(false);
     }
   });

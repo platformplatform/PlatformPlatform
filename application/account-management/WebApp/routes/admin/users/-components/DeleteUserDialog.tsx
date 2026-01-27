@@ -46,15 +46,11 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
     try {
       if (isSingleUser) {
         await deleteUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-        toast.success(t`Success`, {
-          description: t`User deleted successfully: ${userDisplayName}`
-        });
+        toast.success(t`User deleted successfully: ${userDisplayName}`);
       } else {
         const userIds = users.map((user) => user.id);
         await bulkDeleteUsersMutation.mutateAsync({ body: { userIds: userIds } });
-        toast.success(t`Success`, {
-          description: t`${users.length} users deleted successfully`
-        });
+        toast.success(t`${users.length} users deleted successfully`);
       }
 
       // Invalidate user list queries (but not individual user queries to avoid 404)

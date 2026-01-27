@@ -10,10 +10,10 @@ export type ToastOptions = {
 };
 
 export const DEFAULT_TOAST_DURATIONS = {
-  info: 4000,
-  success: 4000,
-  warning: 6000,
-  error: 10000
+  info: 7000,
+  success: 7000,
+  warning: 11000,
+  error: 15000
 } as const;
 
 function showToast(options: ToastOptions) {
