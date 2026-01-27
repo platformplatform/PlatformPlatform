@@ -69,13 +69,20 @@ function Table({ className, selectedIndex, onNavigate, onActivate, ...props }: T
         return;
       }
 
+      // NOTE: This diverges from stock ShadCN to clamp at first/last row instead of wrapping around.
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
         let nextIndex: number;
         if (event.key === "ArrowDown") {
-          nextIndex = currentIndex < rowCount - 1 ? currentIndex + 1 : 0;
+          if (currentIndex >= rowCount - 1) {
+            return;
+          }
+          nextIndex = currentIndex + 1;
         } else {
-          nextIndex = currentIndex > 0 ? currentIndex - 1 : rowCount - 1;
+          if (currentIndex <= 0) {
+            return;
+          }
+          nextIndex = currentIndex - 1;
         }
         setFocusedRowIndex(nextIndex);
         onNavigate(nextIndex);
