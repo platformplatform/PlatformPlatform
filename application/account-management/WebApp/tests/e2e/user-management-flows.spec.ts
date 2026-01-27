@@ -269,30 +269,24 @@ test.describe("@smoke", () => {
       const userTable = page.locator("tbody").first().first();
       await page.getByRole("button", { name: "Show filters" }).click();
 
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
+      await expect(page.getByLabel("User role").first()).toBeVisible();
 
-      await selectOption(filterDialog.getByLabel("User role"), page, "Owner");
-
-      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await selectOption(page.getByLabel("User role").first(), page, "Owner");
 
       // Verify only owner is shown without counting rows
-      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(owner.email);
       await expect(userTable).not.toContainText(adminUser.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
-      await page.getByRole("button", { name: "Show filters" }).click();
-      await expect(filterDialog).toBeVisible();
-
-      await selectOption(filterDialog.getByLabel("User role"), page, "Any role");
-      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await selectOption(page.getByLabel("User role").first(), page, "Any role");
 
       // Verify all users are shown again
-      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(userTable).toContainText(owner.email);
+
+      // Clear filters
+      await page.getByRole("button", { name: "Clear filters" }).click();
     })();
 
     // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
@@ -578,28 +572,19 @@ test.describe("@comprehensive", () => {
     })();
 
     // === ADVANCED FILTERING SECTION ===
-    await step("Show filters & verify all filter options are available")(async () => {
-      // Show filters
-      await page.getByRole("button", { name: "Show filters" }).click();
-
+    await step("Verify inline filters are visible & all filter options are available")(async () => {
+      // Filters are shown inline because URL has userStatus=Pending from previous step
       await expect(page.getByLabel("User role").first()).toBeVisible();
       await expect(page.getByLabel("User status").first()).toBeVisible();
       await expect(page.getByText("Modified date").first()).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
-      // Filters are in the dialog that was opened in the previous step
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-
       // Clear status filter
-      await selectOption(filterDialog.getByLabel("User status"), page, "Any status");
+      await selectOption(page.getByLabel("User status").first(), page, "Any status");
 
       // Set role filter to Owner
-      await selectOption(filterDialog.getByLabel("User role"), page, "Owner");
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User role").first(), page, "Owner");
 
       // Verify only owner is shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
@@ -609,17 +594,8 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Member role & verify only members shown")(async () => {
-      // Reopen dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
       // Set role filter to Member
-      await selectOption(filterDialog.getByLabel("User role"), page, "Member");
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User role").first(), page, "Member");
 
       // Verify only member users are shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
@@ -629,34 +605,19 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Clear all filters & verify all users are shown")(async () => {
-      // Reopen filter dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
-      // Click Clear button to reset all filters
-      await filterDialog.getByRole("button", { name: "Clear" }).click();
-
-      // Close dialog with Escape (OK button gets detached after Clear click due to re-render)
-      await page.keyboard.press("Escape");
-      await expect(filterDialog).not.toBeVisible();
+      // Click clear filters button to reset all filters
+      await page.getByRole("button", { name: "Clear filters" }).click();
 
       // Verify all 3 users are shown (no filters applied)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
     })();
 
     await step("Filter by Pending status & verify only pending users shown")(async () => {
-      // Reopen filter dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
+      // Filters remain visible inline at wide viewport after clearing
+      await expect(page.getByLabel("User status").first()).toBeVisible();
 
       // Set status filter to Pending
-      await selectOption(filterDialog.getByLabel("User status"), page, "Pending");
-
-      // Close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User status").first(), page, "Pending");
 
       // Verify only pending users are shown (invited users who haven't confirmed)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
@@ -666,17 +627,8 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Active status & verify only active users shown")(async () => {
-      // Reopen dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
       // Set status filter to Active
-      await selectOption(filterDialog.getByLabel("User status"), page, "Active");
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User status").first(), page, "Active");
 
       // Verify only active users are shown (owner who has confirmed email)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);

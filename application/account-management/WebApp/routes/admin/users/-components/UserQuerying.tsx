@@ -37,15 +37,21 @@ interface SearchParams {
 }
 
 interface UserQueryingProps {
-  onFilterStateChange?: (
-    isFilterBarExpanded: boolean,
-    hasActiveFilters: boolean,
-    shouldUseCompactButtons: boolean
-  ) => void;
   onFiltersUpdated?: () => void;
+  onFiltersExpandedChange?: (expanded: boolean) => void;
 }
 
-export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQueryingProps = {}) {
+// Thresholds based on max content widths (Danish language, long dates)
+// Max expanded filters: 838px, Button icon-only: 44px, Gap: 8px
+const THRESHOLD_FILTERS_EXPANDED = 890; // 838 + 44 + 8
+
+function hasSpaceForInlineFilters(toolbarWidth: number): boolean {
+  // Show inline filters when there's room for filters + icon-only button
+  // Button text will be decided separately based on remaining space
+  return toolbarWidth >= THRESHOLD_FILTERS_EXPANDED;
+}
+
+export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
@@ -56,7 +62,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [, forceUpdate] = useState({});
 
   const dateRange =
     searchParams.startDate && searchParams.endDate
@@ -94,159 +99,52 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     });
   }, [debouncedSearch, navigate]);
 
-  const getActiveFilterCount = () => {
-    let count = 0;
-    if (searchParams.userRole) {
-      count++;
-    }
-    if (searchParams.userStatus) {
-      count++;
-    }
-    if (searchParams.startDate && searchParams.endDate) {
-      count++;
-    }
-    return count;
-  };
-
-  const activeFilterCount = getActiveFilterCount();
-
-  const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
+  const activeFilterCount =
+    (searchParams.userRole ? 1 : 0) +
+    (searchParams.userStatus ? 1 : 0) +
+    (searchParams.startDate && searchParams.endDate ? 1 : 0);
 
   useEffect(() => {
-    const checkSidePaneState = () => {
-      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-40"]');
-      const isOpen = !!sidePane;
-      if (isOpen !== isSidePaneOpen) {
-        setIsSidePaneOpen(isOpen);
-      }
-    };
+    const toolbar = containerRef.current?.closest(".flex.items-center.justify-between") as HTMLElement;
+    if (!toolbar) {
+      return;
+    }
 
-    checkSidePaneState();
-
-    const observer = new MutationObserver(checkSidePaneState);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, [isSidePaneOpen]);
-
-  useEffect(() => {
-    let debounceTimeout: NodeJS.Timeout | null = null;
-    let lastStateChange = 0;
-
-    const shouldSkipSpaceCheck = (now: number) => {
-      return now - lastStateChange < 200;
-    };
-
-    const shouldHideFiltersForOverlays = () => {
-      return isOverlayOpen || isMobileMenuOpen;
-    };
-
-    const getToolbarContainer = () => {
-      if (!containerRef.current) {
-        return null;
-      }
-      return containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
-    };
-
-    const calculateAvailableSpace = (toolbarContainer: HTMLElement, sidePaneOpen: boolean) => {
-      const toolbarWidth = toolbarContainer.offsetWidth;
-      const searchField = containerRef.current?.querySelector('input[type="text"]') as HTMLElement;
-      const filterButton = containerRef.current?.querySelector('[data-testid="filter-button"]') as HTMLElement;
-
-      const searchWidth = searchField?.offsetWidth || 300;
-      const filterButtonWidth = filterButton?.offsetWidth || 50;
-      const rightSideWidth = sidePaneOpen ? 200 : 150;
-      const gaps = 24;
-
-      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-      return toolbarWidth - usedSpace;
-    };
-
-    const updateFiltersVisibility = (hasSpace: boolean, now: number) => {
-      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(true);
-      } else if (!hasSpace && showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(false);
-      }
-    };
-
-    const checkFilterSpace = () => {
+    let lastToggle = 0;
+    const check = () => {
       const now = Date.now();
-
-      if (shouldSkipSpaceCheck(now)) {
+      if (now - lastToggle < 200) {
         return;
       }
 
-      if (shouldHideFiltersForOverlays()) {
+      if (isOverlayOpen || isMobileMenuOpen) {
         if (showAllFilters) {
-          lastStateChange = now;
+          lastToggle = now;
           setShowAllFilters(false);
         }
         return;
       }
 
-      const toolbarContainer = getToolbarContainer();
-      if (!toolbarContainer) {
-        return;
-      }
-
-      const availableSpace = calculateAvailableSpace(toolbarContainer, isSidePaneOpen);
-      const minimumFilterSpace = 500;
-      const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
-
-      updateFiltersVisibility(hasSpaceForInlineFilters, now);
-    };
-
-    const debouncedCheckFilterSpace = () => {
-      if (debounceTimeout) {
-        clearTimeout(debounceTimeout);
-      }
-      debounceTimeout = setTimeout(checkFilterSpace, 100);
-    };
-
-    checkFilterSpace();
-
-    const handleResize = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const handleSideMenuToggle = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const handleSideMenuResize = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const timeoutId = setTimeout(() => {
-      forceUpdate({});
-      checkFilterSpace();
-    }, 100);
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("side-menu-toggle", handleSideMenuToggle);
-    window.addEventListener("side-menu-resize", handleSideMenuResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("side-menu-toggle", handleSideMenuToggle);
-      window.removeEventListener("side-menu-resize", handleSideMenuResize);
-      clearTimeout(timeoutId);
-      if (debounceTimeout) {
-        clearTimeout(debounceTimeout);
+      const hasSpace = hasSpaceForInlineFilters(toolbar.offsetWidth);
+      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
+        lastToggle = now;
+        setShowAllFilters(true);
+      } else if (!hasSpace && showAllFilters) {
+        lastToggle = now;
+        setShowAllFilters(false);
       }
     };
-  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen, isSidePaneOpen]);
 
+    const observer = new ResizeObserver(check);
+    observer.observe(toolbar);
+    check();
+    return () => observer.disconnect();
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
+
+  // Notify parent of filter expansion state changes
   useEffect(() => {
-    const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
-    const shouldUseCompactButtons = (!is2XlScreen && (showAllFilters || activeFilterCount > 0)) || isMobileScreen;
-
-    onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
-  }, [showAllFilters, activeFilterCount, onFilterStateChange]);
+    onFiltersExpandedChange?.(showAllFilters);
+  }, [showAllFilters, onFiltersExpandedChange]);
 
   const clearAllFilters = () => {
     setSearch("");
@@ -270,7 +168,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
         value={search}
         onChange={setSearch}
         label={t`Search`}
-        className="w-60 shrink-0"
+        className={showAllFilters ? "w-60 shrink-0" : "min-w-32 max-w-60 flex-1"}
       />
 
       {showAllFilters && (
@@ -356,46 +254,12 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                   return;
                 }
 
-                if (isOverlayOpen || isMobileMenuOpen) {
+                const toolbar = containerRef.current?.closest(".flex.items-center.justify-between") as HTMLElement;
+                if (!isOverlayOpen && !isMobileMenuOpen && toolbar && hasSpaceForInlineFilters(toolbar.offsetWidth)) {
+                  setShowAllFilters(true);
+                } else {
                   setIsFilterPanelOpen(true);
-                  return;
                 }
-
-                if (!containerRef.current) {
-                  setIsFilterPanelOpen(true);
-                  return;
-                }
-
-                const toolbarContainer = containerRef.current.closest(
-                  ".flex.items-center.justify-between"
-                ) as HTMLElement;
-                if (!toolbarContainer) {
-                  setIsFilterPanelOpen(true);
-                  return;
-                }
-
-                const toolbarWidth = toolbarContainer.offsetWidth;
-                const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
-                const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
-
-                const searchWidth = searchField?.offsetWidth || 300;
-                const filterButtonWidth = filterButton?.offsetWidth || 50;
-
-                const rightSideWidth = 130;
-
-                const gaps = 16;
-                const minimumFilterSpace = 500;
-
-                const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-                const availableSpace = toolbarWidth - usedSpace;
-
-                const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
-
-                if (hasSpaceForInlineFilters) {
-                  setShowAllFilters(!showAllFilters);
-                  return;
-                }
-                setIsFilterPanelOpen(true);
               }}
             >
               {showAllFilters ? (
