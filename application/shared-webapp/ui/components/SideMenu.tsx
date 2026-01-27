@@ -904,7 +904,7 @@ const MenuNav = ({
         isOverlayOpen,
         isHidden: isHidden && !overlayMode
       }),
-      overlayMode && isOverlayOpen && "z-[46] w-[300px]",
+      overlayMode && isOverlayOpen && "z-[46] w-[350px]",
       isResizing && "cursor-col-resize select-none",
       className
     )}

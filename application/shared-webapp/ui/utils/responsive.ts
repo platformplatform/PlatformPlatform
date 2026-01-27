@@ -22,7 +22,7 @@ export const MEDIA_QUERIES = {
 // Side menu width constants
 export const SIDE_MENU_COLLAPSED_WIDTH = 72;
 export const SIDE_MENU_MIN_WIDTH = 150;
-export const SIDE_MENU_MAX_WIDTH = 300;
+export const SIDE_MENU_MAX_WIDTH = 350;
 export const SIDE_MENU_DEFAULT_WIDTH = 288;
 
 // Helper function to detect touch devices (including iPads)
