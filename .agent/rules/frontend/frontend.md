@@ -46,6 +46,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **Apple HIG compliance**: Interactive controls must use CSS variable heights: `h-[var(--control-height)]` (44px default), `h-[var(--control-height-sm)]` (36px), `h-[var(--control-height-xs)]` (28px). For controls like checkboxes/switches where 44px visual size is too large, ensure a 44px minimum tap target using `after:absolute after:-inset-3`
    - Import from `@repo/ui/components/`, never from BaseUI directly
    - Only create custom components when no ShadCN equivalent exists (edge cases)
+   - **Cursor pointer**: Replace `cursor-default` with `cursor-pointer` on clickable elements
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
 
 ## Implementation

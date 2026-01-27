@@ -12,13 +12,13 @@ This directory contains all shared UI components used across the application.
 | Avatar | `npx shadcn@latest add avatar` | Stock ShadCN | - |
 | Badge | `npx shadcn@latest add badge` | Outline-based focus ring | - |
 | Breadcrumb | `npx shadcn@latest add breadcrumb` | text-sm default on BreadcrumbLink | - |
-| Button | `npx shadcn@latest add button` | Outline focus ring, solid destructive bg, CSS variable heights, bg-white on outline/secondary | - |
+| Button | `npx shadcn@latest add button` | Outline focus ring, solid destructive bg, CSS variable heights, bg-white on outline/secondary, cursor-pointer | - |
 | Calendar | `npx shadcn@latest add calendar` | 44px cell size for Apple HIG | Third-party component using react-day-picker library |
-| Checkbox | `npx shadcn@latest add checkbox` | Larger size (20px), outline focus ring, 44px tap target | - |
+| Checkbox | `npx shadcn@latest add checkbox` | Larger size (20px), outline focus ring, 44px tap target, cursor-pointer | - |
 | DateRangePicker | `npx shadcn@latest add calendar-23` | Auto-close on selection, clear button, Field wrapper, hover:bg-white trigger | ShadCN block template |
 | Dialog | `npx shadcn@latest add dialog` | DirtyDialog integration, mobile full-screen, DialogBody padding and flex layout, DialogTitle top margin | - |
 | DirtyDialog | Custom | - | Unsaved changes warning wrapper |
-| DropdownMenu | `npx shadcn@latest add dropdown-menu` | w-auto content, py-3.5 touch targets | - |
+| DropdownMenu | `npx shadcn@latest add dropdown-menu` | w-auto content, py-3.5 touch targets, cursor-pointer on items | - |
 | Field | `npx shadcn@latest add field` | Stock ShadCN | - |
 | Form | Custom | - | Validation context provider |
 | Input | `npx shadcn@latest add input` | CSS variable height, outline focus ring, bg-white | - |
@@ -30,9 +30,9 @@ This directory contains all shared UI components used across the application.
 | MarkdownRenderer | Custom | - | Markdown to HTML converter |
 | Pagination | `npx shadcn@latest add pagination` | CSS variable size for Apple HIG | - |
 | Popover | `npx shadcn@latest add popover` | Stock ShadCN | - |
-| RadioGroup | `npx shadcn@latest add radio-group` | Outline-based focus ring | - |
+| RadioGroup | `npx shadcn@latest add radio-group` | Outline-based focus ring, cursor-pointer | - |
 | SearchField | Custom | - | Search input with icons and clear |
-| Select | `npx shadcn@latest add select` | Outline focus ring, CSS variable heights, alignItemWithTrigger=false, py-3.5 touch targets, bg-white | - |
+| Select | `npx shadcn@latest add select` | Outline focus ring, CSS variable heights, alignItemWithTrigger=false, py-3.5 touch targets, bg-white, cursor-pointer on trigger and items | - |
 | Separator | `npx shadcn@latest add separator` | Stock ShadCN | - |
 | SideMenu | Custom | - | Complex sidebar navigation |
 | Sonner | `npx shadcn@latest add sonner` | Stock ShadCN (3rd party) | Third-party toast notification library |
@@ -40,7 +40,7 @@ This directory contains all shared UI components used across the application.
 | TablePagination | Custom | - | Pagination wrapper for tables |
 | TenantLogo | Custom | - | Avatar wrapper for tenant logos with square shape support |
 | TextField | Custom | - | Field + Input + validation composition |
-| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights | - |
+| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights, cursor-pointer | - |
 | Tooltip | `npx shadcn@latest add tooltip` | Stock ShadCN | - |
 | UnsavedChangesAlertDialog | Custom | - | Unsaved changes confirmation |
 
@@ -53,6 +53,7 @@ All ShadCN components have these common modifications applied:
 1. **Focus ring**: Ring utilities (`focus-visible:ring-*`) replaced with outline-based approach (`outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`)
 2. **Apple HIG compliance**: Fixed heights replaced with CSS variables (`--control-height` 44px, `--control-height-sm` 36px, `--control-height-xs` 28px). Smaller controls use `after:absolute after:-inset-3` for 44px tap targets
 3. **Background colors**: `bg-transparent` replaced with `bg-white dark:bg-input/30` for explicit light-mode backgrounds
+4. **Cursor pointer**: Clickable elements (buttons, toggles, checkboxes, radio buttons, select triggers, menu items) use `cursor-pointer`. ShadCN defaults to `cursor-default` on some elements
 
 ## Divergence Documentation
 
