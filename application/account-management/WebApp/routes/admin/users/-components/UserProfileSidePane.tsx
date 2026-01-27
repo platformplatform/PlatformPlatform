@@ -127,8 +127,7 @@ function UserProfileContent({
 function useSidePaneAccessibility(
   isOpen: boolean,
   onClose: () => void,
-  sidePaneRef: React.RefObject<HTMLDivElement | null>,
-  _closeButtonRef: React.RefObject<SVGSVGElement | null>
+  sidePaneRef: React.RefObject<HTMLDivElement | null>
 ) {
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
@@ -214,7 +213,7 @@ export function UserProfileSidePane({
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<SVGSVGElement>(null);
+
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -229,7 +228,7 @@ export function UserProfileSidePane({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  useSidePaneAccessibility(isOpen, onClose, sidePaneRef, closeButtonRef);
+  useSidePaneAccessibility(isOpen, onClose, sidePaneRef);
 
   if (!isOpen) {
     return null;
@@ -250,13 +249,15 @@ export function UserProfileSidePane({
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
-        <XIcon
-          ref={closeButtonRef}
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onClose()}
-          className="absolute top-3 right-2 z-10 size-10 cursor-pointer rounded-md p-2 outline-ring hover:bg-muted focus:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          className="absolute top-4 right-4"
           aria-label={t`Close user profile`}
-          tabIndex={-1}
-        />
+        >
+          <XIcon className="size-6" />
+        </Button>
 
         <div className="h-16 border-border border-t border-b px-4 py-8">
           <h4 className="flex h-full items-center">
