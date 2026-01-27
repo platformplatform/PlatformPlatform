@@ -17,9 +17,10 @@ import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
+import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { ArrowUp, EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -41,53 +42,54 @@ interface UserTableProps {
   onUsersLoaded?: (users: UserDetails[]) => void;
 }
 
-export function UserTable({
-  selectedUsers,
-  onSelectedUsersChange,
-  onViewProfile,
-  onDeleteUser,
-  onChangeRole,
-  onUsersLoaded
-}: Readonly<UserTableProps>) {
-  const navigate = useNavigate();
+export function UserTable(props: Readonly<UserTableProps>) {
+  const isMobile = useViewportResize();
+  return isMobile ? <MobileUserTable {...props} /> : <DesktopUserTable {...props} />;
+}
+
+function DesktopUserTable(props: Readonly<UserTableProps>) {
   const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder, pageOffset } = useSearch({
     strict: false
   });
-  const userInfo = useUserInfo();
 
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
-    column: orderBy ?? SortableUserProperties.Name,
-    direction: sortOrder === SortOrder.Descending ? "descending" : "ascending"
-  }));
-  const isMobile = useViewportResize();
-
-  const selectedUserIds = useMemo(() => new Set(selectedUsers.map((user) => user.id)), [selectedUsers]);
-
-  // Use regular query for desktop
-  const { data: desktopUsers, isLoading: isDesktopLoading } = api.useQuery("get", "/api/account-management/users", {
-    params: {
-      query: {
-        Search: search,
-        UserRole: userRole,
-        UserStatus: userStatus,
-        StartDate: startDate,
-        EndDate: endDate,
-        OrderBy: orderBy ?? SortableUserProperties.Name,
-        SortOrder: sortOrder ?? SortOrder.Ascending,
-        PageOffset: pageOffset ?? 0
+  const { data, isLoading } = api.useQuery(
+    "get",
+    "/api/account-management/users",
+    {
+      params: {
+        query: {
+          Search: search,
+          UserRole: userRole,
+          UserStatus: userStatus,
+          StartDate: startDate,
+          EndDate: endDate,
+          OrderBy: orderBy,
+          SortOrder: sortOrder,
+          PageOffset: pageOffset
+        }
       }
     },
-    enabled: !isMobile
+    { placeholderData: keepPreviousData }
+  );
+
+  return (
+    <UserTableContent
+      {...props}
+      usersList={data?.users ?? []}
+      isLoading={isLoading}
+      isMobile={false}
+      totalPages={data?.totalPages ?? 1}
+      currentPageOffset={data?.currentPageOffset ?? 0}
+    />
+  );
+}
+
+function MobileUserTable(props: Readonly<UserTableProps>) {
+  const { search, userRole, userStatus, startDate, endDate, orderBy, sortOrder } = useSearch({
+    strict: false
   });
 
-  // Use infinite scroll for mobile
-  const {
-    users: mobileUsers,
-    isLoading: isMobileLoading,
-    isLoadingMore,
-    hasMore,
-    loadMore
-  } = useInfiniteUsers({
+  const { users, isLoading, isLoadingMore, hasMore, loadMore } = useInfiniteUsers({
     search,
     userRole,
     userStatus,
@@ -95,12 +97,60 @@ export function UserTable({
     endDate,
     orderBy,
     sortOrder,
-    enabled: isMobile
+    enabled: true
   });
 
-  // Select data based on device
-  const users = isMobile ? { users: mobileUsers, totalPages: 1, currentPageOffset: 0 } : desktopUsers;
-  const isLoading = isMobile ? isMobileLoading : isDesktopLoading;
+  return (
+    <UserTableContent
+      {...props}
+      usersList={users}
+      isLoading={isLoading}
+      isMobile={true}
+      totalPages={1}
+      currentPageOffset={0}
+      isLoadingMore={isLoadingMore}
+      hasMore={hasMore}
+      loadMore={loadMore}
+    />
+  );
+}
+
+interface UserTableContentProps extends UserTableProps {
+  usersList: UserDetails[];
+  isLoading: boolean;
+  isMobile: boolean;
+  totalPages: number;
+  currentPageOffset: number;
+  isLoadingMore?: boolean;
+  hasMore?: boolean;
+  loadMore?: () => void;
+}
+
+function UserTableContent({
+  selectedUsers,
+  onSelectedUsersChange,
+  onViewProfile,
+  onDeleteUser,
+  onChangeRole,
+  onUsersLoaded,
+  usersList,
+  isLoading,
+  isMobile,
+  totalPages,
+  currentPageOffset,
+  isLoadingMore = false,
+  hasMore = false,
+  loadMore
+}: Readonly<UserTableContentProps>) {
+  const navigate = useNavigate();
+  const { orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
+  const userInfo = useUserInfo();
+
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
+    column: orderBy ?? SortableUserProperties.Name,
+    direction: sortOrder === SortOrder.Descending ? "descending" : "ascending"
+  }));
+  const selectedUserIds = useMemo(() => new Set(selectedUsers.map((user) => user.id)), [selectedUsers]);
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -143,15 +193,22 @@ export function UserTable({
     [navigate, sortDescriptor]
   );
 
+  const previousPageOffset = useRef(pageOffset);
   useEffect(() => {
-    onSelectedUsersChange([]);
+    if (previousPageOffset.current !== pageOffset) {
+      previousPageOffset.current = pageOffset;
+      onSelectedUsersChange([]);
+    }
   }, [onSelectedUsersChange, pageOffset]);
 
+  const previousUserIds = useRef<string>("");
   useEffect(() => {
-    if (users?.users && onUsersLoaded) {
-      onUsersLoaded(users.users);
+    const userIds = usersList.map((u) => u.id).join(",");
+    if (userIds !== previousUserIds.current) {
+      previousUserIds.current = userIds;
+      onUsersLoaded?.(usersList);
     }
-  }, [users?.users, onUsersLoaded]);
+  }, [usersList, onUsersLoaded]);
 
   const handleRowClick = useCallback(
     (user: UserDetails, event: React.MouseEvent) => {
@@ -160,14 +217,12 @@ export function UserTable({
         return;
       }
 
-      const usersList = users?.users ?? [];
       const clickedIndex = usersList.findIndex((u) => u.id === user.id);
       const isSelected = selectedUserIds.has(user.id);
       const isCtrlOrCmd = event.ctrlKey || event.metaKey;
       const isShift = event.shiftKey;
 
       if (isCtrlOrCmd) {
-        // Ctrl/Cmd+click: toggle individual row in selection
         if (isSelected) {
           const newSelection = selectedUsers.filter((u) => u.id !== user.id);
           onSelectedUsersChange(newSelection);
@@ -176,7 +231,6 @@ export function UserTable({
         }
         onViewProfile(null);
       } else if (isShift && selectedUsers.length > 0) {
-        // Shift+click: range select from first selected to clicked
         const firstSelectedIndex = usersList.findIndex((u) => u.id === selectedUsers[0].id);
         const start = Math.min(firstSelectedIndex, clickedIndex);
         const end = Math.max(firstSelectedIndex, clickedIndex);
@@ -184,35 +238,31 @@ export function UserTable({
         onSelectedUsersChange(rangeUsers);
         onViewProfile(null);
       } else if (isSelected && selectedUsers.length === 1) {
-        // Click on only selected row: unselect and close sidebar
         onSelectedUsersChange([]);
         onViewProfile(null);
       } else {
-        // Regular click: single select and open sidebar
         onSelectedUsersChange([user]);
         onViewProfile(user, false);
       }
     },
-    [users?.users, selectedUserIds, selectedUsers, onSelectedUsersChange, onViewProfile]
+    [usersList, selectedUserIds, selectedUsers, onSelectedUsersChange, onViewProfile]
   );
 
-  const usersList = users?.users ?? [];
   const currentSelectedIndex =
     selectedUsers.length === 1 ? usersList.findIndex((u) => u.id === selectedUsers[0].id) : -1;
 
-  // Use infinite scroll hook for mobile
   const loadMoreRef = useInfiniteScroll({
     enabled: isMobile,
     hasMore,
     isLoadingMore,
-    onLoadMore: loadMore
+    onLoadMore: loadMore ?? (() => {})
   });
 
-  if (isLoading) {
+  if (isLoading && usersList.length === 0) {
     return null;
   }
 
-  const currentPage = users ? users.currentPageOffset + 1 : 1;
+  const currentPage = currentPageOffset + 1;
 
   return (
     <>
@@ -226,6 +276,7 @@ export function UserTable({
           <TableHeader className="sticky top-0 z-10 bg-inherit">
             <TableRow>
               <TableHead
+                data-column={SortableUserProperties.Name}
                 className={`cursor-pointer select-none ${isSmallViewportOrLarger() ? "min-w-[250px]" : ""}`}
                 onClick={() => handleSortChange(SortableUserProperties.Name)}
               >
@@ -238,6 +289,7 @@ export function UserTable({
               </TableHead>
               {isSmallViewportOrLarger() && (
                 <TableHead
+                  data-column={SortableUserProperties.Email}
                   className="min-w-[160px] cursor-pointer select-none"
                   onClick={() => handleSortChange(SortableUserProperties.Email)}
                 >
@@ -251,6 +303,7 @@ export function UserTable({
               )}
               {isMediumViewportOrLarger() && (
                 <TableHead
+                  data-column={SortableUserProperties.CreatedAt}
                   className="w-[110px] min-w-[65px] cursor-pointer select-none"
                   onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
                 >
@@ -264,6 +317,7 @@ export function UserTable({
               )}
               {isMediumViewportOrLarger() && (
                 <TableHead
+                  data-column={SortableUserProperties.LastSeenAt}
                   className="w-[120px] min-w-[65px] cursor-pointer select-none"
                   onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
                 >
@@ -277,6 +331,7 @@ export function UserTable({
               )}
               {isSmallViewportOrLarger() && (
                 <TableHead
+                  data-column={SortableUserProperties.Role}
                   className="w-[135px] cursor-pointer select-none"
                   onClick={() => handleSortChange(SortableUserProperties.Role)}
                 >
@@ -291,7 +346,7 @@ export function UserTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.users.map((user, index) => {
+            {usersList.map((user, index) => {
               const isSelected = selectedUserIds.has(user.id);
               return (
                 <TableRow
@@ -396,17 +451,14 @@ export function UserTable({
             })}
           </TableBody>
         </Table>
+        {isMobile && <div ref={loadMoreRef} className="h-1" />}
       </div>
 
-      {/* Mobile: Loading indicator for infinite scroll */}
-      {isMobile && <div ref={loadMoreRef} className="h-1" />}
-
-      {/* Desktop: Regular pagination */}
-      {!isMobile && users && (
+      {!isMobile && (
         <div className="flex-shrink-0 pt-4">
           <TablePagination
             currentPage={currentPage}
-            totalPages={users.totalPages ?? 1}
+            totalPages={totalPages}
             onPageChange={handlePageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}

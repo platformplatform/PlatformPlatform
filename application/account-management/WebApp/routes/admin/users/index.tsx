@@ -5,7 +5,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
@@ -50,7 +50,7 @@ export default function UsersPage() {
 
   const canSeeDeletedUsers = userInfo?.role === "Owner" || userInfo?.role === "Admin";
 
-  const handleCloseProfile = () => {
+  const handleCloseProfile = useCallback(() => {
     setProfileUser(null);
     navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
 
@@ -62,25 +62,26 @@ export default function UsersPage() {
         }
       }, 0);
     }
-  };
+  }, [navigate, selectedUsers]);
 
-  const handleViewProfile = (user: UserDetails | null) => {
-    setProfileUser(user);
-    if (user) {
-      navigate({ search: (prev) => ({ ...prev, userId: user.id }) });
-    } else {
-      navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
-    }
-  };
-
-  const { data: userData, isLoading: isLoadingUser } = api.useQuery("get", "/api/account-management/users/{id}", {
-    params: {
-      path: {
-        id: userId || ""
+  const handleViewProfile = useCallback(
+    (user: UserDetails | null) => {
+      setProfileUser(user);
+      if (user) {
+        navigate({ search: (prev) => ({ ...prev, userId: user.id }) });
+      } else {
+        navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
       }
     },
-    enabled: !!userId
-  });
+    [navigate]
+  );
+
+  const { data: userData, isLoading: isLoadingUser } = api.useQuery(
+    "get",
+    "/api/account-management/users/{id}",
+    { params: { path: { id: userId || "" } } },
+    { enabled: !!userId }
+  );
 
   useEffect(() => {
     if (userId && userData) {
@@ -94,17 +95,17 @@ export default function UsersPage() {
     }
   }, [userId, userData, isInitialLoad]);
 
-  const handleDeleteUser = (user: UserDetails) => {
+  const handleDeleteUser = useCallback((user: UserDetails) => {
     setUserToDelete(user);
-  };
+  }, []);
 
-  const handleChangeRole = (user: UserDetails) => {
+  const handleChangeRole = useCallback((user: UserDetails) => {
     setUserToChangeRole(user);
-  };
+  }, []);
 
-  const handleUsersLoaded = (users: UserDetails[]) => {
+  const handleUsersLoaded = useCallback((users: UserDetails[]) => {
     setTableUsers(users);
-  };
+  }, []);
 
   const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
 

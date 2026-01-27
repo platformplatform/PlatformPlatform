@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   api,
+  apiClient,
   type components,
-  SortableUserProperties,
-  SortOrder,
+  type SortableUserProperties,
+  type SortOrder,
   type UserRole,
   type UserStatus
 } from "@/shared/lib/api/client";
@@ -36,72 +37,65 @@ export function useInfiniteUsers({
   const [totalPages, setTotalPages] = useState<number | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  // Initial load query
-  const { data: initialData, isLoading: isInitialLoading } = api.useQuery("get", "/api/account-management/users", {
-    params: {
-      query: {
-        Search: search,
-        UserRole: userRole,
-        UserStatus: userStatus,
-        StartDate: startDate,
-        EndDate: endDate,
-        OrderBy: orderBy ?? SortableUserProperties.Name,
-        SortOrder: sortOrder ?? SortOrder.Ascending,
-        PageOffset: 0
+  const { data: initialData, isLoading: isInitialLoading } = api.useQuery(
+    "get",
+    "/api/account-management/users",
+    {
+      params: {
+        query: {
+          Search: search,
+          UserRole: userRole,
+          UserStatus: userStatus,
+          StartDate: startDate,
+          EndDate: endDate,
+          OrderBy: orderBy,
+          SortOrder: sortOrder
+        }
       }
     },
-    enabled
-  });
+    { enabled }
+  );
 
-  // State for next page to load
-  const [nextPageToLoad, setNextPageToLoad] = useState<number | null>(null);
-
-  // Load more query
-  const { data: moreData } = api.useQuery("get", "/api/account-management/users", {
-    params: {
-      query: {
-        Search: search,
-        UserRole: userRole,
-        UserStatus: userStatus,
-        StartDate: startDate,
-        EndDate: endDate,
-        OrderBy: orderBy ?? SortableUserProperties.Name,
-        SortOrder: sortOrder ?? SortOrder.Ascending,
-        PageOffset: nextPageToLoad
-      }
-    },
-    enabled: enabled && nextPageToLoad !== null && isLoadingMore
-  });
-
-  // Reset when filters change
   useEffect(() => {
-    if (initialData) {
+    if (enabled && initialData) {
       setAllUsers(initialData.users || []);
       setTotalPages(initialData.totalPages || 1);
       setCurrentPage(0);
-      setNextPageToLoad(null);
     }
-  }, [initialData]);
+  }, [enabled, initialData]);
 
-  // Append more data when loaded
-  useEffect(() => {
-    if (moreData && isLoadingMore) {
-      setAllUsers((prev) => [...prev, ...(moreData.users || [])]);
-      setIsLoadingMore(false);
-      setNextPageToLoad(null);
-    }
-  }, [moreData, isLoadingMore]);
-
-  const loadMore = useCallback(() => {
+  const loadMore = useCallback(async () => {
     if (isLoadingMore || !totalPages || currentPage >= totalPages - 1) {
       return;
     }
 
     const nextPage = currentPage + 1;
-    setCurrentPage(nextPage);
-    setNextPageToLoad(nextPage);
     setIsLoadingMore(true);
-  }, [currentPage, totalPages, isLoadingMore]);
+
+    try {
+      const { data } = await apiClient.GET("/api/account-management/users", {
+        params: {
+          query: {
+            Search: search,
+            UserRole: userRole,
+            UserStatus: userStatus,
+            StartDate: startDate,
+            EndDate: endDate,
+            OrderBy: orderBy,
+            SortOrder: sortOrder,
+            PageOffset: nextPage
+          }
+        }
+      });
+
+      if (data) {
+        setAllUsers((prev) => [...prev, ...(data.users || [])]);
+        setCurrentPage(nextPage);
+      }
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [currentPage, totalPages, isLoadingMore, search, userRole, userStatus, startDate, endDate, orderBy, sortOrder]);
 
   const hasMore = totalPages !== null && currentPage < totalPages - 1;
 
