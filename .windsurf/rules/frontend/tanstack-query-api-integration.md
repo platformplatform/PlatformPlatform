@@ -38,6 +38,11 @@ const { data: users, isLoading } = api.useQuery("get", "/api/users", {
   params: { query: { Search: search } }
 });
 
+// ✅ TanStack Query options (enabled, staleTime) go in the 4th arg, not the 3rd
+api.useQuery("get", "/api/users/{id}", { params: { path: { id } } }, { enabled: !!id });
+// ❌ `enabled` in 3rd arg is silently ignored (becomes part of query key instead)
+api.useQuery("get", "/api/users/{id}", { params: { path: { id } }, enabled: !!id });
+
 // Usage in component
 {isLoading ? (
   <LoadingSpinner />
