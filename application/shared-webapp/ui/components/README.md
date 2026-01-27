@@ -42,7 +42,7 @@ This directory contains all shared UI components used across the application.
 | TablePagination | Custom | - | Pagination wrapper for tables |
 | TenantLogo | Custom | - | Avatar wrapper for tenant logos with square shape support |
 | TextField | Custom | - | Field + Input + validation composition |
-| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights | - |
+| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights, cursor-pointer | - |
 | Tooltip | `npx shadcn@latest add tooltip` | Stock ShadCN | - |
 | UnsavedChangesAlertDialog | Custom | - | Unsaved changes confirmation |
 
@@ -55,6 +55,7 @@ All ShadCN components have these common modifications applied:
 1. **Focus ring**: Ring utilities (`focus-visible:ring-*`) replaced with outline-based approach (`outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`)
 2. **Apple HIG compliance**: Fixed heights replaced with CSS variables (`--control-height` 44px, `--control-height-sm` 36px, `--control-height-xs` 28px). Smaller controls use `after:absolute after:-inset-3` for 44px tap targets
 3. **Background colors**: `bg-transparent` replaced with `bg-white dark:bg-input/30` for explicit light-mode backgrounds
+4. **Cursor pointer**: Clickable elements (buttons, toggles, checkboxes, radio buttons, select triggers, menu items) use `cursor-pointer`. ShadCN defaults to `cursor-default` on some elements
 
 ## Divergence Documentation
 
