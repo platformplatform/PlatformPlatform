@@ -1,12 +1,103 @@
 import type * as React from "react";
+import { createContext, use, useEffect, useRef, useState } from "react";
 
 import { cn } from "../utils";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
-  return (
-    <div data-slot="table-container" className="relative w-full overflow-x-auto">
+interface TableKeyboardNavigationContext {
+  focusedRowIndex: number;
+  setFocusedRowIndex: (index: number) => void;
+}
+
+const TableKeyboardNavigationContext = createContext<TableKeyboardNavigationContext | null>(null);
+
+interface TableProps extends React.ComponentProps<"table"> {
+  selectedIndex?: number;
+  onNavigate?: (index: number) => void;
+  onActivate?: (index: number) => void;
+}
+
+// NOTE: This diverges from stock ShadCN to add optional keyboard navigation with roving tabindex.
+// Pass selectedIndex, onNavigate, and onActivate to enable arrow key navigation between body rows.
+// TableRow accepts an optional index prop to participate in keyboard navigation via context.
+function Table({ className, selectedIndex, onNavigate, onActivate, ...props }: TableProps) {
+  const hasKeyboardNavigation = onNavigate != null;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [focusedRowIndex, setFocusedRowIndex] = useState<number>(
+    selectedIndex != null && selectedIndex >= 0 ? selectedIndex : 0
+  );
+
+  useEffect(() => {
+    if (selectedIndex != null && selectedIndex >= 0) {
+      setFocusedRowIndex(selectedIndex);
+    }
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    if (!hasKeyboardNavigation) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const container = containerRef.current;
+      if (!container?.contains(document.activeElement)) {
+        return;
+      }
+
+      const target = event.target as HTMLElement;
+      if (target.tagName === "BUTTON" || target.closest("button")) {
+        return;
+      }
+
+      const rows = container.querySelectorAll("tbody tr");
+      const rowCount = rows.length;
+      if (rowCount === 0) {
+        return;
+      }
+
+      const currentIndex = selectedIndex != null && selectedIndex >= 0 ? selectedIndex : -1;
+
+      if ((event.key === "Enter" || event.key === " ") && currentIndex >= 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        onActivate?.(currentIndex);
+        return;
+      }
+
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        let nextIndex: number;
+        if (event.key === "ArrowDown") {
+          nextIndex = currentIndex < rowCount - 1 ? currentIndex + 1 : 0;
+        } else {
+          nextIndex = currentIndex > 0 ? currentIndex - 1 : rowCount - 1;
+        }
+        setFocusedRowIndex(nextIndex);
+        onNavigate(nextIndex);
+
+        const row = rows[nextIndex] as HTMLElement | undefined;
+        row?.scrollIntoView({ block: "nearest" });
+        row?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown, true);
+    return () => document.removeEventListener("keydown", handleKeyDown, true);
+  }, [hasKeyboardNavigation, selectedIndex, onNavigate, onActivate]);
+
+  const table = (
+    <div ref={containerRef} data-slot="table-container" className="relative w-full overflow-x-auto">
       <table data-slot="table" className={cn("w-full caption-bottom text-sm", className)} {...props} />
     </div>
+  );
+
+  if (!hasKeyboardNavigation) {
+    return table;
+  }
+
+  return (
+    <TableKeyboardNavigationContext value={{ focusedRowIndex, setFocusedRowIndex }}>
+      {table}
+    </TableKeyboardNavigationContext>
   );
 }
 
@@ -28,15 +119,25 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   );
 }
 
-function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+interface TableRowProps extends React.ComponentProps<"tr"> {
+  index?: number;
+}
+
+function TableRow({ className, index, ...props }: TableRowProps) {
+  const keyboardNavigation = use(TableKeyboardNavigationContext);
+  const hasNavigation = keyboardNavigation != null && index != null;
+
   return (
     <tr
       data-slot="table-row"
-      // NOTE: This diverges from stock ShadCN to add focus ring styles using outline instead of ring utilities.
+      // NOTE: This diverges from stock ShadCN to add focus ring styles using outline instead of ring utilities
+      // and to support keyboard navigation via roving tabindex when an index prop and navigation context are present.
       className={cn(
         "rounded-md border-b outline-ring transition-colors hover:bg-muted/50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 data-[state=selected]:bg-muted",
         className
       )}
+      tabIndex={hasNavigation ? (index === keyboardNavigation.focusedRowIndex ? 0 : -1) : undefined}
+      onFocus={hasNavigation ? () => keyboardNavigation.setFocusedRowIndex(index) : undefined}
       {...props}
     />
   );

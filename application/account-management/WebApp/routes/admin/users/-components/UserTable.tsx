@@ -19,7 +19,7 @@ import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/util
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { ArrowUp, EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -54,14 +54,12 @@ export function UserTable({
     strict: false
   });
   const userInfo = useUserInfo();
-  const tableContainerRef = useRef<HTMLDivElement>(null);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>(() => ({
     column: orderBy ?? SortableUserProperties.Name,
     direction: sortOrder === SortOrder.Descending ? "descending" : "ascending"
   }));
   const isMobile = useViewportResize();
-  const [focusedRowIndex, setFocusedRowIndex] = useState<number>(-1);
 
   const selectedUserIds = useMemo(() => new Set(selectedUsers.map((user) => user.id)), [selectedUsers]);
 
@@ -197,51 +195,9 @@ export function UserTable({
     [users?.users, selectedUserIds, selectedUsers, onSelectedUsersChange, onViewProfile]
   );
 
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const usersList = users?.users ?? [];
-      if (!usersList.length) {
-        return;
-      }
-
-      const tableContainer = tableContainerRef.current;
-      if (!tableContainer?.contains(document.activeElement)) {
-        return;
-      }
-
-      const target = event.target as HTMLElement;
-      if (target.tagName === "BUTTON" || target.closest("button")) {
-        return;
-      }
-
-      const currentIndex = selectedUsers.length === 1 ? usersList.findIndex((u) => u.id === selectedUsers[0].id) : -1;
-
-      // Enter or Space: open sidebar for selected user
-      if ((event.key === "Enter" || event.key === " ") && selectedUsers.length === 1) {
-        event.preventDefault();
-        event.stopPropagation();
-        onViewProfile(selectedUsers[0], true);
-        return;
-      }
-
-      // Arrow keys: navigate and select
-      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-        event.preventDefault();
-        let nextIndex: number;
-        if (event.key === "ArrowDown") {
-          nextIndex = currentIndex < usersList.length - 1 ? currentIndex + 1 : 0;
-        } else {
-          nextIndex = currentIndex > 0 ? currentIndex - 1 : usersList.length - 1;
-        }
-        setFocusedRowIndex(nextIndex);
-        onSelectedUsersChange([usersList[nextIndex]]);
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown, true);
-    return () => document.removeEventListener("keydown", handleKeyDown, true);
-  }, [selectedUsers, onViewProfile, users?.users, onSelectedUsersChange]);
+  const usersList = users?.users ?? [];
+  const currentSelectedIndex =
+    selectedUsers.length === 1 ? usersList.findIndex((u) => u.id === selectedUsers[0].id) : -1;
 
   // Use infinite scroll hook for mobile
   const loadMoreRef = useInfiniteScroll({
@@ -259,11 +215,13 @@ export function UserTable({
 
   return (
     <>
-      <div
-        ref={tableContainerRef}
-        className="min-h-48 flex-1 overflow-auto rounded-md outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-      >
-        <Table aria-label={t`Users`}>
+      <div className="min-h-48 flex-1 overflow-auto rounded-md outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+        <Table
+          aria-label={t`Users`}
+          selectedIndex={currentSelectedIndex}
+          onNavigate={(index) => onSelectedUsersChange([usersList[index]])}
+          onActivate={(index) => onViewProfile(usersList[index], true)}
+        >
           <TableHeader className="sticky top-0 z-10 bg-inherit">
             <TableRow>
               <TableHead
@@ -340,8 +298,7 @@ export function UserTable({
                   data-state={isSelected ? "selected" : undefined}
                   className={`cursor-pointer select-none ${isSelected ? "bg-active-background hover:bg-active-background" : "hover:bg-hover-background"}`}
                   onClick={(event) => handleRowClick(user, event)}
-                  onFocus={() => setFocusedRowIndex(index)}
-                  tabIndex={index === focusedRowIndex ? 0 : -1}
+                  index={index}
                 >
                   <TableCell>
                     <div className="flex h-14 w-full items-center justify-between gap-2 p-0">

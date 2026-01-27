@@ -38,7 +38,7 @@ This directory contains all shared UI components used across the application.
 | Separator | `npx shadcn@latest add separator` | Stock ShadCN | - |
 | SideMenu | Custom | - | Complex sidebar navigation |
 | Sonner | `npx shadcn@latest add sonner` | Stock ShadCN (3rd party) | Third-party toast notification library |
-| Table | `npx shadcn@latest add table` | Outline focus ring on TableRow | - |
+| Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |
 | TablePagination | Custom | - | Pagination wrapper for tables |
 | TenantLogo | Custom | - | Avatar wrapper for tenant logos with square shape support |
 | TextField | Custom | - | Field + Input + validation composition |
