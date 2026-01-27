@@ -114,7 +114,7 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
 
   useEffect(() => {
     const checkSidePaneState = () => {
-      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-70"]');
+      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-40"]');
       const isOpen = !!sidePane;
       if (isOpen !== isSidePaneOpen) {
         setIsSidePaneOpen(isOpen);
