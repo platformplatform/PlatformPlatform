@@ -37,15 +37,31 @@ interface SearchParams {
 }
 
 interface UserQueryingProps {
-  onFilterStateChange?: (
-    isFilterBarExpanded: boolean,
-    hasActiveFilters: boolean,
-    shouldUseCompactButtons: boolean
-  ) => void;
   onFiltersUpdated?: () => void;
 }
 
-export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQueryingProps = {}) {
+function hasSpaceForInlineFilters(container: HTMLElement): boolean {
+  const toolbar = container.closest(".flex.items-center.justify-between") as HTMLElement;
+  if (!toolbar) {
+    return false;
+  }
+
+  const toolbarWidth = toolbar.offsetWidth;
+  const searchField = container.querySelector('input[type="text"]') as HTMLElement;
+  const filterButton = container.querySelector('[data-testid="filter-button"]') as HTMLElement;
+  const rightSide = container.nextElementSibling as HTMLElement;
+
+  const searchWidth = searchField?.offsetWidth || 300;
+  const filterButtonWidth = filterButton?.offsetWidth || 50;
+  const rightSideWidth = rightSide?.offsetWidth ?? 0;
+  const gaps = 16;
+  const minimumFilterSpace = 500;
+
+  const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
+  return toolbarWidth - usedSpace >= minimumFilterSpace;
+}
+
+export function UserQuerying({ onFiltersUpdated }: UserQueryingProps = {}) {
   const navigate = useNavigate();
   const searchParams = (useLocation().search as SearchParams) ?? {};
   const { isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
@@ -56,7 +72,6 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     Boolean(searchParams.userRole ?? searchParams.userStatus ?? searchParams.startDate ?? searchParams.endDate)
   );
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
-  const [, forceUpdate] = useState({});
 
   const dateRange =
     searchParams.startDate && searchParams.endDate
@@ -94,159 +109,47 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
     });
   }, [debouncedSearch, navigate]);
 
-  const getActiveFilterCount = () => {
-    let count = 0;
-    if (searchParams.userRole) {
-      count++;
-    }
-    if (searchParams.userStatus) {
-      count++;
-    }
-    if (searchParams.startDate && searchParams.endDate) {
-      count++;
-    }
-    return count;
-  };
-
-  const activeFilterCount = getActiveFilterCount();
-
-  const [isSidePaneOpen, setIsSidePaneOpen] = useState(false);
+  const activeFilterCount =
+    (searchParams.userRole ? 1 : 0) +
+    (searchParams.userStatus ? 1 : 0) +
+    (searchParams.startDate && searchParams.endDate ? 1 : 0);
 
   useEffect(() => {
-    const checkSidePaneState = () => {
-      const sidePane = document.querySelector('[class*="fixed"][class*="inset-0"][class*="z-40"]');
-      const isOpen = !!sidePane;
-      if (isOpen !== isSidePaneOpen) {
-        setIsSidePaneOpen(isOpen);
-      }
-    };
+    const toolbar = containerRef.current?.closest(".flex.items-center.justify-between") as HTMLElement;
+    if (!toolbar) {
+      return;
+    }
 
-    checkSidePaneState();
-
-    const observer = new MutationObserver(checkSidePaneState);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, [isSidePaneOpen]);
-
-  useEffect(() => {
-    let debounceTimeout: NodeJS.Timeout | null = null;
-    let lastStateChange = 0;
-
-    const shouldSkipSpaceCheck = (now: number) => {
-      return now - lastStateChange < 200;
-    };
-
-    const shouldHideFiltersForOverlays = () => {
-      return isOverlayOpen || isMobileMenuOpen;
-    };
-
-    const getToolbarContainer = () => {
-      if (!containerRef.current) {
-        return null;
-      }
-      return containerRef.current.closest(".flex.items-center.justify-between") as HTMLElement;
-    };
-
-    const calculateAvailableSpace = (toolbarContainer: HTMLElement, sidePaneOpen: boolean) => {
-      const toolbarWidth = toolbarContainer.offsetWidth;
-      const searchField = containerRef.current?.querySelector('input[type="text"]') as HTMLElement;
-      const filterButton = containerRef.current?.querySelector('[data-testid="filter-button"]') as HTMLElement;
-
-      const searchWidth = searchField?.offsetWidth || 300;
-      const filterButtonWidth = filterButton?.offsetWidth || 50;
-      const rightSideWidth = sidePaneOpen ? 200 : 150;
-      const gaps = 24;
-
-      const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-      return toolbarWidth - usedSpace;
-    };
-
-    const updateFiltersVisibility = (hasSpace: boolean, now: number) => {
-      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(true);
-      } else if (!hasSpace && showAllFilters) {
-        lastStateChange = now;
-        setShowAllFilters(false);
-      }
-    };
-
-    const checkFilterSpace = () => {
+    let lastToggle = 0;
+    const check = () => {
       const now = Date.now();
-
-      if (shouldSkipSpaceCheck(now)) {
+      if (now - lastToggle < 200) {
         return;
       }
 
-      if (shouldHideFiltersForOverlays()) {
+      if (isOverlayOpen || isMobileMenuOpen) {
         if (showAllFilters) {
-          lastStateChange = now;
+          lastToggle = now;
           setShowAllFilters(false);
         }
         return;
       }
 
-      const toolbarContainer = getToolbarContainer();
-      if (!toolbarContainer) {
-        return;
-      }
-
-      const availableSpace = calculateAvailableSpace(toolbarContainer, isSidePaneOpen);
-      const minimumFilterSpace = 500;
-      const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
-
-      updateFiltersVisibility(hasSpaceForInlineFilters, now);
-    };
-
-    const debouncedCheckFilterSpace = () => {
-      if (debounceTimeout) {
-        clearTimeout(debounceTimeout);
-      }
-      debounceTimeout = setTimeout(checkFilterSpace, 100);
-    };
-
-    checkFilterSpace();
-
-    const handleResize = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const handleSideMenuToggle = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const handleSideMenuResize = () => {
-      debouncedCheckFilterSpace();
-    };
-
-    const timeoutId = setTimeout(() => {
-      forceUpdate({});
-      checkFilterSpace();
-    }, 100);
-
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("side-menu-toggle", handleSideMenuToggle);
-    window.addEventListener("side-menu-resize", handleSideMenuResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("side-menu-toggle", handleSideMenuToggle);
-      window.removeEventListener("side-menu-resize", handleSideMenuResize);
-      clearTimeout(timeoutId);
-      if (debounceTimeout) {
-        clearTimeout(debounceTimeout);
+      const hasSpace = containerRef.current ? hasSpaceForInlineFilters(containerRef.current) : false;
+      if (hasSpace && activeFilterCount > 0 && !showAllFilters) {
+        lastToggle = now;
+        setShowAllFilters(true);
+      } else if (!hasSpace && showAllFilters) {
+        lastToggle = now;
+        setShowAllFilters(false);
       }
     };
-  }, [activeFilterCount, showAllFilters, isMobileMenuOpen, isOverlayOpen, isSidePaneOpen]);
 
-  useEffect(() => {
-    const is2XlScreen = window.matchMedia("(min-width: 1536px)").matches;
-    const isMobileScreen = window.matchMedia("(max-width: 639px)").matches;
-    const shouldUseCompactButtons = (!is2XlScreen && (showAllFilters || activeFilterCount > 0)) || isMobileScreen;
-
-    onFilterStateChange?.(showAllFilters, activeFilterCount > 0, shouldUseCompactButtons);
-  }, [showAllFilters, activeFilterCount, onFilterStateChange]);
+    const observer = new ResizeObserver(check);
+    observer.observe(toolbar);
+    check();
+    return () => observer.disconnect();
+  }, [activeFilterCount, showAllFilters, isOverlayOpen, isMobileMenuOpen]);
 
   const clearAllFilters = () => {
     setSearch("");
@@ -356,46 +259,16 @@ export function UserQuerying({ onFilterStateChange, onFiltersUpdated }: UserQuer
                   return;
                 }
 
-                if (isOverlayOpen || isMobileMenuOpen) {
+                if (
+                  !isOverlayOpen &&
+                  !isMobileMenuOpen &&
+                  containerRef.current &&
+                  hasSpaceForInlineFilters(containerRef.current)
+                ) {
+                  setShowAllFilters(true);
+                } else {
                   setIsFilterPanelOpen(true);
-                  return;
                 }
-
-                if (!containerRef.current) {
-                  setIsFilterPanelOpen(true);
-                  return;
-                }
-
-                const toolbarContainer = containerRef.current.closest(
-                  ".flex.items-center.justify-between"
-                ) as HTMLElement;
-                if (!toolbarContainer) {
-                  setIsFilterPanelOpen(true);
-                  return;
-                }
-
-                const toolbarWidth = toolbarContainer.offsetWidth;
-                const searchField = containerRef.current.querySelector('input[type="text"]') as HTMLElement;
-                const filterButton = containerRef.current.querySelector('[data-testid="filter-button"]') as HTMLElement;
-
-                const searchWidth = searchField?.offsetWidth || 300;
-                const filterButtonWidth = filterButton?.offsetWidth || 50;
-
-                const rightSideWidth = 130;
-
-                const gaps = 16;
-                const minimumFilterSpace = 500;
-
-                const usedSpace = searchWidth + filterButtonWidth + rightSideWidth + gaps;
-                const availableSpace = toolbarWidth - usedSpace;
-
-                const hasSpaceForInlineFilters = availableSpace >= minimumFilterSpace;
-
-                if (hasSpaceForInlineFilters) {
-                  setShowAllFilters(!showAllFilters);
-                  return;
-                }
-                setIsFilterPanelOpen(true);
               }}
             >
               {showAllFilters ? (
