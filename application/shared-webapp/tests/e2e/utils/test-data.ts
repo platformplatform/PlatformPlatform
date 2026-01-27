@@ -152,33 +152,35 @@ export async function completeSignupFlow(
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
-  await expect(page).toHaveURL("/account");
-  await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+  await expect(page).toHaveURL("/home");
 
-  // Step 4: Complete profile setup and verify successful save
+  // Step 4: Navigate to profile page and complete profile setup
+  await page.goto("/account/profile");
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
   await page.getByRole("button", { name: "Save changes" }).click();
   await expectToastMessage(context, "Profile updated successfully");
 
-  // Step 5: Wait for successful completion
-  await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+  // Step 5: Navigate back to home and verify successful completion
+  await page.goto("/home");
+  // Verify home page loaded - check for h1 heading (viewport-agnostic)
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
     // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-    const triggerButton = page.getByRole("button", { name: "User profile menu" });
+    const triggerButton = page.getByRole("button", { name: "Account menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
 
-    const userMenu = page.getByRole("menu");
-    await expect(userMenu).toBeVisible();
+    const accountMenu = page.getByRole("menu");
+    await expect(accountMenu).toBeVisible();
 
     // Click menu item with JavaScript evaluate to bypass stability check during animation
     const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
     await expect(logoutMenuItem).toBeVisible();
     await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
-    await expect(userMenu).not.toBeVisible();
-    await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+    await expect(accountMenu).not.toBeVisible();
+    await expect(page).toHaveURL("/login?returnPath=%2Fhome");
   }
 }

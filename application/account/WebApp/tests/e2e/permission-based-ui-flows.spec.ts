@@ -29,14 +29,14 @@ test.describe("@smoke", () => {
     const member = testUser();
 
     // Create owner and member users
-    await step("Create owner account with signup flow & verify welcome page")(async () => {
+    await step("Create owner account with signup flow & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/account/account");
-      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.goto("/account/settings");
+      await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
       await page.getByRole("button", { name: "Save changes" }).click();
       await expectToastMessage(context, "Account name updated successfully");
@@ -49,10 +49,10 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("button", { name: "Invite user" })).toBeVisible();
     })();
 
-    await step("Navigate to account settings as Owner & verify tenant name field is editable")(async () => {
-      await page.goto("/account/account");
+    await step("Navigate to settings page as Owner & verify tenant name field is editable")(async () => {
+      await page.goto("/account/settings");
 
-      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeEnabled();
       await expect(page.getByRole("textbox", { name: "Account name" })).not.toHaveAttribute("readonly");
       await expect(page.getByRole("button", { name: "Save changes" })).toBeVisible();
@@ -123,10 +123,10 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Navigate away from users page first to prevent background requests
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await page.goto("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -137,7 +137,7 @@ test.describe("@smoke", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fhome");
 
       // Accept whatever return path we get
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -148,18 +148,21 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
-      await page.waitForURL("/account");
+      // Verify successful login
+      await expect(page).toHaveURL("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Complete member profile setup & verify profile saved")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      // Navigate to profile page to set up profile
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify invite button is hidden")(async () => {
@@ -170,10 +173,10 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to account settings as Member & verify tenant name field is readonly")(async () => {
-      await page.goto("/account/account");
+      await page.goto("/account/settings");
 
       // Members should see readonly account name field
-      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Account name" })).toHaveAttribute("readonly");
       await expect(page.getByText("Only account owners can modify the account name")).toBeVisible();
       await expect(page.getByRole("button", { name: "Save changes" })).not.toBeVisible();
@@ -246,14 +249,14 @@ test.describe("@smoke", () => {
     const user1 = testUser();
     const user2 = testUser();
 
-    await step("Create owner account with signup flow & verify welcome page")(async () => {
+    await step("Create owner account with signup flow & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/account/account");
-      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await page.goto("/account/settings");
+      await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
       await page.getByRole("button", { name: "Save changes" }).click();
       await expectToastMessage(context, "Account name updated successfully");
@@ -342,10 +345,10 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Navigate away from users page first to prevent background requests
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await page.goto("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -356,7 +359,7 @@ test.describe("@smoke", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fhome");
 
       // Accept whatever return path we get
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -367,18 +370,21 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
-      await page.waitForURL("/account");
+      // Verify successful login
+      await expect(page).toHaveURL("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Complete member profile setup & verify profile saved")(async () => {
-      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+      // Navigate to profile page to set up profile
+      await page.goto("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
       await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(page.getByRole("dialog")).not.toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify no bulk operations available")(async () => {

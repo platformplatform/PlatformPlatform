@@ -29,7 +29,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/account/account");
+      await page.goto("/account/settings");
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Nav Test");
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -79,43 +79,40 @@ test.describe("@comprehensive", () => {
 
       // Verify navigation links
       await expect(mobileDialog.getByRole("link", { name: "Home" })).toBeVisible();
-      await expect(mobileDialog.getByRole("link", { name: "Account" })).toBeVisible();
+      await expect(mobileDialog.getByRole("link", { name: "Settings" })).toBeVisible();
       await expect(mobileDialog.getByRole("link", { name: "Users" })).toBeVisible();
     })();
 
     // === USER PROFILE EDITING ===
-    await step("Edit user profile through mobile menu & verify profile modal opens")(async () => {
+    await step("Navigate to profile page via mobile menu link & verify profile form")(async () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Edit" }).click();
+      await mobileDialog.getByRole("link", { name: "Profile" }).click();
 
-      // Wait for mobile menu to close and profile modal to open
+      // Wait for mobile menu to close and profile page to load
       await expect(mobileDialog).not.toBeVisible();
-
-      // Profile modal should open - wait for it to be visible
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
-      await expect(profileModal).toBeVisible();
+      await expect(page).toHaveURL("/account/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       // Verify form fields are present
-      await expect(profileModal.getByLabel("First name")).toBeVisible();
-      await expect(profileModal.getByLabel("Last name")).toBeVisible();
-      await expect(profileModal.getByLabel("Email")).toBeVisible();
-      await expect(profileModal.getByRole("textbox", { name: "Title" })).toBeVisible();
+      await expect(page.getByLabel("First name")).toBeVisible();
+      await expect(page.getByLabel("Last name")).toBeVisible();
+      await expect(page.getByLabel("Email")).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "Title" })).toBeVisible();
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
-      await profileModal.getByRole("textbox", { name: "Title" }).fill(newTitle);
+      await page.getByRole("textbox", { name: "Title" }).fill(newTitle);
       // Click save button
-      await profileModal.getByRole("button", { name: "Save" }).click();
+      await page.getByRole("button", { name: "Save changes" }).click();
 
       // Wait for success toast
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(profileModal).not.toBeVisible();
 
-      // Verify changes are reflected in mobile menu
+      // Navigate back to home and verify changes are reflected in mobile menu
+      await page.goto("/account");
       await page.getByRole("button", { name: "Open navigation menu" }).click();
       await expect(page.getByText(newTitle)).toBeVisible();
 
@@ -386,7 +383,7 @@ test.describe("@comprehensive", () => {
     await ownerPage.setViewportSize({ width: 375, height: 667 });
 
     await step("Set account name & verify save confirmation")(async () => {
-      await ownerPage.goto("/account/account");
+      await ownerPage.goto("/account/settings");
       await expect(ownerPage.getByRole("heading", { name: "Account settings" })).toBeVisible();
 
       await ownerPage.getByRole("textbox", { name: "Account name" }).clear();
@@ -443,7 +440,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Set account name & verify save confirmation")(async () => {
-      await page.goto("/account/account");
+      await page.goto("/account/settings");
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Selection Test");
       await page.getByRole("button", { name: "Save changes" }).click();

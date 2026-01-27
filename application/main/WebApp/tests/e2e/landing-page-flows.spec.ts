@@ -24,7 +24,8 @@ test.describe("@smoke", () => {
 
     await step("Verify call-to-action buttons & navigation links are visible")(async () => {
       await expect(page.getByRole("link", { name: "Get started" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "Log in" })).toBeVisible();
+      // Log in link appears in both navigation and CTA section, so use first()
+      await expect(page.getByRole("link", { name: "Log in" }).first()).toBeVisible();
     })();
 
     await step("Click Get started button & verify redirect to signup")(async () => {
@@ -35,7 +36,8 @@ test.describe("@smoke", () => {
 
     await step("Navigate back to landing page & click Log in button")(async () => {
       await page.goto("/");
-      await page.getByRole("link", { name: "Log in" }).click();
+      // Use the navigation Log in link (first one)
+      await page.getByRole("navigation").getByRole("link", { name: "Log in" }).click();
 
       await expect(page).toHaveURL("/login");
     })();

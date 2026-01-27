@@ -38,7 +38,7 @@ test.describe("@smoke", () => {
     // === TRIAL STATE AND PLAN DISPLAY ===
     await step("Navigate to subscription page & verify Trial plan with comparison cards and billing history")(
       async () => {
-        await ownerPage.goto("/admin/subscription");
+        await ownerPage.goto("/account/subscription");
 
         await expect(ownerPage.getByRole("heading", { name: "Subscription" })).toBeVisible();
         await expect(ownerPage.getByText("Manage your subscription and billing.")).toBeVisible();
@@ -84,21 +84,19 @@ test.describe("@smoke", () => {
         route.fulfill({
           status: 200,
           contentType: "text/html",
-          body: '<html><head><meta http-equiv="refresh" content="0;url=https://localhost:9000/admin/subscription?session_id=cs_mock_session_12345"></head></html>'
+          body: '<html><head><meta http-equiv="refresh" content="0;url=https://localhost:9000/account/subscription?session_id=cs_mock_session_12345"></head></html>'
         })
       );
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
-      const checkoutSuccessResponse = ownerPage.waitForResponse(
-        "**/api/account-management/subscriptions/checkout-success"
-      );
+      const checkoutSuccessResponse = ownerPage.waitForResponse("**/api/account/subscriptions/checkout-success");
       await standardCard.getByRole("button", { name: "Subscribe" }).click();
       await checkoutSuccessResponse;
       await expectToastMessage(context, "Your subscription has been activated.");
 
       await ownerPage.unroute("**/mock.stripe.local/**");
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByText("Active")).toBeVisible();
       await expect(ownerPage.getByText("Standard", { exact: true }).first()).toBeVisible();
       await expect(ownerPage.getByText("Next billing date:")).toBeVisible();
@@ -122,7 +120,7 @@ test.describe("@smoke", () => {
 
     // === DOWNGRADE FLOW (MOCKED PREMIUM STATE) ===
     await step("Mock Premium subscription state & click Downgrade on Standard plan")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/current", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -137,7 +135,7 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByText("Premium", { exact: true }).first()).toBeVisible();
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
@@ -149,15 +147,15 @@ test.describe("@smoke", () => {
     })();
 
     await step("Confirm downgrade & verify scheduled downgrade toast")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/schedule-downgrade", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/schedule-downgrade", async (route) => {
         await route.fulfill({ status: 200, contentType: "application/json", json: {} });
       });
 
       await ownerPage.getByRole("button", { name: "Confirm downgrade" }).click();
 
       await expectToastMessage(context, "Your downgrade has been scheduled.");
-      await ownerPage.unroute("**/api/account-management/subscriptions/schedule-downgrade");
-      await ownerPage.unroute("**/api/account-management/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/schedule-downgrade");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
     // === CANCEL SUBSCRIPTION ===
@@ -174,7 +172,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Confirm cancellation & verify subscription cancelled toast")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/cancel", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
         await route.fulfill({ status: 200, contentType: "application/json", json: {} });
       });
 
@@ -182,12 +180,12 @@ test.describe("@smoke", () => {
       await dialog.getByRole("button", { name: "Cancel subscription" }).click();
 
       await expectToastMessage(context, "Your subscription has been cancelled.");
-      await ownerPage.unroute("**/api/account-management/subscriptions/cancel");
+      await ownerPage.unroute("**/api/account/subscriptions/cancel");
     })();
 
     // === CANCELLING STATE (MOCKED) ===
     await step("Mock cancelling subscription state & verify reactivation options")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/current", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -202,7 +200,7 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByText("Cancelling")).toBeVisible();
       await expect(ownerPage.getByText("Access until")).toBeVisible();
       await expect(ownerPage.getByText("Choose a plan to reactivate")).toBeVisible();
@@ -210,7 +208,7 @@ test.describe("@smoke", () => {
 
     // === REACTIVATE SUBSCRIPTION ===
     await step("Click Reactivate on Standard plan & verify subscription reactivated toast")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/reactivate", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/reactivate", async (route) => {
         await route.fulfill({ status: 200, contentType: "application/json", json: {} });
       });
 
@@ -218,13 +216,13 @@ test.describe("@smoke", () => {
       await standardCard.getByRole("button", { name: "Reactivate" }).click();
 
       await expectToastMessage(context, "Your subscription has been reactivated.");
-      await ownerPage.unroute("**/api/account-management/subscriptions/reactivate");
-      await ownerPage.unroute("**/api/account-management/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/reactivate");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
     // === PAST DUE BANNER (MOCKED TENANT STATE) ===
     await step("Mock tenant PastDue state & verify warning banner displayed")(async () => {
-      await ownerPage.route("**/api/account-management/tenants/current", async (route) => {
+      await ownerPage.route("**/api/account/tenants/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -239,14 +237,14 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByText("Payment failed. Your subscription will be suspended soon.")).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Update payment method" }).first()).toBeVisible();
     })();
 
     // === SUSPENDED STATE (MOCKED TENANT STATE) ===
     await step("Mock tenant Suspended state & verify blocked page for Owner")(async () => {
-      await ownerPage.route("**/api/account-management/tenants/current", async (route) => {
+      await ownerPage.route("**/api/account/tenants/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -261,7 +259,7 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin");
+      await ownerPage.goto("/account");
       await expect(ownerPage.getByRole("heading", { name: "Payment failed" })).toBeVisible();
       await expect(
         ownerPage.getByText(
@@ -273,15 +271,15 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to subscription page while Suspended & verify access is allowed")(async () => {
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByRole("heading", { name: "Subscription", exact: true })).toBeVisible();
 
-      await ownerPage.unroute("**/api/account-management/tenants/current");
+      await ownerPage.unroute("**/api/account/tenants/current");
     })();
 
     // === STRIPE UNCONFIGURED STATE ===
     await step("Mock Stripe unconfigured state & verify warning message")(async () => {
-      await ownerPage.route("**/api/account-management/subscriptions/stripe-health", async (route) => {
+      await ownerPage.route("**/api/account/subscriptions/stripe-health", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -295,12 +293,12 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
       await expect(
         ownerPage.getByText("Billing is not configured. Please contact support to enable payment processing.")
       ).toBeVisible();
 
-      await ownerPage.unroute("**/api/account-management/subscriptions/stripe-health");
+      await ownerPage.unroute("**/api/account/subscriptions/stripe-health");
     })();
   });
 
@@ -327,7 +325,7 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin/subscription");
+      await ownerPage.goto("/account/subscription");
 
       await expect(ownerPage.getByRole("heading", { name: "Access denied" })).toBeVisible();
       await expect(ownerPage.getByText("Only account owners can manage the subscription.")).toBeVisible();
@@ -335,7 +333,7 @@ test.describe("@smoke", () => {
 
     // === SUSPENDED STATE FOR NON-OWNER ===
     await step("Mock Suspended tenant with Member role & verify contact owner message")(async () => {
-      await ownerPage.route("**/api/account-management/tenants/current", async (route) => {
+      await ownerPage.route("**/api/account/tenants/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -350,7 +348,7 @@ test.describe("@smoke", () => {
         });
       });
 
-      await ownerPage.goto("/admin");
+      await ownerPage.goto("/account");
       await expect(ownerPage.getByRole("heading", { name: "Payment failed" })).toBeVisible();
       await expect(
         ownerPage.getByText(
@@ -360,7 +358,7 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByRole("button", { name: "Update payment method" })).not.toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Reactivate subscription" })).not.toBeVisible();
 
-      await ownerPage.unroute("**/api/account-management/tenants/current");
+      await ownerPage.unroute("**/api/account/tenants/current");
     })();
   });
 });

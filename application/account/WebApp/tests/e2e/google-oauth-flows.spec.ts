@@ -43,13 +43,13 @@ test.describe("@smoke", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Sign up with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
-    await step("Open user profile menu & log out")(async () => {
+    await step("Open account menu & log out")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
@@ -65,12 +65,12 @@ test.describe("@smoke", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Continue with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
-    await step("Open user profile menu & verify mock user email displays")(async () => {
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+    await step("Open account menu & verify mock user email displays")(async () => {
+      await page.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
 
@@ -105,8 +105,8 @@ test.describe("@smoke", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Continue with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/home");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
   });
 });

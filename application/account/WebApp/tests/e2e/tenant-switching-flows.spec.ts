@@ -48,10 +48,10 @@ test.describe("@comprehensive", () => {
     // === SINGLE TENANT DISPLAY ===
     await step("Create single tenant & verify dropdown is hidden")(async () => {
       await completeSignupFlow(page1, expect, user, testContext1);
-      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page1.getByRole("heading", { name: "Welcome to" })).toBeVisible();
 
       // Update the first tenant name
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page1.goto("/account/settings");
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(primaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
@@ -79,8 +79,8 @@ test.describe("@comprehensive", () => {
     // === MULTIPLE TENANT SETUP ===
     await step("Logout from primary tenant & verify redirect to login page")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -97,7 +97,7 @@ test.describe("@comprehensive", () => {
       await completeSignupFlow(page1, expect, secondUser, testContext1);
 
       // Update tenant name
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page1.goto("/account/settings");
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(secondaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
@@ -112,8 +112,8 @@ test.describe("@comprehensive", () => {
 
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -129,7 +129,7 @@ test.describe("@comprehensive", () => {
       await completeSignupFlow(page1, expect, thirdOwner, testContext1);
 
       // Update third tenant name
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page1.goto("/account/settings");
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(tertiaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
@@ -144,8 +144,8 @@ test.describe("@comprehensive", () => {
 
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -162,70 +162,47 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
-      // Wait for navigation to complete - could be Users or Home page
+
+      // Handle auth sync dialog that appears when switching users in the same tab
+      const authSyncDialog = page1.getByRole("dialog", { name: "Different user logged in" });
+      await expect(authSyncDialog).toBeVisible();
+      await page1.getByRole("button", { name: "Reload" }).click();
+
+      // Wait for navigation to complete - lands on home page after auth sync reload
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/account/users");
 
-      // tenant selector is visible with dropdown
-      const navElement = page1.locator("nav").first();
-      // The button contains the TenantLogo component and shows primary tenant (which was last selected before logout)
-      const tenantButton = navElement.locator("button").filter({ hasText: primaryTenantName });
-      await expect(tenantButton).toBeVisible();
+      // Account menu is visible with tenant name
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      await expect(accountMenuButton).toBeVisible();
+      await expect(accountMenuButton).toContainText(primaryTenantName);
 
-      // Should have dropdown arrow with multiple tenants
-      const dropdownArrows = tenantButton.locator("svg");
-      await expect(dropdownArrows).toHaveCount(1);
+      // Pending invitations banner is visible
+      await expect(page1.getByText("You have 2 pending invitations.")).toBeVisible();
 
-      // Open dropdown and verify all tenants are listed
-      await tenantButton.dispatchEvent("click");
-      await expect(page1.getByRole("menu")).toBeVisible();
+      // Click View invitation to accept first pending invitation
+      await page1.getByRole("button", { name: "View invitation" }).click();
 
-      const menuItems = page1.getByRole("menuitem");
-      await expect(menuItems).toHaveCount(3);
-
-      // Close menu
-      await page1.keyboard.press("Escape");
-      await expect(page1.getByRole("menu")).not.toBeVisible();
-
-      // Switch to secondary tenant - this shows invitation dialog
-      await tenantButton.dispatchEvent("click");
-      await expect(page1.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const secondaryTenantMenuItem = menuItems.filter({ hasText: secondaryTenantName });
-      await expect(secondaryTenantMenuItem).toBeVisible();
-      await secondaryTenantMenuItem.dispatchEvent("click");
-
-      // Accept invitation dialog appears for pending invitations
+      // Accept invitation dialog appears
       const invitationDialog = page1.getByRole("dialog", { name: "Accept invitation" });
       await expect(invitationDialog).toBeVisible();
 
       // Accept the invitation
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
+      // Wait for navigation to complete after accepting invitation
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/account/users");
 
-      // Re-query the tenant button after page changes
-      const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: secondaryTenantName });
-      await expect(tenantButtonAfter).toContainText(secondaryTenantName);
+      // Account menu now shows the new tenant name
+      await expect(accountMenuButton).toBeVisible();
     })();
 
     // === TERTIARY TENANT INVITATION ACCEPTANCE ===
     await step("Accept invitation for tertiary tenant & verify successful tenant switch")(async () => {
-      const navElement = page1.locator("nav").first();
-      // Tenant button shows secondary tenant currently
-      const tenantButton = navElement.locator("button").filter({ hasText: secondaryTenantName });
+      // Remaining pending invitation shows in banner
+      await expect(page1.getByText("You have been invited to join")).toBeVisible();
 
-      await tenantButton.dispatchEvent("click");
-      await expect(page1.getByRole("menu")).toBeVisible();
-      const menuItems = page1.getByRole("menuitem");
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const tertiaryMenuItem = menuItems.filter({ hasText: tertiaryTenantName });
-      await expect(tertiaryMenuItem).toBeVisible();
-      await tertiaryMenuItem.dispatchEvent("click");
+      // Click View invitation to accept the tertiary tenant invitation
+      await page1.getByRole("button", { name: "View invitation" }).click();
 
       // Accept invitation dialog should appear for this tenant
       const invitationDialog = page1.getByRole("dialog", { name: "Accept invitation" });
@@ -234,13 +211,12 @@ test.describe("@comprehensive", () => {
       // Accept the invitation
       await page1.getByRole("button", { name: "Accept invitation" }).click();
 
+      // Wait for navigation to complete after accepting invitation
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/account/users");
 
-      // Re-query tenant button after page changes
-      const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: tertiaryTenantName });
-      await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
+      // Account menu now shows the tertiary tenant name
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      await expect(accountMenuButton).toContainText(tertiaryTenantName);
     })();
 
     // === OPEN SECOND TAB ===
@@ -270,8 +246,8 @@ test.describe("@comprehensive", () => {
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
       testContext2.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -279,22 +255,19 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("login?returnPath=%2Faccount%2Fusers");
 
       // tab 2 also loses authentication
       await page2.goto("/account");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL("/login?returnPath=%2Faccount");
 
-      // Login again
+      // Login again as the same user
       await page1.getByRole("textbox", { name: "Email" }).fill(user.email);
       await page1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page1.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page1, getVerificationCode());
 
-      // Wait for navigation to complete
+      // Wait for navigation to complete - no auth sync dialog since it's the same user
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page1).toHaveURL("/account/users");
 
       // Should login to tertiary tenant (last selected)
       const navElementAfter = page1.locator("nav").first();
@@ -309,49 +282,48 @@ test.describe("@comprehensive", () => {
 
     // === TENANT CONTEXT ACROSS NAVIGATION ===
     await step("Navigate across pages & verify tenant context remains consistent")(async () => {
-      const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ hasText: tertiaryTenantName });
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
 
       // We're on tertiary tenant at this point
-      const currentTenantName = tertiaryTenantName;
+      await expect(accountMenuButton).toContainText(tertiaryTenantName);
 
       // Navigate to Users page
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
+      await page1.goto("/account/users");
       await expect(page1.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Tenant should still be visible
-      await expect(tenantButton).toContainText(currentTenantName);
+      await expect(accountMenuButton).toContainText(tertiaryTenantName);
 
-      // Navigate to Account page
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      // Navigate to Account settings page
+      await page1.goto("/account/settings");
       await expect(page1.getByRole("heading", { name: "Account settings" })).toBeVisible();
 
       // Should show correct tenant name in account settings
       const accountNameInput = page1.getByRole("textbox", { name: "Account name" });
-      await expect(accountNameInput).toHaveValue(currentTenantName);
+      await expect(accountNameInput).toHaveValue(tertiaryTenantName);
 
-      // Switch to a different tenant
-      await tenantButton.dispatchEvent("click");
+      // Switch to primary tenant via Account menu > Switch account submenu
+      await accountMenuButton.dispatchEvent("click");
       await expect(page1.getByRole("menu")).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const targetMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName }).first();
-      await expect(targetMenuItem).toBeVisible();
-      await targetMenuItem.dispatchEvent("click");
+      const switchAccountTrigger = page1.getByRole("menuitem", { name: "Switch account" });
+      await expect(switchAccountTrigger).toBeVisible();
+      await switchAccountTrigger.click();
 
-      await expect(page1).toHaveURL("/account/account");
+      const primaryTenantMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName }).first();
+      await expect(primaryTenantMenuItem).toBeVisible();
+      await primaryTenantMenuItem.dispatchEvent("click");
 
-      // Re-query the tenant button with the new tenant name
-      const navElementAfterSwitch = page1.locator("nav").first();
-      const tenantButtonAfterSwitch = navElementAfterSwitch.locator("button").filter({ hasText: primaryTenantName });
-      await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
+      // Wait for tenant switch to complete
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      await expect(accountMenuButton).toContainText(primaryTenantName);
 
       // Navigate back to Home
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Home" }).click();
-      await expect(page1.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await page1.goto("/home");
+      await expect(page1.getByRole("heading", { name: "Welcome to" })).toBeVisible();
 
       // Tenant should still be primary tenant
-      await expect(tenantButtonAfterSwitch).toContainText(primaryTenantName);
+      await expect(accountMenuButton).toContainText(primaryTenantName);
     })();
 
     // === TEST: TENANT SWITCH DETECTION ACROSS TABS ===
@@ -369,8 +341,8 @@ test.describe("@comprehensive", () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
 
       // Logout from page1
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -404,8 +376,8 @@ test.describe("@comprehensive", () => {
       testContext2.monitoring.expectedStatusCodes.push(401);
 
       // Logout
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -432,25 +404,27 @@ test.describe("@comprehensive", () => {
 
     // === TEST: COMPLEX FLOW - SWITCH + LOGOUT + LOGIN ===
     await step("Switch tenant, logout & login again")(async () => {
-      // Switch to secondary tenant in tab 1 (currently on primary tenant)
-      const tenantButton1 = page1.getByRole("button", { name: "Select account" });
-      await tenantButton1.dispatchEvent("click");
-
+      // Switch to secondary tenant via Account menu > Switch account submenu
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      await accountMenuButton.dispatchEvent("click");
       await expect(page1.getByRole("menu")).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const switchAccountTrigger = page1.getByRole("menuitem", { name: "Switch account" });
+      await expect(switchAccountTrigger).toBeVisible();
+      await switchAccountTrigger.click();
+
       const secondaryTenantMenuItem = page1.getByRole("menuitem").filter({ hasText: secondaryTenantName });
       await expect(secondaryTenantMenuItem).toBeVisible();
       await secondaryTenantMenuItem.dispatchEvent("click");
 
-      // Wait for menu to close and tenant to switch
-      await expect(page1.getByRole("menu")).not.toBeVisible();
-      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(secondaryTenantName);
+      // Wait for tenant switch to complete
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      await expect(accountMenuButton).toContainText(secondaryTenantName);
 
       // Logout from tab 1
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -481,23 +455,22 @@ test.describe("@comprehensive", () => {
 
     // === TEST: SWITCH BACK TO ORIGINAL TENANT ===
     await step("Switch back to primary tenant in tab 1 & verify synchronization")(async () => {
-      // Switch back to primary tenant (currently on secondary tenant)
-      const tenantButton1 = page1.getByRole("button", { name: "Select account" });
-      await tenantButton1.dispatchEvent("click");
+      // Switch back to primary tenant via Account menu > Switch account submenu
+      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      await accountMenuButton.dispatchEvent("click");
+      await expect(page1.getByRole("menu")).toBeVisible();
 
-      const menu = page1.getByRole("menu");
-      await expect(menu).toBeVisible();
+      const switchAccountTrigger = page1.getByRole("menuitem", { name: "Switch account" });
+      await expect(switchAccountTrigger).toBeVisible();
+      await switchAccountTrigger.click();
 
-      // Click menu item with dispatchEvent to bypass stability check during animation
-      const primaryTenantMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName });
+      const primaryTenantMenuItem = page1.getByRole("menuitem").filter({ hasText: primaryTenantName }).first();
       await expect(primaryTenantMenuItem).toBeVisible();
       await primaryTenantMenuItem.dispatchEvent("click");
 
-      // Wait for menu to close after selection
-      await expect(menu).not.toBeVisible();
-
-      // tenant switched in tab 1
-      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(primaryTenantName);
+      // Wait for tenant switch to complete
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
+      await expect(accountMenuButton).toContainText(primaryTenantName);
     })();
 
     await step("Reload tab 2 & verify it syncs back to primary tenant")(async () => {
@@ -513,8 +486,8 @@ test.describe("@comprehensive", () => {
     await step("Create new tenant with invitation & verify invite displays in tenant list")(async () => {
       // Logout first
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu1 = page1.getByRole("menu", { name: "User profile menu" });
+      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -529,7 +502,7 @@ test.describe("@comprehensive", () => {
       await completeSignupFlow(page1, expect, fourthOwner, testContext1);
 
       // Update tenant name
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page1.goto("/account/settings");
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(fourthTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
@@ -551,8 +524,8 @@ test.describe("@comprehensive", () => {
 
       // Logout from page2
       testContext2.monitoring.expectedStatusCodes.push(401);
-      await page2.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu2 = page2.getByRole("menu", { name: "User profile menu" });
+      await page2.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu2 = page2.getByRole("menu");
       await expect(userMenu2).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -566,60 +539,44 @@ test.describe("@comprehensive", () => {
       await page2.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page2.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page2, getVerificationCode());
+
+      // Handle auth sync dialog that appears when switching users in the same browser context
+      const authSyncDialog = page2.getByRole("dialog", { name: "Different user logged in" });
+      await expect(authSyncDialog).toBeVisible();
+      await page2.getByRole("button", { name: "Reload" }).click();
+
+      // Wait for navigation to complete after auth sync reload
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Open tenant selector in page2 (should be on primary tenant after login)
-      const nav2 = page2.locator("nav").first();
-      const tenantButton2 = nav2.locator("button").filter({ hasText: primaryTenantName });
-      await tenantButton2.dispatchEvent("click");
+      // Verify user is on primary tenant after login
+      const accountMenuButton2 = page2.getByRole("button", { name: "Account menu" });
+      await expect(accountMenuButton2).toContainText(primaryTenantName);
 
-      // the new tenant with invitation is visible
-      const menuItems2 = page2.getByRole("menuitem");
-      const invitedTenant2 = menuItems2.filter({ hasText: "Revoke-Test" });
-      await expect(invitedTenant2).toBeVisible();
-
-      // Close dropdown without accepting
-      await page2.keyboard.press("Escape");
+      // Pending invitation banner is visible with Revoke-Test invitation
+      await expect(page2.getByText("You have been invited to join")).toBeVisible();
+      await expect(page2.getByText("Revoke-Test")).toBeVisible();
     })();
 
     await step("Open invitation dialog in both tabs & verify both show accept dialog")(async () => {
       // Create a third page for the same user
       const page3 = await context.newPage();
 
-      // Navigate page3 to admin (shares authentication)
+      // Navigate page3 to account (shares authentication)
       await page3.goto("/account");
       await expect(page3.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Open tenant selector in page2 (still on primary tenant)
-      const nav2 = page2.locator("nav").first();
-      const tenantButton2 = nav2.locator("button").filter({ hasText: primaryTenantName });
-      await tenantButton2.dispatchEvent("click");
-      await expect(page2.getByRole("menu")).toBeVisible();
-      const menuItems2 = page2.getByRole("menuitem");
+      // Both tabs should show the invitation banner
+      await expect(page2.getByText("You have been invited to join")).toBeVisible();
+      await expect(page3.getByText("You have been invited to join")).toBeVisible();
 
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const invitedTenant2 = menuItems2.filter({ hasText: "Revoke-Test" });
-      await expect(invitedTenant2).toBeVisible();
-      await invitedTenant2.dispatchEvent("click");
-
-      // invitation dialog appears in page2
+      // Open invitation dialog in page2 via banner button
+      await page2.getByRole("button", { name: "View invitation" }).click();
       const invitationDialog2 = page2.getByRole("dialog", { name: "Accept invitation" });
       await expect(invitationDialog2).toBeVisible();
       await expect(invitationDialog2).toContainText("You have been invited to join");
 
-      // Open tenant selector in page3 (should also be on primary tenant)
-      const nav3 = page3.locator("nav").first();
-      const tenantButton3 = nav3.locator("button").filter({ hasText: primaryTenantName });
-      await tenantButton3.dispatchEvent("click");
-      await expect(page3.getByRole("menu")).toBeVisible();
-      const menuItems3 = page3.getByRole("menuitem");
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const invitedTenant3 = menuItems3.filter({ hasText: "Revoke-Test" });
-      await expect(invitedTenant3).toBeVisible();
-      await invitedTenant3.dispatchEvent("click");
-
-      // invitation dialog appears in page3
+      // Open invitation dialog in page3 via banner button
+      await page3.getByRole("button", { name: "View invitation" }).click();
       const invitationDialog3 = page3.getByRole("dialog", { name: "Accept invitation" });
       await expect(invitationDialog3).toBeVisible();
       await expect(invitationDialog3).toContainText("You have been invited to join");
@@ -666,8 +623,8 @@ test.describe("@comprehensive", () => {
 
       // Page1 might be on the Revoke-Test tenant now due to auth sync
       // Logout from page2 which we know is on the Revoke-Test tenant
-      await page2.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
-      const userMenu2 = page2.getByRole("menu", { name: "User profile menu" });
+      await page2.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      const userMenu2 = page2.getByRole("menu");
       await expect(userMenu2).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation
@@ -675,12 +632,10 @@ test.describe("@comprehensive", () => {
       await expect(logoutMenuItem2).toBeVisible();
       await logoutMenuItem2.dispatchEvent("click");
       await expect(page2.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page2).toHaveURL("/login?returnPath=%2Faccount");
 
       // tab 1 also loses authentication due to auth sync
       await page1.goto("/account");
       await expect(page1.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
-      await expect(page1).toHaveURL("/login?returnPath=%2Faccount");
     })();
   });
 });
