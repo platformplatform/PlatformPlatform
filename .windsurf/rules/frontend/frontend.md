@@ -100,18 +100,16 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Use `isTouchDevice()` for touch vs mouse interactions
    - Use `isMediumViewportOrLarger()` for desktop-specific features
 
-5. Z-index layering for fixed-position elements (don't invent new values):
-   - `z-0` to `z-20`: Content layers (sticky headers, table headers)
-   - `z-30`: Mobile header
-   - `z-40`: Desktop top bar
-   - `z-[42]`: Side menu (collapsed and expanded)
-   - `z-[45]`: Backdrops (side panes, menu overlays)
-   - `z-[46]`: Side panes, side menu in overlay mode
-   - `z-[48]`: Add to homescreen banner
-   - `z-[49]`: Mobile full-screen menus (just below z-50 so dropdowns inside work naturally)
-   - `z-50`: **Dialogs, dropdowns, popovers, tooltips** (ShadCN default - never modify)
-   - `z-[60]`: Toasts (always visible, even when dialogs are open)
-   - Note: ShadCN components use z-50 as the standard overlay layer. Keep all app UI below z-50 unless it must appear above dialogs (like toasts)
+5. Z-index layering (don't invent new values):
+   - `z-0` to `z-10`: **Content** -- sticky table headers, inline badges, calendar layers
+   - `z-20`: **App bars** -- mobile header, desktop top bar, mobile floating menu button
+   - `z-30`: **Navigation** -- side menu (collapsed and expanded)
+   - `z-[35]`: **Backdrops** -- dimmed overlays behind panels and overlay-mode navigation
+   - `z-40`: **Panels** -- side panes, mobile full-screen menus, banners, side menu in overlay mode
+   - `z-50`: **Popups** -- dialogs, dropdowns, popovers, tooltips (ShadCN default)
+   - `z-100`: **Select popup** -- Select dropdown renders above dialogs (ShadCN default)
+   - `z-[60]`: **Toasts** -- always visible, even above dialogs
+   - `z-[99]`: **Critical** -- full-screen loaders, system overlays (e.g., account switching)
 
 6. Dialog structure and DirtyDialog patterns:
    - **Always use DialogBody** for content between DialogHeader and DialogFooter - it provides proper scrolling for tall content

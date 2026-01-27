@@ -240,12 +240,12 @@ export function UserProfileSidePane({
   return (
     <>
       {/* Backdrop for small screens */}
-      {isSmallScreen && <div className="fixed inset-0 z-[45] bg-black/50" aria-hidden="true" />}
+      {isSmallScreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" />}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
-        className={`relative flex h-full w-full flex-col border-border border-l ${isSmallScreen ? "fixed inset-0 z-[46] bg-card" : ""}`}
+        className={`relative flex h-full w-full flex-col border-border border-l ${isSmallScreen ? "fixed inset-0 z-40 bg-card" : ""}`}
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}

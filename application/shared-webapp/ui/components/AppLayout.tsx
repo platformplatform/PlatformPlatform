@@ -251,7 +251,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-0 right-0 left-0 z-40 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
+              "fixed top-0 right-0 left-0 z-20 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               scrollAwayHeader
@@ -269,7 +269,7 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-30 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
+          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"
@@ -308,7 +308,7 @@ export function AppLayout({
         {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-[46] bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            className="fixed inset-0 z-40 bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}

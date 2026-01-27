@@ -410,7 +410,7 @@ export function FederatedMenuButton({
 }
 
 const sideMenuStyles = cva(
-  "group fixed top-0 left-0 z-[42] flex h-screen flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width] duration-100",
+  "group fixed top-0 left-0 z-30 flex h-screen flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width] duration-100",
   {
     variants: {
       isCollapsed: {
@@ -749,7 +749,7 @@ const _getClientCoordinates = (
 const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
   <button
     type="button"
-    className="fixed top-0 right-0 bottom-0 left-[72px] z-[45] bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
+    className="fixed top-0 right-0 bottom-0 left-[72px] z-[35] bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
     onClick={closeOverlay}
     aria-label="Close menu"
   />
@@ -904,7 +904,7 @@ const MenuNav = ({
         isOverlayOpen,
         isHidden: isHidden && !overlayMode
       }),
-      overlayMode && isOverlayOpen && "z-[46] w-[350px]",
+      overlayMode && isOverlayOpen && "z-40 w-[350px]",
       isResizing && "cursor-col-resize select-none",
       className
     )}
@@ -1168,7 +1168,7 @@ export function SideMenu({
       {/* Skip navigation link for keyboard users - hidden on mobile where it's not needed */}
       <a
         href="#main-content"
-        className="sr-only outline-primary focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2 max-sm:hidden"
+        className="sr-only outline-primary focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2 max-sm:hidden"
       >
         Skip to main content
       </a>
@@ -1268,7 +1268,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
   return (
     <>
       {!isOpen && (
-        <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
+        <div className="fixed right-4 bottom-4 z-20 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
           <Button
             variant="ghost"
             size="icon-lg"
@@ -1283,7 +1283,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-[49] h-full w-full bg-sidebar"
+            className="fixed inset-0 z-40 h-full w-full bg-sidebar"
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
