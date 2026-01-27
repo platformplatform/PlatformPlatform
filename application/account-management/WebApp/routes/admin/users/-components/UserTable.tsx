@@ -15,7 +15,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
-import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
@@ -277,7 +276,7 @@ function UserTableContent({
             <TableRow>
               <TableHead
                 data-column={SortableUserProperties.Name}
-                className={`cursor-pointer select-none ${isSmallViewportOrLarger() ? "min-w-[250px]" : ""}`}
+                className={`cursor-pointer select-none ${!isMobile ? "min-w-[250px]" : ""}`}
                 onClick={() => handleSortChange(SortableUserProperties.Name)}
               >
                 <div className="flex items-center gap-1 font-bold text-xs">
@@ -287,61 +286,57 @@ function UserTableContent({
                   <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Name} />
                 </div>
               </TableHead>
-              {isSmallViewportOrLarger() && (
-                <TableHead
-                  data-column={SortableUserProperties.Email}
-                  className="min-w-[160px] cursor-pointer select-none"
-                  onClick={() => handleSortChange(SortableUserProperties.Email)}
-                >
-                  <div className="flex items-center gap-1 font-bold text-xs">
-                    <span>
-                      <Trans>Email</Trans>
-                    </span>
-                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Email} />
-                  </div>
-                </TableHead>
-              )}
-              {isMediumViewportOrLarger() && (
-                <TableHead
-                  data-column={SortableUserProperties.CreatedAt}
-                  className="w-[110px] min-w-[65px] cursor-pointer select-none"
-                  onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
-                >
-                  <div className="flex items-center gap-1 font-bold text-xs">
-                    <span>
-                      <Trans>Created</Trans>
-                    </span>
-                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.CreatedAt} />
-                  </div>
-                </TableHead>
-              )}
-              {isMediumViewportOrLarger() && (
-                <TableHead
-                  data-column={SortableUserProperties.LastSeenAt}
-                  className="w-[120px] min-w-[65px] cursor-pointer select-none"
-                  onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
-                >
-                  <div className="flex items-center gap-1 font-bold text-xs">
-                    <span>
-                      <Trans>Last seen</Trans>
-                    </span>
-                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.LastSeenAt} />
-                  </div>
-                </TableHead>
-              )}
-              {isSmallViewportOrLarger() && (
-                <TableHead
-                  data-column={SortableUserProperties.Role}
-                  className="w-[135px] cursor-pointer select-none"
-                  onClick={() => handleSortChange(SortableUserProperties.Role)}
-                >
-                  <div className="flex items-center gap-1 font-bold text-xs">
-                    <span>
-                      <Trans>Role</Trans>
-                    </span>
-                    <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Role} />
-                  </div>
-                </TableHead>
+              {!isMobile && (
+                <>
+                  <TableHead
+                    data-column={SortableUserProperties.Email}
+                    className="min-w-[160px] cursor-pointer select-none"
+                    onClick={() => handleSortChange(SortableUserProperties.Email)}
+                  >
+                    <div className="flex items-center gap-1 font-bold text-xs">
+                      <span>
+                        <Trans>Email</Trans>
+                      </span>
+                      <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Email} />
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    data-column={SortableUserProperties.CreatedAt}
+                    className="w-[110px] min-w-[65px] cursor-pointer select-none"
+                    onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
+                  >
+                    <div className="flex items-center gap-1 font-bold text-xs">
+                      <span>
+                        <Trans>Created</Trans>
+                      </span>
+                      <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.CreatedAt} />
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    data-column={SortableUserProperties.LastSeenAt}
+                    className="w-[120px] min-w-[65px] cursor-pointer select-none"
+                    onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
+                  >
+                    <div className="flex items-center gap-1 font-bold text-xs">
+                      <span>
+                        <Trans>Last seen</Trans>
+                      </span>
+                      <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.LastSeenAt} />
+                    </div>
+                  </TableHead>
+                  <TableHead
+                    data-column={SortableUserProperties.Role}
+                    className="w-[135px] cursor-pointer select-none"
+                    onClick={() => handleSortChange(SortableUserProperties.Role)}
+                  >
+                    <div className="flex items-center gap-1 font-bold text-xs">
+                      <span>
+                        <Trans>Role</Trans>
+                      </span>
+                      <SortIndicator sortDescriptor={sortDescriptor} columnId={SortableUserProperties.Role} />
+                    </div>
+                  </TableHead>
+                </>
               )}
             </TableRow>
           </TableHeader>
@@ -368,7 +363,7 @@ function UserTableContent({
                             <span className="truncate">
                               {user.firstName || user.lastName
                                 ? `${user.firstName} ${user.lastName}`.trim()
-                                : !isSmallViewportOrLarger()
+                                : isMobile
                                   ? user.email
                                   : ""}
                             </span>
@@ -383,68 +378,66 @@ function UserTableContent({
                       </div>
                     </div>
                   </TableCell>
-                  {isSmallViewportOrLarger() && (
-                    <TableCell>
-                      <span className="block h-full w-full justify-start p-0 text-left font-normal">{user.email}</span>
-                    </TableCell>
-                  )}
-                  {isMediumViewportOrLarger() && (
-                    <TableCell>
-                      <SmartDate date={user.createdAt} className="text-foreground" />
-                    </TableCell>
-                  )}
-                  {isMediumViewportOrLarger() && (
-                    <TableCell>
-                      <SmartDate date={user.lastSeenAt} className="text-foreground" />
-                    </TableCell>
-                  )}
-                  {isSmallViewportOrLarger() && (
-                    <TableCell>
-                      <div className="flex h-full w-full items-center justify-between p-0">
-                        <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                        <DropdownMenu
-                          onOpenChange={(isOpen) => {
-                            if (isOpen) {
-                              onSelectedUsersChange([user]);
-                            }
-                          }}
-                        >
-                          <DropdownMenuTrigger
-                            render={
-                              <Button variant="ghost" size="icon" tabIndex={-1} aria-label={t`User actions`}>
-                                <EllipsisVerticalIcon className="size-5 text-muted-foreground" />
-                              </Button>
-                            }
-                          />
-                          <DropdownMenuContent className="w-auto">
-                            <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
-                              <UserIcon className="size-4" />
-                              <Trans>View profile</Trans>
-                            </DropdownMenuItem>
-                            {userInfo?.role === "Owner" && (
-                              <>
-                                <DropdownMenuItem
-                                  disabled={user.id === userInfo?.id}
-                                  onClick={() => onChangeRole(user)}
-                                >
-                                  <SettingsIcon className="size-4" />
-                                  <Trans>Change role</Trans>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  disabled={user.id === userInfo?.id}
-                                  variant="destructive"
-                                  onClick={() => onDeleteUser(user)}
-                                >
-                                  <Trash2Icon className="size-4" />
-                                  <Trans>Delete</Trans>
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TableCell>
+                  {!isMobile && (
+                    <>
+                      <TableCell>
+                        <span className="block h-full w-full justify-start p-0 text-left font-normal">
+                          {user.email}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <SmartDate date={user.createdAt} className="text-foreground" />
+                      </TableCell>
+                      <TableCell>
+                        <SmartDate date={user.lastSeenAt} className="text-foreground" />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex h-full w-full items-center justify-between p-0">
+                          <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+                          <DropdownMenu
+                            onOpenChange={(isOpen) => {
+                              if (isOpen) {
+                                onSelectedUsersChange([user]);
+                              }
+                            }}
+                          >
+                            <DropdownMenuTrigger
+                              render={
+                                <Button variant="ghost" size="icon" tabIndex={-1} aria-label={t`User actions`}>
+                                  <EllipsisVerticalIcon className="size-5 text-muted-foreground" />
+                                </Button>
+                              }
+                            />
+                            <DropdownMenuContent className="w-auto">
+                              <DropdownMenuItem onClick={() => onViewProfile(user, false)}>
+                                <UserIcon className="size-4" />
+                                <Trans>View profile</Trans>
+                              </DropdownMenuItem>
+                              {userInfo?.role === "Owner" && (
+                                <>
+                                  <DropdownMenuItem
+                                    disabled={user.id === userInfo?.id}
+                                    onClick={() => onChangeRole(user)}
+                                  >
+                                    <SettingsIcon className="size-4" />
+                                    <Trans>Change role</Trans>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    disabled={user.id === userInfo?.id}
+                                    variant="destructive"
+                                    onClick={() => onDeleteUser(user)}
+                                  >
+                                    <Trash2Icon className="size-4" />
+                                    <Trans>Delete</Trans>
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </TableCell>
+                    </>
                   )}
                 </TableRow>
               );
