@@ -1,10 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogFooter } from "@repo/ui/components/DialogFooter";
-import { Heading } from "@repo/ui/components/Heading";
-import { Modal } from "@repo/ui/components/Modal";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogTitle } from "@repo/ui/components/Dialog";
 
 export type AuthSyncModalType = "tenant-switch" | "logged-in" | "logged-out";
 
@@ -85,22 +82,16 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
   const content = getModalContent();
 
   return (
-    <Modal isOpen={isOpen} isDismissable={false} isKeyboardDismissDisabled={true}>
-      <Dialog className="sm:w-dialog-md">
-        {() => (
-          <>
-            <Heading slot="title" className="font-semibold text-lg">
-              {content.title}
-            </Heading>
-            <div className="mt-2 text-muted-foreground text-sm">{content.description}</div>
-            <DialogFooter className="mt-6">
-              <Button variant="primary" onPress={onPrimaryAction}>
-                {content.primaryLabel}
-              </Button>
-            </DialogFooter>
-          </>
-        )}
-      </Dialog>
-    </Modal>
+    <Dialog open={isOpen}>
+      <DialogContent showCloseButton={false} className="sm:w-dialog-md">
+        <DialogTitle>{content.title}</DialogTitle>
+        <DialogBody className="text-muted-foreground text-sm">{content.description}</DialogBody>
+        <DialogFooter>
+          <Button variant="default" onClick={onPrimaryAction}>
+            {content.primaryLabel}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

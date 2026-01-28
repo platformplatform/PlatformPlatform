@@ -120,7 +120,7 @@ function convertMarkdownToHtml(markdown: string): string {
   // Links
   html = html.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
-    '<a href="$2" class="text-primary underline underline-offset-4 hover:text-primary/80">$1</a>'
+    '<a href="$2" class="rounded-md text-primary underline underline-offset-4 outline-ring hover:text-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">$1</a>'
   );
 
   // Lists - handle multi-line list items

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { cn } from "../cn";
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
+import { cn } from "../utils";
 
 type AppLayoutVariant = "full" | "center";
 
@@ -138,13 +138,7 @@ interface HeaderContentProps {
 
 const HeaderContent = React.forwardRef<HTMLDivElement, HeaderContentProps>(({ title, subtitle, isSticky }, ref) => (
   <div ref={ref} className="mb-4">
-    <h1
-      className={cn(
-        "font-semibold text-3xl",
-        "transition-opacity duration-200",
-        isSticky ? "opacity-0 sm:opacity-100" : "opacity-100"
-      )}
-    >
+    <h1 className={cn("transition-opacity duration-200", isSticky ? "opacity-0 sm:opacity-100" : "opacity-100")}>
       {title}
     </h1>
     {subtitle && (
@@ -173,33 +167,29 @@ interface ScrollAwayContentProps {
 
 function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, children }: ScrollAwayContentProps) {
   return (
-    <>
-      {/* Mobile version with scroll-away header */}
-      <div className="flex h-full flex-col sm:hidden">
-        <div
-          className="scroll-away-header"
-          style={{
-            transform: `translateY(-${scrollProgress * 100}%)`,
-            opacity: 1 - scrollProgress
-          }}
-        >
-          <div className="mb-4">
-            <h1 className="font-semibold text-3xl">{title}</h1>
-            {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
-          </div>
-        </div>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-      </div>
-
-      {/* Desktop version - no scroll away behavior */}
-      <div className="hidden sm:flex sm:h-full sm:flex-col">
-        <div ref={headerRef} className="mb-4">
-          <h1 className="font-semibold text-3xl">{title}</h1>
+    <div className="flex h-full flex-col">
+      {/* Mobile header with scroll-away behavior */}
+      <div
+        className="scroll-away-header sm:hidden"
+        style={{
+          transform: `translateY(-${scrollProgress * 100}%)`,
+          opacity: 1 - scrollProgress
+        }}
+      >
+        <div className="mb-4">
+          <h1>{title}</h1>
           {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
         </div>
-        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
       </div>
-    </>
+
+      {/* Desktop header - static */}
+      <div ref={headerRef} className="mb-4 hidden sm:block">
+        <h1>{title}</h1>
+        {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+    </div>
   );
 }
 
@@ -253,13 +243,6 @@ export function AppLayout({
 
   return (
     <div className="flex h-full flex-col">
-      {/* Skip navigation link for keyboard users */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-100 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg"
-      >
-        Skip to main content
-      </a>
       <div
         className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
@@ -268,7 +251,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-0 right-0 left-0 z-40 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
+              "fixed top-0 right-0 left-0 z-20 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               scrollAwayHeader
@@ -286,7 +269,7 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-30 bg-background/95 px-4 py-4 backdrop-blur-sm sm:border-border sm:border-b ${
+          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"
@@ -298,7 +281,7 @@ export function AppLayout({
         <main
           ref={contentRef}
           className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
           }
           id="main-content"
           aria-label="Main content"
@@ -325,7 +308,7 @@ export function AppLayout({
         {/* Side pane area - responsive behavior */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-70 md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            className="fixed inset-0 z-40 bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}

@@ -166,8 +166,19 @@ export async function completeSignupFlow(
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
-    await page.getByRole("button", { name: "User profile menu" }).click();
-    await page.getByRole("menuitem", { name: "Log out" }).click();
+    // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+    const triggerButton = page.getByRole("button", { name: "User profile menu" });
+    await triggerButton.evaluate((el: HTMLElement) => el.click());
+
+    const userMenu = page.getByRole("menu");
+    await expect(userMenu).toBeVisible();
+
+    // Click menu item with JavaScript evaluate to bypass stability check during animation
+    const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+    await expect(logoutMenuItem).toBeVisible();
+    await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
+
+    await expect(userMenu).not.toBeVisible();
     await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
   }
 }

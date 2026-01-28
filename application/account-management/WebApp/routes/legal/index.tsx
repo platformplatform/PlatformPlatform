@@ -1,5 +1,5 @@
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -37,9 +37,9 @@ function LegalIndex() {
           <div className="mx-auto max-w-5xl">
             {/* Hero */}
             <div className="mb-12 text-center">
-              <h1 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Legal and Compliance</Trans>
-              </h1>
+              </h2>
               <p className="text-muted-foreground">
                 <Trans>
                   Transparency, security, and privacy are at the core of how we operate. Review our policies and learn
@@ -55,7 +55,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <ScrollTextIcon className="mb-4 h-10 w-10 text-primary" />
+                <ScrollTextIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Terms of Service</Trans>
                 </h3>
@@ -71,7 +71,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <ShieldCheckIcon className="mb-4 h-10 w-10 text-primary" />
+                <ShieldCheckIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Privacy Policy</Trans>
                 </h3>
@@ -85,7 +85,7 @@ function LegalIndex() {
                 underline={false}
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <FileTextIcon className="mb-4 h-10 w-10 text-primary" />
+                <FileTextIcon className="mb-4 size-10 text-primary" />
                 <h3 className="mb-2 font-semibold text-foreground text-lg">
                   <Trans>Data Processing Agreement</Trans>
                 </h3>
@@ -102,7 +102,7 @@ function LegalIndex() {
           <div className="mx-auto max-w-5xl">
             {/* Header */}
             <div className="mb-12 text-center">
-              <h2 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Enterprise-grade Azure infrastructure</Trans>
               </h2>
               <p className="text-muted-foreground">
@@ -113,16 +113,16 @@ function LegalIndex() {
             {/* Compliance Badges */}
             <div className="mb-12 flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-12">
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-24 w-24 items-center justify-center">
-                  <img src={gdprBadge} alt="GDPR Compliant" className="h-20 w-auto object-contain" />
+                <div className="flex size-24 items-center justify-center">
+                  <img src={gdprBadge} alt={t`GDPR compliant`} className="h-20 w-auto object-contain" />
                 </div>
                 <span className="font-semibold text-foreground">
                   <Trans>GDPR Compliant</Trans>
                 </span>
               </div>
               <div className="flex flex-col items-center gap-3">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#0078d4]/10">
-                  <svg viewBox="0 0 96 96" className="h-14 w-14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="flex size-24 items-center justify-center rounded-full bg-[#0078d4]/10">
+                  <svg viewBox="0 0 96 96" className="size-14" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <title>Microsoft Azure</title>
                     <path d="M48 12L12 30v36l36 18 36-18V30L48 12z" fill="#0078d4" />
                     <path d="M48 12v36L12 30l36-18z" fill="#50e6ff" />
@@ -139,67 +139,67 @@ function LegalIndex() {
             {/* Security Features - 6 items in 3x2 grid */}
             <div className="mb-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ServerIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <ServerIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Fully managed infrastructure</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Microsoft patches and secures all PaaS infrastructure automatically</Trans>
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <FingerprintIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <FingerprintIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Managed identities</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Only trusted personnel access data through Azure AD authentication</Trans>
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <LayersIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <LayersIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Environment isolation</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Strict separation prevents production data from leaking to other environments</Trans>
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <KeyIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <KeyIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Passwordless deployments</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>GitHub deploys directly to Azure without passwords or API keys</Trans>
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <DatabaseIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <DatabaseIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>Data residency</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Your data stays in the Azure region you select at signup</Trans>
                 </p>
               </div>
               <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <ShieldCheckIcon className="h-6 w-6 text-primary" />
+                <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                  <ShieldCheckIcon className="size-6 text-primary" />
                 </div>
-                <h3 className="mb-1 font-semibold text-foreground">
+                <h4 className="mb-1">
                   <Trans>100% Security Score</Trans>
-                </h3>
+                </h4>
                 <p className="text-muted-foreground text-sm">
                   <Trans>Achieved in Microsoft Defender for Cloud following Azure best practices</Trans>
                 </p>
@@ -208,7 +208,14 @@ function LegalIndex() {
 
             {/* PlatformPlatform Credit */}
             <div className="flex items-center justify-center gap-3">
-              <Image src={platformLogo} alt="PlatformPlatform" className="h-8 w-8" width={32} height={32} />
+              <img
+                src={platformLogo}
+                alt={t`PlatformPlatform logo`}
+                className="size-10"
+                width={40}
+                height={40}
+                loading="lazy"
+              />
               <p className="text-muted-foreground text-sm">
                 <Trans>
                   Built on{" "}
@@ -220,7 +227,7 @@ function LegalIndex() {
                     className="inline-flex items-center gap-1 font-medium text-primary"
                   >
                     PlatformPlatform
-                    <ExternalLinkIcon className="h-3 w-3" />
+                    <ExternalLinkIcon className="size-3" />
                   </Link>{" "}
                   - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS
                   products
@@ -234,7 +241,7 @@ function LegalIndex() {
         <section className="bg-background px-6 py-16">
           <div className="mx-auto max-w-5xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-3 font-bold text-4xl text-foreground md:text-5xl">
+              <h2 className="marketing">
                 <Trans>Microsoft compliance resources</Trans>
               </h2>
               <p className="text-muted-foreground">
@@ -253,13 +260,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureSecurity} alt="" className="h-10 w-10" />
+                  <img src={azureSecurity} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Trust Center</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Security, privacy, and compliance information</Trans>
@@ -274,13 +281,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureCompliance} alt="" className="h-10 w-10" />
+                  <img src={azureCompliance} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Azure Compliance</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Regulatory standards and certifications</Trans>
@@ -295,13 +302,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azureActivityLog} alt="" className="h-10 w-10" />
+                  <img src={azureActivityLog} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>SOC and ISO Reports</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Audit reports and assessments</Trans>
@@ -316,13 +323,13 @@ function LegalIndex() {
                 className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
               >
                 <div className="mb-3">
-                  <img src={azurePolicy} alt="" className="h-10 w-10" />
+                  <img src={azurePolicy} alt="" className="size-10" />
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-foreground">
                     <Trans>Microsoft DPA</Trans>
                   </span>
-                  <ExternalLinkIcon className="h-4 w-4 text-muted-foreground" />
+                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
                 </div>
                 <p className="mt-1 text-muted-foreground text-sm">
                   <Trans>Data protection addendum</Trans>

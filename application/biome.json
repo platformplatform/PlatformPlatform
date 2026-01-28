@@ -35,6 +35,26 @@
           }
         }
       }
+    },
+    {
+      "includes": ["**/ui/components/Label.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noLabelWithoutControl": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/ui/components/Calendar.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
     }
   ],
   "linter": {

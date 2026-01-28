@@ -9,7 +9,7 @@ public abstract record Prerequisite
 {
     public static readonly Prerequisite Dotnet = new CommandLineToolPrerequisite("dotnet", "dotnet", new Version(10, 0, 101));
     public static readonly Prerequisite Docker = new CommandLineToolPrerequisite("docker", "Docker", new Version(28, 5, 1));
-    public static readonly Prerequisite Node = new CommandLineToolPrerequisite("node", "NodeJS", new Version(24, 10, 0));
+    public static readonly Prerequisite Node = new NodePrerequisite();
     public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 79));
     public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 83));
     public static readonly Prerequisite TypeScriptLanguageServer = new CommandLineToolPrerequisite("typescript-language-server", "TypeScript Language Server", new Version(4, 3, 0));
@@ -110,5 +110,49 @@ file sealed record CommandLineToolPrerequisite(string Command, string DisplayNam
     public override string ToString()
     {
         return DisplayName;
+    }
+}
+
+file sealed record NodePrerequisite : Prerequisite
+{
+    protected override bool IsValid()
+    {
+        var requiredVersion = File.ReadAllText(Path.Combine(Configuration.ApplicationFolder, ".node-version")).Trim();
+        var nodeDir = FindNodeBinDirectory(requiredVersion);
+
+        if (nodeDir is null)
+        {
+            AnsiConsole.MarkupLine($"[red]NodeJS [bold]{requiredVersion}[/] not found. Install it to match .node-version.[/]");
+            return false;
+        }
+
+        var separator = Configuration.IsWindows ? ";" : ":";
+        Environment.SetEnvironmentVariable("PATH", $"{nodeDir}{separator}{Environment.GetEnvironmentVariable("PATH")}");
+        return true;
+    }
+
+    private static string? FindNodeBinDirectory(string version)
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var candidates = Configuration.IsWindows
+            ? new[]
+            {
+                Path.Combine(home, "AppData", "Roaming", "fnm", "node-versions", $"v{version}", "installation"),
+                Path.Combine(home, "AppData", "Roaming", "nvm", $"v{version}"),
+                Path.Combine(home, ".volta", "tools", "image", "node", version)
+            }
+            : new[]
+            {
+                Path.Combine(home, ".local", "share", "fnm", "node-versions", $"v{version}", "installation", "bin"),
+                Path.Combine(home, ".nvm", "versions", "node", $"v{version}", "bin"),
+                Path.Combine(home, ".volta", "tools", "image", "node", version, "bin")
+            };
+
+        return candidates.FirstOrDefault(Directory.Exists);
+    }
+
+    protected override bool CheckExists()
+    {
+        return true;
     }
 }

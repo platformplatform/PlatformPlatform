@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import type { components } from "@/shared/lib/api/client";
@@ -24,19 +23,10 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showTenantNameRequiredDialog, setShowTenantNameRequiredDialog] = useState(false);
-  const [_isFilterBarExpanded, setIsFilterBarExpanded] = useState(false);
-  const [_hasActiveFilters, setHasActiveFilters] = useState(false);
-  const [shouldUseCompactButtons, setShouldUseCompactButtons] = useState(false);
 
   const isOwner = currentUser?.role === UserRole.Owner;
   const hasSelectedSelf = selectedUsers.some((user) => user.id === currentUser?.id);
   const hasTenantName = tenant?.name && tenant.name.trim() !== "";
-
-  const handleFilterStateChange = (isExpanded: boolean, hasFilters: boolean, useCompact: boolean) => {
-    setIsFilterBarExpanded(isExpanded);
-    setHasActiveFilters(hasFilters);
-    setShouldUseCompactButtons(useCompact);
-  };
 
   const handleInviteClick = () => {
     if (!hasTenantName) {
@@ -47,43 +37,29 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
   };
 
   return (
-    <div className="mb-4 flex items-center justify-between gap-2 bg-background/95 backdrop-blur-sm">
-      <UserQuerying onFilterStateChange={handleFilterStateChange} onFiltersUpdated={() => onSelectedUsersChange([])} />
-      <div className="mt-6 flex items-center gap-2">
+    <div className="mb-4 flex items-center justify-between gap-2">
+      <UserQuerying onFiltersUpdated={() => onSelectedUsersChange([])} />
+      <div className="mt-auto flex items-center gap-2">
         {selectedUsers.length < 2 && isOwner && (
-          <TooltipTrigger>
-            <Button variant="primary" onPress={handleInviteClick} aria-label={t`Invite user`}>
-              <PlusIcon className="h-5 w-5" />
-              <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
-                <Trans>Invite user</Trans>
-              </span>
-            </Button>
-            {shouldUseCompactButtons && (
-              <Tooltip>
-                <Trans>Invite user</Trans>
-              </Tooltip>
-            )}
-          </TooltipTrigger>
+          <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
+            <PlusIcon className="size-5" />
+            <span className="hidden 2xl:inline">
+              <Trans>Invite user</Trans>
+            </span>
+          </Button>
         )}
         {selectedUsers.length > 1 && isOwner && (
-          <TooltipTrigger>
-            <Button
-              variant="destructive"
-              onPress={() => setIsDeleteModalOpen(true)}
-              isDisabled={hasSelectedSelf}
-              aria-label={t`Delete ${selectedUsers.length} users`}
-            >
-              <Trash2Icon className="h-5 w-5" />
-              <span className={shouldUseCompactButtons ? "hidden" : "hidden sm:inline"}>
-                <Trans>Delete {selectedUsers.length} users</Trans>
-              </span>
-            </Button>
-            {shouldUseCompactButtons && (
-              <Tooltip>
-                <Trans>Delete {selectedUsers.length} users</Trans>
-              </Tooltip>
-            )}
-          </TooltipTrigger>
+          <Button
+            variant="destructive"
+            onClick={() => setIsDeleteModalOpen(true)}
+            disabled={hasSelectedSelf}
+            aria-label={t`Delete ${selectedUsers.length} users`}
+          >
+            <Trash2Icon className="size-5" />
+            <span className="hidden 2xl:inline">
+              <Trans>Delete {selectedUsers.length} users</Trans>
+            </span>
+          </Button>
         )}
       </div>
       {isOwner && <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />}

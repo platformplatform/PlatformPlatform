@@ -4,14 +4,14 @@ import { authSyncService, type UserLoggedInMessage } from "@repo/infrastructure/
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
-import { DigitPattern } from "@repo/ui/components/Digit";
 import { Form } from "@repo/ui/components/Form";
+import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
 import { Link } from "@repo/ui/components/Link";
-import { OneTimeCodeInput, type OneTimeCodeInputRef } from "@repo/ui/components/OneTimeCodeInput";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -92,8 +92,8 @@ export function CompleteLoginForm() {
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
   const isExpired = secondsRemaining === 0;
-  const oneTimeCodeInputRef = useRef<OneTimeCodeInputRef | null>(null);
-  const [isOneTimeCodeComplete, setIsOneTimeCodeComplete] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
+  const isOneTimeCodeComplete = otpValue.length === 6;
   const [showRequestLink, setShowRequestLink] = useState(false);
   const [hasRequestedNewCode, setHasRequestedNewCode] = useState(false);
   const [isRateLimited, setIsRateLimited] = useState(false);
@@ -125,13 +125,13 @@ export function CompleteLoginForm() {
     setExpireAt(newExpireAt);
     getLoginState().expireAt = newExpireAt;
 
-    setIsOneTimeCodeComplete(false);
+    setOtpValue("");
     setShowRequestLink(false);
     setIsRateLimited(false);
 
     setTimeout(() => {
-      oneTimeCodeInputRef.current?.reset?.();
-      oneTimeCodeInputRef.current?.focus?.();
+      const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
+      input?.focus();
     }, 100);
   }, []);
 
@@ -160,10 +160,8 @@ export function CompleteLoginForm() {
         if (data) {
           resetAfterResend(data.validForSeconds);
           setHasRequestedNewCode(true);
-          toastQueue.add({
-            title: t`Verification code sent`,
-            description: t`A new verification code has been sent to your email.`,
-            variant: "success"
+          toast.success(t`Verification code sent`, {
+            description: t`A new verification code has been sent to your email.`
           });
         }
       }
@@ -177,10 +175,12 @@ export function CompleteLoginForm() {
         setIsRateLimited(true);
         setExpireAt(new Date(0)); // Force expiration
       } else {
+        // Clear the input and reset auto-submit for next attempt
+        setOtpValue("");
+        setAutoSubmitCode(false);
         setTimeout(() => {
-          if (oneTimeCodeInputRef.current) {
-            oneTimeCodeInputRef.current.focus?.();
-          }
+          const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
+          input?.focus();
         }, 100);
       }
     }
@@ -197,10 +197,8 @@ export function CompleteLoginForm() {
       <Form
         onSubmit={(event) => {
           event.preventDefault();
-          const formData = new FormData(event.currentTarget);
-          const oneTimePassword = formData.get("oneTimePassword") as string;
-          if (oneTimePassword.length === 6) {
-            setLastSubmittedCode(oneTimePassword);
+          if (otpValue.length === 6) {
+            setLastSubmittedCode(otpValue);
           }
 
           completeLoginMutation.mutate({
@@ -208,7 +206,7 @@ export function CompleteLoginForm() {
               path: { id: loginId }
             },
             body: {
-              oneTimePassword,
+              oneTimePassword: otpValue,
               preferredTenantId: getPreferredTenantId() || null
             }
           });
@@ -221,40 +219,49 @@ export function CompleteLoginForm() {
         <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
           <div className="flex justify-center">
             <Link href="/" className="cursor-pointer">
-              <img src={logoMarkUrl} alt={t`Logo`} className="h-12 w-12" />
+              <img src={logoMarkUrl} alt={t`Logo`} className="size-12" />
             </Link>
           </div>
-          <h1 className="mb-3 w-full text-center text-2xl">
+          <h2 className="mb-3 text-center">
             <Trans>Enter your verification code</Trans>
-          </h1>
+          </h2>
           <div className="text-center text-gray-500 text-sm">
             <Trans>
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
             </Trans>
           </div>
-          <div className="flex w-full flex-col gap-4">
-            <OneTimeCodeInput
-              ref={oneTimeCodeInputRef}
-              name="oneTimePassword"
-              digitPattern={DigitPattern.DigitsAndChars}
-              length={6}
-              autoFocus={true}
-              ariaLabel={t`Login verification code`}
-              disabled={isExpired || resendLoginCodeMutation.isPending}
-              onValueChange={(value: string, isComplete: boolean) => {
-                setIsOneTimeCodeComplete(isComplete);
+          <InputOtp
+            containerClassName="justify-center"
+            maxLength={6}
+            value={otpValue}
+            onChange={(value) => {
+              const upperValue = value.toUpperCase();
+              setOtpValue(upperValue);
+              getLoginState().currentOtpValue = upperValue;
 
-                getLoginState().currentOtpValue = value;
-
-                if (isComplete && autoSubmitCode) {
-                  setAutoSubmitCode(false);
-                  setTimeout(() => {
-                    document.querySelector("form")?.requestSubmit();
-                  }, 10);
-                }
-              }}
-            />
-          </div>
+              if (upperValue.length === 6 && autoSubmitCode) {
+                setAutoSubmitCode(false);
+                setTimeout(() => {
+                  document.querySelector("form")?.requestSubmit();
+                }, 10);
+              }
+            }}
+            disabled={isExpired || resendLoginCodeMutation.isPending}
+            autoFocus={true}
+            inputMode="text"
+            pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
+            aria-label={t`Login verification code`}
+            autoComplete="one-time-code"
+          >
+            <InputOtpGroup>
+              <InputOtpSlot index={0} className="size-14" />
+              <InputOtpSlot index={1} className="size-14" />
+              <InputOtpSlot index={2} className="size-14" />
+              <InputOtpSlot index={3} className="size-14" />
+              <InputOtpSlot index={4} className="size-14" />
+              <InputOtpSlot index={5} className="size-14" />
+            </InputOtpGroup>
+          </InputOtp>
           {!isExpired ? (
             <p className="text-center text-neutral-500 text-xs">
               <Trans>Your verification code is valid for {expiresInString}</Trans>
@@ -267,7 +274,7 @@ export function CompleteLoginForm() {
           <Button
             type="submit"
             className="mt-4 w-full text-center"
-            isDisabled={
+            disabled={
               !isOneTimeCodeComplete ||
               isExpired ||
               completeLoginMutation.isPending ||
@@ -297,7 +304,7 @@ export function CompleteLoginForm() {
               <Button
                 type="submit"
                 variant="link"
-                isDisabled={resendLoginCodeMutation.isPending}
+                disabled={resendLoginCodeMutation.isPending}
                 className="h-auto p-0 text-sm"
               >
                 <Trans>Request a new code</Trans>
@@ -308,7 +315,7 @@ export function CompleteLoginForm() {
         <Link
           href="/login"
           className="mt-2 text-xs"
-          onPress={() => {
+          onClick={() => {
             const loginState = getLoginState();
             clearLoginState();
             setLoginState({ email: loginState?.email ?? "" });

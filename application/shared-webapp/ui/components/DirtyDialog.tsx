@@ -1,10 +1,15 @@
-import type { ReactNode } from "react";
-import { useCallback } from "react";
+import { createContext, type ReactNode, useCallback } from "react";
 import { useUnsavedChangesGuard } from "../hooks/useUnsavedChangesGuard";
-import { Modal, type ModalProps } from "./Modal";
+import { Dialog, type DialogProps } from "./Dialog";
 import { UnsavedChangesAlertDialog } from "./UnsavedChangesAlertDialog";
 
-export type DirtyModalProps = Omit<ModalProps, "onOpenChange"> & {
+type DirtyDialogContextValue = {
+  cancel: () => void;
+};
+
+export const DirtyDialogContext = createContext<DirtyDialogContextValue | null>(null);
+
+export type DirtyDialogProps = Omit<DialogProps, "onOpenChange"> & {
   onOpenChange: (isOpen: boolean) => void;
   hasUnsavedChanges: boolean;
   unsavedChangesTitle?: string;
@@ -15,14 +20,14 @@ export type DirtyModalProps = Omit<ModalProps, "onOpenChange"> & {
 };
 
 /**
- * A Modal wrapper that warns users about unsaved changes before closing.
+ * A Dialog wrapper that warns users about unsaved changes before closing.
  * Encapsulates the useUnsavedChangesGuard hook and UnsavedChangesAlertDialog.
  *
  * Translation strings are passed as props to allow each SCS to provide
  * their own translations. English defaults are provided for convenience.
  */
-export function DirtyModal({
-  isOpen,
+export function DirtyDialog({
+  open,
   onOpenChange,
   hasUnsavedChanges,
   unsavedChangesTitle = "Unsaved changes",
@@ -31,8 +36,8 @@ export function DirtyModal({
   stayLabel = "Stay",
   onCloseComplete,
   children,
-  ...modalProps
-}: Readonly<DirtyModalProps>) {
+  ...dialogProps
+}: Readonly<DirtyDialogProps>) {
   const { isConfirmDialogOpen, confirmLeave, cancelLeave, guardedOnOpenChange } = useUnsavedChangesGuard({
     hasUnsavedChanges
   });
@@ -42,12 +47,12 @@ export function DirtyModal({
     onCloseComplete?.();
   }, [onOpenChange, onCloseComplete]);
 
-  const handleModalOpenChange = useCallback(
-    (open: boolean) => {
-      if (open) {
-        onOpenChange(open);
+  const handleDialogOpenChange = useCallback(
+    (newOpen: boolean) => {
+      if (newOpen) {
+        onOpenChange(newOpen);
       } else {
-        guardedOnOpenChange(open, closeDialog);
+        guardedOnOpenChange(newOpen, closeDialog);
       }
     },
     [guardedOnOpenChange, closeDialog, onOpenChange]
@@ -55,9 +60,11 @@ export function DirtyModal({
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={handleModalOpenChange} {...modalProps}>
-        {children}
-      </Modal>
+      <DirtyDialogContext.Provider value={{ cancel: closeDialog }}>
+        <Dialog open={open} onOpenChange={handleDialogOpenChange} {...dialogProps}>
+          {children}
+        </Dialog>
+      </DirtyDialogContext.Provider>
 
       <UnsavedChangesAlertDialog
         isOpen={isConfirmDialogOpen}

@@ -1,41 +1,23 @@
-import type { RefAttributes } from "react";
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
- */
-import {
-  TextField as AriaTextField,
-  type TextFieldProps as AriaTextFieldProps,
-  type ValidationResult
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { Description } from "./Description";
-import { fieldBorderStyles } from "./Field";
-import { FieldError } from "./FieldError";
-import { focusRing } from "./focusRing";
+import { useContext } from "react";
+import { cn } from "../utils";
+import { Field, FieldDescription, FieldError, FieldLabel } from "./Field";
+import { FormValidationContext } from "./Form";
 import { Input } from "./Input";
-import { Label } from "./Label";
-import { composeTailwindRenderProps } from "./utils";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./InputGroup";
+import { LabelWithTooltip } from "./LabelWithTooltip";
 
-const inputStyles = tv({
-  extend: focusRing,
-  variants: {
-    isFocused: fieldBorderStyles.variants.isFocusWithin,
-    ...fieldBorderStyles.variants
-  }
-});
-
-export interface TextFieldProps
-  extends AriaTextFieldProps,
-    Partial<Pick<HTMLInputElement, "autocomplete" | "placeholder">>,
-    RefAttributes<HTMLInputElement> {
+export interface TextFieldProps extends Omit<React.ComponentProps<"input">, "className" | "onChange"> {
   label?: string;
   description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
+  errorMessage?: string;
   tooltip?: string;
-  isDisabled?: boolean;
-  isReadOnly?: boolean;
+  className?: string;
   inputClassName?: string;
   startIcon?: React.ReactNode;
+  onChange?: (value: string) => void;
+  isRequired?: boolean;
+  isDisabled?: boolean;
+  isReadOnly?: boolean;
 }
 
 export function TextField({
@@ -44,28 +26,67 @@ export function TextField({
   errorMessage,
   tooltip,
   className,
-  isDisabled,
-  isReadOnly,
   inputClassName,
   startIcon,
+  name,
+  type,
+  value,
+  onChange,
+  autoFocus,
+  isRequired,
+  isDisabled,
+  isReadOnly,
   ...props
 }: Readonly<TextFieldProps>) {
-  if (props.children) {
-    return <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")} />;
-  }
+  const formErrors = useContext(FormValidationContext);
+  const fieldValidationErrors = name && formErrors && name in formErrors ? formErrors[name] : undefined;
+  const fieldErrorMessages = fieldValidationErrors
+    ? Array.isArray(fieldValidationErrors)
+      ? fieldValidationErrors
+      : [fieldValidationErrors]
+    : [];
+  const errors = errorMessage
+    ? [{ message: errorMessage }]
+    : fieldErrorMessages.length > 0
+      ? fieldErrorMessages.map((err) => ({ message: err }))
+      : undefined;
+  const isInvalid = errors && errors.length > 0;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
+
+  const inputProps = {
+    id: name,
+    name,
+    type,
+    value,
+    onChange: handleChange,
+    autoFocus,
+    required: isRequired,
+    disabled: isDisabled,
+    readOnly: isReadOnly,
+    "aria-invalid": isInvalid || undefined,
+    ...props
+  };
 
   return (
-    <AriaTextField {...props} className={composeTailwindRenderProps(className, "flex flex-col gap-1")}>
-      {label && <Label tooltip={tooltip}>{label}</Label>}
-      <Input
-        name={props.name}
-        className={`${inputStyles} ${inputClassName || ""}`}
-        isDisabled={isDisabled}
-        isReadOnly={isReadOnly}
-        startIcon={startIcon}
-      />
-      {description && <Description>{description}</Description>}
-      <FieldError>{errorMessage}</FieldError>
-    </AriaTextField>
+    <Field className={cn("flex flex-col", className)}>
+      {label && (
+        <FieldLabel htmlFor={name}>
+          {tooltip ? <LabelWithTooltip tooltip={tooltip}>{label}</LabelWithTooltip> : label}
+        </FieldLabel>
+      )}
+      {startIcon ? (
+        <InputGroup>
+          <InputGroupAddon>{startIcon}</InputGroupAddon>
+          <InputGroupInput className={inputClassName} {...inputProps} />
+        </InputGroup>
+      ) : (
+        <Input className={inputClassName} {...inputProps} />
+      )}
+      {description && <FieldDescription>{description}</FieldDescription>}
+      <FieldError errors={errors} />
+    </Field>
   );
 }

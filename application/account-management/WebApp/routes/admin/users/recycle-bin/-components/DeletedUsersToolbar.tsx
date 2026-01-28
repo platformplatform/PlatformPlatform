@@ -1,10 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { toastQueue } from "@repo/ui/components/Toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
@@ -50,20 +50,12 @@ export function DeletedUsersToolbar({
       const user = selectedUsers[0];
       const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User restored successfully: ${userName}`,
-        variant: "success"
-      });
+      toast.success(t`User restored successfully: ${userName}`);
     } else {
       for (const user of selectedUsers) {
         await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       }
-      toastQueue.add({
-        title: t`Success`,
-        description: t`${selectedUsers.length} users restored successfully`,
-        variant: "success"
-      });
+      toast.success(t`${selectedUsers.length} users restored successfully`);
     }
 
     setIsRestoring(false);
@@ -75,20 +67,25 @@ export function DeletedUsersToolbar({
   }
 
   return (
-    <div className="mb-4 flex items-center justify-end gap-2 bg-background/95 backdrop-blur-sm">
+    <div className="mb-4 flex items-center justify-end gap-2">
       {hasSelection ? (
         <>
           <Button
             variant="secondary"
-            onPress={handleRestore}
-            isDisabled={isRestoring}
-            isPending={isRestoring}
+            onClick={handleRestore}
+            disabled={isRestoring}
             aria-label={selectedUsers.length === 1 ? t`Restore user` : t`Restore ${selectedUsers.length} users`}
           >
-            <RotateCcwIcon className="h-5 w-5" />
+            <RotateCcwIcon className="size-5" />
             <span className="hidden sm:inline">
               {selectedUsers.length === 1 ? (
-                <Trans>Restore</Trans>
+                isRestoring ? (
+                  <Trans>Restoring...</Trans>
+                ) : (
+                  <Trans>Restore</Trans>
+                )
+              ) : isRestoring ? (
+                <Trans>Restoring...</Trans>
               ) : (
                 <Trans>Restore {selectedUsers.length} users</Trans>
               )}
@@ -96,15 +93,15 @@ export function DeletedUsersToolbar({
           </Button>
           <Button
             variant="destructive"
-            onPress={() => onPermanentlyDelete(selectedUsers)}
-            isDisabled={isRestoring}
+            onClick={() => onPermanentlyDelete(selectedUsers)}
+            disabled={isRestoring}
             aria-label={
               selectedUsers.length === 1
                 ? t`Permanently delete user`
                 : t`Permanently delete ${selectedUsers.length} users`
             }
           >
-            <Trash2Icon className="h-5 w-5" />
+            <Trash2Icon className="size-5" />
             <span className="hidden sm:inline">
               {selectedUsers.length === 1 ? <Trans>Delete</Trans> : <Trans>Delete {selectedUsers.length} users</Trans>}
             </span>
@@ -113,10 +110,10 @@ export function DeletedUsersToolbar({
       ) : (
         <Button
           variant="destructive"
-          onPress={() => onEmptyRecycleBin(deletedUsersData?.totalCount ?? 0)}
+          onClick={() => onEmptyRecycleBin(deletedUsersData?.totalCount ?? 0)}
           aria-label={t`Empty recycle bin`}
         >
-          <Trash2Icon className="h-5 w-5" />
+          <Trash2Icon className="size-5" />
           <span className="hidden sm:inline">
             <Trans>Empty recycle bin</Trans>
           </span>

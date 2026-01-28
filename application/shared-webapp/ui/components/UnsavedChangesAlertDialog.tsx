@@ -1,6 +1,15 @@
+import { AlertCircleIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { AlertDialog } from "./AlertDialog";
-import { Modal } from "./Modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "./AlertDialog";
 
 type UnsavedChangesAlertDialogProps = {
   isOpen: boolean;
@@ -22,16 +31,22 @@ export function UnsavedChangesAlertDialog({
   children
 }: Readonly<UnsavedChangesAlertDialogProps>) {
   return (
-    <Modal isOpen={isOpen} onOpenChange={(open) => !open && onCancel()} zIndex="high">
-      <AlertDialog
-        title={title}
-        variant="destructive"
-        actionLabel={actionLabel}
-        cancelLabel={cancelLabel}
-        onAction={onConfirmLeave}
-      >
-        {children}
-      </AlertDialog>
-    </Modal>
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent>
+        <div className="absolute top-6 right-6 size-6 stroke-2 text-destructive">
+          <AlertCircleIcon aria-hidden={true} />
+        </div>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{children}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="secondary">{cancelLabel}</AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={onConfirmLeave}>
+            {actionLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

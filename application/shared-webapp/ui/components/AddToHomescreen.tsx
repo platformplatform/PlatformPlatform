@@ -1,8 +1,6 @@
 import { Share, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
-import { Heading } from "./Heading";
-import { Text } from "./Text";
 
 const STORAGE_KEY = "add-to-homescreen-dismissed";
 const DISMISS_DURATION_DAYS = 7;
@@ -85,7 +83,7 @@ export function AddToHomescreen() {
 
   return (
     <div
-      className="slide-in-from-top-2 fixed top-0 right-0 left-0 z-80 animate-in"
+      className="slide-in-from-top-2 fixed top-0 right-0 left-0 z-40 animate-in"
       style={{
         transform: `translateY(${translateY}px)`,
         transition: isDragging ? "none" : "transform 0.2s ease-out"
@@ -96,18 +94,16 @@ export function AddToHomescreen() {
     >
       <div className="border-b bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
-          <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="h-10 w-10 rounded-lg shadow-sm" />
+          <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="size-10 rounded-lg shadow-sm" />
           <div className="flex-1">
-            <Heading size="md" className="text-sm">
-              Install PlatformPlatform
-            </Heading>
-            <Text className="text-muted-foreground text-xs">
-              Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline h-3 w-3" />{" "}
+            <h5>Install PlatformPlatform</h5>
+            <p className="text-muted-foreground text-xs">
+              Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline size-3" />{" "}
               then "Add to Home Screen"
-            </Text>
+            </p>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onPress={handleDismiss}>
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="size-8 shrink-0" onClick={handleDismiss}>
+            <X className="size-4" />
           </Button>
         </div>
       </div>

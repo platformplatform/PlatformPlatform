@@ -3,10 +3,39 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
+  "main": "./dist/index.js",
+  "source": "./index.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*.js",
-    "./*.json": "./dist/*.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./index.ts",
+      "default": "./dist/index.js"
+    },
+    "./auth/*": {
+      "types": "./dist/auth/*.d.ts",
+      "source": "./auth/*",
+      "default": "./dist/auth/*"
+    },
+    "./http/*": {
+      "types": "./dist/http/*.d.ts",
+      "source": "./http/*",
+      "default": "./dist/http/*"
+    },
+    "./applicationInsights/*": {
+      "types": "./dist/applicationInsights/*.d.ts",
+      "source": "./applicationInsights/*",
+      "default": "./dist/applicationInsights/*"
+    },
+    "./translations/*": {
+      "types": "./dist/translations/*.d.ts",
+      "source": "./translations/*",
+      "default": "./dist/translations/*"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "source": "./*",
+      "default": "./dist/*"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {

@@ -4,6 +4,10 @@
       "command": "dotnet",
       "args": ["run", "--project", "developer-cli", "mcp"]
     },
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@latest", "mcp"]
+    },
     "aspire": {
       "url": "http://localhost:9096/mcp",
       "type": "http"

@@ -1,65 +1,56 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/tooltip--docs
- * ref: https://ui.shadcn.com/docs/components/tooltip
- */
-import type React from "react";
-import {
-  Tooltip as AriaTooltip,
-  type TooltipProps as AriaTooltipProps,
-  TooltipTrigger as AriaTooltipTrigger,
-  composeRenderProps,
-  OverlayArrow
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
+import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 
-// Default delay for tooltips across the application (in milliseconds)
-export const DEFAULT_TOOLTIP_DELAY = 200;
+import { cn } from "../utils";
 
-export interface TooltipProps extends Omit<AriaTooltipProps, "children"> {
-  children: React.ReactNode;
+function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {
+  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
 }
 
-const styles = tv({
-  base: "group rounded-md border border-border bg-popover px-3 py-1 text-popover-foreground text-sm shadow-md drop-shadow-lg will-change-transform",
-  variants: {
-    isEntering: {
-      true: "fade-in placement-bottom:slide-in-from-top-0.5 placement-top:slide-in-from-bottom-0.5 placement-left:slide-in-from-right-0.5 placement-right:slide-in-from-left-0.5 animate-in duration-200 ease-out"
-    },
-    isExiting: {
-      true: "fade-out placement-bottom:slide-out-to-top-0.5 placement-top:slide-out-to-bottom-0.5 placement-left:slide-out-to-right-0.5 placement-right:slide-out-to-left-0.5 animate-out duration-150 ease-in"
-    }
-  }
-});
-
-export function Tooltip({ children, ...props }: Readonly<TooltipProps>) {
+function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
   return (
-    <AriaTooltip
-      {...props}
-      offset={10}
-      className={composeRenderProps(props.className, (className, renderProps) => styles({ ...renderProps, className }))}
-    >
-      <OverlayArrow>
-        <svg
-          width={8}
-          height={8}
-          viewBox="0 0 8 8"
-          className="fill-popover stroke-border group-placement-bottom:rotate-180 group-placement-left:-rotate-90 group-placement-right:rotate-90 forced-colors:fill-[Canvas] forced-colors:stroke-[ButtonBorder]"
-        >
-          <title>Tooltip arrow</title>
-          <path d="M0 0 L4 4 L8 0" />
-        </svg>
-      </OverlayArrow>
-      {children}
-    </AriaTooltip>
+    <TooltipProvider>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+    </TooltipProvider>
   );
 }
 
-export interface TooltipTriggerProps extends React.ComponentProps<typeof AriaTooltipTrigger> {}
-
-/**
- * Custom TooltipTrigger wrapper that provides a default delay.
- * Individual components can override by passing their own delay prop.
- */
-export function TooltipTrigger({ delay = DEFAULT_TOOLTIP_DELAY, ...props }: Readonly<TooltipTriggerProps>) {
-  return <AriaTooltipTrigger delay={delay} {...props} />;
+function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
+  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
+
+function TooltipContent({
+  className,
+  side = "top",
+  sideOffset = 4,
+  align = "center",
+  alignOffset = 0,
+  children,
+  ...props
+}: TooltipPrimitive.Popup.Props &
+  Pick<TooltipPrimitive.Positioner.Props, "align" | "alignOffset" | "side" | "sideOffset">) {
+  return (
+    <TooltipPrimitive.Portal>
+      <TooltipPrimitive.Positioner
+        align={align}
+        alignOffset={alignOffset}
+        side={side}
+        sideOffset={sideOffset}
+        className="isolate z-50"
+      >
+        <TooltipPrimitive.Popup
+          data-slot="tooltip-content"
+          className={cn(
+            "data-open:fade-in-0 data-open:zoom-in-95 data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-closed:fade-out-0 data-closed:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit max-w-xs origin-(--transform-origin) rounded-md bg-foreground px-3 py-1.5 text-background text-xs data-[state=delayed-open]:animate-in data-closed:animate-out data-open:animate-in",
+            className
+          )}
+          {...props}
+        >
+          {children}
+          <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground data-[side=bottom]:top-1 data-[side=left]:top-1/2! data-[side=right]:top-1/2! data-[side=left]:-right-1 data-[side=top]:-bottom-2.5 data-[side=right]:-left-1 data-[side=left]:-translate-y-1/2 data-[side=right]:-translate-y-1/2" />
+        </TooltipPrimitive.Popup>
+      </TooltipPrimitive.Positioner>
+    </TooltipPrimitive.Portal>
+  );
+}
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

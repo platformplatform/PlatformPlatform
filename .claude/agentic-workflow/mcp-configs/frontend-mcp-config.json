@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "React Aria": {
+    "ShadCN": {
       "command": "npx",
-      "args": ["@react-aria/mcp@latest"]
+      "args": ["-y", "shadcn@latest", "mcp"]
     }
   }
 }

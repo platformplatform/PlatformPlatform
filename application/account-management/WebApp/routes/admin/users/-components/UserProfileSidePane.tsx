@@ -1,12 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
-import { Heading } from "@repo/ui/components/Heading";
 import { Separator } from "@repo/ui/components/Separator";
-import { Text } from "@repo/ui/components/Text";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -42,30 +40,27 @@ function UserProfileContent({
     <>
       {/* User Avatar and Basic Info */}
       <div className="mb-6 text-center">
-        <Avatar
-          initials={getInitials(user.firstName, user.lastName, user.email)}
-          avatarUrl={user.avatarUrl}
-          size="lg"
-          isRound={true}
-          className="mx-auto mb-3"
-        />
-        <Heading level={3} className="font-semibold text-lg">
+        <Avatar className="mx-auto mb-3 size-16">
+          <AvatarImage src={user.avatarUrl ?? undefined} />
+          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+        </Avatar>
+        <h4>
           {user.firstName} {user.lastName}
-        </Heading>
-        {user.title && <Text className="text-muted-foreground text-sm">{user.title}</Text>}
+        </h4>
+        {user.title && <span className="block text-muted-foreground text-sm">{user.title}</span>}
       </div>
 
       {/* Contact Information */}
       <div className="mb-4">
         <div className="space-y-2">
           <div className="flex items-start justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Email</Trans>
-            </Text>
+            </p>
             <div className="flex flex-col items-end gap-1">
-              <Text className="text-right text-sm">{user.email}</Text>
+              <p className="text-right text-sm">{user.email}</p>
               {user.emailConfirmed ? (
-                <Badge variant="success" className="text-xs">
+                <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
                   <Trans>Verified</Trans>
                 </Badge>
               ) : (
@@ -82,14 +77,14 @@ function UserProfileContent({
 
       {/* Role Information */}
       <div className="mb-4 flex items-center justify-between">
-        <Heading level={4} className="font-medium text-sm">
+        <span className="font-semibold text-sm">
           <Trans>Role</Trans>
-        </Heading>
+        </span>
         {canModifyUser ? (
           <Button
             variant="ghost"
             className="h-auto p-0 text-xs"
-            onPress={onChangeRole}
+            onClick={onChangeRole}
             aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
             <Badge
@@ -112,16 +107,16 @@ function UserProfileContent({
       <div className="mb-4">
         <div className="space-y-4">
           <div className="flex justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Created</Trans>
-            </Text>
-            <Text className="text-sm">{formatDate(user.createdAt, true)}</Text>
+            </p>
+            <p className="text-sm">{formatDate(user.createdAt, true)}</p>
           </div>
           <div className="flex justify-between">
-            <Text className="text-sm">
+            <p className="text-sm">
               <Trans>Last seen</Trans>
-            </Text>
-            <Text className="text-sm">{formatDate(user.lastSeenAt, true)}</Text>
+            </p>
+            <p className="text-sm">{formatDate(user.lastSeenAt, true)}</p>
           </div>
         </div>
       </div>
@@ -132,8 +127,7 @@ function UserProfileContent({
 function useSidePaneAccessibility(
   isOpen: boolean,
   onClose: () => void,
-  sidePaneRef: React.RefObject<HTMLDivElement | null>,
-  _closeButtonRef: React.RefObject<SVGSVGElement | null>
+  sidePaneRef: React.RefObject<HTMLDivElement | null>
 ) {
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
@@ -219,7 +213,7 @@ export function UserProfileSidePane({
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const sidePaneRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<SVGSVGElement>(null);
+
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
@@ -234,7 +228,7 @@ export function UserProfileSidePane({
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  useSidePaneAccessibility(isOpen, onClose, sidePaneRef, closeButtonRef);
+  useSidePaneAccessibility(isOpen, onClose, sidePaneRef);
 
   if (!isOpen) {
     return null;
@@ -246,37 +240,39 @@ export function UserProfileSidePane({
   return (
     <>
       {/* Backdrop for small screens */}
-      {isSmallScreen && <div className="fixed inset-0 z-[65] bg-black/50" aria-hidden="true" />}
+      {isSmallScreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" />}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
-        className="relative z-70 flex h-full w-full flex-col border-border border-l bg-background"
+        className={`relative flex h-full w-full flex-col border-border border-l ${isSmallScreen ? "fixed inset-0 z-40 bg-card" : ""}`}
         aria-label={t`User profile`}
       >
         {/* Close button - positioned like modal dialogs */}
-        <XIcon
-          ref={closeButtonRef}
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={() => onClose()}
-          className="absolute top-3 right-2 z-10 h-10 w-10 cursor-pointer p-2 hover:bg-muted focus:bg-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="absolute top-4 right-4"
           aria-label={t`Close user profile`}
-          tabIndex={-1}
-        />
+        >
+          <XIcon className="size-6" />
+        </Button>
 
-        <div className="h-16 border-border border-t border-b bg-muted/30 px-4 py-8 backdrop-blur-sm">
-          <Heading level={2} className="flex h-full items-center font-semibold text-base">
+        <div className="h-16 border-border border-t border-b px-4 py-8">
+          <h4 className="flex h-full items-center">
             <Trans>User profile</Trans>
-          </Heading>
+          </h4>
         </div>
 
         {/* Notice when user is not in current filtered view - only show on desktop with pagination */}
         {!isUserInCurrentView && !isSmallScreen && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="h-4 w-4 flex-shrink-0" />
-              <Text className="font-medium text-sm">
+              <InfoIcon className="size-4 flex-shrink-0" />
+              <p className="font-medium text-sm">
                 <Trans>User not in current view</Trans>
-              </Text>
+              </p>
             </div>
           </div>
         )}
@@ -285,10 +281,10 @@ export function UserProfileSidePane({
         {isDataNewer && (
           <div className="border-border border-b bg-muted px-4 py-3">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="h-4 w-4 flex-shrink-0" />
-              <Text className="font-medium text-sm">
+              <InfoIcon className="size-4 flex-shrink-0" />
+              <p className="font-medium text-sm">
                 <Trans>User data updated</Trans>
-              </Text>
+              </p>
             </div>
           </div>
         )}
@@ -299,7 +295,7 @@ export function UserProfileSidePane({
             <div className="p-4">
               {/* Avatar skeleton matching exact position */}
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-3 h-20 w-20 animate-pulse rounded-full bg-muted" />
+                <div className="mx-auto mb-3 size-20 animate-pulse rounded-full bg-muted" />
                 <div className="mx-auto mb-2 h-6 w-32 animate-pulse rounded bg-muted" />
                 <div className="mx-auto h-4 w-24 animate-pulse rounded bg-muted" />
               </div>
@@ -322,14 +318,14 @@ export function UserProfileSidePane({
 
         {/* Quick Actions */}
         {userInfo?.role === "Owner" && user && (
-          <div className="relative mt-auto border-border border-t bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <div className="relative mt-auto border-border border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
             <Button
               variant="destructive"
-              onPress={() => onDeleteUser(user)}
+              onClick={() => onDeleteUser(user)}
               className="w-full justify-center text-sm"
-              isDisabled={isCurrentUser}
+              disabled={isCurrentUser}
             >
-              <Trash2Icon className="h-4 w-4" />
+              <Trash2Icon className="size-4" />
               <Trans>Delete user</Trans>
             </Button>
           </div>

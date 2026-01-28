@@ -4,9 +4,17 @@ import { authSyncService } from "@repo/infrastructure/auth/AuthSyncService";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuHeader, MenuItem, MenuSeparator, MenuTrigger } from "@repo/ui/components/Menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, MonitorSmartphoneIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -37,9 +45,8 @@ export default function AvatarButton() {
 
   const logoutMutation = api.useMutation("post", "/api/account-management/authentication/logout", {
     onMutate: async () => {
-      // Cancel all ongoing queries and remove them from cache to prevent 401 errors
+      // Cancel all ongoing queries to prevent 401 errors during logout transition
       await queryClient.cancelQueries();
-      queryClient.clear();
       setHasAutoOpenedModal(false); // Reset for clean state
     },
     onSuccess: () => {
@@ -62,35 +69,52 @@ export default function AvatarButton() {
 
   return (
     <>
-      <MenuTrigger>
-        <Button aria-label={t`User profile menu`} variant="icon" className="rounded-full">
-          <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials} isRound={true} size="sm" />
-        </Button>
-        <Menu placement="bottom end">
-          <MenuHeader>
-            <div className="flex flex-row items-center gap-2">
-              <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="sm" />
-              <div className="my-1 flex flex-col">
-                <h4>{userInfo.fullName}</h4>
-                <p className="subtitle">{userInfo.email}</p>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              aria-label={t`User profile menu`}
+              variant="ghost"
+              size="icon"
+              className="rounded-full focus-visible:outline-offset-1"
+            >
+              <Avatar size="lg">
+                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                <AvatarFallback>{userInfo.initials}</AvatarFallback>
+              </Avatar>
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="end">
+          <DropdownMenuGroup>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-row items-center gap-2">
+                <Avatar size="lg">
+                  <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                  <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
+                </Avatar>
+                <div className="my-1 flex flex-col">
+                  <h5>{userInfo.fullName}</h5>
+                  <p className="text-muted-foreground text-sm">{userInfo.email}</p>
+                </div>
               </div>
-            </div>
-          </MenuHeader>
-          <MenuSeparator />
-          <MenuItem id="profile" onAction={() => setIsProfileModalOpen(true)}>
+            </DropdownMenuLabel>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
             <UserIcon size={16} />
             <Trans>Edit profile</Trans>
-          </MenuItem>
-          <MenuItem id="sessions" onAction={() => setIsSessionsModalOpen(true)}>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsSessionsModalOpen(true)}>
             <MonitorSmartphoneIcon size={16} />
             <Trans>Sessions</Trans>
-          </MenuItem>
-          <MenuSeparator />
-          <MenuItem id="logout" onAction={() => logoutMutation.mutate({})}>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => logoutMutation.mutate({})}>
             <LogOutIcon size={16} /> <Trans>Log out</Trans>
-          </MenuItem>
-        </Menu>
-      </MenuTrigger>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <UserProfileModal isOpen={isProfileModalOpen} onOpenChange={setIsProfileModalOpen} />
       {isSessionsModalOpen && <SessionsModal isOpen={isSessionsModalOpen} onOpenChange={setIsSessionsModalOpen} />}

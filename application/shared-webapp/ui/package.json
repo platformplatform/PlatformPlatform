@@ -3,10 +3,34 @@
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
+  "main": "./dist/index.js",
+  "source": "./index.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./*": "./dist/*.js",
-    "./components/*": "./dist/components/*.js",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./index.ts",
+      "default": "./dist/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "source": "./components/*",
+      "default": "./dist/components/*"
+    },
+    "./forms/*": {
+      "types": "./dist/forms/*.d.ts",
+      "source": "./forms/*",
+      "default": "./dist/forms/*"
+    },
+    "./theme/*": {
+      "types": "./dist/theme/*.d.ts",
+      "source": "./theme/*",
+      "default": "./dist/theme/*"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "source": "./*",
+      "default": "./dist/*"
+    },
     "./theme.css": "./theme.css",
     "./tailwind.css": "./tailwind.css",
     "./package.json": "./package.json"
@@ -20,7 +44,7 @@
     "lint": "biome check --write --unsafe"
   },
   "devDependencies": {
-    "@repo/config": "*",
-    "@repo/build": "*"
+    "@repo/build": "*",
+    "@repo/config": "*"
   }
 }

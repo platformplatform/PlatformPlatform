@@ -28,7 +28,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 ## What's inside
 
 * **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
-* **Frontend** - React 19, TypeScript, TanStack Router & Query, React Aria for accessible UI
+* **Frontend** - React 19, TypeScript, TanStack Router & Query, ShadCN 2.0 with Base UI for accessible UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
@@ -320,19 +320,19 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
 │  ├─ account-management # Self-contained system with account sign-up, user management, etc.
-│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
+│  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ back-office        # A self-contained system for operations and support (empty for now)
-│  │   ├─ WebApp         # React SPA frontend using TypeScript and React Aria Components
+│  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ shared-kernel      # Reusable components and default configuration for all systems
-│  ├─ shared-webapp      # Reusable and styled React Aria Components that affect all systems 
+│  ├─ shared-webapp      # Reusable ShadCN 2.0 components with Base UI that affect all systems
 │  └─ [your-scs]         # [Your SCS] Create your SaaS product as a self-contained system
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
@@ -378,13 +378,13 @@ Although some features like multi-tenancy are not yet implemented, the current i
 
 </details>
 
-### React 19 Frontend With TypeScript, React Aria Components, and Node
+### React 19 Frontend With TypeScript, ShadCN 2.0, Base UI, and Node
 
 The frontend is built with these technologies:
 
 - [React 19](https://react.dev)
 - [TypeScript](https://www.typescriptlang.org)
-- [React Aria Components](https://react-spectrum.adobe.com/react-aria/react-aria-components.html)
+- [ShadCN 2.0](https://ui.shadcn.com) with [Base UI](https://base-ui.com)
 - [Tanstack Router](https://tanstack.com/router)
 - [Tanstack Query](https://tanstack.com/query)
 - [Node](https://nodejs.org/en)
