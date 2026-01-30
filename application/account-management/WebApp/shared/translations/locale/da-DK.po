@@ -216,6 +216,9 @@ msgstr "Ryd"
 msgid "Clear filters"
 msgstr "Ryd filtre"
 
+msgid "Clear search"
+msgstr "Ryd søgning"
+
 msgid "Close"
 msgstr "Luk"
 

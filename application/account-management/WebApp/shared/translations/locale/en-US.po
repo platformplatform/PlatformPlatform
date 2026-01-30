@@ -216,6 +216,9 @@ msgstr "Clear"
 msgid "Clear filters"
 msgstr "Clear filters"
 
+msgid "Clear search"
+msgstr "Clear search"
+
 msgid "Close"
 msgstr "Close"
 

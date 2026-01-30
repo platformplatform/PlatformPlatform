@@ -12,14 +12,14 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { Field, FieldLabel } from "@repo/ui/components/Field";
-import { SearchField } from "@repo/ui/components/SearchField";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@repo/ui/components/InputGroup";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useDebounce } from "@repo/ui/hooks/useDebounce";
 import { useSideMenuLayout } from "@repo/ui/hooks/useSideMenuLayout";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
-import { Filter, FilterX } from "lucide-react";
+import { Filter, FilterX, SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -163,13 +163,29 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      <SearchField
-        placeholder={t`Search`}
-        value={search}
-        onChange={setSearch}
-        label={t`Search`}
-        className={showAllFilters ? "w-60 shrink-0" : "min-w-32 max-w-60 flex-1"}
-      />
+      <Field className={showAllFilters ? "w-60 shrink-0" : "min-w-32 max-w-60 flex-1"}>
+        <FieldLabel>{t`Search`}</FieldLabel>
+        <InputGroup>
+          <InputGroupAddon>
+            <SearchIcon />
+          </InputGroupAddon>
+          <InputGroupInput
+            type="text"
+            role="searchbox"
+            placeholder={t`Search`}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && search && setSearch("")}
+          />
+          {search && (
+            <InputGroupAddon align="inline-end">
+              <InputGroupButton onClick={() => setSearch("")} size="icon-xs" aria-label={t`Clear search`}>
+                <XIcon />
+              </InputGroupButton>
+            </InputGroupAddon>
+          )}
+        </InputGroup>
+      </Field>
 
       {showAllFilters && (
         <>
@@ -287,13 +303,29 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
           </DialogHeader>
 
           <DialogBody>
-            <SearchField
-              placeholder={t`Search`}
-              value={search}
-              onChange={setSearch}
-              label={t`Search`}
-              className="w-full"
-            />
+            <Field>
+              <FieldLabel>{t`Search`}</FieldLabel>
+              <InputGroup>
+                <InputGroupAddon>
+                  <SearchIcon />
+                </InputGroupAddon>
+                <InputGroupInput
+                  type="text"
+                  role="searchbox"
+                  placeholder={t`Search`}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === "Escape" && search && setSearch("")}
+                />
+                {search && (
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton onClick={() => setSearch("")} size="icon-xs" aria-label={t`Clear search`}>
+                      <XIcon />
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                )}
+              </InputGroup>
+            </Field>
 
             <Field className="flex w-full flex-col">
               <FieldLabel>{t`User role`}</FieldLabel>

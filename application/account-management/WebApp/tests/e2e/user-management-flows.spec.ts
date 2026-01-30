@@ -244,7 +244,7 @@ test.describe("@smoke", () => {
 
       const userTable = page.locator("tbody").first();
 
-      // SearchField uses a controlled input pattern incompatible with Playwright.
+      // Search input uses a controlled input pattern incompatible with Playwright.
       // Escape key clears the search (real UI interaction); URL sets up filtered state.
       await page.goto(`/admin/users?search=${encodeURIComponent(adminUser.email)}`);
 
