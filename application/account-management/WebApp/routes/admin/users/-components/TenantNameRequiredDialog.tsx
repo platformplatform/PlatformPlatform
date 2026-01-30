@@ -43,7 +43,7 @@ export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<Tena
           <DialogClose render={<Button variant="secondary" />}>
             <Trans>Cancel</Trans>
           </DialogClose>
-          <Link href="/admin/account" variant="button-primary" className="max-sm:w-full">
+          <Link href="/admin/account" variant="button-primary">
             <Trans>Go to account settings</Trans>
           </Link>
         </DialogFooter>

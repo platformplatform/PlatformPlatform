@@ -15,9 +15,12 @@ const linkVariants = cva(
         logo: "p-0 outline-ring hover:bg-transparent",
         icon: "size-10 rounded-lg bg-background/50 text-muted-foreground outline-ring hover:bg-background hover:text-foreground",
         button: "outline-ring",
-        "button-primary": "bg-primary text-primary-foreground outline-primary hover:bg-primary/90",
-        "button-secondary": "border border-border bg-background text-foreground outline-ring hover:bg-hover-background",
-        "button-destructive": "bg-destructive text-destructive-foreground outline-destructive hover:bg-destructive/90"
+        "button-primary":
+          "h-[var(--control-height)] bg-primary px-2.5 text-primary-foreground outline-primary hover:bg-primary/90",
+        "button-secondary":
+          "h-[var(--control-height)] border border-border bg-background px-2.5 text-foreground outline-ring hover:bg-hover-background",
+        "button-destructive":
+          "h-[var(--control-height)] bg-destructive px-2.5 text-destructive-foreground outline-destructive hover:bg-destructive/90"
       },
       underline: {
         true: "underline",
