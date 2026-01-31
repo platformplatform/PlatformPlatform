@@ -7,6 +7,7 @@ This directory contains all shared UI components used across the application.
 | Component | Source | ShadCN Divergence | Notes |
 |-----------|--------|-------------------|-------|
 | AddToHomescreen | Custom | - | PWA install prompt for iOS |
+| Alert | `npx shadcn@latest add alert` | warning and info variants | - |
 | AlertDialog | `npx shadcn@latest add alert-dialog` | Stock ShadCN | - |
 | AppLayout | Custom | - | Application layout orchestration |
 | Avatar | `npx shadcn@latest add avatar` | Stock ShadCN | - |

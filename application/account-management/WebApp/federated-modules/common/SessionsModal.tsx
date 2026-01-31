@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Alert, AlertDescription } from "@repo/ui/components/Alert";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -277,12 +278,12 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
 
           <DialogBody>
             {hasRevokedSession && (
-              <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-                <InfoIcon className="size-5 shrink-0 text-info" />
-                <p className="text-sm">
+              <Alert variant="info">
+                <InfoIcon />
+                <AlertDescription>
                   <Trans>Please note that it may take up to 5 minutes before the device is signed out.</Trans>
-                </p>
-              </div>
+                </AlertDescription>
+              </Alert>
             )}
             {isLoading ? (
               <div className="flex flex-col gap-3">

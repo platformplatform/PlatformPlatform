@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Alert, AlertDescription } from "@repo/ui/components/Alert";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
@@ -31,12 +32,12 @@ export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<Tena
         </DialogHeader>
 
         <DialogBody>
-          <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
-            <AlertCircleIcon className="size-5 text-warning" />
-            <p className="text-sm">
+          <Alert variant="warning">
+            <AlertCircleIcon />
+            <AlertDescription>
               <Trans>Your team needs to know who's inviting them. Add an account name to get started.</Trans>
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         </DialogBody>
 
         <DialogFooter>
