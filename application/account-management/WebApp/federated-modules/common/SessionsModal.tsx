@@ -268,7 +268,7 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:w-dialog-xl sm:max-w-none">
+        <DialogContent className="sm:w-dialog-xl">
           <DialogHeader>
             <DialogTitle>
               <Trans>Sessions</Trans>

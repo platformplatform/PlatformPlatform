@@ -295,7 +295,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
       </Tooltip>
 
       <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen}>
-        <DialogContent className="w-full sm:min-w-[400px]">
+        <DialogContent className="sm:w-dialog-sm">
           <DialogHeader>
             <DialogTitle>
               <Trans>Filters</Trans>

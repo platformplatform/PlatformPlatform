@@ -150,7 +150,7 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
           </DialogHeader>
         </DialogContent>
       ) : (
-        <DialogContent className="sm:w-dialog-lg sm:max-w-none">
+        <DialogContent className="sm:w-dialog-lg">
           <DialogHeader>
             <DialogTitle>
               <Trans>User profile</Trans>

@@ -90,6 +90,10 @@
 }
 
 /* Custom dialog width utilities */
+@utility w-dialog-sm {
+  width: 24rem;
+}
+
 @utility w-dialog-md {
   width: 28rem;
 }

@@ -87,7 +87,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Throw errors sparingly and ensure error messages include a period
    - Include appropriate aria labels for accessibility (e.g., `slot="title"` on Heading in dialogs)
    - Disable UI during pending operations: `disabled={mutation.isPending}` on buttons/fields, `isDismissable={!mutation.isPending}` on modals
-   - Dialog sizing: `sm:w-dialog-md` (simple), `sm:w-dialog-lg` (4-6 fields), `sm:w-dialog-xl` (complex), `sm:w-dialog-2xl` (extra-large)
+   - **Dialog sizing**: Use `sm:w-dialog-*` utilities - never use custom widths like `max-w-lg` or arbitrary values
 
 3. Error handling:
    - **Errors are handled globally** - `shared-webapp/infrastructure/http/errorHandler.ts` automatically shows toast notifications with the server's error message (don't manually show toasts for errors)
