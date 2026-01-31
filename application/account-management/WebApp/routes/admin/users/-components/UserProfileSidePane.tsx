@@ -5,13 +5,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
+import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { InfoIcon, Trash2Icon, XIcon } from "lucide-react";
-import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { InfoIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
 import type { components } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
@@ -125,82 +124,15 @@ function UserProfileContent({
   );
 }
 
-function useSidePaneAccessibility(
-  isOpen: boolean,
-  onClose: () => void,
-  sidePaneRef: React.RefObject<HTMLDivElement | null>
-) {
-  const previouslyFocusedElement = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-    if (isOpen && isSmallScreen) {
-      // Store the currently focused element before moving focus
-      previouslyFocusedElement.current = document.activeElement as HTMLElement;
-    }
-  }, [isOpen]);
-
-  // Prevent body scroll on small screens when side pane is open
-  useEffect(() => {
-    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-    if (isOpen && isSmallScreen) {
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = originalStyle;
-      };
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        event.preventDefault();
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  useEffect(() => {
-    const isSmallScreen = !window.matchMedia(MEDIA_QUERIES.md).matches;
-    if (!isOpen || !sidePaneRef.current || !isSmallScreen) {
-      return;
-    }
-
-    const focusableElements = sidePaneRef.current.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
-    const firstElement = focusableElements[0] as HTMLElement;
-    const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
-
-    const handleTabKey = (event: KeyboardEvent) => {
-      if (event.key !== "Tab") {
-        return;
-      }
-
-      const isShiftTab = event.shiftKey;
-      const activeElement = document.activeElement;
-
-      if (isShiftTab && activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      } else if (!isShiftTab && activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleTabKey);
-    return () => document.removeEventListener("keydown", handleTabKey);
-  }, [isOpen, sidePaneRef]);
+function NoticeBar({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <div className="border-border border-b bg-muted px-4 py-3">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <InfoIcon className="size-4 flex-shrink-0" />
+        <p className="font-medium text-sm">{children}</p>
+      </div>
+    </div>
+  );
 }
 
 export function UserProfileSidePane({
@@ -213,110 +145,53 @@ export function UserProfileSidePane({
   isLoading = false
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
-  const sidePaneRef = useRef<HTMLDivElement>(null);
-
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-
-  // Check screen size for backdrop rendering
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsSmallScreen(!window.matchMedia(MEDIA_QUERIES.md).matches);
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  useSidePaneAccessibility(isOpen, onClose, sidePaneRef);
-
-  if (!isOpen) {
-    return null;
-  }
 
   const isCurrentUser = user?.id === userInfo?.id;
   const canModifyUser = userInfo?.role === "Owner" && !isCurrentUser;
 
   return (
     <>
-      {/* Backdrop for small screens */}
-      {isSmallScreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" />}
+      <SidePane isOpen={isOpen} onOpenChange={(open) => !open && onClose()} aria-label={t`User profile`}>
+        <SidePaneHeader closeButtonLabel={t`Close user profile`}>
+          <Trans>User profile</Trans>
+        </SidePaneHeader>
 
-      {/* Side pane */}
-      <section
-        ref={sidePaneRef}
-        className={`relative flex h-full w-full flex-col border-border border-l ${isSmallScreen ? "fixed inset-0 z-40 bg-card" : ""}`}
-        aria-label={t`User profile`}
-      >
-        {/* Close button - positioned like modal dialogs */}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => onClose()}
-          className="absolute top-4 right-4"
-          aria-label={t`Close user profile`}
-        >
-          <XIcon className="size-6" />
-        </Button>
-
-        <div className="h-16 border-border border-t border-b px-4 py-8">
-          <h4 className="flex h-full items-center">
-            <Trans>User profile</Trans>
-          </h4>
-        </div>
-
-        {/* Notice when user is not in current filtered view - only show on desktop with pagination */}
-        {!isUserInCurrentView && !isSmallScreen && (
-          <div className="border-border border-b bg-muted px-4 py-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="size-4 flex-shrink-0" />
-              <p className="font-medium text-sm">
-                <Trans>User not in current view</Trans>
-              </p>
-            </div>
-          </div>
+        {!isUserInCurrentView && (
+          <NoticeBar>
+            <Trans>User not in current view</Trans>
+          </NoticeBar>
         )}
 
-        {/* Notice when data is different from table */}
         {isDataNewer && (
-          <div className="border-border border-b bg-muted px-4 py-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <InfoIcon className="size-4 flex-shrink-0" />
-              <p className="font-medium text-sm">
-                <Trans>User data updated</Trans>
-              </p>
-            </div>
-          </div>
+          <NoticeBar>
+            <Trans>User data updated</Trans>
+          </NoticeBar>
         )}
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto">
+        <SidePaneBody>
           {isLoading ? (
-            <div className="p-4">
+            <>
               <div className="mb-6 text-center">
                 <Skeleton className="mx-auto mb-3 size-20 rounded-full" />
                 <Skeleton className="mx-auto mb-2 h-6 w-32" />
                 <Skeleton className="mx-auto h-4 w-24" />
               </div>
               <Skeleton className="h-64 w-full" />
-            </div>
+            </>
           ) : (
             user && (
-              <div className="p-4">
-                <UserProfileContent
-                  user={user}
-                  canModifyUser={canModifyUser}
-                  onChangeRole={() => setIsChangeRoleDialogOpen(true)}
-                />
-              </div>
+              <UserProfileContent
+                user={user}
+                canModifyUser={canModifyUser}
+                onChangeRole={() => setIsChangeRoleDialogOpen(true)}
+              />
             )
           )}
-        </div>
+        </SidePaneBody>
 
-        {/* Quick Actions */}
         {userInfo?.role === "Owner" && user && (
-          <div className="relative mt-auto border-border border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <SidePaneFooter>
             <Button
               variant="destructive"
               onClick={() => onDeleteUser(user)}
@@ -326,11 +201,10 @@ export function UserProfileSidePane({
               <Trash2Icon className="size-4" />
               <Trans>Delete user</Trans>
             </Button>
-          </div>
+          </SidePaneFooter>
         )}
-      </section>
+      </SidePane>
 
-      {/* Change User Role Dialog */}
       {user && (
         <ChangeUserRoleDialog user={user} isOpen={isChangeRoleDialogOpen} onOpenChange={setIsChangeRoleDialogOpen} />
       )}
