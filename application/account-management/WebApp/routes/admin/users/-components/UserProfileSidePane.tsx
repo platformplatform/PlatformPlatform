@@ -7,9 +7,10 @@ import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { InfoIcon, Trash2Icon } from "lucide-react";
+import { InfoIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import type { components } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -30,10 +31,12 @@ interface UserProfileSidePaneProps {
 function UserProfileContent({
   user,
   canModifyUser,
+  isCurrentUser,
   onChangeRole
 }: Readonly<{
   user: UserDetails;
   canModifyUser: boolean;
+  isCurrentUser: boolean;
   onChangeRole: () => void;
 }>) {
   return (
@@ -82,22 +85,29 @@ function UserProfileContent({
         </span>
         {canModifyUser ? (
           <Button
-            variant="ghost"
-            className="h-auto p-0 text-xs"
+            variant="outline"
+            className="h-[var(--control-height-xs)] gap-2 px-3 text-sm"
             onClick={onChangeRole}
             aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
-            <Badge
-              variant="outline"
-              className="cursor-pointer text-xs transition-all duration-200 hover:scale-105 hover:bg-muted hover:shadow-sm"
-            >
-              {getUserRoleLabel(user.role)}
-            </Badge>
+            {getUserRoleLabel(user.role)}
+            <PencilIcon className="size-3 text-muted-foreground" />
           </Button>
         ) : (
-          <Badge variant="outline" className="text-xs">
-            {getUserRoleLabel(user.role)}
-          </Badge>
+          <Tooltip>
+            <TooltipTrigger render={<span className="inline-block" />}>
+              <Button
+                variant="outline"
+                className="pointer-events-none h-[var(--control-height-xs)] px-3 text-sm"
+                disabled={true}
+              >
+                {getUserRoleLabel(user.role)}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isCurrentUser ? t`You cannot change your own role` : t`Only owners can change user roles`}
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
 
@@ -184,6 +194,7 @@ export function UserProfileSidePane({
               <UserProfileContent
                 user={user}
                 canModifyUser={canModifyUser}
+                isCurrentUser={isCurrentUser ?? false}
                 onChangeRole={() => setIsChangeRoleDialogOpen(true)}
               />
             )
@@ -192,15 +203,30 @@ export function UserProfileSidePane({
 
         {userInfo?.role === "Owner" && user && (
           <SidePaneFooter>
-            <Button
-              variant="destructive"
-              onClick={() => onDeleteUser(user)}
-              className="w-full justify-center text-sm"
-              disabled={isCurrentUser}
-            >
-              <Trash2Icon className="size-4" />
-              <Trans>Delete user</Trans>
-            </Button>
+            {isCurrentUser ? (
+              <Tooltip>
+                <TooltipTrigger render={<span className="inline-block w-full" />}>
+                  <Button
+                    variant="destructive"
+                    className="pointer-events-none w-full justify-center text-sm"
+                    disabled={true}
+                  >
+                    <Trash2Icon className="size-4" />
+                    <Trans>Delete user</Trans>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t`You cannot delete yourself`}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <Button
+                variant="destructive"
+                onClick={() => onDeleteUser(user)}
+                className="w-full justify-center text-sm"
+              >
+                <Trash2Icon className="size-4" />
+                <Trans>Delete user</Trans>
+              </Button>
+            )}
           </SidePaneFooter>
         )}
       </SidePane>

@@ -559,6 +559,9 @@ msgstr "OK"
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
 
+msgid "Only owners can change user roles"
+msgstr "Kun ejere kan ændre brugerroller"
+
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificering"
 
@@ -962,6 +965,12 @@ msgstr "Velkommen til PlatformPlatform"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
+
+msgid "You cannot change your own role"
+msgstr "Du kan ikke ændre din egen rolle"
+
+msgid "You cannot delete yourself"
+msgstr "Du kan ikke slette dig selv"
 
 msgid "You do not have permission to access this page."
 msgstr "Du har ikke tilladelse til at tilgå denne side."
