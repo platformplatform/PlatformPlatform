@@ -330,9 +330,13 @@ export function FederatedMenuButton({
   const router = useRouter();
 
   // Check if this menu item is active
-  const currentPath = router.state.location.pathname;
-  const targetPath = to;
-  const isActive = normalizePath(currentPath) === normalizePath(targetPath);
+  // Use prefix matching for section paths (e.g., /admin/users matches /admin/users/recycle-bin)
+  // Use exact matching for root paths (e.g., /admin only matches /admin)
+  const currentPath = normalizePath(router.state.location.pathname);
+  const targetPath = normalizePath(to);
+  const targetSegments = targetPath.split("/").filter(Boolean);
+  const isRootPath = targetSegments.length <= 1;
+  const isActive = isRootPath ? currentPath === targetPath : currentPath.startsWith(targetPath);
 
   // Check if we're in the mobile menu context
   const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;

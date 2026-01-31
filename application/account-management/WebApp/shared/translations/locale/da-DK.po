@@ -908,6 +908,9 @@ msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 msgid "User status"
 msgstr "Brugerstatus"
 
+msgid "User tabs"
+msgstr "Brugerfaner"
+
 msgid "user@email.com"
 msgstr "user@email.com"
 

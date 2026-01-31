@@ -908,6 +908,9 @@ msgstr "User role updated successfully for {userDisplayName}"
 msgid "User status"
 msgstr "User status"
 
+msgid "User tabs"
+msgstr "User tabs"
+
 msgid "user@email.com"
 msgstr "user@email.com"
 

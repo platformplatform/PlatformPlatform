@@ -38,6 +38,8 @@ This directory contains all shared UI components used across the application.
 | Separator | `npx shadcn@latest add separator` | Stock ShadCN | - |
 | Skeleton | `npx shadcn@latest add skeleton` | bg-muted instead of bg-accent | Loading placeholder |
 | SideMenu | Custom | - | Complex sidebar navigation |
+| SidePane | Custom | - | Docked side panel (desktop) / full-screen overlay (mobile) with accessibility. Exports: SidePane, SidePaneHeader, SidePaneBody, SidePaneFooter, SidePaneClose |
+| Tabs | `npx shadcn@latest add tabs` | Outline focus ring, CSS variable heights, data-[active] instead of data-[selected] (BaseUI difference) | - |
 | Sonner | `npx shadcn@latest add sonner` | Stock ShadCN (3rd party) | Third-party toast notification library |
 | Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |
 | TablePagination | Custom | - | Pagination wrapper for tables |

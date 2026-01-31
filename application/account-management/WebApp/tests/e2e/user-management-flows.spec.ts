@@ -378,7 +378,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to Recycle bin tab & verify soft-deleted user appears")(async () => {
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
       await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
@@ -435,8 +435,8 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to Recycle bin tab as admin & verify deleted user appears")(async () => {
-      await expect(page.getByRole("link", { name: "Recycle bin" })).toBeVisible();
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await expect(page.getByRole("tab", { name: "Recycle bin" })).toBeVisible();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
       await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
@@ -490,7 +490,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(page.getByText("All users")).toBeVisible();
-      await expect(page.getByRole("link", { name: "Recycle bin" })).not.toBeVisible();
+      await expect(page.getByRole("tab", { name: "Recycle bin" })).not.toBeVisible();
     })();
   });
 });
@@ -827,7 +827,7 @@ test.describe("@comprehensive", () => {
 
     // === RESTORE AND PERMANENT DELETE SECTION ===
     await step("Navigate to Recycle bin tab & verify soft-deleted users appear")(async () => {
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
       const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
@@ -876,7 +876,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Navigate to All users & verify restored user LastSeenAt unchanged")(async () => {
-      await page.getByRole("link", { name: "All users" }).click();
+      await page.getByRole("tab", { name: "All users" }).click();
 
       await expect(page).toHaveURL("/admin/users");
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
