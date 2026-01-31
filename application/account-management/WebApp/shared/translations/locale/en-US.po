@@ -304,6 +304,9 @@ msgstr "Deleted"
 msgid "Deleted users"
 msgstr "Deleted users"
 
+msgid "Deleted users will appear here for recovery"
+msgstr "Deleted users will appear here for recovery"
+
 msgid "Desktop"
 msgstr "Desktop"
 
@@ -541,11 +544,11 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
-msgid "No active sessions found."
-msgstr "No active sessions found."
+msgid "No active sessions"
+msgstr "No active sessions"
 
-msgid "No deleted users"
-msgstr "No deleted users"
+msgid "No users found"
+msgstr "No users found"
 
 msgid "OK"
 msgstr "OK"
@@ -640,6 +643,9 @@ msgstr "Profile updated successfully"
 
 msgid "Recycle bin"
 msgstr "Recycle bin"
+
+msgid "Recycle bin is empty"
+msgstr "Recycle bin is empty"
 
 msgid "Region"
 msgstr "Region"
@@ -830,6 +836,9 @@ msgstr "Transparency, security, and privacy are at the core of how we operate. R
 msgid "Trust Center"
 msgstr "Trust Center"
 
+msgid "Try adjusting your search or filters"
+msgstr "Try adjusting your search or filters"
+
 msgid "Try again"
 msgstr "Try again"
 
@@ -951,6 +960,9 @@ msgstr "You do not have permission to access this page."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
+
+msgid "You have no other active sessions"
+msgstr "You have no other active sessions"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "You have unsaved changes. If you leave now, your changes will be lost."

@@ -304,6 +304,9 @@ msgstr "Slettet"
 msgid "Deleted users"
 msgstr "Slettede brugere"
 
+msgid "Deleted users will appear here for recovery"
+msgstr ""
+
 msgid "Desktop"
 msgstr "Stationær"
 
@@ -541,11 +544,11 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
-msgid "No active sessions found."
-msgstr "Ingen aktive sessioner fundet."
+msgid "No active sessions"
+msgstr ""
 
-msgid "No deleted users"
-msgstr "Ingen slettede brugere"
+msgid "No users found"
+msgstr ""
 
 msgid "OK"
 msgstr "OK"
@@ -640,6 +643,9 @@ msgstr "Profil opdateret succesfuldt"
 
 msgid "Recycle bin"
 msgstr "Papirkurv"
+
+msgid "Recycle bin is empty"
+msgstr ""
 
 msgid "Region"
 msgstr "Region"
@@ -830,6 +836,9 @@ msgstr "Gennemsigtighed, sikkerhed og privatliv er kernen i hvordan vi opererer.
 msgid "Trust Center"
 msgstr "Tillidscenter"
 
+msgid "Try adjusting your search or filters"
+msgstr ""
+
 msgid "Try again"
 msgstr "Prøv igen"
 
@@ -951,6 +960,9 @@ msgstr "Du har ikke tilladelse til at tilgå denne side."
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You have no other active sessions"
+msgstr ""
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."

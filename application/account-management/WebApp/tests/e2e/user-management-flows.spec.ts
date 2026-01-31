@@ -872,7 +872,7 @@ test.describe("@comprehensive", () => {
       await expect(deleteDialog).not.toBeVisible();
       await expect(page).toHaveURL("/admin/users/recycle-bin");
       await expect(page.getByRole("table", { name: "Deleted users" })).not.toBeVisible();
-      await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
+      await expect(page.getByRole("main").getByText("Recycle bin is empty").last()).toBeVisible();
     })();
 
     await step("Navigate to All users & verify restored user LastSeenAt unchanged")(async () => {

@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { InfoIcon, LaptopIcon, LoaderIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
@@ -287,11 +288,19 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                 <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
               </div>
             ) : sessions.length === 0 ? (
-              <div className="rounded-lg border border-border bg-card p-8 text-center">
-                <p className="text-muted-foreground">
-                  <Trans>No active sessions found.</Trans>
-                </p>
-              </div>
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MonitorIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>
+                    <Trans>No active sessions</Trans>
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    <Trans>You have no other active sessions</Trans>
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             ) : (
               sessions.map((session) => (
                 <SessionCard

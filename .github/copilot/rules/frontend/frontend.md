@@ -111,16 +111,18 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **Cancel button**: Use `<DialogClose render={<Button type="reset" .../>}>` - the `type="reset"` bypasses the warning
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
 
-7. Always follow these steps when implementing changes:
+7. **Empty states**: Use the `Empty` component with icon, title, and description when there is no content to display
+
+8. Always follow these steps when implementing changes:
    - Consult relevant rule files and list which ones guided your implementation
    - Search the codebase for similar code before implementing new code
    - Reference existing implementations to maintain consistency
 
-8. Build and format your changes:
+9. Build and format your changes:
    - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend
    - This ensures consistent code style across the codebase
 
-9. Verify your changes:
+10. Verify your changes:
    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
    - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding

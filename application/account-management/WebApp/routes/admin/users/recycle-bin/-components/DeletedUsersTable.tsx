@@ -3,11 +3,13 @@ import { Trans } from "@lingui/react/macro";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Checkbox } from "@repo/ui/components/Checkbox";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
+import { Trash2Icon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components } from "@/shared/lib/api/client";
@@ -90,11 +92,19 @@ export function DeletedUsersTable({
 
   if (users.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center py-16">
-        <p className="text-muted-foreground">
-          <Trans>No deleted users</Trans>
-        </p>
-      </div>
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Trash2Icon />
+          </EmptyMedia>
+          <EmptyTitle>
+            <Trans>Recycle bin is empty</Trans>
+          </EmptyTitle>
+          <EmptyDescription>
+            <Trans>Deleted users will appear here for recovery</Trans>
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 

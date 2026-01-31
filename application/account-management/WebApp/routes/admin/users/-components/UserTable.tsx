@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
@@ -18,7 +19,7 @@ import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { ArrowUp, EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
+import { ArrowUp, EllipsisVerticalIcon, SearchIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
@@ -71,6 +72,8 @@ function DesktopUserTable(props: Readonly<UserTableProps>) {
     { placeholderData: keepPreviousData }
   );
 
+  const hasFilters = Boolean(search || userRole || userStatus || startDate || endDate);
+
   return (
     <UserTableContent
       {...props}
@@ -79,6 +82,7 @@ function DesktopUserTable(props: Readonly<UserTableProps>) {
       isMobile={false}
       totalPages={data?.totalPages ?? 1}
       currentPageOffset={data?.currentPageOffset ?? 0}
+      hasFilters={hasFilters}
     />
   );
 }
@@ -99,6 +103,8 @@ function MobileUserTable(props: Readonly<UserTableProps>) {
     enabled: true
   });
 
+  const hasFilters = Boolean(search || userRole || userStatus || startDate || endDate);
+
   return (
     <UserTableContent
       {...props}
@@ -110,6 +116,7 @@ function MobileUserTable(props: Readonly<UserTableProps>) {
       isLoadingMore={isLoadingMore}
       hasMore={hasMore}
       loadMore={loadMore}
+      hasFilters={hasFilters}
     />
   );
 }
@@ -123,6 +130,7 @@ interface UserTableContentProps extends UserTableProps {
   isLoadingMore?: boolean;
   hasMore?: boolean;
   loadMore?: () => void;
+  hasFilters?: boolean;
 }
 
 function UserTableContent({
@@ -139,7 +147,8 @@ function UserTableContent({
   currentPageOffset,
   isLoadingMore = false,
   hasMore = false,
-  loadMore
+  loadMore,
+  hasFilters = false
 }: Readonly<UserTableContentProps>) {
   const navigate = useNavigate();
   const { orderBy, sortOrder, pageOffset } = useSearch({ strict: false });
@@ -259,6 +268,24 @@ function UserTableContent({
 
   if (isLoading && usersList.length === 0) {
     return null;
+  }
+
+  if (!isLoading && usersList.length === 0 && hasFilters) {
+    return (
+      <Empty>
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <SearchIcon />
+          </EmptyMedia>
+          <EmptyTitle>
+            <Trans>No users found</Trans>
+          </EmptyTitle>
+          <EmptyDescription>
+            <Trans>Try adjusting your search or filters</Trans>
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
   }
 
   const currentPage = currentPageOffset + 1;
