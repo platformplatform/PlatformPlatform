@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 export default function Home() {
-  const { data: usersSummary } = api.useQuery("get", "/api/account-management/users/summary");
+  const { data: usersSummary, isLoading } = api.useQuery("get", "/api/account-management/users/summary");
   const userInfo = useUserInfo();
 
   return (
@@ -38,7 +39,11 @@ export default function Home() {
                 <Trans>Add more in the Users menu</Trans>
               </div>
             </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+            {isLoading ? (
+              <Skeleton className="mt-4 h-8 w-12" />
+            ) : (
+              <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+            )}
           </Link>
           <Link
             to="/admin/users"
@@ -58,7 +63,11 @@ export default function Home() {
                 <Trans>Active users in the past 30 days</Trans>
               </div>
             </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+            {isLoading ? (
+              <Skeleton className="mt-4 h-8 w-12" />
+            ) : (
+              <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+            )}
           </Link>
           <Link
             to="/admin/users"
@@ -74,7 +83,11 @@ export default function Home() {
                 <Trans>Users who haven't confirmed their email</Trans>
               </div>
             </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+            {isLoading ? (
+              <Skeleton className="mt-4 h-8 w-12" />
+            ) : (
+              <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+            )}
           </Link>
         </div>
       </AppLayout>

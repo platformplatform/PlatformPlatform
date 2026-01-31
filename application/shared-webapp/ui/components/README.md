@@ -36,6 +36,7 @@ This directory contains all shared UI components used across the application.
 | ScrollArea | `npx shadcn@latest add scroll-area` | Stock ShadCN | Use inside DialogBody for intentionally scrollable content (lists, collections) |
 | Select | `npx shadcn@latest add select` | Outline focus ring, CSS variable heights, alignItemWithTrigger=false, py-3 touch targets, bg-white, cursor-pointer, active:bg-accent | - |
 | Separator | `npx shadcn@latest add separator` | Stock ShadCN | - |
+| Skeleton | `npx shadcn@latest add skeleton` | bg-muted instead of bg-accent | Loading placeholder |
 | SideMenu | Custom | - | Complex sidebar navigation |
 | Sonner | `npx shadcn@latest add sonner` | Stock ShadCN (3rd party) | Third-party toast notification library |
 | Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |

@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -25,7 +26,7 @@ export function DeletedUsersToolbar({
   const queryClient = useQueryClient();
   const [isRestoring, setIsRestoring] = useState(false);
 
-  const { data: deletedUsersData } = api.useQuery("get", "/api/account-management/users/deleted", {
+  const { data: deletedUsersData, isLoading } = api.useQuery("get", "/api/account-management/users/deleted", {
     params: { query: { PageOffset: 0, PageSize: 25 } }
   });
 
@@ -61,6 +62,11 @@ export function DeletedUsersToolbar({
     setIsRestoring(false);
     onSelectedUsersChange([]);
   };
+
+  // Reserve toolbar height during loading to prevent layout shift when "Empty recycle bin" button appears
+  if (isLoading) {
+    return <Skeleton className="mb-4 h-[var(--control-height)] bg-transparent" />;
+  }
 
   if (!hasDeletedUsers) {
     return null;

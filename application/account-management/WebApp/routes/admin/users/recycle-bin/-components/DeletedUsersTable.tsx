@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Badge } from "@repo/ui/components/Badge";
 import { Checkbox } from "@repo/ui/components/Checkbox";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
@@ -82,8 +83,72 @@ export function DeletedUsersTable({
     [handleSelectRow]
   );
 
+  // NOTE: Skeleton loading state uses <table><tbody> without <thead> to work around a Firefox
+  // bug where rendering <thead> during page load after Playwright's clearCookies() causes
+  // HttpOnly cookies to not be sent with API requests. This only affects Firefox E2E tests.
   if (isLoading) {
-    return null;
+    return (
+      <div className="deleted-users-table min-h-48 flex-1 overflow-auto">
+        <Table aria-label={t`Deleted users loading`}>
+          <TableBody>
+            <TableRow className="h-10">
+              {isMultiSelectMode && (
+                <TableCell>
+                  <Skeleton className="size-5 rounded" />
+                </TableCell>
+              )}
+              <TableCell>
+                <Skeleton className="h-3 w-12" />
+              </TableCell>
+              {!isMobile && (
+                <>
+                  <TableCell>
+                    <Skeleton className="h-3 w-12" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-3 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-3 w-10" />
+                  </TableCell>
+                </>
+              )}
+            </TableRow>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <TableRow key={index}>
+                {isMultiSelectMode && (
+                  <TableCell>
+                    <Skeleton className="size-5 rounded" />
+                  </TableCell>
+                )}
+                <TableCell>
+                  <div className="flex h-14 items-center gap-2">
+                    <Skeleton className="size-10 rounded-full" />
+                    <div className="flex flex-col gap-1">
+                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-3 w-24" />
+                    </div>
+                  </div>
+                </TableCell>
+                {!isMobile && (
+                  <>
+                    <TableCell>
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                    </TableCell>
+                  </>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
   }
 
   const users = deletedUsersData?.users ?? [];

@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { MEDIA_QUERIES } from "@repo/ui/utils/responsive";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { getInitials } from "@repo/utils/string/getInitials";
@@ -293,15 +294,12 @@ export function UserProfileSidePane({
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
             <div className="p-4">
-              {/* Avatar skeleton matching exact position */}
               <div className="mb-6 text-center">
-                <div className="mx-auto mb-3 size-20 animate-pulse rounded-full bg-muted" />
-                <div className="mx-auto mb-2 h-6 w-32 animate-pulse rounded bg-muted" />
-                <div className="mx-auto h-4 w-24 animate-pulse rounded bg-muted" />
+                <Skeleton className="mx-auto mb-3 size-20 rounded-full" />
+                <Skeleton className="mx-auto mb-2 h-6 w-32" />
+                <Skeleton className="mx-auto h-4 w-24" />
               </div>
-
-              {/* Single block for all other content */}
-              <div className="h-64 w-full animate-pulse rounded-lg bg-muted" />
+              <Skeleton className="h-64 w-full" />
             </div>
           ) : (
             user && (

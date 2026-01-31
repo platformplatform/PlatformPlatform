@@ -24,9 +24,10 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { InfoIcon, LaptopIcon, LoaderIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
+import { InfoIcon, LaptopIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { SmartDate } from "@/shared/components/SmartDate";
@@ -284,8 +285,27 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
               </div>
             )}
             {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col gap-3 rounded-lg bg-card p-4 sm:flex-row sm:items-start sm:justify-between"
+                  >
+                    <div className="flex items-start gap-4">
+                      <Skeleton className="size-10 rounded-lg" />
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-5 w-40" />
+                        <div className="flex flex-col gap-1">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-28" />
+                          <Skeleton className="h-4 w-36" />
+                        </div>
+                      </div>
+                    </div>
+                    <Skeleton className="h-9 w-full sm:w-20" />
+                  </div>
+                ))}
               </div>
             ) : sessions.length === 0 ? (
               <Empty>

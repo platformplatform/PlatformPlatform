@@ -304,6 +304,9 @@ msgstr "Deleted"
 msgid "Deleted users"
 msgstr "Deleted users"
 
+msgid "Deleted users loading"
+msgstr "Deleted users loading"
+
 msgid "Deleted users will appear here for recovery"
 msgstr "Deleted users will appear here for recovery"
 
@@ -910,6 +913,9 @@ msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Users"
+
+msgid "Users loading"
+msgstr "Users loading"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
