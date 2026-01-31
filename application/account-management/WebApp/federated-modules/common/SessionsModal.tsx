@@ -26,6 +26,7 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
+import { ScrollArea } from "@repo/ui/components/ScrollArea";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatDate } from "@repo/utils/date/formatDate";
 import { useQueryClient } from "@tanstack/react-query";
@@ -115,7 +116,7 @@ function SessionCard({
   const browserInfo = parseUserAgent(session.userAgent);
 
   return (
-    <Card className="gap-4 py-4 transition-colors hover:bg-hover-background">
+    <Card className="mb-4 gap-4 py-4 transition-colors hover:bg-hover-background">
       <CardHeader className="gap-4">
         <div className="flex items-start gap-4">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -288,10 +289,24 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                 </AlertDescription>
               </Alert>
             )}
-            {isLoading ? (
-              <div className="flex flex-col gap-3">
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <Card key={index} className="gap-4 py-4">
+            {sessions.length === 0 && !isLoading ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MonitorIcon />
+                  </EmptyMedia>
+                  <EmptyTitle>
+                    <Trans>No active sessions</Trans>
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    <Trans>You have no other active sessions</Trans>
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              <ScrollArea>
+                {isLoading ? (
+                  <Card>
                     <CardHeader className="gap-4">
                       <div className="flex items-start gap-4">
                         <Skeleton className="size-10 rounded-lg" />
@@ -310,31 +325,17 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
                       </CardAction>
                     </CardHeader>
                   </Card>
-                ))}
-              </div>
-            ) : sessions.length === 0 ? (
-              <Empty>
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <MonitorIcon />
-                  </EmptyMedia>
-                  <EmptyTitle>
-                    <Trans>No active sessions</Trans>
-                  </EmptyTitle>
-                  <EmptyDescription>
-                    <Trans>You have no other active sessions</Trans>
-                  </EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            ) : (
-              sessions.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  isRevoking={revokingSessionIds.has(session.id)}
-                  onRevoke={handleRevokeSession}
-                />
-              ))
+                ) : (
+                  sessions.map((session) => (
+                    <SessionCard
+                      key={session.id}
+                      session={session}
+                      isRevoking={revokingSessionIds.has(session.id)}
+                      onRevoke={handleRevokeSession}
+                    />
+                  ))
+                )}
+              </ScrollArea>
             )}
           </DialogBody>
           <DialogFooter>
