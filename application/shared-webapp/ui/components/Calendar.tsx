@@ -1,8 +1,26 @@
+import { useLingui } from "@lingui/react";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import * as React from "react";
-import { type DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { type DayButton, DayPicker, getDefaultClassNames, type Locale } from "react-day-picker";
+import { da, enUS } from "react-day-picker/locale";
 import { cn } from "../utils";
 import { Button, buttonVariants } from "./Button";
+
+/**
+ * Maps app locale codes to react-day-picker locale objects.
+ * Add new locales here when extending language support.
+ */
+const localeMap: Record<string, Locale> = {
+  "en-US": enUS,
+  "da-DK": da
+};
+
+/**
+ * Capitalizes the first letter of a string.
+ */
+function capitalizeFirstLetter(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
 
 // NOTE: This diverges from stock ShadCN to use weekStartsOn=1 (Monday) instead of Sunday.
 function Calendar({
@@ -14,14 +32,18 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
+  locale: localeProp,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
 }) {
+  const { i18n } = useLingui();
+  const locale = localeProp ?? localeMap[i18n.locale] ?? enUS;
   const defaultClassNames = getDefaultClassNames();
 
   return (
     <DayPicker
+      locale={locale}
       showOutsideDays={showOutsideDays}
       weekStartsOn={weekStartsOn}
       className={cn(
@@ -33,6 +55,12 @@ function Calendar({
       )}
       captionLayout={captionLayout}
       formatters={{
+        // NOTE: This diverges from stock ShadCN to capitalize month names in caption (e.g., "Januar" instead of "januar" in Danish).
+        formatCaption: (date, options) => {
+          const month = date.toLocaleString(options?.locale?.code ?? "default", { month: "long" });
+          const year = date.getFullYear();
+          return `${capitalizeFirstLetter(month)} ${year}`;
+        },
         formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
         ...formatters
       }}

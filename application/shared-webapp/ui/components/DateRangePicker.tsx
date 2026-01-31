@@ -1,4 +1,6 @@
-import { format } from "date-fns";
+import { useLingui } from "@lingui/react";
+import { format, type Locale } from "date-fns";
+import { da, enUS } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
@@ -7,6 +9,15 @@ import { Button } from "./Button";
 import { Calendar } from "./Calendar";
 import { Field, FieldLabel } from "./Field";
 import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
+
+/**
+ * Maps app locale codes to date-fns locale objects.
+ * Add new locales here when extending language support.
+ */
+const dateFnsLocaleMap: Record<string, Locale> = {
+  "en-US": enUS,
+  "da-DK": da
+};
 
 export interface DateRangeValue {
   start: Date;
@@ -30,6 +41,8 @@ export function DateRangePicker({
   className,
   disabled
 }: Readonly<DateRangePickerProps>) {
+  const { i18n } = useLingui();
+  const dateLocale = dateFnsLocaleMap[i18n.locale] ?? enUS;
   const [open, setOpen] = useState(false);
 
   const dateRange: DateRange | undefined = value ? { from: value.start, to: value.end } : undefined;
@@ -56,7 +69,7 @@ export function DateRangePicker({
     if (!value?.start || !value?.end) {
       return placeholder;
     }
-    return `${format(value.start, "MMM dd, yyyy")} - ${format(value.end, "MMM dd, yyyy")}`;
+    return `${format(value.start, "PP", { locale: dateLocale })} - ${format(value.end, "PP", { locale: dateLocale })}`;
   };
 
   const hasValue = value !== null && value !== undefined;
