@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
+import { Field, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Label } from "@repo/ui/components/Label";
 import { Separator } from "@repo/ui/components/Separator";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
@@ -164,57 +164,57 @@ function LogoSection({
         className="hidden"
       />
 
-      <Label>
-        <Trans>Logo</Trans>
-      </Label>
-
-      <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
-        <DropdownMenuTrigger
-          disabled={!isOwner}
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-16 rounded-md"
-              aria-label={t`Change logo`}
-              disabled={!isOwner}
-            >
-              <TenantLogo
-                key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
-                logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
-                tenantName={tenant?.name ?? ""}
-                size="lg"
-                className="h-full w-full"
-              />
-            </Button>
-          }
-        />
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            onClick={() => {
-              logoFileInputRef.current?.click();
-            }}
-          >
-            <CameraIcon className="size-4" />
-            <Trans>Upload logo</Trans>
-          </DropdownMenuItem>
-          {(tenant?.logoUrl || logoPreviewUrl) && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => {
-                  setLogoMenuOpen(false);
-                  handleLogoRemoval();
-                }}
+      <Field className="w-fit">
+        <FieldLabel>
+          <Trans>Logo</Trans>
+        </FieldLabel>
+        <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
+          <DropdownMenuTrigger
+            disabled={!isOwner}
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-16 rounded-md"
+                aria-label={t`Change logo`}
+                disabled={!isOwner}
               >
-                <Trash2Icon className="size-4" />
-                <Trans>Remove logo</Trans>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+                <TenantLogo
+                  key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
+                  logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
+                  tenantName={tenant?.name ?? ""}
+                  size="lg"
+                />
+              </Button>
+            }
+          />
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={() => {
+                logoFileInputRef.current?.click();
+              }}
+            >
+              <CameraIcon className="size-4" />
+              <Trans>Upload logo</Trans>
+            </DropdownMenuItem>
+            {(tenant?.logoUrl || logoPreviewUrl) && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => {
+                    setLogoMenuOpen(false);
+                    handleLogoRemoval();
+                  }}
+                >
+                  <Trash2Icon className="size-4" />
+                  <Trans>Remove logo</Trans>
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </Field>
     </>
   );
 }

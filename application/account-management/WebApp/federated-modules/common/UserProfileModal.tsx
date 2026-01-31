@@ -19,8 +19,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
+import { Field, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Label } from "@repo/ui/components/Label";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
@@ -178,60 +178,66 @@ export default function UserProfileModal({ isOpen, onOpenChange }: Readonly<Prof
                 className="hidden"
               />
 
-              <Label>
-                <Trans>Profile picture</Trans>
-              </Label>
-
-              <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="mb-3 size-16 rounded-full bg-secondary hover:bg-secondary/80"
-                      aria-label={t`Change profile picture`}
-                    >
-                      {user.avatarUrl || avatarPreviewUrl ? (
-                        <img
-                          src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
-                          className="h-full w-full rounded-full object-cover"
-                          alt={t`Preview avatar`}
-                        />
-                      ) : (
-                        <CameraIcon className="size-10 text-secondary-foreground" aria-label={t`Add profile picture`} />
-                      )}
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      avatarFileInputRef.current?.click();
-                    }}
-                  >
-                    <CameraIcon className="size-4" />
-                    <Trans>Upload profile picture</Trans>
-                  </DropdownMenuItem>
-                  {(user.avatarUrl || avatarPreviewUrl) && (
-                    <>
-                      <DropdownMenuSeparator />
+              <Field className="w-fit">
+                <FieldLabel>
+                  <Trans>Profile picture</Trans>
+                </FieldLabel>
+                <div className="w-fit">
+                  <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+                    <DropdownMenuTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-16 rounded-full bg-secondary hover:bg-secondary/80"
+                          aria-label={t`Change profile picture`}
+                        >
+                          {user.avatarUrl || avatarPreviewUrl ? (
+                            <img
+                              src={avatarPreviewUrl ?? user.avatarUrl ?? ""}
+                              className="h-full w-full rounded-full object-cover"
+                              alt={t`Preview avatar`}
+                            />
+                          ) : (
+                            <CameraIcon
+                              className="size-10 text-secondary-foreground"
+                              aria-label={t`Add profile picture`}
+                            />
+                          )}
+                        </Button>
+                      }
+                    />
+                    <DropdownMenuContent>
                       <DropdownMenuItem
-                        variant="destructive"
                         onClick={() => {
-                          setAvatarMenuOpen(false);
-                          setRemoveAvatarFlag(true);
-                          setSelectedAvatarFile(null);
-                          setAvatarPreviewUrl(null);
-                          user.avatarUrl = null;
+                          avatarFileInputRef.current?.click();
                         }}
                       >
-                        <Trash2Icon className="size-4" />
-                        <Trans>Remove profile picture</Trans>
+                        <CameraIcon className="size-4" />
+                        <Trans>Upload profile picture</Trans>
                       </DropdownMenuItem>
-                    </>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      {(user.avatarUrl || avatarPreviewUrl) && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => {
+                              setAvatarMenuOpen(false);
+                              setRemoveAvatarFlag(true);
+                              setSelectedAvatarFile(null);
+                              setAvatarPreviewUrl(null);
+                              user.avatarUrl = null;
+                            }}
+                          >
+                            <Trash2Icon className="size-4" />
+                            <Trans>Remove profile picture</Trans>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </Field>
 
               <div className="flex flex-col gap-4 sm:flex-row">
                 <TextField
