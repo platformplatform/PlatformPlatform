@@ -28,7 +28,7 @@ import {
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
 import { ScrollArea } from "@repo/ui/components/ScrollArea";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { formatDate } from "@repo/utils/date/formatDate";
+import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { InfoIcon, LaptopIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
@@ -112,6 +112,7 @@ function SessionCard({
   isRevoking,
   onRevoke
 }: Readonly<{ session: UserSessionInfo; isRevoking: boolean; onRevoke: (session: UserSessionInfo) => void }>) {
+  const formatDate = useFormatDate();
   const deviceLabel = getDeviceTypeLabel(session.deviceType);
   const browserInfo = parseUserAgent(session.userAgent);
 

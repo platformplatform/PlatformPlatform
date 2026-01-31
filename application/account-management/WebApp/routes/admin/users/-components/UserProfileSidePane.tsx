@@ -8,7 +8,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { formatDate } from "@repo/utils/date/formatDate";
+import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { InfoIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -39,6 +39,8 @@ function UserProfileContent({
   isCurrentUser: boolean;
   onChangeRole: () => void;
 }>) {
+  const formatDate = useFormatDate();
+
   return (
     <>
       {/* User Avatar and Basic Info */}
