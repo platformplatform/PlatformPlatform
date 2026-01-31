@@ -11,8 +11,8 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Label } from "@repo/ui/components/Label";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
@@ -112,46 +112,47 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
               aria-label={t`Role`}
               value={currentRole}
               onValueChange={(value) => setSelectedRole(value as UserRole)}
+              className="mt-3"
             >
-              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                <Label htmlFor="role-owner" className="flex cursor-pointer items-start gap-3">
-                  <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} className="mt-0.5" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} />
+                  <FieldContent>
+                    <FieldTitle>
                       <Trans>Owner</Trans>
-                    </span>
-                    <span className="font-normal text-muted-foreground text-sm">
+                    </FieldTitle>
+                    <FieldDescription>
                       <Trans>Full access including user roles and account settings</Trans>
-                    </span>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                <Label htmlFor="role-admin" className="flex cursor-pointer items-start gap-3">
-                  <RadioGroupItem value={UserRole.Admin} id="role-admin" aria-label={t`Admin`} className="mt-0.5" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Admin} id="role-admin" aria-label={t`Admin`} />
+                  <FieldContent>
+                    <FieldTitle>
                       <Trans>Admin</Trans>
-                    </span>
-                    <span className="font-normal text-muted-foreground text-sm">
+                    </FieldTitle>
+                    <FieldDescription>
                       <Trans>Full access except changing user roles and account settings</Trans>
-                    </span>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                <Label htmlFor="role-member" className="flex cursor-pointer items-start gap-3">
-                  <RadioGroupItem value={UserRole.Member} id="role-member" aria-label={t`Member`} className="mt-0.5" />
-                  <div className="flex flex-col">
-                    <span className="font-medium">
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Member} id="role-member" aria-label={t`Member`} />
+                  <FieldContent>
+                    <FieldTitle>
                       <Trans>Member</Trans>
-                    </span>
-                    <span className="font-normal text-muted-foreground text-sm">
+                    </FieldTitle>
+                    <FieldDescription>
                       <Trans>Standard user access</Trans>
-                    </span>
-                  </div>
-                </Label>
-              </div>
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
             </RadioGroup>
           </DialogBody>
           <DialogFooter>
