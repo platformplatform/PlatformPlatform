@@ -4,10 +4,12 @@ import { type DayButton, DayPicker, getDefaultClassNames } from "react-day-picke
 import { cn } from "../utils";
 import { Button, buttonVariants } from "./Button";
 
+// NOTE: This diverges from stock ShadCN to use weekStartsOn=1 (Monday) instead of Sunday.
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  weekStartsOn = 1,
   captionLayout = "label",
   buttonVariant = "ghost",
   formatters,
@@ -21,6 +23,7 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      weekStartsOn={weekStartsOn}
       className={cn(
         // NOTE: This diverges from stock ShadCN to use 44px cell size for Apple HIG touch target compliance.
         "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(11)] [--rdp-nav_button-height:--spacing(11)] [--rdp-nav_button-width:--spacing(11)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
