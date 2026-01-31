@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Card, CardDescription, CardTitle } from "@repo/ui/components/Card";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -53,45 +54,51 @@ function LegalIndex() {
               <Link
                 href="/legal/terms"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <ScrollTextIcon className="mb-4 size-10 text-primary" />
-                <h3 className="mb-2 font-semibold text-foreground text-lg">
-                  <Trans>Terms of Service</Trans>
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  <Trans>
-                    The agreement governing your use of our Service, including acceptable use and liability.
-                  </Trans>
-                </p>
+                <Card className="h-full px-6 transition-colors hover:bg-hover-background">
+                  <ScrollTextIcon className="mb-4 size-10 text-primary" />
+                  <CardTitle>
+                    <Trans>Terms of Service</Trans>
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>
+                      The agreement governing your use of our Service, including acceptable use and liability.
+                    </Trans>
+                  </CardDescription>
+                </Card>
               </Link>
 
               <Link
                 href="/legal/privacy"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <ShieldCheckIcon className="mb-4 size-10 text-primary" />
-                <h3 className="mb-2 font-semibold text-foreground text-lg">
-                  <Trans>Privacy Policy</Trans>
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  <Trans>How we collect, use, and protect your personal data in compliance with GDPR.</Trans>
-                </p>
+                <Card className="h-full px-6 transition-colors hover:bg-hover-background">
+                  <ShieldCheckIcon className="mb-4 size-10 text-primary" />
+                  <CardTitle>
+                    <Trans>Privacy Policy</Trans>
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>How we collect, use, and protect your personal data in compliance with GDPR.</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
 
               <Link
                 href="/legal/dpa"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <FileTextIcon className="mb-4 size-10 text-primary" />
-                <h3 className="mb-2 font-semibold text-foreground text-lg">
-                  <Trans>Data Processing Agreement</Trans>
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  <Trans>GDPR Article 28 compliant agreement for processing data on your behalf.</Trans>
-                </p>
+                <Card className="h-full px-6 transition-colors hover:bg-hover-background">
+                  <FileTextIcon className="mb-4 size-10 text-primary" />
+                  <CardTitle>
+                    <Trans>Data Processing Agreement</Trans>
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>GDPR Article 28 compliant agreement for processing data on your behalf.</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
             </div>
           </div>
@@ -138,72 +145,72 @@ function LegalIndex() {
 
             {/* Security Features - 6 items in 3x2 grid */}
             <div className="mb-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <ServerIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>Fully managed infrastructure</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>Microsoft patches and secures all PaaS infrastructure automatically</Trans>
-                </p>
-              </div>
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+                </CardDescription>
+              </Card>
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <FingerprintIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>Managed identities</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>Only trusted personnel access data through Azure AD authentication</Trans>
-                </p>
-              </div>
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+                </CardDescription>
+              </Card>
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <LayersIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>Environment isolation</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>Strict separation prevents production data from leaking to other environments</Trans>
-                </p>
-              </div>
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+                </CardDescription>
+              </Card>
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <KeyIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>Passwordless deployments</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>GitHub deploys directly to Azure without passwords or API keys</Trans>
-                </p>
-              </div>
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+                </CardDescription>
+              </Card>
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <DatabaseIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>Data residency</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>Your data stays in the Azure region you select at signup</Trans>
-                </p>
-              </div>
-              <div className="rounded-xl bg-background p-6 transition-colors hover:bg-hover-background dark:bg-card">
+                </CardDescription>
+              </Card>
+              <Card className="px-6 transition-colors hover:bg-hover-background">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10">
                   <ShieldCheckIcon className="size-6 text-primary" />
                 </div>
-                <h4 className="mb-1">
+                <CardTitle>
                   <Trans>100% Security Score</Trans>
-                </h4>
-                <p className="text-muted-foreground text-sm">
+                </CardTitle>
+                <CardDescription>
                   <Trans>Achieved in Microsoft Defender for Cloud following Azure best practices</Trans>
-                </p>
-              </div>
+                </CardDescription>
+              </Card>
             </div>
 
             {/* PlatformPlatform Credit */}
@@ -250,27 +257,25 @@ function LegalIndex() {
                 </Trans>
               </p>
             </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Link
                 href="https://www.microsoft.com/en-us/trust-center"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Trust Center (opens in new window)"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <div className="mb-3">
+                <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureSecurity} alt="" className="size-10" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <Trans>Trust Center</Trans>
-                  </span>
-                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
-                </div>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  <Trans>Security, privacy, and compliance information</Trans>
-                </p>
+                    <ExternalLinkIcon className="size-4 text-muted-foreground" />
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>Security, privacy, and compliance information</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
               <Link
                 href="https://learn.microsoft.com/en-us/azure/compliance/"
@@ -278,20 +283,18 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label="Azure Compliance (opens in new window)"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <div className="mb-3">
+                <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureCompliance} alt="" className="size-10" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <Trans>Azure Compliance</Trans>
-                  </span>
-                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
-                </div>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  <Trans>Regulatory standards and certifications</Trans>
-                </p>
+                    <ExternalLinkIcon className="size-4 text-muted-foreground" />
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>Regulatory standards and certifications</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
               <Link
                 href="https://servicetrust.microsoft.com/"
@@ -299,20 +302,18 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label="SOC and ISO Reports (opens in new window)"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <div className="mb-3">
+                <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureActivityLog} alt="" className="size-10" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <Trans>SOC and ISO Reports</Trans>
-                  </span>
-                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
-                </div>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  <Trans>Audit reports and assessments</Trans>
-                </p>
+                    <ExternalLinkIcon className="size-4 text-muted-foreground" />
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>Audit reports and assessments</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
               <Link
                 href="https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA"
@@ -320,20 +321,18 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label="Microsoft DPA (opens in new window)"
                 underline={false}
-                className="flex flex-col whitespace-normal rounded-xl bg-input-background p-5 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
-                <div className="mb-3">
+                <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azurePolicy} alt="" className="size-10" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">
+                  <CardTitle className="flex items-center gap-2">
                     <Trans>Microsoft DPA</Trans>
-                  </span>
-                  <ExternalLinkIcon className="size-4 text-muted-foreground" />
-                </div>
-                <p className="mt-1 text-muted-foreground text-sm">
-                  <Trans>Data protection addendum</Trans>
-                </p>
+                    <ExternalLinkIcon className="size-4 text-muted-foreground" />
+                  </CardTitle>
+                  <CardDescription>
+                    <Trans>Data protection addendum</Trans>
+                  </CardDescription>
+                </Card>
               </Link>
             </div>
           </div>

@@ -82,7 +82,7 @@ test.describe("@smoke", () => {
       await expect(sessionsDialog.getByText("Created:")).toBeVisible();
 
       const currentSessionCard = sessionsDialog
-        .locator("div.rounded-lg.bg-card")
+        .locator('[data-slot="card"]')
         .filter({ hasText: "Current session" })
         .first();
       await expect(currentSessionCard.getByRole("button", { name: "Revoke" })).not.toBeVisible();
@@ -127,7 +127,7 @@ test.describe("@smoke", () => {
       await expect(sessionsDialog).toBeVisible();
       await expect(sessionsDialog.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
 
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
@@ -135,7 +135,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Click Revoke button on other session & verify confirmation dialog")(async () => {
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
@@ -147,12 +147,12 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Cancel" }).click();
       await expect(page.getByRole("alertdialog", { name: "Revoke session" })).not.toBeVisible();
 
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
     })();
 
     await step("Revoke other session & verify success toast and only current session remains")(async () => {
-      const sessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const sessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();
       await otherSessionCard.getByRole("button", { name: "Revoke" }).click();
 
@@ -162,7 +162,7 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Session revoked successfully");
 
-      const remainingSessionCards = sessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const remainingSessionCards = sessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       await expect(remainingSessionCards).toHaveCount(1);
       await expect(sessionsDialog.getByText("Current session")).toBeVisible();
     })();
@@ -235,7 +235,7 @@ test.describe("@comprehensive", () => {
 
       await expect(secondSessionsDialog).toBeVisible();
 
-      const sessionCards = secondSessionsDialog.locator("div.rounded-lg.bg-card").filter({ hasText: "IP:" });
+      const sessionCards = secondSessionsDialog.locator('[data-slot="card"]').filter({ hasText: "IP:" });
       await expect(sessionCards).toHaveCount(2);
 
       const otherSessionCard = sessionCards.filter({ hasNotText: "Current session" }).first();

@@ -14,6 +14,7 @@ import {
 } from "@repo/ui/components/AlertDialog";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
+import { Card, CardAction, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/Card";
 import {
   Dialog,
   DialogBody,
@@ -114,49 +115,51 @@ function SessionCard({
   const browserInfo = parseUserAgent(session.userAgent);
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg bg-card p-4 transition-colors hover:bg-hover-background sm:flex-row sm:items-start sm:justify-between">
-      <div className="flex items-start gap-4">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-          {getDeviceIcon(session.deviceType)}
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-medium text-foreground">
+    <Card className="gap-4 py-4 transition-colors hover:bg-hover-background">
+      <CardHeader className="gap-4">
+        <div className="flex items-start gap-4">
+          <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+            {getDeviceIcon(session.deviceType)}
+          </div>
+          <div className="flex flex-col gap-1">
+            <CardTitle className="flex flex-wrap items-center gap-2">
               {deviceLabel} ({browserInfo})
-            </span>
-            {session.isCurrent && (
-              <Badge variant="secondary" className="bg-success text-success-foreground">
-                <Trans>Current session</Trans>
-              </Badge>
-            )}
-          </div>
-          <div className="flex flex-col gap-0.5 text-muted-foreground text-sm">
-            <span>
-              <Trans>Account:</Trans> {session.tenantName || <Trans>Unnamed account</Trans>}
-            </span>
-            <span>
-              <Trans>IP:</Trans> {session.ipAddress}
-            </span>
-            <span>
-              <Trans>Last active:</Trans> <SmartDate date={session.lastActivityAt} />
-            </span>
-            <span>
-              <Trans>Created:</Trans> {formatDate(session.createdAt)}
-            </span>
+              {session.isCurrent && (
+                <Badge variant="secondary" className="bg-success text-success-foreground">
+                  <Trans>Current session</Trans>
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription className="flex flex-col gap-0.5">
+              <span>
+                <Trans>Account:</Trans> {session.tenantName || <Trans>Unnamed account</Trans>}
+              </span>
+              <span>
+                <Trans>IP:</Trans> {session.ipAddress}
+              </span>
+              <span>
+                <Trans>Last active:</Trans> <SmartDate date={session.lastActivityAt} />
+              </span>
+              <span>
+                <Trans>Created:</Trans> {formatDate(session.createdAt)}
+              </span>
+            </CardDescription>
           </div>
         </div>
-      </div>
-      {!session.isCurrent && (
-        <Button
-          variant="secondary"
-          onClick={() => onRevoke(session)}
-          disabled={isRevoking}
-          className="w-full sm:w-auto"
-        >
-          {isRevoking ? <Trans>Revoking...</Trans> : <Trans>Revoke</Trans>}
-        </Button>
-      )}
-    </div>
+        {!session.isCurrent && (
+          <CardAction>
+            <Button
+              variant="secondary"
+              onClick={() => onRevoke(session)}
+              disabled={isRevoking}
+              className="w-full sm:w-auto"
+            >
+              {isRevoking ? <Trans>Revoking...</Trans> : <Trans>Revoke</Trans>}
+            </Button>
+          </CardAction>
+        )}
+      </CardHeader>
+    </Card>
   );
 }
 
@@ -288,24 +291,25 @@ export default function SessionsModal({ isOpen, onOpenChange }: Readonly<Session
             {isLoading ? (
               <div className="flex flex-col gap-3">
                 {Array.from({ length: 2 }).map((_, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col gap-3 rounded-lg bg-card p-4 sm:flex-row sm:items-start sm:justify-between"
-                  >
-                    <div className="flex items-start gap-4">
-                      <Skeleton className="size-10 rounded-lg" />
-                      <div className="flex flex-col gap-2">
-                        <Skeleton className="h-5 w-40" />
-                        <div className="flex flex-col gap-1">
-                          <Skeleton className="h-4 w-32" />
-                          <Skeleton className="h-4 w-24" />
-                          <Skeleton className="h-4 w-28" />
-                          <Skeleton className="h-4 w-36" />
+                  <Card key={index} className="gap-4 py-4">
+                    <CardHeader className="gap-4">
+                      <div className="flex items-start gap-4">
+                        <Skeleton className="size-10 rounded-lg" />
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="h-5 w-40" />
+                          <div className="flex flex-col gap-1">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-4 w-24" />
+                            <Skeleton className="h-4 w-28" />
+                            <Skeleton className="h-4 w-36" />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <Skeleton className="h-9 w-full sm:w-20" />
-                  </div>
+                      <CardAction>
+                        <Skeleton className="h-9 w-20" />
+                      </CardAction>
+                    </CardHeader>
+                  </Card>
                 ))}
               </div>
             ) : sessions.length === 0 ? (
