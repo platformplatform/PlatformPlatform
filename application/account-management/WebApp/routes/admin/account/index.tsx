@@ -228,7 +228,7 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
       </h3>
       <Separator />
       <div className="flex flex-col gap-4">
-        <p>
+        <p className="text-sm">
           <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
         </p>
 

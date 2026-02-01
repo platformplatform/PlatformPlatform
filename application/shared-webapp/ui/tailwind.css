@@ -128,6 +128,20 @@
     scroll-behavior: smooth;
     touch-action: manipulation;
   }
+}
+
+/* Responsive root font sizing: 18px on mobile makes text-sm (~0.875rem) render at ~16px */
+html {
+  font-size: 18px;
+}
+
+@media (width >= 640px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+@layer base {
   h1 {
     @apply mb-2 font-semibold text-3xl text-foreground;
   }
@@ -222,6 +236,7 @@ body {
 [data-sonner-toast] {
   padding: 1rem 1.25rem !important;
   min-height: 4rem !important;
+  font-size: 0.875rem !important; /* text-sm equivalent, scales with root */
 }
 
 [data-sonner-toast][data-styled="true"] [data-close-button] {
