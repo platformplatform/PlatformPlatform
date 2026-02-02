@@ -66,7 +66,6 @@ export default function DeletedUsersPage() {
         }
         title={t`Users`}
         subtitle={t`Manage your users and permissions here.`}
-        scrollAwayHeader={true}
       >
         <div className="flex min-h-0 flex-1 flex-col">
           <UserTabNavigation activeTab="recycle-bin" />

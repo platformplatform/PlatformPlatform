@@ -353,14 +353,14 @@ function UserTableContent({
 
   return (
     <>
-      <div className="min-h-48 flex-1 overflow-auto rounded-md outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+      <div className="flex-1 overflow-visible rounded-md bg-background outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:min-h-48 sm:overflow-auto">
         <Table
           aria-label={t`Users`}
           selectedIndex={currentSelectedIndex}
           onNavigate={(index) => onSelectedUsersChange([usersList[index]])}
           onActivate={(index) => onViewProfile(usersList[index], true)}
         >
-          <TableHeader className="sticky top-0 z-10 bg-inherit">
+          <TableHeader className="z-10 bg-inherit sm:sticky sm:top-0">
             <TableRow>
               <TableHead
                 data-column={SortableUserProperties.Name}

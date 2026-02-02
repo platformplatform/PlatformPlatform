@@ -9,7 +9,7 @@ type UserTabNavigationProps = {
 
 export function UserTabNavigation({ activeTab }: UserTabNavigationProps) {
   return (
-    <Tabs value={activeTab} className="mb-8">
+    <Tabs value={activeTab} className="relative z-10 mb-4 sm:mb-8">
       <TabsList aria-label={t`User tabs`}>
         <TabsTrigger value="all-users" nativeButton={false} render={<Link to="/admin/users" />}>
           <Trans>All users</Trans>

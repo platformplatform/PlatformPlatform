@@ -154,11 +154,10 @@ export default function UsersPage() {
         }
         title={t`Users`}
         subtitle={t`Manage your users and permissions here.`}
-        scrollAwayHeader={true}
       >
         <div className="flex min-h-0 flex-1 flex-col">
           {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
-          <div className="max-sm:sticky max-sm:top-12">
+          <div className="sticky top-7 z-10 -mx-4 bg-background px-4 pt-3 sm:static sm:z-auto sm:mx-0 sm:px-0 sm:pt-0">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">

@@ -83,51 +83,48 @@ function useStickyHeader(enabled: boolean, headerRef: React.RefObject<HTMLDivEle
 }
 
 function useScrollAwayHeader(enabled: boolean, contentRef: React.RefObject<HTMLDivElement | null>) {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const headerRef = useRef<HTMLDivElement | null>(null);
+  const [isFullyScrolled, setIsFullyScrolled] = useState(false);
+  const titleHeightRef = useRef(0);
 
   useEffect(() => {
     if (!enabled || !contentRef.current) {
       return;
     }
 
-    const updateHeaderHeight = () => {
-      const header = contentRef.current?.querySelector(".scroll-away-header") as HTMLDivElement;
-      if (header) {
-        headerRef.current = header;
-        // Only count the header height, not the entire content
-        const headerContent = header.querySelector(".mb-4") as HTMLDivElement;
-        setHeaderHeight(headerContent ? headerContent.offsetHeight : header.offsetHeight);
+    const updateTitleHeight = () => {
+      // Measure just the h1 title, not the subtitle - sticky header appears when title scrolls out
+      const title = contentRef.current?.querySelector(".scroll-away-header h1") as HTMLElement;
+      if (title) {
+        titleHeightRef.current = title.offsetHeight;
       }
     };
 
     const handleScroll = () => {
-      if (!contentRef.current || !headerRef.current) {
+      if (!contentRef.current) {
         return;
       }
 
       const scrollTop = contentRef.current.scrollTop;
-      const maxScroll = Math.max(headerHeight - 60, 0); // Leave 60px for sticky header
-      const progress = maxScroll > 0 ? Math.min(scrollTop / maxScroll, 1) : 0;
+      // Show sticky header when title (h1) is scrolled out of view
+      const fullyScrolled = scrollTop >= titleHeightRef.current;
 
-      setScrollProgress(progress);
+      setIsFullyScrolled((prev) => (prev !== fullyScrolled ? fullyScrolled : prev));
     };
 
-    updateHeaderHeight();
-    window.addEventListener("resize", updateHeaderHeight);
+    updateTitleHeight();
+    window.addEventListener("resize", updateTitleHeight);
 
     const scrollElement = contentRef.current;
     scrollElement.addEventListener("scroll", handleScroll);
     handleScroll();
 
     return () => {
-      window.removeEventListener("resize", updateHeaderHeight);
+      window.removeEventListener("resize", updateTitleHeight);
       scrollElement.removeEventListener("scroll", handleScroll);
     };
-  }, [enabled, contentRef, headerHeight]);
+  }, [enabled, contentRef]);
 
-  return { scrollProgress, isFullyScrolled: scrollProgress >= 1 };
+  return { isFullyScrolled };
 }
 
 interface HeaderContentProps {
@@ -160,30 +157,17 @@ HeaderContent.displayName = "HeaderContent";
 interface ScrollAwayContentProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
-  scrollProgress: number;
   headerRef: React.RefObject<HTMLDivElement | null>;
   children: React.ReactNode;
+  variant: AppLayoutVariant;
+  maxWidth: string;
 }
 
-function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, children }: ScrollAwayContentProps) {
-  return (
+function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxWidth }: ScrollAwayContentProps) {
+  const content = (
     <div className="flex h-full flex-col">
-      {/* Mobile header with scroll-away behavior */}
-      <div
-        className="scroll-away-header sm:hidden"
-        style={{
-          transform: `translateY(-${scrollProgress * 100}%)`,
-          opacity: 1 - scrollProgress
-        }}
-      >
-        <div className="mb-4">
-          <h1>{title}</h1>
-          {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
-        </div>
-      </div>
-
-      {/* Desktop header - static */}
-      <div ref={headerRef} className="mb-4 hidden sm:block">
+      {/* Header - scrolls naturally with content */}
+      <div ref={headerRef} className="scroll-away-header mb-4">
         <h1>{title}</h1>
         {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
       </div>
@@ -191,6 +175,18 @@ function ScrollAwayContent({ title, subtitle, scrollProgress, headerRef, childre
       <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </div>
   );
+
+  if (variant === "center") {
+    return (
+      <div className="flex h-full w-full flex-col items-center">
+        <div className="flex h-full w-full flex-col" style={{ maxWidth }}>
+          {content}
+        </div>
+      </div>
+    );
+  }
+
+  return content;
 }
 
 interface StandardContentProps {
@@ -231,7 +227,7 @@ export function AppLayout({
   sidePane,
   title,
   subtitle,
-  scrollAwayHeader = false
+  scrollAwayHeader = true
 }: Readonly<AppLayoutProps>) {
   const { className, style, isOverlayOpen, isMobileMenuOpen } = useSideMenuLayout();
   const headerRef = useRef<HTMLDivElement>(null);
@@ -239,7 +235,7 @@ export function AppLayout({
 
   useBodyScrollLock(isOverlayOpen);
   const isSticky = useStickyHeader(!!title && !scrollAwayHeader, headerRef);
-  const { scrollProgress, isFullyScrolled } = useScrollAwayHeader(scrollAwayHeader && !!title, contentRef);
+  const { isFullyScrolled } = useScrollAwayHeader(scrollAwayHeader && !!title, contentRef);
 
   return (
     <div className="flex h-full flex-col">
@@ -247,20 +243,17 @@ export function AppLayout({
         className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
       >
-        {/* Mobile sticky header - shown differently based on scroll mode */}
+        {/* Mobile sticky header - appears when page header scrolls out of view */}
+        {/* z-30 to stack above sticky content (z-10) like toolbars and table headers */}
         {title && (
           <div
             className={cn(
-              "fixed top-0 right-0 left-0 z-20 border-border border-b bg-background/95 px-4 py-3 backdrop-blur-sm",
+              "fixed top-0 right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
-              scrollAwayHeader
-                ? isFullyScrolled
-                  ? "translate-y-0 opacity-100"
-                  : "-translate-y-full opacity-0"
-                : isSticky
-                  ? "translate-y-0 opacity-100"
-                  : "-translate-y-full opacity-0"
+              (scrollAwayHeader ? isFullyScrolled : isSticky)
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-full opacity-0"
             )}
             aria-hidden={scrollAwayHeader ? !isFullyScrolled : !isSticky}
           >
@@ -269,7 +262,7 @@ export function AppLayout({
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 backdrop-blur-sm sm:border-border sm:border-b ${
+          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
           } hidden sm:block`}
           aria-label="Secondary navigation"
@@ -281,14 +274,20 @@ export function AppLayout({
         <main
           ref={contentRef}
           className={
-            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background p-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none supports-[padding:max(0px)]:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-28"
+            "flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 pb-0 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:pt-28 sm:pb-4 supports-[padding:max(0px)]:sm:pb-[max(1rem,env(safe-area-inset-bottom))]"
           }
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
         >
           {scrollAwayHeader && title ? (
-            <ScrollAwayContent title={title} subtitle={subtitle} scrollProgress={scrollProgress} headerRef={headerRef}>
+            <ScrollAwayContent
+              title={title}
+              subtitle={subtitle}
+              headerRef={headerRef}
+              variant={variant}
+              maxWidth={maxWidth}
+            >
               {children}
             </ScrollAwayContent>
           ) : (

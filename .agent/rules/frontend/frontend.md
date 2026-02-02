@@ -100,9 +100,9 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Use `isMediumViewportOrLarger()` for desktop-specific features
 
 5. Z-index layering (don't invent new values):
-   - `z-0` to `z-10`: **Content** -- sticky table headers, inline badges, calendar layers
-   - `z-20`: **App bars** -- mobile header, desktop top bar, mobile floating menu button
-   - `z-30`: **Navigation** -- side menu (collapsed and expanded)
+   - `z-0` to `z-10`: **Content** -- sticky table headers, sticky toolbars, inline badges, calendar layers
+   - `z-20`: **App bars** -- desktop top bar, mobile floating menu button
+   - `z-30`: **Navigation + mobile header** -- side menu, mobile sticky header (stacks above content)
    - `z-[35]`: **Backdrops** -- dimmed overlays behind panels and overlay-mode navigation
    - `z-40`: **Panels** -- side panes, mobile full-screen menus, banners, side menu in overlay mode
    - `z-50`: **Popups** -- dialogs, dropdowns, popovers, tooltips (ShadCN default)
