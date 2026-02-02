@@ -189,6 +189,18 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
 
       {showAllFilters && (
         <>
+          <DateRangePicker
+            value={dateRange}
+            onChange={(range) => {
+              updateFilter({
+                startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
+                endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
+              });
+            }}
+            label={t`Modified date`}
+            placeholder={t`Select dates`}
+          />
+
           <Field className="flex flex-col">
             <FieldLabel>{t`User role`}</FieldLabel>
             <Select
@@ -240,18 +252,6 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               </SelectContent>
             </Select>
           </Field>
-
-          <DateRangePicker
-            value={dateRange}
-            onChange={(range) => {
-              updateFilter({
-                startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
-                endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
-              });
-            }}
-            label={t`Modified date`}
-            placeholder={t`Select dates`}
-          />
         </>
       )}
 
@@ -327,6 +327,19 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               </InputGroup>
             </Field>
 
+            <DateRangePicker
+              value={dateRange}
+              onChange={(range) => {
+                updateFilter({
+                  startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
+                  endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
+                });
+              }}
+              label={t`Modified date`}
+              placeholder={t`Select dates`}
+              className="w-full"
+            />
+
             <Field className="flex w-full flex-col">
               <FieldLabel>{t`User role`}</FieldLabel>
               <Select
@@ -378,19 +391,6 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
                 </SelectContent>
               </Select>
             </Field>
-
-            <DateRangePicker
-              value={dateRange}
-              onChange={(range) => {
-                updateFilter({
-                  startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
-                  endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
-                });
-              }}
-              label={t`Modified date`}
-              placeholder={t`Select dates`}
-              className="w-full"
-            />
           </DialogBody>
 
           <DialogFooter>
