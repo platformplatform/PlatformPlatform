@@ -455,13 +455,19 @@ function UserTableContent({
                                   ? user.email
                                   : ""}
                             </span>
-                            {user.emailConfirmed ? null : (
+                            {!isMobile && !user.emailConfirmed && (
                               <Badge variant="outline" className="shrink-0">
                                 <Trans>Pending</Trans>
                               </Badge>
                             )}
                           </div>
-                          <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                          {isMobile && !user.emailConfirmed ? (
+                            <Badge variant="outline" className="mt-1 -ml-2 w-fit">
+                              <Trans>Pending</Trans>
+                            </Badge>
+                          ) : (
+                            <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                          )}
                         </div>
                       </div>
                     </div>
