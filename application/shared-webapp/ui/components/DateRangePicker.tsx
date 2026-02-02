@@ -44,18 +44,60 @@ export function DateRangePicker({
   const { i18n } = useLingui();
   const dateLocale = dateFnsLocaleMap[i18n.locale] ?? enUS;
   const [open, setOpen] = useState(false);
+  const [selectionsCount, setSelectionsCount] = useState(0);
+  // Track the first clicked date separately since react-day-picker's onSelect
+  // doesn't reliably tell us which date was clicked
+  const [firstClickDate, setFirstClickDate] = useState<Date | null>(null);
 
   const dateRange: DateRange | undefined = value ? { from: value.start, to: value.end } : undefined;
 
-  const handleSelect = (range: DateRange | undefined) => {
-    if (range?.from && range?.to) {
-      onChange?.({ start: range.from, end: range.to });
-      // Only close if start and end are different dates
-      if (range.from.getTime() !== range.to.getTime()) {
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setSelectionsCount(0);
+      setFirstClickDate(null);
+    }
+  };
+
+  const handleDayClick = (day: Date) => {
+    const newCount = selectionsCount + 1;
+    setSelectionsCount(newCount);
+
+    if (newCount === 1) {
+      // First click: use existing start as pivot (matches react-day-picker behavior)
+      const existingStart = value?.start;
+      const existingEnd = value?.end;
+      setFirstClickDate(day);
+
+      if (existingStart && existingEnd) {
+        if (day.getTime() < existingStart.getTime()) {
+          // Clicked before existing start: clicked becomes start, keep end
+          onChange?.({ start: day, end: existingEnd });
+        } else {
+          // Clicked on or after existing start: keep start, clicked becomes end
+          onChange?.({ start: existingStart, end: day });
+        }
+      } else {
+        // No existing range: clicked becomes both start and end
+        onChange?.({ start: day, end: day });
+      }
+    } else {
+      // Second click: combine with the first click to form the range
+      const firstDate = firstClickDate ?? day;
+
+      // Earlier date becomes start, later becomes end
+      let newStart = firstDate;
+      let newEnd = day;
+      if (newStart.getTime() > newEnd.getTime()) {
+        [newStart, newEnd] = [newEnd, newStart];
+      }
+
+      onChange?.({ start: newStart, end: newEnd });
+
+      // Close if we have a valid range with different dates
+      if (newStart.getTime() !== newEnd.getTime()) {
         setTimeout(() => setOpen(false), 100);
       }
-    } else if (!range?.from && !range?.to) {
-      onChange?.(null);
     }
   };
 
@@ -78,7 +120,7 @@ export function DateRangePicker({
     <Field className={cn("flex flex-col", className)}>
       {label && <FieldLabel>{label}</FieldLabel>}
       <div className="relative">
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={handleOpenChange}>
           <PopoverTrigger
             render={
               <Button
@@ -98,7 +140,13 @@ export function DateRangePicker({
             }
           />
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-            <Calendar mode="range" selected={dateRange} onSelect={handleSelect} numberOfMonths={1} />
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onDayClick={handleDayClick}
+              numberOfMonths={1}
+              defaultMonth={value?.start}
+            />
           </PopoverContent>
         </Popover>
         {hasValue && (
