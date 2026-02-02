@@ -3,24 +3,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "../utils";
 
-// NOTE: This diverges from stock ShadCN to use outline-based focus ring and transition-colors instead of transition-all.
+// NOTE: This diverges from stock ShadCN to use outline-based focus ring and per-variant active backgrounds for press feedback.
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 cursor-pointer select-none items-center justify-center whitespace-nowrap rounded-md font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground outline-primary hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground outline-primary hover:bg-primary/80 active:bg-primary/70",
         // NOTE: This diverges from stock ShadCN to use bg-white instead of bg-background for light mode.
         outline:
-          "border-border bg-white shadow-xs outline-ring hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-white shadow-xs outline-ring hover:bg-muted hover:text-foreground active:bg-accent aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:active:bg-input/60 dark:hover:bg-input/50",
         // NOTE: This diverges from stock ShadCN to use bg-white instead of bg-secondary for a neutral look.
         secondary:
-          "bg-white text-foreground outline-ring hover:bg-muted aria-expanded:bg-muted dark:bg-input/30 dark:hover:bg-input/50",
+          "bg-white text-foreground outline-ring hover:bg-muted active:bg-accent aria-expanded:bg-muted dark:bg-input/30 dark:active:bg-input/60 dark:hover:bg-input/50",
         ghost:
-          "outline-ring hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "outline-ring hover:bg-muted hover:text-foreground active:bg-accent aria-expanded:bg-muted aria-expanded:text-foreground dark:active:bg-muted/70 dark:hover:bg-muted/50",
         // NOTE: This diverges from stock ShadCN to use solid background with white text for accessibility.
-        destructive: "bg-destructive text-destructive-foreground outline-destructive hover:bg-destructive/90",
-        link: "text-primary underline-offset-4 outline-ring hover:underline"
+        destructive:
+          "bg-destructive text-destructive-foreground outline-destructive hover:bg-destructive/90 active:bg-destructive/80",
+        link: "text-primary underline-offset-4 outline-ring hover:underline active:opacity-70"
       },
       // NOTE: This diverges from stock ShadCN to use CSS variable heights for Apple HIG compliance (44px default tap targets).
       size: {

@@ -133,7 +133,7 @@ function TenantMenuDropdown({
     <button
       type="button"
       aria-label={t`Select account`}
-      className={`relative flex h-11 cursor-pointer items-center gap-0 overflow-visible rounded-md border-0 bg-transparent py-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${
+      className={`relative flex h-11 cursor-pointer items-center gap-0 overflow-visible rounded-md border-0 bg-transparent py-2 font-normal text-sm outline-ring transition-[colors,transform] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] active:bg-muted ${
         isCollapsed ? "ml-[6px] w-11 justify-center" : "w-full pr-2 pl-2"
       }`}
     >

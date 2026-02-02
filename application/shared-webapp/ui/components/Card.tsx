@@ -1,12 +1,13 @@
 import { cn } from "../utils";
 
-// NOTE: This diverges from stock ShadCN to add min-w-0 (allows shrinking in grid/flex) and overflow-hidden (contains content).
+// NOTE: This diverges from stock ShadCN to add min-w-0 (allows shrinking in grid/flex), overflow-hidden (contains content),
+// and active:bg-muted for press feedback on interactive cards.
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card"
       className={cn(
-        "flex min-w-0 flex-col gap-6 overflow-hidden rounded-xl border bg-card py-6 text-card-foreground shadow-sm",
+        "flex min-w-0 flex-col gap-6 overflow-hidden rounded-xl border bg-card py-6 text-card-foreground shadow-sm transition-colors active:bg-muted",
         className
       )}
       {...props}

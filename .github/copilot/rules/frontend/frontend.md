@@ -42,6 +42,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Import from `@repo/ui/components/`, never from BaseUI directly
    - Only create custom components when no ShadCN equivalent exists (edge cases)
    - **Cursor pointer**: Replace `cursor-default` with `cursor-pointer` on clickable elements
+   - **Active state feedback**: Add press feedback to interactive elements using `active:` pseudo-class with background color changes. Buttons/triggers: `active:bg-primary/70` (or variant-specific active backgrounds). Menu/list items: `active:bg-accent`. Small controls (checkbox, radio): `active:border-primary`
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
 
 ## Implementation

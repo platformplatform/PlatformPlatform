@@ -40,14 +40,14 @@ This directory contains all shared UI components used across the application.
 | Skeleton | `npx shadcn@latest add skeleton` | bg-muted instead of bg-accent | Loading placeholder |
 | SideMenu | Custom | - | Complex sidebar navigation |
 | SidePane | Custom | - | Docked side panel (desktop) / full-screen overlay (mobile) with accessibility. Exports: SidePane, SidePaneHeader, SidePaneBody, SidePaneFooter, SidePaneClose |
-| Tabs | `npx shadcn@latest add tabs` | Outline focus ring, CSS variable heights, data-[active] instead of data-[selected] (BaseUI difference) | - |
+| Tabs | `npx shadcn@latest add tabs` | Outline focus ring, CSS variable heights, data-[active] instead of data-[selected] (BaseUI difference), active:bg-muted/50 | - |
 | Sonner | `npx shadcn@latest add sonner` | Stock ShadCN (3rd party) | Third-party toast notification library |
-| Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |
+| Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, active:bg-muted, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |
 | TablePagination | Custom | - | Pagination wrapper for tables |
 | TenantLogo | Custom | - | Avatar wrapper for tenant logos with square shape support |
 | TextField | Custom | - | Field + Input + validation composition |
-| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights, cursor-pointer | - |
-| Tooltip | `npx shadcn@latest add tooltip` | Stock ShadCN | - |
+| Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights, cursor-pointer, active:bg-accent | - |
+| Tooltip | `npx shadcn@latest add tooltip` | Tap-to-open support for touch devices | - |
 | UnsavedChangesAlertDialog | Custom | - | Unsaved changes confirmation |
 
 ---
@@ -60,6 +60,7 @@ All ShadCN components have these common modifications applied:
 2. **Apple HIG compliance**: Fixed heights replaced with CSS variables (`--control-height` 44px, `--control-height-sm` 36px, `--control-height-xs` 28px). Smaller controls use `after:absolute after:-inset-3` for 44px tap targets
 3. **Background colors**: `bg-transparent` replaced with `bg-white dark:bg-input/30` for explicit light-mode backgrounds
 4. **Cursor pointer**: Clickable elements (buttons, toggles, checkboxes, radio buttons, select triggers, menu items) use `cursor-pointer`. ShadCN defaults to `cursor-default` on some elements
+5. **Active state feedback**: Interactive elements have press feedback via `active:` pseudo-class with background color changes. Buttons/triggers and menu items use `active:bg-*` variants. Smaller controls (checkbox, radio) use `active:border-primary`
 
 ## Divergence Documentation
 

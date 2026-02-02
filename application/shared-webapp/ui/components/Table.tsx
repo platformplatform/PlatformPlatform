@@ -165,10 +165,10 @@ function TableRow({ className, index, ...props }: TableRowProps) {
   return (
     <tr
       data-slot="table-row"
-      // NOTE: This diverges from stock ShadCN to add focus ring styles using outline instead of ring utilities
-      // and to support keyboard navigation via roving tabindex when an index prop and navigation context are present.
+      // NOTE: This diverges from stock ShadCN to add focus ring styles using outline instead of ring utilities,
+      // active:bg-muted for press feedback, and keyboard navigation via roving tabindex when an index prop and navigation context are present.
       className={cn(
-        "rounded-md border-b outline-ring transition-colors hover:bg-muted/50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 data-[state=selected]:bg-muted",
+        "rounded-md border-b outline-ring transition-colors hover:bg-muted/50 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 active:bg-muted data-[state=selected]:bg-muted",
         className
       )}
       tabIndex={hasNavigation ? (index === keyboardNavigation.focusedRowIndex ? 0 : -1) : undefined}

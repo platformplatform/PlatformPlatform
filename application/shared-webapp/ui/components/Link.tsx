@@ -3,6 +3,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, MouseEvent, ReactNode } from "react";
 import { cn } from "../utils";
 
+// NOTE: Button-styled variants (button-primary, button-secondary, button-destructive) diverge from stock ShadCN Link
+// to include active backgrounds for press feedback, matching the Button component.
 const linkVariants = cva(
   "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-1 py-0.5 font-medium outline-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
   {
@@ -16,11 +18,11 @@ const linkVariants = cva(
         icon: "size-10 rounded-lg bg-background/50 text-muted-foreground outline-ring hover:bg-background hover:text-foreground",
         button: "outline-ring",
         "button-primary":
-          "h-[var(--control-height)] bg-primary px-2.5 text-primary-foreground outline-primary hover:bg-primary/90",
+          "h-[var(--control-height)] bg-primary px-2.5 text-primary-foreground outline-primary hover:bg-primary/90 active:bg-primary/80",
         "button-secondary":
-          "h-[var(--control-height)] border border-border bg-background px-2.5 text-foreground outline-ring hover:bg-hover-background",
+          "h-[var(--control-height)] border border-border bg-background px-2.5 text-foreground outline-ring hover:bg-hover-background active:bg-accent",
         "button-destructive":
-          "h-[var(--control-height)] bg-destructive px-2.5 text-destructive-foreground outline-destructive hover:bg-destructive/90"
+          "h-[var(--control-height)] bg-destructive px-2.5 text-destructive-foreground outline-destructive hover:bg-destructive/90 active:bg-destructive/80"
       },
       underline: {
         true: "underline",

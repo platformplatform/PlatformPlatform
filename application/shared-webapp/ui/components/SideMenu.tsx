@@ -41,8 +41,9 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
   }
 };
 
+// NOTE: Menu items have active:bg-hover-background for press feedback on interactive menu buttons.
 const menuButtonStyles = cva(
-  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
   {
     variants: {
       isCollapsed: {
@@ -1277,7 +1278,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
             variant="ghost"
             size="icon"
             aria-label={ariaLabel}
-            className="size-14 rounded-full border border-border bg-background pressed:bg-muted shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
+            className="size-14 rounded-full border border-border bg-background shadow-lg hover:bg-hover-background focus:bg-hover-background active:bg-muted dark:hover:bg-hover-background"
             onClick={() => setIsOpen(true)}
           >
             <Menu className="size-7 text-foreground" />
@@ -1329,7 +1330,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                   size="icon"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="size-14 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="size-14 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90 active:bg-muted"
                 >
                   <X className="size-7" />
                 </Button>
