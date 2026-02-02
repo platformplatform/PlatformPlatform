@@ -1272,15 +1272,15 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
   return (
     <>
       {!isOpen && (
-        <div className="fixed right-4 bottom-4 z-20 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
+        <div className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden">
           <Button
             variant="ghost"
-            size="icon-lg"
+            size="icon"
             aria-label={ariaLabel}
-            className="size-16 rounded-full border border-border bg-background pressed:bg-muted shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
+            className="size-14 rounded-full border border-border bg-background pressed:bg-muted shadow-lg hover:bg-hover-background focus:bg-hover-background dark:hover:bg-hover-background"
             onClick={() => setIsOpen(true)}
           >
-            <Menu className="size-8 text-foreground" />
+            <Menu className="size-7 text-foreground" />
           </Button>
         </div>
       )}
@@ -1323,15 +1323,15 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
               </div>
 
               {/* Floating close button at bottom right - same position as hamburger */}
-              <div className="absolute right-4 bottom-4 z-10 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))]">
+              <div className="absolute right-3 bottom-3 z-10 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))]">
                 <Button
                   variant="ghost"
-                  size="icon-lg"
+                  size="icon"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="size-16 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="size-14 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
                 >
-                  <X className="size-8" />
+                  <X className="size-7" />
                 </Button>
               </div>
             </nav>
