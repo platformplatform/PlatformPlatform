@@ -19,7 +19,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InfoIcon, LoaderIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType, LoginMethod } from "@/shared/lib/api/client";
 
@@ -282,20 +281,16 @@ function SessionsPage() {
 
   if (isLoading) {
     return (
-      <>
-        <FederatedSideMenu currentSystem="account" />
-        <AppLayout variant="center" title={t`Sessions`}>
-          <div className="flex flex-1 items-center justify-center py-12">
-            <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
-          </div>
-        </AppLayout>
-      </>
+      <AppLayout variant="center" title={t`Sessions`}>
+        <div className="flex flex-1 items-center justify-center py-12">
+          <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
+        </div>
+      </AppLayout>
     );
   }
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout
         variant="center"
         title={t`Sessions`}

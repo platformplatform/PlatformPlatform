@@ -99,6 +99,7 @@ type MenuButtonProps = {
   icon: LucideIcon;
   label: string;
   isDisabled?: boolean;
+  matchPrefix?: boolean;
 } & (
   | {
       href: string;
@@ -161,7 +162,14 @@ function ActiveIndicator({ isActive }: { isActive: boolean }) {
   return <div className="absolute top-1/2 -left-3 h-8 w-1 -translate-y-1/2 bg-primary" />;
 }
 
-export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
+export function MenuButton({
+  icon: Icon,
+  label,
+  href: to,
+  isDisabled = false,
+  matchPrefix = false,
+  ...props
+}: Readonly<MenuButtonProps>) {
   const federatedNavigation = "federatedNavigation" in props ? props.federatedNavigation : false;
   const onNavigate = "onNavigate" in props ? props.onNavigate : undefined;
   const isCollapsed = useContext(collapsedContext);
@@ -169,9 +177,9 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   const router = useRouter();
 
   // Check if this menu item is active
-  const currentPath = router.state.location.pathname;
-  const targetPath = getTargetPath(to, router);
-  const isActive = normalizePath(currentPath) === normalizePath(targetPath);
+  const currentPath = normalizePath(router.state.location.pathname);
+  const targetPath = normalizePath(getTargetPath(to, router));
+  const isActive = matchPrefix ? currentPath.startsWith(targetPath) : currentPath === targetPath;
 
   // Check if we're in the mobile menu context
   const isMobileViewport = !window.matchMedia(MEDIA_QUERIES.sm).matches;
@@ -304,110 +312,6 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
       </RouterLink>
-    </div>
-  );
-}
-
-// Federated menu button for module federation
-type FederatedMenuButtonProps = {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-  isCurrentSystem: boolean;
-  isDisabled?: boolean;
-};
-
-export function FederatedMenuButton({
-  icon: Icon,
-  label,
-  href: to,
-  isCurrentSystem,
-  isDisabled = false
-}: Readonly<FederatedMenuButtonProps>) {
-  const isCollapsed = useContext(collapsedContext);
-  const overlayCtx = useContext(overlayContext);
-  const router = useRouter();
-
-  // Check if this menu item is active
-  // Use prefix matching for section paths (e.g., /admin/users matches /admin/users/recycle-bin)
-  // Use exact matching for root paths (e.g., /admin only matches /admin)
-  const currentPath = normalizePath(router.state.location.pathname);
-  const targetPath = normalizePath(to);
-  const targetSegments = targetPath.split("/").filter(Boolean);
-  const isRootPath = targetSegments.length <= 1;
-  const isActive = isRootPath ? currentPath === targetPath : currentPath.startsWith(targetPath);
-
-  // Check if we're in the mobile menu context
-  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
-
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
-
-  const handleNavigation = useCallback(() => {
-    if (isDisabled) {
-      return;
-    }
-
-    // Small delay to ensure touch events are fully processed
-    setTimeout(() => {
-      // Auto-close overlay after navigation
-      if (overlayCtx?.isOpen) {
-        overlayCtx.close();
-      }
-
-      if (isCurrentSystem) {
-        // Same system - use TanStack Router navigation to respect blockers
-        router.navigate({ to });
-      } else {
-        // Different system - force reload
-        window.location.href = to;
-      }
-    }, 10);
-  }, [isDisabled, overlayCtx, isCurrentSystem, router, to]);
-
-  // For collapsed menu, wrap in Tooltip
-  if (isCollapsed) {
-    return (
-      <div className="relative">
-        <ActiveIndicator isActive={isActive} />
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Link
-                href={undefined}
-                className={linkClassName}
-                variant="ghost"
-                underline={false}
-                disabled={isDisabled}
-                aria-current={isActive ? "page" : undefined}
-                onClick={handleNavigation}
-              >
-                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-              </Link>
-            }
-          />
-          <TooltipContent side="right" sideOffset={4}>
-            {label}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    );
-  }
-
-  // For expanded menu, use Link for consistent touch handling
-  return (
-    <div className="relative">
-      <ActiveIndicator isActive={isActive} />
-      <Link
-        href={undefined}
-        className={linkClassName}
-        variant="ghost"
-        underline={false}
-        disabled={isDisabled}
-        aria-current={isActive ? "page" : undefined}
-        onClick={handleNavigation}
-      >
-        <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-      </Link>
     </div>
   );
 }
