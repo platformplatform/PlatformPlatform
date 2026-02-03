@@ -17,6 +17,7 @@ This directory contains all shared UI components used across the application.
 | Calendar | `npx shadcn@latest add calendar` | 44px cell size for Apple HIG, weekStartsOn=Monday, locale from app context, capitalized month names, hover maintains selected styling | Third-party component using react-day-picker library |
 | Card | `npx shadcn@latest add card` | min-w-0 and overflow-hidden on Card, text-lg and mb-1 on CardTitle, active:bg-muted | - |
 | Checkbox | `npx shadcn@latest add checkbox` | Larger size (20px), outline focus ring, 44px tap target, cursor-pointer, active:border-primary | - |
+| ContextMenu | `npx shadcn@latest add context-menu` | py-3 touch targets, cursor-pointer on items, active:bg-accent | Right-click (desktop) / long-press (mobile) menu |
 | DateRangePicker | `npx shadcn@latest add calendar-23` | Auto-close on selection, clear button, Field wrapper, hover:bg-white trigger, locale-aware date formatting | ShadCN block template |
 | Dialog | `npx shadcn@latest add dialog` | DirtyDialog integration, mobile full-screen, DialogBody padding and flex layout, DialogTitle top margin | - |
 | DirtyDialog | Custom | - | Unsaved changes warning wrapper |

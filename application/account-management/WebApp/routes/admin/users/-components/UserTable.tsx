@@ -5,6 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar"
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger
+} from "@repo/ui/components/ContextMenu";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -431,6 +438,40 @@ function UserTableContent({
           <TableBody>
             {usersList.map((user, index) => {
               const isSelected = selectedUserIds.has(user.id);
+              const userRowContent = (
+                <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
+                  <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
+                    <Avatar size="lg">
+                      <AvatarImage src={user.avatarUrl ?? undefined} />
+                      <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-center gap-2 truncate text-foreground">
+                        <span className="truncate">
+                          {user.firstName || user.lastName
+                            ? `${user.firstName} ${user.lastName}`.trim()
+                            : isMobile
+                              ? user.email
+                              : ""}
+                        </span>
+                        {!isMobile && !user.emailConfirmed && (
+                          <Badge variant="outline" className="shrink-0">
+                            <Trans>Pending</Trans>
+                          </Badge>
+                        )}
+                      </div>
+                      {isMobile && !user.emailConfirmed ? (
+                        <Badge variant="outline" className="mt-1 -ml-2 w-fit">
+                          <Trans>Pending</Trans>
+                        </Badge>
+                      ) : (
+                        <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+
               return (
                 <TableRow
                   key={user.id}
@@ -440,37 +481,42 @@ function UserTableContent({
                   index={index}
                 >
                   <TableCell>
-                    <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
-                      <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
-                        <Avatar size="lg">
-                          <AvatarImage src={user.avatarUrl ?? undefined} />
-                          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <div className="flex items-center gap-2 truncate text-foreground">
-                            <span className="truncate">
-                              {user.firstName || user.lastName
-                                ? `${user.firstName} ${user.lastName}`.trim()
-                                : isMobile
-                                  ? user.email
-                                  : ""}
-                            </span>
-                            {!isMobile && !user.emailConfirmed && (
-                              <Badge variant="outline" className="shrink-0">
-                                <Trans>Pending</Trans>
-                              </Badge>
-                            )}
-                          </div>
-                          {isMobile && !user.emailConfirmed ? (
-                            <Badge variant="outline" className="mt-1 -ml-2 w-fit">
-                              <Trans>Pending</Trans>
-                            </Badge>
-                          ) : (
-                            <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                    {isMobile ? (
+                      <ContextMenu
+                        onOpenChange={(isOpen) => {
+                          if (isOpen) {
+                            onSelectedUsersChange([user]);
+                          }
+                        }}
+                      >
+                        <ContextMenuTrigger className="block w-full">{userRowContent}</ContextMenuTrigger>
+                        <ContextMenuContent className="w-auto">
+                          <ContextMenuItem onClick={() => onViewProfile(user, false)}>
+                            <UserIcon className="size-4" />
+                            <Trans>View profile</Trans>
+                          </ContextMenuItem>
+                          {userInfo?.role === "Owner" && (
+                            <>
+                              <ContextMenuItem disabled={user.id === userInfo?.id} onClick={() => onChangeRole(user)}>
+                                <SettingsIcon className="size-4" />
+                                <Trans>Change role</Trans>
+                              </ContextMenuItem>
+                              <ContextMenuSeparator />
+                              <ContextMenuItem
+                                disabled={user.id === userInfo?.id}
+                                variant="destructive"
+                                onClick={() => onDeleteUser(user)}
+                              >
+                                <Trash2Icon className="size-4" />
+                                <Trans>Delete</Trans>
+                              </ContextMenuItem>
+                            </>
                           )}
-                        </div>
-                      </div>
-                    </div>
+                        </ContextMenuContent>
+                      </ContextMenu>
+                    ) : (
+                      userRowContent
+                    )}
                   </TableCell>
                   {!isMobile && (
                     <>
