@@ -193,7 +193,7 @@ export function CompleteLoginForm() {
   }
 
   return (
-    <div className="w-full max-w-sm space-y-3">
+    <div className="w-full max-w-[330px] space-y-3 sm:max-w-[290px]">
       <Form
         onSubmit={(event) => {
           event.preventDefault();
@@ -216,7 +216,7 @@ export function CompleteLoginForm() {
       >
         <input type="hidden" name="id" value={getLoginState().loginId} />
         <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
-        <div className="flex w-full flex-col gap-4 rounded-lg px-6 pt-8 pb-4">
+        <div className="flex w-full flex-col gap-3 rounded-lg pt-6 pb-4 sm:gap-4 sm:pt-8">
           <div className="flex justify-center">
             <Link href="/" className="cursor-pointer">
               <img src={logoMarkUrl} alt={t`Logo`} className="size-12" />
@@ -287,7 +287,7 @@ export function CompleteLoginForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-2 px-6 text-neutral-500 text-xs">
+      <div className="flex flex-col items-center gap-2 text-neutral-500 text-xs">
         <div className="text-center text-sm">
           <Trans>Can&apos;t find your code?</Trans>{" "}
           {/* Show either the spam folder message or the request link message based on conditions */}
@@ -324,7 +324,7 @@ export function CompleteLoginForm() {
           <Trans>Back to login</Trans>
         </Link>
         <div className="mt-6 flex flex-col items-center gap-1">
-          <span className="text-muted-foreground text-xs">
+          <span className="text-muted-foreground text-sm">
             <Trans>Powered by</Trans>
           </span>
           <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

@@ -68,7 +68,7 @@ export function LoginForm() {
       onSubmit={mutationSubmitter(startLoginMutation)}
       validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
+      className="flex w-full max-w-[330px] flex-col items-center gap-3 pt-6 pb-4 sm:max-w-[290px] sm:gap-4 sm:pt-8"
     >
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
@@ -104,7 +104,7 @@ export function LoginForm() {
         We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
       */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-muted-foreground text-xs">
+        <span className="text-muted-foreground text-sm">
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">
