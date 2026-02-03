@@ -142,7 +142,7 @@ test.describe("@smoke", () => {
     await step("Open account menu & verify user information displays")(async () => {
       // Navigate to account page to access account menu in sidebar
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
 
       // Open account menu and verify user info - use dispatchEvent for reliable opening on Firefox
       const accountMenuButton = page.getByRole("button", { name: "Account menu" });
@@ -168,8 +168,8 @@ test.describe("@smoke", () => {
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();
 
-      // Click Edit button to navigate to profile page
-      await accountMenu.getByRole("button", { name: "Edit" }).click();
+      // Click profile menuitem to navigate to profile page
+      await accountMenu.getByRole("menuitem").filter({ hasText: "Edit" }).dispatchEvent("click");
 
       // Verify profile page loads with saved data
       await expect(page).toHaveURL("/account/profile");
@@ -214,8 +214,8 @@ test.describe("@smoke", () => {
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();
 
-      // Click Edit button to navigate to profile page
-      await accountMenu.getByRole("button", { name: "Edit" }).click();
+      // Click profile menuitem to navigate to profile page
+      await accountMenu.getByRole("menuitem").filter({ hasText: "Edit" }).dispatchEvent("click");
 
       // Verify profile page loads
       await expect(page).toHaveURL("/account/profile");
@@ -229,7 +229,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to account page")(async () => {
-      await page.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page.getByLabel("Main navigation").getByRole("link", { name: "Settings" }).click();
 
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
     })();

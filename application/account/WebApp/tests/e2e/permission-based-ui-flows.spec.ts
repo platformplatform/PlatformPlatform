@@ -124,7 +124,7 @@ test.describe("@smoke", () => {
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
 
       const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
@@ -343,7 +343,7 @@ test.describe("@smoke", () => {
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
 
       const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");

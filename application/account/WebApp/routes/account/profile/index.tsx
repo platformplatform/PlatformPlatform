@@ -21,7 +21,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
 import { useContext, useRef, useState } from "react";
 import { toast } from "sonner";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
@@ -108,33 +107,26 @@ function ProfilePage() {
 
   if (isLoadingUser) {
     return (
-      <>
-        <FederatedSideMenu currentSystem="account" />
-        <AppLayout variant="center">
-          <div className="flex flex-1 items-center justify-center">
-            <Trans>Loading...</Trans>
-          </div>
-        </AppLayout>
-      </>
+      <AppLayout variant="center">
+        <div className="flex flex-1 items-center justify-center">
+          <Trans>Loading...</Trans>
+        </div>
+      </AppLayout>
     );
   }
 
   if (!user) {
     return (
-      <>
-        <FederatedSideMenu currentSystem="account" />
-        <AppLayout variant="center">
-          <div className="flex flex-1 items-center justify-center">
-            <Trans>Unable to load profile</Trans>
-          </div>
-        </AppLayout>
-      </>
+      <AppLayout variant="center">
+        <div className="flex flex-1 items-center justify-center">
+          <Trans>Unable to load profile</Trans>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout
         variant="center"
         title={t`Profile`}
@@ -251,7 +243,7 @@ function ProfilePage() {
             placeholder={t`E.g. Software engineer`}
           />
 
-          <div className="mt-4 flex">
+          <div className="mt-4 flex justify-end">
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
             </Button>

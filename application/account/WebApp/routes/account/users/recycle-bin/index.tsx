@@ -4,7 +4,6 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import FederatedAccessDeniedPage from "@/federated-modules/errorPages/FederatedAccessDeniedPage";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import type { components } from "@/shared/lib/api/client";
 import { UserTabNavigation } from "../-components/UserTabNavigation";
 import { DeletedUsersTable } from "./-components/DeletedUsersTable";
@@ -46,7 +45,6 @@ export default function DeletedUsersPage() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout title={t`Users`} subtitle={t`Manage your users and permissions here.`} scrollAwayHeader={true}>
         <div className="flex min-h-0 flex-1 flex-col">
           <UserTabNavigation activeTab="recycle-bin" />

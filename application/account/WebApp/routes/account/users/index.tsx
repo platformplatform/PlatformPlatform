@@ -4,7 +4,6 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { api, type components, SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
@@ -133,11 +132,15 @@ export default function UsersPage() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
-      <AppLayout sidePane={getSidePane()} title={t`Users`} subtitle={t`Manage your users and permissions here.`}>
+      <AppLayout
+        sidePane={getSidePane()}
+        title={t`Users`}
+        subtitle={t`Manage your users and permissions here.`}
+        scrollAwayHeader={true}
+      >
         <div className="flex min-h-0 flex-1 flex-col">
           {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
-          <div className="sticky top-7 z-10 -mx-4 bg-background px-4 pt-3 sm:static sm:z-auto sm:mx-0 sm:px-0 sm:pt-0">
+          <div className="max-sm:sticky max-sm:top-12">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">

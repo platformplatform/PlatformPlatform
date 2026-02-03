@@ -23,7 +23,6 @@ import { CameraIcon, Trash2, Trash2Icon } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
@@ -230,7 +229,7 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
           <Trans>Delete your account and all data. This action is irreversible—proceed with caution.</Trans>
         </p>
 
-        <Button variant="destructive" onClick={() => setIsDeleteModalOpen(true)} className="max-sm:w-full">
+        <Button variant="destructive" onClick={() => setIsDeleteModalOpen(true)} className="w-fit max-sm:w-full">
           <Trash2 />
           <Trans>Delete account</Trans>
         </Button>
@@ -292,7 +291,6 @@ export function AccountSettings() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout variant="center" title={t`Account settings`} subtitle={t`Manage your account here.`}>
         <Form
           onSubmit={isOwner ? mutationSubmitter(updateCurrentTenantMutation) : undefined}
@@ -328,7 +326,7 @@ export function AccountSettings() {
             onChange={() => setIsFormDirty(true)}
           />
           {isOwner && (
-            <Button type="submit" className="mt-4 max-sm:w-full" disabled={updateCurrentTenantMutation.isPending}>
+            <Button type="submit" className="mt-4 w-fit max-sm:w-full" disabled={updateCurrentTenantMutation.isPending}>
               {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
             </Button>
           )}
