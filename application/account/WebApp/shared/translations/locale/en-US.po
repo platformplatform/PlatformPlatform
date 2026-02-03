@@ -176,9 +176,6 @@ msgstr "Azure Compliance"
 msgid "Azure Compliance (opens in new window)"
 msgstr "Azure Compliance (opens in new window)"
 
-msgid "Back Office"
-msgstr "Back Office"
-
 msgid "Back to app"
 msgstr "Back to app"
 
@@ -427,9 +424,6 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
-msgid "Here's your overview of what's happening."
-msgstr "Here's your overview of what's happening."
-
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
 
@@ -604,11 +598,11 @@ msgstr "Open navigation menu"
 msgid "or"
 msgstr "or"
 
-msgid "Organization"
-msgstr "Organization"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+
+msgid "Overview"
+msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
@@ -793,6 +787,9 @@ msgstr "Session revoked successfully"
 
 msgid "Sessions"
 msgstr "Sessions"
+
+msgid "Settings"
+msgstr "Settings"
 
 msgid "Show details"
 msgstr "Show details"
@@ -1024,13 +1021,6 @@ msgstr "We detected a security issue with your login attempt. Please try again."
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "We detected suspicious activity on your account. Someone may have attempted to take over your session."
-
-msgid "Welcome home"
-msgstr "Welcome home"
-
-#. placeholder {0}: userInfo.firstName
-msgid "Welcome home, {0}"
-msgstr "Welcome home, {0}"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."

@@ -176,11 +176,8 @@ msgstr "Azure Overholdelse"
 msgid "Azure Compliance (opens in new window)"
 msgstr "Azure Overholdelse (åbner i nyt vindue)"
 
-msgid "Back Office"
-msgstr "Back Office"
-
 msgid "Back to app"
-msgstr "Tilbage til app"
+msgstr "Tilbage til appen"
 
 msgid "Back to login"
 msgstr "Tilbage til login"
@@ -427,9 +424,6 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
-msgid "Here's your overview of what's happening."
-msgstr "Her er din oversigt over, hvad der sker."
-
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
 
@@ -604,11 +598,11 @@ msgstr "Åbn navigationsmenu"
 msgid "or"
 msgstr "eller"
 
-msgid "Organization"
-msgstr "Organisation"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at alle dine data bliver fjernet."
+
+msgid "Overview"
+msgstr "Overblik"
 
 msgid "Owner"
 msgstr "Ejer"
@@ -793,6 +787,9 @@ msgstr "Session tilbagekaldt succesfuldt"
 
 msgid "Sessions"
 msgstr "Sessioner"
+
+msgid "Settings"
+msgstr "Indstillinger"
 
 msgid "Show details"
 msgstr "Vis detaljer"
@@ -1024,13 +1021,6 @@ msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst ig
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."
-
-msgid "Welcome home"
-msgstr "Velkommen hjem"
-
-#. placeholder {0}: userInfo.firstName
-msgid "Welcome home, {0}"
-msgstr "Velkommen hjem, {0}"
 
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."

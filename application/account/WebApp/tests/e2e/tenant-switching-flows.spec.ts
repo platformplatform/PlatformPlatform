@@ -309,7 +309,7 @@ test.describe("@comprehensive", () => {
       await expect(accountMenuButton).toContainText(tertiaryTenantName);
 
       // Navigate to Account page
-      await page1.getByLabel("Main navigation").getByRole("link", { name: "Account" }).click();
+      await page1.getByLabel("Main navigation").getByRole("link", { name: "Settings" }).click();
       await expect(page1.getByRole("heading", { name: "Account settings" })).toBeVisible();
 
       // Should show correct tenant name in account settings
