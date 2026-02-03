@@ -73,7 +73,7 @@ export function DeletedUsersToolbar({
   }
 
   return (
-    <div className="mb-4 flex items-center justify-end gap-2">
+    <div className="mb-4 flex items-center justify-end gap-2 max-sm:*:grow">
       {hasSelection ? (
         <>
           <Button
