@@ -168,6 +168,14 @@ html {
   h1 + p {
     @apply mb-6 font-normal text-muted-foreground text-sm;
   }
+  /* Separator following a heading - reduce the gap */
+  h1 + [data-slot="separator"],
+  h3 + [data-slot="separator"] {
+    @apply -mt-2;
+  }
+  h2 + [data-slot="separator"] {
+    @apply -mt-1;
+  }
   /* Subtitle styling for secondary text */
   .subtitle {
     @apply font-normal text-muted-foreground text-sm;
