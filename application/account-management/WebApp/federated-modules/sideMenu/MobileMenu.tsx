@@ -16,6 +16,9 @@ import ThemeModeSelector from "../common/ThemeModeSelector";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
 
+// Delay before closing menu to allow dialog to render on top (dialog z-50 > menu z-40)
+const MENU_CLOSE_DELAY = 250;
+
 // Mobile menu header section with user profile and settings
 function MobileMenuHeader({
   onEditProfile,
@@ -43,9 +46,22 @@ function MobileMenuHeader({
     }
   });
 
+  // Opens a dialog from the menu: dialog opens immediately (appears on top of menu),
+  // then menu closes after a delay (closing happens behind the dialog)
+  const openDialogFromMenu = (openDialog: () => void) => {
+    openDialog();
+    setTimeout(() => overlayCtx?.close(), MENU_CLOSE_DELAY);
+  };
+
+  // Closes menu immediately (for actions that don't open a dialog)
+  const closeMenu = () => overlayCtx?.close();
+
+  // Standard button styles for menu items
+  const menuButtonClass =
+    "flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground";
+
   return (
     <div>
-      {/* User Profile Section */}
       <div className="flex flex-col gap-3">
         {/* User Profile */}
         {userInfo && (
@@ -58,139 +74,49 @@ function MobileMenuHeader({
               <div className="truncate font-medium text-foreground text-sm">{userInfo.fullName}</div>
               <div className="truncate text-muted-foreground text-xs">{userInfo.title ?? userInfo.email}</div>
             </div>
-            <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
-              <Button
-                variant="outline"
-                size="default"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setTimeout(() => {
-                    onEditProfile();
-                    if (overlayCtx?.isOpen) {
-                      overlayCtx.close();
-                    }
-                  }, 10);
-                }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                style={{ pointerEvents: "auto", position: "relative", touchAction: "none" }}
-              >
-                <UserIcon />
-                <Trans>Edit</Trans>
-              </Button>
-            </div>
+            <Button variant="outline" size="default" onClick={() => openDialogFromMenu(onEditProfile)}>
+              <UserIcon />
+              <Trans>Edit</Trans>
+            </Button>
           </div>
         )}
 
         {/* Sessions */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setTimeout(() => {
-                onShowSessions();
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto", touchAction: "none" }}
-          >
-            <div className="flex size-6 shrink-0 items-center justify-center">
-              <MonitorSmartphoneIcon className="size-5 stroke-current" />
-            </div>
-            <div className="overflow-hidden whitespace-nowrap text-start">
-              <Trans>Sessions</Trans>
-            </div>
-          </Button>
-        </div>
+        <Button variant="ghost" onClick={() => openDialogFromMenu(onShowSessions)} className={menuButtonClass}>
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <MonitorSmartphoneIcon className="size-5 stroke-current" />
+          </div>
+          <Trans>Sessions</Trans>
+        </Button>
 
         {/* Logout */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-                logoutMutation.mutate({});
-              }, 10);
-            }}
-            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto", touchAction: "none" }}
-          >
-            <div className="flex size-6 shrink-0 items-center justify-center">
-              <LogOutIcon className="size-5 stroke-current" />
-            </div>
-            <div className="overflow-hidden whitespace-nowrap text-start">
-              <Trans>Log out</Trans>
-            </div>
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            closeMenu();
+            logoutMutation.mutate({});
+          }}
+          className={menuButtonClass}
+        >
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <LogOutIcon className="size-5 stroke-current" />
+          </div>
+          <Trans>Log out</Trans>
+        </Button>
 
-        {/* Theme Section - using ThemeModeSelector with mobile menu variant */}
-        <div className="flex items-center justify-between">
-          <ThemeModeSelector
-            variant="mobile-menu"
-            onAction={() => {
-              // Small delay to ensure touch events are fully processed
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-          />
-        </div>
+        {/* Theme */}
+        <ThemeModeSelector variant="mobile-menu" onAction={closeMenu} />
 
-        {/* Language Section - using LocaleSwitcher with mobile menu variant */}
-        <div className="flex items-center justify-between">
-          <LocaleSwitcher
-            variant="mobile-menu"
-            onAction={() => {
-              // Small delay to ensure touch events are fully processed
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-          />
-        </div>
+        {/* Language */}
+        <LocaleSwitcher variant="mobile-menu" onAction={closeMenu} />
 
-        {/* Support Section - styled like menu item */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setTimeout(() => {
-                onShowSupport();
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-            className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto", touchAction: "none" }}
-          >
-            <div className="flex size-6 shrink-0 items-center justify-center">
-              <MailQuestion className="size-5 stroke-current" />
-            </div>
-            <div className="overflow-hidden whitespace-nowrap text-start">
-              <Trans>Contact support</Trans>
-            </div>
-          </Button>
-        </div>
+        {/* Support */}
+        <Button variant="ghost" onClick={() => openDialogFromMenu(onShowSupport)} className={menuButtonClass}>
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <MailQuestion className="size-5 stroke-current" />
+          </div>
+          <Trans>Contact support</Trans>
+        </Button>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { t } from "@lingui/core/macro";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { SideMenu } from "@repo/ui/components/SideMenu";
 import { useState } from "react";
 import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
@@ -22,7 +21,6 @@ export type FederatedSideMenuProps = {
 };
 
 export default function FederatedSideMenu({ currentSystem }: Readonly<FederatedSideMenuProps>) {
-  const _userInfo = useUserInfo();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
   const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
