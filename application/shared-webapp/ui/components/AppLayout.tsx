@@ -237,7 +237,7 @@ export function AppLayout({
   return (
     <div className="flex h-full flex-col">
       <div
-        className={`${className} ${sidePane ? "grid grid-cols-[1fr_24rem] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_24rem] sm:grid" : "flex flex-col"} h-full min-h-0 overflow-hidden`}
         style={style}
       >
         {/* Mobile sticky header - appears when page header scrolls out of view */}
@@ -245,7 +245,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
+              "fixed top-[var(--banner-offset,0rem)] right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               (scrollAwayHeader ? isFullyScrolled : isSticky)
@@ -261,7 +261,7 @@ export function AppLayout({
         {/* Main content area */}
         <main
           ref={contentRef}
-          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-[calc(1rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-[calc(2rem+var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))]"
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-8"
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
@@ -293,7 +293,7 @@ export function AppLayout({
         {/* Side pane area - fullscreen mode uses portal, side-by-side uses this wrapper */}
         {sidePane && (
           <aside
-            className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-40 bg-card md:left-auto md:w-96"
+            className="fixed top-[var(--banner-offset,0rem)] right-0 bottom-0 left-0 z-40 bg-card md:left-auto md:w-96"
             aria-label="Side panel"
           >
             {sidePane}
