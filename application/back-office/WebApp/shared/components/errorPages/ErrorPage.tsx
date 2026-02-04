@@ -4,6 +4,7 @@ import { applicationInsights } from "@repo/infrastructure/applicationInsights/Ap
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/routeGuards";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -11,6 +12,8 @@ import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
+import { AccessDeniedPage } from "./AccessDeniedPage";
+import { NotFoundPage } from "./NotFoundPage";
 
 function useAuthInfoSafe() {
   const context = useContext(AuthenticationContext);
@@ -67,7 +70,21 @@ function ErrorNavigation() {
   );
 }
 
-export function ErrorPage({ error }: Readonly<ErrorComponentProps>) {
+export function ErrorPage(props: Readonly<ErrorComponentProps>) {
+  // Handle not found errors with dedicated page
+  if (isNotFoundError(props.error)) {
+    return <NotFoundPage />;
+  }
+
+  // Handle access denied errors with dedicated page
+  if (isAccessDeniedError(props.error)) {
+    return <AccessDeniedPage />;
+  }
+
+  return <GeneralErrorPage {...props} />;
+}
+
+function GeneralErrorPage({ error }: Readonly<ErrorComponentProps>) {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
