@@ -108,6 +108,9 @@ msgstr "Add profile picture"
 msgid "Add your account name"
 msgstr "Add your account name"
 
+msgid "Add your account name and logo."
+msgstr "Add your account name and logo."
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -246,6 +249,9 @@ msgstr "Contact support"
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
 
+msgid "Continue"
+msgstr "Continue"
+
 msgid "Create your account"
 msgstr "Create your account"
 
@@ -330,6 +336,9 @@ msgstr "Don't have an account? <0>Create one</0>"
 
 msgid "DPA"
 msgstr "DPA"
+
+msgid "E.g. Acme Corp"
+msgstr "E.g. Acme Corp"
 
 msgid "E.g. Alex"
 msgstr "E.g. Alex"
@@ -471,6 +480,12 @@ msgstr "Leave"
 
 msgid "Legal and Compliance"
 msgstr "Legal and Compliance"
+
+msgid "Let's set up your account"
+msgstr "Let's set up your account"
+
+msgid "Let's set up your profile"
+msgstr "Let's set up your profile"
 
 msgid "Light"
 msgstr "Light"
@@ -668,9 +683,6 @@ msgstr "Profile"
 msgid "Profile avatar"
 msgstr "Profile avatar"
 
-msgid "Profile picture"
-msgstr "Profile picture"
-
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
 
@@ -835,6 +847,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tell us a bit about yourself to get started."
+msgstr "Tell us a bit about yourself to get started."
 
 msgid "Terms"
 msgstr "Terms"

@@ -47,25 +47,20 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/signup/verify");
     })();
 
-    await step("Enter verification code & verify redirect to dashboard (cross-SCS navigation)")(async () => {
+    await step("Enter verification code & complete welcome flow (cross-SCS navigation)")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/dashboard");
-    })();
-
-    await step("Set up account name & user profile for owner")(async () => {
-      await page.goto("/account/settings");
-      await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await page.getByRole("button", { name: "Continue" }).click();
 
-      await page.goto("/account/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(owner.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(owner.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Profile updated successfully");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page).toHaveURL("/dashboard");
     })();
 
     // === ACCOUNT AREA NAVIGATION ===
@@ -164,7 +159,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL(/\/login/);
     })();
 
-    await step("Login as member & verify redirect to dashboard (cross-SCS navigation)")(async () => {
+    await step("Login as member & complete welcome flow (cross-SCS navigation)")(async () => {
       await page.goto("/login");
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
       await page.getByRole("button", { name: "Log in with email" }).click();
@@ -172,16 +167,13 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/dashboard");
-    })();
-
-    await step("Set up member profile")(async () => {
-      await page.goto("/account/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
-      await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Profile updated successfully");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page).toHaveURL("/dashboard");
     })();
 
     await step("Navigate to profile as member & verify profile page renders")(async () => {

@@ -51,12 +51,15 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("button", { name: "Open navigation menu" })).toBeVisible();
 
       // Verify side menu navigation links are hidden
-      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Overview" })).not.toBeVisible();
-      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Settings" })).not.toBeVisible();
+      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Home" })).not.toBeVisible();
+      await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Account" })).not.toBeVisible();
       await expect(page.getByLabel("Main navigation").getByRole("link", { name: "Users" })).not.toBeVisible();
 
-      // Verify account menu is hidden on mobile (theme, language, etc. are in mobile menu)
-      await expect(page.getByRole("button", { name: "Account menu" })).not.toBeVisible();
+      // Verify top menu buttons are hidden on mobile
+      await expect(page.getByRole("button", { name: "Change theme" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Contact support" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "Change language" })).not.toBeVisible();
+      await expect(page.getByRole("button", { name: "User profile menu" })).not.toBeVisible();
     })();
 
     await step("Open mobile menu & verify all navigation and settings are accessible")(async () => {
@@ -81,15 +84,13 @@ test.describe("@comprehensive", () => {
     })();
 
     // === USER PROFILE EDITING ===
-    await step("Edit user profile through mobile menu & verify navigation to profile page")(async () => {
+    await step("Navigate to profile page via mobile menu link & verify profile form")(async () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Edit" }).click();
+      await mobileDialog.getByRole("link", { name: "Profile" }).click();
 
-      // Wait for mobile menu to close
+      // Wait for mobile menu to close and profile page to load
       await expect(mobileDialog).not.toBeVisible();
-
-      // Navigate to profile page directly (mobile Edit button navigates via main SCS router which doesn't update AccountApp's memory router)
-      await page.goto("/account/profile");
+      await expect(page).toHaveURL("/account/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       // Verify form fields are present
@@ -110,9 +111,8 @@ test.describe("@comprehensive", () => {
       // Wait for success toast
       await expectToastMessage(context, "Profile updated successfully");
 
-      // Navigate back to account page and verify changes are reflected in mobile menu
+      // Navigate back to home and verify changes are reflected in mobile menu
       await page.goto("/account");
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       await page.getByRole("button", { name: "Open navigation menu" }).click();
       await expect(page.getByText(newTitle)).toBeVisible();
 
