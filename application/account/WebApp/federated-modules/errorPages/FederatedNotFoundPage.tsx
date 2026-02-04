@@ -80,7 +80,7 @@ export default function FederatedNotFoundPage() {
       <NotFoundNavigation />
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
-        <div className="flex max-w-lg flex-col items-center gap-6">
+        <div className="flex w-full max-w-lg flex-col items-center gap-6">
           <div className="flex size-20 items-center justify-center rounded-full bg-muted">
             <FileQuestion className="size-10 text-muted-foreground" />
           </div>

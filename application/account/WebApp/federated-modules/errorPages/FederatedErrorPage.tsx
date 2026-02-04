@@ -4,6 +4,7 @@ import { applicationInsights } from "@repo/infrastructure/applicationInsights/Ap
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/routeGuards";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import type { ErrorComponentProps } from "@tanstack/react-router";
@@ -14,6 +15,8 @@ import logoWrap from "@/shared/images/logo-wrap.svg";
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import SupportButton from "../common/SupportButton";
 import ThemeModeSelector from "../common/ThemeModeSelector";
+import FederatedAccessDeniedPage from "./FederatedAccessDeniedPage";
+import FederatedNotFoundPage from "./FederatedNotFoundPage";
 import "@repo/ui/tailwind.css";
 
 function useAuthInfoSafe() {
@@ -76,7 +79,21 @@ function ErrorNavigation() {
   );
 }
 
-export default function FederatedErrorPage({ error }: Readonly<ErrorComponentProps>) {
+export default function FederatedErrorPage(props: Readonly<ErrorComponentProps>) {
+  // Handle not found errors with dedicated page
+  if (isNotFoundError(props.error)) {
+    return <FederatedNotFoundPage />;
+  }
+
+  // Handle access denied errors with dedicated page
+  if (isAccessDeniedError(props.error)) {
+    return <FederatedAccessDeniedPage />;
+  }
+
+  return <GeneralErrorPage {...props} />;
+}
+
+function GeneralErrorPage({ error }: Readonly<ErrorComponentProps>) {
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -101,7 +118,7 @@ export default function FederatedErrorPage({ error }: Readonly<ErrorComponentPro
       <ErrorNavigation />
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
-        <div className="flex max-w-lg flex-col items-center gap-6">
+        <div className="flex w-full max-w-lg flex-col items-center gap-6">
           <div className="flex size-20 items-center justify-center rounded-full bg-destructive/10">
             <AlertTriangle className="size-10 text-destructive" />
           </div>
@@ -137,7 +154,7 @@ export default function FederatedErrorPage({ error }: Readonly<ErrorComponentPro
             </Button>
           </div>
 
-          {error?.message && (
+          {error instanceof Error && error.message && (
             <div className="mt-4 w-full">
               <Button
                 variant="ghost"

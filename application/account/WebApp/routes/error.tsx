@@ -278,7 +278,7 @@ function ErrorPage() {
       <ErrorNavigation />
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
-        <div className="flex max-w-lg flex-col items-center gap-6">
+        <div className="flex w-full max-w-lg flex-col items-center gap-6">
           <div className={`flex size-20 items-center justify-center rounded-full ${errorDisplay.iconBackground}`}>
             {errorDisplay.icon}
           </div>
