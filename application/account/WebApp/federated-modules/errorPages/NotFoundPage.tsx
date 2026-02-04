@@ -1,22 +1,17 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/routeGuards";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
-import type { ErrorComponentProps } from "@tanstack/react-router";
-import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { FileQuestion, Home, LogOut } from "lucide-react";
+import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import SupportButton from "../common/SupportButton";
 import ThemeModeSelector from "../common/ThemeModeSelector";
-import FederatedAccessDeniedPage from "./FederatedAccessDeniedPage";
-import FederatedNotFoundPage from "./FederatedNotFoundPage";
 import "@repo/ui/tailwind.css";
 
 function useAuthInfoSafe() {
@@ -31,7 +26,7 @@ function useAuthInfoSafe() {
   };
 }
 
-function ErrorNavigation() {
+function NotFoundNavigation() {
   const { isAuthenticated, userInfo } = useAuthInfoSafe();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -79,72 +74,31 @@ function ErrorNavigation() {
   );
 }
 
-export default function FederatedErrorPage(props: Readonly<ErrorComponentProps>) {
-  // Handle not found errors with dedicated page
-  if (isNotFoundError(props.error)) {
-    return <FederatedNotFoundPage />;
-  }
-
-  // Handle access denied errors with dedicated page
-  if (isAccessDeniedError(props.error)) {
-    return <FederatedAccessDeniedPage />;
-  }
-
-  return <GeneralErrorPage {...props} />;
-}
-
-function GeneralErrorPage({ error }: Readonly<ErrorComponentProps>) {
-  const [showDetails, setShowDetails] = useState(false);
-
-  useEffect(() => {
-    const exception = error instanceof Error ? error : new Error(String(error));
-
-    applicationInsights.trackException({
-      exception,
-      properties: {
-        component: "ErrorPage",
-        url: globalThis.location.href,
-        pathname: globalThis.location.pathname,
-        errorName: exception.name,
-        errorMessage: exception.message
-      }
-    });
-
-    console.error(error);
-  }, [error]);
-
+export default function NotFoundPage() {
   return (
     <main id="account" style={{ minHeight: "100vh" }} className="flex w-full flex-col bg-background">
-      <ErrorNavigation />
+      <NotFoundNavigation />
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex w-full max-w-lg flex-col items-center gap-6">
-          <div className="flex size-20 items-center justify-center rounded-full bg-destructive/10">
-            <AlertTriangle className="size-10 text-destructive" />
+          <div className="flex size-20 items-center justify-center rounded-full bg-muted">
+            <FileQuestion className="size-10 text-muted-foreground" />
           </div>
 
           <div className="flex flex-col gap-3">
             <h1>
-              <Trans>Something went wrong</Trans>
+              <Trans>Page not found</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
-              <Trans>An unexpected error occurred while processing your request.</Trans>
+              <Trans>The page you are looking for does not exist or was moved.</Trans>
               <br />
-              <Trans>Please try again or return to the home page.</Trans>
+              <Trans>Please check the URL or return to the home page.</Trans>
             </p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <div className="flex justify-center gap-3 pt-2">
             <Button
-              onClick={() => {
-                globalThis.location.reload();
-              }}
-            >
-              <RefreshCw size={16} />
-              <Trans>Try again</Trans>
-            </Button>
-            <Button
-              variant="secondary"
+              variant="default"
               onClick={() => {
                 globalThis.location.href = "/";
               }}
@@ -153,28 +107,6 @@ function GeneralErrorPage({ error }: Readonly<ErrorComponentProps>) {
               <Trans>Go to home</Trans>
             </Button>
           </div>
-
-          {error instanceof Error && error.message && (
-            <div className="mt-4 w-full">
-              <Button
-                variant="ghost"
-                onClick={() => setShowDetails(!showDetails)}
-                className="text-muted-foreground text-sm"
-              >
-                {showDetails ? <Trans>Hide details</Trans> : <Trans>Show details</Trans>}
-              </Button>
-              {showDetails && (
-                <div className="mt-3 rounded-lg border border-border bg-muted/50 p-4 text-left">
-                  <p className="break-all font-mono text-muted-foreground text-sm">{error.message}</p>
-                  {error.stack && (
-                    <pre className="mt-2 max-h-40 overflow-auto font-mono text-muted-foreground text-xs">
-                      {error.stack}
-                    </pre>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </main>

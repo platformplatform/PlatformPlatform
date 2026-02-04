@@ -9,7 +9,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/login/")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: FederatedErrorPage
+  errorComponent: ErrorPage
 });
 
 export function LoginForm() {
