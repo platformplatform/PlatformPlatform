@@ -4,7 +4,7 @@ import { faker } from "@faker-js/faker";
 import type { Page } from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { expectToastMessage, typeOneTimeCode } from "./test-assertions";
+import { typeOneTimeCode } from "./test-assertions";
 
 /**
  * Read platform settings from the shared-kernel JSONC file.
@@ -155,19 +155,22 @@ export async function completeSignupFlow(
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
-  await expect(page).toHaveURL("/dashboard");
+  await expect(page).toHaveURL(/\/welcome/);
 
-  // Step 4: Navigate to profile page and complete profile setup
-  await page.goto("/account/profile");
-  await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+  // Step 4: Complete welcome flow - account setup (Owner only)
+  await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
+  await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Step 5: Complete welcome flow - profile setup
+  await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expectToastMessage(context, "Profile updated successfully");
+  await page.getByRole("button", { name: "Continue" }).click();
 
-  // Step 5: Wait for successful completion
- await page.goto("/dashboard");
-  await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
+  // Step 6: Verify redirect to dashboard after welcome flow
+  await expect(page).toHaveURL("/dashboard");
+    await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
@@ -175,15 +178,15 @@ export async function completeSignupFlow(
     const triggerButton = page.getByRole("button", { name: "Account menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
 
-    const userMenu = page.getByRole("menu");
-    await expect(userMenu).toBeVisible();
+    const accountMenu = page.getByRole("menu");
+    await expect(accountMenu).toBeVisible();
 
     // Click menu item with JavaScript evaluate to bypass stability check during animation
     const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
     await expect(logoutMenuItem).toBeVisible();
     await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
-    await expect(userMenu).not.toBeVisible();
+    await expect(accountMenu).not.toBeVisible();
     await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
   }
 }

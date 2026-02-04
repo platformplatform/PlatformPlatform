@@ -2,6 +2,7 @@ import { PageTracker } from "@repo/infrastructure/applicationInsights/PageTracke
 import { AuthenticationProvider } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { AuthSyncModal } from "@repo/infrastructure/auth/AuthSyncModal";
 import { useErrorTrigger } from "@repo/infrastructure/development/useErrorTrigger";
+import { OnboardingGuard } from "@repo/infrastructure/onboarding/OnboardingGuard";
 import { useInitializeLocale } from "@repo/infrastructure/translations/useInitializeLocale";
 import { AddToHomescreen } from "@repo/ui/components/AddToHomescreen";
 import { BannerPortal } from "@repo/ui/components/BannerPortal";
@@ -42,6 +43,7 @@ function Root() {
           <PageTracker />
           <Outlet />
           <AuthSyncModal modalComponent={FederatedAuthSyncModal} />
+          <OnboardingGuard />
         </AuthenticationProvider>
       </ThemeModeProvider>
     </QueryClientProvider>
