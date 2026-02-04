@@ -74,7 +74,7 @@ function AccessDeniedNavigation() {
   );
 }
 
-export default function FederatedAccessDeniedPage() {
+export default function AccessDeniedPage() {
   return (
     <main id="account" style={{ minHeight: "100vh" }} className="flex w-full flex-col bg-background">
       <AccessDeniedNavigation />

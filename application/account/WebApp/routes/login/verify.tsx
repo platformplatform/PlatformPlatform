@@ -12,7 +12,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/login/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: FederatedErrorPage
+  errorComponent: ErrorPage
 });
 
 function useCountdown(expireAt: Date) {

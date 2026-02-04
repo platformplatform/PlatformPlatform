@@ -2,12 +2,12 @@ import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 
-const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
+const NotFoundPage = lazy(() => import("account/NotFoundPage"));
 
 export const Route = createFileRoute("/dashboard")({
   beforeLoad: () => requireAuthentication(),
   component: DashboardLayout,
-  notFoundComponent: FederatedNotFoundPage
+  notFoundComponent: NotFoundPage
 });
 
 function DashboardLayout() {

@@ -1,11 +1,11 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
-import FederatedNotFoundPage from "@/federated-modules/errorPages/FederatedNotFoundPage";
+import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
+import NotFoundPage from "@/federated-modules/errorPages/NotFoundPage";
 
 export const Route = createRootRoute({
   component: Root,
-  errorComponent: FederatedErrorPage,
-  notFoundComponent: FederatedNotFoundPage
+  errorComponent: ErrorPage,
+  notFoundComponent: NotFoundPage
 });
 
 function Root() {

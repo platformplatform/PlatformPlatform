@@ -13,13 +13,13 @@ import { queryClient } from "@/shared/lib/api/client";
 
 const FederatedAuthSyncModal = lazy(() => import("account/AuthSyncModal"));
 const FederatedBanners = lazy(() => import("account/Banners"));
-const FederatedErrorPage = lazy(() => import("account/FederatedErrorPage"));
-const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
+const ErrorPage = lazy(() => import("account/ErrorPage"));
+const NotFoundPage = lazy(() => import("account/NotFoundPage"));
 
 export const Route = createRootRoute({
   component: Root,
-  errorComponent: FederatedErrorPage,
-  notFoundComponent: FederatedNotFoundPage
+  errorComponent: ErrorPage,
+  notFoundComponent: NotFoundPage
 });
 
 function Root() {
