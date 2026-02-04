@@ -245,9 +245,9 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
     }
     setTimeout(() => {
       if (onNavigate) {
-        onNavigate("/account/profile");
+        onNavigate("/user/profile");
       } else {
-        navigate({ to: "/account/profile" });
+        navigate({ to: "/user/profile" });
       }
     }, 10);
   };
