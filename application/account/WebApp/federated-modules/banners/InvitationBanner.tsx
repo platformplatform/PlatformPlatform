@@ -1,9 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { MailIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
@@ -12,13 +13,17 @@ import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
 
-const BANNER_HEIGHT = "3rem";
-
 export default function InvitationBanner() {
   const [invitationDialogTenant, setInvitationDialogTenant] = useState<TenantInfo | null>(null);
   const [isSwitching, setIsSwitching] = useState(false);
+  const userInfo = useUserInfo();
 
-  const { data: tenantsResponse } = api.useQuery("get", "/api/account/tenants");
+  const { data: tenantsResponse } = api.useQuery(
+    "get",
+    "/api/account/tenants",
+    {},
+    { enabled: userInfo?.isAuthenticated }
+  );
 
   const pendingInvitations = (tenantsResponse?.tenants ?? []).filter((tenant) => tenant.isNew);
   const hasPendingInvitations = pendingInvitations.length > 0;
@@ -49,17 +54,6 @@ export default function InvitationBanner() {
     }
   };
 
-  useEffect(() => {
-    if (hasPendingInvitations) {
-      document.documentElement.style.setProperty("--invitation-banner-height", BANNER_HEIGHT);
-    } else {
-      document.documentElement.style.setProperty("--invitation-banner-height", "0rem");
-    }
-    return () => {
-      document.documentElement.style.setProperty("--invitation-banner-height", "0rem");
-    };
-  }, [hasPendingInvitations]);
-
   if (!hasPendingInvitations) {
     return null;
   }
@@ -69,7 +63,7 @@ export default function InvitationBanner() {
 
   return (
     <>
-      <div className="fixed top-0 right-0 left-0 z-[48] flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
+      <div className="flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
         <MailIcon className="size-4 shrink-0 text-warning-foreground" />
         <span className="flex-1 text-warning-foreground">
           {invitationCount === 1 ? (

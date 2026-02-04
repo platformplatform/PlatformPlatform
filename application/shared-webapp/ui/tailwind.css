@@ -210,6 +210,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding-top: var(--banner-offset, 0rem);
 }
 
 /* Prevent text selection on UI elements for app-like feel */
