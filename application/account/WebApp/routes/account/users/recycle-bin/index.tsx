@@ -1,9 +1,8 @@
 import { t } from "@lingui/core/macro";
-import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
+import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import FederatedAccessDeniedPage from "@/federated-modules/errorPages/FederatedAccessDeniedPage";
 import type { components } from "@/shared/lib/api/client";
 import { UserTabNavigation } from "../-components/UserTabNavigation";
 import { DeletedUsersTable } from "./-components/DeletedUsersTable";
@@ -13,6 +12,7 @@ import { PermanentlyDeleteUserDialog } from "./-components/PermanentlyDeleteUser
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
 
 export const Route = createFileRoute("/account/users/recycle-bin/")({
+  beforeLoad: () => requirePermission({ allowedRoles: ["Owner", "Admin"] }),
   component: DeletedUsersPage
 });
 
@@ -22,10 +22,6 @@ export default function DeletedUsersPage() {
   const [isEmptyRecycleBin, setIsEmptyRecycleBin] = useState(false);
   const [totalDeletedUsersCount, setTotalDeletedUsersCount] = useState(0);
   const [pageOffset, setPageOffset] = useState(0);
-
-  if (!hasPermission({ allowedRoles: ["Owner", "Admin"] })) {
-    return <FederatedAccessDeniedPage />;
-  }
 
   const handlePageChange = (page: number) => {
     setPageOffset(page - 1);
