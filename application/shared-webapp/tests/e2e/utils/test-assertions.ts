@@ -87,9 +87,7 @@ function startMonitoring(page: Page): MonitoringResults {
   // Monitor network errors with filtering for expected errors
   page.on("response", (response) => {
     if (response.status() >= 400) {
-      const url = response.url();
-      if (url.endsWith("/remoteEntry.js")) return;
-      results.networkErrors.push(`${response.request().method()} ${url} - HTTP ${response.status()}`);
+      results.networkErrors.push(`${response.request().method()} ${response.url()} - HTTP ${response.status()}`);
     }
   });
 

@@ -29,7 +29,7 @@ test.describe("@smoke", () => {
     const member = testUser();
 
     // Create owner and member users
-    await step("Create owner account with signup flow & verify welcome page")(async () => {
+    await step("Create owner account with signup flow & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
@@ -49,7 +49,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("button", { name: "Invite user" })).toBeVisible();
     })();
 
-    await step("Navigate to account settings as Owner & verify tenant name field is editable")(async () => {
+    await step("Navigate to settings page as Owner & verify tenant name field is editable")(async () => {
       await page.goto("/account/settings");
 
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
@@ -123,8 +123,8 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Navigate away from users page first to prevent background requests
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await page.goto("/dashboard");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
       const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
@@ -137,7 +137,7 @@ test.describe("@smoke", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
 
       // Accept whatever return path we get
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -148,18 +148,15 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
-      await page.waitForURL("/account");
-    })();
-
-    await step("Complete member profile setup & verify profile saved")(async () => {
-      await page.goto("/account/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+      // Complete welcome flow for member (profile setup only)
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
-      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify invite button is hidden")(async () => {
@@ -246,7 +243,7 @@ test.describe("@smoke", () => {
     const user1 = testUser();
     const user2 = testUser();
 
-    await step("Create owner account with signup flow & verify welcome page")(async () => {
+    await step("Create owner account with signup flow & verify home page")(async () => {
       await completeSignupFlow(page, expect, owner, context);
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
@@ -342,8 +339,8 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Navigate away from users page first to prevent background requests
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+      await page.goto("/dashboard");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
       const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
@@ -356,7 +353,7 @@ test.describe("@smoke", () => {
       await logoutMenuItem.dispatchEvent("click");
 
       // Wait for logout to complete and page to navigate
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
 
       // Accept whatever return path we get
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -367,18 +364,15 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
-      await page.waitForURL("/account");
-    })();
-
-    await step("Complete member profile setup & verify profile saved")(async () => {
-      await page.goto("/account/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+      // Complete welcome flow for member (profile setup only)
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(member.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(member.lastName);
-      await page.getByRole("textbox", { name: "Title" }).fill("Team Member");
-      await page.getByRole("button", { name: "Save changes" }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
 
-      await expectToastMessage(context, "Profile updated successfully");
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify no bulk operations available")(async () => {

@@ -58,11 +58,11 @@ test.describe("@smoke", () => {
     })();
 
     // === AUTHENTICATION PROTECTION ===
-    await step("Click logout from account menu & verify redirect to login")(async () => {
+    await step("Click logout from user menu & verify redirect to login")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      // Click trigger with dispatchEvent for reliable opening on Firefox
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
       const triggerButton = page.getByRole("button", { name: "Account menu" });
       await triggerButton.dispatchEvent("click");
 
@@ -84,8 +84,8 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL(/\/login\?returnPath=%2Faccount%2Fusers/);
 
       // Try accessing admin dashboard
-      await page.goto("/account");
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await page.goto("/dashboard");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
     })();
 
     // === SECURITY EDGE CASES ===

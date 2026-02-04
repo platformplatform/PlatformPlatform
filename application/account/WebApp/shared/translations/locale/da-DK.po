@@ -108,6 +108,9 @@ msgstr "Tilføj profilbillede"
 msgid "Add your account name"
 msgstr "Tilføj dit kontonavn"
 
+msgid "Add your account name and logo."
+msgstr "Tilføj dit kontonavn og logo."
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -246,6 +249,9 @@ msgstr "Kontakt support"
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
+msgid "Continue"
+msgstr "Fortsæt"
+
 msgid "Create your account"
 msgstr "Opret din konto"
 
@@ -331,14 +337,17 @@ msgstr "Har du ikke en konto? <0>Opret en</0>"
 msgid "DPA"
 msgstr "DBA"
 
+msgid "E.g. Acme Corp"
+msgstr "F.eks. Hansen & Co"
+
 msgid "E.g. Alex"
-msgstr "F.eks. Alex"
+msgstr "F.eks. Anders"
 
 msgid "E.g. Software engineer"
 msgstr "F.eks. Softwareingeniør"
 
 msgid "E.g. Taylor"
-msgstr "F.eks. Taylor"
+msgstr "F.eks. Jensen"
 
 msgid "Edit"
 msgstr "Rediger"
@@ -471,6 +480,12 @@ msgstr "Forlad"
 
 msgid "Legal and Compliance"
 msgstr "Juridisk og overholdelse"
+
+msgid "Let's set up your account"
+msgstr "Lad os opsætte din konto"
+
+msgid "Let's set up your profile"
+msgstr "Lad os opsætte din profil"
 
 msgid "Light"
 msgstr "Lys"
@@ -668,9 +683,6 @@ msgstr "Profil"
 msgid "Profile avatar"
 msgstr "Profilavatar"
 
-msgid "Profile picture"
-msgstr "Profilbillede"
-
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
 
@@ -835,6 +847,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tell us a bit about yourself to get started."
+msgstr "Fortæl os lidt om dig selv for at komme i gang."
 
 msgid "Terms"
 msgstr "Vilkår"

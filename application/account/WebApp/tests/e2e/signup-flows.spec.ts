@@ -89,21 +89,31 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("button", { name: "Verify" })).toBeEnabled();
     })();
 
-    await step("Click verify button & verify navigation to dashboard")(async () => {
+    await step("Click verify button & complete welcome flow")(async () => {
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
+
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
+      await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
+      await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/dashboard");
       await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
-    // === PROFILE FORM VALIDATION & COMPLETION ===
-    await step("Navigate to profile page & verify page displays")(async () => {
+    await step("Navigate to profile page & verify profile form is visible")(async () => {
       await page.goto("/account/profile");
 
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
     })();
 
-    await step("Submit profile form with empty fields & verify validation errors appear")(async () => {
+    // === PROFILE FORM VALIDATION & COMPLETION ===
+    await step("Clear profile fields & submit empty form & verify validation errors appear")(async () => {
       await page.getByRole("textbox", { name: "First name" }).clear();
       await page.getByRole("textbox", { name: "Last name" }).clear();
       await page.getByRole("button", { name: "Save changes" }).click();
@@ -127,7 +137,7 @@ test.describe("@smoke", () => {
       await expectValidationError(testContext, "Title must be no longer than 50 characters.");
     })();
 
-    await step("Complete profile setup with valid data & verify success")(async () => {
+    await step("Complete profile setup with valid data & verify success toast")(async () => {
       // Complete profile setup
       await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
@@ -139,41 +149,26 @@ test.describe("@smoke", () => {
     })();
 
     // === AVATAR & PROFILE FUNCTIONALITY ===
-    await step("Open account menu & verify user information displays")(async () => {
-      // Navigate to account page to access account menu in sidebar
-      await page.goto("/account");
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+    await step("Open account menu & verify profile information")(async () => {
+      // Navigate to dashboard first and ensure the account menu is visible
+      await page.goto("/dashboard");
+      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
 
-      // Open account menu and verify user info - use dispatchEvent for reliable opening on Firefox
-      const accountMenuButton = page.getByRole("button", { name: "Account menu" });
-      await accountMenuButton.dispatchEvent("click");
+      // Open account menu and verify user info - use evaluate for reliable opening on Firefox
+      const avatarButton = page.getByRole("button", { name: "Account menu" });
+      await avatarButton.dispatchEvent("click");
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();
       await expect(accountMenu.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
       await expect(accountMenu.getByText(user.email)).toBeVisible();
 
-      // Verify user initials are shown in avatar fallback
-      const initials = user.firstName.charAt(0) + user.lastName.charAt(0);
-      await expect(accountMenu.locator('[data-slot="avatar-fallback"]', { hasText: initials })).toBeVisible();
-
-      // Close menu by clicking outside
+      // Close menu by pressing Escape
       await page.keyboard.press("Escape");
       await expect(accountMenu).not.toBeVisible();
     })();
 
-    await step("Navigate to profile via account menu & verify profile page")(async () => {
-      // Open account menu again
-      const accountMenuButton = page.getByRole("button", { name: "Account menu" });
-      await accountMenuButton.dispatchEvent("click");
-      const accountMenu = page.getByRole("menu");
-      await expect(accountMenu).toBeVisible();
-
-      // Click profile menuitem to navigate to profile page
-      await accountMenu.getByRole("menuitem").filter({ hasText: "Edit" }).dispatchEvent("click");
-
-      // Verify profile page loads with saved data
-      await expect(page).toHaveURL("/account/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+    await step("Verify profile page shows correct title")(async () => {
+      await page.goto("/account/profile");
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
     })();
 
@@ -187,7 +182,6 @@ test.describe("@smoke", () => {
 
     // === ACCOUNT ===
     await step("Clear account name field & verify validation error appears")(async () => {
-      // Navigate directly to account settings since /dashboard doesn't have the Account link in sidebar
       await page.goto("/account/settings");
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).clear();
@@ -206,30 +200,19 @@ test.describe("@smoke", () => {
       await expectToastMessage(testContext, 200, "Account name updated successfully");
     })();
 
-    await step("Update user profile title via account menu & verify successful profile update")(async () => {
-      // Open account menu with dispatchEvent for reliable opening on Firefox
-      const accountMenuButton = page.getByRole("button", { name: "Account menu" });
-      await accountMenuButton.dispatchEvent("click");
-
-      const accountMenu = page.getByRole("menu");
-      await expect(accountMenu).toBeVisible();
-
-      // Click profile menuitem to navigate to profile page
-      await accountMenu.getByRole("menuitem").filter({ hasText: "Edit" }).dispatchEvent("click");
-
-      // Verify profile page loads
-      await expect(page).toHaveURL("/account/profile");
+    await step("Update user profile title & verify successful profile update")(async () => {
+      // Navigate directly to profile page
+      await page.goto("/account/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
-      // Update title and save
       await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectToastMessage(testContext, 200, "Profile updated successfully");
     })();
 
-    await step("Navigate to account page")(async () => {
-      await page.getByLabel("Main navigation").getByRole("link", { name: "Settings" }).click();
+    await step("Navigate to settings page")(async () => {
+      await page.goto("/account/settings");
 
       await expect(page.getByRole("textbox", { name: "Account name" })).toBeVisible();
     })();
