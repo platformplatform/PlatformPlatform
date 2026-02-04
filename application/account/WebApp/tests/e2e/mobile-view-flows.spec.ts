@@ -90,7 +90,7 @@ test.describe("@comprehensive", () => {
 
       // Wait for mobile menu to close and profile page to load
       await expect(mobileDialog).not.toBeVisible();
-      await expect(page).toHaveURL("/account/profile");
+      await expect(page).toHaveURL("/user/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       // Verify form fields are present

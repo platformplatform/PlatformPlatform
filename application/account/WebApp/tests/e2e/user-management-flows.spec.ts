@@ -433,7 +433,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Go to home" }).click();
       await expect(page).toHaveURL("/dashboard");
 
-      await page.goto("/account/profile");
+      await page.goto("/user/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(memberUser.firstName);
       await page.getByRole("textbox", { name: "Last name" }).fill(memberUser.lastName);

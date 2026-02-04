@@ -107,7 +107,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to profile page & verify profile form is visible")(async () => {
-      await page.goto("/account/profile");
+      await page.goto("/user/profile");
 
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
     })();
@@ -168,7 +168,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Verify profile page shows correct title")(async () => {
-      await page.goto("/account/profile");
+      await page.goto("/user/profile");
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
     })();
 
@@ -202,7 +202,7 @@ test.describe("@smoke", () => {
 
     await step("Update user profile title & verify successful profile update")(async () => {
       // Navigate directly to profile page
-      await page.goto("/account/profile");
+      await page.goto("/user/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Title" }).fill("Chief Executive Officer");

@@ -15,7 +15,7 @@ import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
-export const Route = createFileRoute("/account/profile/")({
+export const Route = createFileRoute("/user/profile/")({
   component: ProfilePage
 });
 

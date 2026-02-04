@@ -83,14 +83,14 @@ test.describe("@smoke", () => {
     await step("Navigate to profile page & verify profile page renders")(async () => {
       await page.getByRole("link", { name: "Profile", exact: true }).click();
 
-      await expect(page).toHaveURL("/account/profile");
+      await expect(page).toHaveURL("/user/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
     })();
 
     await step("Navigate to sessions page & verify sessions page renders")(async () => {
       await page.getByRole("link", { name: "Sessions", exact: true }).click();
 
-      await expect(page).toHaveURL("/account/sessions");
+      await expect(page).toHaveURL("/user/sessions");
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
       await expect(page.getByText("This device")).toBeVisible();
     })();
@@ -177,16 +177,16 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to profile as member & verify profile page renders")(async () => {
-      await page.goto("/account/profile");
+      await page.goto("/user/profile");
 
-      await expect(page).toHaveURL("/account/profile");
+      await expect(page).toHaveURL("/user/profile");
       await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
     })();
 
     await step("Navigate to sessions as member & verify sessions page renders")(async () => {
       await page.getByRole("link", { name: "Sessions", exact: true }).click();
 
-      await expect(page).toHaveURL("/account/sessions");
+      await expect(page).toHaveURL("/user/sessions");
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
     })();
 

@@ -30,8 +30,8 @@ function AccountNavigationMenuItems({ onNavigate }: { onNavigate: (path: string)
         <Trans>User</Trans>
       </SideMenuSeparator>
 
-      <MenuButton icon={UserIcon} label={t`Profile`} href="/account/profile" />
-      <MenuButton icon={MonitorSmartphoneIcon} label={t`Sessions`} href="/account/sessions" />
+      <MenuButton icon={UserIcon} label={t`Profile`} href="/user/profile" />
+      <MenuButton icon={MonitorSmartphoneIcon} label={t`Sessions`} href="/user/sessions" />
 
       <SideMenuSeparator>
         <Trans>Account</Trans>

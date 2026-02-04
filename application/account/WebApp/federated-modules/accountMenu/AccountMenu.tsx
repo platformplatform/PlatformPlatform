@@ -313,7 +313,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    navigate({ to: "/account/profile" });
+    navigate({ to: "/user/profile" });
   };
 
   const handleLogout = async () => {

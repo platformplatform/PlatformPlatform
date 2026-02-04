@@ -62,7 +62,7 @@ test.describe("@smoke", () => {
 
     await step("Navigate to Sessions page & verify current session with badge and no Revoke button")(async () => {
       // Navigate to sessions page via URL
-      await page.goto("/account/sessions");
+      await page.goto("/user/sessions");
 
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
       await expect(page.getByText("This device")).toBeVisible();
@@ -194,7 +194,7 @@ test.describe("@comprehensive", () => {
       const secondPageContext = createTestContext(secondPage);
 
       // Navigate to sessions page
-      await secondPage.goto("/account/sessions");
+      await secondPage.goto("/user/sessions");
       await expect(secondPage.getByRole("heading", { name: "Sessions" })).toBeVisible();
 
       const sessionCards = secondPage.locator("div.rounded-xl").filter({ hasText: "IP address" });
