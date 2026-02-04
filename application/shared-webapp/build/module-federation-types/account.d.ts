@@ -12,13 +12,13 @@ declare module "account/MobileMenu" {
 declare module "account/AuthSyncModal" {
   export default ReactNode;
 }
-declare module "account/FederatedAccessDeniedPage" {
+declare module "account/AccessDeniedPage" {
   export default ReactNode;
 }
-declare module "account/FederatedErrorPage" {
+declare module "account/ErrorPage" {
   export default ReactNode;
 }
-declare module "account/FederatedNotFoundPage" {
+declare module "account/NotFoundPage" {
   export default ReactNode;
 }
 declare module "account/PublicFooter" {

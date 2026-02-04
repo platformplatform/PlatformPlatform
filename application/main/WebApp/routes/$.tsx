@@ -2,7 +2,7 @@ import { createFileRoute, useLocation, useNavigate } from "@tanstack/react-route
 import { lazy, Suspense } from "react";
 
 const AccountApp = lazy(() => import("account/AccountApp"));
-const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
+const NotFoundPage = lazy(() => import("account/NotFoundPage"));
 
 const ACCOUNT_PREFIXES = ["/login", "/signup", "/account", "/profile", "/legal", "/error"];
 
@@ -31,7 +31,7 @@ function CatchAll() {
 
   return (
     <Suspense fallback={null}>
-      <FederatedNotFoundPage />
+      <NotFoundPage />
     </Suspense>
   );
 }
