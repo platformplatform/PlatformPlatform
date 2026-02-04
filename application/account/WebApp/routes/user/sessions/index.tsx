@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType, LoginMethod } from "@/shared/lib/api/client";
 
-export const Route = createFileRoute("/account/sessions/")({
+export const Route = createFileRoute("/user/sessions/")({
   component: SessionsPage
 });
 
