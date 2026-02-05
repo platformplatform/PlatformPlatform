@@ -130,9 +130,13 @@
   }
 }
 
-/* Root font size: 16px base ensures 44px touch targets (--control-height: 2.75rem) and enables accessibility scaling */
+/* Root font size with user-configurable scale (default 1 = 100%) */
+/* Mobile: 16px base ensures 44px touch targets (--control-height: 2.75rem) */
+/* Desktop: 22px base for comfortable reading on larger screens */
+/* Change --zoom-level via JavaScript to apply user preference (e.g., 1.25 for 125%) */
 html {
-  font-size: 16px;
+  --zoom-level: 1;
+  font-size: calc(16px * var(--zoom-level));
   /* Side menu collapsed width - scales with font size */
   --side-menu-collapsed-width: 5rem;
 }
