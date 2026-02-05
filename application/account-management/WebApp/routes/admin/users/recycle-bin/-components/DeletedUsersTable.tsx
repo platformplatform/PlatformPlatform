@@ -184,7 +184,7 @@ export function DeletedUsersTable({
           <TableHeader className="sticky top-0 z-10 bg-inherit">
             <TableRow>
               {isMultiSelectMode && (
-                <TableHead className="w-[52px]">
+                <TableHead className="w-[3.5rem]">
                   <Checkbox
                     checked={allSelected}
                     indeterminate={someSelected}
@@ -193,27 +193,27 @@ export function DeletedUsersTable({
                   />
                 </TableHead>
               )}
-              <TableHead className={isSmallViewportOrLarger() ? "min-w-[250px]" : ""}>
+              <TableHead className={isSmallViewportOrLarger() ? "min-w-[16rem]" : ""}>
                 <span className="font-bold text-xs">
                   <Trans>Name</Trans>
                 </span>
               </TableHead>
               {isSmallViewportOrLarger() && (
-                <TableHead className="min-w-[160px]">
+                <TableHead className="min-w-[10rem]">
                   <span className="font-bold text-xs">
                     <Trans>Email</Trans>
                   </span>
                 </TableHead>
               )}
               {isMediumViewportOrLarger() && (
-                <TableHead className="w-[140px] min-w-[120px]">
+                <TableHead className="w-[9rem] min-w-[7.5rem]">
                   <span className="font-bold text-xs">
                     <Trans>Deleted</Trans>
                   </span>
                 </TableHead>
               )}
               {isSmallViewportOrLarger() && (
-                <TableHead className="w-[100px]">
+                <TableHead className="w-[6rem]">
                   <span className="font-bold text-xs">
                     <Trans>Role</Trans>
                   </span>

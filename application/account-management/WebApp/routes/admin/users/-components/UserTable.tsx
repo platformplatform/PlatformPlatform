@@ -371,7 +371,7 @@ function UserTableContent({
             <TableRow>
               <TableHead
                 data-column={SortableUserProperties.Name}
-                className={`cursor-pointer select-none ${!isMobile ? "min-w-[250px]" : ""}`}
+                className={`cursor-pointer select-none ${!isMobile ? "min-w-[16rem]" : ""}`}
                 onClick={() => handleSortChange(SortableUserProperties.Name)}
               >
                 <div className="flex items-center gap-1 font-bold text-xs">
@@ -385,7 +385,7 @@ function UserTableContent({
                 <>
                   <TableHead
                     data-column={SortableUserProperties.Email}
-                    className="min-w-[160px] cursor-pointer select-none"
+                    className="min-w-[10rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.Email)}
                   >
                     <div className="flex items-center gap-1 font-bold text-xs">
@@ -397,7 +397,7 @@ function UserTableContent({
                   </TableHead>
                   <TableHead
                     data-column={SortableUserProperties.CreatedAt}
-                    className="w-[110px] min-w-[65px] cursor-pointer select-none"
+                    className="w-[7rem] min-w-[4rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
                   >
                     <div className="flex items-center gap-1 font-bold text-xs">
@@ -409,7 +409,7 @@ function UserTableContent({
                   </TableHead>
                   <TableHead
                     data-column={SortableUserProperties.LastSeenAt}
-                    className="w-[120px] min-w-[65px] cursor-pointer select-none"
+                    className="w-[7.5rem] min-w-[4rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
                   >
                     <div className="flex items-center gap-1 font-bold text-xs">
@@ -421,7 +421,7 @@ function UserTableContent({
                   </TableHead>
                   <TableHead
                     data-column={SortableUserProperties.Role}
-                    className="w-[135px] cursor-pointer select-none"
+                    className="w-[8.5rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.Role)}
                   >
                     <div className="flex items-center gap-1 font-bold text-xs">

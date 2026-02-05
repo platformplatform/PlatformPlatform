@@ -1,12 +1,17 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
+  getSideMenuCollapsedWidth,
   MEDIA_QUERIES,
-  SIDE_MENU_COLLAPSED_WIDTH,
   SIDE_MENU_DEFAULT_WIDTH,
   SIDE_MENU_MAX_WIDTH,
   SIDE_MENU_MIN_WIDTH
 } from "../utils/responsive";
+
+// Expanded menu width in rem (288px default / 16 = 18rem)
+const EXPANDED_MENU_WIDTH_REM = SIDE_MENU_DEFAULT_WIDTH / 16;
+// Minimum content width in rem (matches useResponsiveMenu logic)
+const MIN_CONTENT_WIDTH_REM = 62;
 
 /**
  * Hook to provide proper layout styles for content when using a fixed side menu.
@@ -23,20 +28,20 @@ export function useSideMenuLayout(): {
 } {
   // Track screen sizes
   const [isSmallScreen, setIsSmallScreen] = useState(() => window.matchMedia(MEDIA_QUERIES.sm).matches);
-  const [isLargeScreen, setIsLargeScreen] = useState(() => window.matchMedia(MEDIA_QUERIES.xl).matches);
+  const [hasSpaceForExpanded, setHasSpaceForExpanded] = useState(true);
 
   // Helper to get initial collapsed state
-  const getInitialCollapsed = (isSmall: boolean, isLarge: boolean) => {
-    // Force collapsed on medium screens
-    if (isSmall && !isLarge) {
+  const getInitialCollapsed = (isSmall: boolean, hasSpace: boolean) => {
+    // Force collapsed when no space for expanded menu
+    if (isSmall && !hasSpace) {
       return true;
     }
-    // Check localStorage for large screens
+    // Check localStorage when there's space
     return localStorage.getItem("side-menu-collapsed") === "true";
   };
 
   // Track menu state
-  const [isCollapsed, setIsCollapsed] = useState(() => getInitialCollapsed(isSmallScreen, isLargeScreen));
+  const [isCollapsed, setIsCollapsed] = useState(() => getInitialCollapsed(isSmallScreen, hasSpaceForExpanded));
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [customMenuWidth, setCustomMenuWidth] = useState(() => {
@@ -48,13 +53,20 @@ export function useSideMenuLayout(): {
   // Listen for screen size changes and menu events
   useEffect(() => {
     const smQuery = window.matchMedia(MEDIA_QUERIES.sm);
-    const xlQuery = window.matchMedia(MEDIA_QUERIES.xl);
 
     const handleSmChange = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
-    const handleXlChange = (e: MediaQueryListEvent) => {
-      setIsLargeScreen(e.matches);
-      // When transitioning to XL screen, sync collapsed state from localStorage
-      if (e.matches) {
+
+    const checkSpace = () => {
+      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const expandedMenuWidth = EXPANDED_MENU_WIDTH_REM * rootFontSize;
+      const minContentWidth = MIN_CONTENT_WIDTH_REM * rootFontSize;
+      const minViewportForExpanded = expandedMenuWidth + minContentWidth;
+
+      const hasSpace = window.innerWidth >= minViewportForExpanded;
+      setHasSpaceForExpanded(hasSpace);
+
+      // When transitioning to expanded mode, sync collapsed state from localStorage
+      if (hasSpace) {
         const stored = localStorage.getItem("side-menu-collapsed");
         setIsCollapsed(stored === "true");
       }
@@ -76,15 +88,18 @@ export function useSideMenuLayout(): {
 
     // Add all listeners
     smQuery.addEventListener("change", handleSmChange);
-    xlQuery.addEventListener("change", handleXlChange);
+    window.addEventListener("resize", checkSpace);
     window.addEventListener("side-menu-toggle", handleMenuToggle);
     window.addEventListener("side-menu-overlay-toggle", handleOverlayToggle);
     window.addEventListener("mobile-menu-toggle", handleMobileMenuToggle);
     window.addEventListener("side-menu-resize", handleMenuResize);
 
+    // Initial check
+    checkSpace();
+
     return () => {
       smQuery.removeEventListener("change", handleSmChange);
-      xlQuery.removeEventListener("change", handleXlChange);
+      window.removeEventListener("resize", checkSpace);
       window.removeEventListener("side-menu-toggle", handleMenuToggle);
       window.removeEventListener("side-menu-overlay-toggle", handleOverlayToggle);
       window.removeEventListener("mobile-menu-toggle", handleMobileMenuToggle);
@@ -92,25 +107,27 @@ export function useSideMenuLayout(): {
     };
   }, []);
 
-  // Reset overlay expanded state when leaving overlay mode
+  // Reset overlay expanded state when entering expanded mode
   useEffect(() => {
-    if (isLargeScreen) {
+    if (hasSpaceForExpanded) {
       setIsOverlayExpanded(false);
     }
-  }, [isLargeScreen]);
+  }, [hasSpaceForExpanded]);
 
   // Calculate layout styles
   const className = "flex flex-col flex-1 min-h-0";
 
   // Calculate layout styles (simple enough not to need memoization)
+  // Use the CSS variable value for collapsed width since it scales with font size
+  const collapsedWidth = getSideMenuCollapsedWidth();
   const style: React.CSSProperties = !isSmallScreen
     ? {} // Mobile: full width
-    : isSmallScreen && !isLargeScreen
-      ? { marginLeft: `${SIDE_MENU_COLLAPSED_WIDTH}px` } // Medium screens (overlay mode)
-      : { marginLeft: isCollapsed ? `${SIDE_MENU_COLLAPSED_WIDTH}px` : `${customMenuWidth}px` }; // Large screens
+    : isSmallScreen && !hasSpaceForExpanded
+      ? { marginLeft: `${collapsedWidth}px` } // Overlay mode (force collapsed)
+      : { marginLeft: isCollapsed ? `${collapsedWidth}px` : `${customMenuWidth}px` }; // Expanded mode
 
   // Derive overlay state
-  const isOverlayMode = isSmallScreen && !isLargeScreen;
+  const isOverlayMode = isSmallScreen && !hasSpaceForExpanded;
   const isOverlayOpen = isOverlayMode && isOverlayExpanded;
 
   return {
@@ -118,7 +135,7 @@ export function useSideMenuLayout(): {
     style,
     isOverlayOpen,
     isMobileMenuOpen,
-    isCollapsed: isLargeScreen ? isCollapsed : true, // For XL screens, return actual state; for others, consider "collapsed" for space calculation
-    isLargeScreen
+    isCollapsed: hasSpaceForExpanded ? isCollapsed : true,
+    isLargeScreen: hasSpaceForExpanded
   };
 }

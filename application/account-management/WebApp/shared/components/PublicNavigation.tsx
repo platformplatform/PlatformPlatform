@@ -17,8 +17,8 @@ export function PublicNavigation() {
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       {/* Logo */}
       <Link href="/" variant="logo" underline={false}>
-        <img className="hidden h-10 sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} width={280} height={40} />
-        <img className="h-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} width={40} height={40} />
+        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} />
+        <img className="size-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} />
       </Link>
 
       {/* Right side actions */}

@@ -165,7 +165,7 @@ export function CompleteSignupForm() {
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
   return (
-    <div className="w-full max-w-[330px] space-y-3 sm:max-w-[290px]">
+    <div className="w-full max-w-[18rem] space-y-3">
       <Form
         onSubmit={(event) => {
           event.preventDefault();
@@ -233,11 +233,11 @@ export function CompleteSignupForm() {
             </InputOtpGroup>
           </InputOtp>
           {!isExpired ? (
-            <p className="text-center text-neutral-500 text-xs">
+            <p className="text-center text-neutral-500 text-sm">
               <Trans>Your verification code is valid for {expiresInString}</Trans>
             </p>
           ) : (
-            <p className="text-center text-destructive text-xs">
+            <p className="text-center text-destructive text-sm">
               <Trans>Your verification code has expired</Trans>
             </p>
           )}
@@ -257,7 +257,7 @@ export function CompleteSignupForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-2 text-neutral-500 text-xs">
+      <div className="flex flex-col items-center gap-2 text-neutral-500 text-sm">
         <div className="text-center text-sm">
           <Trans>Can&apos;t find your code?</Trans>{" "}
           {/* Show either the spam folder message or the request link message based on conditions */}
@@ -284,7 +284,7 @@ export function CompleteSignupForm() {
         </div>
         <Link
           href="/signup"
-          className="mt-2 text-xs"
+          className="mt-2 text-sm"
           onClick={() => {
             const signupState = getSignupState();
             clearSignupState();

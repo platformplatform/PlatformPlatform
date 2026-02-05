@@ -62,7 +62,7 @@ function MobileMenuHeader({
 
   return (
     <div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0">
         {/* User Profile */}
         {userInfo && (
           <div className="flex items-center gap-3">
@@ -154,7 +154,7 @@ export function MobileMenu({
         </div>
 
         {/* Navigation Section for Mobile */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-0">
           <SideMenuSeparator>
             <Trans>Navigation</Trans>
           </SideMenuSeparator>

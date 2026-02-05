@@ -47,8 +47,8 @@ const menuButtonStyles = cva(
   {
     variants: {
       isCollapsed: {
-        true: "ml-[5px] w-11 justify-center",
-        false: "w-full pr-2 pl-[11px]"
+        true: "mx-auto w-11 justify-center",
+        false: "w-full pr-2 pl-4"
       },
       isActive: {
         true: "text-foreground",
@@ -148,26 +148,14 @@ function MenuLinkContent({
 }
 
 // Helper component for active indicator
-function ActiveIndicator({
-  isActive,
-  isMobileMenu,
-  isCollapsed
-}: {
-  isActive: boolean;
-  isMobileMenu: boolean;
-  isCollapsed: boolean;
-}) {
+function ActiveIndicator({ isActive }: { isActive: boolean }) {
   if (!isActive) {
     return null;
   }
 
-  return (
-    <div
-      className={`absolute top-1/2 h-8 w-1 -translate-y-1/2 bg-primary ${
-        isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
-      }`}
-    />
-  );
+  // Button is positioned at same left offset (px-3) in both states
+  // Indicator needs -left-3 (0.75rem) to reach menu edge
+  return <div className="absolute top-1/2 -left-3 h-8 w-1 -translate-y-1/2 bg-primary" />;
 }
 
 export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
@@ -247,7 +235,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   if (isCollapsed) {
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <ActiveIndicator isActive={isActive} />
         <Tooltip>
           <TooltipTrigger
             render={
@@ -277,7 +265,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     // For federated navigation, use Link to handle smart navigation
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <ActiveIndicator isActive={isActive} />
         <Link
           href={undefined}
           className={linkClassName}
@@ -296,7 +284,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   // For regular navigation, use TanStack Router Link
   return (
     <div className="relative">
-      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <ActiveIndicator isActive={isActive} />
       <RouterLink
         to={to}
         className={linkClassName}
@@ -370,7 +358,7 @@ export function FederatedMenuButton({
   if (isCollapsed) {
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <ActiveIndicator isActive={isActive} />
         <Tooltip>
           <TooltipTrigger
             render={
@@ -398,7 +386,7 @@ export function FederatedMenuButton({
   // For expanded menu, use Link for consistent touch handling
   return (
     <div className="relative">
-      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <ActiveIndicator isActive={isActive} />
       <Link
         href={undefined}
         className={linkClassName}
@@ -419,7 +407,7 @@ const sideMenuStyles = cva(
   {
     variants: {
       isCollapsed: {
-        true: "w-[72px]",
+        true: "w-[var(--side-menu-collapsed-width)]",
         false: ""
       },
       overlayMode: {
@@ -750,11 +738,11 @@ const _getClientCoordinates = (
   return { x: e.clientX, y: e.clientY };
 };
 
-// Backdrop component for overlay mode
+// Backdrop component for overlay mode - covers content and SidePane
 const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
   <button
     type="button"
-    className="fixed top-0 right-0 bottom-0 left-[72px] z-[35] bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
+    className="fixed top-0 right-0 bottom-0 left-[var(--side-menu-collapsed-width)] z-[35] bg-black/50 transition-opacity duration-100"
     onClick={closeOverlay}
     aria-label="Close menu"
   />
@@ -770,10 +758,10 @@ const DefaultLogoSection = ({ actualIsCollapsed }: { actualIsCollapsed: boolean 
         : {
             display: "grid",
             gridTemplateColumns: "auto 1fr",
-            gap: "12px",
+            gap: "0.75rem",
             alignItems: "center",
-            paddingLeft: "24px",
-            paddingRight: "10px",
+            paddingLeft: "1.5rem",
+            paddingRight: "0.625rem",
             width: "100%"
           }
     }
@@ -909,7 +897,7 @@ const MenuNav = ({
         isOverlayOpen,
         isHidden: isHidden && !overlayMode
       }),
-      overlayMode && isOverlayOpen && "z-40 w-[350px]",
+      overlayMode && isOverlayOpen && "z-40 w-[18rem]",
       isResizing && "cursor-col-resize select-none",
       className
     )}
@@ -929,18 +917,19 @@ const MenuNav = ({
     )}
 
     {/* Fixed header section with logo */}
-    <div className="relative flex h-[72px] w-full shrink-0 items-center">
+    <div className="relative flex h-[var(--side-menu-collapsed-width)] w-full shrink-0 items-center">
       {logoContent || <DefaultLogoSection actualIsCollapsed={actualIsCollapsed} />}
     </div>
 
     {/* Scrollable menu content */}
-    <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
-      <div className="-mx-1.5 flex flex-col gap-2 px-1.5 py-1 pt-1.5">{children}</div>
+    {/* Use consistent left padding in both states to prevent icon jump during collapse animation */}
+    <div className="mt-2 flex-1 overflow-y-auto px-3">
+      <div className="-mx-1.5 flex flex-col gap-0 px-1.5 py-1 pt-1.5">{children}</div>
     </div>
 
     {/* Toggle button centered on divider, at intersection with topbar border */}
     <div
-      className={`absolute top-[72px] right-0 translate-x-1/2 -translate-y-1/2 ${
+      className={`absolute top-[var(--side-menu-collapsed-width)] right-0 translate-x-1/2 -translate-y-1/2 ${
         !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
       } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
     >
@@ -1190,8 +1179,8 @@ export function SideMenu({
 const sideMenuSeparatorStyles = cva("border-b-0 font-semibold text-muted-foreground uppercase leading-4", {
   variants: {
     isCollapsed: {
-      true: "-mt-2 mb-2 flex h-8 w-full justify-center",
-      false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs"
+      true: "mb-2 flex h-8 w-full items-end pt-4 pl-4",
+      false: "mb-2 w-full border-border/0 pt-4 pl-4 text-xs"
     }
   },
   defaultVariants: {
@@ -1312,8 +1301,8 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                 className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-20 supports-[padding:max(0px)]:pb-[max(5rem,env(safe-area-inset-bottom))]"
                 style={{
                   margin: 0,
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
+                  paddingLeft: "0.75rem",
+                  paddingRight: "0.75rem",
                   pointerEvents: "auto",
                   WebkitOverflowScrolling: "touch",
                   touchAction: "pan-y"

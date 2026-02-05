@@ -42,13 +42,18 @@ interface UserQueryingProps {
 }
 
 // Thresholds based on max content widths (Danish language, long dates)
-// Max expanded filters: 838px, Button icon-only: 44px, Gap: 8px
-const THRESHOLD_FILTERS_EXPANDED = 890; // 838 + 44 + 8
+// Measured at 16px base: filters 840px (52.5rem), icon button 44px (2.75rem), gap 8px (0.5rem)
+const THRESHOLD_FILTERS_EXPANDED_REM = 55.75; // 52.5 + 2.75 + 0.5
+
+function getRemInPixels(): number {
+  return parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
 
 function hasSpaceForInlineFilters(toolbarWidth: number): boolean {
   // Show inline filters when there's room for filters + icon-only button
-  // Button text will be decided separately based on remaining space
-  return toolbarWidth >= THRESHOLD_FILTERS_EXPANDED;
+  // Threshold scales with font size via rem conversion
+  const threshold = THRESHOLD_FILTERS_EXPANDED_REM * getRemInPixels();
+  return toolbarWidth >= threshold;
 }
 
 export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: UserQueryingProps = {}) {

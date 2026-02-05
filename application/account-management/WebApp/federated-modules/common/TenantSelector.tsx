@@ -16,7 +16,7 @@ import {
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { SIDE_MENU_COLLAPSED_WIDTH, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
+import { getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
@@ -54,7 +54,7 @@ function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
 function useSidebarWidth(isCollapsed: boolean) {
   const [sidebarWidth, setSidebarWidth] = useState(() => {
     if (isCollapsed) {
-      return SIDE_MENU_COLLAPSED_WIDTH;
+      return getSideMenuCollapsedWidth();
     }
     const stored = localStorage.getItem("side-menu-size");
     return stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH;
@@ -68,7 +68,7 @@ function useSidebarWidth(isCollapsed: boolean) {
     const handleToggle = (event: CustomEvent<{ isCollapsed: boolean }>) => {
       setSidebarWidth(
         event.detail.isCollapsed
-          ? SIDE_MENU_COLLAPSED_WIDTH
+          ? getSideMenuCollapsedWidth()
           : Number.parseInt(localStorage.getItem("side-menu-size") || String(SIDE_MENU_DEFAULT_WIDTH), 10)
       );
     };
@@ -85,7 +85,7 @@ function useSidebarWidth(isCollapsed: boolean) {
   // Update sidebar width when collapsed state changes
   useEffect(() => {
     if (isCollapsed) {
-      setSidebarWidth(SIDE_MENU_COLLAPSED_WIDTH);
+      setSidebarWidth(getSideMenuCollapsedWidth());
     } else {
       const stored = localStorage.getItem("side-menu-size");
       setSidebarWidth(stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH);
@@ -133,8 +133,8 @@ function TenantMenuDropdown({
     <button
       type="button"
       aria-label={t`Select account`}
-      className={`relative flex h-11 cursor-pointer items-center gap-0 overflow-visible rounded-md border-0 bg-transparent py-2 font-normal text-sm outline-ring transition-[colors,transform] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] active:bg-muted ${
-        isCollapsed ? "ml-[6px] w-11 justify-center" : "w-full pr-2 pl-2"
+      className={`relative flex h-11 cursor-pointer items-center gap-0 overflow-visible rounded-md border-0 bg-transparent py-2 font-normal ${variant === "mobile-menu" ? "text-base" : "text-sm"} outline-ring transition-[colors,transform] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] active:bg-muted ${
+        isCollapsed ? "w-11 pl-3" : "w-full pr-2 pl-3"
       }`}
     >
       <div className="flex size-8 shrink-0 items-center justify-center">
@@ -142,7 +142,9 @@ function TenantMenuDropdown({
       </div>
       {!isCollapsed && (
         <>
-          <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
+          <div
+            className={`${variant === "mobile-menu" ? "ml-2" : "ml-3"} flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground`}
+          >
             {currentTenantName}
           </div>
           {newTenantsCount > 0 && <div className="ml-2 size-2 shrink-0 rounded-full bg-warning" />}
@@ -153,7 +155,7 @@ function TenantMenuDropdown({
   );
 
   return (
-    <div className={`relative w-full ${isCollapsed ? "px-2" : "px-3"}`}>
+    <div className="relative w-full px-3">
       <div className="">
         <DropdownMenu onOpenChange={setIsMenuOpen}>
           {showTooltip ? (
@@ -215,26 +217,28 @@ function SingleTenantDisplay({
   currentTenantName,
   currentTenantNameForLogo,
   currentTenantLogoUrl,
-  isCollapsed
+  isCollapsed,
+  variant = "default"
 }: {
   currentTenantName: string;
   currentTenantNameForLogo: string;
   currentTenantLogoUrl: string | null | undefined;
   isCollapsed: boolean;
+  variant?: "default" | "mobile-menu";
 }) {
   return (
-    <div className={`relative w-full ${isCollapsed ? "px-2" : "px-3"}`}>
+    <div className="relative w-full px-3">
       <div className="">
         <div
-          className={`flex h-11 items-center rounded-md py-2 text-sm ${
-            isCollapsed ? "ml-[6px] w-11 justify-center" : "w-full pr-2 pl-2"
-          }`}
+          className={`flex h-11 items-center rounded-md py-2 ${variant === "mobile-menu" ? "text-base" : "text-sm"} ${isCollapsed ? "w-11 pl-3" : "w-full pr-2 pl-3"}`}
         >
           <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
           </div>
           {!isCollapsed && (
-            <div className="ml-4 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground">
+            <div
+              className={`${variant === "mobile-menu" ? "ml-2" : "ml-3"} flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-semibold text-foreground`}
+            >
               {currentTenantName}
             </div>
           )}
@@ -340,6 +344,7 @@ export default function TenantSelector({ onShowInvitationDialog, variant = "defa
         currentTenantNameForLogo={currentTenantNameForLogo}
         currentTenantLogoUrl={currentTenantLogoUrl}
         isCollapsed={isCollapsed}
+        variant={variant}
       />
     );
   }

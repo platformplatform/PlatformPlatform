@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
 import { cn } from "../utils";
+import { getSideMenuCollapsedWidth } from "../utils/responsive";
 
 type AppLayoutVariant = "full" | "center";
 
@@ -31,7 +32,7 @@ type AppLayoutProps = {
  *
  * Variants:
  * - full: Content takes full width with standard padding
- * - center: Content is always centered with configurable max width (default: 640px)
+ * - center: Content is always centered with configurable max width (default: 40rem)
  */
 function useBodyScrollLock(isLocked: boolean) {
   useEffect(() => {
@@ -57,6 +58,7 @@ function useStickyHeader(enabled: boolean, headerRef: React.RefObject<HTMLDivEle
     }
 
     const threshold = 0.1;
+    const topMenuHeight = getSideMenuCollapsedWidth();
 
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
@@ -64,7 +66,7 @@ function useStickyHeader(enabled: boolean, headerRef: React.RefObject<HTMLDivEle
       },
       {
         threshold,
-        rootMargin: "-60px 0px 0px 0px"
+        rootMargin: `-${topMenuHeight}px 0px 0px 0px`
       }
     );
 
@@ -223,7 +225,7 @@ export function AppLayout({
   children,
   topMenu,
   variant = "full",
-  maxWidth = "640px",
+  maxWidth = "40rem",
   sidePane,
   title,
   subtitle,
@@ -240,7 +242,7 @@ export function AppLayout({
   return (
     <div className="flex h-full flex-col">
       <div
-        className={`${className} ${sidePane ? "grid grid-cols-[1fr_384px] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_24rem] sm:grid" : "flex flex-col"} h-full overflow-hidden`}
         style={style}
       >
         {/* Mobile sticky header - appears when page header scrolls out of view */}
@@ -261,13 +263,16 @@ export function AppLayout({
           </div>
         )}
         {/* Fixed TopMenu with blur effect - contains breadcrumbs and secondary functions */}
+        {/* Height matches collapsed side menu width for visual consistency */}
         <aside
-          className={`fixed top-0 right-0 left-0 z-20 bg-sidebar px-4 py-3.5 sm:border-border sm:border-b ${
+          className={`fixed top-0 right-0 left-0 z-20 h-[var(--side-menu-collapsed-width)] bg-sidebar px-4 sm:border-border sm:border-b ${
             isMobileMenuOpen ? "hidden" : ""
-          } hidden sm:block`}
+          } hidden sm:flex sm:items-center`}
           aria-label="Secondary navigation"
         >
-          <div style={{ marginLeft: style.marginLeft }}>{topMenu}</div>
+          <div className="w-full" style={{ marginLeft: style.marginLeft }}>
+            {topMenu}
+          </div>
         </aside>
 
         {/* Main content area */}
@@ -304,10 +309,10 @@ export function AppLayout({
           )}
         </main>
 
-        {/* Side pane area - responsive behavior */}
+        {/* Side pane area - fullscreen mode uses portal, side-by-side uses this wrapper */}
         {sidePane && (
           <aside
-            className="fixed inset-0 z-40 bg-card md:inset-auto md:top-[72px] md:right-0 md:bottom-0 md:w-96"
+            className="fixed inset-0 bg-card md:inset-auto md:top-[var(--side-menu-collapsed-width)] md:right-0 md:bottom-0 md:z-10 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}

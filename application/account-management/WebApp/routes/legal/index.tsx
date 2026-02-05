@@ -215,14 +215,7 @@ function LegalIndex() {
 
             {/* PlatformPlatform Credit */}
             <div className="flex items-center justify-center gap-3">
-              <img
-                src={platformLogo}
-                alt={t`PlatformPlatform logo`}
-                className="size-10"
-                width={40}
-                height={40}
-                loading="lazy"
-              />
+              <img src={platformLogo} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
               <p className="text-muted-foreground text-sm">
                 <Trans>
                   Built on{" "}

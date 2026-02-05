@@ -246,7 +246,7 @@ test.describe("@comprehensive", () => {
       await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens automatically on mobile when clicking a row
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane to be fully interactive and close button to be visible
@@ -314,12 +314,12 @@ test.describe("@comprehensive", () => {
       await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opened automatically
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Press Escape key & verify side pane closes")(async () => {
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
 
       // Wait for side pane to be fully visible
       await expect(sidePane).toBeVisible();
@@ -345,7 +345,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Side pane should open automatically on click in mobile
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
@@ -354,7 +354,7 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
 
       // Click close button to close side pane
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
@@ -489,7 +489,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).not.toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
@@ -498,7 +498,7 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
 
       // Click close button to close side pane
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
@@ -530,7 +530,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane stays closed during keyboard navigation
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).not.toBeVisible();
     })();
 
@@ -538,12 +538,12 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Click X button to close side pane & verify selection maintained")(async () => {
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
@@ -565,7 +565,7 @@ test.describe("@comprehensive", () => {
 
       // Close side pane
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       // Click second user - should single select with our fix
       await secondRow.click();
@@ -578,7 +578,7 @@ test.describe("@comprehensive", () => {
     await step("Click third user after keyboard navigation and side pane interaction & verify single selection")(
       async () => {
         // Reset state - ensure any side pane is closed first
-        const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+        const sidePane = page.getByRole("region", { name: "User profile" });
         await expect(sidePane).toBeVisible();
         await page.keyboard.press("Escape");
         await expect(sidePane).not.toBeVisible();
@@ -597,15 +597,14 @@ test.describe("@comprehensive", () => {
         // Open side pane with Enter
         const thirdRow = page.locator("tbody tr").nth(2);
         await page.keyboard.press("Enter");
-        await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+        await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
 
         // Close with X button
         const closeButton = page
-          .locator("aside")
-          .filter({ hasText: "User profile" })
+          .getByRole("region", { name: "User profile" })
           .getByRole("button", { name: "Close user profile" });
         await closeButton.click();
-        await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+        await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
         // Click third user - should single select with our fix
         await thirdRow.click();
@@ -619,7 +618,7 @@ test.describe("@comprehensive", () => {
 
     await step("Rapid clicking between users & verify single selection")(async () => {
       // Reset state - ensure any side pane is closed first
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
       await page.keyboard.press("Escape");
       await expect(sidePane).not.toBeVisible();
@@ -629,17 +628,17 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Close side pane that opened
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
 
       // Close side pane again
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       const thirdRow = page.locator("tbody tr").nth(2);
       await thirdRow.click();

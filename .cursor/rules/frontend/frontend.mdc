@@ -70,8 +70,14 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Use native `<img>` for images. Keep it simple for small logos/icons. For large images:
      - **LCP images** (large hero images): Add `fetchPriority="high"`
      - **Below-the-fold images**: Add `loading="lazy"`
-     - Always include `width`, `height`, and localized `alt` text using the `t` macro (e.g., `alt={t\`Description\`}`)
+     - Never use `width`/`height` HTML attributes -- use Tailwind `size-*` classes instead
+     - Always include localized `alt` text using the `t` macro (e.g., `alt={t\`Description\`}`)
    - **Square dimensions**: Use Tailwind's `size-N` utility instead of `h-N w-N` for any square element (e.g., `size-4` not `h-4 w-4`). Only use separate `h-N w-N` for rectangular dimensions
+   - **Rem-based sizing**: All sizes must use `rem`, never `px`. This enables UI scaling via the `--zoom-level` CSS variable while maintaining aspect ratios.
+     - Tailwind arbitrary values: `max-w-[25rem]` not `max-w-[400px]`, `ml-[0.375rem]` not `ml-[6px]`
+     - CSS variable fallbacks: `var(--banner-height,0rem)` not `var(--banner-height,0px)`
+     - JS constants for CSS: `const BANNER_HEIGHT = "3rem"` not `const BANNER_HEIGHT = 48`
+     - For JS pixel calculations, use `getSideMenuCollapsedWidth()` from `@repo/ui/utils/responsive`
 
 2. Use the following React patterns and libraries:
    - Use ShadCN components from `@repo/ui/components/ComponentName`:
@@ -158,7 +164,7 @@ export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
   return (
     <DirtyDialog open={isOpen} onOpenChange={onOpenChange} hasUnsavedChanges={isFormDirty}
                  onCloseComplete={handleCloseComplete}>
-      <DialogContent className="sm:w-dialog-md"> // ✅ Use dialog width classes (not max-w-lg)
+      <DialogContent className="sm:w-dialog-md"> // ✅ Use dialog width classes, rem for arbitrary values
         <DialogHeader>
           <DialogTitle><Trans>Select users</Trans></DialogTitle>
         </DialogHeader>
@@ -206,7 +212,7 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
 
   return (
     <DirtyDialog open={isOpen} onOpenChange={onClose} hasUnsavedChanges={true}>
-      <DialogContent className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors (use bg-background)
+      <DialogContent className="sm:max-w-lg bg-white"> // ❌ max-w-lg (use w-dialog-md), hardcoded colors
         <h2>User Mgmt</h2> // ❌ Use DialogTitle in dialogs (not h2), acronym "Mgmt", missing <Trans>
         // ❌ Missing DialogBody wrapper - content won't scroll properly
         <ul> // ❌ Native <ul> - use ListBox
@@ -230,4 +236,18 @@ function BadUserDialog({ users, selectedId, isOpen, onClose }) {
     </DirtyDialog>
   );
 }
+
+// ✅ DO: Rem-based sizing
+const BANNER_HEIGHT = "3rem";
+document.documentElement.style.setProperty("--banner-height", BANNER_HEIGHT);
+document.documentElement.style.setProperty("--banner-height", "0rem"); // cleanup
+<div className="max-w-[25rem] ml-[0.375rem]" />
+<div className="pt-[calc(1rem+var(--banner-height,0rem))]" />
+
+// ❌ DON'T: Px-based sizing
+const BANNER_HEIGHT = 48;
+document.documentElement.style.setProperty("--banner-height", `${BANNER_HEIGHT}px`);
+document.documentElement.style.setProperty("--banner-height", "0px"); // cleanup
+<div className="max-w-[400px] ml-[6px]" />
+<div className="pt-[calc(1rem+var(--banner-height,0px))]" />
 ```

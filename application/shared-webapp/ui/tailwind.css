@@ -79,14 +79,14 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
-  /* Radius scale */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  /* Radius scale - rem-based for scaling with font size */
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+  --radius-3xl: calc(var(--radius) + 0.75rem);
+  --radius-4xl: calc(var(--radius) + 1rem);
 }
 
 /* Custom dialog width utilities */
@@ -130,16 +130,13 @@
   }
 }
 
-/* Responsive root font sizing: 18px on mobile makes text-sm (~0.875rem) render at ~16px */
+/* Root font size: 16px base ensures 44px touch targets (--control-height: 2.75rem) and enables accessibility scaling */
 html {
-  font-size: 18px;
+  font-size: 16px;
+  /* Side menu collapsed width - scales with font size */
+  --side-menu-collapsed-width: 5rem;
 }
 
-@media (width >= 640px) {
-  html {
-    font-size: 16px;
-  }
-}
 
 @layer base {
   h1 {
@@ -241,14 +238,24 @@ body {
 }
 
 /* Toast styling - solid colors, larger padding for visibility */
+/* Diverges from stock ShadCN: scaled sizing using rem for responsive font sizes */
 [data-sonner-toast] {
   padding: 1rem 1.25rem !important;
   min-height: 4rem !important;
+  min-width: min(18rem, calc(100vw - 2rem));
   font-size: 0.875rem !important; /* text-sm equivalent, scales with root */
+  gap: 1.75rem !important;
 }
 
 [data-sonner-toast][data-styled="true"] [data-close-button] {
-  border: 1px solid color-mix(in oklch, currentColor 50%, transparent) !important;
+  border: 0.1rem solid color-mix(in oklch, currentColor 50%, transparent) !important;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+[data-sonner-toast][data-styled="true"] [data-close-button] svg {
+  width: 1rem !important;
+  height: 1rem !important;
 }
 
 [data-sonner-toast][data-type="success"] {
@@ -268,7 +275,7 @@ body {
 [data-sonner-toast][data-type="success"] button[data-close-button] {
   color: var(--primary-foreground) !important;
   background: var(--primary) !important;
-  border: 1px solid color-mix(in oklch, currentColor 50%, transparent) !important;
+  border: 0.1rem solid color-mix(in oklch, currentColor 50%, transparent) !important;
 }
 
 [data-sonner-toast][data-type="error"] {
@@ -286,7 +293,7 @@ body {
 [data-sonner-toast][data-type="error"] button[data-close-button] {
   color: white !important;
   background: var(--toast-bg) !important;
-  border: 1px solid var(--toast-color) !important;
+  border: 0.1rem solid var(--toast-color) !important;
 }
 
 [data-sonner-toast][data-type="warning"] {
@@ -304,7 +311,7 @@ body {
 [data-sonner-toast][data-type="warning"] button[data-close-button] {
   color: white !important;
   background: var(--toast-bg) !important;
-  border: 1px solid var(--toast-color) !important;
+  border: 0.1rem solid var(--toast-color) !important;
 }
 
 [data-sonner-toast][data-type="info"] {
@@ -322,5 +329,13 @@ body {
 [data-sonner-toast][data-type="info"] button[data-close-button] {
   color: white !important;
   background: var(--toast-bg) !important;
-  border: 1px solid var(--toast-color) !important;
+  border: 0.1rem solid var(--toast-color) !important;
+}
+
+/* OTP input styling - use 3.5rem (size-14) as base, constrain only when 6 slots would overflow viewport */
+@media (max-width: 640px) {
+  [data-slot="input-otp-slot"] {
+    width: min(3.5rem, calc((100vw - 2rem) / 6)) !important;
+    height: min(3.5rem, calc((100vw - 2rem) / 6)) !important;
+  }
 }

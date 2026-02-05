@@ -26,7 +26,7 @@ reactDom.createRoot(rootElement).render(
     <TranslationProvider>
       <ApplicationInsightsProvider>
         <RouterProvider router={router} />
-        <Toaster position="top-center" closeButton={true} style={{ zIndex: 60 }} />
+        <Toaster position="top-center" closeButton={true} />
       </ApplicationInsightsProvider>
     </TranslationProvider>
   </React.StrictMode>

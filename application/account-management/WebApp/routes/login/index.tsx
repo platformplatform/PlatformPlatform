@@ -68,7 +68,7 @@ export function LoginForm() {
       onSubmit={mutationSubmitter(startLoginMutation)}
       validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-[330px] flex-col items-center gap-3 pt-6 pb-4 sm:max-w-[290px] sm:gap-4 sm:pt-8"
+      className="flex w-full max-w-[18rem] flex-col items-center gap-4 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />

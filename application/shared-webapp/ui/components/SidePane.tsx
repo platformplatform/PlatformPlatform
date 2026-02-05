@@ -1,15 +1,15 @@
 import { XIcon } from "lucide-react";
 import type * as React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "../utils";
-import { MEDIA_QUERIES } from "../utils/responsive";
 import { Button } from "./Button";
 
 // Context for SidePane state
 interface SidePaneContextValue {
   isOpen: boolean;
   onClose: () => void;
-  isSmallScreen: boolean;
+  needsFullscreen: boolean;
 }
 
 const SidePaneContext = createContext<SidePaneContextValue | null>(null);
@@ -26,17 +26,17 @@ function useSidePaneContext() {
 function useSidePaneAccessibility(
   isOpen: boolean,
   onClose: () => void,
-  isSmallScreen: boolean,
+  needsFullscreen: boolean,
   sidePaneRef: React.RefObject<HTMLElement | null>
 ) {
   const previouslyFocusedElement = useRef<HTMLElement | null>(null);
 
   // Store previously focused element
   useEffect(() => {
-    if (isOpen && isSmallScreen) {
+    if (isOpen && needsFullscreen) {
       previouslyFocusedElement.current = document.activeElement as HTMLElement;
     }
-  }, [isOpen, isSmallScreen]);
+  }, [isOpen, needsFullscreen]);
 
   // Restore focus on close
   useEffect(() => {
@@ -46,16 +46,16 @@ function useSidePaneAccessibility(
     }
   }, [isOpen]);
 
-  // Prevent body scroll on small screens
+  // Prevent body scroll when fullscreen
   useEffect(() => {
-    if (isOpen && isSmallScreen) {
+    if (isOpen && needsFullscreen) {
       const originalStyle = window.getComputedStyle(document.body).overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = originalStyle;
       };
     }
-  }, [isOpen, isSmallScreen]);
+  }, [isOpen, needsFullscreen]);
 
   // Escape key handler
   useEffect(() => {
@@ -74,9 +74,9 @@ function useSidePaneAccessibility(
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Focus trap for small screens
+  // Focus trap for fullscreen mode
   useEffect(() => {
-    if (!isOpen || !isSmallScreen || !sidePaneRef.current) {
+    if (!isOpen || !needsFullscreen || !sidePaneRef.current) {
       return;
     }
 
@@ -102,24 +102,42 @@ function useSidePaneAccessibility(
 
     document.addEventListener("keydown", handleTabKey);
     return () => document.removeEventListener("keydown", handleTabKey);
-  }, [isOpen, isSmallScreen, sidePaneRef]);
+  }, [isOpen, needsFullscreen, sidePaneRef]);
 }
 
-// Hook for screen size detection
-function useSmallScreen() {
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
+// Side pane width in rem (matches w-96 = 24rem)
+const SIDE_PANE_WIDTH_REM = 24;
+
+// Hook to detect if there's not enough room for side-by-side layout (50-50 split)
+// Shows fullscreen if content area can't fit table + side pane at equal widths
+function useNeedsFullscreen() {
+  const [needsFullscreen, setNeedsFullscreen] = useState(false);
 
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsSmallScreen(!window.matchMedia(MEDIA_QUERIES.md).matches);
+    const checkSpace = () => {
+      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+      const sidePaneWidth = SIDE_PANE_WIDTH_REM * rootFontSize;
+
+      // Get side menu width from CSS variable or use 0 if not present
+      const sideMenuWidth =
+        parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--side-menu-collapsed-width")) *
+          rootFontSize || 0;
+
+      // Available content width (viewport minus side menu)
+      const availableWidth = window.innerWidth - sideMenuWidth;
+
+      // Need at least 2x side pane width for 50-50 split
+      const minWidthForSideBySide = sidePaneWidth * 2;
+
+      setNeedsFullscreen(availableWidth < minWidthForSideBySide);
     };
 
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
+    checkSpace();
+    window.addEventListener("resize", checkSpace);
+    return () => window.removeEventListener("resize", checkSpace);
   }, []);
 
-  return isSmallScreen;
+  return needsFullscreen;
 }
 
 // Main SidePane component
@@ -133,35 +151,41 @@ interface SidePaneProps {
 
 function SidePane({ children, isOpen, onOpenChange, className, "aria-label": ariaLabel }: Readonly<SidePaneProps>) {
   const sidePaneRef = useRef<HTMLElement>(null);
-  const isSmallScreen = useSmallScreen();
+  const needsFullscreen = useNeedsFullscreen();
 
   const onClose = useCallback(() => {
     onOpenChange(false);
   }, [onOpenChange]);
 
-  useSidePaneAccessibility(isOpen, onClose, isSmallScreen, sidePaneRef);
+  useSidePaneAccessibility(isOpen, onClose, needsFullscreen, sidePaneRef);
 
   if (!isOpen) {
     return null;
   }
 
-  return (
-    <SidePaneContext.Provider value={{ isOpen, onClose, isSmallScreen }}>
-      {/* Backdrop for small screens */}
-      {isSmallScreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" onClick={onClose} />}
+  const content = (
+    <>
+      {/* Backdrop for fullscreen mode */}
+      {needsFullscreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" onClick={onClose} />}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
         className={cn(
           "relative flex h-full w-full flex-col border-border border-l bg-card",
-          isSmallScreen && "fixed inset-0 z-40",
+          needsFullscreen && "fixed inset-0 z-[45]",
           className
         )}
         aria-label={ariaLabel}
       >
         {children}
       </section>
+    </>
+  );
+
+  return (
+    <SidePaneContext.Provider value={{ isOpen, onClose, needsFullscreen }}>
+      {needsFullscreen ? createPortal(content, document.body) : content}
     </SidePaneContext.Provider>
   );
 }

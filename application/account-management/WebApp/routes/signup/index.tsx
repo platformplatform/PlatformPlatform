@@ -63,7 +63,7 @@ export function StartSignupForm() {
       onSubmit={mutationSubmitter(startSignupMutation)}
       validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-[330px] flex-col items-center gap-3 rounded-lg pt-6 pb-4 sm:max-w-[290px] sm:gap-4 sm:pt-8"
+      className="flex w-full max-w-[18rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
@@ -119,9 +119,9 @@ export function StartSignupForm() {
           <Trans>Log in</Trans>
         </Link>
       </p>
-      <div className="text-muted-foreground text-sm">
+      <div className="text-center text-muted-foreground text-sm">
         <Trans>By continuing, you accept our policies</Trans>
-        <div className="flex items-center justify-center">
+        <div className="flex flex-wrap items-center justify-center">
           <Link href="/legal/terms">
             <Trans>Terms of use</Trans>
           </Link>

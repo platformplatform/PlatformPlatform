@@ -19,17 +19,13 @@ export function PublicFooter() {
             <img
               src={logoWrap}
               alt={t`PlatformPlatform logo`}
-              className="h-10 opacity-90 transition-opacity hover:opacity-100 sm:hidden"
-              width={280}
-              height={40}
+              className="h-10 w-[17.5rem] opacity-90 transition-opacity hover:opacity-100 sm:hidden"
               loading="lazy"
             />
             <img
               src={logoMark}
               alt={t`PlatformPlatform logo`}
-              className="hidden h-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
-              width={64}
-              height={64}
+              className="hidden size-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
               loading="lazy"
             />
           </div>

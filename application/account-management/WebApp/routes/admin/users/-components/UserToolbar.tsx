@@ -18,10 +18,26 @@ interface UserToolbarProps {
 }
 
 // Thresholds based on max content widths (Danish language, long dates)
-// Max expanded filters: 838px, Collapsed filters: 292px, Button with text: 136px, Gap: 8px
-const THRESHOLD_BOTH_EXPANDED = 982; // 838 + 136 + 8: filters + button text
-const THRESHOLD_BUTTON_EXPANDED = 438; // 292 + 138 + 8: collapsed filters + button text
-const HYSTERESIS = 2;
+// Measured at 16px base: filters 840px (52.5rem), button with text 137px (8.5625rem), gap 8px (0.5rem)
+const THRESHOLD_BOTH_EXPANDED_REM = 61.5; // 52.5 + 8.5625 + 0.5: filters + button with text
+const THRESHOLD_BUTTON_EXPANDED_REM = 24; // collapsed filters (~15rem) + button with text + gap
+const HYSTERESIS_REM = 0.14;
+
+function getRemInPixels(): number {
+  return parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
+
+function getThresholdBothExpanded(): number {
+  return THRESHOLD_BOTH_EXPANDED_REM * getRemInPixels();
+}
+
+function getThresholdButtonExpanded(): number {
+  return THRESHOLD_BUTTON_EXPANDED_REM * getRemInPixels();
+}
+
+function getHysteresis(): number {
+  return HYSTERESIS_REM * getRemInPixels();
+}
 
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
   const { data: currentUser } = api.useQuery("get", "/api/account-management/users/me");
@@ -55,15 +71,15 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
       const toolbarWidth = toolbar.offsetWidth;
 
       // Button text threshold depends on whether filters are expanded
-      // If filters expanded: need room for both (980px)
-      // If filters collapsed: need room for collapsed filters + button text (436px)
-      const threshold = areFiltersExpanded ? THRESHOLD_BOTH_EXPANDED : THRESHOLD_BUTTON_EXPANDED;
+      // Thresholds scale with font size via rem conversion
+      const threshold = areFiltersExpanded ? getThresholdBothExpanded() : getThresholdButtonExpanded();
+      const hysteresis = getHysteresis();
 
       setShowButtonText((prev) => {
-        if (prev && toolbarWidth < threshold - HYSTERESIS) {
+        if (prev && toolbarWidth < threshold - hysteresis) {
           return false;
         }
-        if (!prev && toolbarWidth >= threshold + HYSTERESIS) {
+        if (!prev && toolbarWidth >= threshold + hysteresis) {
           return true;
         }
         return prev;
