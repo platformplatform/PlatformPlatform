@@ -6,7 +6,13 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import { cn } from "../utils";
-import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
+import {
+  getRootFontSize,
+  MEDIA_QUERIES,
+  SIDE_MENU_DEFAULT_WIDTH_REM,
+  SIDE_MENU_MAX_WIDTH_REM,
+  SIDE_MENU_MIN_WIDTH_REM
+} from "../utils/responsive";
 import { Button } from "./Button";
 import { Link } from "./Link";
 import { Toggle } from "./Toggle";
@@ -452,16 +458,16 @@ type SideMenuProps = {
   logoContent?: React.ReactNode;
 };
 
-// Helper function to get initial menu width from localStorage
-const _getInitialMenuWidth = (): number => {
+// Helper function to get initial menu width from localStorage (in rem)
+const _getInitialMenuWidthRem = (): number => {
   const stored = localStorage.getItem("side-menu-size");
   if (stored) {
-    const width = Number.parseInt(stored, 10);
-    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH) {
+    const width = Number.parseFloat(stored);
+    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM) {
       return width;
     }
   }
-  return SIDE_MENU_DEFAULT_WIDTH;
+  return SIDE_MENU_DEFAULT_WIDTH_REM;
 };
 
 // Helper function to get initial collapsed state
@@ -574,10 +580,10 @@ function createResizeHandler(params: {
     return distance > 5;
   };
 
-  const handleResize = (newWidth: number) => {
-    const clampedWidth = Math.min(Math.max(newWidth, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
-    params.setMenuWidth(clampedWidth);
-    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: clampedWidth } }));
+  const handleResize = (newWidthRem: number) => {
+    const clampedWidthRem = Math.min(Math.max(newWidthRem, SIDE_MENU_MIN_WIDTH_REM), SIDE_MENU_MAX_WIDTH_REM);
+    params.setMenuWidth(clampedWidthRem);
+    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { widthRem: clampedWidthRem } }));
   };
 
   const handleToggle = () => {
@@ -602,10 +608,11 @@ function createResizeHandler(params: {
     }
 
     const deltaX = clientX - params.dragStartPos.current.x;
-    const newWidth = params.initialMenuWidth.current + deltaX;
+    const deltaRem = deltaX / getRootFontSize();
+    const newWidthRem = params.initialMenuWidth.current + deltaRem;
 
-    // Handle edge cases
-    const shouldToggle = params.isCollapsed ? newWidth > 100 : newWidth < 20 && !hasTriggeredCollapse;
+    // Handle edge cases (thresholds in rem: 6.25rem expand, 1.25rem collapse)
+    const shouldToggle = params.isCollapsed ? newWidthRem > 6.25 : newWidthRem < 1.25 && !hasTriggeredCollapse;
 
     if (shouldToggle) {
       handleToggle();
@@ -614,7 +621,7 @@ function createResizeHandler(params: {
 
     // Normal resize
     if (!params.isCollapsed && !hasTriggeredCollapse) {
-      handleResize(newWidth);
+      handleResize(newWidthRem);
     }
   };
 }
@@ -623,8 +630,8 @@ function createResizeHandler(params: {
 function useResizeHandler({
   isResizing,
   setIsResizing,
-  menuWidth,
-  setMenuWidth,
+  menuWidthRem,
+  setMenuWidthRem,
   isCollapsed,
   toggleMenu,
   dragStartPos,
@@ -633,8 +640,8 @@ function useResizeHandler({
 }: {
   isResizing: boolean;
   setIsResizing: (value: boolean) => void;
-  menuWidth: number;
-  setMenuWidth: (value: number) => void;
+  menuWidthRem: number;
+  setMenuWidthRem: (value: number) => void;
   isCollapsed: boolean;
   toggleMenu: () => void;
   dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
@@ -655,14 +662,14 @@ function useResizeHandler({
       initialMenuWidth,
       toggleMenu,
       setIsResizing,
-      setMenuWidth
+      setMenuWidth: setMenuWidthRem
     });
 
     const handleEnd = () => {
       setIsResizing(false);
       document.body.style.cursor = "";
       if (!isCollapsed) {
-        localStorage.setItem("side-menu-size", menuWidth.toString());
+        localStorage.setItem("side-menu-size", menuWidthRem.toString());
       }
       dragStartPos.current = null;
     };
@@ -683,13 +690,13 @@ function useResizeHandler({
     };
   }, [
     isResizing,
-    menuWidth,
+    menuWidthRem,
     isCollapsed,
     toggleMenu,
     dragStartPos,
     hasDraggedRef,
     initialMenuWidth,
-    setMenuWidth,
+    setMenuWidthRem,
     setIsResizing
   ]);
 }
@@ -717,15 +724,15 @@ const _focusToggleButton = (toggleButtonRef: React.RefObject<HTMLButtonElement |
 const _handleArrowKeyResize = (
   e: React.KeyboardEvent,
   direction: "left" | "right",
-  menuWidth: number,
-  setMenuWidth: (width: number) => void
+  menuWidthRem: number,
+  setMenuWidthRem: (width: number) => void
 ): void => {
   e.preventDefault();
-  const delta = direction === "left" ? -10 : 10;
-  const newWidth = Math.min(Math.max(menuWidth + delta, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
-  setMenuWidth(newWidth);
-  localStorage.setItem("side-menu-size", newWidth.toString());
-  window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: newWidth } }));
+  const deltaRem = (direction === "left" ? -10 : 10) / getRootFontSize();
+  const newWidthRem = Math.min(Math.max(menuWidthRem + deltaRem, SIDE_MENU_MIN_WIDTH_REM), SIDE_MENU_MAX_WIDTH_REM);
+  setMenuWidthRem(newWidthRem);
+  localStorage.setItem("side-menu-size", newWidthRem.toString());
+  window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { widthRem: newWidthRem } }));
 };
 
 // Helper function to get client coordinates from mouse or touch event
@@ -784,8 +791,8 @@ const ResizableToggleButton = ({
   handleResizeStart,
   hasDraggedRef,
   toggleMenu,
-  menuWidth,
-  setMenuWidth,
+  menuWidthRem,
+  setMenuWidthRem,
   ariaLabel,
   actualIsCollapsed
 }: {
@@ -793,8 +800,8 @@ const ResizableToggleButton = ({
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   hasDraggedRef: React.MutableRefObject<boolean>;
   toggleMenu: () => void;
-  menuWidth: number;
-  setMenuWidth: (width: number) => void;
+  menuWidthRem: number;
+  setMenuWidthRem: (width: number) => void;
   ariaLabel: string;
   actualIsCollapsed: boolean;
 }) => {
@@ -813,10 +820,10 @@ const ResizableToggleButton = ({
         break;
       }
       case "ArrowLeft":
-        _handleArrowKeyResize(e, "left", menuWidth, setMenuWidth);
+        _handleArrowKeyResize(e, "left", menuWidthRem, setMenuWidthRem);
         break;
       case "ArrowRight":
-        _handleArrowKeyResize(e, "right", menuWidth, setMenuWidth);
+        _handleArrowKeyResize(e, "right", menuWidthRem, setMenuWidthRem);
         break;
       default:
         break;
@@ -854,14 +861,14 @@ const MenuNav = ({
   className,
   isResizing,
   canResize,
-  menuWidth,
+  menuWidthRem,
   shouldShowResizeHandle,
   handleResizeStart,
   logoContent,
   toggleButtonRef,
   toggleMenu,
   hasDraggedRef,
-  setMenuWidth,
+  setMenuWidthRem,
   sidebarToggleAriaLabel,
   forceCollapsed,
   children,
@@ -875,14 +882,14 @@ const MenuNav = ({
   className: string;
   isResizing: boolean;
   canResize: boolean;
-  menuWidth: number;
+  menuWidthRem: number;
   shouldShowResizeHandle: boolean;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   logoContent?: React.ReactNode;
   toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
   toggleMenu: () => void;
   hasDraggedRef: React.RefObject<boolean>;
-  setMenuWidth: (width: number) => void;
+  setMenuWidthRem: (width: number) => void;
   sidebarToggleAriaLabel?: string;
   forceCollapsed: boolean;
   children: React.ReactNode;
@@ -901,7 +908,7 @@ const MenuNav = ({
       isResizing && "cursor-col-resize select-none",
       className
     )}
-    style={canResize ? { width: `${menuWidth}px`, transition: isResizing ? "none" : undefined } : undefined}
+    style={canResize ? { width: `${menuWidthRem}rem`, transition: isResizing ? "none" : undefined } : undefined}
     aria-label="Main navigation"
   >
     {/* Resize handle - draggable on XL screens */}
@@ -939,8 +946,8 @@ const MenuNav = ({
           handleResizeStart={handleResizeStart}
           hasDraggedRef={hasDraggedRef}
           toggleMenu={toggleMenu}
-          menuWidth={menuWidth}
-          setMenuWidth={setMenuWidth}
+          menuWidthRem={menuWidthRem}
+          setMenuWidthRem={setMenuWidthRem}
           ariaLabel={sidebarToggleAriaLabel || ""}
           actualIsCollapsed={actualIsCollapsed}
         />
@@ -963,7 +970,7 @@ const MenuNav = ({
 // Custom hook to manage menu state
 function useMenuState(forceCollapsed: boolean) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [menuWidth, setMenuWidth] = useState(_getInitialMenuWidth);
+  const [menuWidthRem, setMenuWidthRem] = useState(_getInitialMenuWidthRem);
   const [isCollapsed, setIsCollapsed] = useState(() => _getInitialCollapsedState(forceCollapsed));
   const [userPreference, setUserPreference] = useState(_getUserPreference);
 
@@ -975,8 +982,8 @@ function useMenuState(forceCollapsed: boolean) {
   return {
     isOverlayOpen,
     setIsOverlayOpen,
-    menuWidth,
-    setMenuWidth,
+    menuWidth: menuWidthRem,
+    setMenuWidth: setMenuWidthRem,
     isCollapsed,
     setIsCollapsed,
     userPreference,
@@ -1053,8 +1060,15 @@ export function SideMenu({
   const [isTenantMenuOpen, setIsTenantMenuOpen] = useState(false);
 
   // Use the custom hook for menu state management
-  const { isOverlayOpen, setIsOverlayOpen, menuWidth, setMenuWidth, isCollapsed, setIsCollapsed, setUserPreference } =
-    useMenuState(forceCollapsed);
+  const {
+    isOverlayOpen,
+    setIsOverlayOpen,
+    menuWidth: menuWidthRem,
+    setMenuWidth: setMenuWidthRem,
+    isCollapsed,
+    setIsCollapsed,
+    setUserPreference
+  } = useMenuState(forceCollapsed);
 
   // Listen for tenant menu toggle events
   useEffect(() => {
@@ -1109,17 +1123,17 @@ export function SideMenu({
       const coords = _getClientCoordinates(e);
       dragStartPos.current = coords;
       hasDraggedRef.current = false;
-      initialMenuWidth.current = menuWidth;
+      initialMenuWidth.current = menuWidthRem;
     },
-    [menuWidth]
+    [menuWidthRem]
   );
 
   // Extract resize handling into a custom hook to reduce complexity
   useResizeHandler({
     isResizing,
     setIsResizing,
-    menuWidth,
-    setMenuWidth,
+    menuWidthRem,
+    setMenuWidthRem,
     isCollapsed,
     toggleMenu,
     dragStartPos,
@@ -1139,14 +1153,14 @@ export function SideMenu({
           className={className}
           isResizing={isResizing}
           canResize={canResize}
-          menuWidth={menuWidth}
+          menuWidthRem={menuWidthRem}
           shouldShowResizeHandle={shouldShowResizeHandle}
           handleResizeStart={handleResizeStart}
           logoContent={logoContent}
           toggleButtonRef={toggleButtonRef}
           toggleMenu={toggleMenu}
           hasDraggedRef={hasDraggedRef}
-          setMenuWidth={setMenuWidth}
+          setMenuWidthRem={setMenuWidthRem}
           sidebarToggleAriaLabel={sidebarToggleAriaLabel}
           forceCollapsed={forceCollapsed}
           isTenantMenuOpen={isTenantMenuOpen}

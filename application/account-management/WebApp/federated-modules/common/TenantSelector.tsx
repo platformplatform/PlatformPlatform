@@ -16,7 +16,7 @@ import {
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH } from "@repo/ui/utils/responsive";
+import { getRootFontSize, getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH_REM } from "@repo/ui/utils/responsive";
 import { Check, ChevronDown } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
@@ -57,20 +57,23 @@ function useSidebarWidth(isCollapsed: boolean) {
       return getSideMenuCollapsedWidth();
     }
     const stored = localStorage.getItem("side-menu-size");
-    return stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH;
+    const widthRem = stored ? Number.parseFloat(stored) : SIDE_MENU_DEFAULT_WIDTH_REM;
+    return widthRem * getRootFontSize();
   });
 
   useEffect(() => {
-    const handleResize = (event: CustomEvent<{ width: number }>) => {
-      setSidebarWidth(event.detail.width);
+    const handleResize = (event: CustomEvent<{ widthRem: number }>) => {
+      setSidebarWidth(event.detail.widthRem * getRootFontSize());
     };
 
     const handleToggle = (event: CustomEvent<{ isCollapsed: boolean }>) => {
-      setSidebarWidth(
-        event.detail.isCollapsed
-          ? getSideMenuCollapsedWidth()
-          : Number.parseInt(localStorage.getItem("side-menu-size") || String(SIDE_MENU_DEFAULT_WIDTH), 10)
-      );
+      if (event.detail.isCollapsed) {
+        setSidebarWidth(getSideMenuCollapsedWidth());
+      } else {
+        const stored = localStorage.getItem("side-menu-size");
+        const widthRem = stored ? Number.parseFloat(stored) : SIDE_MENU_DEFAULT_WIDTH_REM;
+        setSidebarWidth(widthRem * getRootFontSize());
+      }
     };
 
     window.addEventListener("side-menu-resize", handleResize as EventListener);
@@ -88,7 +91,8 @@ function useSidebarWidth(isCollapsed: boolean) {
       setSidebarWidth(getSideMenuCollapsedWidth());
     } else {
       const stored = localStorage.getItem("side-menu-size");
-      setSidebarWidth(stored ? Number.parseInt(stored, 10) : SIDE_MENU_DEFAULT_WIDTH);
+      const widthRem = stored ? Number.parseFloat(stored) : SIDE_MENU_DEFAULT_WIDTH_REM;
+      setSidebarWidth(widthRem * getRootFontSize());
     }
   }, [isCollapsed]);
 
@@ -172,7 +176,7 @@ function TenantMenuDropdown({
             align={variant === "mobile-menu" ? "end" : "start"}
             side={variant === "mobile-menu" ? "bottom" : isCollapsed ? "right" : "bottom"}
             className="w-auto bg-popover"
-            style={{ minWidth: `${Math.max(SIDE_MENU_DEFAULT_WIDTH, sidebarWidth) - 24}px` }}
+            style={{ minWidth: `${Math.max(SIDE_MENU_DEFAULT_WIDTH_REM, sidebarWidth / getRootFontSize()) - 1.5}rem` }}
           >
             <DropdownMenuGroup>
               <DropdownMenuLabel>

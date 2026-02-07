@@ -28,16 +28,22 @@ export const MEDIA_QUERIES = {
   "2xl": `(min-width: ${BREAKPOINT_PX["2xl"]}px)`
 } as const;
 
-// Side menu width constants
-// Collapsed width is 5rem - compute pixel value dynamically
+// Side menu width constants (rem-based for UI scaling)
 export const SIDE_MENU_COLLAPSED_WIDTH_REM = 5;
+export const SIDE_MENU_MIN_WIDTH_REM = 10; // 160px at default font size
+export const SIDE_MENU_MAX_WIDTH_REM = 25; // 400px at default font size
+export const SIDE_MENU_DEFAULT_WIDTH_REM = 17.5; // 280px at default font size
+
+// Compute pixel value from rem for JS calculations
 export function getSideMenuCollapsedWidth(): number {
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
   return SIDE_MENU_COLLAPSED_WIDTH_REM * rootFontSize;
 }
-export const SIDE_MENU_MIN_WIDTH = 150;
-export const SIDE_MENU_MAX_WIDTH = 500;
-export const SIDE_MENU_DEFAULT_WIDTH = 288;
+
+// Get root font size for rem/px conversions
+export function getRootFontSize(): number {
+  return parseFloat(getComputedStyle(document.documentElement).fontSize);
+}
 
 // Helper function to detect touch devices (including iPads)
 export function isTouchDevice(): boolean {

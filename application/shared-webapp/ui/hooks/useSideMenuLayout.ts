@@ -1,15 +1,14 @@
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
+  getRootFontSize,
   getSideMenuCollapsedWidth,
   MEDIA_QUERIES,
-  SIDE_MENU_DEFAULT_WIDTH,
-  SIDE_MENU_MAX_WIDTH,
-  SIDE_MENU_MIN_WIDTH
+  SIDE_MENU_DEFAULT_WIDTH_REM,
+  SIDE_MENU_MAX_WIDTH_REM,
+  SIDE_MENU_MIN_WIDTH_REM
 } from "../utils/responsive";
 
-// Expanded menu width in rem (288px default / 16 = 18rem)
-const EXPANDED_MENU_WIDTH_REM = SIDE_MENU_DEFAULT_WIDTH / 16;
 // Minimum content width in rem (matches useResponsiveMenu logic)
 const MIN_CONTENT_WIDTH_REM = 62;
 
@@ -44,10 +43,10 @@ export function useSideMenuLayout(): {
   const [isCollapsed, setIsCollapsed] = useState(() => getInitialCollapsed(isSmallScreen, hasSpaceForExpanded));
   const [isOverlayExpanded, setIsOverlayExpanded] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [customMenuWidth, setCustomMenuWidth] = useState(() => {
+  const [customMenuWidthRem, setCustomMenuWidthRem] = useState(() => {
     const stored = localStorage.getItem("side-menu-size");
-    const width = stored ? Number.parseInt(stored, 10) : Number.NaN;
-    return width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH ? width : SIDE_MENU_DEFAULT_WIDTH;
+    const width = stored ? Number.parseFloat(stored) : Number.NaN;
+    return width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM ? width : SIDE_MENU_DEFAULT_WIDTH_REM;
   });
 
   // Listen for screen size changes and menu events
@@ -57,8 +56,8 @@ export function useSideMenuLayout(): {
     const handleSmChange = (e: MediaQueryListEvent) => setIsSmallScreen(e.matches);
 
     const checkSpace = () => {
-      const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-      const expandedMenuWidth = EXPANDED_MENU_WIDTH_REM * rootFontSize;
+      const rootFontSize = getRootFontSize();
+      const expandedMenuWidth = SIDE_MENU_DEFAULT_WIDTH_REM * rootFontSize;
       const minContentWidth = MIN_CONTENT_WIDTH_REM * rootFontSize;
       const minViewportForExpanded = expandedMenuWidth + minContentWidth;
 
@@ -83,7 +82,7 @@ export function useSideMenuLayout(): {
       setIsMobileMenuOpen((event as CustomEvent).detail.isOpen);
     };
     const handleMenuResize = (event: Event) => {
-      setCustomMenuWidth((event as CustomEvent).detail.width);
+      setCustomMenuWidthRem((event as CustomEvent).detail.widthRem);
     };
 
     // Add all listeners
@@ -124,7 +123,7 @@ export function useSideMenuLayout(): {
     ? {} // Mobile: full width
     : isSmallScreen && !hasSpaceForExpanded
       ? { marginLeft: `${collapsedWidth}px` } // Overlay mode (force collapsed)
-      : { marginLeft: isCollapsed ? `${collapsedWidth}px` : `${customMenuWidth}px` }; // Expanded mode
+      : { marginLeft: isCollapsed ? `${collapsedWidth}px` : `${customMenuWidthRem}rem` }; // Expanded mode
 
   // Derive overlay state
   const isOverlayMode = isSmallScreen && !hasSpaceForExpanded;

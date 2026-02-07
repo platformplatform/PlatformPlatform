@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH } from "../utils/responsive";
+import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH_REM } from "../utils/responsive";
 
-// Expanded menu width in rem (288px default / 16 = 18rem)
-const EXPANDED_MENU_WIDTH_REM = SIDE_MENU_DEFAULT_WIDTH / 16;
+// Expanded menu width in rem
+const EXPANDED_MENU_WIDTH_REM = SIDE_MENU_DEFAULT_WIDTH_REM;
 
 // Minimum comfortable content width when menu is expanded (in rem)
 // Based on old xl breakpoint (1280px): content area was ~62rem (1280-288=992px, 992/16=62rem)
