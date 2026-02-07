@@ -161,6 +161,9 @@ msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti
 msgid "Azure Compliance"
 msgstr "Azure Overholdelse"
 
+msgid "Azure Compliance (opens in new window)"
+msgstr "Azure Overholdelse (åbner i nyt vindue)"
+
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -523,6 +526,9 @@ msgstr "Microsofts overholdelsesressourcer"
 msgid "Microsoft DPA"
 msgstr "Microsoft DBA"
 
+msgid "Microsoft DPA (opens in new window)"
+msgstr "Microsoft DBA (åbner i nyt vindue)"
+
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
 
@@ -601,6 +607,9 @@ msgstr "PlatformPlatform"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
+
+msgid "PlatformPlatform on GitHub (opens in new window)"
+msgstr "PlatformPlatform på GitHub (åbner i nyt vindue)"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
@@ -770,6 +779,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "SOC and ISO Reports"
 msgstr "SOC og ISO rapporter"
 
+msgid "SOC and ISO Reports (opens in new window)"
+msgstr "SOC og ISO rapporter (åbner i nyt vindue)"
+
 msgid "Something went wrong"
 msgstr "Noget gik galt"
 
@@ -841,6 +853,9 @@ msgstr "Gennemsigtighed, sikkerhed og privatliv er kernen i hvordan vi opererer.
 
 msgid "Trust Center"
 msgstr "Tillidscenter"
+
+msgid "Trust Center (opens in new window)"
+msgstr "Tillidscenter (åbner i nyt vindue)"
 
 msgid "Try adjusting your search or filters"
 msgstr "Prøv at justere din søgning eller filtre"

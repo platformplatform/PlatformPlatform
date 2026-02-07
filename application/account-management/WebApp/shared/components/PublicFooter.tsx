@@ -74,7 +74,12 @@ export function PublicFooter() {
             <Tooltip>
               <TooltipTrigger
                 render={
-                  <Link href="mailto:support@platformplatform.net" aria-label="Email" variant="icon" underline={false}>
+                  <Link
+                    href="mailto:support@platformplatform.net"
+                    aria-label={t`Email`}
+                    variant="icon"
+                    underline={false}
+                  >
                     <MailIcon className="size-5" />
                   </Link>
                 }

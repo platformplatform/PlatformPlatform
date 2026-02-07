@@ -223,7 +223,7 @@ function LegalIndex() {
                     href="https://github.com/platformplatform/PlatformPlatform"
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label="PlatformPlatform on GitHub (opens in new window)"
+                    aria-label={t`PlatformPlatform on GitHub (opens in new window)`}
                     className="inline-flex items-center gap-1 font-medium text-primary"
                   >
                     PlatformPlatform
@@ -255,7 +255,7 @@ function LegalIndex() {
                 href="https://www.microsoft.com/en-us/trust-center"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Trust Center (opens in new window)"
+                aria-label={t`Trust Center (opens in new window)`}
                 underline={false}
                 className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
@@ -274,7 +274,7 @@ function LegalIndex() {
                 href="https://learn.microsoft.com/en-us/azure/compliance/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Azure Compliance (opens in new window)"
+                aria-label={t`Azure Compliance (opens in new window)`}
                 underline={false}
                 className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
@@ -293,7 +293,7 @@ function LegalIndex() {
                 href="https://servicetrust.microsoft.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="SOC and ISO Reports (opens in new window)"
+                aria-label={t`SOC and ISO Reports (opens in new window)`}
                 underline={false}
                 className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
@@ -312,7 +312,7 @@ function LegalIndex() {
                 href="https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Microsoft DPA (opens in new window)"
+                aria-label={t`Microsoft DPA (opens in new window)`}
                 underline={false}
                 className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >

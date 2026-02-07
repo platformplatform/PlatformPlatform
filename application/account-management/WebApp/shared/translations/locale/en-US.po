@@ -161,6 +161,9 @@ msgstr "Authentication is shared across all tabs. To use multiple accounts simul
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
 
+msgid "Azure Compliance (opens in new window)"
+msgstr "Azure Compliance (opens in new window)"
+
 msgid "Back Office"
 msgstr "Back Office"
 
@@ -523,6 +526,9 @@ msgstr "Microsoft compliance resources"
 msgid "Microsoft DPA"
 msgstr "Microsoft DPA"
 
+msgid "Microsoft DPA (opens in new window)"
+msgstr "Microsoft DPA (opens in new window)"
+
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
@@ -601,6 +607,9 @@ msgstr "PlatformPlatform"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
+
+msgid "PlatformPlatform on GitHub (opens in new window)"
+msgstr "PlatformPlatform on GitHub (opens in new window)"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Please check the URL or return to the home page."
@@ -770,6 +779,9 @@ msgstr "Signup verification code"
 msgid "SOC and ISO Reports"
 msgstr "SOC and ISO Reports"
 
+msgid "SOC and ISO Reports (opens in new window)"
+msgstr "SOC and ISO Reports (opens in new window)"
+
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
@@ -841,6 +853,9 @@ msgstr "Transparency, security, and privacy are at the core of how we operate. R
 
 msgid "Trust Center"
 msgstr "Trust Center"
+
+msgid "Trust Center (opens in new window)"
+msgstr "Trust Center (opens in new window)"
 
 msgid "Try adjusting your search or filters"
 msgstr "Try adjusting your search or filters"
