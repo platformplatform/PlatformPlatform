@@ -30,7 +30,7 @@ function SelectTrigger({
       // NOTE: This diverges from stock ShadCN to use outline-based focus ring, bg-white instead of bg-transparent,
       // --control-height CSS variables for Apple HIG compliance, and active:bg-accent for press feedback.
       className={cn(
-        "flex w-fit cursor-pointer items-center justify-between gap-1.5 whitespace-nowrap rounded-md border border-input bg-white py-2 pr-2 pl-2.5 text-sm shadow-xs outline-ring transition-[color,box-shadow] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-accent disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[0.1875rem] aria-invalid:ring-destructive/20 data-[size=default]:h-[var(--control-height)] data-[size=sm]:h-[var(--control-height-sm)] data-[placeholder]:text-muted-foreground *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:active:bg-input/60 dark:hover:bg-input/50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
+        "flex w-fit cursor-pointer items-center justify-between gap-1.5 whitespace-nowrap rounded-md border border-input bg-white py-2 pr-2 pl-2.5 text-sm shadow-xs outline-ring transition-[color,box-shadow] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-accent disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[0.1875rem] aria-invalid:ring-destructive/20 data-[size=default]:h-[var(--control-height)] data-[size=sm]:h-[var(--control-height-sm)] data-[placeholder]:text-muted-foreground dark:bg-input/30 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 dark:active:bg-input/60 dark:hover:bg-input/50 [&>*]:data-[slot=select-value]:line-clamp-1 [&>*]:data-[slot=select-value]:flex [&>*]:data-[slot=select-value]:flex [&>*]:data-[slot=select-value]:items-center [&>*]:data-[slot=select-value]:gap-1.5 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       {...props}
@@ -104,7 +104,7 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm py-3 pr-8 pl-2 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground active:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-pointer select-none items-center gap-2 rounded-sm py-3 pr-8 pl-2 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground active:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>span:last-child]:flex [&>span:last-child]:items-center [&>span:last-child]:gap-2 not-data-[variant=destructive]:focus:[&_*]:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
       {...props}

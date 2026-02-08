@@ -37,6 +37,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **ShadCN 2.0**: Pre-styled components built on BaseUI, using class-variance-authority (cva)
    - Install components via `npx shadcn add <component>` - never copy manually
    - After installing: change `@/utils` to `../utils` and rename file to PascalCase (e.g., `button.tsx` to `Button.tsx`)
+   - **Never use `*:` or `**:` variants**: These Tailwind child/descendant variants generate `:is()` CSS selectors that the module federation CSS scoping plugin cannot scope, causing specificity bugs in production. In shared components, use `[&>*]:` or `[&_*]:` selectors instead. In application code, prefer putting the utility class directly on each child element (e.g., `className="max-sm:grow"` on each button instead of `max-sm:*:grow` on the parent)
    - **Focus ring**: Replace ShadCN's default `focus-visible:ring-*` / `focus-visible:border-ring` utilities with `outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2`. Use `outline-primary` or `outline-destructive` for colored variants instead of `outline-ring`
    - **Apple HIG compliance**: Interactive controls must use CSS variable heights: `h-[var(--control-height)]` (44px default), `h-[var(--control-height-sm)]` (36px), `h-[var(--control-height-xs)]` (28px). For controls like checkboxes/switches where 44px visual size is too large, ensure a 44px minimum tap target using `after:absolute after:-inset-3`
    - Import from `@repo/ui/components/`, never from BaseUI directly
