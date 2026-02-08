@@ -1,103 +1,27 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/checkbox--docs
- * ref: https://ui.shadcn.com/docs/components/checkbox
- */
-import { Check, Minus } from "lucide-react";
-import type { ReactNode } from "react";
-import {
-  Checkbox as AriaCheckbox,
-  CheckboxGroup as AriaCheckboxGroup,
-  type CheckboxGroupProps as AriaCheckboxGroupProps,
-  type CheckboxProps,
-  composeRenderProps,
-  type ValidationResult
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { Description } from "./Description";
-import { FieldError } from "./FieldError";
-import { focusRing } from "./focusRing";
-import { Label } from "./Label";
-import { composeTailwindRenderProps } from "./utils";
+import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox";
+import { CheckIcon } from "lucide-react";
+import { cn } from "../utils";
 
-export interface CheckboxGroupProps extends Omit<AriaCheckboxGroupProps, "children"> {
-  label?: string;
-  children?: ReactNode;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
-}
-
-export function CheckboxGroup(props: Readonly<CheckboxGroupProps>) {
+function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
-    <AriaCheckboxGroup {...props} className={composeTailwindRenderProps(props.className, "flex flex-col gap-2")}>
-      {props.label && <Label>{props.label}</Label>}
-      {props.children}
-      {props.description && <Description>{props.description}</Description>}
-      <FieldError>{props.errorMessage}</FieldError>
-    </AriaCheckboxGroup>
-  );
-}
-
-const checkboxStyles = tv({
-  base: "group flex h-5 w-5 items-center gap-2 text-sm transition",
-  variants: {
-    isDisabled: {
-      false: "text-foreground",
-      true: "text-foreground/50"
-    }
-  }
-});
-
-const boxStyles = tv({
-  extend: focusRing,
-  base: "flex h-full w-full flex-shrink-0 items-center justify-center rounded border transition",
-  variants: {
-    isSelected: {
-      false: "border-(--color) bg-input-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-(--color) bg-(--color) text-primary-foreground [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
-    },
-    isInvalid: {
-      true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    }
-  }
-});
-
-const iconStyles = "w-4 h-4";
-
-export function Checkbox({ className, children, ...props }: Readonly<CheckboxProps>) {
-  return (
-    <AriaCheckbox
+    <CheckboxPrimitive.Root
+      data-slot="checkbox"
+      className={cn(
+        // NOTE: This diverges from stock ShadCN to increase size to 20px, use outline-based focus ring, add 44px tap target via after pseudo-element,
+        // and active:border-primary for press feedback.
+        "peer relative flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-[0.3125rem] border border-input shadow-xs outline-ring transition-shadow after:absolute after:-inset-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:border-primary disabled:cursor-not-allowed disabled:opacity-50 group-has-disabled/field:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[0.1875rem] aria-invalid:ring-destructive/20 aria-invalid:aria-checked:border-primary data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:bg-input/30 dark:data-checked:bg-primary dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
+      )}
       {...props}
-      className={composeRenderProps(className, (className, renderProps) =>
-        checkboxStyles({ ...renderProps, className })
-      )}
     >
-      {({ isSelected, isIndeterminate, ...renderProps }) => (
-        <>
-          <div className={boxStyles({ isSelected: isSelected || isIndeterminate, ...renderProps })}>
-            <SelectionIcon isIndeterminate={isIndeterminate} isSelected={isSelected} />
-          </div>
-          {children}
-        </>
-      )}
-    </AriaCheckbox>
+      <CheckboxPrimitive.Indicator
+        data-slot="checkbox-indicator"
+        className="grid place-content-center text-current transition-none [&>svg]:size-4"
+      >
+        <CheckIcon />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
   );
 }
 
-type SelectionIconProps = {
-  isSelected: boolean;
-  isIndeterminate: boolean;
-};
-
-function SelectionIcon({ isSelected, isIndeterminate }: Readonly<SelectionIconProps>) {
-  if (isIndeterminate) {
-    return <Minus aria-hidden={true} className={iconStyles} />;
-  }
-  if (isSelected) {
-    return <Check aria-hidden={true} className={iconStyles} />;
-  }
-
-  return null;
-}
+export { Checkbox };

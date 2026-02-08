@@ -1,17 +1,22 @@
-import type { Href } from "@react-types/shared";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
+import { cva } from "class-variance-authority";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
 import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { ToggleButton } from "react-aria-components";
-import { tv } from "tailwind-variants";
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
-import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH, SIDE_MENU_MAX_WIDTH, SIDE_MENU_MIN_WIDTH } from "../utils/responsive";
+import { cn } from "../utils";
+import {
+  getRootFontSize,
+  MEDIA_QUERIES,
+  SIDE_MENU_DEFAULT_WIDTH_REM,
+  SIDE_MENU_MAX_WIDTH_REM,
+  SIDE_MENU_MIN_WIDTH_REM
+} from "../utils/responsive";
 import { Button } from "./Button";
-import { focusRing } from "./focusRing";
 import { Link } from "./Link";
-import { Tooltip, TooltipTrigger } from "./Tooltip";
+import { Toggle } from "./Toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export const collapsedContext = createContext(false);
 export const overlayContext = createContext<{ isOpen: boolean; close: () => void } | null>(null);
@@ -42,36 +47,51 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
   }
 };
 
-const menuButtonStyles = tv({
-  extend: focusRing,
-  base: "menu-item relative flex h-11 w-full items-center justify-start gap-0 overflow-visible rounded-md py-2 pr-2 pl-4 font-normal text-base hover:bg-hover-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-  variants: {
-    isCollapsed: {
-      true: "",
-      false: ""
+// NOTE: Menu items have active:bg-hover-background for press feedback on interactive menu buttons.
+const menuButtonStyles = cva(
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
+  {
+    variants: {
+      isCollapsed: {
+        true: "mx-auto w-11 justify-center",
+        false: "w-full pr-2 pl-4"
+      },
+      isActive: {
+        true: "text-foreground",
+        false: "text-muted-foreground hover:text-foreground"
+      },
+      isDisabled: {
+        true: "cursor-not-allowed opacity-50 hover:bg-sidebar",
+        false: ""
+      },
+      isMobileMenu: {
+        true: "pl-3",
+        false: ""
+      }
     },
-    isActive: {
-      true: "text-foreground",
-      false: "text-muted-foreground hover:text-foreground"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50 hover:bg-background",
-      false: ""
+    defaultVariants: {
+      isCollapsed: false,
+      isActive: false,
+      isDisabled: false,
+      isMobileMenu: false
     }
   }
-});
+);
 
-const menuTextStyles = tv({
-  base: "overflow-hidden whitespace-nowrap text-start",
+const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
   variants: {
     isCollapsed: {
-      true: "max-w-0 opacity-0",
-      false: "max-w-[200px] opacity-100"
+      true: "hidden",
+      false: "relative opacity-100"
     },
     isActive: {
       true: "font-semibold",
       false: "font-normal"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false,
+    isActive: false
   }
 });
 
@@ -82,7 +102,7 @@ type MenuButtonProps = {
 } & (
   | {
       forceReload?: false;
-      href: Href;
+      href: string;
     }
   | {
       forceReload: true;
@@ -95,7 +115,7 @@ type MenuButtonProps = {
 );
 
 // Helper function to get target path from href
-const getTargetPath = (to: Href | string, router: ReturnType<typeof useRouter>): string => {
+const getTargetPath = (to: string, router: ReturnType<typeof useRouter>): string => {
   if (typeof to === "string") {
     return to;
   }
@@ -123,9 +143,9 @@ function MenuLinkContent({
 }) {
   return (
     <>
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center">
+      <div className="flex size-6 shrink-0 items-center justify-center">
         <Icon
-          className={`h-5 w-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
+          className={`size-5 ${isActive ? "stroke-foreground" : "stroke-current"} ${isActive && isCollapsed ? "stroke-[2.5px]" : ""}`}
         />
       </div>
       <div className={`${menuTextStyles({ isCollapsed, isActive })} ${isCollapsed ? "" : "ml-4"}`}>{label}</div>
@@ -134,26 +154,14 @@ function MenuLinkContent({
 }
 
 // Helper component for active indicator
-function ActiveIndicator({
-  isActive,
-  isMobileMenu,
-  isCollapsed
-}: {
-  isActive: boolean;
-  isMobileMenu: boolean;
-  isCollapsed: boolean;
-}) {
+function ActiveIndicator({ isActive }: { isActive: boolean }) {
   if (!isActive) {
     return null;
   }
 
-  return (
-    <div
-      className={`absolute top-1/2 h-8 w-1 -translate-y-1/2 bg-primary ${
-        isMobileMenu ? "-left-3" : isCollapsed ? "-left-2" : "-left-3"
-      }`}
-    />
-  );
+  // Button is positioned at same left offset (px-3) in both states
+  // Indicator needs -left-3 (0.75rem) to reach menu edge
+  return <div className="absolute top-1/2 -left-3 h-8 w-1 -translate-y-1/2 bg-primary" />;
 }
 
 export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
@@ -171,7 +179,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   // Check if we're in the mobile menu context
   const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
 
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (isDisabled) {
@@ -204,7 +212,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         const matchResult = router.matchRoute({ to });
         if (matchResult !== false) {
           // Route exists in current system - use SPA navigation
-          // Don't do anything, let React Aria handle the navigation
+          // Don't do anything, let the router handle the navigation
           return;
         }
       } catch {
@@ -229,45 +237,49 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
     setTimeout(navigateWithDelay, 10);
   };
 
-  // For collapsed menu, wrap in TooltipTrigger
+  // For collapsed menu, wrap in Tooltip
   if (isCollapsed) {
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
-        <TooltipTrigger>
-          <Link
-            href={forceReload || federatedNavigation ? undefined : to}
-            className={linkClassName}
-            variant="ghost"
-            underline={false}
-            isDisabled={isDisabled}
-            aria-current={isActive ? "page" : undefined}
-            onPress={handlePress}
-          >
-            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-          </Link>
-          <Tooltip placement="right" offset={4}>
+        <ActiveIndicator isActive={isActive} />
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href={forceReload || federatedNavigation ? undefined : (to as string)}
+                className={linkClassName}
+                variant="ghost"
+                underline={false}
+                disabled={isDisabled}
+                aria-current={isActive ? "page" : undefined}
+                onClick={handlePress}
+              >
+                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+              </Link>
+            }
+          />
+          <TooltipContent side="right" sideOffset={4}>
             {label}
-          </Tooltip>
-        </TooltipTrigger>
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   }
 
   // For expanded menu
   if (federatedNavigation) {
-    // For federated navigation, use React Aria Link to handle smart navigation
+    // For federated navigation, use Link to handle smart navigation
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+        <ActiveIndicator isActive={isActive} />
         <Link
           href={undefined}
           className={linkClassName}
           variant="ghost"
           underline={false}
-          isDisabled={isDisabled}
+          disabled={isDisabled}
           aria-current={isActive ? "page" : undefined}
-          onPress={handlePress}
+          onClick={handlePress}
         >
           <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
         </Link>
@@ -278,7 +290,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   // For regular navigation, use TanStack Router Link
   return (
     <div className="relative">
-      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <ActiveIndicator isActive={isActive} />
       <RouterLink
         to={to}
         className={linkClassName}
@@ -313,14 +325,18 @@ export function FederatedMenuButton({
   const router = useRouter();
 
   // Check if this menu item is active
-  const currentPath = router.state.location.pathname;
-  const targetPath = to;
-  const isActive = normalizePath(currentPath) === normalizePath(targetPath);
+  // Use prefix matching for section paths (e.g., /admin/users matches /admin/users/recycle-bin)
+  // Use exact matching for root paths (e.g., /admin only matches /admin)
+  const currentPath = normalizePath(router.state.location.pathname);
+  const targetPath = normalizePath(to);
+  const targetSegments = targetPath.split("/").filter(Boolean);
+  const isRootPath = targetSegments.length <= 1;
+  const isActive = isRootPath ? currentPath === targetPath : currentPath.startsWith(targetPath);
 
   // Check if we're in the mobile menu context
   const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
 
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled });
+  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
   const handleNavigation = useCallback(() => {
     if (isDisabled) {
@@ -344,43 +360,47 @@ export function FederatedMenuButton({
     }, 10);
   }, [isDisabled, overlayCtx, isCurrentSystem, router, to]);
 
-  // For collapsed menu, wrap in TooltipTrigger
+  // For collapsed menu, wrap in Tooltip
   if (isCollapsed) {
     return (
       <div className="relative">
-        <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
-        <TooltipTrigger>
-          <Link
-            href={undefined}
-            className={linkClassName}
-            variant="ghost"
-            underline={false}
-            isDisabled={isDisabled}
-            aria-current={isActive ? "page" : undefined}
-            onPress={handleNavigation}
-          >
-            <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-          </Link>
-          <Tooltip placement="right" offset={4}>
+        <ActiveIndicator isActive={isActive} />
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Link
+                href={undefined}
+                className={linkClassName}
+                variant="ghost"
+                underline={false}
+                disabled={isDisabled}
+                aria-current={isActive ? "page" : undefined}
+                onClick={handleNavigation}
+              >
+                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
+              </Link>
+            }
+          />
+          <TooltipContent side="right" sideOffset={4}>
             {label}
-          </Tooltip>
-        </TooltipTrigger>
+          </TooltipContent>
+        </Tooltip>
       </div>
     );
   }
 
-  // For expanded menu, use React Aria Link for consistent touch handling
+  // For expanded menu, use Link for consistent touch handling
   return (
     <div className="relative">
-      <ActiveIndicator isActive={isActive} isMobileMenu={isMobileMenu} isCollapsed={isCollapsed} />
+      <ActiveIndicator isActive={isActive} />
       <Link
         href={undefined}
         className={linkClassName}
         variant="ghost"
         underline={false}
-        isDisabled={isDisabled}
+        disabled={isDisabled}
         aria-current={isActive ? "page" : undefined}
-        onPress={handleNavigation}
+        onClick={handleNavigation}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
       </Link>
@@ -388,42 +408,45 @@ export function FederatedMenuButton({
   );
 }
 
-const sideMenuStyles = tv({
-  base: "group fixed top-0 left-0 z-60 flex h-screen flex-col bg-background transition-[width] duration-100",
-  variants: {
-    isCollapsed: {
-      true: "w-[72px]",
-      false: "" // Width will be set inline for resizable menu
+const sideMenuStyles = cva(
+  "group fixed top-0 left-0 z-30 flex h-screen flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width] duration-100",
+  {
+    variants: {
+      isCollapsed: {
+        true: "w-[var(--side-menu-collapsed-width)]",
+        false: ""
+      },
+      overlayMode: {
+        true: "",
+        false: ""
+      },
+      isOverlayOpen: {
+        true: "shadow-2xl",
+        false: ""
+      },
+      isHidden: {
+        true: "hidden",
+        false: "flex"
+      }
     },
-    overlayMode: {
-      true: "",
-      false: ""
-    },
-    isOverlayOpen: {
-      true: "shadow-2xl",
-      false: ""
-    },
-    isHidden: {
-      true: "hidden",
-      false: "flex"
+    defaultVariants: {
+      isCollapsed: false,
+      overlayMode: false,
+      isOverlayOpen: false,
+      isHidden: false
     }
-  },
-  compoundVariants: [
-    {
-      overlayMode: true,
-      isOverlayOpen: true,
-      class: "z-80 w-[300px]" // Above side panes when expanded in overlay mode
-    }
-  ]
-});
+  }
+);
 
-const chevronStyles = tv({
-  base: "h-4 w-4 transition-transform duration-100",
+const chevronStyles = cva("size-4 transition-transform duration-100", {
   variants: {
     isCollapsed: {
       true: "rotate-180 transform",
       false: "rotate-0 transform"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false
   }
 });
 
@@ -435,16 +458,16 @@ type SideMenuProps = {
   logoContent?: React.ReactNode;
 };
 
-// Helper function to get initial menu width from localStorage
-const _getInitialMenuWidth = (): number => {
+// Helper function to get initial menu width from localStorage (in rem)
+const _getInitialMenuWidthRem = (): number => {
   const stored = localStorage.getItem("side-menu-size");
   if (stored) {
-    const width = Number.parseInt(stored, 10);
-    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH && width <= SIDE_MENU_MAX_WIDTH) {
+    const width = Number.parseFloat(stored);
+    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM) {
       return width;
     }
   }
-  return SIDE_MENU_DEFAULT_WIDTH;
+  return SIDE_MENU_DEFAULT_WIDTH_REM;
 };
 
 // Helper function to get initial collapsed state
@@ -557,10 +580,10 @@ function createResizeHandler(params: {
     return distance > 5;
   };
 
-  const handleResize = (newWidth: number) => {
-    const clampedWidth = Math.min(Math.max(newWidth, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
-    params.setMenuWidth(clampedWidth);
-    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: clampedWidth } }));
+  const handleResize = (newWidthRem: number) => {
+    const clampedWidthRem = Math.min(Math.max(newWidthRem, SIDE_MENU_MIN_WIDTH_REM), SIDE_MENU_MAX_WIDTH_REM);
+    params.setMenuWidth(clampedWidthRem);
+    window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { widthRem: clampedWidthRem } }));
   };
 
   const handleToggle = () => {
@@ -585,10 +608,11 @@ function createResizeHandler(params: {
     }
 
     const deltaX = clientX - params.dragStartPos.current.x;
-    const newWidth = params.initialMenuWidth.current + deltaX;
+    const deltaRem = deltaX / getRootFontSize();
+    const newWidthRem = params.initialMenuWidth.current + deltaRem;
 
-    // Handle edge cases
-    const shouldToggle = params.isCollapsed ? newWidth > 100 : newWidth < 20 && !hasTriggeredCollapse;
+    // Handle edge cases (thresholds in rem: 6.25rem expand, 1.25rem collapse)
+    const shouldToggle = params.isCollapsed ? newWidthRem > 6.25 : newWidthRem < 1.25 && !hasTriggeredCollapse;
 
     if (shouldToggle) {
       handleToggle();
@@ -597,7 +621,7 @@ function createResizeHandler(params: {
 
     // Normal resize
     if (!params.isCollapsed && !hasTriggeredCollapse) {
-      handleResize(newWidth);
+      handleResize(newWidthRem);
     }
   };
 }
@@ -606,8 +630,8 @@ function createResizeHandler(params: {
 function useResizeHandler({
   isResizing,
   setIsResizing,
-  menuWidth,
-  setMenuWidth,
+  menuWidthRem,
+  setMenuWidthRem,
   isCollapsed,
   toggleMenu,
   dragStartPos,
@@ -616,8 +640,8 @@ function useResizeHandler({
 }: {
   isResizing: boolean;
   setIsResizing: (value: boolean) => void;
-  menuWidth: number;
-  setMenuWidth: (value: number) => void;
+  menuWidthRem: number;
+  setMenuWidthRem: (value: number) => void;
   isCollapsed: boolean;
   toggleMenu: () => void;
   dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
@@ -638,14 +662,14 @@ function useResizeHandler({
       initialMenuWidth,
       toggleMenu,
       setIsResizing,
-      setMenuWidth
+      setMenuWidth: setMenuWidthRem
     });
 
     const handleEnd = () => {
       setIsResizing(false);
       document.body.style.cursor = "";
       if (!isCollapsed) {
-        localStorage.setItem("side-menu-size", menuWidth.toString());
+        localStorage.setItem("side-menu-size", menuWidthRem.toString());
       }
       dragStartPos.current = null;
     };
@@ -666,13 +690,13 @@ function useResizeHandler({
     };
   }, [
     isResizing,
-    menuWidth,
+    menuWidthRem,
     isCollapsed,
     toggleMenu,
     dragStartPos,
     hasDraggedRef,
     initialMenuWidth,
-    setMenuWidth,
+    setMenuWidthRem,
     setIsResizing
   ]);
 }
@@ -700,15 +724,15 @@ const _focusToggleButton = (toggleButtonRef: React.RefObject<HTMLButtonElement |
 const _handleArrowKeyResize = (
   e: React.KeyboardEvent,
   direction: "left" | "right",
-  menuWidth: number,
-  setMenuWidth: (width: number) => void
+  menuWidthRem: number,
+  setMenuWidthRem: (width: number) => void
 ): void => {
   e.preventDefault();
-  const delta = direction === "left" ? -10 : 10;
-  const newWidth = Math.min(Math.max(menuWidth + delta, SIDE_MENU_MIN_WIDTH), SIDE_MENU_MAX_WIDTH);
-  setMenuWidth(newWidth);
-  localStorage.setItem("side-menu-size", newWidth.toString());
-  window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { width: newWidth } }));
+  const deltaRem = (direction === "left" ? -10 : 10) / getRootFontSize();
+  const newWidthRem = Math.min(Math.max(menuWidthRem + deltaRem, SIDE_MENU_MIN_WIDTH_REM), SIDE_MENU_MAX_WIDTH_REM);
+  setMenuWidthRem(newWidthRem);
+  localStorage.setItem("side-menu-size", newWidthRem.toString());
+  window.dispatchEvent(new CustomEvent("side-menu-resize", { detail: { widthRem: newWidthRem } }));
 };
 
 // Helper function to get client coordinates from mouse or touch event
@@ -721,11 +745,11 @@ const _getClientCoordinates = (
   return { x: e.clientX, y: e.clientY };
 };
 
-// Backdrop component for overlay mode
+// Backdrop component for overlay mode - covers content and SidePane
 const OverlayBackdrop = ({ closeOverlay }: { closeOverlay: () => void }) => (
   <button
     type="button"
-    className="fixed top-0 right-0 bottom-0 left-[72px] z-[75] bg-black/50 transition-opacity duration-100 sm:block xl:hidden"
+    className="fixed top-0 right-0 bottom-0 left-[var(--side-menu-collapsed-width)] z-[35] bg-black/50 transition-opacity duration-100"
     onClick={closeOverlay}
     aria-label="Close menu"
   />
@@ -741,15 +765,15 @@ const DefaultLogoSection = ({ actualIsCollapsed }: { actualIsCollapsed: boolean 
         : {
             display: "grid",
             gridTemplateColumns: "auto 1fr",
-            gap: "12px",
+            gap: "0.75rem",
             alignItems: "center",
-            paddingLeft: "24px",
-            paddingRight: "10px",
+            paddingLeft: "1.5rem",
+            paddingRight: "0.625rem",
             width: "100%"
           }
     }
   >
-    <img src={logoMarkUrl} alt="Logo" className="h-8 w-8 shrink-0" />
+    <img src={logoMarkUrl} alt="Logo" className="size-8 shrink-0" />
     {!actualIsCollapsed && (
       <span
         className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
@@ -767,8 +791,8 @@ const ResizableToggleButton = ({
   handleResizeStart,
   hasDraggedRef,
   toggleMenu,
-  menuWidth,
-  setMenuWidth,
+  menuWidthRem,
+  setMenuWidthRem,
   ariaLabel,
   actualIsCollapsed
 }: {
@@ -776,8 +800,8 @@ const ResizableToggleButton = ({
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   hasDraggedRef: React.MutableRefObject<boolean>;
   toggleMenu: () => void;
-  menuWidth: number;
-  setMenuWidth: (width: number) => void;
+  menuWidthRem: number;
+  setMenuWidthRem: (width: number) => void;
   ariaLabel: string;
   actualIsCollapsed: boolean;
 }) => {
@@ -796,10 +820,10 @@ const ResizableToggleButton = ({
         break;
       }
       case "ArrowLeft":
-        _handleArrowKeyResize(e, "left", menuWidth, setMenuWidth);
+        _handleArrowKeyResize(e, "left", menuWidthRem, setMenuWidthRem);
         break;
       case "ArrowRight":
-        _handleArrowKeyResize(e, "right", menuWidth, setMenuWidth);
+        _handleArrowKeyResize(e, "right", menuWidthRem, setMenuWidthRem);
         break;
       default:
         break;
@@ -810,7 +834,7 @@ const ResizableToggleButton = ({
     <button
       ref={toggleButtonRef}
       type="button"
-      className="toggle-button flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
+      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100"
       onMouseDown={handleResizeStart}
       onTouchStart={handleResizeStart}
       onClick={handleClick}
@@ -837,14 +861,14 @@ const MenuNav = ({
   className,
   isResizing,
   canResize,
-  menuWidth,
+  menuWidthRem,
   shouldShowResizeHandle,
   handleResizeStart,
   logoContent,
   toggleButtonRef,
   toggleMenu,
   hasDraggedRef,
-  setMenuWidth,
+  setMenuWidthRem,
   sidebarToggleAriaLabel,
   forceCollapsed,
   children,
@@ -858,14 +882,14 @@ const MenuNav = ({
   className: string;
   isResizing: boolean;
   canResize: boolean;
-  menuWidth: number;
+  menuWidthRem: number;
   shouldShowResizeHandle: boolean;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
   logoContent?: React.ReactNode;
   toggleButtonRef: React.RefObject<HTMLButtonElement | HTMLDivElement | null>;
   toggleMenu: () => void;
   hasDraggedRef: React.RefObject<boolean>;
-  setMenuWidth: (width: number) => void;
+  setMenuWidthRem: (width: number) => void;
   sidebarToggleAriaLabel?: string;
   forceCollapsed: boolean;
   children: React.ReactNode;
@@ -873,68 +897,72 @@ const MenuNav = ({
 }) => (
   <nav
     ref={sideMenuRef}
-    className={`${sideMenuStyles({
-      isCollapsed: actualIsCollapsed,
-      overlayMode,
-      isOverlayOpen,
-      isHidden: isHidden && !overlayMode,
+    className={cn(
+      sideMenuStyles({
+        isCollapsed: actualIsCollapsed,
+        overlayMode,
+        isOverlayOpen,
+        isHidden: isHidden && !overlayMode
+      }),
+      overlayMode && isOverlayOpen && "z-40 w-[18rem]",
+      isResizing && "cursor-col-resize select-none",
       className
-    })} ${isResizing ? "cursor-col-resize select-none" : ""}`}
-    style={canResize ? { width: `${menuWidth}px`, transition: isResizing ? "none" : undefined } : undefined}
+    )}
+    style={canResize ? { width: `${menuWidthRem}rem`, transition: isResizing ? "none" : undefined } : undefined}
     aria-label="Main navigation"
   >
-    {/* Vertical divider line - draggable on XL screens */}
-    {shouldShowResizeHandle ? (
+    {/* Resize handle - draggable on XL screens */}
+    {shouldShowResizeHandle && (
       <button
         type="button"
-        className="absolute top-0 right-0 h-full w-2 cursor-col-resize border-border border-r bg-transparent p-0"
+        tabIndex={-1}
+        className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent p-0"
         onMouseDown={handleResizeStart}
         onTouchStart={handleResizeStart}
         aria-label="Resize sidebar"
       />
-    ) : (
-      <div className="absolute top-0 right-0 h-full border-border border-r" />
     )}
 
     {/* Fixed header section with logo */}
-    <div className="relative flex h-[72px] w-full shrink-0 items-center">
+    <div className="relative flex h-[var(--side-menu-collapsed-width)] w-full shrink-0 items-center">
       {logoContent || <DefaultLogoSection actualIsCollapsed={actualIsCollapsed} />}
-
-      {/* Toggle button centered on divider, at intersection with topbar border */}
-      <div
-        className={`absolute top-[72px] right-0 translate-x-1/2 -translate-y-1/2 ${
-          !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
-        } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
-      >
-        {shouldShowResizeHandle ? (
-          <ResizableToggleButton
-            toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
-            handleResizeStart={handleResizeStart}
-            hasDraggedRef={hasDraggedRef}
-            toggleMenu={toggleMenu}
-            menuWidth={menuWidth}
-            setMenuWidth={setMenuWidth}
-            ariaLabel={sidebarToggleAriaLabel || ""}
-            actualIsCollapsed={actualIsCollapsed}
-          />
-        ) : (
-          <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
-            <ToggleButton
-              aria-label={sidebarToggleAriaLabel}
-              className="toggle-button flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 transition-opacity duration-100 focus:outline-none focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background group-focus-within:opacity-100 group-hover:opacity-100"
-              isSelected={actualIsCollapsed}
-              onPress={toggleMenu}
-            >
-              <ToggleButtonContent isCollapsed={actualIsCollapsed} />
-            </ToggleButton>
-          </div>
-        )}
-      </div>
     </div>
 
     {/* Scrollable menu content */}
-    <div className={`flex-1 overflow-y-auto ${actualIsCollapsed ? "px-2" : "px-3"} mt-2`}>
-      <div className="flex flex-col gap-2 pt-1.5">{children}</div>
+    {/* Use consistent left padding in both states to prevent icon jump during collapse animation */}
+    <div className="mt-2 flex-1 overflow-y-auto px-3">
+      <div className="-mx-1.5 flex flex-col gap-0 px-1.5 py-1 pt-1.5">{children}</div>
+    </div>
+
+    {/* Toggle button centered on divider, at intersection with topbar border */}
+    <div
+      className={`absolute top-[var(--side-menu-collapsed-width)] right-0 translate-x-1/2 -translate-y-1/2 ${
+        !overlayMode && !forceCollapsed ? "cursor-col-resize" : ""
+      } ${isTenantMenuOpen ? "pointer-events-none opacity-0" : ""}`}
+    >
+      {shouldShowResizeHandle ? (
+        <ResizableToggleButton
+          toggleButtonRef={toggleButtonRef as React.RefObject<HTMLButtonElement>}
+          handleResizeStart={handleResizeStart}
+          hasDraggedRef={hasDraggedRef}
+          toggleMenu={toggleMenu}
+          menuWidthRem={menuWidthRem}
+          setMenuWidthRem={setMenuWidthRem}
+          ariaLabel={sidebarToggleAriaLabel || ""}
+          actualIsCollapsed={actualIsCollapsed}
+        />
+      ) : (
+        <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
+          <Toggle
+            aria-label={sidebarToggleAriaLabel}
+            className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+            pressed={actualIsCollapsed}
+            onPressedChange={toggleMenu}
+          >
+            <ToggleButtonContent isCollapsed={actualIsCollapsed} />
+          </Toggle>
+        </div>
+      )}
     </div>
   </nav>
 );
@@ -942,7 +970,7 @@ const MenuNav = ({
 // Custom hook to manage menu state
 function useMenuState(forceCollapsed: boolean) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [menuWidth, setMenuWidth] = useState(_getInitialMenuWidth);
+  const [menuWidthRem, setMenuWidthRem] = useState(_getInitialMenuWidthRem);
   const [isCollapsed, setIsCollapsed] = useState(() => _getInitialCollapsedState(forceCollapsed));
   const [userPreference, setUserPreference] = useState(_getUserPreference);
 
@@ -954,8 +982,8 @@ function useMenuState(forceCollapsed: boolean) {
   return {
     isOverlayOpen,
     setIsOverlayOpen,
-    menuWidth,
-    setMenuWidth,
+    menuWidth: menuWidthRem,
+    setMenuWidth: setMenuWidthRem,
     isCollapsed,
     setIsCollapsed,
     userPreference,
@@ -1032,8 +1060,15 @@ export function SideMenu({
   const [isTenantMenuOpen, setIsTenantMenuOpen] = useState(false);
 
   // Use the custom hook for menu state management
-  const { isOverlayOpen, setIsOverlayOpen, menuWidth, setMenuWidth, isCollapsed, setIsCollapsed, setUserPreference } =
-    useMenuState(forceCollapsed);
+  const {
+    isOverlayOpen,
+    setIsOverlayOpen,
+    menuWidth: menuWidthRem,
+    setMenuWidth: setMenuWidthRem,
+    isCollapsed,
+    setIsCollapsed,
+    setUserPreference
+  } = useMenuState(forceCollapsed);
 
   // Listen for tenant menu toggle events
   useEffect(() => {
@@ -1088,17 +1123,17 @@ export function SideMenu({
       const coords = _getClientCoordinates(e);
       dragStartPos.current = coords;
       hasDraggedRef.current = false;
-      initialMenuWidth.current = menuWidth;
+      initialMenuWidth.current = menuWidthRem;
     },
-    [menuWidth]
+    [menuWidthRem]
   );
 
   // Extract resize handling into a custom hook to reduce complexity
   useResizeHandler({
     isResizing,
     setIsResizing,
-    menuWidth,
-    setMenuWidth,
+    menuWidthRem,
+    setMenuWidthRem,
     isCollapsed,
     toggleMenu,
     dragStartPos,
@@ -1118,14 +1153,14 @@ export function SideMenu({
           className={className}
           isResizing={isResizing}
           canResize={canResize}
-          menuWidth={menuWidth}
+          menuWidthRem={menuWidthRem}
           shouldShowResizeHandle={shouldShowResizeHandle}
           handleResizeStart={handleResizeStart}
           logoContent={logoContent}
           toggleButtonRef={toggleButtonRef}
           toggleMenu={toggleMenu}
           hasDraggedRef={hasDraggedRef}
-          setMenuWidth={setMenuWidth}
+          setMenuWidthRem={setMenuWidthRem}
           sidebarToggleAriaLabel={sidebarToggleAriaLabel}
           forceCollapsed={forceCollapsed}
           isTenantMenuOpen={isTenantMenuOpen}
@@ -1138,6 +1173,13 @@ export function SideMenu({
 
   return (
     <>
+      {/* Skip navigation link for keyboard users - hidden on mobile where it's not needed */}
+      <a
+        href="#main-content"
+        className="sr-only outline-primary focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:shadow-lg focus:outline focus:outline-2 focus:outline-offset-2 max-sm:hidden"
+      >
+        Skip to main content
+      </a>
       {overlayMode && isOverlayOpen && <OverlayBackdrop closeOverlay={closeOverlay} />}
       {menuContent}
       {/* Mobile floating button */}
@@ -1148,13 +1190,15 @@ export function SideMenu({
   );
 }
 
-const sideMenuSeparatorStyles = tv({
-  base: "border-b-0 font-semibold text-muted-foreground uppercase leading-4",
+const sideMenuSeparatorStyles = cva("border-b-0 font-semibold text-muted-foreground uppercase leading-4", {
   variants: {
     isCollapsed: {
-      true: "-mt-2 mb-2 flex h-8 w-full justify-center",
-      false: "h-8 w-full border-border/0 pt-4 pl-4 text-xs"
+      true: "mb-2 flex h-8 w-full items-end pt-4 pl-4",
+      false: "mb-2 w-full border-border/0 pt-4 pl-4 text-xs"
     }
+  },
+  defaultVariants: {
+    isCollapsed: false
   }
 });
 
@@ -1232,20 +1276,22 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
   return (
     <>
       {!isOpen && (
-        <div className="fixed right-4 bottom-4 z-30 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))] sm:hidden">
+        <div className="fixed right-3 bottom-3 z-20 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))] sm:hidden">
           <Button
+            variant="ghost"
+            size="icon"
             aria-label={ariaLabel}
-            className="m-0 inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-background pressed:bg-muted p-0 shadow-lg hover:bg-hover-background focus:bg-hover-background"
-            onPress={() => setIsOpen(true)}
+            className="size-14 rounded-full border border-border bg-background shadow-lg hover:bg-hover-background focus:bg-hover-background active:bg-muted dark:hover:bg-hover-background"
+            onClick={() => setIsOpen(true)}
           >
-            <Menu className="h-7 w-7 text-foreground" />
+            <Menu className="size-7 text-foreground" />
           </Button>
         </div>
       )}
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-[200] h-full w-full bg-background"
+            className="fixed inset-0 z-40 h-full w-full bg-sidebar"
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}
@@ -1260,7 +1306,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
             }}
           >
             <nav
-              className="flex h-full w-full flex-col bg-background"
+              className="flex h-full w-full flex-col bg-sidebar"
               ref={dialogRef}
               style={{ margin: 0, padding: 0 }}
               aria-label="Mobile navigation"
@@ -1269,8 +1315,8 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
                 className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-20 supports-[padding:max(0px)]:pb-[max(5rem,env(safe-area-inset-bottom))]"
                 style={{
                   margin: 0,
-                  paddingLeft: "12px",
-                  paddingRight: "12px",
+                  paddingLeft: "0.75rem",
+                  paddingRight: "0.75rem",
                   pointerEvents: "auto",
                   WebkitOverflowScrolling: "touch",
                   touchAction: "pan-y"
@@ -1281,15 +1327,15 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
               </div>
 
               {/* Floating close button at bottom right - same position as hamburger */}
-              <div className="absolute right-4 bottom-4 z-10 supports-[bottom:max(0px)]:bottom-[max(0.75rem,calc(env(safe-area-inset-bottom)-0.25rem))]">
+              <div className="absolute right-3 bottom-3 z-10 supports-[bottom:max(0px)]:bottom-[max(0.5rem,calc(env(safe-area-inset-bottom)-0.5rem))]">
                 <Button
                   variant="ghost"
                   size="icon"
-                  onPress={() => setIsOpen(false)}
+                  onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="h-12 w-12 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90"
+                  className="size-14 rounded-full border border-border bg-background/80 shadow-lg backdrop-blur-sm hover:bg-background/90 active:bg-muted"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="size-7" />
                 </Button>
               </div>
             </nav>

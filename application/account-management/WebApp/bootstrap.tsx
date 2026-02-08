@@ -3,7 +3,7 @@ import "@repo/ui/tailwind.css";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/errorHandler";
 import { Translation } from "@repo/infrastructure/translations/Translation";
-import { GlobalToastRegion } from "@repo/ui/components/Toast";
+import { Toaster } from "@repo/ui/components/Sonner";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import reactDom from "react-dom/client";
@@ -26,7 +26,7 @@ reactDom.createRoot(rootElement).render(
     <TranslationProvider>
       <ApplicationInsightsProvider>
         <RouterProvider router={router} />
-        <GlobalToastRegion />
+        <Toaster position="top-center" closeButton={true} />
       </ApplicationInsightsProvider>
     </TranslationProvider>
   </React.StrictMode>

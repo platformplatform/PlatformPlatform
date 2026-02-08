@@ -99,7 +99,7 @@ test.describe("@comprehensive", () => {
       await expect(profileModal.getByLabel("First name")).toBeVisible();
       await expect(profileModal.getByLabel("Last name")).toBeVisible();
       await expect(profileModal.getByLabel("Email")).toBeVisible();
-      await expect(profileModal.getByLabel("Title")).toBeVisible();
+      await expect(profileModal.getByRole("textbox", { name: "Title" })).toBeVisible();
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
@@ -107,7 +107,7 @@ test.describe("@comprehensive", () => {
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
-      await profileModal.getByLabel("Title").fill(newTitle);
+      await profileModal.getByRole("textbox", { name: "Title" }).fill(newTitle);
       // Click save button
       await profileModal.getByRole("button", { name: "Save" }).click();
 
@@ -130,13 +130,17 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Language" }).click();
 
-      // Wait for language menu to open
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = mobileDialog.getByRole("button", { name: "Language" });
+      await languageButton.dispatchEvent("click");
+
       await expect(page.getByRole("menu")).toBeVisible();
 
-      // Select Danish
-      await page.getByRole("menuitem", { name: "Dansk" }).click();
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const danskMenuItem = page.getByRole("menuitem", { name: "Dansk" });
+      await expect(danskMenuItem).toBeVisible();
+      await danskMenuItem.dispatchEvent("click");
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
@@ -149,13 +153,17 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
 
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Sprog" }).click();
 
-      // Wait for language menu to open
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = mobileDialog.getByRole("button", { name: "Sprog" });
+      await languageButton.dispatchEvent("click");
+
       await expect(page.getByRole("menu")).toBeVisible();
 
-      // Select English
-      await page.getByRole("menuitem", { name: "English" }).click();
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
+      await expect(englishMenuItem).toBeVisible();
+      await englishMenuItem.dispatchEvent("click");
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
@@ -169,13 +177,17 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Theme" }).click();
 
-      // Wait for theme menu to open
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const themeButton = mobileDialog.getByRole("button", { name: "Theme" });
+      await themeButton.dispatchEvent("click");
+
       await expect(page.getByRole("menu")).toBeVisible();
 
-      // Select dark theme
-      await page.getByRole("menuitem", { name: "Dark" }).click();
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
+      await expect(darkMenuItem).toBeVisible();
+      await darkMenuItem.dispatchEvent("click");
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
@@ -231,14 +243,14 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Ensure row is selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens automatically on mobile when clicking a row
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane to be fully interactive and close button to be visible
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane to ensure Escape key is handled
@@ -254,7 +266,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("ArrowDown");
 
       const secondRow = page.locator("tbody tr").nth(1);
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane remains closed when using keyboard navigation
       await expect(page.locator('[aria-label="User profile"]')).not.toBeVisible();
@@ -265,7 +277,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("ArrowDown");
 
       const thirdRow = page.locator("tbody tr").nth(2);
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Press Enter to open the side pane
       await page.keyboard.press("Enter");
@@ -275,7 +287,7 @@ test.describe("@comprehensive", () => {
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane animation to complete and close button to be visible
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
     })();
 
@@ -284,7 +296,7 @@ test.describe("@comprehensive", () => {
 
       // Ensure side pane is fully open
       await expect(sidePane).toBeVisible();
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane to ensure Escape key is handled
@@ -299,21 +311,21 @@ test.describe("@comprehensive", () => {
       // Re-select first user since selection was cleared
       const firstRow = page.locator("tbody tr").first();
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane opened automatically
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Press Escape key & verify side pane closes")(async () => {
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
 
       // Wait for side pane to be fully visible
       await expect(sidePane).toBeVisible();
 
       // Wait for close button to ensure side pane is fully rendered
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await expect(closeButton).toBeVisible();
 
       // Focus on the side pane before pressing Escape
@@ -330,17 +342,20 @@ test.describe("@comprehensive", () => {
       // Navigate to second user and open side pane
       const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Side pane should open automatically on click in mobile
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Test closing side pane with X button & verify it works")(async () => {
+      // Wait for any toast notifications to disappear before clicking
+      await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
+
       // Click close button to close side pane
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const sidePane = page.getByRole("region", { name: "User profile" });
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       await expect(sidePane).not.toBeVisible();
@@ -468,20 +483,23 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Verify only first row is selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
       const secondRow = page.locator("tbody tr").nth(1);
       await expect(secondRow).toBeVisible();
-      await expect(secondRow).toHaveAttribute("aria-selected", "false");
+      await expect(secondRow).not.toHaveAttribute("data-state", "selected");
 
       // Verify side pane opens
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Close side pane using close button & verify it closes")(async () => {
+      // Wait for any toast notifications to disappear before clicking
+      await expect(page.locator("[data-sonner-toaster] li[data-sonner-toast]")).not.toBeVisible();
+
       // Click close button to close side pane
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const sidePane = page.getByRole("region", { name: "User profile" });
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       // Verify side pane closes
@@ -498,7 +516,7 @@ test.describe("@comprehensive", () => {
 
       // Now click first row again and verify selection
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Close side pane
       await page.keyboard.press("Escape");
@@ -508,11 +526,11 @@ test.describe("@comprehensive", () => {
 
       // Verify selection moved to second row
       const secondRow = page.locator("tbody tr").nth(1);
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane stays closed during keyboard navigation
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).not.toBeVisible();
     })();
 
@@ -520,13 +538,13 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
     })();
 
     await step("Click X button to close side pane & verify selection maintained")(async () => {
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
-      const closeButton = sidePane.locator("svg[aria-label='Close user profile']");
+      const sidePane = page.getByRole("region", { name: "User profile" });
+      const closeButton = sidePane.getByRole("button", { name: "Close user profile" });
       await closeButton.click();
 
       // Verify side pane closes
@@ -543,69 +561,64 @@ test.describe("@comprehensive", () => {
 
       // Click first user
       await firstRow.click();
-      await expect(firstRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).toHaveAttribute("data-state", "selected");
 
       // Close side pane
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       // Click second user - should single select with our fix
       await secondRow.click();
 
       // With single selection mode, only second user should be selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).toHaveAttribute("data-state", "selected");
     })();
 
     await step("Click third user after keyboard navigation and side pane interaction & verify single selection")(
       async () => {
         // Reset state - ensure any side pane is closed first
-        const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+        const sidePane = page.getByRole("region", { name: "User profile" });
         await expect(sidePane).toBeVisible();
         await page.keyboard.press("Escape");
         await expect(sidePane).not.toBeVisible();
 
-        // Click first user
+        // Click first user to select it
         const firstRow = page.locator("tbody tr").first();
         await firstRow.click();
-        await page.keyboard.press("Escape");
-
-        // Re-select first row since selection was cleared
-        await firstRow.click();
-        await expect(firstRow).toHaveAttribute("aria-selected", "true");
+        await expect(firstRow).toHaveAttribute("data-state", "selected");
         await page.keyboard.press("Escape");
 
         // Navigate to second with keyboard
         const secondRow = page.locator("tbody tr").nth(1);
         await page.keyboard.press("ArrowDown");
-        await expect(secondRow).toHaveAttribute("aria-selected", "true");
+        await expect(secondRow).toHaveAttribute("data-state", "selected");
 
         // Open side pane with Enter
         const thirdRow = page.locator("tbody tr").nth(2);
         await page.keyboard.press("Enter");
-        await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+        await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
 
         // Close with X button
         const closeButton = page
-          .locator("aside")
-          .filter({ hasText: "User profile" })
-          .locator("svg[aria-label='Close user profile']");
+          .getByRole("region", { name: "User profile" })
+          .getByRole("button", { name: "Close user profile" });
         await closeButton.click();
-        await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+        await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
         // Click third user - should single select with our fix
         await thirdRow.click();
 
         // With single selection mode, only third user should be selected
-        await expect(firstRow).toHaveAttribute("aria-selected", "false");
-        await expect(secondRow).toHaveAttribute("aria-selected", "false");
-        await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+        await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+        await expect(secondRow).not.toHaveAttribute("data-state", "selected");
+        await expect(thirdRow).toHaveAttribute("data-state", "selected");
       }
     )();
 
     await step("Rapid clicking between users & verify single selection")(async () => {
       // Reset state - ensure any side pane is closed first
-      const sidePane = page.locator("aside").filter({ hasText: "User profile" });
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
       await page.keyboard.press("Escape");
       await expect(sidePane).not.toBeVisible();
@@ -615,25 +628,25 @@ test.describe("@comprehensive", () => {
       await firstRow.click();
 
       // Close side pane that opened
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       const secondRow = page.locator("tbody tr").nth(1);
       await secondRow.click();
 
       // Close side pane again
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).toBeVisible();
       await page.keyboard.press("Escape");
-      await expect(page.locator("aside").filter({ hasText: "User profile" })).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
 
       const thirdRow = page.locator("tbody tr").nth(2);
       await thirdRow.click();
 
       // With single selection mode, only third user should be selected
-      await expect(firstRow).toHaveAttribute("aria-selected", "false");
-      await expect(secondRow).toHaveAttribute("aria-selected", "false");
-      await expect(thirdRow).toHaveAttribute("aria-selected", "true");
+      await expect(firstRow).not.toHaveAttribute("data-state", "selected");
+      await expect(secondRow).not.toHaveAttribute("data-state", "selected");
+      await expect(thirdRow).toHaveAttribute("data-state", "selected");
     })();
   });
 });

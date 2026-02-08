@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
-import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from "@repo/ui/components/Breadcrumb";
+import { Link } from "@repo/ui/components/Link";
 import type { ReactNode } from "react";
 import FederatedTopMenu from "@/federated-modules/topMenu/FederatedTopMenu";
 
@@ -10,12 +11,16 @@ interface TopMenuProps {
 export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
     <FederatedTopMenu>
-      <Breadcrumbs>
-        <Breadcrumb href="/admin">
-          <Trans>Home</Trans>
-        </Breadcrumb>
-        {children}
-      </Breadcrumbs>
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/admin" variant="secondary" underline={false} />}>
+              <Trans>Home</Trans>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          {children}
+        </BreadcrumbList>
+      </Breadcrumb>
     </FederatedTopMenu>
   );
 }

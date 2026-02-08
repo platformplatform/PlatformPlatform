@@ -2,9 +2,10 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Breadcrumb } from "@repo/ui/components/Breadcrumbs";
+import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
+import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
@@ -49,7 +50,7 @@ export default function UsersPage() {
 
   const canSeeDeletedUsers = userInfo?.role === "Owner" || userInfo?.role === "Admin";
 
-  const handleCloseProfile = () => {
+  const handleCloseProfile = useCallback(() => {
     setProfileUser(null);
     navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
 
@@ -61,25 +62,26 @@ export default function UsersPage() {
         }
       }, 0);
     }
-  };
+  }, [navigate, selectedUsers]);
 
-  const handleViewProfile = (user: UserDetails | null) => {
-    setProfileUser(user);
-    if (user) {
-      navigate({ search: (prev) => ({ ...prev, userId: user.id }) });
-    } else {
-      navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
-    }
-  };
-
-  const { data: userData, isLoading: isLoadingUser } = api.useQuery("get", "/api/account-management/users/{id}", {
-    params: {
-      path: {
-        id: userId || ""
+  const handleViewProfile = useCallback(
+    (user: UserDetails | null) => {
+      setProfileUser(user);
+      if (user) {
+        navigate({ search: (prev) => ({ ...prev, userId: user.id }) });
+      } else {
+        navigate({ search: (prev) => ({ ...prev, userId: undefined }) });
       }
     },
-    enabled: !!userId
-  });
+    [navigate]
+  );
+
+  const { data: userData, isLoading: isLoadingUser } = api.useQuery(
+    "get",
+    "/api/account-management/users/{id}",
+    { params: { path: { id: userId || "" } } },
+    { enabled: !!userId }
+  );
 
   useEffect(() => {
     if (userId && userData) {
@@ -93,17 +95,17 @@ export default function UsersPage() {
     }
   }, [userId, userData, isInitialLoad]);
 
-  const handleDeleteUser = (user: UserDetails) => {
+  const handleDeleteUser = useCallback((user: UserDetails) => {
     setUserToDelete(user);
-  };
+  }, []);
 
-  const handleChangeRole = (user: UserDetails) => {
+  const handleChangeRole = useCallback((user: UserDetails) => {
     setUserToChangeRole(user);
-  };
+  }, []);
 
-  const handleUsersLoaded = (users: UserDetails[]) => {
+  const handleUsersLoaded = useCallback((users: UserDetails[]) => {
     setTableUsers(users);
-  };
+  }, []);
 
   const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
 
@@ -140,21 +142,22 @@ export default function UsersPage() {
         sidePane={getSidePane()}
         topMenu={
           <TopMenu>
-            <Breadcrumb href="/admin/users">
-              <Trans>Users</Trans>
-            </Breadcrumb>
-            <Breadcrumb>
+            <BreadcrumbItem>
+              <BreadcrumbLink render={<Link href="/admin/users" variant="secondary" underline={false} />}>
+                <Trans>Users</Trans>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbPage>
               <Trans>All users</Trans>
-            </Breadcrumb>
+            </BreadcrumbPage>
           </TopMenu>
         }
         title={t`Users`}
         subtitle={t`Manage your users and permissions here.`}
-        scrollAwayHeader={true}
       >
         <div className="flex min-h-0 flex-1 flex-col">
           {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
-          <div className="max-sm:sticky max-sm:top-12 max-sm:z-30">
+          <div className="sticky top-7 z-10 -mx-4 bg-background px-4 pt-3 sm:static sm:z-auto sm:mx-0 sm:px-0 sm:pt-0">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
@@ -165,7 +168,6 @@ export default function UsersPage() {
               onDeleteUser={handleDeleteUser}
               onChangeRole={handleChangeRole}
               onUsersLoaded={handleUsersLoaded}
-              isProfileOpen={!!profileUser}
             />
           </div>
         </div>

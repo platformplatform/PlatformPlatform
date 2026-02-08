@@ -4,11 +4,11 @@ Guidelines for implementing forms with validation in the frontend, covering UI c
 
 ## Implementation
 
-1. Use React Aria Components from `@repo/ui/components` for form elements
+1. Use ShadCN components from `@repo/ui/components` for form elements
 2. Use `api.useMutation` or TanStack's `useMutation` for form submissions
 3. Use the custom `mutationSubmitter` to handle form submission and data mapping
 4. Handle validation errors using the `validationErrors` prop from the mutation error
-5. Show loading state in submit buttons
+5. Show loading state in submit buttons using `disabled={mutation.isPending}`
 6. For complex scenarios with multiple API calls, create a custom mutation with a `mutationFn`
 
 ## Anti-patterns
@@ -61,7 +61,7 @@ export function UserProfileForm({ user }) {
         defaultValue={user?.title}
       />
 
-      <Button type="submit" isDisabled={updateUserMutation.isPending}>
+      <Button type="submit" disabled={updateUserMutation.isPending}>
         {updateUserMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
       </Button>
     </Form>
@@ -100,7 +100,7 @@ function BadUserProfileForm({ user }) {
       <TextField name="lastName" defaultValue={user?.lastName} isRequired />
       <TextField name="title" defaultValue={user?.title} />
       
-      <Button type="submit" isDisabled={isLoading}>
+      <Button type="submit" disabled={isLoading}>
         {isLoading ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
       </Button>
     </Form>
@@ -155,7 +155,7 @@ export function UserProfileWithAvatarForm({ user, onSuccess, onClose }) {
     >
       {/* Form fields */}
 
-      <Button type="submit" isDisabled={saveMutation.isPending}>
+      <Button type="submit" disabled={saveMutation.isPending}>
         {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
       </Button>
     </Form>

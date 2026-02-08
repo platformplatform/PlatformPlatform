@@ -22,7 +22,7 @@ export const Route = createFileRoute("/(index)/")({
             <div className="flex max-w-5xl flex-col gap-8">
               {/* Title */}
               <div className="flex flex-col gap-4">
-                <h1 className="font-bold text-4xl leading-tight md:text-6xl">
+                <h1 className="marketing">
                   <Trans>Welcome to PlatformPlatform</Trans>
                 </h1>
                 <p className="text-muted-foreground text-xl md:text-2xl">
@@ -40,29 +40,19 @@ export const Route = createFileRoute("/(index)/")({
               {/* CTAs */}
               <div className="flex justify-center gap-4">
                 {isAuthenticated ? (
-                  <Link
-                    href="/admin"
-                    variant="button"
-                    underline={false}
-                    className="h-12 rounded-lg bg-primary px-8 text-primary-foreground hover:bg-primary/95"
-                  >
+                  <Link href="/admin" variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                     <Trans>Go to app</Trans>
                   </Link>
                 ) : (
                   <>
-                    <Link
-                      href={signUpPath}
-                      variant="button"
-                      underline={false}
-                      className="h-12 rounded-lg bg-primary px-8 text-primary-foreground hover:bg-primary/95"
-                    >
+                    <Link href={signUpPath} variant="button-primary" underline={false} className="h-12 rounded-lg px-8">
                       <Trans>Get started</Trans>
                     </Link>
                     <Link
                       href={loginPath}
-                      variant="button"
+                      variant="button-secondary"
                       underline={false}
-                      className="h-12 rounded-lg border border-border px-8 text-foreground hover:bg-hover-background"
+                      className="h-12 rounded-lg px-8"
                     >
                       <Trans>Log in</Trans>
                     </Link>

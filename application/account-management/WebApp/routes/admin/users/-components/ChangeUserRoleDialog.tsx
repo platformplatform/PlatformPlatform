@@ -1,19 +1,23 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog } from "@repo/ui/components/Dialog";
-import { DialogContent, DialogFooter, DialogHeader } from "@repo/ui/components/DialogFooter";
+import {
+  DialogBody,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@repo/ui/components/Dialog";
+import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
-import { Radio, RadioGroup } from "@repo/ui/components/RadioGroup";
-import { Text } from "@repo/ui/components/Text";
-import { toastQueue } from "@repo/ui/components/Toast";
+import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
-import { XIcon } from "lucide-react";
-import { useState } from "react";
-import { DirtyModal } from "@/shared/components/DirtyModal";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -28,20 +32,15 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
   const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
-  const hasUnsavedChanges = selectedRole !== null && selectedRole !== user?.role;
-
   const changeUserRoleMutation = api.useMutation("put", "/api/account-management/users/{id}/change-user-role", {
     onSuccess: () => {
       if (!user) {
         return;
       }
 
+      setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User role updated successfully for ${userDisplayName}`,
-        variant: "success"
-      });
+      toast.success(t`User role updated successfully for ${userDisplayName}`);
       queryClient.invalidateQueries({
         queryKey: ["get", "/api/account-management/users"]
       });
@@ -49,14 +48,9 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
     }
   });
 
-  const handleCloseComplete = () => {
+  const handleCloseComplete = useCallback(() => {
     setSelectedRole(null);
-  };
-
-  const handleCancel = () => {
-    setSelectedRole(null);
-    onOpenChange(false);
-  };
+  }, []);
 
   if (!user) {
     return null;
@@ -76,105 +70,103 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
   };
 
   return (
-    <DirtyModal
-      isOpen={isOpen}
+    <DirtyDialog
+      open={isOpen}
       onOpenChange={onOpenChange}
-      hasUnsavedChanges={hasUnsavedChanges}
-      isDismissable={!changeUserRoleMutation.isPending}
+      hasUnsavedChanges={selectedRole !== null}
+      unsavedChangesTitle={t`Unsaved changes`}
+      unsavedChangesMessage={<Trans>You have unsaved changes. If you leave now, your changes will be lost.</Trans>}
+      leaveLabel={t`Leave`}
+      stayLabel={t`Stay`}
       onCloseComplete={handleCloseComplete}
     >
-      <Dialog className="sm:w-dialog-lg">
-        {({ close }) => (
-          <>
-            <XIcon onClick={close} className="absolute top-2 right-2 h-10 w-10 cursor-pointer p-2 hover:bg-muted" />
-            <DialogHeader>
-              <Heading slot="title" className="text-2xl">
-                <Trans>Change user role</Trans>
-              </Heading>
-            </DialogHeader>
+      <DialogContent className="sm:w-dialog-lg">
+        <DialogHeader>
+          <DialogTitle>
+            <Trans>Change user role</Trans>
+          </DialogTitle>
+        </DialogHeader>
 
-            <Form
-              onSubmit={handleSubmit}
-              validationErrors={changeUserRoleMutation.error?.errors}
-              validationBehavior="aria"
-              className="flex flex-col max-sm:h-full"
+        <Form
+          onSubmit={handleSubmit}
+          validationErrors={changeUserRoleMutation.error?.errors}
+          validationBehavior="aria"
+          className="flex flex-col max-sm:h-full"
+        >
+          <DialogBody>
+            <div className="flex items-center gap-3">
+              <Avatar className="size-16">
+                <AvatarImage src={user.avatarUrl ?? undefined} />
+                <AvatarFallback>
+                  {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium">{displayName}</p>
+                {user.title && <p className="truncate text-muted-foreground text-sm">{user.title}</p>}
+                <p className="truncate text-muted-foreground text-sm">{user.email}</p>
+              </div>
+            </div>
+
+            <RadioGroup
+              aria-label={t`Role`}
+              value={currentRole}
+              onValueChange={(value) => setSelectedRole(value as UserRole)}
+              className="mt-3"
             >
-              <DialogContent className="flex flex-col gap-6">
-                <div className="flex items-center gap-3">
-                  <Avatar
-                    initials={getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
-                    avatarUrl={user.avatarUrl}
-                    size="lg"
-                    isRound={true}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <Text className="truncate font-medium">{displayName}</Text>
-                    {user.title && <Text className="truncate text-muted-foreground text-sm">{user.title}</Text>}
-                    <Text className="truncate text-muted-foreground text-sm">{user.email}</Text>
-                  </div>
-                </div>
-
-                <RadioGroup
-                  aria-label={t`Role`}
-                  value={currentRole}
-                  onChange={(value) => setSelectedRole(value as UserRole)}
-                  orientation="vertical"
-                >
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Owner}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Owner</Trans>
-                        </span>
-                        <span className="text-muted-foreground text-sm">
-                          <Trans>Full access including user roles and account settings</Trans>
-                        </span>
-                      </div>
-                    </Radio>
-                  </div>
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Admin}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Admin</Trans>
-                        </span>
-                        <span className="text-muted-foreground text-sm">
-                          <Trans>Full access except changing user roles and account settings</Trans>
-                        </span>
-                      </div>
-                    </Radio>
-                  </div>
-                  <div className="flex flex-col gap-2 rounded-md border border-border p-3">
-                    <Radio value={UserRole.Member}>
-                      <div className="flex flex-col">
-                        <span className="font-medium">
-                          <Trans>Member</Trans>
-                        </span>
-                        <span className="text-muted-foreground text-sm">
-                          <Trans>Standard user access</Trans>
-                        </span>
-                      </div>
-                    </Radio>
-                  </div>
-                </RadioGroup>
-              </DialogContent>
-              <DialogFooter>
-                <Button
-                  type="reset"
-                  onPress={handleCancel}
-                  variant="secondary"
-                  isDisabled={changeUserRoleMutation.isPending}
-                >
-                  <Trans>Cancel</Trans>
-                </Button>
-                <Button type="submit" isDisabled={changeUserRoleMutation.isPending}>
-                  {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-                </Button>
-              </DialogFooter>
-            </Form>
-          </>
-        )}
-      </Dialog>
-    </DirtyModal>
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} />
+                  <FieldContent>
+                    <FieldTitle>
+                      <Trans>Owner</Trans>
+                    </FieldTitle>
+                    <FieldDescription>
+                      <Trans>Full access including user roles and account settings</Trans>
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Admin} id="role-admin" aria-label={t`Admin`} />
+                  <FieldContent>
+                    <FieldTitle>
+                      <Trans>Admin</Trans>
+                    </FieldTitle>
+                    <FieldDescription>
+                      <Trans>Full access except changing user roles and account settings</Trans>
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+              <FieldLabel>
+                <Field orientation="horizontal">
+                  <RadioGroupItem value={UserRole.Member} id="role-member" aria-label={t`Member`} />
+                  <FieldContent>
+                    <FieldTitle>
+                      <Trans>Member</Trans>
+                    </FieldTitle>
+                    <FieldDescription>
+                      <Trans>Standard user access</Trans>
+                    </FieldDescription>
+                  </FieldContent>
+                </Field>
+              </FieldLabel>
+            </RadioGroup>
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose
+              render={<Button type="reset" variant="secondary" disabled={changeUserRoleMutation.isPending} />}
+            >
+              <Trans>Cancel</Trans>
+            </DialogClose>
+            <Button type="submit" disabled={changeUserRoleMutation.isPending}>
+              {changeUserRoleMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+            </Button>
+          </DialogFooter>
+        </Form>
+      </DialogContent>
+    </DirtyDialog>
   );
 }

@@ -1,140 +1,171 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/daterangepicker--docs
- */
+import { useLingui } from "@lingui/react";
+import { format, type Locale } from "date-fns";
+import { da, enUS } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-
-import {
-  DateRangePicker as AriaDateRangePicker,
-  type DateRangePickerProps as AriaDateRangePickerProps,
-  type DateValue,
-  I18nProvider,
-  type ValidationResult
-} from "react-aria-components";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { cn } from "../utils";
 import { Button } from "./Button";
-import { DateInput } from "./DateField";
-import { Description } from "./Description";
-import { Dialog } from "./Dialog";
-import { FieldGroup } from "./Field";
-import { FieldError } from "./FieldError";
-import { Label } from "./Label";
-import { Popover } from "./Popover";
-import { RangeCalendar } from "./RangeCalendar";
-import { composeTailwindRenderProps } from "./utils";
+import { Calendar } from "./Calendar";
+import { Field, FieldLabel } from "./Field";
+import { Popover, PopoverContent, PopoverTrigger } from "./Popover";
 
-export interface DateRangePickerProps<T extends DateValue> extends AriaDateRangePickerProps<T> {
-  label?: string;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
-  tooltip?: string;
-  placeholder?: string;
+/**
+ * Maps app locale codes to date-fns locale objects.
+ * Add new locales here when extending language support.
+ */
+const dateFnsLocaleMap: Record<string, Locale> = {
+  "en-US": enUS,
+  "da-DK": da
+};
+
+export interface DateRangeValue {
+  start: Date;
+  end: Date;
 }
 
-export function DateRangePicker<T extends DateValue>({
+export interface DateRangePickerProps {
+  label?: string;
+  value?: DateRangeValue | null;
+  onChange?: (value: DateRangeValue | null) => void;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+}
+
+export function DateRangePicker({
   label,
-  description,
-  errorMessage,
-  tooltip,
   value,
   onChange,
   placeholder = "Select dates",
-  ...props
-}: Readonly<DateRangePickerProps<T>>) {
-  const [isExpanded, setIsExpanded] = useState(false);
+  className,
+  disabled
+}: Readonly<DateRangePickerProps>) {
+  const { i18n } = useLingui();
+  const dateLocale = dateFnsLocaleMap[i18n.locale] ?? enUS;
+  const [open, setOpen] = useState(false);
+  const [selectionsCount, setSelectionsCount] = useState(0);
+  // Track the first clicked date separately since react-day-picker's onSelect
+  // doesn't reliably tell us which date was clicked
+  const [firstClickDate, setFirstClickDate] = useState<Date | null>(null);
+
+  const dateRange: DateRange | undefined = value ? { from: value.start, to: value.end } : undefined;
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setSelectionsCount(0);
+      setFirstClickDate(null);
+    }
+  };
+
+  const handleDayClick = (day: Date) => {
+    const newCount = selectionsCount + 1;
+    setSelectionsCount(newCount);
+
+    if (newCount === 1) {
+      // First click: use existing start as pivot (matches react-day-picker behavior)
+      const existingStart = value?.start;
+      const existingEnd = value?.end;
+      setFirstClickDate(day);
+
+      if (existingStart && existingEnd) {
+        if (day.getTime() < existingStart.getTime()) {
+          // Clicked before existing start: clicked becomes start, keep end
+          onChange?.({ start: day, end: existingEnd });
+        } else {
+          // Clicked on or after existing start: keep start, clicked becomes end
+          onChange?.({ start: existingStart, end: day });
+        }
+      } else {
+        // No existing range: clicked becomes both start and end
+        onChange?.({ start: day, end: day });
+      }
+    } else {
+      // Second click: combine with the first click to form the range
+      const firstDate = firstClickDate ?? day;
+
+      // Earlier date becomes start, later becomes end
+      let newStart = firstDate;
+      let newEnd = day;
+      if (newStart.getTime() > newEnd.getTime()) {
+        [newStart, newEnd] = [newEnd, newStart];
+      }
+
+      onChange?.({ start: newStart, end: newEnd });
+
+      // Close if we have a valid range with different dates
+      if (newStart.getTime() !== newEnd.getTime()) {
+        setTimeout(() => setOpen(false), 100);
+      }
+    }
+  };
+
+  const handleClear = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    onChange?.(null);
+  };
+
+  const formatDateRange = () => {
+    if (!value?.start || !value?.end) {
+      return placeholder;
+    }
+    return `${format(value.start, "PP", { locale: dateLocale })} - ${format(value.end, "PP", { locale: dateLocale })}`;
+  };
+
   const hasValue = value !== null && value !== undefined;
 
-  // Automatically expand when there's a value
-  useEffect(() => {
-    if (hasValue) {
-      setIsExpanded(true);
-    }
-  }, [hasValue]);
-
-  // Format date range for compact display
-  const formatDateRange = () => {
-    if (!value) {
-      return "";
-    }
-
-    const formatDate = (date: DateValue) => {
-      return date.toString().split("T")[0];
-    };
-
-    return `${formatDate(value.start)} - ${formatDate(value.end)}`;
-  };
-
-  // Clear the date range
-  const clearDateRange = (e?: React.MouseEvent) => {
-    if (e) {
-      e.stopPropagation();
-    }
-    onChange?.(null);
-    setIsExpanded(false);
-  };
-
   return (
-    // Using Canadian locale to force YYYY-MM-DD format which is unambiguous internationally
-    // This avoids confusion between MM/DD/YYYY (US) and DD/MM/YYYY (EU) formats
-    <I18nProvider locale="en-CA">
-      <AriaDateRangePicker
-        {...props}
-        value={value}
-        onChange={(newValue) => {
-          onChange?.(newValue);
-          // Keep expanded if a value is selected
-          if (!newValue) {
-            setIsExpanded(false);
-          }
-        }}
-        className={composeTailwindRenderProps(props.className, "group flex flex-col gap-1")}
-      >
-        {label && <Label tooltip={tooltip}>{label}</Label>}
-
-        {isExpanded ? (
-          // Expanded view - standard date range picker
-          <FieldGroup className="w-auto min-w-[265px]">
-            <DateInput slot="start" className="px-2 py-1.5 text-sm" />
-            <span
-              aria-hidden="true"
-              className="text-foreground group-disabled:text-muted forced-colors:text-[ButtonText] group-disabled:forced-colors:text-[GrayText]"
-            >
-              –
-            </span>
-            <DateInput slot="end" className="flex-1 px-2 py-1.5 text-sm" />
-            {value && (
-              <Button variant="icon" className="mr-1 w-6 group-empty:invisible" onPress={() => onChange?.(null)}>
-                <XIcon aria-hidden={true} className="h-4 w-4" />
+    <Field className={cn("flex flex-col", className)}>
+      {label && <FieldLabel>{label}</FieldLabel>}
+      <div className="relative">
+        <Popover open={open} onOpenChange={handleOpenChange}>
+          <PopoverTrigger
+            render={
+              <Button
+                variant="outline"
+                // NOTE: This diverges from stock ShadCN to prevent hover background change on the trigger button.
+                className={cn(
+                  "w-full min-w-40 justify-between border border-input font-normal hover:bg-white dark:hover:bg-input/30",
+                  hasValue && "pr-9"
+                )}
+                disabled={disabled}
+              >
+                <div className={cn("flex items-center gap-2", !hasValue && "text-muted-foreground")}>
+                  <CalendarIcon />
+                  <span className="flex-1 text-right">{formatDateRange()}</span>
+                </div>
               </Button>
-            )}
-            <Button variant="icon" className="h-6 w-6 rounded-sm outline-offset-0">
-              <CalendarIcon aria-hidden={true} className="h-4 w-4" />
-            </Button>
-          </FieldGroup>
-        ) : (
-          // Compact view - just a button with calendar icon
+            }
+          />
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onDayClick={handleDayClick}
+              numberOfMonths={1}
+              defaultMonth={value?.start}
+            />
+          </PopoverContent>
+        </Popover>
+        {hasValue && (
           <Button
-            variant="outline"
-            className={`flex h-10 items-center justify-between gap-2 border border-input bg-input-background px-3 py-2 text-foreground hover:bg-accent hover:text-accent-foreground ${
-              hasValue ? "w-full min-w-[240px]" : "w-full min-w-[180px]"
-            }`}
-            onPress={() => setIsExpanded(true)}
+            variant="ghost"
+            size="icon-xs"
+            className="absolute top-1/2 right-1 -translate-y-1/2"
+            onClick={handleClear}
+            disabled={disabled}
+            aria-label="Clear dates"
           >
-            <div className="flex items-center gap-2 truncate">
-              <CalendarIcon className="h-5 w-5 flex-shrink-0" />
-              <span className="truncate font-normal text-sm">{hasValue ? formatDateRange() : placeholder}</span>
-            </div>
-            {hasValue && <XIcon className="h-5 w-5 flex-shrink-0 cursor-pointer" onClick={clearDateRange} />}
+            <XIcon className="size-5" />
           </Button>
         )}
-
-        {description && <Description>{description}</Description>}
-        <FieldError>{errorMessage}</FieldError>
-        <Popover>
-          <Dialog>
-            <RangeCalendar />
-          </Dialog>
-        </Popover>
-      </AriaDateRangePicker>
-    </I18nProvider>
+      </div>
+    </Field>
   );
+}
+
+export function parseDateString(dateString: string): Date {
+  return new Date(dateString);
 }

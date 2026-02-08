@@ -4,7 +4,7 @@ import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationP
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
-import { Image } from "@repo/ui/components/Image";
+import { Link } from "@repo/ui/components/Link";
 import { Home, LogOut, ShieldX } from "lucide-react";
 import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
@@ -50,24 +50,10 @@ function AccessDeniedNavigation() {
 
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
-      <a href="/" className="flex items-center">
-        <Image
-          className="hidden h-10 sm:block"
-          src={logoWrap}
-          alt="PlatformPlatform Logo"
-          width={280}
-          height={40}
-          priority={true}
-        />
-        <Image
-          className="h-10 sm:hidden"
-          src={logoMark}
-          alt="PlatformPlatform Logo"
-          width={40}
-          height={40}
-          priority={true}
-        />
-      </a>
+      <Link href="/" variant="logo" underline={false}>
+        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} />
+        <img className="size-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} />
+      </Link>
 
       <div className="flex items-center gap-6">
         <span className="flex gap-2">
@@ -76,7 +62,7 @@ function AccessDeniedNavigation() {
           <LocaleSwitcher />
         </span>
         {isAuthenticated && userInfo && (
-          <Button variant="outline" onPress={handleLogout} isDisabled={isLoggingOut} aria-label={t`Log out`}>
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
             <LogOut size={16} />
             <span className="hidden sm:inline">
               <Trans>Log out</Trans>
@@ -95,12 +81,12 @@ export default function FederatedAccessDeniedPage() {
 
       <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex max-w-lg flex-col items-center gap-6">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-destructive/10">
-            <ShieldX className="h-10 w-10 text-destructive" />
+          <div className="flex size-20 items-center justify-center rounded-full bg-destructive/10">
+            <ShieldX className="size-10 text-destructive" />
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="font-bold text-3xl text-foreground">
+            <h1>
               <Trans>Access denied</Trans>
             </h1>
             <p className="text-lg text-muted-foreground">
@@ -112,8 +98,8 @@ export default function FederatedAccessDeniedPage() {
 
           <div className="flex justify-center gap-3 pt-2">
             <Button
-              variant="primary"
-              onPress={() => {
+              variant="default"
+              onClick={() => {
                 globalThis.location.href = "/";
               }}
             >

@@ -2,6 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/Card";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
@@ -13,7 +15,7 @@ export const Route = createFileRoute("/admin/")({
 });
 
 export default function Home() {
-  const { data: usersSummary } = api.useQuery("get", "/api/account-management/users/summary");
+  const { data: usersSummary, isLoading } = api.useQuery("get", "/api/account-management/users/summary");
   const userInfo = useUserInfo();
 
   return (
@@ -27,18 +29,26 @@ export default function Home() {
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             to="/admin/users"
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label={t`View users`}
           >
-            <div>
-              <div className="font-medium text-foreground text-sm">
-                <Trans>Total users</Trans>
-              </div>
-              <div className="mt-1 text-muted-foreground text-sm">
-                <Trans>Add more in the Users menu</Trans>
-              </div>
-            </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+            <Card className="h-full transition-colors hover:bg-hover-background">
+              <CardHeader>
+                <CardTitle>
+                  <Trans>Total users</Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>Add more in the Users menu</Trans>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <div className="font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+                )}
+              </CardContent>
+            </Card>
           </Link>
           <Link
             to="/admin/users"
@@ -47,34 +57,50 @@ export default function Home() {
               startDate: getDateDaysAgo(30),
               endDate: getTodayIsoDate()
             }}
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label={t`View active users`}
           >
-            <div>
-              <div className="font-medium text-foreground text-sm">
-                <Trans>Active users</Trans>
-              </div>
-              <div className="mt-1 text-muted-foreground text-sm">
-                <Trans>Active users in the past 30 days</Trans>
-              </div>
-            </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+            <Card className="h-full transition-colors hover:bg-hover-background">
+              <CardHeader>
+                <CardTitle>
+                  <Trans>Active users</Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>Active users in the past 30 days</Trans>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <div className="font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+                )}
+              </CardContent>
+            </Card>
           </Link>
           <Link
             to="/admin/users"
             search={{ userStatus: UserStatus.Pending }}
-            className="flex flex-col justify-between rounded-xl bg-input-background p-6 transition-colors hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+            className="rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             aria-label={t`View invited users`}
           >
-            <div>
-              <div className="font-medium text-foreground text-sm">
-                <Trans>Invited users</Trans>
-              </div>
-              <div className="mt-1 text-muted-foreground text-sm">
-                <Trans>Users who haven't confirmed their email</Trans>
-              </div>
-            </div>
-            <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+            <Card className="h-full transition-colors hover:bg-hover-background">
+              <CardHeader>
+                <CardTitle>
+                  <Trans>Invited users</Trans>
+                </CardTitle>
+                <CardDescription>
+                  <Trans>Users who haven't confirmed their email</Trans>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-12" />
+                ) : (
+                  <div className="font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+                )}
+              </CardContent>
+            </Card>
           </Link>
         </div>
       </AppLayout>

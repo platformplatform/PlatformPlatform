@@ -4,7 +4,6 @@ import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
 import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
@@ -69,14 +68,14 @@ export function LoginForm() {
       onSubmit={mutationSubmitter(startLoginMutation)}
       validationErrors={startLoginMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 px-6 pt-8 pb-4"
+      className="flex w-full max-w-[18rem] flex-col items-center gap-4 pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
+        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">
+      <h2>
         <Trans>Hi! Welcome back</Trans>
-      </Heading>
+      </h2>
       <div className="text-center text-muted-foreground text-sm">
         <Trans>Enter your email below to log in</Trans>
       </div>
@@ -92,7 +91,7 @@ export function LoginForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <Button type="submit" isDisabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
+      <Button type="submit" disabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Continue</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
@@ -105,7 +104,7 @@ export function LoginForm() {
         We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
       */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-muted-foreground text-xs">
+        <span className="text-muted-foreground text-sm">
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

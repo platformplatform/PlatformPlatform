@@ -1,6 +1,11 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
-import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import {
+  createTestContext,
+  expectToastMessage,
+  selectOption,
+  typeOneTimeCode
+} from "@shared/e2e/utils/test-assertions";
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
@@ -49,7 +54,7 @@ test.describe("@smoke", () => {
       await expect(page.getByText("Your team needs to know who's inviting them")).toBeVisible();
 
       // Navigate to account settings via dialog
-      await page.getByRole("button", { name: "Go to account settings" }).click();
+      await page.getByRole("link", { name: "Go to account settings" }).click();
       await expect(page).toHaveURL("/admin/account");
     })();
 
@@ -87,7 +92,8 @@ test.describe("@smoke", () => {
     await step("Open Invite dialog, enter email & verify unsaved changes warning on Escape")(async () => {
       await page.getByRole("button", { name: "Invite user" }).first().click();
       await expect(page.getByRole("dialog", { name: "Invite user" })).toBeVisible();
-      await page.getByRole("textbox", { name: "Email" }).fill("test@example.com");
+      await page.getByRole("textbox", { name: "Email" }).click();
+      await page.keyboard.type("test@example.com");
 
       await page.keyboard.press("Escape");
 
@@ -144,10 +150,14 @@ test.describe("@smoke", () => {
     await step("Open Change Role dialog, select role & verify unsaved changes warning on Escape")(async () => {
       const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
       const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
-      await actionsButton.evaluate((el: HTMLElement) => el.click());
+      await actionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Owner" }).check({ force: true });
@@ -172,11 +182,15 @@ test.describe("@smoke", () => {
     await step("Open actions menu for admin user and change role to Admin & verify role updates")(async () => {
       const adminUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: adminUser.email });
       const actionsButton = adminUserRow.locator("button[aria-label='User actions']").first();
-      await actionsButton.evaluate((el: HTMLElement) => el.click());
+      await actionsButton.dispatchEvent("click");
 
       // Wait for menu to be visible before clicking
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Admin" }).check({ force: true });
@@ -215,7 +229,7 @@ test.describe("@smoke", () => {
     await step("Open owner's actions menu & verify self-deletion and role change are disabled")(async () => {
       const ownerRowSelf = page.locator("tbody").first().locator("tr").filter({ hasText: owner.email });
       const ownerActionsButton = ownerRowSelf.locator("button[aria-label='User actions']").first();
-      await ownerActionsButton.evaluate((el: HTMLElement) => el.click());
+      await ownerActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menuitem", { name: "Delete" })).toBeDisabled();
       await expect(page.getByRole("menuitem", { name: "Change role" })).toBeDisabled();
@@ -230,7 +244,7 @@ test.describe("@smoke", () => {
 
       const userTable = page.locator("tbody").first();
 
-      // React Aria SearchField uses a controlled input pattern incompatible with Playwright.
+      // Search input uses a controlled input pattern incompatible with Playwright.
       // Escape key clears the search (real UI interaction); URL sets up filtered state.
       await page.goto(`/admin/users?search=${encodeURIComponent(adminUser.email)}`);
 
@@ -255,39 +269,38 @@ test.describe("@smoke", () => {
       const userTable = page.locator("tbody").first().first();
       await page.getByRole("button", { name: "Show filters" }).click();
 
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
+      await expect(page.getByLabel("User role").first()).toBeVisible();
 
-      await filterDialog.getByRole("button", { name: "Any role User role" }).click();
-      await page.getByRole("option", { name: "Owner" }).click();
-
-      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await selectOption(page.getByLabel("User role").first(), page, "Owner");
 
       // Verify only owner is shown without counting rows
-      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(owner.email);
       await expect(userTable).not.toContainText(adminUser.email);
       await expect(userTable).not.toContainText(memberUser.email);
 
-      await page.getByRole("button", { name: "Show filters" }).click();
-      await expect(filterDialog).toBeVisible();
-
-      await filterDialog.getByRole("button", { name: "Owner User role" }).click();
-      await page.getByRole("option", { name: "Any role" }).click();
-      await filterDialog.getByRole("button", { name: "OK" }).click();
+      await selectOption(page.getByLabel("User role").first(), page, "Any role");
 
       // Verify all users are shown again
-      await expect(filterDialog).not.toBeVisible();
       await expect(userTable).toContainText(adminUser.email);
       await expect(userTable).toContainText(memberUser.email);
       await expect(userTable).toContainText(owner.email);
+
+      // Clear filters
+      await page.getByRole("button", { name: "Clear filters" }).click();
     })();
 
     // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
     await step("Logout from owner to activate deletable user")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
     })();
@@ -296,7 +309,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(deletableUser.firstName);
@@ -317,15 +330,22 @@ test.describe("@smoke", () => {
 
     await step("Logout from deletable user & login as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
@@ -334,10 +354,14 @@ test.describe("@smoke", () => {
     await step("Soft delete user via actions menu & verify removed from All users tab")(async () => {
       const deletableUserRow = page.locator("tbody").first().locator("tr").filter({ hasText: deletableUser.email });
       const deletableActionsButton = deletableUserRow.locator("button[aria-label='User actions']").first();
-      await deletableActionsButton.evaluate((el: HTMLElement) => el.click());
+      await deletableActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem).toBeVisible();
+      await deleteMenuItem.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
@@ -345,7 +369,7 @@ test.describe("@smoke", () => {
       await expect(page.getByText(`Are you sure you want to delete ${deletableFullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${deletableFullName}`);
       await expect(deleteDialog).not.toBeVisible();
@@ -354,10 +378,10 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to Recycle bin tab & verify soft-deleted user appears")(async () => {
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from owner account & verify redirect to login")(async () => {
@@ -368,8 +392,15 @@ test.describe("@smoke", () => {
       await page.goto("/admin");
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
     })();
@@ -378,7 +409,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page).toHaveURL("/admin");
     })();
@@ -404,11 +435,11 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to Recycle bin tab as admin & verify deleted user appears")(async () => {
-      await expect(page.getByRole("link", { name: "Recycle bin" })).toBeVisible();
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await expect(page.getByRole("tab", { name: "Recycle bin" })).toBeVisible();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).toContainText(deletableUser.email);
+      await expect(page.getByRole("table", { name: "Deleted users" })).toContainText(deletableUser.email);
     })();
 
     await step("Logout from admin account & verify redirect to login")(async () => {
@@ -417,7 +448,11 @@ test.describe("@smoke", () => {
       await profileMenuButton.focus();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
     })();
@@ -427,7 +462,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       // Member lands on recycle-bin but sees access denied (requires Owner/Admin role)
       await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
@@ -451,11 +486,11 @@ test.describe("@smoke", () => {
       await expectToastMessage(context, "Profile updated successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
 
-      // Verify member sees Users page without Recycle bin tab
+      // Verify member sees Users page without Recycle bin tab (members don't see tab navigation)
       await expect(page).toHaveURL("/admin/users");
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "All users" })).toBeVisible();
-      await expect(page.getByRole("link", { name: "Recycle bin" })).not.toBeVisible();
+      await expect(page.getByText("All users")).toBeVisible();
+      await expect(page.getByRole("tab", { name: "Recycle bin" })).not.toBeVisible();
     })();
   });
 });
@@ -537,36 +572,19 @@ test.describe("@comprehensive", () => {
     })();
 
     // === ADVANCED FILTERING SECTION ===
-    await step("Show filters & verify all filter options are available")(async () => {
-      // Show filters
-      await page.getByRole("button", { name: "Show filters" }).click();
-
+    await step("Verify inline filters are visible & all filter options are available")(async () => {
+      // Filters are shown inline because URL has userStatus=Pending from previous step
       await expect(page.getByLabel("User role").first()).toBeVisible();
       await expect(page.getByLabel("User status").first()).toBeVisible();
-      await expect(page.getByLabel("Modified date").first()).toBeVisible();
+      await expect(page.getByText("Modified date").first()).toBeVisible();
     })();
 
     await step("Filter by Owner role & verify only owner shown")(async () => {
-      // Filters are in the dialog that was opened in the previous step
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-
       // Clear status filter
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Any status" }).click();
-      await blurActiveElement(page);
+      await selectOption(page.getByLabel("User status").first(), page, "Any status");
 
       // Set role filter to Owner
-      await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
-      await expect(roleListbox).toBeVisible();
-      await roleListbox.getByRole("option", { name: "Owner" }).click();
-      await blurActiveElement(page);
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User role").first(), page, "Owner");
 
       // Verify only owner is shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
@@ -576,21 +594,8 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Member role & verify only members shown")(async () => {
-      // Reopen dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
       // Set role filter to Member
-      await filterDialog.getByLabel("User role").click();
-      const roleListbox = page.getByRole("listbox", { name: "User role" });
-      await expect(roleListbox).toBeVisible();
-      await roleListbox.getByRole("option", { name: "Member" }).click();
-      await blurActiveElement(page);
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User role").first(), page, "Member");
 
       // Verify only member users are shown
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
@@ -600,38 +605,19 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Clear all filters & verify all users are shown")(async () => {
-      // Reopen filter dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
-      // Click Clear button to reset all filters
-      await filterDialog.getByRole("button", { name: "Clear" }).click();
-
-      // Close dialog with Escape (OK button gets detached after Clear click due to re-render)
-      await page.keyboard.press("Escape");
-      await expect(filterDialog).not.toBeVisible();
+      // Click clear filters button to reset all filters
+      await page.getByRole("button", { name: "Clear filters" }).click();
 
       // Verify all 3 users are shown (no filters applied)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3);
     })();
 
     await step("Filter by Pending status & verify only pending users shown")(async () => {
-      // Reopen filter dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
+      // Filters remain visible inline at wide viewport after clearing
+      await expect(page.getByLabel("User status").first()).toBeVisible();
 
       // Set status filter to Pending
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Pending" }).click();
-      await blurActiveElement(page);
-
-      // Close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User status").first(), page, "Pending");
 
       // Verify only pending users are shown (invited users who haven't confirmed)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
@@ -641,21 +627,8 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Filter by Active status & verify only active users shown")(async () => {
-      // Reopen dialog
-      await page.getByRole("button", { name: "Show filters" }).click();
-      const filterDialog = page.getByRole("dialog", { name: "Filters" });
-      await expect(filterDialog).toBeVisible();
-
       // Set status filter to Active
-      await filterDialog.getByLabel("User status").click();
-      const statusListbox = page.getByRole("listbox", { name: "User status" });
-      await expect(statusListbox).toBeVisible();
-      await statusListbox.getByRole("option", { name: "Active" }).click();
-      await blurActiveElement(page);
-
-      // Click OK to apply and close dialog
-      await filterDialog.getByRole("button", { name: "OK" }).click();
-      await expect(filterDialog).not.toBeVisible();
+      await selectOption(page.getByLabel("User status").first(), page, "Active");
 
       // Verify only active users are shown (owner who has confirmed email)
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
@@ -666,15 +639,20 @@ test.describe("@comprehensive", () => {
     // === ACTIVATE USERS TO ENABLE SOFT DELETE ===
     await step("Logout from owner & login as user1 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user1.firstName);
@@ -687,15 +665,20 @@ test.describe("@comprehensive", () => {
 
     await step("Logout from user1 & login as user2 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await page.getByRole("textbox", { name: "First name" }).fill(user2.firstName);
@@ -709,15 +692,20 @@ test.describe("@comprehensive", () => {
     await step("Logout from user2 & login back as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await expect(page.getByRole("region", { name: /notification/ })).not.toBeVisible();
-      await page.getByRole("button", { name: "User profile menu" }).click();
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Log out" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
       await page.getByRole("button", { name: "Continue" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
-      await page.keyboard.type(getVerificationCode());
+      await typeOneTimeCode(page, getVerificationCode());
 
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
@@ -745,10 +733,14 @@ test.describe("@comprehensive", () => {
       const user1LastSeenAtBefore = await user1Row.locator("td").nth(3).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
-      await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
+      await user1ActionsButton.dispatchEvent("click");
 
       await expect(page.getByRole("menu")).toBeVisible();
-      await page.getByRole("menuitem", { name: "Change role" }).click();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const changeRoleMenuItem = page.getByRole("menuitem", { name: "Change role" });
+      await expect(changeRoleMenuItem).toBeVisible();
+      await changeRoleMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("dialog", { name: "Change user role" })).toBeVisible();
       await page.getByRole("radio", { name: "Admin" }).check({ force: true });
@@ -772,15 +764,20 @@ test.describe("@comprehensive", () => {
       user1LastSeenAtBeforeDelete = await user1Row.locator("td").nth(3).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
-      await user1ActionsButton.evaluate((el: HTMLElement) => el.click());
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await user1ActionsButton.dispatchEvent("click");
+      await expect(page.getByRole("menu")).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem1 = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem1).toBeVisible();
+      await deleteMenuItem1.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user1FullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${user1FullName}`);
       await expect(deleteDialog).not.toBeVisible();
@@ -795,15 +792,20 @@ test.describe("@comprehensive", () => {
 
       const user2Row = page.locator("tbody").first().locator("tr").filter({ hasText: user2.email });
       const user2ActionsButton = user2Row.locator("button[aria-label='User actions']").first();
-      await user2ActionsButton.evaluate((el: HTMLElement) => el.click());
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await user2ActionsButton.dispatchEvent("click");
+      await expect(page.getByRole("menu")).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const deleteMenuItem2 = page.getByRole("menuitem", { name: "Delete" });
+      await expect(deleteMenuItem2).toBeVisible();
+      await deleteMenuItem2.dispatchEvent("click");
 
       const deleteDialog = page.getByRole("alertdialog", { name: "Delete user" });
       await expect(deleteDialog).toBeVisible();
       await expect(page.getByText(`Are you sure you want to delete ${user2FullName}?`)).toBeVisible();
       const deleteButton = deleteDialog.getByRole("button", { name: "Delete" });
       await expect(deleteButton).toBeEnabled();
-      await deleteButton.click({ force: true });
+      await deleteButton.click();
 
       await expectToastMessage(context, `User deleted successfully: ${user2FullName}`);
       await expect(deleteDialog).not.toBeVisible();
@@ -814,7 +816,7 @@ test.describe("@comprehensive", () => {
 
     // === OWNER PROTECTION SECTION ===
     await step("Open owner actions menu & verify delete option is disabled")(async () => {
-      const usersGrid = page.getByRole("grid", { name: "Users" });
+      const usersGrid = page.getByRole("table", { name: "Users" });
       const ownerRow = usersGrid.getByRole("row").filter({ hasText: owner.email });
       await ownerRow.getByRole("button", { name: "User actions" }).click();
 
@@ -825,16 +827,16 @@ test.describe("@comprehensive", () => {
 
     // === RESTORE AND PERMANENT DELETE SECTION ===
     await step("Navigate to Recycle bin tab & verify soft-deleted users appear")(async () => {
-      await page.getByRole("link", { name: "Recycle bin" }).click();
+      await page.getByRole("tab", { name: "Recycle bin" }).click();
 
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       await expect(deletedUsersGrid).toContainText(user1.email);
       await expect(deletedUsersGrid).toContainText(user2.email);
     })();
 
     await step("Select user1 row & restore via toolbar button")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user1Row = deletedUsersGrid.locator("tr").filter({ hasText: user1.email });
       await user1Row.click();
 
@@ -850,7 +852,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Select user2 row & permanently delete via toolbar")(async () => {
-      const deletedUsersGrid = page.getByRole("grid", { name: "Deleted users" });
+      const deletedUsersGrid = page.getByRole("table", { name: "Deleted users" });
       const user2Row = deletedUsersGrid.locator("tr").filter({ hasText: user2.email });
       await user2Row.click();
 
@@ -869,12 +871,12 @@ test.describe("@comprehensive", () => {
 
       await expect(deleteDialog).not.toBeVisible();
       await expect(page).toHaveURL("/admin/users/recycle-bin");
-      await expect(page.getByRole("grid", { name: "Deleted users" })).not.toBeVisible();
-      await expect(page.getByRole("main").getByText("No deleted users").last()).toBeVisible();
+      await expect(page.getByRole("table", { name: "Deleted users" })).not.toBeVisible();
+      await expect(page.getByRole("main").getByText("Recycle bin is empty").last()).toBeVisible();
     })();
 
     await step("Navigate to All users & verify restored user LastSeenAt unchanged")(async () => {
-      await page.getByRole("link", { name: "All users" }).click();
+      await page.getByRole("tab", { name: "All users" }).click();
 
       await expect(page).toHaveURL("/admin/users");
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);

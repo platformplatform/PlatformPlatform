@@ -81,33 +81,58 @@ These rules outline the structure, patterns, and best practices for writing end-
    - Don't add timeouts to `.click()`, `.waitForSelector()`, etc.
    - Global timeout configuration is handled in the shared Playwright—don't change this
 
-8. Write deterministic tests for reliable testing:
+8. Dropdown Menu Animation Handling:
+   - When clicking dropdown menu items (DropdownMenu, user profile menu, etc.), use `.dispatchEvent("click")` instead of regular `.click()`
+   - This is required because the DropdownMenu component has a 100ms animation and under parallel load Firefox doesn't reliably process regular clicks
+   - Pattern: Click trigger button, wait for menu visible, click menu item with dispatchEvent, verify menu closes
+   - Always wait for the menu to be visible before clicking: `await expect(page.getByRole("menu")).toBeVisible();`
+   - Don't use `waitForTimeout()` for menu animations - it causes focus loss which closes the dropdown
+
+9. Write deterministic tests for reliable testing:
    - Each test should have a clear, linear flow of actions and assertions
    - Don't use if statements, custom error handling, or try/catch blocks in tests
    - Don't use regular expressions in tests—use simple string matching instead
 
-9. What to test:
-   - Enter invalid values such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
-   - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
+10. What to test:
+    - Enter invalid values such as empty strings, only whitespace characters, long strings, negative numbers, Unicode, etc.
+    - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
-10. Test Fixtures and Page Management:
+11. Test Fixtures and Page Management:
     - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests
     - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
     - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests
     - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests
 
-11. Test Data and Constants:
+12. Test Data and Constants:
     - Use underscore separators: `const timeout = 30_000; // 30 seconds`
     - Generate unique data: `const email = uniqueEmail();`
     - Use faker.js to generate realistic test data: `const firstName = faker.person.firstName(); const email = faker.internet.email();`
     - Long string testing: `const longEmail = \`${"a".repeat(90)}@example.com\`; // 101 characters total`
 
-12. Memory Management in End-to-End Tests:
+13. Memory Management in End-to-End Tests:
     - Playwright automatically handles browser context cleanup after tests
     - Manual cleanup steps are unnecessary—focus on test clarity over micro-optimizations
     - End-to-End test suites have minimal memory leak concerns due to their limited scope and duration
 
 ## Examples
+
+### Dropdown Menu Clicks
+```typescript
+// ✅ DO: Use dispatchEvent for menu item clicks
+await page.getByRole("button", { name: "User profile menu" }).click();
+const menu = page.getByRole("menu");
+await expect(menu).toBeVisible();
+const menuItem = page.getByRole("menuitem", { name: "Log out" });
+await expect(menuItem).toBeVisible();
+await menuItem.dispatchEvent("click");
+
+// ❌ DON'T: Use waitForTimeout - causes focus loss and menu closure
+await page.getByRole("button", { name: "User profile menu" }).click();
+const menu = page.getByRole("menu");
+await expect(menu).toBeVisible();
+await page.waitForTimeout(200); // Focus is lost, menu closes during wait
+await page.getByRole("menuitem", { name: "Log out" }).click(); // Fails - menu is closed
+```
 
 ### ✅ Good Step Naming Examples
 ```typescript
@@ -127,10 +152,12 @@ await step("Sign up with valid credentials & verify account creation")(async () 
 
 await step("Update user role to admin & verify permission change")(async () => {
   const userRow = page.locator("tbody tr").first();
-  
+
   await userRow.getByLabel("User actions").click();
-  await page.getByRole("menuitem", { name: "Change role" }).click();
-  
+  const menu = page.getByRole("menu");
+  await expect(menu).toBeVisible();
+  await page.getByRole("menuitem", { name: "Change role" }).dispatchEvent("click");
+
   await expect(page.getByRole("alertdialog", { name: "Change user role" })).toBeVisible();
 })();
 ```

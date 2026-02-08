@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
-import { Breadcrumb, Breadcrumbs } from "@repo/ui/components/Breadcrumbs";
-import type { ReactNode } from "react";
-import { lazy, Suspense } from "react";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
+import { lazy, type ReactNode, Suspense } from "react";
 
 const FederatedTopMenu = lazy(() => import("account-management/FederatedTopMenu"));
 
@@ -13,12 +12,16 @@ export function TopMenu({ children }: Readonly<TopMenuProps>) {
   return (
     <Suspense fallback={<div className="h-12 w-full" />}>
       <FederatedTopMenu>
-        <Breadcrumbs>
-          <Breadcrumb>
-            <Trans>Home</Trans>
-          </Breadcrumb>
-          {children}
-        </Breadcrumbs>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                <Trans>Home</Trans>
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+            {children}
+          </BreadcrumbList>
+        </Breadcrumb>
       </FederatedTopMenu>
     </Suspense>
   );

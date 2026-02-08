@@ -1,93 +1,91 @@
-/**
- * ref: https://react.fluentui.dev/?path=/docs/components-avatar--default
- * ref: https://ui.shadcn.com/docs/components/avatar
- */
-import { type HTMLAttributes, useCallback, useRef, useState } from "react";
-import { tv } from "tailwind-variants";
+import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
+import type * as React from "react";
 
-export type AvatarProps = {
-  /**
-   * The two-letter initials to display.
-   */
-  initials: string;
-  /**
-   * The URL of the image to display.
-   */
-  avatarUrl?: string | null;
-  /**
-   * The size of the avatar.
-   */
-  size?: "xs" | "sm" | "md" | "lg";
-  /**
-   * Whether the avatar should be round or rounded.
-   */
-  isRound?: boolean;
-  /**
-   * The variant of the avatar.
-   */
-  variant?: "background" | "primary" | "secondary" | "success" | "warning" | "danger" | "info";
-  /**
-   * Additional class names to apply to the avatar.
-   */
-  className?: string;
-} & HTMLAttributes<HTMLImageElement>;
+import { cn } from "../utils";
 
-const backgroundStyles = tv({
-  base: "relative inline-flex shrink-0 items-center justify-center overflow-hidden border border-border font-semibold uppercase",
-  variants: {
-    isRound: {
-      true: "rounded-full",
-      false: "rounded-md"
-    },
-    size: {
-      xs: "h-8 w-8 text-xs",
-      sm: "h-10 w-10 text-sm",
-      md: "h-12 w-12 text-base",
-      lg: "h-16 w-16 text-lg"
-    },
-    variant: {
-      background: "bg-background text-foreground",
-      primary: "bg-primary text-primary-foreground",
-      secondary: "bg-secondary text-secondary-foreground",
-      success: "bg-success text-success-foreground",
-      warning: "bg-warning text-warning-foreground",
-      danger: "bg-danger text-danger-foreground",
-      info: "bg-info text-info-foreground"
-    }
-  },
-  defaultVariants: {
-    isRound: false,
-    size: "md",
-    variant: "background"
-  }
-});
-
-export function Avatar({ initials, avatarUrl, size, variant, isRound, className, ...props }: AvatarProps) {
-  const imgRef = useRef<HTMLImageElement>(null);
-  const [imageFailed, setImageFailed] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const handleError = useCallback(() => setImageFailed(true), []);
-  const handleLoad = useCallback(() => setImageLoaded(true), []);
-
+function Avatar({
+  className,
+  size = "default",
+  ...props
+}: AvatarPrimitive.Root.Props & {
+  size?: "default" | "sm" | "lg";
+}) {
   return (
-    <div {...props} className={backgroundStyles({ isRound, size, variant, className })}>
-      {avatarUrl && !imageFailed ? (
-        <>
-          <img
-            ref={imgRef}
-            className={`h-full w-full object-cover ${imageLoaded ? "" : "invisible"}`}
-            src={avatarUrl}
-            alt="User avatar"
-            onError={handleError}
-            onLoad={handleLoad}
-            style={{ position: "absolute", inset: 0 }}
-          />
-          {!imageLoaded && initials?.slice(0, 2)}
-        </>
-      ) : (
-        initials?.slice(0, 2)
+    <AvatarPrimitive.Root
+      data-slot="avatar"
+      data-size={size}
+      className={cn(
+        "group/avatar relative flex size-8 shrink-0 select-none rounded-full after:absolute after:inset-0 after:rounded-full after:border after:border-border after:mix-blend-darken data-[size=lg]:size-10 data-[size=sm]:size-6 dark:after:mix-blend-lighten",
+        className
       )}
-    </div>
+      {...props}
+    />
   );
 }
+
+function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+  return (
+    <AvatarPrimitive.Image
+      data-slot="avatar-image"
+      className={cn("aspect-square size-full rounded-full object-cover", className)}
+      {...props}
+    />
+  );
+}
+
+function AvatarFallback({ className, ...props }: AvatarPrimitive.Fallback.Props) {
+  return (
+    <AvatarPrimitive.Fallback
+      data-slot="avatar-fallback"
+      className={cn(
+        "flex size-full items-center justify-center rounded-full bg-muted text-muted-foreground text-sm group-data-[size=sm]/avatar:text-xs",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+  return (
+    <span
+      data-slot="avatar-badge"
+      className={cn(
+        "absolute right-0 bottom-0 z-10 inline-flex select-none items-center justify-center rounded-full bg-primary text-primary-foreground bg-blend-color ring-2 ring-background",
+        "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
+        "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
+        "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="avatar-group"
+      className={cn(
+        "group/avatar-group flex -space-x-2 [&>*]:data-[slot=avatar]:ring-2 [&>*]:data-[slot=avatar]:ring-background",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+function AvatarGroupCount({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="avatar-group-count"
+      className={cn(
+        "relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground text-sm ring-2 ring-background group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3",
+        className
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarBadge };

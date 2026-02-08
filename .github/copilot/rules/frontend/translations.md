@@ -9,14 +9,16 @@ Guidelines for implementing translations and internationalization in the fronten
 3. Always use plain English text in translation markers
 4. Don't hardcode text without proper translation wrappers
 5. Use "Sentence case" for everything (buttons, menus, headings, etc.)
-6. Translation workflow:
+6. **Never use Lingui macros in `shared-webapp`** -- they only work in application WebApps where the Lingui compiler runs. Shared components should accept translatable text as props
+7. Translation workflow:
    - Translation files are in `shared/translations/locale/` (e.g., `da-DK.po`, `en-US.po`)
    - After adding/changing `<Trans>` or t\`\` markers, the `*.po` files are auto-generated/updated by the build system
    - Don't manually add or remove entries to `*.po` files
    - After auto-generation, translate all new/updated entries in `*.po` files for all supported languages
    - Only translate `msgstr` values—never change `msgid` values
-7. Don't translate fully dynamic content such as variable values or dynamic text
-8. **Domain terminology consistency**:
+8. **Use correct language-specific characters** in translations -- e.g., Danish requires æøå/ÆØÅ, not ae/oe/aa substitutes. Never approximate with ASCII equivalents
+9. Don't translate fully dynamic content such as variable values or dynamic text
+9. **Domain terminology consistency**:
    - Use consistent terminology throughout the application
    - Before translating, check existing `*.po` files for established domain terms
    - If "Tenant" is used, always use "Tenant" (not "Customer", "Client", "Organization", etc.)
@@ -32,7 +34,7 @@ import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Heading } from "@repo/ui/components/Heading";
 
-<Button onPress={handleLogin}>
+<Button onClick={handleLogin}>
   <Trans>Log in</Trans>
 </Button>
 

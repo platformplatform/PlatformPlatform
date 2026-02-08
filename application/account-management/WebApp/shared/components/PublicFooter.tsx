@@ -1,8 +1,8 @@
+import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
-import { Tooltip, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import { Github, Linkedin, Mail, Youtube } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
+import { Github, Linkedin, MailIcon, Youtube } from "lucide-react";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -16,21 +16,17 @@ export function PublicFooter() {
         <div className="flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-6">
           {/* Logo - Full logo on mobile, mark on desktop */}
           <div className="shrink-0">
-            <Image
+            <img
               src={logoWrap}
-              alt="PlatformPlatform"
-              className="h-10 opacity-90 transition-opacity hover:opacity-100 sm:hidden"
-              width={280}
-              height={40}
-              priority={true}
+              alt={t`PlatformPlatform logo`}
+              className="h-10 w-[17.5rem] opacity-90 transition-opacity hover:opacity-100 sm:hidden"
+              loading="lazy"
             />
-            <Image
+            <img
               src={logoMark}
-              alt="PlatformPlatform"
-              className="hidden h-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
-              width={64}
-              height={64}
-              priority={true}
+              alt={t`PlatformPlatform logo`}
+              className="hidden size-16 opacity-90 transition-opacity hover:opacity-100 sm:block"
+              loading="lazy"
             />
           </div>
 
@@ -38,7 +34,7 @@ export function PublicFooter() {
           <div className="flex flex-1 flex-col gap-8 text-center sm:text-left">
             {/* Description */}
             <div className="space-y-3">
-              <h3 className="hidden font-semibold text-foreground text-lg sm:block">
+              <h3 className="hidden sm:block">
                 <Trans>PlatformPlatform</Trans>
               </h3>
               <p className="text-muted-foreground leading-relaxed">
@@ -51,7 +47,7 @@ export function PublicFooter() {
         {/* Bottom Section */}
         <div className="mt-14 flex flex-col items-center gap-6 border-border border-t pt-14 sm:flex-row sm:justify-between">
           {/* Left: Copyright and Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground text-sm sm:justify-start sm:text-left">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground sm:justify-start sm:text-left">
             <div>
               <Trans>© {currentYear} PlatformPlatform. All rights reserved.</Trans>
             </div>
@@ -75,60 +71,74 @@ export function PublicFooter() {
 
           {/* Right: Social Links */}
           <div className="flex items-center gap-4">
-            <TooltipTrigger>
-              <a
-                href="mailto:support@platformplatform.net"
-                aria-label="Email"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Mail className="h-5 w-5" />
-              </a>
-              <Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="mailto:support@platformplatform.net"
+                    aria-label={t`Email`}
+                    variant="icon"
+                    underline={false}
+                  >
+                    <MailIcon className="size-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>Email</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://www.linkedin.com/company/platformplatform/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="LinkedIn"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Linkedin className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://www.linkedin.com/company/platformplatform/"
+                    aria-label="LinkedIn"
+                    variant="icon"
+                    underline={false}
+                  >
+                    <Linkedin className="size-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>LinkedIn</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://www.youtube.com/@PlatformPlatform"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Youtube className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://www.youtube.com/@PlatformPlatform"
+                    aria-label="YouTube"
+                    variant="icon"
+                    underline={false}
+                  >
+                    <Youtube className="size-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>YouTube</Trans>
-              </Tooltip>
-            </TooltipTrigger>
-            <TooltipTrigger>
-              <Link
-                href="https://github.com/platformplatform/PlatformPlatform"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub"
-                className="flex h-10 w-10 items-center justify-center rounded-lg bg-background/50 text-muted-foreground transition-all hover:bg-background hover:text-foreground"
-              >
-                <Github className="h-5 w-5" />
-              </Link>
-              <Tooltip>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Link
+                    href="https://github.com/platformplatform/PlatformPlatform"
+                    aria-label="GitHub"
+                    variant="icon"
+                    underline={false}
+                  >
+                    <Github className="size-5" />
+                  </Link>
+                }
+              />
+              <TooltipContent>
                 <Trans>GitHub</Trans>
-              </Tooltip>
-            </TooltipTrigger>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>

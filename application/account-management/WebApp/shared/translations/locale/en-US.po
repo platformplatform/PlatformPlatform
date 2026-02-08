@@ -146,8 +146,8 @@ msgstr "Are you sure you want to permanently delete <0>{0} users</0>?"
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 
-msgid "Are you sure you want to revoke this session?"
-msgstr "Are you sure you want to revoke this session?"
+msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgstr "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
 
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
@@ -160,6 +160,9 @@ msgstr "Authentication is shared across all tabs. To use multiple accounts simul
 
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
+
+msgid "Azure Compliance (opens in new window)"
+msgstr "Azure Compliance (opens in new window)"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -215,6 +218,9 @@ msgstr "Clear"
 
 msgid "Clear filters"
 msgstr "Clear filters"
+
+msgid "Clear search"
+msgstr "Clear search"
 
 msgid "Close"
 msgstr "Close"
@@ -301,6 +307,12 @@ msgstr "Deleted"
 msgid "Deleted users"
 msgstr "Deleted users"
 
+msgid "Deleted users loading"
+msgstr "Deleted users loading"
+
+msgid "Deleted users will appear here for recovery"
+msgstr "Deleted users will appear here for recovery"
+
 msgid "Desktop"
 msgstr "Desktop"
 
@@ -384,6 +396,9 @@ msgstr "Fully managed infrastructure"
 
 msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
 msgstr "GDPR Article 28 compliant agreement for processing data on your behalf."
+
+msgid "GDPR compliant"
+msgstr "GDPR compliant"
 
 msgid "GDPR Compliant"
 msgstr "GDPR Compliant"
@@ -511,6 +526,9 @@ msgstr "Microsoft compliance resources"
 msgid "Microsoft DPA"
 msgstr "Microsoft DPA"
 
+msgid "Microsoft DPA (opens in new window)"
+msgstr "Microsoft DPA (opens in new window)"
+
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft patches and secures all PaaS infrastructure automatically"
 
@@ -519,6 +537,9 @@ msgstr "Mobile"
 
 msgid "Modified date"
 msgstr "Modified date"
+
+msgid "More information"
+msgstr "More information"
 
 msgid "Name"
 msgstr "Name"
@@ -532,17 +553,20 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
-msgid "No active sessions found."
-msgstr "No active sessions found."
+msgid "No active sessions"
+msgstr "No active sessions"
 
-msgid "No deleted users"
-msgstr "No deleted users"
+msgid "No users found"
+msgstr "No users found"
 
 msgid "OK"
 msgstr "OK"
 
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
+
+msgid "Only owners can change user roles"
+msgstr "Only owners can change user roles"
 
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Only trusted personnel access data through Azure AD authentication"
@@ -580,6 +604,12 @@ msgstr "Permanently delete users"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
+
+msgid "PlatformPlatform on GitHub (opens in new window)"
+msgstr "PlatformPlatform on GitHub (opens in new window)"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Please check the URL or return to the home page."
@@ -629,6 +659,9 @@ msgstr "Profile updated successfully"
 msgid "Recycle bin"
 msgstr "Recycle bin"
 
+msgid "Recycle bin is empty"
+msgstr "Recycle bin is empty"
+
 msgid "Region"
 msgstr "Region"
 
@@ -660,6 +693,9 @@ msgstr "Restore {0} users"
 msgid "Restore user"
 msgstr "Restore user"
 
+msgid "Restoring..."
+msgstr "Restoring..."
+
 msgid "Revoke"
 msgstr "Revoke"
 
@@ -690,8 +726,16 @@ msgstr "Security alert"
 msgid "Security, privacy, and compliance information"
 msgstr "Security, privacy, and compliance information"
 
-msgid "Select Account"
-msgstr "Select Account"
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Select {0} {1}"
+msgstr "Select {0} {1}"
+
+msgid "Select account"
+msgstr "Select account"
+
+msgid "Select all users"
+msgstr "Select all users"
 
 msgid "Select dates"
 msgstr "Select dates"
@@ -735,6 +779,9 @@ msgstr "Signup verification code"
 msgid "SOC and ISO Reports"
 msgstr "SOC and ISO Reports"
 
+msgid "SOC and ISO Reports (opens in new window)"
+msgstr "SOC and ISO Reports (opens in new window)"
+
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
@@ -746,9 +793,6 @@ msgstr "Stay"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
-
-msgid "Success"
-msgstr "Success"
 
 msgid "Switching account..."
 msgstr "Switching account..."
@@ -770,9 +814,6 @@ msgstr "Terms of use"
 
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "The agreement governing your use of our Service, including acceptable use and liability."
-
-msgid "The device will need to sign in again."
-msgstr "The device will need to sign in again."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
@@ -812,6 +853,12 @@ msgstr "Transparency, security, and privacy are at the core of how we operate. R
 
 msgid "Trust Center"
 msgstr "Trust Center"
+
+msgid "Trust Center (opens in new window)"
+msgstr "Trust Center (opens in new window)"
+
+msgid "Try adjusting your search or filters"
+msgstr "Try adjusting your search or filters"
 
 msgid "Try again"
 msgstr "Try again"
@@ -879,11 +926,17 @@ msgstr "User role updated successfully for {userDisplayName}"
 msgid "User status"
 msgstr "User status"
 
+msgid "User tabs"
+msgstr "User tabs"
+
 msgid "user@email.com"
 msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Users"
+
+msgid "Users loading"
+msgstr "Users loading"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
@@ -928,12 +981,21 @@ msgstr "Welcome to PlatformPlatform"
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
+msgid "You cannot change your own role"
+msgstr "You cannot change your own role"
+
+msgid "You cannot delete yourself"
+msgstr "You cannot delete yourself"
+
 msgid "You do not have permission to access this page."
 msgstr "You do not have permission to access this page."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
+
+msgid "You have no other active sessions"
+msgstr "You have no other active sessions"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "You have unsaved changes. If you leave now, your changes will be lost."

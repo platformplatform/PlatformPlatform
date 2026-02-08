@@ -1,106 +1,62 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/tabs--docs
- * ref: https://ui.shadcn.com/docs/components/tabs
- */
-import {
-  Tab as AriaTab,
-  TabList as AriaTabList,
-  TabPanel as AriaTabPanel,
-  Tabs as AriaTabs,
-  composeRenderProps,
-  type TabListProps,
-  type TabPanelProps,
-  type TabProps,
-  type TabsProps
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { focusRing } from "./focusRing";
+import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
+import { cva, type VariantProps } from "class-variance-authority";
 
-const tabsStyles = tv({
-  base: "flex gap-4",
-  variants: {
-    orientation: {
-      horizontal: "flex-col",
-      vertical: "w-[800px] flex-row"
+import { cn } from "../utils";
+
+function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
+  return <TabsPrimitive.Root data-slot="tabs" className={cn("flex flex-col gap-2", className)} {...props} />;
+}
+
+function TabsList({ className, ...props }: TabsPrimitive.List.Props) {
+  return (
+    <TabsPrimitive.List
+      data-slot="tabs-list"
+      className={cn("relative flex gap-1 border-border border-b", className)}
+      {...props}
+    />
+  );
+}
+
+// NOTE: This diverges from stock ShadCN to use outline-based focus ring, CSS variable heights for Apple HIG compliance,
+// data-[active] selectors instead of data-[selected] (BaseUI uses data-active, not data-selected like Radix),
+// and active:bg-muted/50 for press feedback.
+const tabTriggerVariants = cva(
+  "relative inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-4 py-2 font-semibold not-data-[active]:text-muted-foreground text-sm outline-ring transition-colors after:absolute after:right-1 after:-bottom-px after:left-1 after:h-0.5 not-data-[active]:after:bg-transparent after:transition-colors not-data-[active]:hover:text-muted-foreground/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-muted/50 disabled:pointer-events-none disabled:opacity-50 data-[active]:text-foreground data-[active]:after:bg-primary",
+  {
+    variants: {
+      size: {
+        default: "h-[var(--control-height)]",
+        sm: "h-[var(--control-height-sm)] text-xs",
+        lg: "h-[var(--control-height-lg)]"
+      }
+    },
+    defaultVariants: {
+      size: "default"
     }
   }
-});
+);
 
-export function Tabs(props: Readonly<TabsProps>) {
+function TabsTrigger({
+  className,
+  size = "default",
+  ...props
+}: TabsPrimitive.Tab.Props & VariantProps<typeof tabTriggerVariants>) {
   return (
-    <AriaTabs
-      {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
-        tabsStyles({ ...renderProps, className })
+    <TabsPrimitive.Tab data-slot="tabs-trigger" className={cn(tabTriggerVariants({ size, className }))} {...props} />
+  );
+}
+
+function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+  return (
+    <TabsPrimitive.Panel
+      data-slot="tabs-content"
+      className={cn(
+        "outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+        className
       )}
+      {...props}
     />
   );
 }
 
-const tabListStyles = tv({
-  base: "flex gap-1 border-border",
-  variants: {
-    orientation: {
-      horizontal: "flex-row border-b [&>*]:border-b-2",
-      vertical: "flex-col items-start border-r [&>*]:w-full [&>*]:border-r-2"
-    }
-  }
-});
-
-export function TabList<T extends object>(props: Readonly<TabListProps<T>>) {
-  return (
-    <AriaTabList
-      {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
-        tabListStyles({ ...renderProps, className })
-      )}
-    />
-  );
-}
-
-const tabProps = tv({
-  extend: focusRing,
-  base: "flex cursor-default items-center gap-2 px-4 pt-1.5 pb-0.5 text-center font-semibold text-sm transition forced-color-adjust-none",
-  variants: {
-    isSelected: {
-      false: "border-transparent text-muted-foreground",
-      true: "border-primary text-foreground forced-colors:text-[HighlightText]"
-    },
-    isHovered: {
-      true: "text-muted-foreground/90"
-    },
-    isFocusVisible: {
-      true: "rounded-md border-transparent"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    }
-  }
-});
-
-export function Tab(props: Readonly<TabProps>) {
-  return (
-    <AriaTab
-      {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
-        tabProps({ ...renderProps, className })
-      )}
-    />
-  );
-}
-
-const tabPanelStyles = tv({
-  extend: focusRing,
-  base: "flex-1 rounded-lg border border-border p-4 text-foreground text-sm"
-});
-
-export function TabPanel(props: Readonly<TabPanelProps>) {
-  return (
-    <AriaTabPanel
-      {...props}
-      className={composeRenderProps(props.className, (className, renderProps) =>
-        tabPanelStyles({ ...renderProps, className })
-      )}
-    />
-  );
-}
+export { Tabs, TabsList, TabsTrigger, TabsContent, tabTriggerVariants };

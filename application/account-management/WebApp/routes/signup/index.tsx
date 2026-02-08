@@ -3,10 +3,11 @@ import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
+import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
-import { Heading } from "@repo/ui/components/Heading";
+import { LabelWithTooltip } from "@repo/ui/components/LabelWithTooltip";
 import { Link } from "@repo/ui/components/Link";
-import { Select, SelectItem } from "@repo/ui/components/Select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -62,14 +63,14 @@ export function StartSignupForm() {
       onSubmit={mutationSubmitter(startSignupMutation)}
       validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-sm flex-col items-center gap-4 space-y-3 rounded-lg px-6 pt-8 pb-4"
+      className="flex w-full max-w-[18rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
-        <img src={logoMarkUrl} className="h-12 w-12" alt={t`Logo`} />
+        <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
       </Link>
-      <Heading className="text-2xl">
+      <h2>
         <Trans>Create your account</Trans>
-      </Heading>
+      </h2>
       <div className="text-center text-muted-foreground text-sm">
         <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
       </div>
@@ -85,20 +86,27 @@ export function StartSignupForm() {
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
       />
-      <Select
-        name="region"
-        selectedKey="europe"
-        label={t`Region`}
-        tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
-        description={t`This is the region where your data is stored`}
-        isRequired={true}
-        className="flex w-full flex-col"
-      >
-        <SelectItem id="europe">
-          <Trans>Europe</Trans>
-        </SelectItem>
-      </Select>
-      <Button type="submit" isDisabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
+      <Field className="flex w-full flex-col">
+        <FieldLabel>
+          <LabelWithTooltip
+            tooltip={t`Data storage location for privacy and compliance. This cannot be changed later.`}
+          >
+            {t`Region`}
+          </LabelWithTooltip>
+        </FieldLabel>
+        <Select name="region" defaultValue="europe" required={true}>
+          <SelectTrigger className="w-full" aria-label={t`Region`}>
+            <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="europe">
+              <Trans>Europe</Trans>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
+      </Field>
+      <Button type="submit" disabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
         {startSignupMutation.isPending ? (
           <Trans>Sending verification code...</Trans>
         ) : (
@@ -111,13 +119,13 @@ export function StartSignupForm() {
           <Trans>Log in</Trans>
         </Link>
       </p>
-      <div className="text-muted-foreground text-sm">
+      <div className="text-center text-muted-foreground text-sm">
         <Trans>By continuing, you accept our policies</Trans>
-        <div className="flex items-center justify-center">
+        <div className="flex flex-wrap items-center justify-center">
           <Link href="/legal/terms">
             <Trans>Terms of use</Trans>
           </Link>
-          <DotIcon className="h-4 w-4" />
+          <DotIcon className="size-4" />
           <Link href="/legal/privacy">
             <Trans>Privacy policies</Trans>
           </Link>
@@ -128,7 +136,7 @@ export function StartSignupForm() {
         We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
       */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-muted-foreground text-xs">
+        <span className="text-muted-foreground text-sm">
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

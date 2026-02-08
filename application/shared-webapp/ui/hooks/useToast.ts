@@ -1,4 +1,4 @@
-import { DEFAULT_TOAST_DURATIONS, toastQueue } from "../components/Toast";
+import { toast } from "sonner";
 
 type ToastVariant = "info" | "success" | "warning" | "error";
 
@@ -7,30 +7,40 @@ export type ToastOptions = {
   description?: string;
   variant?: ToastVariant;
   duration?: number;
-  action?: React.ReactNode;
 };
 
-/**
- * Custom hook for displaying toast notifications
- * @returns Object with toast function to display toast notifications
- */
-export function useToast() {
-  const toast = (options: ToastOptions) => {
-    const { variant = "info", duration, ...rest } = options;
+export const DEFAULT_TOAST_DURATIONS = {
+  info: 7000,
+  success: 7000,
+  warning: 11000,
+  error: 15000
+} as const;
 
-    // Determine the duration - use provided duration or default based on variant
-    const toastDuration = duration ?? DEFAULT_TOAST_DURATIONS[variant];
+function showToast(options: ToastOptions) {
+  const { title, description, variant = "info", duration } = options;
+  const toastDuration = duration ?? DEFAULT_TOAST_DURATIONS[variant];
 
-    // Add the toast to the queue
-    toastQueue.add(
-      {
-        ...rest,
-        variant,
-        duration: toastDuration
-      },
-      { timeout: toastDuration }
-    );
+  const toastOptions = {
+    description,
+    duration: toastDuration
   };
 
-  return { toast };
+  switch (variant) {
+    case "success":
+      toast.success(title, toastOptions);
+      break;
+    case "warning":
+      toast.warning(title, toastOptions);
+      break;
+    case "error":
+      toast.error(title, toastOptions);
+      break;
+    default:
+      toast.info(title, toastOptions);
+      break;
+  }
+}
+
+export function useToast() {
+  return { toast: showToast };
 }

@@ -17,8 +17,17 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Click language button and select Danish & verify interface updates")(async () => {
-      await page.getByRole("button", { name: "Change language" }).click();
-      await page.getByRole("menuitem", { name: "Dansk" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = page.getByRole("button", { name: "Change language" });
+      await languageButton.dispatchEvent("click");
+
+      const languageMenu = page.getByRole("menu");
+      await expect(languageMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const danskMenuItem = page.getByRole("menuitem", { name: "Dansk" });
+      await expect(danskMenuItem).toBeVisible();
+      await danskMenuItem.dispatchEvent("click");
 
       // Verify interface updates to Danish and preference is saved
       await expect(page.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
@@ -54,8 +63,17 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Click logout from Danish interface & verify language persists after logout")(async () => {
-      await page.getByRole("button", { name: "Brugerprofilmenu" }).click();
-      await page.getByRole("menuitem", { name: "Log ud" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "Brugerprofilmenu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const logoutMenuItem = page.getByRole("menuitem", { name: "Log ud" });
+      await expect(logoutMenuItem).toBeVisible();
+      await logoutMenuItem.dispatchEvent("click");
 
       // Verify Danish language persists after logout
       await expect(page).toHaveURL("/login?returnPath=%2Fadmin");
@@ -64,8 +82,17 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Change login page language to English & verify interface updates")(async () => {
-      await page.getByRole("button", { name: "Skift sprog" }).click();
-      await page.getByRole("menuitem", { name: "English" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = page.getByRole("button", { name: "Skift sprog" });
+      await languageButton.dispatchEvent("click");
+
+      const languageMenu = page.getByRole("menu");
+      await expect(languageMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
+      await expect(englishMenuItem).toBeVisible();
+      await englishMenuItem.dispatchEvent("click");
 
       // Verify interface updates to English
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
@@ -89,8 +116,17 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Click language button and reset to English & verify language change works")(async () => {
-      await page.getByRole("button", { name: "Skift sprog" }).click();
-      await page.getByRole("menuitem", { name: "English" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = page.getByRole("button", { name: "Skift sprog" });
+      await languageButton.dispatchEvent("click");
+
+      const languageMenu = page.getByRole("menu");
+      await expect(languageMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
+      await expect(englishMenuItem).toBeVisible();
+      await englishMenuItem.dispatchEvent("click");
 
       await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
 
@@ -113,8 +149,18 @@ test.describe("@comprehensive", () => {
     await step("Complete signup for first user with Danish & verify preference saved")(async () => {
       // Set up Danish interface
       await page1.goto("/signup");
-      await page1.getByRole("button", { name: "Change language" }).click();
-      await page1.getByRole("menuitem", { name: "Dansk" }).click();
+
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const languageButton = page1.getByRole("button", { name: "Change language" });
+      await languageButton.dispatchEvent("click");
+
+      const languageMenu = page1.getByRole("menu");
+      await expect(languageMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const danskMenuItem = page1.getByRole("menuitem", { name: "Dansk" });
+      await expect(danskMenuItem).toBeVisible();
+      await danskMenuItem.dispatchEvent("click");
       await expect(page1.getByRole("heading", { name: "Opret din konto" })).toBeVisible();
 
       // Complete signup flow

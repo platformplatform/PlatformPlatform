@@ -1,11 +1,20 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AlertDialog } from "@repo/ui/components/AlertDialog";
-import { Modal } from "@repo/ui/components/Modal";
-import { Text } from "@repo/ui/components/Text";
-import { toastQueue } from "@repo/ui/components/Toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle
+} from "@repo/ui/components/AlertDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { AlertTriangleIcon } from "lucide-react";
 import { useCallback } from "react";
+import { toast } from "sonner";
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
@@ -35,18 +44,12 @@ export function PermanentlyDeleteUserDialog({
   const isSingleUser = users.length === 1;
   const user = users[0];
   const userDisplayName = isSingleUser ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || user?.email : "";
-  const isPending =
-    purgeUserMutation.isPending || bulkPurgeUsersMutation.isPending || emptyRecycleBinMutation.isPending;
 
   const handleDelete = useCallback(async () => {
     if (isEmptyRecycleBin) {
       const deletedCount = await emptyRecycleBinMutation.mutateAsync({});
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`,
-        variant: "success"
-      });
+      toast.success(deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
       return;
@@ -59,21 +62,13 @@ export function PermanentlyDeleteUserDialog({
     if (isSingleUser) {
       await purgeUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`User permanently deleted: ${userDisplayName}`,
-        variant: "success"
-      });
+      toast.success(t`User permanently deleted: ${userDisplayName}`);
       onUsersDeleted?.();
       onOpenChange(false);
     } else {
       await bulkPurgeUsersMutation.mutateAsync({ body: { userIds: users.map((u) => u.id) } });
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account-management/users/deleted"] });
-      toastQueue.add({
-        title: t`Success`,
-        description: t`${users.length} users permanently deleted`,
-        variant: "success"
-      });
+      toast.success(t`${users.length} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
     }
@@ -114,9 +109,9 @@ export function PermanentlyDeleteUserDialog({
               This will permanently delete <b>{totalDeletedUsersCount} users</b> in the recycle bin.
             </Trans>
           )}
-          <Text className="mt-2">
+          <p className="mt-2">
             <Trans>This action cannot be undone.</Trans>
-          </Text>
+          </p>
         </>
       );
     }
@@ -126,9 +121,9 @@ export function PermanentlyDeleteUserDialog({
           <Trans>
             Are you sure you want to permanently delete <b>{userDisplayName}</b>?
           </Trans>
-          <Text className="mt-2">
+          <p className="mt-2">
             <Trans>This action cannot be undone.</Trans>
-          </Text>
+          </p>
         </>
       );
     }
@@ -137,24 +132,32 @@ export function PermanentlyDeleteUserDialog({
         <Trans>
           Are you sure you want to permanently delete <b>{users.length} users</b>?
         </Trans>
-        <Text className="mt-2">
+        <p className="mt-2">
           <Trans>This action cannot be undone.</Trans>
-        </Text>
+        </p>
       </>
     );
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} blur={false} isDismissable={!isPending}>
-      <AlertDialog
-        title={getDialogTitle()}
-        variant="destructive"
-        actionLabel={isEmptyRecycleBin ? t`Empty recycle bin` : t`Delete permanently`}
-        cancelLabel={t`Cancel`}
-        onAction={handleDelete}
-      >
-        {getDialogContent()}
-      </AlertDialog>
-    </Modal>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10">
+            <AlertTriangleIcon className="text-destructive" />
+          </AlertDialogMedia>
+          <AlertDialogTitle>{getDialogTitle()}</AlertDialogTitle>
+          <AlertDialogDescription>{getDialogContent()}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="secondary">
+            <Trans>Cancel</Trans>
+          </AlertDialogCancel>
+          <AlertDialogAction variant="destructive" onClick={handleDelete}>
+            {isEmptyRecycleBin ? <Trans>Empty recycle bin</Trans> : <Trans>Delete permanently</Trans>}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

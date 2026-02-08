@@ -1,106 +1,198 @@
+import { useLingui } from "@lingui/react";
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import * as React from "react";
+import { type DayButton, DayPicker, getDefaultClassNames, type Locale } from "react-day-picker";
+import { da, enUS } from "react-day-picker/locale";
+import { cn } from "../utils";
+import { Button, buttonVariants } from "./Button";
+
 /**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/index.html?path=/docs/calendar--docs
- * ref: https://ui.shadcn.com/docs/components/calendar
+ * Maps app locale codes to react-day-picker locale objects.
+ * Add new locales here when extending language support.
  */
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useMemo } from "react";
-import {
-  Calendar as AriaCalendar,
-  CalendarGridHeader as AriaCalendarGridHeader,
-  type CalendarProps as AriaCalendarProps,
-  CalendarCell,
-  CalendarGrid,
-  CalendarGridBody,
-  CalendarHeaderCell,
-  type DateValue,
-  Heading,
-  Text,
-  useLocale
-} from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { Button } from "./Button";
-import { focusRing } from "./focusRing";
+const localeMap: Record<string, Locale> = {
+  "en-US": enUS,
+  "da-DK": da
+};
 
-export const cellStyles = tv({
-  extend: focusRing,
-  base: "flex h-9 w-9 cursor-default items-center justify-center rounded-md text-sm forced-color-adjust-none",
-  variants: {
-    isSelected: {
-      false: "pressed:bg-muted text-foreground hover:bg-accent",
-      true: "bg-primary text-primary-foreground forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
-    },
-    isUnavailable: {
-      true: "text-muted-foreground forced-colors:text-[GrayText]"
-    },
-    isInvalid: {
-      true: "bg-destructive text-destructive-foreground forced-colors:invalid:bg-[Mark]"
-    },
-    isDisabled: {
-      true: "strike text-muted-foreground opacity-50 forced-colors:text-[GrayText]"
-    },
-    isHovered: {
-      true: "opacity-90 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
-    },
-    isPressed: {
-      true: "opacity-80 forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]"
-    },
-    isOutsideMonth: {
-      true: "bg-transparent text-muted-foreground"
-    }
-  }
-});
-
-export interface CalendarProps<T extends DateValue> extends Omit<AriaCalendarProps<T>, "visibleDuration"> {
-  errorMessage?: string;
-  visibleMonths?: number;
+/**
+ * Capitalizes the first letter of a string.
+ */
+function capitalizeFirstLetter(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-export function Calendar<T extends DateValue>({
-  errorMessage,
-  visibleMonths = 1,
+// NOTE: This diverges from stock ShadCN to use weekStartsOn=1 (Monday) instead of Sunday.
+function Calendar({
+  className,
+  classNames,
+  showOutsideDays = true,
+  weekStartsOn = 1,
+  captionLayout = "label",
+  buttonVariant = "ghost",
+  formatters,
+  components,
+  locale: localeProp,
   ...props
-}: Readonly<CalendarProps<T>>) {
-  const durationInterval = useMemo(() => Array.from(new Array(visibleMonths).keys()), [visibleMonths]);
+}: React.ComponentProps<typeof DayPicker> & {
+  buttonVariant?: React.ComponentProps<typeof Button>["variant"];
+}) {
+  const { i18n } = useLingui();
+  const locale = localeProp ?? localeMap[i18n.locale] ?? enUS;
+  const defaultClassNames = getDefaultClassNames();
+
   return (
-    <AriaCalendar {...props} visibleDuration={{ months: visibleMonths }}>
-      <CalendarHeader />
-      <div className="flex gap-8 overflow-auto p-1">
-        {durationInterval.map((months) => (
-          <CalendarGrid key={months} offset={{ months }} className="w-[252px]">
-            <CalendarGridHeader />
-            <CalendarGridBody>{(date) => <CalendarCell date={date} className={cellStyles} />}</CalendarGridBody>
-          </CalendarGrid>
-        ))}
-      </div>
-      {errorMessage && (
-        <Text slot="errorMessage" className="p-2 text-destructive text-sm">
-          {errorMessage}
-        </Text>
+    <DayPicker
+      locale={locale}
+      showOutsideDays={showOutsideDays}
+      weekStartsOn={weekStartsOn}
+      className={cn(
+        // NOTE: This diverges from stock ShadCN to use 44px cell size for Apple HIG touch target compliance.
+        "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(11)] [--rdp-nav_button-height:--spacing(11)] [--rdp-nav_button-width:--spacing(11)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
+        String.raw`rtl:[&_.rdp-button\_next>svg]:rotate-180`,
+        String.raw`rtl:[&_.rdp-button\_previous>svg]:rotate-180`,
+        className
       )}
-    </AriaCalendar>
+      captionLayout={captionLayout}
+      formatters={{
+        // NOTE: This diverges from stock ShadCN to capitalize month names in caption (e.g., "Januar" instead of "januar" in Danish).
+        formatCaption: (date, options) => {
+          const month = date.toLocaleString(options?.locale?.code ?? "default", { month: "long" });
+          const year = date.getFullYear();
+          return `${capitalizeFirstLetter(month)} ${year}`;
+        },
+        formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
+        ...formatters
+      }}
+      classNames={{
+        root: cn("w-fit", defaultClassNames.root),
+        months: cn("relative flex flex-col gap-4 md:flex-row", defaultClassNames.months),
+        month: cn("flex w-full flex-col gap-4", defaultClassNames.month),
+        nav: cn("absolute inset-x-0 top-0 flex w-full items-center justify-between gap-1", defaultClassNames.nav),
+        button_previous: cn(
+          buttonVariants({ variant: buttonVariant, size: "icon" }),
+          "size-(--cell-size) select-none aria-disabled:opacity-50",
+          defaultClassNames.button_previous
+        ),
+        button_next: cn(
+          buttonVariants({ variant: buttonVariant, size: "icon" }),
+          "size-(--cell-size) select-none aria-disabled:opacity-50",
+          defaultClassNames.button_next
+        ),
+        month_caption: cn(
+          "flex h-(--cell-size) w-full items-center justify-center px-(--cell-size)",
+          defaultClassNames.month_caption
+        ),
+        dropdowns: cn(
+          "flex h-(--cell-size) w-full items-center justify-center gap-1.5 font-medium text-sm",
+          defaultClassNames.dropdowns
+        ),
+        dropdown_root: cn(
+          "cn-calendar-dropdown-root relative rounded-(--cell-radius)",
+          defaultClassNames.dropdown_root
+        ),
+        dropdown: cn("absolute inset-0 bg-popover opacity-0", defaultClassNames.dropdown),
+        caption_label: cn(
+          "select-none font-medium",
+          captionLayout === "label"
+            ? "text-sm"
+            : "cn-calendar-caption-label flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
+          defaultClassNames.caption_label
+        ),
+        table: "w-full border-collapse",
+        weekdays: cn("flex", defaultClassNames.weekdays),
+        weekday: cn(
+          "flex-1 select-none rounded-(--cell-radius) font-normal text-[0.8rem] text-muted-foreground",
+          defaultClassNames.weekday
+        ),
+        week: cn("mt-1 flex w-full", defaultClassNames.week),
+        week_number_header: cn("w-(--cell-size) select-none", defaultClassNames.week_number_header),
+        week_number: cn("select-none text-[0.8rem] text-muted-foreground", defaultClassNames.week_number),
+        day: cn(
+          "group/day relative aspect-square h-full w-full select-none rounded-(--cell-radius) p-0 text-center [&:last-child[data-selected=true]_button]:rounded-r-(--cell-radius)",
+          props.showWeekNumber
+            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-l-(--cell-radius)"
+            : "[&:first-child[data-selected=true]_button]:rounded-l-(--cell-radius)",
+          defaultClassNames.day
+        ),
+        range_start: cn(
+          "relative isolate -z-0 rounded-l-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:right-0 after:w-4 after:bg-muted",
+          defaultClassNames.range_start
+        ),
+        range_middle: cn("rounded-none", defaultClassNames.range_middle),
+        range_end: cn(
+          "relative isolate -z-0 rounded-r-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:left-0 after:w-4 after:bg-muted",
+          defaultClassNames.range_end
+        ),
+        today: cn(
+          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
+          defaultClassNames.today
+        ),
+        outside: cn("text-muted-foreground aria-selected:text-muted-foreground", defaultClassNames.outside),
+        disabled: cn("text-muted-foreground opacity-50", defaultClassNames.disabled),
+        hidden: cn("invisible", defaultClassNames.hidden),
+        ...classNames
+      }}
+      components={{
+        Root: ({ className, rootRef, ...props }) => {
+          return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
+        },
+        Chevron: ({ className, orientation, ...props }) => {
+          if (orientation === "left") {
+            return <ChevronLeftIcon className={cn("size-4", className)} {...props} />;
+          }
+
+          if (orientation === "right") {
+            return <ChevronRightIcon className={cn("size-4", className)} {...props} />;
+          }
+
+          return <ChevronDownIcon className={cn("size-4", className)} {...props} />;
+        },
+        DayButton: CalendarDayButton,
+        WeekNumber: ({ children, ...props }) => {
+          return (
+            <td {...props}>
+              <div className="flex size-(--cell-size) items-center justify-center text-center">{children}</div>
+            </td>
+          );
+        },
+        ...components
+      }}
+      {...props}
+    />
   );
 }
 
-export function CalendarHeader() {
-  const { direction } = useLocale();
+// NOTE: This diverges from stock ShadCN to add hover variants that maintain selected styling when hovering over selected dates.
+function CalendarDayButton({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) {
+  const defaultClassNames = getDefaultClassNames();
+
+  const ref = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (modifiers.focused) {
+      ref.current?.focus();
+    }
+  }, [modifiers.focused]);
 
   return (
-    <header className="flex w-full items-center gap-1 px-1 pb-4">
-      <Button variant="icon" slot="previous">
-        {direction === "rtl" ? <ChevronRight aria-hidden={true} /> : <ChevronLeft aria-hidden={true} />}
-      </Button>
-      <Heading className="mx-2 flex-1 text-center font-semibold text-foreground text-md" />
-      <Button variant="icon" slot="next">
-        {direction === "rtl" ? <ChevronLeft aria-hidden={true} /> : <ChevronRight aria-hidden={true} />}
-      </Button>
-    </header>
+    <Button
+      variant="ghost"
+      size="icon"
+      data-day={day.date.toLocaleDateString()}
+      data-selected-single={
+        modifiers.selected && !modifiers.range_start && !modifiers.range_end && !modifiers.range_middle
+      }
+      data-range-start={modifiers.range_start}
+      data-range-end={modifiers.range_end}
+      data-range-middle={modifiers.range_middle}
+      className={cn(
+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 font-normal leading-none data-[range-end=true]:rounded-(--cell-radius) data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-r-(--cell-radius) data-[range-start=true]:rounded-l-(--cell-radius) data-[range-end=true]:bg-primary data-[range-middle=true]:bg-muted data-[range-start=true]:bg-primary data-[selected-single=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:text-foreground data-[range-start=true]:text-primary-foreground data-[selected-single=true]:text-primary-foreground hover:data-[range-end=true]:bg-primary hover:data-[range-start=true]:bg-primary hover:data-[selected-single=true]:bg-primary hover:data-[range-end=true]:text-primary-foreground hover:data-[range-start=true]:text-primary-foreground hover:data-[selected-single=true]:text-primary-foreground group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[0.1875rem] group-data-[focused=true]/day:ring-ring/50 dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
+        defaultClassNames.day,
+        className
+      )}
+      {...props}
+    />
   );
 }
 
-export function CalendarGridHeader() {
-  return (
-    <AriaCalendarGridHeader>
-      {(day) => <CalendarHeaderCell className="font-semibold text-muted-foreground text-xs">{day}</CalendarHeaderCell>}
-    </AriaCalendarGridHeader>
-  );
-}
+export { Calendar, CalendarDayButton };

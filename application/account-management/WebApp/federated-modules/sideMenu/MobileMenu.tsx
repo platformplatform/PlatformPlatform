@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { Avatar } from "@repo/ui/components/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import { overlayContext, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import { useQueryClient } from "@tanstack/react-query";
@@ -11,19 +11,23 @@ import { useContext } from "react";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 import LocaleSwitcher from "../common/LocaleSwitcher";
-import { SupportDialog } from "../common/SupportDialog";
 import TenantSelector from "../common/TenantSelector";
 import ThemeModeSelector from "../common/ThemeModeSelector";
 import type { FederatedSideMenuProps } from "./FederatedSideMenu";
 import { NavigationMenuItems } from "./NavigationMenuItems";
 
+// Delay before closing menu to allow dialog to render on top (dialog z-50 > menu z-40)
+const MENU_CLOSE_DELAY = 250;
+
 // Mobile menu header section with user profile and settings
 function MobileMenuHeader({
   onEditProfile,
-  onShowSessions
+  onShowSessions,
+  onShowSupport
 }: {
   onEditProfile: () => void;
   onShowSessions: () => void;
+  onShowSupport: () => void;
 }) {
   const userInfo = useUserInfo();
   const queryClient = useQueryClient();
@@ -42,143 +46,77 @@ function MobileMenuHeader({
     }
   });
 
+  // Opens a dialog from the menu: dialog opens immediately (appears on top of menu),
+  // then menu closes after a delay (closing happens behind the dialog)
+  const openDialogFromMenu = (openDialog: () => void) => {
+    openDialog();
+    setTimeout(() => overlayCtx?.close(), MENU_CLOSE_DELAY);
+  };
+
+  // Closes menu immediately (for actions that don't open a dialog)
+  const closeMenu = () => overlayCtx?.close();
+
+  // Standard button styles for menu items
+  const menuButtonClass =
+    "flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground";
+
   return (
     <div>
-      {/* User Profile Section */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0">
         {/* User Profile */}
         {userInfo && (
-          <div className="flex items-center gap-3 px-3">
-            <Avatar avatarUrl={userInfo.avatarUrl} initials={userInfo.initials ?? ""} isRound={true} size="md" />
+          <div className="flex items-center gap-3">
+            <Avatar className="size-12">
+              <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+              <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <div className="truncate font-medium text-foreground text-sm">{userInfo.fullName}</div>
               <div className="truncate text-muted-foreground text-xs">{userInfo.title ?? userInfo.email}</div>
             </div>
-            <div className="shrink-0" style={{ position: "relative", zIndex: 1000 }}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setTimeout(() => {
-                    onEditProfile();
-                    if (overlayCtx?.isOpen) {
-                      overlayCtx.close();
-                    }
-                  }, 10);
-                }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                className="rounded border border-border bg-background px-2 py-1 text-sm hover:bg-hover-background"
-                style={{ pointerEvents: "auto", position: "relative", touchAction: "none" }}
-              >
-                <UserIcon className="mr-1 inline h-4 w-4" />
-                <Trans>Edit</Trans>
-              </button>
-            </div>
+            <Button variant="outline" size="default" onClick={() => openDialogFromMenu(onEditProfile)}>
+              <UserIcon />
+              <Trans>Edit</Trans>
+            </Button>
           </div>
         )}
 
         {/* Sessions */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onPress={() => {
-              setTimeout(() => {
-                onShowSessions();
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto", touchAction: "none" }}
-          >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <MonitorSmartphoneIcon className="h-5 w-5 stroke-current" />
-            </div>
-            <div className="overflow-hidden whitespace-nowrap text-start">
-              <Trans>Sessions</Trans>
-            </div>
-          </Button>
-        </div>
+        <Button variant="ghost" onClick={() => openDialogFromMenu(onShowSessions)} className={menuButtonClass}>
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <MonitorSmartphoneIcon className="size-5 stroke-current" />
+          </div>
+          <Trans>Sessions</Trans>
+        </Button>
 
         {/* Logout */}
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onPress={() => {
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-                logoutMutation.mutate({});
-              }, 10);
-            }}
-            className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-            style={{ pointerEvents: "auto", touchAction: "none" }}
-          >
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-              <LogOutIcon className="h-5 w-5 stroke-current" />
-            </div>
-            <div className="overflow-hidden whitespace-nowrap text-start">
-              <Trans>Log out</Trans>
-            </div>
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => {
+            closeMenu();
+            logoutMutation.mutate({});
+          }}
+          className={menuButtonClass}
+        >
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <LogOutIcon className="size-5 stroke-current" />
+          </div>
+          <Trans>Log out</Trans>
+        </Button>
 
-        {/* Theme Section - using ThemeModeSelector with mobile menu variant */}
-        <div className="flex items-center justify-between">
-          <ThemeModeSelector
-            variant="mobile-menu"
-            onAction={() => {
-              // Small delay to ensure touch events are fully processed
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-          />
-        </div>
+        {/* Theme */}
+        <ThemeModeSelector variant="mobile-menu" onAction={closeMenu} />
 
-        {/* Language Section - using LocaleSwitcher with mobile menu variant */}
-        <div className="flex items-center justify-between">
-          <LocaleSwitcher
-            variant="mobile-menu"
-            onAction={() => {
-              // Small delay to ensure touch events are fully processed
-              setTimeout(() => {
-                // Close mobile menu if it's open
-                if (overlayCtx?.isOpen) {
-                  overlayCtx.close();
-                }
-              }, 10);
-            }}
-          />
-        </div>
+        {/* Language */}
+        <LocaleSwitcher variant="mobile-menu" onAction={closeMenu} />
 
-        {/* Support Section - styled like menu item */}
-        <div className="flex items-center justify-between">
-          <SupportDialog>
-            <Button
-              variant="ghost"
-              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
-              style={{ pointerEvents: "auto", touchAction: "none" }}
-            >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <MailQuestion className="h-5 w-5 stroke-current" />
-              </div>
-              <div className="overflow-hidden whitespace-nowrap text-start">
-                <Trans>Contact support</Trans>
-              </div>
-            </Button>
-          </SupportDialog>
-        </div>
+        {/* Support */}
+        <Button variant="ghost" onClick={() => openDialogFromMenu(onShowSupport)} className={menuButtonClass}>
+          <div className="flex size-6 shrink-0 items-center justify-center">
+            <MailQuestion className="size-5 stroke-current" />
+          </div>
+          <Trans>Contact support</Trans>
+        </Button>
       </div>
     </div>
   );
@@ -189,11 +127,13 @@ export function MobileMenu({
   currentSystem,
   onEditProfile,
   onShowSessions,
+  onShowSupport,
   onShowInvitationDialog
 }: Readonly<{
   currentSystem: FederatedSideMenuProps["currentSystem"];
   onEditProfile: () => void;
   onShowSessions: () => void;
+  onShowSupport: () => void;
   onShowInvitationDialog?: (tenant: components["schemas"]["TenantInfo"]) => void;
 }>) {
   return (
@@ -202,11 +142,11 @@ export function MobileMenu({
       onTouchStart={(e) => e.stopPropagation()}
       style={{ touchAction: "pan-y" }}
     >
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} />
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-1">
+        <MobileMenuHeader onEditProfile={onEditProfile} onShowSessions={onShowSessions} onShowSupport={onShowSupport} />
 
         {/* Divider */}
-        <div className="mx-3 my-5 border-border border-b" />
+        <div className="mx-2 my-5 border-border border-b" />
 
         {/* Tenant Selector */}
         <div className="-mx-3">
@@ -214,7 +154,7 @@ export function MobileMenu({
         </div>
 
         {/* Navigation Section for Mobile */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-0">
           <SideMenuSeparator>
             <Trans>Navigation</Trans>
           </SideMenuSeparator>

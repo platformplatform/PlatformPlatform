@@ -2,7 +2,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
-import { Image } from "@repo/ui/components/Image";
 import { Link } from "@repo/ui/components/Link";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
@@ -17,24 +16,10 @@ export function PublicNavigation() {
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       {/* Logo */}
-      <a href="/" className="flex items-center">
-        <Image
-          className="hidden h-10 sm:block"
-          src={logoWrap}
-          alt="PlatformPlatform Logo"
-          width={280}
-          height={40}
-          priority={true}
-        />
-        <Image
-          className="h-10 sm:hidden"
-          src={logoMark}
-          alt="PlatformPlatform Logo"
-          width={40}
-          height={40}
-          priority={true}
-        />
-      </a>
+      <Link href="/" variant="logo" underline={false}>
+        <img className="hidden h-10 w-[17.5rem] sm:block" src={logoWrap} alt={t`PlatformPlatform logo`} />
+        <img className="size-10 sm:hidden" src={logoMark} alt={t`PlatformPlatform logo`} />
+      </Link>
 
       {/* Right side actions */}
       {isAuthenticated ? (
@@ -53,20 +38,10 @@ export function PublicNavigation() {
             <ThemeModeSelector aria-label={t`Change theme`} />
           </span>
           <span className="flex gap-2">
-            <Link
-              href={loginPath}
-              variant="button"
-              underline={false}
-              className="h-10 rounded-lg px-4 text-foreground hover:bg-hover-background"
-            >
+            <Link href={loginPath} variant="button-secondary" underline={false} className="h-10 px-4">
               <Trans>Log in</Trans>
             </Link>
-            <Link
-              href={signUpPath}
-              variant="button"
-              underline={false}
-              className="h-10 rounded-lg bg-primary px-4 text-primary-foreground hover:bg-primary/95"
-            >
+            <Link href={signUpPath} variant="button-primary" underline={false} className="h-10 px-4">
               <Trans>Sign up</Trans>
             </Link>
           </span>

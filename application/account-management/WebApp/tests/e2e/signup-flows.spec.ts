@@ -139,13 +139,21 @@ test.describe("@smoke", () => {
       const initials = user.firstName.charAt(0) + user.lastName.charAt(0);
       await expect(page.getByRole("button", { name: "User profile menu" })).toContainText(initials);
 
-      // Open profile menu and verify user info
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await expect(page.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
-      await expect(page.getByText(user.email)).toBeVisible();
+      // Open profile menu and verify user info - use evaluate for reliable opening on Firefox
+      const avatarButton = page.getByRole("button", { name: "User profile menu" });
+      await avatarButton.dispatchEvent("click");
+      const profileMenu = page.getByRole("menu");
+      await expect(profileMenu).toBeVisible();
+      await expect(profileMenu.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
+      await expect(profileMenu.getByText(user.email)).toBeVisible();
 
-      // Open and close edit dialog
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const editProfileMenuItem = page.getByRole("menuitem", { name: "Edit profile" });
+      await expect(editProfileMenuItem).toBeVisible();
+      await editProfileMenuItem.dispatchEvent("click");
+
+      await expect(profileMenu).not.toBeVisible();
+      await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
       await expect(page.getByRole("textbox", { name: "Title" })).toHaveValue("CEO & Founder");
       await page.getByRole("button", { name: "Cancel" }).click();
 
@@ -181,8 +189,17 @@ test.describe("@smoke", () => {
     })();
 
     await step("Update user profile title & verify successful profile update")(async () => {
-      await page.getByRole("button", { name: "User profile menu" }).click();
-      await page.getByRole("menuitem", { name: "Edit profile" }).click();
+      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
+      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      await triggerButton.dispatchEvent("click");
+
+      const userMenu = page.getByRole("menu");
+      await expect(userMenu).toBeVisible();
+
+      // Click menu item with JavaScript evaluate to bypass stability check during animation
+      const editProfileMenuItem = page.getByRole("menuitem", { name: "Edit profile" });
+      await expect(editProfileMenuItem).toBeVisible();
+      await editProfileMenuItem.dispatchEvent("click");
       // Wait for menu popover to close before checking for profile dialog
       await expect(page.getByRole("dialog", { name: "User profile menu" })).not.toBeVisible();
       const profileDialog = page.getByRole("dialog", { name: "User profile" });

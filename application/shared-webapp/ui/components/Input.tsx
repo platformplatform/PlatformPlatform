@@ -1,87 +1,22 @@
-import type React from "react";
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/textfield--docs
- * ref: https://ui.shadcn.com/docs/components/input
- */
-import type { InputProps as AriaInputProps } from "react-aria-components";
-import { Input as AriaInput, composeRenderProps } from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { focusRing } from "./focusRing";
+import { Input as InputPrimitive } from "@base-ui/react/input";
+import type * as React from "react";
 
-export interface InputProps extends Omit<AriaInputProps, "disabled">, React.RefAttributes<HTMLInputElement> {
-  isDisabled?: boolean;
-  isReadOnly?: boolean;
-  isEmbedded?: boolean;
-  startIcon?: React.ReactNode;
-}
+import { cn } from "../utils";
 
-const inputStyles = tv({
-  extend: focusRing,
-  base: "h-10 w-full shrink-0 rounded-md border bg-input-background px-2 py-1.5 text-foreground text-sm placeholder:text-muted-foreground",
-  variants: {
-    isInvalid: {
-      true: "border-destructive"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    },
-    isReadOnly: {
-      true: "cursor-default opacity-50"
-    },
-    isFile: {
-      true: "cursor-pointer file:cursor-pointer file:border-0 file:bg-transparent file:font-medium file:text-sm"
-    },
-    isEmbedded: {
-      true: "border-0 border-muted bg-transparent"
-    },
-    hasStartIcon: {
-      true: "pl-9"
-    }
-  }
-});
-
-export function Input({
-  className,
-  type,
-  isEmbedded,
-  isDisabled,
-  isReadOnly,
-  startIcon,
-  ...props
-}: Readonly<InputProps>) {
-  const inputElement = (
-    <AriaInput
-      {...props}
-      disabled={isDisabled}
-      readOnly={isReadOnly}
+// NOTE: This diverges from stock ShadCN to use CSS variable heights for Apple HIG compliance,
+// explicit bg-white background, and outline-based focus ring instead of ring utilities.
+function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  return (
+    <InputPrimitive
       type={type}
-      className={composeRenderProps(
-        className,
-        (className, { isFocusVisible, isDisabled, ...renderProps }) =>
-          `${inputStyles({
-            ...renderProps,
-            isFile: type === "file",
-            isFocusVisible: isEmbedded ? false : isFocusVisible,
-            isEmbedded,
-            isDisabled,
-            isReadOnly,
-            hasStartIcon: !!startIcon,
-            className
-          })} ${isDisabled || isReadOnly ? "border-input" : ""}`
+      data-slot="input"
+      className={cn(
+        "h-[var(--control-height)] w-full min-w-0 rounded-md border border-input bg-white px-2.5 py-1 text-sm shadow-xs outline-ring transition-[color,box-shadow] file:inline-flex file:h-[var(--control-height-sm)] file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:outline aria-invalid:outline-2 aria-invalid:outline-destructive aria-invalid:outline-offset-2 dark:bg-input/30",
+        className
       )}
+      {...props}
     />
   );
-
-  if (startIcon) {
-    return (
-      <div className="relative">
-        <div className="pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 items-center">
-          {startIcon}
-        </div>
-        {inputElement}
-      </div>
-    );
-  }
-
-  return inputElement;
 }
+
+export { Input };

@@ -1,15 +1,16 @@
-import { Button, type ButtonProps } from "@repo/ui/components/Button";
+import { Button } from "@repo/ui/components/Button";
 import { useNavigate } from "@tanstack/react-router";
+import type { ComponentPropsWithoutRef } from "react";
 import { loginPath } from "./constants";
 
 type LoginButtonProps = {
   customLoginPath?: string;
-} & Omit<ButtonProps, "onPress">;
+} & Omit<ComponentPropsWithoutRef<typeof Button>, "onClick">;
 
 export function LoginButton({ customLoginPath, children, ...props }: LoginButtonProps) {
   const navigate = useNavigate();
   return (
-    <Button {...props} onPress={() => navigate({ to: customLoginPath ?? loginPath })}>
+    <Button {...props} onClick={() => navigate({ to: customLoginPath ?? loginPath })}>
       {children}
     </Button>
   );

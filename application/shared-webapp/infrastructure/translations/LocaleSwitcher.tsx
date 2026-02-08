@@ -1,7 +1,11 @@
 import { useLingui } from "@lingui/react";
-import type { Key } from "@react-types/shared";
 import { Button } from "@repo/ui/components/Button";
-import { Menu, MenuItem, MenuTrigger } from "@repo/ui/components/Menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@repo/ui/components/DropdownMenu";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { use, useMemo } from "react";
 import { preferredLocaleKey } from "./constants";
@@ -20,8 +24,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
     [locales, getLocaleInfo]
   );
 
-  const handleLocaleChange = (key: Key) => {
-    const locale = key.toString() as Locale;
+  const handleLocaleChange = (locale: Locale) => {
     if (locale !== currentLocale) {
       setLocale(locale).then(() => {
         localStorage.setItem(preferredLocaleKey, locale);
@@ -32,20 +35,24 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
   const currentLocale = i18n.locale as Locale;
 
   return (
-    <MenuTrigger>
-      <Button variant="icon" aria-label={ariaLabel}>
-        <GlobeIcon className="h-5 w-5" />
-      </Button>
-      <Menu onAction={handleLocaleChange} aria-label={ariaLabel}>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon-lg" aria-label={ariaLabel}>
+            <GlobeIcon className="size-5" />
+          </Button>
+        }
+      />
+      <DropdownMenuContent>
         {items.map((item) => (
-          <MenuItem key={item.id} id={item.id} textValue={item.label}>
+          <DropdownMenuItem key={item.id} onClick={() => handleLocaleChange(item.id)}>
             <div className="flex items-center gap-2">
               <span>{item.label}</span>
-              {item.id === currentLocale && <CheckIcon className="ml-auto h-4 w-4" />}
+              {item.id === currentLocale && <CheckIcon className="ml-auto size-4" />}
             </div>
-          </MenuItem>
+          </DropdownMenuItem>
         ))}
-      </Menu>
-    </MenuTrigger>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

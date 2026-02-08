@@ -1,80 +1,32 @@
-/**
- * ref: https://react-spectrum.adobe.com/react-aria-tailwind-starter/?path=/docs/radiogroup--docs
- * ref: https://ui.shadcn.com/docs/components/radio-group
- */
-import type { ReactNode } from "react";
-import type { RadioGroupProps as AriaRadioGroupProps, RadioProps, ValidationResult } from "react-aria-components";
-import { Radio as AriaRadio, RadioGroup as AriaRadioGroup, composeRenderProps } from "react-aria-components";
-import { tv } from "tailwind-variants";
-import { Description } from "./Description";
-import { FieldError } from "./FieldError";
-import { focusRing } from "./focusRing";
-import { Label } from "./Label";
-import { composeTailwindRenderProps } from "./utils";
+import { Radio as RadioPrimitive } from "@base-ui/react/radio";
+import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
+import { CircleIcon } from "lucide-react";
+import { cn } from "../utils";
 
-export interface RadioGroupProps extends Omit<AriaRadioGroupProps, "children"> {
-  label?: string;
-  children?: ReactNode;
-  description?: string;
-  errorMessage?: string | ((validation: ValidationResult) => string);
+function RadioGroup({ className, ...props }: RadioGroupPrimitive.Props) {
+  return <RadioGroupPrimitive data-slot="radio-group" className={cn("grid w-full gap-3", className)} {...props} />;
 }
 
-export function RadioGroup(props: Readonly<RadioGroupProps>) {
+function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   return (
-    <AriaRadioGroup {...props} className={composeTailwindRenderProps(props.className, "group flex flex-col gap-2")}>
-      {props.label && <Label>{props.label}</Label>}
-      <div className="flex gap-2 group-orientation-vertical:flex-col group-orientation-horizontal:gap-4">
-        {props.children}
-      </div>
-      {props.description && <Description>{props.description}</Description>}
-      <FieldError>{props.errorMessage}</FieldError>
-    </AriaRadioGroup>
-  );
-}
-
-const indicatorStyles = tv({
-  extend: focusRing,
-  base: "flex h-5 w-5 items-center justify-center rounded-full border-2 bg-accent/50 transition-all",
-  variants: {
-    isSelected: {
-      false: "border-(--color) bg-background [--color:theme(colors.foreground)] group-pressed:opacity-90",
-      true: "border-(--color) border-[7px] [--color:theme(colors.primary.DEFAULT)] group-pressed:group-pressed:opacity-90"
-    },
-    isInvalid: {
-      true: "text-destructive-foreground [--color:theme(colors.destructive.DEFAULT)] group-pressed:group-pressed:opacity-90"
-    },
-    isDisabled: {
-      true: "cursor-not-allowed opacity-50"
-    }
-  }
-});
-
-const radioStyles = tv({
-  base: "group flex items-center gap-2 text-foreground text-sm transition forced-colors:disabled:text-[GrayText]",
-  variants: {
-    isDisabled: {
-      true: "opacity-50"
-    }
-  }
-});
-
-export function Radio({ className, children, ...props }: Readonly<RadioProps>) {
-  return (
-    <AriaRadio
+    <RadioPrimitive.Root
+      data-slot="radio-group-item"
+      // NOTE: This diverges from stock ShadCN to use outline-based focus ring instead of ring utilities,
+      // and active:border-primary for press feedback.
+      className={cn(
+        "group/radio-group-item peer relative flex aspect-square size-4 shrink-0 cursor-pointer rounded-full border border-input text-primary shadow-xs outline-ring after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:border-primary disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive dark:bg-input/30 dark:aria-invalid:border-destructive/50",
+        className
+      )}
       {...props}
-      className={composeRenderProps(className, (className, renderProps) =>
-        radioStyles({
-          ...renderProps,
-          className
-        })
-      )}
     >
-      {(renderProps) => (
-        <>
-          <div className={indicatorStyles(renderProps)} />
-          {children}
-        </>
-      )}
-    </AriaRadio>
+      <RadioPrimitive.Indicator
+        data-slot="radio-group-indicator"
+        className="flex size-4 items-center justify-center text-primary group-aria-invalid/radio-group-item:text-destructive"
+      >
+        <CircleIcon className="absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 fill-current" />
+      </RadioPrimitive.Indicator>
+    </RadioPrimitive.Root>
   );
 }
+
+export { RadioGroup, RadioGroupItem };

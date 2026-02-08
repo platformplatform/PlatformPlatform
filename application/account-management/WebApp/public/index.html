@@ -16,6 +16,12 @@
       const o=document.createElement;
       document.createElement=t=>{const e=o.call(document,t);if(t.toLowerCase()==='style') { e.setAttribute('nonce',globalThis.__webpack_nonce__); }return e};
     </script>
+    <script nonce="{{cspNonce}}">
+      (()=> {var t=localStorage.getItem('theme'),d=window.matchMedia('(prefers-color-scheme:dark)').matches;if(t==='dark'||(!t&&d)) { document.documentElement.classList.add('dark') }})();
+    </script>
+    <script nonce="{{cspNonce}}">
+      (()=> {var zoomLevel=localStorage.getItem('zoom-level');if(zoomLevel) { document.documentElement.style.setProperty('--zoom-level',zoomLevel) }})();
+    </script>
     <link href="/favicon.ico" rel="icon" type="image/x-icon">
     <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180">
     <link rel="manifest" href="/manifest.json">

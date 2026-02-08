@@ -6,6 +6,7 @@ import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentP
 import { TailwindPlugin } from "@repo/build/plugin/TailwindPlugin";
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
+import { pluginSourceBuild } from "@rsbuild/plugin-source-build";
 import { pluginSvgr } from "@rsbuild/plugin-svgr";
 import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 
@@ -22,7 +23,13 @@ export default defineConfig({
     rspack: {
       // Exclude tests/e2e directory from file watching to prevent hot reloading issues
       watchOptions: {
-        ignored: ["**/tests/**", "**/playwright-report/**"]
+        ignored: ["**/tests/**", "**/playwright-report/**"],
+        // Watch workspace packages for changes
+        followSymlinks: true
+      },
+      snapshot: {
+        // Include workspace packages in module snapshots for change detection
+        managedPaths: []
       }
     }
   },
@@ -31,6 +38,9 @@ export default defineConfig({
     pluginReact(),
     pluginTypeCheck(),
     pluginSvgr(),
+    pluginSourceBuild({
+      sourceField: "source"
+    }),
     FileSystemRouterPlugin(),
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),

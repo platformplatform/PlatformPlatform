@@ -1,4 +1,4 @@
-import type { ConsoleMessage, Page } from "@playwright/test";
+import type { ConsoleMessage, Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 /**
@@ -109,7 +109,7 @@ export async function expectToastMessage(
   options: AssertToastOptions = { expectNetworkError: true }
 ): Promise<void> {
   const { page } = context;
-  const toastRegionSelector = '[role="region"]';
+  const toastRegionSelector = '[data-sonner-toaster]';
   const timeoutMs = 3000;
 
   // Determine if we have status + message or just message
@@ -117,9 +117,11 @@ export async function expectToastMessage(
   const status = hasStatus ? statusOrMessage : undefined;
   const message = hasStatus ? expectedMessage : String(statusOrMessage);
 
-  // Wait for and validate toast message
+  // Wait for and validate toast message (Sonner uses [data-title] for title-only toasts, [data-description] for toasts with separate description)
   const toastLocator = page
-    .locator(`${toastRegionSelector} div[class*="whitespace-pre-line"]:has-text("${message}")`)
+    .locator(
+      `${toastRegionSelector} li[data-sonner-toast]:has([data-title]:has-text("${message}")), ${toastRegionSelector} li[data-sonner-toast]:has([data-description]:has-text("${message}"))`
+    )
     .first();
 
   try {
@@ -127,7 +129,7 @@ export async function expectToastMessage(
   } catch (error) {
     // If expected toast wasn't found, provide helpful error with actual toasts
     const actualToasts = await checkUnexpectedToasts(context);
-    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    const totalToastCount = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).count();
 
     throw new Error(
       `Expected toast with message "${message}" not found within ${timeoutMs}ms.
@@ -146,7 +148,7 @@ Original error: ${error}`
   // Check for multiple toasts
   const allToasts = await checkUnexpectedToasts(context, message);
   if (allToasts.length > 0) {
-    const totalToastCount = await page.locator(`${toastRegionSelector} > div`).count();
+    const totalToastCount = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).count();
     throw new Error(
       `Expected exactly 1 toast with message "${message}", but found ${totalToastCount} toasts total.
 Expected: 1, Unexpected: ${allToasts.length}
@@ -155,12 +157,14 @@ Ensure tests assert all expected toasts or fix the root cause.`
     );
   }
 
-  // Close the toast
+  // Close the toast and wait for it to disappear
   try {
-    const toastContainer = page.locator(`${toastRegionSelector} > div`).filter({ hasText: message }).last();
-    const closeButton = toastContainer.locator('button[aria-label="Close"]').first();
+    const toastContainer = page.locator(`${toastRegionSelector} li[data-sonner-toast]`).filter({ hasText: message }).last();
+    const closeButton = toastContainer.locator("button[data-close-button]").first();
     if (await closeButton.isVisible()) {
       await closeButton.click();
+      // Wait for toast to be dismissed (Sonner has exit animation)
+      await toastContainer.waitFor({ state: "hidden", timeout: 2000 });
     }
   } catch {
     // Toast might have auto-dismissed, which is fine
@@ -353,79 +357,35 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
   const unexpectedToasts: string[] = [];
 
   try {
-    const toastRegionSelector = '[role="region"]';
+    const toastRegionSelector = "[data-sonner-toaster]";
 
     // Quick non-blocking check - don't wait if no toasts exist
     const toastRegions = page.locator(toastRegionSelector);
     const regionCount = await toastRegions.count();
 
     if (regionCount === 0) {
-      // DEBUG: If no role="region" found, let's look for other potential toast selectors
-      const debugToasts: string[] = await page.evaluate(() => {
-        const toasts: string[] = [];
-
-        // Look for ANY element that might contain toast text patterns
-        document.querySelectorAll("*").forEach((el) => {
-          const text = el.textContent?.trim();
-          if (text && text.length > 0) {
-            // Check for success/deletion patterns
-            if (
-              text.includes("deleted successfully") ||
-              text.includes("User deleted") ||
-              text.includes("Success") ||
-              (text.includes("success") && text.includes("delete"))
-            ) {
-              // Make sure element is visible
-              const rect = el.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                toasts.push(text);
-              }
-            }
-          }
-        });
-
-        // Also specifically look for common toast class patterns
-        document
-          .querySelectorAll(
-            '[class*="toast"], [class*="success"], [class*="notification"], [data-testid*="toast"], [role="status"], [role="alert"]'
-          )
-          .forEach((el) => {
-            const text = el.textContent?.trim();
-            if (text && text.length > 0) {
-              const rect = el.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                toasts.push(text);
-              }
-            }
-          });
-
-        return toasts;
-      });
-
-      // If we found potential toasts with alternative selectors, add them
-      if (debugToasts.length > 0) {
-        debugToasts.forEach((toast) => {
-          if (!expectedMessage || !toast.includes(expectedMessage)) {
-            unexpectedToasts.push(toast);
-          }
-        });
-      }
-
       return unexpectedToasts;
     }
 
-    // Get all current toast messages
-    const toastElements = await page.locator(`${toastRegionSelector} > div`).all();
+    // Get all current toast messages (Sonner uses li[data-sonner-toast] for each toast)
+    const toastElements = await page.locator(`${toastRegionSelector} li[data-sonner-toast]`).all();
 
     for (const toastElement of toastElements) {
       try {
-        const descriptionElement = toastElement.locator('div[class*="whitespace-pre-line"]').first();
-        const descriptionText = await descriptionElement.textContent();
+        // Sonner uses [data-title] for the main message and optionally [data-description] for details
+        const titleElement = toastElement.locator("[data-title]");
+        const descriptionElement = toastElement.locator("[data-description]");
+        const titleText = (await titleElement.count()) > 0 ? (await titleElement.first().textContent())?.trim() : null;
+        const descriptionText =
+          (await descriptionElement.count()) > 0 ? (await descriptionElement.first().textContent())?.trim() : null;
+        const toastMessage = titleText || descriptionText;
 
-        if (descriptionText?.trim()) {
-          const toastMessage = descriptionText.trim();
-          // Exclude the currently expected message
-          if (!expectedMessage || !toastMessage.includes(expectedMessage)) {
+        if (toastMessage) {
+          // Exclude toast if the expected message matches either title or description
+          const isExpected =
+            expectedMessage &&
+            (toastMessage.includes(expectedMessage) || (descriptionText && descriptionText.includes(expectedMessage)));
+          if (!isExpected) {
             unexpectedToasts.push(toastMessage);
           }
         }
@@ -461,17 +421,53 @@ export async function blurActiveElement(page: Page): Promise<void> {
 }
 
 /**
+ * Select an option from a Select dropdown, handling Firefox animation timing issues.
+ *
+ * The Select component (Base UI) has a 100ms animation that causes Firefox to report
+ * "element is not stable" during the animation. This function:
+ * 1. Clicks the trigger to open the dropdown
+ * 2. Waits for the popup to be fully open (data-open attribute)
+ * 3. Clicks the option with force to bypass stability checks
+ * 4. Waits for the popup to close before returning
+ *
+ * @param trigger The Playwright locator for the Select trigger (e.g., page.getByLabel("User role"))
+ * @param page The Playwright page instance
+ * @param optionName The name of the option to click (used with getByRole("option", { name }))
+ */
+export async function selectOption(trigger: Locator, page: Page, optionName: string): Promise<void> {
+  // Use dispatchEvent for more reliable click in Firefox under load
+  await trigger.dispatchEvent("click");
+  const popup = page.locator('[data-slot="select-content"][data-open]');
+  await expect(popup).toBeVisible();
+  const option = page.getByRole("option", { name: optionName });
+  await expect(option).toBeVisible();
+  await option.click({ force: true });
+  await expect(popup).not.toBeVisible();
+}
+
+/**
+ * @deprecated Use selectOption instead which handles the full open/select/close sequence
+ */
+export async function clickSelectOption(page: Page, optionName: string): Promise<void> {
+  const popup = page.locator('[data-slot="select-content"][data-open]');
+  await expect(popup).toBeVisible();
+  const option = page.getByRole("option", { name: optionName });
+  await expect(option).toBeVisible();
+  await option.click({ force: true });
+  await expect(popup).not.toBeVisible();
+}
+
+/**
  * Type an OTP verification code into the one-time-code inputs.
  *
- * This function dispatches keyboard events directly via page.evaluate() for maximum
- * reliability under parallel test execution in Firefox where Playwright's keyboard
- * API can drop keystrokes:
- * - Events are dispatched synchronously in the browser context
- * - The OTP component (Digit.tsx) uses onKeyUp to capture characters and advance focus
+ * This function uses the native HTMLInputElement value setter to properly trigger
+ * React's onChange handler for the input-otp library. The input-otp library uses
+ * a single hidden input element that's controlled by React state.
  *
- * A microtask yield is included after each character to allow React's state updates
- * to propagate and advance focus to the next input. This is critical for WebKit
- * where the event loop timing differs from Chromium and Firefox.
+ * The native setter approach is required because:
+ * 1. Direct value assignment (input.value = x) doesn't trigger React's synthetic events
+ * 2. The input-otp library relies on React's onChange to update its internal state
+ * 3. Using Object.getOwnPropertyDescriptor to get the native setter bypasses React's wrapper
  *
  * Note: We don't verify values after typing because auto-submit may navigate away
  * before verification completes. Tests verify success via navigation or error toasts.
@@ -480,33 +476,28 @@ export async function blurActiveElement(page: Page): Promise<void> {
  * @param code The verification code to enter (e.g., "UNLOCK", "WRONG1")
  */
 export async function typeOneTimeCode(page: Page, code: string): Promise<void> {
-  const otpInputs = page.locator('input[autocomplete="one-time-code"]');
+  const otpInput = page.locator('input[autocomplete="one-time-code"]');
 
-  // Wait for the first OTP input to be focused before typing
-  await expect(otpInputs.first()).toBeFocused();
+  // Wait for the OTP input to be focused before typing
+  await expect(otpInput).toBeFocused();
 
-  // Dispatch keyboard events directly for each character
-  for (const char of code) {
-    await page.evaluate(async (key) => {
-      const activeElement = document.activeElement as HTMLInputElement;
-      if (!activeElement) return;
+  // Type the entire code at once using native value setter to trigger React's onChange
+  await page.evaluate((codeToType) => {
+    const activeElement = document.activeElement as HTMLInputElement;
+    if (!activeElement) return;
 
-      // Dispatch keydown
-      activeElement.dispatchEvent(
-        new KeyboardEvent("keydown", { key, code: `Key${key}`, bubbles: true, cancelable: true })
-      );
+    // Get the native HTMLInputElement value setter (bypasses React's controlled input wrapper)
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      "value"
+    )?.set;
 
-      // Set value and dispatch input event
-      activeElement.value = key;
-      activeElement.dispatchEvent(new InputEvent("input", { bubbles: true, data: key }));
+    if (nativeInputValueSetter) {
+      // Set the value using native setter
+      nativeInputValueSetter.call(activeElement, codeToType.toUpperCase());
 
-      // Dispatch keyup (triggers OTP component's onKeyUp handler)
-      activeElement.dispatchEvent(
-        new KeyboardEvent("keyup", { key, code: `Key${key}`, bubbles: true, cancelable: true })
-      );
-
-      // Yield to microtask queue to allow React state updates and focus advancement
-      await new Promise((resolve) => setTimeout(resolve, 0));
-    }, char);
-  }
+      // Dispatch input event to trigger React's onChange handler
+      activeElement.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }, code);
 }

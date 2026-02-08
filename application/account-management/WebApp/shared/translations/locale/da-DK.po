@@ -146,8 +146,8 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0> permanent?"
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 
-msgid "Are you sure you want to revoke this session?"
-msgstr "Er du sikker på, at du vil tilbagekalde denne session?"
+msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
 
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
@@ -160,6 +160,9 @@ msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti
 
 msgid "Azure Compliance"
 msgstr "Azure Overholdelse"
+
+msgid "Azure Compliance (opens in new window)"
+msgstr "Azure Overholdelse (åbner i nyt vindue)"
 
 msgid "Back Office"
 msgstr "Back Office"
@@ -215,6 +218,9 @@ msgstr "Ryd"
 
 msgid "Clear filters"
 msgstr "Ryd filtre"
+
+msgid "Clear search"
+msgstr "Ryd søgning"
 
 msgid "Close"
 msgstr "Luk"
@@ -301,6 +307,12 @@ msgstr "Slettet"
 msgid "Deleted users"
 msgstr "Slettede brugere"
 
+msgid "Deleted users loading"
+msgstr "Slettede brugere indlæses"
+
+msgid "Deleted users will appear here for recovery"
+msgstr "Slettede brugere vil blive vist her til gendannelse"
+
 msgid "Desktop"
 msgstr "Stationær"
 
@@ -384,6 +396,9 @@ msgstr "Fuldt administreret infrastruktur"
 
 msgid "GDPR Article 28 compliant agreement for processing data on your behalf."
 msgstr "GDPR Artikel 28-kompatibel aftale for behandling af data på dine vegne."
+
+msgid "GDPR compliant"
+msgstr "GDPR-kompatibel"
 
 msgid "GDPR Compliant"
 msgstr "GDPR-kompatibel"
@@ -511,6 +526,9 @@ msgstr "Microsofts overholdelsesressourcer"
 msgid "Microsoft DPA"
 msgstr "Microsoft DBA"
 
+msgid "Microsoft DPA (opens in new window)"
+msgstr "Microsoft DBA (åbner i nyt vindue)"
+
 msgid "Microsoft patches and secures all PaaS infrastructure automatically"
 msgstr "Microsoft opdaterer og sikrer automatisk al PaaS infrastruktur"
 
@@ -519,6 +537,9 @@ msgstr "Mobil"
 
 msgid "Modified date"
 msgstr "Ændret dato"
+
+msgid "More information"
+msgstr "Mere information"
 
 msgid "Name"
 msgstr "Navn"
@@ -532,17 +553,20 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
-msgid "No active sessions found."
-msgstr "Ingen aktive sessioner fundet."
+msgid "No active sessions"
+msgstr "Ingen aktive sessioner"
 
-msgid "No deleted users"
-msgstr "Ingen slettede brugere"
+msgid "No users found"
+msgstr "Ingen brugere fundet"
 
 msgid "OK"
 msgstr "OK"
 
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
+
+msgid "Only owners can change user roles"
+msgstr "Kun ejere kan ændre brugerroller"
 
 msgid "Only trusted personnel access data through Azure AD authentication"
 msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificering"
@@ -580,6 +604,12 @@ msgstr "Slet brugere permanent"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
+
+msgid "PlatformPlatform on GitHub (opens in new window)"
+msgstr "PlatformPlatform på GitHub (åbner i nyt vindue)"
 
 msgid "Please check the URL or return to the home page."
 msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
@@ -629,6 +659,9 @@ msgstr "Profil opdateret succesfuldt"
 msgid "Recycle bin"
 msgstr "Papirkurv"
 
+msgid "Recycle bin is empty"
+msgstr "Papirkurven er tom"
+
 msgid "Region"
 msgstr "Region"
 
@@ -660,6 +693,9 @@ msgstr "Gendan {0} brugere"
 msgid "Restore user"
 msgstr "Gendan bruger"
 
+msgid "Restoring..."
+msgstr "Gendanner..."
+
 msgid "Revoke"
 msgstr "Tilbagekald"
 
@@ -690,8 +726,16 @@ msgstr "Sikkerhedsadvarsel"
 msgid "Security, privacy, and compliance information"
 msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
 
-msgid "Select Account"
+#. placeholder {0}: user.firstName
+#. placeholder {1}: user.lastName
+msgid "Select {0} {1}"
+msgstr "Vælg {0} {1}"
+
+msgid "Select account"
 msgstr "Vælg konto"
+
+msgid "Select all users"
+msgstr "Vælg alle brugere"
 
 msgid "Select dates"
 msgstr "Vælg datoer"
@@ -735,6 +779,9 @@ msgstr "Tilmeldingsbekræftelseskode"
 msgid "SOC and ISO Reports"
 msgstr "SOC og ISO rapporter"
 
+msgid "SOC and ISO Reports (opens in new window)"
+msgstr "SOC og ISO rapporter (åbner i nyt vindue)"
+
 msgid "Something went wrong"
 msgstr "Noget gik galt"
 
@@ -746,9 +793,6 @@ msgstr "Bliv"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
-
-msgid "Success"
-msgstr "Succes"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."
@@ -770,9 +814,6 @@ msgstr "Brugsvilkår"
 
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
-
-msgid "The device will need to sign in again."
-msgstr "Enheden skal logge ind igen."
 
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
@@ -812,6 +853,12 @@ msgstr "Gennemsigtighed, sikkerhed og privatliv er kernen i hvordan vi opererer.
 
 msgid "Trust Center"
 msgstr "Tillidscenter"
+
+msgid "Trust Center (opens in new window)"
+msgstr "Tillidscenter (åbner i nyt vindue)"
+
+msgid "Try adjusting your search or filters"
+msgstr "Prøv at justere din søgning eller filtre"
 
 msgid "Try again"
 msgstr "Prøv igen"
@@ -879,11 +926,17 @@ msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
 msgid "User status"
 msgstr "Brugerstatus"
 
+msgid "User tabs"
+msgstr "Brugerfaner"
+
 msgid "user@email.com"
 msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Brugere"
+
+msgid "Users loading"
+msgstr "Brugere indlæses"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
@@ -928,12 +981,21 @@ msgstr "Velkommen til PlatformPlatform"
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
+msgid "You cannot change your own role"
+msgstr "Du kan ikke ændre din egen rolle"
+
+msgid "You cannot delete yourself"
+msgstr "Du kan ikke slette dig selv"
+
 msgid "You do not have permission to access this page."
 msgstr "Du har ikke tilladelse til at tilgå denne side."
 
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
+
+msgid "You have no other active sessions"
+msgstr "Du har ingen andre aktive sessioner"
 
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."
