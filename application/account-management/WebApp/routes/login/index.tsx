@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
@@ -20,9 +21,8 @@ import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginSt
 export const Route = createFileRoute("/login/")({
   validateSearch: (search) => {
     const returnPath = search.returnPath as string | undefined;
-    // Only allow paths starting with / to prevent open redirect attacks to external domains
     return {
-      returnPath: returnPath?.startsWith("/") ? returnPath : undefined
+      returnPath: returnPath && isValidReturnPath(returnPath) ? returnPath : undefined
     };
   },
   component: function LoginRoute() {
@@ -89,6 +89,7 @@ export function LoginForm() {
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
+        isDisabled={startLoginMutation.isPending}
       />
       <Button type="submit" disabled={startLoginMutation.isPending} className="mt-4 w-full text-center">
         {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Continue</Trans>}

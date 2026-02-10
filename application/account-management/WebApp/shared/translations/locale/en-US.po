@@ -770,8 +770,8 @@ msgstr "Show filters"
 msgid "Sign up"
 msgstr "Sign up"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
+msgid "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
+msgstr "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
 
 msgid "Signup verification code"
 msgstr "Signup verification code"

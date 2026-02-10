@@ -770,8 +770,8 @@ msgstr "Vis filtre"
 msgid "Sign up"
 msgstr "Tilmeld dig"
 
-msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
+msgid "Sign up in seconds to start building on PlatformPlatform - just like thousands of others."
+msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform - ligesom tusinder andre."
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"

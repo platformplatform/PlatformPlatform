@@ -15,9 +15,10 @@ const UnauthorizedReason = {
 
 // Error codes used in /error page query parameter
 export const ErrorCode = {
-  ReplayAttack: "replay-attack",
-  SessionRevoked: "session-revoked",
-  SessionNotFound: "session-not-found"
+  ReplayAttack: "replay_attack",
+  SessionRevoked: "session_revoked",
+  SessionNotFound: "session_not_found",
+  SessionExpired: "session_expired"
 } as const;
 
 const unauthorizedReasonHeaderKey = "x-unauthorized-reason";

@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { ErrorCode } from "@repo/infrastructure/auth/AuthenticationMiddleware";
+import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/error")({
     const params = search as { error?: string; returnPath?: string };
     return {
       error: params.error,
-      returnPath: params.returnPath?.startsWith("/") ? params.returnPath : undefined
+      returnPath: params.returnPath && isValidReturnPath(params.returnPath) ? params.returnPath : undefined
     };
   },
   component: ErrorPage
@@ -61,6 +62,7 @@ function getErrorDisplay(error: string): {
       };
 
     case ErrorCode.SessionNotFound:
+    case ErrorCode.SessionExpired:
       return {
         icon: <LogOut className="size-10 text-muted-foreground" />,
         iconBackground: "bg-muted",
@@ -120,10 +122,10 @@ function ErrorPage() {
   };
 
   return (
-    <main className="flex min-h-screen w-full flex-col bg-background">
+    <main style={{ minHeight: "100vh" }} className="flex w-full flex-col bg-background">
       <ErrorNavigation />
 
-      <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
+      <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-8 px-6 pt-12 pb-32 text-center">
         <div className="flex max-w-lg flex-col items-center gap-6">
           <div className={`flex size-20 items-center justify-center rounded-full ${errorDisplay.iconBackground}`}>
             {errorDisplay.icon}

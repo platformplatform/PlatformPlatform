@@ -72,7 +72,7 @@ export function StartSignupForm() {
         <Trans>Create your account</Trans>
       </h2>
       <div className="text-center text-muted-foreground text-sm">
-        <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
+        <Trans>Sign up in seconds to start building on PlatformPlatform - just like thousands of others.</Trans>
       </div>
       <TextField
         name="email"
@@ -85,6 +85,7 @@ export function StartSignupForm() {
         autoComplete="email webauthn"
         placeholder={t`yourname@example.com`}
         className="flex w-full flex-col"
+        isDisabled={startSignupMutation.isPending}
       />
       <Field className="flex w-full flex-col">
         <FieldLabel>
@@ -94,7 +95,7 @@ export function StartSignupForm() {
             {t`Region`}
           </LabelWithTooltip>
         </FieldLabel>
-        <Select name="region" defaultValue="europe" required={true}>
+        <Select name="region" defaultValue="europe" required={true} disabled={startSignupMutation.isPending}>
           <SelectTrigger className="w-full" aria-label={t`Region`}>
             <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
           </SelectTrigger>
