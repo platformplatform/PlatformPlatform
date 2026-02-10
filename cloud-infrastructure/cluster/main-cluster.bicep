@@ -15,6 +15,11 @@ param communicationServicesDataLocation string = 'europe'
 param mailSenderDisplayName string = 'PlatformPlatform'
 param revisionSuffix string
 
+@secure()
+param googleOAuthClientId string
+@secure()
+param googleOAuthClientSecret string
+
 var storageAccountUniquePrefix = replace(clusterResourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
@@ -91,6 +96,18 @@ module keyVault '../modules/key-vault.bicep' = {
     workspaceId: existingLogAnalyticsWorkspace.id
   }
   dependsOn: [virtualNetwork]
+}
+
+module googleOAuthSecrets '../modules/key-vault-secrets.bicep' = if (!empty(googleOAuthClientId) && !empty(googleOAuthClientSecret)) {
+  scope: clusterResourceGroup
+  name: '${clusterResourceGroupName}-google-oauth-secrets'
+  params: {
+    keyVaultName: keyVault.outputs.name
+    secrets: {
+      'OAuth--Google--ClientId': googleOAuthClientId
+      'OAuth--Google--ClientSecret': googleOAuthClientSecret
+    }
+  }
 }
 
 module communicationService '../modules/communication-services.bicep' = {

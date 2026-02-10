@@ -14,6 +14,11 @@ var certificatePassword = await builder.CreateSslCertificateIfNotExists();
 
 SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
 
+var googleOAuthClientId = builder.AddParameter("google-oauth-client-id", true)
+    .WithDescription("Google OAuth Client ID from [Google Cloud Console](https://console.cloud.google.com/apis/credentials). See README.md for setup instructions. Enter `not-configured` to skip Google OAuth.", true);
+var googleOAuthClientSecret = builder.AddParameter("google-oauth-client-secret", true)
+    .WithDescription("Google OAuth Client Secret from [Google Cloud Console](https://console.cloud.google.com/apis/credentials). See README.md for setup instructions. Enter `not-configured` to skip Google OAuth.", true);
+
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
     .WithDataVolume("platform-platform-sql-server-data")
@@ -65,6 +70,9 @@ var accountManagementApi = builder
     .WithUrlConfiguration("/account-management")
     .WithReference(accountManagementDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
+    .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
+    .WithEnvironment("OAuth__AllowMockProvider", "true")
     .WaitFor(accountManagementWorkers);
 
 var backOfficeDatabase = sqlServer

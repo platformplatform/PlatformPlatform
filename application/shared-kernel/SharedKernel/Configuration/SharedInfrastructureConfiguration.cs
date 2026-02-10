@@ -1,5 +1,7 @@
+using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+using Azure.Security.KeyVault.Secrets;
 using Azure.Storage.Blobs;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -37,6 +39,7 @@ public static class SharedInfrastructureConfiguration
             where T : DbContext
         {
             builder
+                .AddAzureKeyVaultConfiguration()
                 .ConfigureDatabaseContext<T>(connectionName)
                 .AddDefaultBlobStorage()
                 .AddConfigureOpenTelemetry()
@@ -57,6 +60,24 @@ public static class SharedInfrastructureConfiguration
 
     extension(IHostApplicationBuilder builder)
     {
+        private IHostApplicationBuilder AddAzureKeyVaultConfiguration()
+        {
+            if (IsRunningInAzure)
+            {
+                var keyVaultUri = new Uri(Environment.GetEnvironmentVariable("KEYVAULT_URL")!);
+                var secretClient = new SecretClient(keyVaultUri, DefaultAzureCredential);
+
+                builder.Configuration.AddAzureKeyVault(secretClient, new AzureKeyVaultConfigurationOptions
+                    {
+                        Manager = new KeyVaultSecretManager(),
+                        ReloadInterval = TimeSpan.FromMinutes(1)
+                    }
+                );
+            }
+
+            return builder;
+        }
+
         private IHostApplicationBuilder ConfigureDatabaseContext<T>(string connectionName)
             where T : DbContext
         {
