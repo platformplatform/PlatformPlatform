@@ -157,7 +157,8 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountManagementDbC
                 ("Title", null),
                 ("Avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
                 ("Role", "Owner"),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
     }
@@ -177,6 +178,7 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountManagementDbC
                 ("RefreshTokenJti", jti),
                 ("PreviousRefreshTokenJti", null),
                 ("RefreshTokenVersion", 1),
+                ("LoginMethod", nameof(LoginMethod.OneTimePassword)),
                 ("DeviceType", nameof(DeviceType.Desktop)),
                 ("UserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
                 ("IpAddress", "127.0.0.1"),

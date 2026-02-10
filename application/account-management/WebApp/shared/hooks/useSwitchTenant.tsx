@@ -41,9 +41,7 @@ export function useSwitchTenant(options?: UseSwitchTenantOptions) {
 
   const switchTenant = ({ tenantId, tenantName }: TenantInfo) => {
     // Store preferences
-    if (userInfo?.email) {
-      localStorage.setItem(`preferred-tenant-${userInfo.email}`, tenantId);
-    }
+    localStorage.setItem("preferred-tenant", tenantId);
     if (tenantName) {
       localStorage.setItem(`tenant-name-${tenantId}`, tenantName);
     }

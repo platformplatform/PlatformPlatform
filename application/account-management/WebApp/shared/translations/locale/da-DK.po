@@ -69,6 +69,9 @@ msgstr "Adgang nægtet"
 msgid "Account"
 msgstr "Konto"
 
+msgid "Account already exists"
+msgstr "Konto findes allerede"
+
 msgid "Account information"
 msgstr "Kontoinformation"
 
@@ -77,6 +80,9 @@ msgstr "Kontonavn"
 
 msgid "Account name updated successfully"
 msgstr "Kontonavn opdateret succesfuldt"
+
+msgid "Account not found"
+msgstr "Konto ikke fundet"
 
 msgid "Account settings"
 msgstr "Kontoindstillinger"
@@ -113,6 +119,9 @@ msgstr "Admin"
 
 msgid "All users"
 msgstr "Alle brugere"
+
+msgid "An account with this email already exists. Please log in instead."
+msgstr "Der findes allerede en konto med denne e-mailadresse. Log ind i stedet."
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
@@ -152,11 +161,17 @@ msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil bliv
 msgid "Audit reports and assessments"
 msgstr "Revisions rapporter og vurderinger"
 
+msgid "Authentication failed"
+msgstr "Godkendelse mislykkedes"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Autentificering deles på tværs af alle faner."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Autentificering deles på tværs af alle faner. For at bruge flere konti samtidigt, brug venligst forskellige browsere."
+
+msgid "Authentication was cancelled or denied. Please try again if you want to continue."
+msgstr "Godkendelse blev annulleret eller afvist. Prøv venligst igen, hvis du vil fortsætte."
 
 msgid "Azure Compliance"
 msgstr "Azure Overholdelse"
@@ -236,9 +251,6 @@ msgstr "Kontakt support"
 
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
-
-msgid "Continue"
-msgstr "Fortsæt"
 
 msgid "Create your account"
 msgstr "Opret din konto"
@@ -421,6 +433,9 @@ msgstr "Gå til app"
 msgid "Go to home"
 msgstr "Gå til forsiden"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
@@ -439,8 +454,14 @@ msgstr "Hjem"
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."
 
+msgid "Identity mismatch"
+msgstr "Identitetsuoverensstemmelse"
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
+
+msgid "Invalid request"
+msgstr "Ugyldig anmodning"
 
 msgid "Invitation pending"
 msgstr "Invitation afventer"
@@ -484,11 +505,20 @@ msgstr "LinkedIn"
 msgid "Log in"
 msgstr "Log ind"
 
+msgid "Log in with email"
+msgstr "Log ind med e-mail"
+
+msgid "Log in with Google"
+msgstr "Log ind med Google"
+
 msgid "Log out"
 msgstr "Log ud"
 
 msgid "Logged out"
 msgstr "Logget ud"
+
+msgid "Login method:"
+msgstr "Login-metode:"
 
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
@@ -553,6 +583,9 @@ msgstr "Har du brug for hjælp? Vores supportteam er klart til at hjælpe."
 msgid "Next"
 msgstr "Næste"
 
+msgid "No account found for this email address. Please sign up to create an account."
+msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
+
 msgid "No active sessions"
 msgstr "Ingen aktive sessioner"
 
@@ -561,6 +594,9 @@ msgstr "Ingen brugere fundet"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One-time password"
+msgstr "Engangskode"
 
 msgid "Only account owners can modify the account name"
 msgstr "Kun kontoejere kan ændre kontonavnet"
@@ -573,6 +609,9 @@ msgstr "Kun betroet personale får adgang til data gennem Azure AD autentificeri
 
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
+
+msgid "or"
+msgstr "eller"
 
 msgid "Organization"
 msgstr "Organisation"
@@ -661,6 +700,12 @@ msgstr "Papirkurv"
 
 msgid "Recycle bin is empty"
 msgstr "Papirkurven er tom"
+
+msgid "Redirecting..."
+msgstr "Omdirigerer..."
+
+msgid "Reference ID: {id}"
+msgstr "Reference-ID: {id}"
 
 msgid "Region"
 msgstr "Region"
@@ -771,7 +816,13 @@ msgid "Sign up"
 msgstr "Tilmeld dig"
 
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
-msgstr "Tilmeld dig på sekunder for at bygge på PlatformPlatform – ligesom tusinder andre."
+msgstr "Tilmeld dig på sekunder og begynd at bygge på PlatformPlatform – ligesom tusindvis af andre."
+
+msgid "Sign up with email"
+msgstr "Tilmeld dig med e-mail"
+
+msgid "Sign up with Google"
+msgstr "Tilmeld dig med Google"
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
@@ -815,6 +866,9 @@ msgstr "Brugsvilkår"
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "Aftalen der styrer din brug af vores service, inklusive acceptabel brug og ansvar."
 
+msgid "The authentication request was invalid. Please try again."
+msgstr "Godkendelsesanmodningen var ugyldig. Prøv venligst igen."
+
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "Navnet på din konto, vist til brugere og i e-mail-notifikationer"
 
@@ -824,8 +878,14 @@ msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 msgid "Theme"
 msgstr "Tema"
 
+msgid "This account is linked to a different Google identity."
+msgstr "Denne konto er knyttet til en anden Google-identitet."
+
 msgid "This action cannot be undone."
 msgstr "Denne handling kan ikke fortrydes."
+
+msgid "This can happen when email ownership has changed. Contact your account administrator."
+msgstr "Dette kan ske, når e-mailejerskabet er ændret. Kontakt din kontoadministrator."
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -964,6 +1024,9 @@ msgstr "Se profil"
 
 msgid "View users"
 msgstr "Se brugere"
+
+msgid "We detected a security issue with your login attempt. Please try again."
+msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst igen."
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."

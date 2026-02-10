@@ -69,6 +69,9 @@ msgstr "Access denied"
 msgid "Account"
 msgstr "Account"
 
+msgid "Account already exists"
+msgstr "Account already exists"
+
 msgid "Account information"
 msgstr "Account information"
 
@@ -77,6 +80,9 @@ msgstr "Account name"
 
 msgid "Account name updated successfully"
 msgstr "Account name updated successfully"
+
+msgid "Account not found"
+msgstr "Account not found"
 
 msgid "Account settings"
 msgstr "Account settings"
@@ -113,6 +119,9 @@ msgstr "Admin"
 
 msgid "All users"
 msgstr "All users"
+
+msgid "An account with this email already exists. Please log in instead."
+msgstr "An account with this email already exists. Please log in instead."
 
 msgid "An email with login instructions will be sent to the user."
 msgstr "An email with login instructions will be sent to the user."
@@ -152,11 +161,17 @@ msgstr "Are you sure you want to revoke this session? The device will be signed 
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
 
+msgid "Authentication failed"
+msgstr "Authentication failed"
+
 msgid "Authentication is shared across all tabs."
 msgstr "Authentication is shared across all tabs."
 
 msgid "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
 msgstr "Authentication is shared across all tabs. To use multiple accounts simultaneously, please use different browsers."
+
+msgid "Authentication was cancelled or denied. Please try again if you want to continue."
+msgstr "Authentication was cancelled or denied. Please try again if you want to continue."
 
 msgid "Azure Compliance"
 msgstr "Azure Compliance"
@@ -236,9 +251,6 @@ msgstr "Contact support"
 
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
-
-msgid "Continue"
-msgstr "Continue"
 
 msgid "Create your account"
 msgstr "Create your account"
@@ -421,6 +433,9 @@ msgstr "Go to app"
 msgid "Go to home"
 msgstr "Go to home"
 
+msgid "Google"
+msgstr "Google"
+
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
@@ -439,8 +454,14 @@ msgstr "Home"
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "How we collect, use, and protect your personal data in compliance with GDPR."
 
+msgid "Identity mismatch"
+msgstr "Identity mismatch"
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
+
+msgid "Invalid request"
+msgstr "Invalid request"
 
 msgid "Invitation pending"
 msgstr "Invitation pending"
@@ -484,11 +505,20 @@ msgstr "LinkedIn"
 msgid "Log in"
 msgstr "Log in"
 
+msgid "Log in with email"
+msgstr "Log in with email"
+
+msgid "Log in with Google"
+msgstr "Log in with Google"
+
 msgid "Log out"
 msgstr "Log out"
 
 msgid "Logged out"
 msgstr "Logged out"
+
+msgid "Login method:"
+msgstr "Login method:"
 
 msgid "Login verification code"
 msgstr "Login verification code"
@@ -553,6 +583,9 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
+msgid "No account found for this email address. Please sign up to create an account."
+msgstr "No account found for this email address. Please sign up to create an account."
+
 msgid "No active sessions"
 msgstr "No active sessions"
 
@@ -561,6 +594,9 @@ msgstr "No users found"
 
 msgid "OK"
 msgstr "OK"
+
+msgid "One-time password"
+msgstr "One-time password"
 
 msgid "Only account owners can modify the account name"
 msgstr "Only account owners can modify the account name"
@@ -573,6 +609,9 @@ msgstr "Only trusted personnel access data through Azure AD authentication"
 
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
+
+msgid "or"
+msgstr "or"
 
 msgid "Organization"
 msgstr "Organization"
@@ -661,6 +700,12 @@ msgstr "Recycle bin"
 
 msgid "Recycle bin is empty"
 msgstr "Recycle bin is empty"
+
+msgid "Redirecting..."
+msgstr "Redirecting..."
+
+msgid "Reference ID: {id}"
+msgstr "Reference ID: {id}"
 
 msgid "Region"
 msgstr "Region"
@@ -773,6 +818,12 @@ msgstr "Sign up"
 msgid "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 msgstr "Sign up in seconds to start building on PlatformPlatform – just like thousands of others."
 
+msgid "Sign up with email"
+msgstr "Sign up with email"
+
+msgid "Sign up with Google"
+msgstr "Sign up with Google"
+
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
@@ -815,6 +866,9 @@ msgstr "Terms of use"
 msgid "The agreement governing your use of our Service, including acceptable use and liability."
 msgstr "The agreement governing your use of our Service, including acceptable use and liability."
 
+msgid "The authentication request was invalid. Please try again."
+msgstr "The authentication request was invalid. Please try again."
+
 msgid "The name of your account, shown to users and in email notifications"
 msgstr "The name of your account, shown to users and in email notifications"
 
@@ -824,8 +878,14 @@ msgstr "The page you are looking for does not exist or was moved."
 msgid "Theme"
 msgstr "Theme"
 
+msgid "This account is linked to a different Google identity."
+msgstr "This account is linked to a different Google identity."
+
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
+
+msgid "This can happen when email ownership has changed. Contact your account administrator."
+msgstr "This can happen when email ownership has changed. Contact your account administrator."
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
@@ -964,6 +1024,9 @@ msgstr "View profile"
 
 msgid "View users"
 msgstr "View users"
+
+msgid "We detected a security issue with your login attempt. Please try again."
+msgstr "We detected a security issue with your login attempt. Please try again."
 
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "We detected suspicious activity on your account. Someone may have attempted to take over your session."

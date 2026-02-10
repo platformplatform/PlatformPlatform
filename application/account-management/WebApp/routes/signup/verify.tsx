@@ -10,7 +10,7 @@ import { Link } from "@repo/ui/components/Link";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
@@ -79,8 +79,9 @@ function useCountdown(expireAt: Date) {
 }
 
 export function CompleteSignupForm() {
+  const otpInputRef = useRef<HTMLInputElement>(null);
   const initialState = getSignupState();
-  const { email = "", emailConfirmationId = "" } = initialState;
+  const { email = "", emailLoginId = "" } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -112,14 +113,13 @@ export function CompleteSignupForm() {
     setIsRateLimited(false);
 
     setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
-      input?.focus();
+      otpInputRef.current?.focus();
     }, 100);
   }, []);
 
   const completeSignupMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/complete",
+    "/api/account-management/authentication/email/signup/{id}/complete",
     {
       onSuccess: () => {
         clearSignupState();
@@ -130,7 +130,7 @@ export function CompleteSignupForm() {
 
   const resendSignupCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email/signup/{id}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {
@@ -155,8 +155,7 @@ export function CompleteSignupForm() {
         setOtpValue("");
         setAutoSubmitCode(false);
         setTimeout(() => {
-          const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
-          input?.focus();
+          otpInputRef.current?.focus();
         }, 100);
       }
     }
@@ -164,24 +163,30 @@ export function CompleteSignupForm() {
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
+  const submitVerification = useCallback(
+    (code: string) => {
+      setLastSubmittedCode(code);
+      completeSignupMutation.mutate({
+        params: {
+          path: { id: emailLoginId }
+        },
+        body: {
+          oneTimePassword: code,
+          preferredLocale: localStorage.getItem(preferredLocaleKey) ?? ""
+        }
+      });
+    },
+    [completeSignupMutation, emailLoginId]
+  );
+
   return (
-    <div className="w-full max-w-[18rem] space-y-3">
+    <div className="w-full max-w-[22rem] space-y-3">
       <Form
         onSubmit={(event) => {
           event.preventDefault();
           if (otpValue.length === 6) {
-            setLastSubmittedCode(otpValue);
+            submitVerification(otpValue);
           }
-
-          completeSignupMutation.mutate({
-            params: {
-              path: { emailConfirmationId }
-            },
-            body: {
-              oneTimePassword: otpValue,
-              preferredLocale: localStorage.getItem(preferredLocaleKey) ?? ""
-            }
-          });
         }}
         validationErrors={completeSignupMutation.error?.errors}
         validationBehavior="aria"
@@ -201,6 +206,7 @@ export function CompleteSignupForm() {
             </Trans>
           </div>
           <InputOtp
+            ref={otpInputRef}
             containerClassName="justify-center"
             maxLength={6}
             value={otpValue}
@@ -211,9 +217,7 @@ export function CompleteSignupForm() {
 
               if (upperValue.length === 6 && autoSubmitCode) {
                 setAutoSubmitCode(false);
-                setTimeout(() => {
-                  document.querySelector("form")?.requestSubmit();
-                }, 10);
+                submitVerification(upperValue);
               }
             }}
             disabled={isExpired || resendSignupCodeMutation.isPending}
@@ -232,15 +236,17 @@ export function CompleteSignupForm() {
               <InputOtpSlot index={5} className="size-14" />
             </InputOtpGroup>
           </InputOtp>
-          {!isExpired ? (
-            <p className="text-center text-neutral-500 text-sm">
-              <Trans>Your verification code is valid for {expiresInString}</Trans>
-            </p>
-          ) : (
-            <p className="text-center text-destructive text-sm">
-              <Trans>Your verification code has expired</Trans>
-            </p>
-          )}
+          <div aria-live="polite">
+            {!isExpired ? (
+              <p className="text-center text-neutral-500 text-sm">
+                <Trans>Your verification code is valid for {expiresInString}</Trans>
+              </p>
+            ) : (
+              <p className="text-center text-destructive text-sm">
+                <Trans>Your verification code has expired</Trans>
+              </p>
+            )}
+          </div>
           <Button
             type="submit"
             className="mt-4 w-full text-center"
@@ -266,7 +272,7 @@ export function CompleteSignupForm() {
           ) : (
             <Form
               onSubmit={(e) => {
-                mutationSubmitter(resendSignupCodeMutation, { path: { emailConfirmationId } })(e);
+                mutationSubmitter(resendSignupCodeMutation, { path: { id: emailLoginId } })(e);
               }}
               validationErrors={resendSignupCodeMutation.error?.errors}
               className="inline"

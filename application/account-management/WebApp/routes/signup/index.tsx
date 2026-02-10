@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
 import { Form } from "@repo/ui/components/Form";
@@ -14,6 +15,7 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useState } from "react";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -43,14 +45,26 @@ export function StartSignupForm() {
   const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
-  const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
+  const startSignupMutation = api.useMutation("post", "/api/account-management/authentication/email/signup/start");
+  const [isGoogleSignupPending, setIsGoogleSignupPending] = useState(false);
+
+  const handleGoogleSignup = () => {
+    setIsGoogleSignupPending(true);
+    const locale = localStorage.getItem(preferredLocaleKey);
+    const params = new URLSearchParams();
+    if (locale) {
+      params.set("Locale", locale);
+    }
+    const queryString = params.toString();
+    window.location.href = `/api/account-management/authentication/Google/signup/start${queryString ? `?${queryString}` : ""}`;
+  };
 
   if (startSignupMutation.isSuccess) {
-    const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
+    const { emailLoginId, validForSeconds } = startSignupMutation.data;
 
     clearSignupState();
     setSignupState({
-      emailConfirmationId,
+      emailLoginId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });
@@ -58,12 +72,14 @@ export function StartSignupForm() {
     return <Navigate to="/signup/verify" />;
   }
 
+  const isPending = startSignupMutation.isPending || isGoogleSignupPending;
+
   return (
     <Form
       onSubmit={mutationSubmitter(startSignupMutation)}
       validationErrors={startSignupMutation.error?.errors}
       validationBehavior="aria"
-      className="flex w-full max-w-[18rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
+      className="flex w-full max-w-[22rem] flex-col items-center gap-4 rounded-lg pt-8 pb-4"
     >
       <Link href="/" className="cursor-pointer">
         <img src={logoMarkUrl} className="size-12" alt={t`Logo`} />
@@ -74,18 +90,6 @@ export function StartSignupForm() {
       <div className="text-center text-muted-foreground text-sm">
         <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
       </div>
-      <TextField
-        name="email"
-        type="email"
-        label={t`Email`}
-        autoFocus={true}
-        isRequired={true}
-        value={email}
-        onChange={setEmail}
-        autoComplete="email webauthn"
-        placeholder={t`yourname@example.com`}
-        className="flex w-full flex-col"
-      />
       <Field className="flex w-full flex-col">
         <FieldLabel>
           <LabelWithTooltip
@@ -94,7 +98,7 @@ export function StartSignupForm() {
             {t`Region`}
           </LabelWithTooltip>
         </FieldLabel>
-        <Select name="region" defaultValue="europe" required={true}>
+        <Select name="region" defaultValue="europe" required={true} disabled={isPending}>
           <SelectTrigger className="w-full" aria-label={t`Region`}>
             <SelectValue>{() => <Trans>Europe</Trans>}</SelectValue>
           </SelectTrigger>
@@ -106,12 +110,44 @@ export function StartSignupForm() {
         </Select>
         <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
       </Field>
-      <Button type="submit" disabled={startSignupMutation.isPending} className="mt-4 w-full text-center">
+      <div className="w-full border-border border-t" />
+      <TextField
+        name="email"
+        type="email"
+        label={t`Email`}
+        autoFocus={true}
+        isRequired={true}
+        value={email}
+        onChange={setEmail}
+        autoComplete="email webauthn"
+        placeholder={t`yourname@example.com`}
+        className="flex w-full flex-col"
+        isDisabled={isPending}
+      />
+      <Button type="submit" disabled={isPending} className="mt-4 w-full text-center">
         {startSignupMutation.isPending ? (
           <Trans>Sending verification code...</Trans>
         ) : (
-          <Trans>Create your account</Trans>
+          <Trans>Sign up with email</Trans>
         )}
+      </Button>
+      <div className="flex w-full items-center gap-4">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-muted-foreground text-sm">
+          <Trans>or</Trans>
+        </span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        onClick={handleGoogleSignup}
+        disabled={isPending}
+        aria-busy={isGoogleSignupPending}
+      >
+        <img src={googleIconUrl} alt="" aria-hidden="true" className="size-5" />
+        {isGoogleSignupPending ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
       </Button>
       <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}

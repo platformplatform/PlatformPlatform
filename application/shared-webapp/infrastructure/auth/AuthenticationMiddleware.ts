@@ -15,9 +15,16 @@ const UnauthorizedReason = {
 
 // Error codes used in /error page query parameter
 export const ErrorCode = {
-  ReplayAttack: "replay-attack",
-  SessionRevoked: "session-revoked",
-  SessionNotFound: "session-not-found"
+  ReplayAttack: "replay_attack",
+  SessionRevoked: "session_revoked",
+  SessionNotFound: "session_not_found",
+  UserNotFound: "user_not_found",
+  IdentityMismatch: "identity_mismatch",
+  SessionExpired: "session_expired",
+  AuthenticationFailed: "authentication_failed",
+  InvalidRequest: "invalid_request",
+  AccessDenied: "access_denied",
+  AccountAlreadyExists: "account_already_exists"
 } as const;
 
 const unauthorizedReasonHeaderKey = "x-unauthorized-reason";

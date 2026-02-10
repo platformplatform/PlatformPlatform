@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { authSyncService, type UserLoggedInMessage } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { InputOtp, InputOtpGroup, InputOtpSlot } from "@repo/ui/components/InputOtp";
@@ -10,7 +11,7 @@ import { Link } from "@repo/ui/components/Link";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
@@ -29,9 +30,8 @@ import {
 export const Route = createFileRoute("/login/verify")({
   validateSearch: (search) => {
     const returnPath = search.returnPath as string | undefined;
-    // Only allow paths starting with / to prevent open redirect attacks to external domains
     return {
-      returnPath: returnPath?.startsWith("/") ? returnPath : undefined
+      returnPath: returnPath && isValidReturnPath(returnPath) ? returnPath : undefined
     };
   },
   component: function LoginVerifyRoute() {
@@ -86,8 +86,9 @@ function useCountdown(expireAt: Date) {
 }
 
 export function CompleteLoginForm() {
+  const otpInputRef = useRef<HTMLInputElement>(null);
   const initialState = getLoginState();
-  const { email = "", emailConfirmationId = "", loginId } = initialState;
+  const { email = "", emailLoginId } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -112,12 +113,12 @@ export function CompleteLoginForm() {
   // Get preferred tenant from localStorage
   const getPreferredTenantId = useCallback(() => {
     try {
-      const stored = localStorage.getItem(`preferred-tenant-${email}`);
+      const stored = localStorage.getItem("preferred-tenant");
       return stored || null;
     } catch {
       return null;
     }
-  }, [email]);
+  }, []);
 
   const resetAfterResend = useCallback((validForSeconds: number) => {
     const newExpireAt = new Date();
@@ -130,31 +131,34 @@ export function CompleteLoginForm() {
     setIsRateLimited(false);
 
     setTimeout(() => {
-      const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
-      input?.focus();
+      otpInputRef.current?.focus();
     }, 100);
   }, []);
 
-  const completeLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/{id}/complete", {
-    onSuccess: () => {
-      // Broadcast login event to other tabs
-      // Since the API returns 204 No Content, we don't have the user ID yet
-      const message: Omit<UserLoggedInMessage, "timestamp"> = {
-        type: "USER_LOGGED_IN",
-        userId: "", // We don't have the user ID at this point
-        tenantId: getPreferredTenantId() || "",
-        email: email || ""
-      };
-      authSyncService.broadcast(message);
+  const completeLoginMutation = api.useMutation(
+    "post",
+    "/api/account-management/authentication/email/login/{id}/complete",
+    {
+      onSuccess: () => {
+        // Broadcast login event to other tabs
+        // Since the API returns 204 No Content, we don't have the user ID yet
+        const message: Omit<UserLoggedInMessage, "timestamp"> = {
+          type: "USER_LOGGED_IN",
+          userId: "", // We don't have the user ID at this point
+          tenantId: getPreferredTenantId() || "",
+          email: email || ""
+        };
+        authSyncService.broadcast(message);
 
-      clearLoginState();
-      window.location.href = returnPath ?? loggedInPath;
+        clearLoginState();
+        window.location.href = returnPath ?? loggedInPath;
+      }
     }
-  });
+  );
 
   const resendLoginCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/authentication/login/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email/login/{id}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {
@@ -179,8 +183,7 @@ export function CompleteLoginForm() {
         setOtpValue("");
         setAutoSubmitCode(false);
         setTimeout(() => {
-          const input = document.querySelector<HTMLInputElement>('[data-slot="input-otp"]');
-          input?.focus();
+          otpInputRef.current?.focus();
         }, 100);
       }
     }
@@ -188,34 +191,42 @@ export function CompleteLoginForm() {
 
   const expiresInString = `${Math.floor(secondsRemaining / 60)}:${String(secondsRemaining % 60).padStart(2, "0")}`;
 
-  if (!loginId) {
+  const submitVerification = useCallback(
+    (code: string) => {
+      if (!emailLoginId) {
+        return;
+      }
+      setLastSubmittedCode(code);
+      completeLoginMutation.mutate({
+        params: {
+          path: { id: emailLoginId }
+        },
+        body: {
+          oneTimePassword: code,
+          preferredTenantId: getPreferredTenantId() || null
+        }
+      });
+    },
+    [completeLoginMutation, emailLoginId, getPreferredTenantId]
+  );
+
+  if (!emailLoginId) {
     return null;
   }
 
   return (
-    <div className="w-full max-w-[18rem] space-y-3">
+    <div className="w-full max-w-[22rem] space-y-3">
       <Form
         onSubmit={(event) => {
           event.preventDefault();
           if (otpValue.length === 6) {
-            setLastSubmittedCode(otpValue);
+            submitVerification(otpValue);
           }
-
-          completeLoginMutation.mutate({
-            params: {
-              path: { id: loginId }
-            },
-            body: {
-              oneTimePassword: otpValue,
-              preferredTenantId: getPreferredTenantId() || null
-            }
-          });
         }}
         validationErrors={completeLoginMutation.error?.errors}
         validationBehavior="aria"
       >
-        <input type="hidden" name="id" value={getLoginState().loginId} />
-        <input type="hidden" name="emailConfirmationId" value={emailConfirmationId} />
+        <input type="hidden" name="id" value={getLoginState().emailLoginId} />
         <div className="flex w-full flex-col gap-3 rounded-lg pt-6 pb-4 sm:gap-4 sm:pt-8">
           <div className="flex justify-center">
             <Link href="/" className="cursor-pointer">
@@ -231,6 +242,7 @@ export function CompleteLoginForm() {
             </Trans>
           </div>
           <InputOtp
+            ref={otpInputRef}
             containerClassName="justify-center"
             maxLength={6}
             value={otpValue}
@@ -241,9 +253,7 @@ export function CompleteLoginForm() {
 
               if (upperValue.length === 6 && autoSubmitCode) {
                 setAutoSubmitCode(false);
-                setTimeout(() => {
-                  document.querySelector("form")?.requestSubmit();
-                }, 10);
+                submitVerification(upperValue);
               }
             }}
             disabled={isExpired || resendLoginCodeMutation.isPending}
@@ -262,15 +272,17 @@ export function CompleteLoginForm() {
               <InputOtpSlot index={5} className="size-14" />
             </InputOtpGroup>
           </InputOtp>
-          {!isExpired ? (
-            <p className="text-center text-neutral-500 text-sm">
-              <Trans>Your verification code is valid for {expiresInString}</Trans>
-            </p>
-          ) : (
-            <p className="text-center text-destructive text-sm">
-              <Trans>Your verification code has expired</Trans>
-            </p>
-          )}
+          <div aria-live="polite">
+            {!isExpired ? (
+              <p className="text-center text-neutral-500 text-sm">
+                <Trans>Your verification code is valid for {expiresInString}</Trans>
+              </p>
+            ) : (
+              <p className="text-center text-destructive text-sm">
+                <Trans>Your verification code has expired</Trans>
+              </p>
+            )}
+          </div>
           <Button
             type="submit"
             className="mt-4 w-full text-center"
@@ -296,7 +308,7 @@ export function CompleteLoginForm() {
           ) : (
             <Form
               onSubmit={(e) => {
-                mutationSubmitter(resendLoginCodeMutation, { path: { emailConfirmationId } })(e);
+                mutationSubmitter(resendLoginCodeMutation, { path: { id: emailLoginId } })(e);
               }}
               validationErrors={resendLoginCodeMutation.error?.errors}
               className="inline"

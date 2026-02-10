@@ -147,7 +147,7 @@ export async function completeSignupFlow(
 
   // Step 2: Enter email and submit
   await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-  await page.getByRole("button", { name: "Create your account" }).click();
+  await page.getByRole("button", { name: "Sign up with email" }).click();
   await expect(page).toHaveURL("/signup/verify");
 
   // Step 3: Enter verification code (auto-submits after 6 characters)

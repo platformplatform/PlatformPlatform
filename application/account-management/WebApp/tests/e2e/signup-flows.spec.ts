@@ -28,7 +28,7 @@ test.describe("@smoke", () => {
 
     // === EMAIL VALIDATION EDGE CASES ===
     await step("Submit form with empty email & verify validation error")(async () => {
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       await expect(page).toHaveURL("/signup");
       await expect(page.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
@@ -37,7 +37,7 @@ test.describe("@smoke", () => {
     await step("Enter invalid email format & verify validation error")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill("invalid-email");
       await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       await expect(page).toHaveURL("/signup");
       await expect(page.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
@@ -46,7 +46,7 @@ test.describe("@smoke", () => {
     await step("Enter email with consecutive dots & verify validation error")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill("test..user@example.com");
       await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       await expect(page).toHaveURL("/signup");
       await expect(page.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
@@ -56,7 +56,7 @@ test.describe("@smoke", () => {
       const longEmail = `${"a".repeat(90)}@example.com`; // 101 characters total
       await page.getByRole("textbox", { name: "Email" }).fill(longEmail);
       await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       await expect(page).toHaveURL("/signup");
       await expect(page.getByText("Email must be in a valid format and no longer than 100 characters.")).toBeVisible();
@@ -67,7 +67,7 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await blurActiveElement(page);
       await expect(page.getByText("Europe")).toBeVisible();
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       // Verify verification page state
       await expect(page).toHaveURL("/signup/verify");
@@ -236,7 +236,7 @@ test.describe("@comprehensive", () => {
         await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
         await page.getByRole("textbox", { name: "Email" }).fill(testEmail);
-        await page.getByRole("button", { name: "Create your account" }).click();
+        await page.getByRole("button", { name: "Sign up with email" }).click();
 
         await expect(page).toHaveURL("/signup/verify");
       }
@@ -247,7 +247,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Email" }).fill(testEmail);
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       // Verify rate limiting prevents navigation
       await expect(page).toHaveURL("/signup");
@@ -274,7 +274,7 @@ test.describe("@slow", () => {
       await page.goto("/signup");
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
       await blurActiveElement(page);
-      await page.getByRole("button", { name: "Create your account" }).click();
+      await page.getByRole("button", { name: "Sign up with email" }).click();
 
       await expect(page).toHaveURL("/signup/verify");
       await expect(page.getByText("Can't find your code? Check your spam folder.").first()).toBeVisible();

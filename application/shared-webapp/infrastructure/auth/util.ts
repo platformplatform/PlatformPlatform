@@ -10,3 +10,41 @@ export function createLoginUrlWithReturnPath(loginPath: string, returnUrl?: stri
   redirectUrl.searchParams.set("returnPath", window.location.pathname + window.location.search);
   return redirectUrl.href;
 }
+
+/**
+ * Validates that a return path is a safe relative path to prevent open redirect attacks.
+ * Mirrors the backend ReturnPathHelper.IsValidRelativePath() logic.
+ *
+ * Rejects protocol-relative URLs (//evil.com), backslash paths, absolute URLs with
+ * schemes (://), and directory traversal (..) after URL decoding.
+ */
+export function isValidReturnPath(path: string): boolean {
+  if (!path.startsWith("/")) {
+    return false;
+  }
+
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(path);
+  } catch {
+    return false;
+  }
+
+  if (decoded.startsWith("//")) {
+    return false;
+  }
+
+  if (decoded.includes("\\")) {
+    return false;
+  }
+
+  if (decoded.includes("://")) {
+    return false;
+  }
+
+  if (decoded.includes("..")) {
+    return false;
+  }
+
+  return true;
+}
