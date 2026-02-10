@@ -43,14 +43,14 @@ export function StartSignupForm() {
   const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
 
-  const startSignupMutation = api.useMutation("post", "/api/account-management/signups/start");
+  const startSignupMutation = api.useMutation("post", "/api/account-management/authentication/email/signup/start");
 
   if (startSignupMutation.isSuccess) {
-    const { emailConfirmationId, validForSeconds } = startSignupMutation.data;
+    const { emailLoginId, validForSeconds } = startSignupMutation.data;
 
     clearSignupState();
     setSignupState({
-      emailConfirmationId,
+      emailLoginId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });

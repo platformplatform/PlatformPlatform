@@ -4,8 +4,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
-using PlatformPlatform.AccountManagement.Features.Signups.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -14,23 +14,23 @@ using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Signups;
 
-public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class StartEmailSignupTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
     public async Task StartSignup_WhenEmailIsValid_ShouldReturnSuccess()
     {
         // Arrange
         var email = Faker.Internet.UniqueEmail();
-        var command = new StartSignupCommand(email);
+        var command = new StartEmailSignupCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var responseBody = await response.DeserializeResponse<StartSignupResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailSignupResponse>();
         responseBody.Should().NotBeNull();
-        responseBody.EmailConfirmationId.ToString().Should().NotBeNullOrEmpty();
+        responseBody.EmailLoginId.ToString().Should().NotBeNullOrEmpty();
         responseBody.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -50,10 +50,10 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
     {
         // Arrange
         var invalidEmail = "invalid email";
-        var command = new StartSignupCommand(invalidEmail);
+        var command = new StartEmailSignupCommand(invalidEmail);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -76,14 +76,13 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
-            Connection.Insert("EmailConfirmations", [
-                    ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-i)),
+            Connection.Insert("EmailLogins", [
+                    ("Id", EmailLoginId.NewId().ToString()),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
                     ("Email", email),
-                    ("Type", nameof(EmailConfirmationType.Signup)),
+                    ("Type", nameof(EmailLoginType.Signup)),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)
@@ -91,10 +90,10 @@ public sealed class StartSignupTests : EndpointBaseTest<AccountManagementDbConte
             );
         }
 
-        var command = new StartSignupCommand(email);
+        var command = new StartEmailSignupCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/signups/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/signup/start", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");

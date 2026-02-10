@@ -1,40 +1,38 @@
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Commands;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Shared;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.AccountManagement.Features.Authentication.Commands;
+namespace PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
-public sealed record StartLoginCommand(string Email) : ICommand, IRequest<Result<StartLoginResponse>>
+public sealed record StartEmailLoginCommand(string Email) : ICommand, IRequest<Result<StartEmailLoginResponse>>
 {
     public string Email { get; init; } = Email.Trim().ToLower();
 }
 
 [PublicAPI]
-public sealed record StartLoginResponse(LoginId LoginId, EmailConfirmationId EmailConfirmationId, int ValidForSeconds);
+public sealed record StartEmailLoginResponse(EmailLoginId EmailLoginId, int ValidForSeconds);
 
-public sealed class StartLoginValidator : AbstractValidator<StartLoginCommand>
+public sealed class StartEmailLoginValidator : AbstractValidator<StartEmailLoginCommand>
 {
-    public StartLoginValidator()
+    public StartEmailLoginValidator()
     {
         RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 
-public sealed class StartLoginHandler(
+public sealed class StartEmailLoginHandler(
     IUserRepository userRepository,
-    ILoginRepository loginRepository,
     IEmailClient emailClient,
-    IMediator mediator,
+    StartEmailConfirmation startEmailConfirmation,
     ITelemetryEventsCollector events
-) : IRequestHandler<StartLoginCommand, Result<StartLoginResponse>>
+) : IRequestHandler<StartEmailLoginCommand, Result<StartEmailLoginResponse>>
 {
     private const string UnknownUserEmailTemplate =
         """
@@ -50,7 +48,7 @@ public sealed class StartLoginHandler(
         <p style="text-align:center;font-family=sans-serif;font-size:40px;background:#f5f4f5">{oneTimePassword}</p>
         """;
 
-    public async Task<Result<StartLoginResponse>> Handle(StartLoginCommand command, CancellationToken cancellationToken)
+    public async Task<Result<StartEmailLoginResponse>> Handle(StartEmailLoginCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserByEmailUnfilteredAsync(command.Email, cancellationToken);
 
@@ -61,26 +59,17 @@ public sealed class StartLoginHandler(
                 cancellationToken
             );
 
-            // Return a fake login process id to the client, so an attacker can't guess if the email is valid or not
-            return new StartLoginResponse(LoginId.NewId(), EmailConfirmationId.NewId(), EmailConfirmation.ValidForSeconds);
+            return new StartEmailLoginResponse(EmailLoginId.NewId(), EmailLogin.ValidForSeconds);
         }
 
-        var result = await mediator.Send(
-            new StartEmailConfirmationCommand(
-                user.Email,
-                "PlatformPlatform login verification code",
-                LoginEmailTemplate,
-                EmailConfirmationType.Login
-            ),
-            cancellationToken
+        var result = await startEmailConfirmation.StartAsync(
+            user.Email, "PlatformPlatform login verification code", LoginEmailTemplate, EmailLoginType.Login, cancellationToken
         );
 
-        if (!result.IsSuccess) return Result<StartLoginResponse>.From(result);
+        if (!result.IsSuccess) return Result<StartEmailLoginResponse>.From(result);
 
-        var login = Login.Create(user, result.Value!.EmailConfirmationId);
-        await loginRepository.AddAsync(login, cancellationToken);
-        events.CollectEvent(new LoginStarted(user.Id));
+        events.CollectEvent(new EmailLoginStarted(user.Id));
 
-        return new StartLoginResponse(login.Id, login.EmailConfirmationId, EmailConfirmation.ValidForSeconds);
+        return new StartEmailLoginResponse(result.Value!, EmailLogin.ValidForSeconds);
     }
 }

@@ -1,5 +1,5 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -14,29 +14,29 @@ namespace PlatformPlatform.AccountManagement.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
-public sealed class EmailConfirmationBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
-    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+public sealed class EmailLoginCodeBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
+    : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("retry_count", retryCount));
 
-public sealed class EmailConfirmationExpired(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int timeInSeconds)
-    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("time_in_seconds", timeInSeconds));
+public sealed class EmailLoginCodeExpired(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int timeInSeconds)
+    : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("time_in_seconds", timeInSeconds));
 
-public sealed class EmailConfirmationFailed(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int retryCount)
-    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("retry_count", retryCount));
+public sealed class EmailLoginCodeFailed(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
+    : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("retry_count", retryCount));
 
-public sealed class EmailConfirmationResend(int secondsSinceSignupStarted)
-    : TelemetryEvent(("seconds_since_signup_started", secondsSinceSignupStarted));
+public sealed class EmailLoginCodeResend(int secondsSinceStarted)
+    : TelemetryEvent(("seconds_since_started", secondsSinceStarted));
 
-public sealed class EmailConfirmationResendBlocked(EmailConfirmationId emailConfirmationId, EmailConfirmationType emailConfirmationType, int resendCount)
-    : TelemetryEvent(("email_confirmation_id", emailConfirmationId), ("email_confirmation_type", emailConfirmationType), ("resend_count", resendCount));
+public sealed class EmailLoginCodeResendBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int resendCount)
+    : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("resend_count", resendCount));
+
+public sealed class EmailLoginCompleted(UserId userId, int loginTimeInSeconds)
+    : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
+
+public sealed class EmailLoginStarted(UserId userId)
+    : TelemetryEvent(("user_id", userId));
 
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));
-
-public sealed class LoginCompleted(UserId userId, int loginTimeInSeconds)
-    : TelemetryEvent(("user_id", userId), ("login_time_in_seconds", loginTimeInSeconds));
-
-public sealed class LoginStarted(UserId userId)
-    : TelemetryEvent(("user_id", userId));
 
 public sealed class Logout
     : TelemetryEvent;
@@ -86,9 +86,6 @@ public sealed class UserCreated(UserId userId, bool gravatarProfileFound)
 public sealed class UserDeleted(UserId userId, bool bulkDeletion = false)
     : TelemetryEvent(("user_id", userId), ("bulk_deletion", bulkDeletion));
 
-public sealed class UsersBulkDeleted(int count)
-    : TelemetryEvent(("count", count));
-
 public sealed class UserInviteAccepted(UserId userId, int inviteAcceptedTimeInMinutes)
     : TelemetryEvent(("user_id", userId), ("invite_accepted_time_in_minutes", inviteAcceptedTimeInMinutes));
 
@@ -112,3 +109,6 @@ public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole t
 
 public sealed class UserUpdated
     : TelemetryEvent;
+
+public sealed class UsersBulkDeleted(int count)
+    : TelemetryEvent(("count", count));

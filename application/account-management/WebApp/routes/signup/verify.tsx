@@ -80,7 +80,7 @@ function useCountdown(expireAt: Date) {
 
 export function CompleteSignupForm() {
   const initialState = getSignupState();
-  const { email = "", emailConfirmationId = "" } = initialState;
+  const { email = "", emailLoginId = "" } = initialState;
   const initialExpireAt = initialState.expireAt ? new Date(initialState.expireAt) : new Date();
   const [expireAt, setExpireAt] = useState<Date>(initialExpireAt);
   const secondsRemaining = useCountdown(expireAt);
@@ -119,7 +119,7 @@ export function CompleteSignupForm() {
 
   const completeSignupMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/complete",
+    "/api/account-management/authentication/email/signup/{id}/complete",
     {
       onSuccess: () => {
         clearSignupState();
@@ -130,7 +130,7 @@ export function CompleteSignupForm() {
 
   const resendSignupCodeMutation = api.useMutation(
     "post",
-    "/api/account-management/signups/{emailConfirmationId}/resend-code",
+    "/api/account-management/authentication/email/signup/{id}/resend-code",
     {
       onSuccess: (data) => {
         if (data) {
@@ -175,7 +175,7 @@ export function CompleteSignupForm() {
 
           completeSignupMutation.mutate({
             params: {
-              path: { emailConfirmationId }
+              path: { id: emailLoginId }
             },
             body: {
               oneTimePassword: otpValue,
@@ -266,7 +266,7 @@ export function CompleteSignupForm() {
           ) : (
             <Form
               onSubmit={(e) => {
-                mutationSubmitter(resendSignupCodeMutation, { path: { emailConfirmationId } })(e);
+                mutationSubmitter(resendSignupCodeMutation, { path: { id: emailLoginId } })(e);
               }}
               validationErrors={resendSignupCodeMutation.error?.errors}
               className="inline"

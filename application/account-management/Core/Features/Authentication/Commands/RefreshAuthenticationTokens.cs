@@ -1,7 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.JsonWebTokens;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;

@@ -47,15 +47,14 @@ export function LoginForm() {
   const [email, setEmail] = useState(savedEmail || signupEmail || "");
   const { returnPath } = Route.useSearch();
 
-  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/login/start");
+  const startLoginMutation = api.useMutation("post", "/api/account-management/authentication/email/login/start");
 
   if (startLoginMutation.isSuccess) {
-    const { loginId, emailConfirmationId, validForSeconds } = startLoginMutation.data;
+    const { emailLoginId, validForSeconds } = startLoginMutation.data;
 
     clearLoginState();
     setLoginState({
-      loginId,
-      emailConfirmationId,
+      emailLoginId,
       email,
       expireAt: new Date(Date.now() + validForSeconds * 1000)
     });

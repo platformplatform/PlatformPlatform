@@ -2,8 +2,7 @@ using System.Net;
 using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
@@ -73,7 +72,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task DeleteUser_WhenUserHasLoginHistory_ShouldSoftDeleteUserAndKeepLogins()
+    public async Task DeleteUser_WhenUserHasEmailLoginHistory_ShouldSoftDeleteUserAndKeepEmailLogins()
     {
         // Arrange
         var userId = UserId.NewId();
@@ -94,15 +93,17 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
             ]
         );
 
-        var emailConfirmationId = EmailConfirmationId.NewId();
-        var loginId = LoginId.NewId();
-        Connection.Insert("Logins", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", loginId.ToString()),
-                ("UserId", userId.ToString()),
+        var email = Connection.ExecuteScalar<string>("SELECT Email FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        var emailLoginId = EmailLoginId.NewId();
+        Connection.Insert("EmailLogins", [
+                ("Id", emailLoginId.ToString()),
                 ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
                 ("ModifiedAt", null),
-                ("EmailConfirmationId", emailConfirmationId.ToString()),
+                ("Email", email),
+                ("Type", nameof(EmailLoginType.Login)),
+                ("OneTimePasswordHash", "hash"),
+                ("RetryCount", 0),
+                ("ResendCount", 0),
                 ("Completed", true)
             ]
         );
@@ -115,7 +116,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
         Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
         var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
-        Connection.RowExists("Logins", loginId.ToString()).Should().BeTrue();
+        Connection.RowExists("EmailLogins", emailLoginId.ToString()).Should().BeTrue();
     }
 
     [Fact]

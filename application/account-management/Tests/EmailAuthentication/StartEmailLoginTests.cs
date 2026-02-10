@@ -5,8 +5,8 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Authentication.Commands;
-using PlatformPlatform.AccountManagement.Features.EmailConfirmations.Domain;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Commands;
+using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Domain;
@@ -15,28 +15,28 @@ using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.AccountManagement.Tests.Authentication;
+namespace PlatformPlatform.AccountManagement.Tests.EmailAuthentication;
 
-public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContext>
+public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbContext>
 {
     [Fact]
-    public async Task StartLogin_WhenValidEmailAndUserExists_ShouldReturnSuccess()
+    public async Task StartEmailLogin_WhenValidEmailAndUserExists_ShouldReturnSuccess()
     {
         // Arrange
         var email = DatabaseSeeder.Tenant1Owner.Email;
-        var command = new StartLoginCommand(email);
+        var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var responseBody = await response.DeserializeResponse<StartLoginResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
         responseBody.Should().NotBeNull();
         responseBody.ValidForSeconds.Should().Be(300);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
 
@@ -49,13 +49,13 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task StartLoginCommand_WhenEmailIsEmpty_ShouldFail()
+    public async Task StartEmailLoginCommand_WhenEmailIsEmpty_ShouldFail()
     {
         // Arrange
-        var command = new StartLoginCommand("");
+        var command = new StartEmailLoginCommand("");
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -74,13 +74,13 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     [InlineData("Double Dots In Domain", "neo@gmail..com")]
     [InlineData("Comma Instead Of Dot", "q@q,com")]
     [InlineData("Space In Domain", "tje@mentum .dk")]
-    public async Task StartLoginCommand_WhenEmailInvalid_ShouldFail(string scenario, string invalidEmail)
+    public async Task StartEmailLoginCommand_WhenEmailInvalid_ShouldFail(string scenario, string invalidEmail)
     {
         // Arrange
-        var command = new StartLoginCommand(invalidEmail);
+        var command = new StartEmailLoginCommand(invalidEmail);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         var expectedErrors = new[]
@@ -94,18 +94,18 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task StartLoginCommand_WhenUserDoesNotExist_ShouldReturnFakeLoginId()
+    public async Task StartEmailLoginCommand_WhenUserDoesNotExist_ShouldReturnFakeEmailLoginId()
     {
         // Arrange
         var email = Faker.Internet.UniqueEmail();
-        var command = new StartLoginCommand(email);
+        var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var responseBody = await response.DeserializeResponse<StartLoginResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
         responseBody.Should().NotBeNull();
         responseBody.ValidForSeconds.Should().Be(300);
 
@@ -120,7 +120,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task StartLogin_WhenTooManyAttempts_ShouldReturnTooManyRequests()
+    public async Task StartEmailLogin_WhenTooManyAttempts_ShouldReturnTooManyRequests()
     {
         // Arrange
         var email = DatabaseSeeder.Tenant1Owner.Email;
@@ -128,14 +128,13 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
-            Connection.Insert("EmailConfirmations", [
-                    ("Id", EmailConfirmationId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-i)),
+            Connection.Insert("EmailLogins", [
+                    ("Id", EmailLoginId.NewId().ToString()),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
                     ("ModifiedAt", null),
                     ("Email", email.ToLower()),
-                    ("Type", nameof(EmailConfirmationType.Login)),
+                    ("Type", nameof(EmailLoginType.Login)),
                     ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("ValidUntil", TimeProvider.GetUtcNow().AddMinutes(-i - 1)), // All should be expired
                     ("RetryCount", 0),
                     ("ResendCount", 0),
                     ("Completed", false)
@@ -143,10 +142,10 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
             );
         }
 
-        var command = new StartLoginCommand(email);
+        var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
@@ -156,7 +155,7 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task StartLogin_WhenUserIsSoftDeleted_ShouldReturnFakeLoginIdAndSendUnknownUserEmail()
+    public async Task StartEmailLogin_WhenUserIsSoftDeleted_ShouldReturnFakeEmailLoginIdAndSendUnknownUserEmail()
     {
         // Arrange
         var email = Faker.Internet.UniqueEmail();
@@ -177,14 +176,14 @@ public sealed class StartLoginTests : EndpointBaseTest<AccountManagementDbContex
             ]
         );
 
-        var command = new StartLoginCommand(email);
+        var command = new StartEmailLoginCommand(email);
 
         // Act
-        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/login/start", command);
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account-management/authentication/email/login/start", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
-        var responseBody = await response.DeserializeResponse<StartLoginResponse>();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
         responseBody.Should().NotBeNull();
         responseBody.ValidForSeconds.Should().Be(300);
 

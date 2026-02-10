@@ -69,7 +69,7 @@ public sealed class SwitchTenantHandler(
         var userAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? string.Empty;
         var ipAddress = executionContext.ClientIpAddress;
 
-        var session = Session.Create(targetUser.TenantId, targetUser.Id, userAgent, ipAddress);
+        var session = Session.Create(targetUser.TenantId, targetUser.Id, currentSession.LoginMethod, userAgent, ipAddress);
         await sessionRepository.AddAsync(session, cancellationToken);
 
         targetUser.UpdateLastSeen(timeProvider.GetUtcNow());
