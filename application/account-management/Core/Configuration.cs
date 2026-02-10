@@ -4,7 +4,11 @@ using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Shared;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
+using PlatformPlatform.AccountManagement.Integrations.OAuth;
+using PlatformPlatform.AccountManagement.Integrations.OAuth.Google;
+using PlatformPlatform.AccountManagement.Integrations.OAuth.Mock;
 using PlatformPlatform.SharedKernel.Configuration;
+using PlatformPlatform.SharedKernel.OpenIdConnect;
 
 namespace PlatformPlatform.AccountManagement;
 
@@ -33,6 +37,16 @@ public static class Configuration
                     client.Timeout = TimeSpan.FromSeconds(5);
                 }
             );
+
+            services.AddHttpClient<OpenIdConnectConfigurationManagerFactory>(client => { client.Timeout = TimeSpan.FromSeconds(10); });
+            services.AddSingleton<OpenIdConnectConfigurationManagerFactory>();
+
+            services.AddHttpClient<ExternalAvatarClient>(client => { client.Timeout = TimeSpan.FromSeconds(10); });
+
+            services.AddHttpClient<GoogleOAuthProvider>(client => { client.Timeout = TimeSpan.FromSeconds(10); });
+            services.AddKeyedScoped<IOAuthProvider, GoogleOAuthProvider>("google");
+            services.AddKeyedScoped<IOAuthProvider, MockOAuthProvider>("mock-google");
+            services.AddScoped<OAuthProviderFactory>();
 
             return services
                 .AddSharedServices<AccountManagementDbContext>([Assembly])
