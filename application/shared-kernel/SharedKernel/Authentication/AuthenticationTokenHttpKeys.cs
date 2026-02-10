@@ -13,9 +13,9 @@ public static class AuthenticationTokenHttpKeys
     public const string UnauthorizedReasonHeaderKey = "x-unauthorized-reason";
 
     // __Host prefix ensures the cookie is sent only to the host, requires Secure, HTTPS, Path=/ and no Domain specified
-    public const string RefreshTokenCookieName = "__Host_Refresh_Token";
+    public const string RefreshTokenCookieName = "__Host-refresh-token";
 
-    public const string AccessTokenCookieName = "__Host_Access_Token";
+    public const string AccessTokenCookieName = "__Host-access-token";
 
-    public const string AntiforgeryTokenCookieName = "__Host_Xsrf_Token";
+    public const string AntiforgeryTokenCookieName = "__Host-xsrf-token";
 }

@@ -1,10 +1,12 @@
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 
 internal static class SecurityTokenDescriptorExtensions
 {
+    private static readonly JsonWebTokenHandler TokenHandler = new();
+
     extension(SecurityTokenDescriptor tokenDescriptor)
     {
         internal string GenerateToken(DateTimeOffset now, DateTimeOffset expires, string issuer, string audience, SigningCredentials signingCredentials)
@@ -16,9 +18,7 @@ internal static class SecurityTokenDescriptorExtensions
             tokenDescriptor.Audience = audience;
             tokenDescriptor.SigningCredentials = signingCredentials;
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var securityToken = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(securityToken);
+            return TokenHandler.CreateToken(tokenDescriptor);
         }
     }
 }
