@@ -2,6 +2,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using PlatformPlatform.AccountManagement.Database;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Shared;
+using PlatformPlatform.AccountManagement.Features.ExternalAuthentication;
+using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Shared;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
 using PlatformPlatform.AccountManagement.Integrations.OAuth;
@@ -50,10 +52,12 @@ public static class Configuration
 
             return services
                 .AddSharedServices<AccountManagementDbContext>([Assembly])
-                .AddScoped<AvatarUpdater>()
                 .AddScoped<StartEmailConfirmation>()
                 .AddScoped<CompleteEmailConfirmation>()
-                .AddScoped<UserInfoFactory>();
+                .AddScoped<AvatarUpdater>()
+                .AddScoped<UserInfoFactory>()
+                .AddScoped<ExternalAuthenticationService>()
+                .AddScoped<ExternalAuthenticationHelper>();
         }
     }
 }
