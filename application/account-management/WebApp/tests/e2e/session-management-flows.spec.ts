@@ -101,7 +101,7 @@ test.describe("@smoke", () => {
       await expect(secondPage.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await secondPage.getByRole("button", { name: "Continue", exact: true }).click();
+      await secondPage.getByRole("button", { name: "Log in with email" }).click();
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
@@ -209,7 +209,7 @@ test.describe("@comprehensive", () => {
       await expect(secondPage.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await secondPage.getByRole("button", { name: "Continue", exact: true }).click();
+      await secondPage.getByRole("button", { name: "Log in with email" }).click();
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 

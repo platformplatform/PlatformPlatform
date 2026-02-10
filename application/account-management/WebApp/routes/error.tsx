@@ -1,12 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { ErrorCode } from "@repo/infrastructure/auth/AuthenticationMiddleware";
+import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
+import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, LogIn, LogOut, ShieldAlert } from "lucide-react";
-import type { ReactNode } from "react";
+import { AlertCircle, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
+import { type ReactNode, useContext, useState } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
@@ -15,20 +18,25 @@ import logoWrap from "@/shared/images/logo-wrap.svg";
 
 export const Route = createFileRoute("/error")({
   validateSearch: (search) => {
-    const params = search as { error?: string; returnPath?: string };
+    const params = search as { error?: string; returnPath?: string; id?: string };
     return {
       error: params.error,
-      returnPath: params.returnPath && isValidReturnPath(params.returnPath) ? params.returnPath : undefined
+      returnPath: params.returnPath && isValidReturnPath(params.returnPath) ? params.returnPath : undefined,
+      id: params.id && /^[a-zA-Z0-9-]+$/.test(params.id) ? params.id : undefined
     };
   },
   component: ErrorPage
 });
+
+type ErrorAction = "login" | "signup" | "contact";
 
 function getErrorDisplay(error: string): {
   icon: ReactNode;
   iconBackground: string;
   title: ReactNode;
   message: ReactNode;
+  action: ErrorAction;
+  secondaryAction?: ErrorAction;
 } {
   switch (error) {
     case ErrorCode.ReplayAttack:
@@ -44,7 +52,8 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>For your protection, you have been logged out. Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
       };
 
     case ErrorCode.SessionRevoked:
@@ -58,7 +67,8 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
       };
 
     case ErrorCode.SessionNotFound:
@@ -73,7 +83,70 @@ function getErrorDisplay(error: string): {
             <br />
             <Trans>Please log in again to continue.</Trans>
           </>
-        )
+        ),
+        action: "login"
+      };
+
+    case ErrorCode.UserNotFound:
+      return {
+        icon: <UserX className="size-10 text-muted-foreground" />,
+        iconBackground: "bg-muted",
+        title: <Trans>Account not found</Trans>,
+        message: <Trans>No account found for this email address. Please sign up to create an account.</Trans>,
+        action: "signup",
+        secondaryAction: "login"
+      };
+
+    case ErrorCode.AccountAlreadyExists:
+      return {
+        icon: <UserX className="size-10 text-muted-foreground" />,
+        iconBackground: "bg-muted",
+        title: <Trans>Account already exists</Trans>,
+        message: <Trans>An account with this email already exists. Please log in instead.</Trans>,
+        action: "login",
+        secondaryAction: "signup"
+      };
+
+    case ErrorCode.IdentityMismatch:
+      return {
+        icon: <ShieldAlert className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Identity mismatch</Trans>,
+        message: (
+          <>
+            <Trans>This account is linked to a different Google identity.</Trans>
+            <br />
+            <Trans>This can happen when email ownership has changed. Contact your account administrator.</Trans>
+          </>
+        ),
+        action: "contact"
+      };
+
+    case ErrorCode.AuthenticationFailed:
+      return {
+        icon: <AlertCircle className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Authentication failed</Trans>,
+        message: <Trans>We detected a security issue with your login attempt. Please try again.</Trans>,
+        action: "login"
+      };
+
+    case ErrorCode.InvalidRequest:
+      return {
+        icon: <AlertCircle className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Invalid request</Trans>,
+        message: <Trans>The authentication request was invalid. Please try again.</Trans>,
+        action: "login"
+      };
+
+    case ErrorCode.AccessDenied:
+      return {
+        icon: <AlertCircle className="size-10 text-muted-foreground" />,
+        iconBackground: "bg-muted",
+        title: <Trans>Access denied</Trans>,
+        message: <Trans>Authentication was cancelled or denied. Please try again if you want to continue.</Trans>,
+        action: "login"
       };
 
     default:
@@ -83,12 +156,46 @@ function getErrorDisplay(error: string): {
         title: <Trans>Something went wrong</Trans>,
         message: (
           <Trans>An unexpected error occurred. Please try again or contact support if the problem persists.</Trans>
-        )
+        ),
+        action: "login"
       };
   }
 }
 
+function useAuthInfoSafe() {
+  const context = useContext(AuthenticationContext);
+  const hasContext = context.userInfo !== null;
+  const isAuthenticated = useIsAuthenticated();
+  const userInfo = useUserInfo();
+
+  return {
+    isAuthenticated: hasContext && isAuthenticated,
+    userInfo: hasContext ? userInfo : null
+  };
+}
+
 function ErrorNavigation() {
+  const { isAuthenticated, userInfo } = useAuthInfoSafe();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      const response = await fetch("/api/account-management/authentication/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-xsrf-token": import.meta.antiforgeryToken
+        }
+      });
+      if (response.ok) {
+        globalThis.location.href = loginPath;
+      }
+    } catch {
+      globalThis.location.href = loginPath;
+    }
+  };
+
   return (
     <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-6 pt-8 pb-4">
       <Link href="/" variant="logo" underline={false}>
@@ -102,13 +209,54 @@ function ErrorNavigation() {
           <SupportButton />
           <LocaleSwitcher />
         </span>
+        {isAuthenticated && userInfo && (
+          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
+            <LogOut size={16} />
+            <span className="hidden sm:inline">
+              <Trans>Log out</Trans>
+            </span>
+          </Button>
+        )}
       </div>
     </nav>
   );
 }
 
+type ActionButtonProps = {
+  action: ErrorAction;
+  variant: "default" | "outline";
+  onLogIn: () => void;
+  onSignUp: () => void;
+};
+
+function ActionButton({ action, variant, onLogIn, onSignUp }: ActionButtonProps) {
+  switch (action) {
+    case "signup":
+      return (
+        <Button variant={variant} onClick={onSignUp} aria-label={t`Sign up`}>
+          <UserPlus size={16} />
+          <Trans>Sign up</Trans>
+        </Button>
+      );
+    case "contact":
+      return (
+        <Button variant={variant} onClick={onLogIn} aria-label={t`Log in`}>
+          <LogIn size={16} />
+          <Trans>Back to login</Trans>
+        </Button>
+      );
+    default:
+      return (
+        <Button variant={variant} onClick={onLogIn} aria-label={t`Log in`}>
+          <LogIn size={16} />
+          <Trans>Log in</Trans>
+        </Button>
+      );
+  }
+}
+
 function ErrorPage() {
-  const { error, returnPath } = Route.useSearch();
+  const { error, returnPath, id } = Route.useSearch();
   const navigate = useNavigate();
 
   if (!error) {
@@ -119,6 +267,10 @@ function ErrorPage() {
 
   const handleLogIn = () => {
     navigate({ to: "/login", search: { returnPath } });
+  };
+
+  const handleSignUp = () => {
+    navigate({ to: signUpPath });
   };
 
   return (
@@ -136,12 +288,28 @@ function ErrorPage() {
             <p className="text-lg text-muted-foreground">{errorDisplay.message}</p>
           </div>
 
-          <div className="flex justify-center gap-3 pt-2">
-            <Button variant="default" onClick={handleLogIn} aria-label={t`Log in`}>
-              <LogIn size={16} />
-              <Trans>Log in</Trans>
-            </Button>
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <ActionButton
+              action={errorDisplay.action}
+              variant="default"
+              onLogIn={handleLogIn}
+              onSignUp={handleSignUp}
+            />
+            {errorDisplay.secondaryAction && (
+              <ActionButton
+                action={errorDisplay.secondaryAction}
+                variant="outline"
+                onLogIn={handleLogIn}
+                onSignUp={handleSignUp}
+              />
+            )}
           </div>
+
+          {id && (
+            <p className="text-muted-foreground text-sm">
+              <Trans>Reference ID: {id}</Trans>
+            </p>
+          )}
         </div>
       </div>
     </main>

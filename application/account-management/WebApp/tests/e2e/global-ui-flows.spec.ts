@@ -209,7 +209,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
-      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByRole("button", { name: "Log in with email" }).click();
 
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
@@ -256,7 +256,7 @@ test.describe("@comprehensive", () => {
 
     await step("Log back in & verify theme remains dark after authentication")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(existingUser.email);
-      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByRole("button", { name: "Log in with email" }).click();
 
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
       await typeOneTimeCode(page, getVerificationCode());

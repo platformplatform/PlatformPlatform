@@ -180,7 +180,7 @@ export function CompleteSignupForm() {
   );
 
   return (
-    <div className="w-full max-w-[18rem] space-y-3">
+    <div className="w-full max-w-[22rem] space-y-3">
       <Form
         onSubmit={(event) => {
           event.preventDefault();

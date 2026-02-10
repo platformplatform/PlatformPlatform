@@ -36,7 +36,7 @@ test.describe("@comprehensive", () => {
 
     await step("Complete signup with Danish interface & verify language persists through flow")(async () => {
       await page.getByRole("textbox", { name: "E-mail" }).fill(user.email);
-      await page.getByRole("button", { name: "Opret din konto" }).click();
+      await page.getByRole("button", { name: "Tilmeld dig med e-mail" }).click();
 
       await expect(page).toHaveURL("/signup/verify");
       await expect(page.getByRole("heading", { name: "Indtast din bekræftelseskode" })).toBeVisible();
@@ -101,7 +101,7 @@ test.describe("@comprehensive", () => {
 
     await step("Login with English interface & verify language resets to saved preference")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByRole("button", { name: "Log in with email" }).click();
 
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
@@ -165,7 +165,7 @@ test.describe("@comprehensive", () => {
 
       // Complete signup flow
       await page1.getByRole("textbox", { name: "E-mail" }).fill(user1.email);
-      await page1.getByRole("button", { name: "Opret din konto" }).click();
+      await page1.getByRole("button", { name: "Tilmeld dig med e-mail" }).click();
       await expect(page1).toHaveURL("/signup/verify");
 
       await typeOneTimeCode(page1, getVerificationCode());
@@ -197,7 +197,7 @@ test.describe("@comprehensive", () => {
       // Login with English interface
       await newPage1.goto("/login");
       await newPage1.getByRole("textbox", { name: "Email" }).fill(user1.email);
-      await newPage1.getByRole("button", { name: "Continue", exact: true }).click();
+      await newPage1.getByRole("button", { name: "Log in with email" }).click();
       await expect(newPage1).toHaveURL("/login/verify");
 
       await typeOneTimeCode(newPage1, getVerificationCode());
@@ -215,7 +215,7 @@ test.describe("@comprehensive", () => {
       // Login with English interface
       await newPage2.goto("/login");
       await newPage2.getByRole("textbox", { name: "Email" }).fill(user2.email);
-      await newPage2.getByRole("button", { name: "Continue", exact: true }).click();
+      await newPage2.getByRole("button", { name: "Log in with email" }).click();
       await expect(newPage2).toHaveURL("/login/verify");
 
       await typeOneTimeCode(newPage2, getVerificationCode());

@@ -402,6 +402,217 @@
         }
       }
     },
+    "/api/account-management/authentication/{provider}/login/start": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationLoginStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PreferredTenantId",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TenantId"
+                }
+              ]
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/{provider}/login/callback": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationLoginCallback",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "error_description",
+            "x-originalName": "errorDescription",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/{provider}/signup/start": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationSignupStart",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account-management/authentication/{provider}/signup/callback": {
+      "get": {
+        "tags": [
+          "ExternalAuthentication"
+        ],
+        "operationId": "GetApiAccountManagementAuthenticationSignupCallback",
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ExternalProviderType"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "error",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "error_description",
+            "x-originalName": "errorDescription",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account-management/tenants/current": {
       "get": {
         "tags": [
@@ -1402,10 +1613,12 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "OneTimePassword"
+          "OneTimePassword",
+          "Google"
         ],
         "enum": [
-          "OneTimePassword"
+          "OneTimePassword",
+          "Google"
         ]
       },
       "DeviceType": {
@@ -1533,6 +1746,16 @@
             "type": "string"
           }
         }
+      },
+      "ExternalProviderType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Google"
+        ],
+        "enum": [
+          "Google"
+        ]
       },
       "TenantResponse": {
         "type": "object",
@@ -1978,6 +2201,32 @@
             "type": "string"
           }
         }
+      },
+      "ExternalLoginType": {
+        "type": "string",
+        "enum": [
+          "Login",
+          "Signup"
+        ]
+      },
+      "ExternalLoginResult": {
+        "type": "string",
+        "enum": [
+          "Success",
+          "IdentityProviderError",
+          "InvalidState",
+          "LoginReplayDetected",
+          "SessionNotFound",
+          "FlowIdMismatch",
+          "SessionHijackingDetected",
+          "LoginExpired",
+          "LoginAlreadyCompleted",
+          "CodeExchangeFailed",
+          "NonceMismatch",
+          "IdentityMismatch",
+          "UserNotFound",
+          "AccountAlreadyExists"
+        ]
       },
       "SessionRevokedReason": {
         "type": "string",

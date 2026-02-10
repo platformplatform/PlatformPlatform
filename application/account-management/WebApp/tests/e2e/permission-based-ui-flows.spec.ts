@@ -144,7 +144,7 @@ test.describe("@smoke", () => {
 
       // Login as member
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
-      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -363,7 +363,7 @@ test.describe("@smoke", () => {
 
       // Login as member
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
-      await page.getByRole("button", { name: "Continue", exact: true }).click();
+      await page.getByRole("button", { name: "Log in with email" }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
