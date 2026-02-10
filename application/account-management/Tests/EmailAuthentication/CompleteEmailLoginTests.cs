@@ -233,7 +233,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountManagement
                 ("Title", null),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

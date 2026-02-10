@@ -1,5 +1,6 @@
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
+using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -34,6 +35,24 @@ public sealed class EmailLoginCompleted(UserId userId, int loginTimeInSeconds)
 
 public sealed class EmailLoginStarted(UserId userId)
     : TelemetryEvent(("user_id", userId));
+
+public sealed class ExternalLoginCompleted(UserId userId, ExternalProviderType providerType, int loginTimeInSeconds)
+    : TelemetryEvent(("user_id", userId), ("provider_type", providerType), ("login_time_in_seconds", loginTimeInSeconds));
+
+public sealed class ExternalLoginFailed(ExternalLoginId? externalLoginId, ExternalLoginResult loginResult, int timeInSeconds, string? oauthError = null)
+    : TelemetryEvent(("external_login_id", externalLoginId as object ?? "unknown"), ("login_result", loginResult), ("time_in_seconds", timeInSeconds), ("oauth_error", oauthError as object ?? "none"));
+
+public sealed class ExternalLoginStarted(ExternalProviderType providerType)
+    : TelemetryEvent(("provider_type", providerType));
+
+public sealed class ExternalSignupCompleted(TenantId tenantId, ExternalProviderType providerType, int signupTimeInSeconds)
+    : TelemetryEvent(("tenant_id", tenantId), ("provider_type", providerType), ("signup_time_in_seconds", signupTimeInSeconds));
+
+public sealed class ExternalSignupFailed(ExternalLoginId? externalLoginId, ExternalLoginResult loginResult, int timeInSeconds, string? oauthError = null)
+    : TelemetryEvent(("external_login_id", externalLoginId as object ?? "unknown"), ("login_result", loginResult), ("time_in_seconds", timeInSeconds), ("oauth_error", oauthError as object ?? "none"));
+
+public sealed class ExternalSignupStarted(ExternalProviderType providerType)
+    : TelemetryEvent(("provider_type", providerType));
 
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));

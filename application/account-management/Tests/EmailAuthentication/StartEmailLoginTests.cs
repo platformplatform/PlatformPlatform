@@ -172,7 +172,8 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountManagementDbC
                 ("Role", nameof(UserRole.Member)),
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US")
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
             ]
         );
 

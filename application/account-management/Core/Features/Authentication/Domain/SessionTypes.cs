@@ -16,7 +16,8 @@ public enum DeviceType
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum LoginMethod
 {
-    OneTimePassword
+    OneTimePassword,
+    Google
 }
 
 /// <summary>
