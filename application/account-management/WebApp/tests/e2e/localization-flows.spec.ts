@@ -101,7 +101,7 @@ test.describe("@comprehensive", () => {
 
     await step("Login with English interface & verify language resets to saved preference")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(user.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
 
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
@@ -197,7 +197,7 @@ test.describe("@comprehensive", () => {
       // Login with English interface
       await newPage1.goto("/login");
       await newPage1.getByRole("textbox", { name: "Email" }).fill(user1.email);
-      await newPage1.getByRole("button", { name: "Continue" }).click();
+      await newPage1.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(newPage1).toHaveURL("/login/verify");
 
       await typeOneTimeCode(newPage1, getVerificationCode());
@@ -215,7 +215,7 @@ test.describe("@comprehensive", () => {
       // Login with English interface
       await newPage2.goto("/login");
       await newPage2.getByRole("textbox", { name: "Email" }).fill(user2.email);
-      await newPage2.getByRole("button", { name: "Continue" }).click();
+      await newPage2.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(newPage2).toHaveURL("/login/verify");
 
       await typeOneTimeCode(newPage2, getVerificationCode());

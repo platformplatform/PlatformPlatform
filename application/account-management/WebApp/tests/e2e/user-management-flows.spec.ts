@@ -307,7 +307,7 @@ test.describe("@smoke", () => {
 
     await step("Login as deletable user & verify unsaved changes warning on profile Escape")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -343,7 +343,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
 
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -407,7 +407,7 @@ test.describe("@smoke", () => {
 
     await step("Login as admin user & verify successful authentication")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin");
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -460,7 +460,7 @@ test.describe("@smoke", () => {
     // === MEMBER PERMISSION CHECK SECTION ===
     await step("Login as member user & verify access denied on recycle-bin")(async () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page).toHaveURL("/login/verify?returnPath=%2Fadmin%2Fusers%2Frecycle-bin");
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -650,7 +650,7 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user1.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -676,7 +676,7 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(user2.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 
@@ -703,7 +703,7 @@ test.describe("@comprehensive", () => {
 
       await expect(page.getByRole("textbox", { name: "Email" })).toBeVisible();
       await page.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(page.getByRole("heading", { name: "Enter your verification code" })).toBeVisible();
       await typeOneTimeCode(page, getVerificationCode());
 

@@ -5,8 +5,8 @@ import { createTestContext, expectToastMessage, typeOneTimeCode } from "@shared/
 import { completeSignupFlow, getVerificationCode, testUser } from "@shared/e2e/utils/test-data";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
-const accessTokenCookieName = "__Host_Access_Token";
-const refreshTokenCookieName = "__Host_Refresh_Token";
+const accessTokenCookieName = "__Host-access-token";
+const refreshTokenCookieName = "__Host-refresh-token";
 
 async function deleteAccessTokenCookie(page: Page): Promise<void> {
   const cookies = await page.context().cookies();
@@ -101,7 +101,7 @@ test.describe("@smoke", () => {
       await expect(secondPage.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await secondPage.getByRole("button", { name: "Continue" }).click();
+      await secondPage.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
@@ -174,21 +174,21 @@ test.describe("@comprehensive", () => {
    * SESSION REVOKED ERROR PAGE
    *
    * Tests that when a session is revoked from another browser, the revoked browser
-   * is redirected to the session-revoked error page with the correct message.
+   * is redirected to the session_revoked error page with the correct message.
    *
    * Flow:
    * 1. User logs in to browser A
    * 2. User logs in to browser B (same account, different session)
    * 3. Browser B revokes the session from browser A
    * 4. Browser A deletes its access token and navigates (triggering refresh)
-   * 5. Browser A is redirected to /error?error=session-revoked
+   * 5. Browser A is redirected to /error?error=session_revoked
    */
-  test("should redirect to session-revoked error page when session is revoked from another browser", async ({
+  test("should redirect to session_revoked error page when session is revoked from another browser", async ({
     page
   }, testInfo) => {
     test.skip(
       testInfo.project.name === "webkit",
-      "WebKit __Host_ cookie handling prevents refresh token from being sent after access token manipulation"
+      "WebKit __Host- cookie handling prevents refresh token from being sent after access token manipulation"
     );
 
     const context = createTestContext(page);
@@ -209,7 +209,7 @@ test.describe("@comprehensive", () => {
       await expect(secondPage.getByRole("heading", { name: "Hi! Welcome back" })).toBeVisible();
 
       await secondPage.getByRole("textbox", { name: "Email" }).fill(owner.email);
-      await secondPage.getByRole("button", { name: "Continue" }).click();
+      await secondPage.getByRole("button", { name: "Continue", exact: true }).click();
       await expect(secondPage).toHaveURL("/login/verify");
       await typeOneTimeCode(secondPage, getVerificationCode());
 
@@ -249,19 +249,19 @@ test.describe("@comprehensive", () => {
       await secondSessionsDialog.getByRole("button", { name: "Close" }).last().click();
     })();
 
-    await step("Navigate in revoked session & verify session-revoked error page")(async () => {
+    await step("Navigate in revoked session & verify session_revoked error page")(async () => {
       await deleteAccessTokenCookie(page);
       context.monitoring.expectedStatusCodes.push(401);
 
       await page.getByRole("link", { name: "Users", exact: true }).click();
 
-      await expect(page).toHaveURL(/\/error\?.*error=session-revoked/);
+      await expect(page).toHaveURL(/\/error\?.*error=session_revoked/);
       await expect(page.getByRole("heading", { name: "Session ended" })).toBeVisible();
       await expect(page.getByText("Your session was ended from another device.")).toBeVisible();
       await expect(page.getByRole("button", { name: "Log in" })).toBeVisible();
     })();
 
-    await step("Click login on session-revoked page & verify login page")(async () => {
+    await step("Click login on session_revoked page & verify login page")(async () => {
       await page.getByRole("button", { name: "Log in" }).click();
 
       await expect(page).toHaveURL(/\/login/);
@@ -275,7 +275,7 @@ test.describe("@comprehensive", () => {
    * REPLAY ATTACK DETECTION ERROR PAGE
    *
    * Tests that when a refresh token is "stolen" and used from another browser,
-   * both browsers are eventually redirected to the replay-attack error page.
+   * both browsers are eventually redirected to the replay_attack error page.
    *
    * Flow:
    * 1. User logs in to browser A (refresh token version 1)
@@ -283,14 +283,14 @@ test.describe("@comprehensive", () => {
    * 3. Browser B uses stolen token twice (version becomes 3, grace period ends)
    * 4. Browser A tries to refresh (replay detected, session revoked)
    * 5. Browser B tries to refresh (session already revoked)
-   * 6. Both browsers see the replay-attack error page
+   * 6. Both browsers see the replay_attack error page
    */
-  test("should redirect to replay-attack error page when refresh token replay is detected", async ({
+  test("should redirect to replay_attack error page when refresh token replay is detected", async ({
     page
   }, testInfo) => {
     test.skip(
       testInfo.project.name === "webkit",
-      "WebKit __Host_ cookie handling prevents programmatic cookie manipulation required for replay attack simulation"
+      "WebKit __Host- cookie handling prevents programmatic cookie manipulation required for replay attack simulation"
     );
 
     const context = createTestContext(page);
@@ -328,20 +328,20 @@ test.describe("@comprehensive", () => {
       await expect(secondPage.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
-    await step("Navigate in victim browser after replay & verify replay-attack error page")(async () => {
+    await step("Navigate in victim browser after replay & verify replay_attack error page")(async () => {
       await secondPage.route("**/api/**", (route) => route.abort());
       await deleteAccessTokenCookie(page);
       context.monitoring.expectedStatusCodes.push(401);
 
       await page.getByRole("link", { name: "Users", exact: true }).click();
 
-      await expect(page).toHaveURL(/\/error\?.*error=replay-attack/);
+      await expect(page).toHaveURL(/\/error\?.*error=replay_attack/);
       await expect(page.getByRole("heading", { name: "Security alert" })).toBeVisible();
       await expect(page.getByText("We detected suspicious activity on your account.")).toBeVisible();
       await expect(page.getByRole("button", { name: "Log in" })).toBeVisible();
     })();
 
-    await step("Attacker browser detects replay & shows replay-attack error page")(async () => {
+    await step("Attacker browser detects replay & shows replay_attack error page")(async () => {
       const secondPageContext = createTestContext(secondPage);
       secondPageContext.monitoring.expectedStatusCodes.push(401);
       await deleteAccessTokenCookie(secondPage);
@@ -352,12 +352,12 @@ test.describe("@comprehensive", () => {
         window.dispatchEvent(new Event("online"));
       });
 
-      await expect(secondPage).toHaveURL(/\/error\?.*error=replay-attack/);
+      await expect(secondPage).toHaveURL(/\/error\?.*error=replay_attack/);
       await expect(secondPage.getByRole("heading", { name: "Security alert" })).toBeVisible();
       await expect(secondPage.getByText("We detected suspicious activity on your account.")).toBeVisible();
     })();
 
-    await step("Click login on replay-attack page & verify login page")(async () => {
+    await step("Click login on replay_attack page & verify login page")(async () => {
       await page.getByRole("button", { name: "Log in" }).click();
 
       await expect(page).toHaveURL(/\/login/);
