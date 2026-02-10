@@ -198,6 +198,32 @@ Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/local-development-exp.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
+### (Optional) Set up Google OAuth for "Sign in with Google"
+
+PlatformPlatform supports authentication via Google OAuth. This is optional for local development since email-based one-time passwords work without any configuration. When running locally without Google OAuth credentials configured, the Aspire dashboard prompts for parameters -- enter `not-configured` to skip and start Aspire without Google OAuth.
+
+<details>
+
+<summary>Google Cloud Console setup</summary>
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project (e.g., "YourProduct OAuth")
+3. Navigate to **APIs & Services** > **Credentials**
+4. Configure OAuth consent screen (first time only):
+   - App name, support email, audience (External), contact info
+   - Agree to Google API Services: User Data Policy
+5. Create OAuth client ID:
+   - Application type: "Web application"
+   - Name: "YourProduct Localhost"
+6. Add Authorized redirect URIs:
+   - `https://localhost:9000/api/account-management/authentication/Google/login/callback`
+   - `https://localhost:9000/api/account-management/authentication/Google/signup/callback`
+7. Note the Client ID and Client Secret
+
+</details>
+
+**Aspire parameter configuration**: Click **Parameters** in the Aspire dashboard and enter your Google OAuth Client ID and Client Secret. These values are stored securely in .NET user secrets and persist across restarts.
+
 ## 4. Set up CI/CD with passwordless deployments from GitHub to Azure
 
 Run this command to automate Azure Subscription configuration and set up [GitHub Workflows](https://github.com/platformplatform/PlatformPlatform/actions) for deploying [Azure Infrastructure](./cloud-infrastructure) (using Bicep) and compiling [application code](./application) to Docker images deployed to Azure Container Apps:
@@ -218,6 +244,20 @@ Except for adding a DNS record, everything is fully automated. After successful 
 The infrastructure is configured with auto-scaling and hosting costs in focus. It will cost less than 2 USD per day for a cluster, and it will allow scaling to millions of users 🎉
 
 ![Azure Costs](https://platformplatformgithub.blob.core.windows.net/$root/azure-costs-center.png)
+
+### (Optional) Configure Google OAuth for staging and production
+
+If you set up Google OAuth locally, use the Developer CLI to store your Google OAuth credentials as GitHub secrets for deployment to Azure Key Vault:
+
+```bash
+pp github-config
+```
+
+Remember to add redirect URIs for each environment in your Google Cloud Console configuration, e.g.:
+- `https://staging.yourproduct.com/api/account-management/authentication/Google/login/callback`
+- `https://staging.yourproduct.com/api/account-management/authentication/Google/signup/callback`
+- `https://app.yourproduct.com/api/account-management/authentication/Google/login/callback`
+- `https://app.yourproduct.com/api/account-management/authentication/Google/signup/callback`
 
 # Experimental: Agentic Workflow with Claude Code
 
