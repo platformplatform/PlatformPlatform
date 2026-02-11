@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Domain;
@@ -28,6 +29,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion(
                 v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
                 v => JsonSerializer.Deserialize<ImmutableArray<ExternalIdentity>>(v, JsonSerializerOptions)
+            )
+            .Metadata.SetValueComparer(new ValueComparer<ImmutableArray<ExternalIdentity>>(
+                    (c1, c2) => c1.SequenceEqual(c2),
+                    c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+                    c => c
+                )
             );
     }
 }
