@@ -11,6 +11,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockCheckoutUrl = "https://mock.stripe.local/checkout";
     public const string MockBillingPortalUrl = "https://mock.stripe.local/billing-portal";
     public const string MockInvoiceUrl = "https://mock.stripe.local/invoice/12345";
+    public const string MockWebhookEventId = "evt_mock_12345";
 
     private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
 
@@ -75,6 +76,12 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
+    public Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult(true);
+    }
+
     public Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
@@ -102,6 +109,30 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             _isEnabled,
             _isEnabled
         );
+    }
+
+    public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
+    {
+        EnsureEnabled();
+
+        if (signatureHeader == "invalid_signature")
+        {
+            return null;
+        }
+
+        var parts = signatureHeader.Split(',');
+        var eventType = "checkout.session.completed";
+        var eventId = $"{MockWebhookEventId}_{Guid.NewGuid():N}";
+
+        foreach (var part in parts)
+        {
+            if (part.StartsWith("event_type:")) eventType = part["event_type:".Length..];
+            if (part.StartsWith("event_id:")) eventId = part["event_id:".Length..];
+        }
+
+        var customerId = payload.StartsWith("customer:") ? payload.Split(':')[1] : MockCustomerId;
+
+        return new StripeWebhookEventResult(eventId, eventType, customerId);
     }
 
     private void EnsureEnabled()

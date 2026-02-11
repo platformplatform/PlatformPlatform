@@ -41,6 +41,10 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        group.MapPost("/cancel-downgrade", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new CancelScheduledDowngradeCommand())
+        );
+
         group.MapPost("/cancel", async Task<ApiResult> (CancelSubscriptionCommand command, IMediator mediator)
             => await mediator.Send(command)
         );

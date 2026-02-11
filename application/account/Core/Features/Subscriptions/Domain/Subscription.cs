@@ -107,6 +107,15 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         LastNotificationSentAt = null;
     }
 
+    public void ResetToFreePlan()
+    {
+        Plan = SubscriptionPlan.Basis;
+        ScheduledPlan = null;
+        StripeSubscriptionId = null;
+        CurrentPeriodEnd = null;
+        CancelAtPeriodEnd = false;
+    }
+
     public void SetCancellationFeedback(CancellationReason reason, string? feedback)
     {
         CancellationReason = reason;

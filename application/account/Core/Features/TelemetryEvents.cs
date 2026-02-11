@@ -67,6 +67,12 @@ public sealed class GravatarUpdated(long size)
 public sealed class Logout
     : TelemetryEvent;
 
+public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class SessionCreated(SessionId sessionId)
     : TelemetryEvent(("session_id", sessionId));
 
@@ -88,10 +94,16 @@ public sealed class SubscriptionCancelled(SubscriptionId subscriptionId, Subscri
 public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
+public sealed class SubscriptionDowngradeCancelled(SubscriptionId subscriptionId, SubscriptionPlan plan, SubscriptionPlan scheduledPlan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("scheduled_plan", scheduledPlan));
+
 public sealed class SubscriptionDowngradeScheduled(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan));
 
 public sealed class SubscriptionReactivated(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class SubscriptionUpgraded(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
@@ -159,3 +171,6 @@ public sealed class UserZoomLevelChanged(string fromZoomLevel, string toZoomLeve
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));
+
+public sealed class WebhookProcessed(SubscriptionId subscriptionId, string eventType)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("event_type", eventType));

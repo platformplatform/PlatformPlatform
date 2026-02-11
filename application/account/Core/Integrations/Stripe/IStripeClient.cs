@@ -16,6 +16,8 @@ public interface IStripeClient
 
     Task<bool> ScheduleDowngradeAsync(string stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken);
 
+    Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken);
+
     Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken);
 
     Task<bool> ReactivateSubscriptionAsync(string stripeSubscriptionId, CancellationToken cancellationToken);
@@ -23,7 +25,11 @@ public interface IStripeClient
     Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, string locale, CancellationToken cancellationToken);
 
     StripeHealthResult GetHealth();
+
+    StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 }
+
+public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId);
 
 public sealed record CheckoutSessionResult(string SessionId, string Url);
 
