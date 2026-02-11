@@ -40,6 +40,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
+    public Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot cancel scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+        return Task.FromResult(false);
+    }
+
     public Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot cancel subscription {SubscriptionId}", stripeSubscriptionId);
@@ -67,5 +73,11 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
             false,
             false
         );
+    }
+
+    public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");
+        return null;
     }
 }
