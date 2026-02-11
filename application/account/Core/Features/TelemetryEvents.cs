@@ -16,6 +16,9 @@ namespace PlatformPlatform.Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class BillingPortalSessionCreated(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
@@ -79,8 +82,20 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 public sealed class SignupStarted
     : TelemetryEvent;
 
+public sealed class SubscriptionCancelled(SubscriptionId subscriptionId, SubscriptionPlan plan, CancellationReason reason, string? feedback)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("feedback", feedback as object ?? "none"));
+
 public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class SubscriptionDowngradeScheduled(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan));
+
+public sealed class SubscriptionReactivated(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class SubscriptionUpgraded(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
