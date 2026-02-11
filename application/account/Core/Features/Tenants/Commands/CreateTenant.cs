@@ -1,3 +1,4 @@
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Commands;
 using PlatformPlatform.Account.Features.Users.Domain;
@@ -12,7 +13,7 @@ internal sealed record CreateTenantCommand(string OwnerEmail, bool EmailConfirme
 
 internal sealed record CreateTenantResponse(TenantId TenantId, UserId UserId);
 
-internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IMediator mediator, ITelemetryEventsCollector events)
+internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, IMediator mediator, ITelemetryEventsCollector events)
     : IRequestHandler<CreateTenantCommand, Result<CreateTenantResponse>>
 {
     public async Task<Result<CreateTenantResponse>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
@@ -20,7 +21,11 @@ internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IM
         var tenant = Tenant.Create(command.OwnerEmail);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
+        var subscription = Subscription.Create(tenant.Id);
+        await subscriptionRepository.AddAsync(subscription, cancellationToken);
+
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
+        events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan));
 
         var createUserResult = await mediator.Send(
             new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale),
