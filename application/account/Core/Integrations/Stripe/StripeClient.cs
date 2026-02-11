@@ -5,6 +5,7 @@ using Stripe;
 using Stripe.BillingPortal;
 using Stripe.Checkout;
 using DomainPaymentMethod = PlatformPlatform.Account.Features.Subscriptions.Domain.PaymentMethod;
+using Session = Stripe.Checkout.Session;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
 using StripeSubscription = Stripe.Subscription;
@@ -209,7 +210,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                     [
                         new SubscriptionItemOptions { Id = itemId, Price = priceId }
                     ],
-                    ProrationBehavior = "create_prorations"
+                    ProrationBehavior = "always_invoice"
                 }, GetRequestOptions(), cancellationToken
             );
 
@@ -239,26 +240,34 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 return false;
             }
 
-            var service = new SubscriptionScheduleService();
             var subscriptionService = new SubscriptionService();
             var subscription = await subscriptionService.GetAsync(stripeSubscriptionId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
-            var subscriptionItem = subscription.Items.Data.First();
 
-            await service.CreateAsync(new SubscriptionScheduleCreateOptions
+            var service = new SubscriptionScheduleService();
+
+            if (subscription.ScheduleId is not null)
+            {
+                await service.ReleaseAsync(subscription.ScheduleId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            }
+
+            var schedule = await service.CreateAsync(new SubscriptionScheduleCreateOptions
                 {
-                    FromSubscription = stripeSubscriptionId,
+                    FromSubscription = stripeSubscriptionId
+                }, GetRequestOptions(), cancellationToken
+            );
+
+            var currentPhase = schedule.Phases.First();
+            var currentPhaseItems = currentPhase.Items
+                .Select(i => new SubscriptionSchedulePhaseItemOptions { Price = i.PriceId, Quantity = i.Quantity }).ToList();
+
+            await service.UpdateAsync(schedule.Id, new SubscriptionScheduleUpdateOptions
+                {
                     Phases =
                     [
+                        new SubscriptionSchedulePhaseOptions { Items = currentPhaseItems, StartDate = currentPhase.StartDate, EndDate = currentPhase.EndDate },
                         new SubscriptionSchedulePhaseOptions
                         {
-                            Items = [new SubscriptionSchedulePhaseItemOptions { Price = subscriptionItem.Price.Id, Quantity = 1 }],
-                            StartDate = subscriptionItem.CurrentPeriodStart,
-                            EndDate = subscriptionItem.CurrentPeriodEnd
-                        },
-                        new SubscriptionSchedulePhaseOptions
-                        {
-                            Items = [new SubscriptionSchedulePhaseItemOptions { Price = priceId, Quantity = 1 }],
-                            StartDate = subscriptionItem.CurrentPeriodEnd
+                            Items = [new SubscriptionSchedulePhaseItemOptions { Price = priceId, Quantity = 1 }]
                         }
                     ]
                 }, GetRequestOptions(), cancellationToken
@@ -279,12 +288,51 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
+    public async Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var subscriptionService = new SubscriptionService();
+            var subscription = await subscriptionService.GetAsync(stripeSubscriptionId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+
+            if (subscription.ScheduleId is null)
+            {
+                logger.LogWarning("No schedule found for subscription {SubscriptionId}", stripeSubscriptionId);
+                return true;
+            }
+
+            var scheduleService = new SubscriptionScheduleService();
+            await scheduleService.ReleaseAsync(subscription.ScheduleId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+
+            logger.LogInformation("Cancelled scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            return true;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error cancelling scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout cancelling scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            return false;
+        }
+    }
+
     public async Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
         try
         {
-            var service = new SubscriptionService();
-            await service.UpdateAsync(stripeSubscriptionId, new SubscriptionUpdateOptions
+            var subscriptionService = new SubscriptionService();
+            var subscription = await subscriptionService.GetAsync(stripeSubscriptionId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+
+            if (subscription.ScheduleId is not null)
+            {
+                var scheduleService = new SubscriptionScheduleService();
+                await scheduleService.ReleaseAsync(subscription.ScheduleId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            }
+
+            await subscriptionService.UpdateAsync(stripeSubscriptionId, new SubscriptionUpdateOptions
                 {
                     CancelAtPeriodEnd = true
                 }, GetRequestOptions(), cancellationToken
@@ -373,6 +421,28 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         );
     }
 
+    public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
+    {
+        try
+        {
+            if (_webhookSecret is null)
+            {
+                logger.LogError("Webhook secret is not configured");
+                return null;
+            }
+
+            var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
+            var customerId = ExtractCustomerId(stripeEvent);
+
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe webhook signature verification failed");
+            return null;
+        }
+    }
+
     private async Task<string> GetOrCreatePortalConfigurationAsync(string publicUrl, CancellationToken cancellationToken)
     {
         if (_portalConfigurationId is not null)
@@ -397,6 +467,18 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
         _portalConfigurationId = configuration.Id;
         return _portalConfigurationId;
+    }
+
+    private static string? ExtractCustomerId(Event stripeEvent)
+    {
+        return stripeEvent.Data.Object switch
+        {
+            Customer customer => customer.Id,
+            StripeSubscription subscription => subscription.CustomerId,
+            Invoice invoice => invoice.CustomerId,
+            Session session => session.CustomerId,
+            _ => null
+        };
     }
 
     private RequestOptions GetRequestOptions()
@@ -428,7 +510,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         var futurePhase = subscription.Schedule.Phases.LastOrDefault();
         if (futurePhase is null) return null;
 
-        var futurePriceId = futurePhase.Items.FirstOrDefault()?.Price?.ToString();
+        var futurePriceId = futurePhase.Items.FirstOrDefault()?.PriceId;
         if (futurePriceId is null) return null;
 
         var plan = GetPlanFromPriceId(futurePriceId);

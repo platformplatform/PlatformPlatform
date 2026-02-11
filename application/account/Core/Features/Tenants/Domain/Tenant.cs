@@ -23,6 +23,11 @@ public sealed class Tenant : AggregateRoot<TenantId>
         return tenant;
     }
 
+    public void SetState(TenantState state)
+    {
+        State = state;
+    }
+
     public void Update(string tenantName)
     {
         Name = tenantName;
