@@ -613,6 +613,190 @@
         }
       }
     },
+    "/api/account/subscriptions/current": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsCurrent",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/payment-history": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsPaymentHistory",
+        "parameters": [
+          {
+            "name": "PageOffset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentHistoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/stripe-health": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsStripeHealth",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StripeHealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/checkout": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCheckout",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCheckoutSessionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCheckoutSessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/checkout-success": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCheckoutSuccess",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutSuccessCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/tenants/current": {
       "get": {
         "tags": [
@@ -1821,6 +2005,246 @@
           "Google"
         ]
       },
+      "SubscriptionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/SubscriptionId"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "scheduledPlan": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SubscriptionPlan"
+              }
+            ]
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "hasStripeSubscription": {
+            "type": "boolean"
+          },
+          "paymentMethod": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaymentMethod"
+              }
+            ]
+          }
+        }
+      },
+      "SubscriptionId": {
+        "type": "string",
+        "format": "sub_{string}"
+      },
+      "StronglyTypedUlidOfSubscriptionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndSubscriptionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndSubscriptionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SubscriptionPlan": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Basis",
+          "Standard",
+          "Premium"
+        ],
+        "enum": [
+          "Basis",
+          "Standard",
+          "Premium"
+        ]
+      },
+      "PaymentMethod": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "brand": {
+            "type": "string"
+          },
+          "last4": {
+            "type": "string"
+          },
+          "expMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expYear": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PaymentHistoryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentTransactionResponse"
+            }
+          }
+        }
+      },
+      "PaymentTransactionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PaymentTransactionId"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentTransactionStatus"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "invoiceUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionId": {
+        "type": "string",
+        "format": "pymnt_{string}"
+      },
+      "StronglyTypedUlidOfPaymentTransactionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndPaymentTransactionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndPaymentTransactionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ],
+        "enum": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ]
+      },
+      "StripeHealthResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "isConfigured": {
+            "type": "boolean"
+          },
+          "hasApiKey": {
+            "type": "boolean"
+          },
+          "hasWebhookSecret": {
+            "type": "boolean"
+          },
+          "hasStandardPriceId": {
+            "type": "boolean"
+          },
+          "hasPremiumPriceId": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateCheckoutSessionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkoutUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCheckoutSessionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "successUrl": {
+            "type": "string"
+          },
+          "cancelUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CheckoutSuccessCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          }
+        }
+      },
       "TenantResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -1855,11 +2279,13 @@
         "x-enumNames": [
           "Trial",
           "Active",
+          "PastDue",
           "Suspended"
         ],
         "enum": [
           "Trial",
           "Active",
+          "PastDue",
           "Suspended"
         ]
       },

@@ -8,5 +8,6 @@ public enum TenantState
 {
     Trial,
     Active,
+    PastDue,
     Suspended
 }
