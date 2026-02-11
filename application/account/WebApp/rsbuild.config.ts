@@ -63,6 +63,8 @@ export default defineConfig({
         "./NotFoundPage": "./federated-modules/errorPages/NotFoundPage.tsx",
         "./PublicFooter": "./federated-modules/public/PublicFooter.tsx",
         "./PublicNavigation": "./federated-modules/public/PublicNavigation.tsx",
+        "./SuspendedPage": "./federated-modules/subscription/SuspendedPage.tsx",
+        "./TenantStateGuard": "./federated-modules/subscription/TenantStateGuard.tsx",
         "./UserMenu": "./federated-modules/userMenu/UserMenu.tsx",
         "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
         "./translations/en-US": "./shared/translations/locale/en-US.ts"

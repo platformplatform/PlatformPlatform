@@ -39,11 +39,26 @@ msgstr "{deletedCount} users permanently deleted"
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. All rights reserved."
 
+msgid "1 TB storage"
+msgstr "1 TB storage"
+
 msgid "1 user permanently deleted"
 msgstr "1 user permanently deleted"
 
+msgid "10 GB storage"
+msgstr "10 GB storage"
+
+msgid "10 users"
+msgstr "10 users"
+
+msgid "100 GB storage"
+msgstr "100 GB storage"
+
 msgid "100% Security Score"
 msgstr "100% Security Score"
+
+msgid "5 users"
+msgstr "5 users"
 
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
@@ -62,6 +77,9 @@ msgstr "Accepting..."
 
 msgid "Access denied"
 msgstr "Access denied"
+
+msgid "Access until {formattedPeriodEndLong}"
+msgstr "Access until {formattedPeriodEndLong}"
 
 msgid "Account"
 msgstr "Account"
@@ -123,8 +141,14 @@ msgstr "Adjust the interface size on this device to your preference."
 msgid "Admin"
 msgstr "Admin"
 
+msgid "Advanced analytics"
+msgstr "Advanced analytics"
+
 msgid "All users"
 msgstr "All users"
+
+msgid "Amount"
+msgstr "Amount"
 
 msgid "An account with this email already exists. Please log in instead."
 msgstr "An account with this email already exists. Please log in instead."
@@ -140,6 +164,9 @@ msgstr "An unexpected error occurred. Please try again or contact support if the
 
 msgid "An unexpected state occurred. Please reload the page."
 msgstr "An unexpected state occurred. Please reload the page."
+
+msgid "Analytics"
+msgstr "Analytics"
 
 msgid "Any role"
 msgstr "Any role"
@@ -194,6 +221,18 @@ msgstr "Back to login"
 msgid "Back to signup"
 msgstr "Back to signup"
 
+msgid "Basic support"
+msgstr "Basic support"
+
+msgid "Basis"
+msgstr "Basis"
+
+msgid "Billing history"
+msgstr "Billing history"
+
+msgid "Billing is not configured. Please contact support to enable payment processing."
+msgstr "Billing is not configured. Please contact support to enable payment processing."
+
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 
@@ -208,6 +247,24 @@ msgstr "Can't find your code?"
 
 msgid "Cancel"
 msgstr "Cancel"
+
+msgid "Cancel downgrade"
+msgstr "Cancel downgrade"
+
+msgid "Cancel scheduled downgrade"
+msgstr "Cancel scheduled downgrade"
+
+msgid "Cancel subscription"
+msgstr "Cancel subscription"
+
+msgid "Cancellation reason"
+msgstr "Cancellation reason"
+
+msgid "Cancelling"
+msgstr "Cancelling"
+
+msgid "Cancelling..."
+msgstr "Cancelling..."
 
 msgid "Change language"
 msgstr "Change language"
@@ -237,6 +294,9 @@ msgstr "Change user role for {0}"
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 
+msgid "Choose a plan to get started."
+msgstr "Choose a plan to get started."
+
 msgid "Choose how the application looks to you on this device."
 msgstr "Choose how the application looks to you on this device."
 
@@ -258,6 +318,9 @@ msgstr "Close user profile"
 msgid "Compliance"
 msgstr "Compliance"
 
+msgid "Confirm downgrade"
+msgstr "Confirm downgrade"
+
 msgid "Contact support"
 msgstr "Contact support"
 
@@ -275,6 +338,9 @@ msgstr "Create your account"
 
 msgid "Created"
 msgstr "Created"
+
+msgid "Current plan"
+msgstr "Current plan"
 
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Customize your theme, language, and zoom settings."
@@ -299,6 +365,9 @@ msgstr "Data residency"
 
 msgid "Data storage location for privacy and compliance. This cannot be changed later."
 msgstr "Data storage location for privacy and compliance. This cannot be changed later."
+
+msgid "Date"
+msgstr "Date"
 
 msgid "Decline"
 msgstr "Decline"
@@ -358,6 +427,12 @@ msgstr "Do you already have an account?"
 msgid "Don't have an account? <0>Create one</0>"
 msgstr "Don't have an account? <0>Create one</0>"
 
+msgid "Downgrade"
+msgstr "Downgrade"
+
+msgid "Downgrade to {planName}"
+msgstr "Downgrade to {planName}"
+
 msgid "DPA"
 msgstr "DPA"
 
@@ -382,6 +457,9 @@ msgstr "Edit user profile"
 msgid "Email"
 msgstr "Email"
 
+msgid "Email support"
+msgstr "Email support"
+
 msgid "Empty recycle bin"
 msgstr "Empty recycle bin"
 
@@ -397,8 +475,20 @@ msgstr "Enterprise-grade Azure infrastructure"
 msgid "Environment isolation"
 msgstr "Environment isolation"
 
+msgid "EUR 19/month"
+msgstr "EUR 19/month"
+
+msgid "EUR 39/month"
+msgstr "EUR 39/month"
+
 msgid "Europe"
 msgstr "Europe"
+
+msgid "expires"
+msgstr "expires"
+
+msgid "Failed"
+msgstr "Failed"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
@@ -414,6 +504,12 @@ msgstr "For detailed compliance certifications and audit reports, visit Microsof
 
 msgid "For your protection, you have been logged out. Please log in again to continue."
 msgstr "For your protection, you have been logged out. Please log in again to continue."
+
+msgid "Found an alternative"
+msgstr "Found an alternative"
+
+msgid "Free"
+msgstr "Free"
 
 msgid "Free, open-source .NET and React starter kit for building modern SaaS applications."
 msgstr "Free, open-source .NET and React starter kit for building modern SaaS applications."
@@ -466,6 +562,13 @@ msgstr "How we collect, use, and protect your personal data in compliance with G
 msgid "Identity mismatch"
 msgstr "Identity mismatch"
 
+#. placeholder {0}: getPlanLabel(currentPlan)
+msgid "If you cancel, you will keep access to your {0} plan until {formattedPeriodEnd}. After that, your account will be downgraded."
+msgstr "If you cancel, you will keep access to your {0} plan until {formattedPeriodEnd}. After that, your account will be downgraded."
+
+msgid "If you cancel, you will keep access to your current plan until the end of your billing period. After that, your account will be downgraded."
+msgstr "If you cancel, you will keep access to your current plan until the end of your billing period. After that, your account will be downgraded."
+
 msgid "Image must be smaller than 1 MB."
 msgstr "Image must be smaller than 1 MB."
 
@@ -481,14 +584,26 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
+msgid "Invoice"
+msgstr "Invoice"
+
 msgid "IP address"
 msgstr "IP address"
+
+msgid "Is there anything else you would like us to know? (optional)"
+msgstr "Is there anything else you would like us to know? (optional)"
 
 msgid "It may take up to 5 minutes before the device is signed out."
 msgstr "It may take up to 5 minutes before the device is signed out."
 
 msgid "Just now"
 msgstr "Just now"
+
+msgid "Keep downgrade"
+msgstr "Keep downgrade"
+
+msgid "Keep subscription"
+msgstr "Keep subscription"
 
 msgid "Language"
 msgstr "Language"
@@ -553,8 +668,14 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Manage payment method"
+msgstr "Manage payment method"
+
 msgid "Manage your account here."
 msgstr "Manage your account here."
+
+msgid "Manage your subscription and billing."
+msgstr "Manage your subscription and billing."
 
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
@@ -604,11 +725,23 @@ msgstr "Need help? Our support team is here to assist you."
 msgid "Next"
 msgstr "Next"
 
+msgid "Next billing date: {formattedPeriodEndLong}"
+msgstr "Next billing date: {formattedPeriodEndLong}"
+
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "No account found for this email address. Please sign up to create an account."
 
 msgid "No active sessions found."
 msgstr "No active sessions found."
+
+msgid "No longer needed"
+msgstr "No longer needed"
+
+msgid "No payment history available."
+msgstr "No payment history available."
+
+msgid "No payment method on file"
+msgstr "No payment method on file"
 
 msgid "No users found"
 msgstr "No users found"
@@ -634,6 +767,9 @@ msgstr "Open navigation menu"
 msgid "or"
 msgstr "or"
 
+msgid "Other reason"
+msgstr "Other reason"
+
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 
@@ -649,6 +785,15 @@ msgstr "Page not found"
 msgid "Passwordless deployments"
 msgstr "Passwordless deployments"
 
+msgid "Payment failed"
+msgstr "Payment failed"
+
+msgid "Payment failed. Your subscription will be suspended soon."
+msgstr "Payment failed. Your subscription will be suspended soon."
+
+msgid "Payment method"
+msgstr "Payment method"
+
 msgid "Pending"
 msgstr "Pending"
 
@@ -661,6 +806,9 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
+
+msgid "Plans"
+msgstr "Plans"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -689,14 +837,23 @@ msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
+msgid "Please wait while we confirm your payment. This may take a few moments."
+msgstr "Please wait while we confirm your payment. This may take a few moments."
+
 msgid "Powered by"
 msgstr "Powered by"
 
 msgid "Preferences"
 msgstr "Preferences"
 
+msgid "Premium"
+msgstr "Premium"
+
 msgid "Previous"
 msgstr "Previous"
+
+msgid "Priority support"
+msgstr "Priority support"
 
 msgid "Privacy"
 msgstr "Privacy"
@@ -706,6 +863,12 @@ msgstr "Privacy policies"
 
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
+
+msgid "Processing payment"
+msgstr "Processing payment"
+
+msgid "Processing..."
+msgstr "Processing..."
 
 msgid "Profile"
 msgstr "Profile"
@@ -719,6 +882,12 @@ msgstr "Profile photo"
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
 
+msgid "Reactivate"
+msgstr "Reactivate"
+
+msgid "Reactivate subscription"
+msgstr "Reactivate subscription"
+
 msgid "Recycle bin"
 msgstr "Recycle bin"
 
@@ -730,6 +899,9 @@ msgstr "Redirecting..."
 
 msgid "Reference ID: {id}"
 msgstr "Reference ID: {id}"
+
+msgid "Refunded"
+msgstr "Refunded"
 
 msgid "Region"
 msgstr "Region"
@@ -854,6 +1026,9 @@ msgstr "Sign up with Google"
 msgid "Signup verification code"
 msgstr "Signup verification code"
 
+msgid "SLA"
+msgstr "SLA"
+
 msgid "Small"
 msgstr "Small"
 
@@ -866,6 +1041,9 @@ msgstr "SOC and ISO Reports (opens in new window)"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+msgid "Standard"
+msgstr "Standard"
+
 msgid "Standard user access"
 msgstr "Standard user access"
 
@@ -877,6 +1055,24 @@ msgstr "Stay"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
+
+msgid "Stripe Link"
+msgstr "Stripe Link"
+
+msgid "Subscribe"
+msgstr "Subscribe"
+
+msgid "Subscription"
+msgstr "Subscription"
+
+msgid "Subscription plans"
+msgstr "Subscription plans"
+
+msgid "Subscription tabs"
+msgstr "Subscription tabs"
+
+msgid "Succeeded"
+msgstr "Succeeded"
 
 msgid "Switch account"
 msgstr "Switch account"
@@ -892,6 +1088,9 @@ msgstr "Tablet"
 
 msgid "Tell us a bit about yourself to get started."
 msgstr "Tell us a bit about yourself to get started."
+
+msgid "Tell us more..."
+msgstr "Tell us more..."
 
 msgid "Terms"
 msgstr "Terms"
@@ -947,6 +1146,9 @@ msgstr "To delete your account, please contact our support team."
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
 
+msgid "Too expensive"
+msgstr "Too expensive"
+
 msgid "Total users"
 msgstr "Total users"
 
@@ -974,14 +1176,23 @@ msgstr "Unknown"
 msgid "Unknown state"
 msgstr "Unknown state"
 
+msgid "Unlimited users"
+msgstr "Unlimited users"
+
 msgid "Unnamed account"
 msgstr "Unnamed account"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
 
+msgid "Update payment method"
+msgstr "Update payment method"
+
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
+
+msgid "Upgrade"
+msgstr "Upgrade"
 
 msgid "Upload logo"
 msgstr "Upload logo"
@@ -1111,23 +1322,101 @@ msgstr "You have unsaved changes. If you leave now, your changes will be lost."
 msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."
 
+#. placeholder {0}: getPlanLabel(currentPlan)
+msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
+msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
+
+#. placeholder {0}: getPlanLabel(currentPlan)
+msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
+msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
+
+#. placeholder {0}: getPlanLabel(currentPlan)
+msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
+msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
+
 msgid "Your account was switched in another browser tab."
 msgstr "Your account was switched in another browser tab."
 
 msgid "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 msgstr "Your account was switched to <0>{newTenantName}</0> in another browser tab."
 
+msgid "Your cancellation will be reversed and your {planName} subscription will remain active."
+msgstr "Your cancellation will be reversed and your {planName} subscription will remain active."
+
+msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
+msgstr "Your cancellation will be reversed and your subscription will be changed to {planName}."
+
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"
 
+msgid "Your downgrade has been scheduled."
+msgstr "Your downgrade has been scheduled."
+
+msgid "Your plan has been upgraded."
+msgstr "Your plan has been upgraded."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
+msgstr "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
+
+msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+msgstr "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
+
 msgid "Your professional title or role"
 msgstr "Your professional title or role"
+
+msgid "Your scheduled downgrade has been cancelled."
+msgstr "Your scheduled downgrade has been cancelled."
 
 msgid "Your session has expired."
 msgstr "Your session has expired."
 
 msgid "Your session was ended from another device."
 msgstr "Your session was ended from another device."
+
+msgid "Your subscription has been activated."
+msgstr "Your subscription has been activated."
+
+msgid "Your subscription has been cancelled and will end at the end of the current billing period."
+msgstr "Your subscription has been cancelled and will end at the end of the current billing period."
+
+msgid "Your subscription has been cancelled and will end at the end of the current billing period. Reactivate by selecting a plan below."
+msgstr "Your subscription has been cancelled and will end at the end of the current billing period. Reactivate by selecting a plan below."
+
+msgid "Your subscription has been cancelled."
+msgstr "Your subscription has been cancelled."
+
+msgid "Your subscription has been reactivated."
+msgstr "Your subscription has been reactivated."
+
+msgid "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
+msgstr "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
+
+msgid "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+msgstr "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+
+msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName} on {formattedDate}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
+msgstr "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName} on {formattedDate}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
+
+msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
+msgstr "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
+
+msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+msgstr "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+msgid "Your subscription will be downgraded to {0} at the end of the current billing period."
+msgstr "Your subscription will be downgraded to {0} at the end of the current billing period."
+
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+msgid "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
+msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
+
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+msgid "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
+msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
+
+msgid "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
+msgstr "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."

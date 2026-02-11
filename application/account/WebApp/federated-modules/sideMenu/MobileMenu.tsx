@@ -20,6 +20,7 @@ import {
   Check,
   ChevronDownIcon,
   CircleUserIcon,
+  CreditCardIcon,
   HomeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
@@ -121,7 +122,8 @@ function MobileMenuContent({
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
 
   const hasMultipleTenants = sortTenants(tenants).length > 1;
-  const hasTenantActions = hasMultipleTenants || canAccessAccountSettings;
+  const hasSubscription = userInfo?.role === "Owner";
+  const hasTenantActions = hasMultipleTenants || canAccessAccountSettings || hasSubscription;
   const currentTenant = tenants.find((tenant) => tenant.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || "PlatformPlatform";
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo?.tenantName || "";
@@ -304,6 +306,19 @@ function MobileMenuContent({
                     <Trans>Users</Trans>
                   </Button>
                 </>
+              )}
+              {hasSubscription && (
+                <Button
+                  variant="ghost"
+                  onClick={() => navigateTo("/account/subscription")}
+                  className={menuItemClassName(pathname, "/account/subscription", true)}
+                  aria-label={t`Subscription`}
+                >
+                  <div className="flex size-6 shrink-0 items-center justify-center">
+                    <CreditCardIcon className="size-5 stroke-current" />
+                  </div>
+                  <Trans>Subscription</Trans>
+                </Button>
               )}
             </div>
           )}

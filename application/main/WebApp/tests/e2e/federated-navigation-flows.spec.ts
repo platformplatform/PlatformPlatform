@@ -79,6 +79,13 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
+    await step("Navigate to subscription page & verify subscription page renders")(async () => {
+      await page.getByRole("link", { name: "Subscription", exact: true }).click();
+
+      await expect(page).toHaveURL("/account/subscription");
+      await expect(page.getByRole("heading", { name: "Subscription" })).toBeVisible();
+    })();
+
     // === PROFILE AND SESSIONS (ALL USERS) ===
     await step("Navigate to profile page & verify profile page renders")(async () => {
       await page.getByRole("link", { name: "User profile", exact: true }).click();
@@ -188,6 +195,13 @@ test.describe("@smoke", () => {
 
       await expect(page).toHaveURL("/user/sessions");
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
+    })();
+
+    await step("Navigate to subscription as member & verify access denied")(async () => {
+      await page.goto("/account/subscription");
+
+      await expect(page).toHaveURL("/account/subscription");
+      await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
     })();
 
     await step("Navigate to recycle-bin as member & verify access denied page")(async () => {
