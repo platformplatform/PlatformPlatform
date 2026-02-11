@@ -13,6 +13,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>
     Task<bool> ExistsAsync(TenantId id, CancellationToken cancellationToken);
 
     Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves a tenant by ID without applying tenant query filters.
+    ///     This method should only be used in webhook processing where tenant context is not established.
+    /// </summary>
+    Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -28,5 +34,14 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves a tenant by ID without applying tenant query filters.
+    ///     This method should only be used in webhook processing where tenant context is not established.
+    /// </summary>
+    public async Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 }

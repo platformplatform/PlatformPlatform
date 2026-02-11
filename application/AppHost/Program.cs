@@ -58,8 +58,8 @@ builder
 if (builder.Configuration["Parameters:stripe-api-key"] is not null)
 {
     builder
-        .AddContainer("stripe-cli", "stripe/stripe-cli")
-        .WithArgs("listen", "--forward-to", "https://localhost:9000/api/account/subscriptions/stripe-webhook")
+        .AddContainer("stripe-cli", "stripe/stripe-cli:latest")
+        .WithArgs("listen", "--forward-to", "https://host.docker.internal:9000/api/account/subscriptions/stripe-webhook", "--skip-verify")
         .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
         .WithLifetime(ContainerLifetime.Persistent);
 }
