@@ -797,6 +797,186 @@
         }
       }
     },
+    "/api/account/subscriptions/upgrade": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsUpgrade",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpgradeSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/schedule-downgrade": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsScheduleDowngrade",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduleDowngradeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/cancel": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsCancel",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/reactivate": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsReactivate",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReactivateSubscriptionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReactivateSubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/billing-portal": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsBillingPortal",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBillingPortalSessionCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBillingPortalSessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/tenants/current": {
       "get": {
         "tags": [
@@ -2241,6 +2421,98 @@
         "additionalProperties": false,
         "properties": {
           "sessionId": {
+            "type": "string"
+          }
+        }
+      },
+      "UpgradeSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newPlan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          }
+        }
+      },
+      "ScheduleDowngradeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newPlan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          }
+        }
+      },
+      "CancelSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/CancellationReason"
+          },
+          "feedback": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CancellationReason": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "FoundAlternative",
+          "TooExpensive",
+          "NoLongerNeeded",
+          "Other"
+        ],
+        "enum": [
+          "FoundAlternative",
+          "TooExpensive",
+          "NoLongerNeeded",
+          "Other"
+        ]
+      },
+      "ReactivateSubscriptionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "checkoutUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ReactivateSubscriptionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "successUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "cancelUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreateBillingPortalSessionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "portalUrl": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateBillingPortalSessionCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "returnUrl": {
             "type": "string"
           }
         }

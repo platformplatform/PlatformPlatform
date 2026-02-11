@@ -52,6 +52,10 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public DateTimeOffset? LastNotificationSentAt { get; private set; }
 
+    public CancellationReason? CancellationReason { get; private set; }
+
+    public string? CancellationFeedback { get; private set; }
+
     public ImmutableArray<PaymentTransaction> PaymentTransactions { get; private set; }
 
     public PaymentMethod? PaymentMethod { get; private set; }
@@ -101,6 +105,12 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     {
         FirstPaymentFailedAt = null;
         LastNotificationSentAt = null;
+    }
+
+    public void SetCancellationFeedback(CancellationReason reason, string? feedback)
+    {
+        CancellationReason = reason;
+        CancellationFeedback = feedback;
     }
 
     public bool HasActiveStripeSubscription()
