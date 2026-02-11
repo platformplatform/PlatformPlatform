@@ -13,6 +13,16 @@ public enum SubscriptionPlan
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
+public enum CancellationReason
+{
+    FoundAlternative,
+    TooExpensive,
+    NoLongerNeeded,
+    Other
+}
+
+[PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum PaymentTransactionStatus
 {
     Succeeded,
