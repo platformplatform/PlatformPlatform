@@ -1,8 +1,10 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import {
   Building2Icon,
+  CreditCardIcon,
   HomeIcon,
   MonitorSmartphoneIcon,
   SlidersHorizontalIcon,
@@ -20,6 +22,8 @@ function LogoContent() {
 }
 
 function AccountNavigationMenuItems() {
+  const userInfo = useUserInfo();
+
   return (
     <>
       <SideMenuSeparator>
@@ -42,6 +46,9 @@ function AccountNavigationMenuItems() {
       <MenuButton icon={HomeIcon} label={t`Overview`} ariaLabel={t`Account overview`} href="/account" />
       <MenuButton icon={Building2Icon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/account/users" matchPrefix={true} />
+      {userInfo?.role === "Owner" && (
+        <MenuButton icon={CreditCardIcon} label={t`Subscription`} href="/account/subscription" matchPrefix={true} />
+      )}
     </>
   );
 }
