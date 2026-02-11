@@ -12,4 +12,8 @@
         <ProjectReference Include="..\..\shared-kernel\SharedKernel\SharedKernel.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Stripe.net"/>
+    </ItemGroup>
+
 </Project>
