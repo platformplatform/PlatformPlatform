@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using PlatformPlatform.Account.Features.Users.Domain;
+using PlatformPlatform.Account.Integrations.OAuth;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
 using PlatformPlatform.SharedKernel.ExecutionContext;
@@ -41,6 +42,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             "APPLICATIONINSIGHTS_CONNECTION_STRING",
             "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://localhost;LiveEndpoint=https://localhost"
         );
+        Environment.SetEnvironmentVariable("Stripe__AllowMockProvider", "true");
 
         Services = new ServiceCollection();
         TimeProvider = TimeProvider.System;
@@ -123,16 +125,19 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         );
 
         AnonymousHttpClient = _webApplicationFactory.CreateClient();
+        AnonymousHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var ownerUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Owner, DatabaseSeeder.Tenant1OwnerSession.Id);
         var ownerAccessToken = AccessTokenGenerator.Generate(ownerUserInfo);
         AuthenticatedOwnerHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ownerAccessToken);
+        AuthenticatedOwnerHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         var memberUserInfo = CreateUserInfo(DatabaseSeeder.Tenant1Member, DatabaseSeeder.Tenant1MemberSession.Id);
         var memberAccessToken = AccessTokenGenerator.Generate(memberUserInfo);
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
+        AuthenticatedMemberHttpClient.DefaultRequestHeaders.Add("Cookie", $"{OAuthProviderFactory.UseMockProviderCookieName}=true");
 
         // Set the environment variable to bypass antiforgery validation on the server. ASP.NET uses a cryptographic
         // double-submit pattern that encrypts the user's ClaimUid in the token, which is complex to replicate in tests

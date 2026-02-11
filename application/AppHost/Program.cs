@@ -16,6 +16,15 @@ SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-
 
 var (googleOAuthConfigured, googleOAuthClientId, googleOAuthClientSecret) = ConfigureGoogleOAuthParameters();
 
+var stripeApiKey = builder.AddParameter("stripe-api-key", true)
+    .WithDescription("Stripe API Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
+var stripeWebhookSecret = builder.AddParameter("stripe-webhook-secret", true)
+    .WithDescription("Stripe Webhook Secret from [Stripe Dashboard](https://dashboard.stripe.com/webhooks)", true);
+var stripePriceStandard = builder.AddParameter("stripe-price-standard", true)
+    .WithDescription("Stripe Price ID for Standard plan", true);
+var stripePricePremium = builder.AddParameter("stripe-price-premium", true)
+    .WithDescription("Stripe Price ID for Premium plan", true);
+
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
     .WithDataVolume("platform-platform-sql-server-data")
@@ -46,6 +55,15 @@ builder
     .WithLifetime(ContainerLifetime.Persistent)
     .WithUrlForEndpoint("http", u => u.DisplayText = "Read mail here");
 
+if (builder.Configuration["Parameters:stripe-api-key"] is not null)
+{
+    builder
+        .AddContainer("stripe-cli", "stripe/stripe-cli")
+        .WithArgs("listen", "--forward-to", "https://localhost:9000/api/account/subscriptions/stripe-webhook")
+        .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+        .WithLifetime(ContainerLifetime.Persistent);
+}
+
 CreateBlobContainer("avatars");
 CreateBlobContainer("logos");
 
@@ -70,6 +88,11 @@ var accountApi = builder
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
+    .WithEnvironment("Stripe__ApiKey", stripeApiKey)
+    .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
+    .WithEnvironment("Stripe__Prices__Standard", stripePriceStandard)
+    .WithEnvironment("Stripe__Prices__Premium", stripePricePremium)
+    .WithEnvironment("Stripe__AllowMockProvider", "true")
     .WaitFor(accountWorkers);
 
 var backOfficeDatabase = sqlServer
