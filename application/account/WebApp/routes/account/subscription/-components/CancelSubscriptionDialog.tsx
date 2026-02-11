@@ -1,0 +1,154 @@
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle
+} from "@repo/ui/components/AlertDialog";
+import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
+import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
+import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
+import { AlertTriangleIcon } from "lucide-react";
+import { useState } from "react";
+import { CancellationReason } from "@/shared/lib/api/client";
+
+type CancelSubscriptionDialogProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  onConfirm: (reason: CancellationReason, feedback: string | null) => void;
+  isPending: boolean;
+  currentPeriodEnd: string | null;
+};
+
+export function CancelSubscriptionDialog({
+  isOpen,
+  onOpenChange,
+  onConfirm,
+  isPending,
+  currentPeriodEnd
+}: Readonly<CancelSubscriptionDialogProps>) {
+  const formatLongDate = useFormatLongDate();
+  const formattedDate = formatLongDate(currentPeriodEnd);
+  const [reason, setReason] = useState<CancellationReason | null>(null);
+  const [feedback, setFeedback] = useState("");
+
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      setReason(null);
+      setFeedback("");
+    }
+    onOpenChange(open);
+  }
+
+  return (
+    <AlertDialog open={isOpen} onOpenChange={handleOpenChange} trackingTitle="Cancel subscription">
+      <AlertDialogContent className="sm:w-dialog-lg">
+        <AlertDialogHeader>
+          <AlertDialogMedia className="bg-destructive/10">
+            <AlertTriangleIcon className="text-destructive" />
+          </AlertDialogMedia>
+          <AlertDialogTitle>{t`Cancel subscription`}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {formattedDate ? (
+              <Trans>
+                Your subscription will remain active until {formattedDate}. After that, your account will be suspended
+                and you will lose access to paid features.
+              </Trans>
+            ) : (
+              <Trans>
+                Your subscription will be cancelled at the end of the current billing period. After that, your account
+                will be suspended.
+              </Trans>
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <div className="flex flex-col gap-4 px-6">
+          <RadioGroup
+            aria-label={t`Cancellation reason`}
+            value={reason ?? ""}
+            onValueChange={(value) => setReason(value as CancellationReason)}
+          >
+            <FieldLabel>
+              <Field orientation="horizontal">
+                <RadioGroupItem value={CancellationReason.FoundAlternative} aria-label={t`Found an alternative`} />
+                <FieldContent>
+                  <FieldTitle>
+                    <Trans>Found an alternative</Trans>
+                  </FieldTitle>
+                </FieldContent>
+              </Field>
+            </FieldLabel>
+            <FieldLabel>
+              <Field orientation="horizontal">
+                <RadioGroupItem value={CancellationReason.TooExpensive} aria-label={t`Too expensive`} />
+                <FieldContent>
+                  <FieldTitle>
+                    <Trans>Too expensive</Trans>
+                  </FieldTitle>
+                </FieldContent>
+              </Field>
+            </FieldLabel>
+            <FieldLabel>
+              <Field orientation="horizontal">
+                <RadioGroupItem value={CancellationReason.NoLongerNeeded} aria-label={t`No longer needed`} />
+                <FieldContent>
+                  <FieldTitle>
+                    <Trans>No longer needed</Trans>
+                  </FieldTitle>
+                </FieldContent>
+              </Field>
+            </FieldLabel>
+            <FieldLabel>
+              <Field orientation="horizontal">
+                <RadioGroupItem value={CancellationReason.Other} aria-label={t`Other reason`} />
+                <FieldContent>
+                  <FieldTitle>
+                    <Trans>Other reason</Trans>
+                  </FieldTitle>
+                </FieldContent>
+              </Field>
+            </FieldLabel>
+          </RadioGroup>
+
+          <Field>
+            <FieldLabel>
+              <FieldDescription>
+                <Trans>Is there anything else you would like us to know? (optional)</Trans>
+              </FieldDescription>
+            </FieldLabel>
+            <textarea
+              className="min-h-[5rem] w-full rounded-md border border-input bg-white px-2.5 py-2 text-sm shadow-xs outline-ring placeholder:text-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-input/30"
+              placeholder={t`Tell us more...`}
+              value={feedback}
+              onChange={(event) => setFeedback(event.target.value)}
+              disabled={isPending}
+              maxLength={500}
+            />
+          </Field>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>{t`Keep subscription`}</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            onClick={() => {
+              if (reason !== null) {
+                onConfirm(reason, feedback.trim() || null);
+              }
+            }}
+            disabled={isPending || reason === null}
+          >
+            {isPending ? t`Cancelling...` : t`Cancel subscription`}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}

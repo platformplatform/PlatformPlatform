@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import InvitationBanner from "./InvitationBanner";
+import PastDueBanner from "./PastDueBanner";
 import "@repo/ui/tailwind.css";
 
 export default function Banners() {
@@ -10,5 +11,11 @@ export default function Banners() {
     return null;
   }
 
-  return createPortal(<InvitationBanner />, target);
+  return createPortal(
+    <>
+      <InvitationBanner />
+      <PastDueBanner />
+    </>,
+    target
+  );
 }
