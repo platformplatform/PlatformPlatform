@@ -1352,6 +1352,9 @@ msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 msgid "Your downgrade has been scheduled."
 msgstr "Din nedgradering er blevet planlagt."
 
+msgid "Your payment card is expired or expiring soon. Please update your payment method to avoid service interruption."
+msgstr "Dit betalingskort er udløbet eller udløber snart. Opdater venligst din betalingsmetode for at undgå afbrydelse af service."
+
 msgid "Your plan has been upgraded."
 msgstr "Dit abonnement er blevet opgraderet."
 
