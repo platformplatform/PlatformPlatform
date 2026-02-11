@@ -64,6 +64,8 @@ export default defineConfig({
         "./PublicFooter": "./federated-modules/public/PublicFooter.tsx",
         "./PublicNavigation": "./federated-modules/public/PublicNavigation.tsx",
         "./Banners": "./federated-modules/banners/Banners.tsx",
+        "./SuspendedPage": "./federated-modules/subscription/SuspendedPage.tsx",
+        "./TenantStateGuard": "./federated-modules/subscription/TenantStateGuard.tsx",
         "./translations/en-US": "./shared/translations/locale/en-US.ts",
         "./translations/da-DK": "./shared/translations/locale/da-DK.ts"
       }
