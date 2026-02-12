@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
+import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
 import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { PlanCard } from "./-components/PlanCard";
@@ -30,7 +31,7 @@ function SubscriptionPage() {
   const formatLongDate = useFormatLongDate();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isRedirectingToBillingPortal, setIsRedirectingToBillingPortal] = useState(false);
+  const [isRedirectingToBillingPortal, setIsRedirectingToBillingPortal] = useState<"payment" | "billing" | null>(null);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
 
@@ -53,10 +54,11 @@ function SubscriptionPage() {
     }
   });
 
+  const [billingPortalSource, setBillingPortalSource] = useState<"payment" | "billing" | null>(null);
   const billingPortalMutation = api.useMutation("post", "/api/account/subscriptions/billing-portal", {
     onSuccess: (data) => {
       if (data.portalUrl) {
-        setIsRedirectingToBillingPortal(true);
+        setIsRedirectingToBillingPortal(billingPortalSource);
         window.location.href = data.portalUrl;
       }
     }
@@ -147,20 +149,6 @@ function SubscriptionPage() {
             </div>
           )}
 
-          {hasStripeCustomer && (
-            <div className="mb-6 flex justify-end">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => syncMutation.mutate({})}
-                disabled={syncMutation.isPending}
-              >
-                <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-                {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
-              </Button>
-            </div>
-          )}
-
           <div className="grid gap-4 sm:grid-cols-3">
             {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
               <PlanCard
@@ -181,6 +169,17 @@ function SubscriptionPage() {
               />
             ))}
           </div>
+          {hasStripeCustomer && (
+            <Button
+              variant="outline"
+              className="mt-4 w-fit md:self-end"
+              onClick={() => syncMutation.mutate({})}
+              disabled={syncMutation.isPending}
+            >
+              <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+              {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
+            </Button>
+          )}
         </AppLayout>
 
         <ProcessingPaymentModal isOpen={isProcessing} />
@@ -197,20 +196,6 @@ function SubscriptionPage() {
         subtitle={t`Manage your subscription and billing.`}
       >
         <SubscriptionTabNavigation activeTab="overview" />
-
-        {hasStripeCustomer && (
-          <div className="mb-6 flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => syncMutation.mutate({})}
-              disabled={syncMutation.isPending}
-            >
-              <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-              {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
-            </Button>
-          </div>
-        )}
 
         {cancelAtPeriodEnd && (
           <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
@@ -259,27 +244,42 @@ function SubscriptionPage() {
             <Trans>Current plan</Trans>
           </h3>
           <Separator />
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-medium">{getPlanLabel(currentPlan)}</span>
-            {cancelAtPeriodEnd ? (
-              <Badge variant="destructive">
-                <Trans>Cancelling</Trans>
-              </Badge>
-            ) : (
-              <Badge variant="default">
-                <Trans>Active</Trans>
-              </Badge>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="font-medium">{getPlanLabel(currentPlan)}</span>
+                {cancelAtPeriodEnd ? (
+                  <Badge variant="destructive">
+                    <Trans>Cancelling</Trans>
+                  </Badge>
+                ) : (
+                  <Badge variant="default">
+                    <Trans>Active</Trans>
+                  </Badge>
+                )}
+              </div>
+              {formattedPeriodEndLong && (
+                <p className="text-muted-foreground text-sm">
+                  {cancelAtPeriodEnd ? (
+                    <Trans>Access until {formattedPeriodEndLong}</Trans>
+                  ) : (
+                    <Trans>Next billing date: {formattedPeriodEndLong}</Trans>
+                  )}
+                </p>
+              )}
+            </div>
+            {hasStripeCustomer && (
+              <Button
+                variant="outline"
+                className="w-fit"
+                onClick={() => syncMutation.mutate({})}
+                disabled={syncMutation.isPending}
+              >
+                <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+                {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
+              </Button>
             )}
           </div>
-          {formattedPeriodEndLong && (
-            <p className="text-muted-foreground text-sm">
-              {cancelAtPeriodEnd ? (
-                <Trans>Access until {formattedPeriodEndLong}</Trans>
-              ) : (
-                <Trans>Next billing date: {formattedPeriodEndLong}</Trans>
-              )}
-            </p>
-          )}
         </div>
 
         <div className="mt-8 flex flex-col gap-4">
@@ -292,17 +292,42 @@ function SubscriptionPage() {
             <Button
               variant="outline"
               className="w-fit"
-              onClick={() =>
-                billingPortalMutation.mutate({
-                  body: { returnUrl: window.location.href }
-                })
-              }
-              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal || !isStripeConfigured}
+              onClick={() => {
+                setBillingPortalSource("payment");
+                billingPortalMutation.mutate({ body: { returnUrl: window.location.href } });
+              }}
+              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal !== null || !isStripeConfigured}
             >
               <ExternalLinkIcon className="size-4" />
-              {billingPortalMutation.isPending || isRedirectingToBillingPortal
+              {(billingPortalMutation.isPending && billingPortalSource === "payment") ||
+              isRedirectingToBillingPortal === "payment"
                 ? t`Loading...`
                 : t`Manage payment method`}
+            </Button>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-4">
+          <h3>
+            <Trans>Billing information</Trans>
+          </h3>
+          <Separator />
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <BillingInfoDisplay billingInfo={subscription?.billingInfo} />
+            <Button
+              variant="outline"
+              className="w-fit shrink-0"
+              onClick={() => {
+                setBillingPortalSource("billing");
+                billingPortalMutation.mutate({ body: { returnUrl: window.location.href } });
+              }}
+              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal !== null || !isStripeConfigured}
+            >
+              <ExternalLinkIcon className="size-4" />
+              {(billingPortalMutation.isPending && billingPortalSource === "billing") ||
+              isRedirectingToBillingPortal === "billing"
+                ? t`Loading...`
+                : t`Edit billing information`}
             </Button>
           </div>
         </div>

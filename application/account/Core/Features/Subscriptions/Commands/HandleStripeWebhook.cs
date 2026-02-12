@@ -77,6 +77,9 @@ public sealed class HandleStripeWebhookHandler(
             );
         }
 
+        var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(customerId, cancellationToken);
+        subscription.SetBillingInfo(billingInfo);
+
         if (webhookEvent.EventType == "invoice.payment_succeeded")
         {
             await HandlePaymentSucceeded(subscription, cancellationToken);
