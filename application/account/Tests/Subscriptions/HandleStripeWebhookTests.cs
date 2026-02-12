@@ -73,7 +73,11 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
                 ("ModifiedAt", null),
                 ("StripeEventId", eventId),
                 ("EventType", "checkout.session.completed"),
-                ("ProcessedAt", TimeProvider.GetUtcNow())
+                ("ProcessedAt", TimeProvider.GetUtcNow()),
+                ("StripeCustomerId", MockStripeClient.MockCustomerId),
+                ("StripeSubscriptionId", MockStripeClient.MockSubscriptionId),
+                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
+                ("Payload", null)
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -309,7 +313,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenNoSubscriptionFound_ShouldReturnBadRequest()
+    public async Task HandleStripeWebhook_WhenNoSubscriptionFound_ShouldRecordEventAndReturnSuccess()
     {
         // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
@@ -320,7 +324,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         var response = await AnonymousHttpClient.SendAsync(request);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, $"No subscription found for Stripe customer '{MockStripeClient.MockCustomerId}'.");
+        response.EnsureSuccessStatusCode();
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
