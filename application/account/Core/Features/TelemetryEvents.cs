@@ -22,6 +22,9 @@ public sealed class BillingPortalSessionCreated(SubscriptionId subscriptionId)
 public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
+public sealed class DisputeResolved(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class EmailLoginCodeBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
     : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("retry_count", retryCount));
 
@@ -67,10 +70,16 @@ public sealed class GravatarUpdated(long size)
 public sealed class Logout
     : TelemetryEvent;
 
+public sealed class PaymentDisputed(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class SessionCreated(SessionId sessionId)
