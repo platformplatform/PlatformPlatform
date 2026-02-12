@@ -4,7 +4,7 @@ namespace PlatformPlatform.Account.Integrations.Stripe;
 
 public interface IStripeClient
 {
-    Task<string?> CreateCustomerAsync(string tenantName, string email, CancellationToken cancellationToken);
+    Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken);
 
     Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string successUrl, string cancelUrl, CancellationToken cancellationToken);
 
@@ -31,7 +31,7 @@ public interface IStripeClient
     Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken);
 }
 
-public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId);
+public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId);
 
 public sealed record CheckoutSessionResult(string SessionId, string Url);
 

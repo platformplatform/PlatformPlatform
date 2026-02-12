@@ -101,7 +101,7 @@ public sealed class ReactivateSubscriptionHandler(
 
         if (subscription.StripeCustomerId is null)
         {
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email!, cancellationToken);
+            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email!, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create Stripe customer.");
