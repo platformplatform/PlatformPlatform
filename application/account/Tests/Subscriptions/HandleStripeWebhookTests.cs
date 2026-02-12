@@ -16,7 +16,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 
-    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, DateTimeOffset? lastNotificationSentAt = null)
+    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, DateTimeOffset? lastNotificationSentAt = null, DateTimeOffset? disputedAt = null, DateTimeOffset? refundedAt = null)
     {
         var subscriptionId = SubscriptionId.NewId().ToString();
         Connection.Insert("Subscriptions", [
@@ -32,6 +32,8 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", firstPaymentFailedAt),
                 ("LastNotificationSentAt", lastNotificationSentAt),
+                ("DisputedAt", disputedAt),
+                ("RefundedAt", refundedAt),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -341,6 +343,95 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         response.EnsureSuccessStatusCode();
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("WebhookProcessed");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleStripeWebhook_WhenDisputeCreated_ShouldSetDisputedAndSendEmail()
+    {
+        // Arrange
+        var subscriptionId = InsertSubscription();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:charge.dispute.created");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var disputedAt = Connection.ExecuteScalar<string>("SELECT DisputedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        disputedAt.Should().NotBeNullOrEmpty();
+
+        await EmailClient.Received(1).SendAsync(
+            Arg.Is<string>(e => e == "owner@tenant-1.com"),
+            Arg.Is<string>(s => s.Contains("dispute")),
+            Arg.Any<string>(),
+            Arg.Any<CancellationToken>()
+        );
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentDisputed");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleStripeWebhook_WhenDisputeClosed_ShouldClearDispute()
+    {
+        // Arrange
+        var now = TimeProvider.GetUtcNow();
+        var subscriptionId = InsertSubscription(disputedAt: now.AddDays(-5));
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:charge.dispute.closed");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var disputedAt = Connection.ExecuteScalar<string>("SELECT DisputedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        disputedAt.Should().BeNullOrEmpty();
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("DisputeResolved");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HandleStripeWebhook_WhenChargeRefunded_ShouldSetRefundedAt()
+    {
+        // Arrange
+        var subscriptionId = InsertSubscription();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:charge.refunded");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var refundedAt = Connection.ExecuteScalar<string>("SELECT RefundedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        refundedAt.Should().NotBeNullOrEmpty();
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentRefunded");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 }

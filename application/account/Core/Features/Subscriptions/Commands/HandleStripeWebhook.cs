@@ -75,6 +75,18 @@ public sealed class HandleStripeWebhookHandler(
         {
             await HandlePaymentFailed(subscription, now, cancellationToken);
         }
+        else if (webhookEvent.EventType == "charge.dispute.created")
+        {
+            await HandleDisputeCreated(subscription, now, cancellationToken);
+        }
+        else if (webhookEvent.EventType == "charge.dispute.closed")
+        {
+            HandleDisputeClosed(subscription);
+        }
+        else if (webhookEvent.EventType == "charge.refunded")
+        {
+            HandleRefund(subscription, now);
+        }
         else if (webhookEvent.EventType == "checkout.session.completed")
         {
             events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan));
@@ -218,6 +230,44 @@ public sealed class HandleStripeWebhookHandler(
                                    <h2>Your subscription has been suspended</h2>
                                    <p>Due to continued payment failure, your subscription has been suspended. All users in your organization will have limited access until the subscription is reactivated.</p>
                                    <p>To restore access, please update your payment method and reactivate your subscription from your subscription settings.</p>
+                                   """;
+
+        await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
+    }
+
+    private async Task HandleDisputeCreated(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        subscription.SetDisputed(now);
+
+        var owner = await userRepository.GetOwnerByTenantIdUnfilteredAsync(subscription.TenantId, cancellationToken);
+        if (owner is not null)
+        {
+            await SendDisputeCreatedEmail(owner.Email, cancellationToken);
+        }
+
+        events.CollectEvent(new PaymentDisputed(subscription.Id, subscription.Plan));
+    }
+
+    private void HandleDisputeClosed(Subscription subscription)
+    {
+        subscription.ClearDispute();
+        events.CollectEvent(new DisputeResolved(subscription.Id, subscription.Plan));
+    }
+
+    private void HandleRefund(Subscription subscription, DateTimeOffset now)
+    {
+        subscription.SetRefunded(now);
+        events.CollectEvent(new PaymentRefunded(subscription.Id, subscription.Plan));
+    }
+
+    private async Task SendDisputeCreatedEmail(string recipientEmail, CancellationToken cancellationToken)
+    {
+        const string subject = "Payment dispute - immediate action required";
+        const string htmlContent = """
+                                   <h2>A payment dispute has been filed</h2>
+                                   <p>A payment dispute has been filed for your subscription.</p>
+                                   <p>Please review the dispute in your payment settings or contact support for assistance.</p>
+                                   <p>You can manage your subscription from your subscription settings.</p>
                                    """;
 
         await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);

@@ -477,6 +477,9 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             StripeSubscription subscription => subscription.CustomerId,
             Invoice invoice => invoice.CustomerId,
             Session session => session.CustomerId,
+            Charge charge => charge.CustomerId,
+            Dispute dispute => dispute.Charge?.CustomerId,
+            Refund refund => refund.Charge?.CustomerId,
             _ => null
         };
     }
