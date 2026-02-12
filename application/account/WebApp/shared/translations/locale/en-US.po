@@ -1035,6 +1035,9 @@ msgstr "Subscribe"
 msgid "Subscription"
 msgstr "Subscription"
 
+msgid "Subscription synced with Stripe."
+msgstr "Subscription synced with Stripe."
+
 msgid "Subscription tabs"
 msgstr "Subscription tabs"
 
@@ -1046,6 +1049,12 @@ msgstr "Switch account"
 
 msgid "Switching account..."
 msgstr "Switching account..."
+
+msgid "Sync with Stripe"
+msgstr "Sync with Stripe"
+
+msgid "Syncing..."
+msgstr "Syncing..."
 
 msgid "System"
 msgstr "System"

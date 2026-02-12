@@ -56,5 +56,9 @@ public sealed class SubscriptionEndpoints : IEndpoints
         group.MapPost("/billing-portal", async Task<ApiResult<CreateBillingPortalSessionResponse>> (CreateBillingPortalSessionCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<CreateBillingPortalSessionResponse>();
+
+        group.MapPost("/sync", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new SyncSubscriptionCommand())
+        );
     }
 }
