@@ -57,6 +57,9 @@ public sealed class SyncSubscriptionHandler(
             );
         }
 
+        var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId, cancellationToken);
+        subscription.SetBillingInfo(billingInfo);
+
         subscription.ClearPaymentFailure();
         subscription.ClearDispute();
         subscription.ClearRefund();

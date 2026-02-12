@@ -239,6 +239,9 @@ msgstr "Basis"
 msgid "Billing history"
 msgstr "Betalingshistorik"
 
+msgid "Billing information"
+msgstr ""
+
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Betaling er ikke konfigureret. Kontakt support for at aktivere betalingsbehandling."
 
@@ -465,6 +468,9 @@ msgstr "Rediger profil"
 
 msgid "Edit user profile"
 msgstr "Rediger brugerprofil"
+
+msgid "Edit billing information"
+msgstr ""
 
 msgid "Email"
 msgstr "E-mail"
@@ -745,6 +751,9 @@ msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at 
 
 msgid "No active sessions found."
 msgstr "Ingen aktive sessioner"
+
+msgid "No billing information on file"
+msgstr ""
 
 msgid "No longer needed"
 msgstr "Ikke længere nødvendigt"
