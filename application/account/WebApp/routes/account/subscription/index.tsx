@@ -8,7 +8,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangleIcon, ExternalLinkIcon } from "lucide-react";
+import { AlertTriangleIcon, ExternalLinkIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -82,6 +82,14 @@ function SubscriptionPage() {
     }
   });
 
+  const syncMutation = api.useMutation("post", "/api/account/subscriptions/sync", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/payment-history"] });
+      toast.success(t`Subscription synced with Stripe.`);
+    }
+  });
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get("session_id");
@@ -98,6 +106,7 @@ function SubscriptionPage() {
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const scheduledPlan = subscription?.scheduledPlan ?? null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
+  const hasStripeCustomer = subscription?.hasStripeCustomer ?? false;
   const hasStripeSubscription = subscription?.hasStripeSubscription ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);
 
@@ -138,6 +147,20 @@ function SubscriptionPage() {
             </div>
           )}
 
+          {hasStripeCustomer && (
+            <div className="mb-6 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => syncMutation.mutate({})}
+                disabled={syncMutation.isPending}
+              >
+                <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+                {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
+              </Button>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-3">
             {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
               <PlanCard
@@ -174,6 +197,20 @@ function SubscriptionPage() {
         subtitle={t`Manage your subscription and billing.`}
       >
         <SubscriptionTabNavigation activeTab="overview" />
+
+        {hasStripeCustomer && (
+          <div className="mb-6 flex justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => syncMutation.mutate({})}
+              disabled={syncMutation.isPending}
+            >
+              <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
+              {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
+            </Button>
+          </div>
+        )}
 
         {cancelAtPeriodEnd && (
           <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">

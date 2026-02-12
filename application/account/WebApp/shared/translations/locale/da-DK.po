@@ -1083,6 +1083,9 @@ msgstr "Abonnement"
 msgid "Subscription plans"
 msgstr "Abonnementsplaner"
 
+msgid "Subscription synced with Stripe."
+msgstr "Abonnement synkroniseret med Stripe."
+
 msgid "Subscription tabs"
 msgstr "Abonnementsfaner"
 
@@ -1094,6 +1097,12 @@ msgstr "Skift konto"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."
+
+msgid "Sync with Stripe"
+msgstr "Synkroniser med Stripe"
+
+msgid "Syncing..."
+msgstr "Synkroniserer..."
 
 msgid "System"
 msgstr "System"

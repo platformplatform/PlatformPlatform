@@ -1017,6 +1017,26 @@
         }
       }
     },
+    "/api/account/subscriptions/sync": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsSync",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/tenants/current": {
       "get": {
         "tags": [
@@ -2249,6 +2269,9 @@
             "nullable": true
           },
           "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "hasStripeCustomer": {
             "type": "boolean"
           },
           "hasStripeSubscription": {
