@@ -432,13 +432,33 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             }
 
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
-            var customerId = ExtractCustomerId(stripeEvent);
+            var (customerId, unresolvedChargeId) = ExtractCustomerInfo(stripeEvent);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, unresolvedChargeId);
         }
         catch (StripeException ex)
         {
             logger.LogError(ex, "Stripe webhook signature verification failed");
+            return null;
+        }
+    }
+
+    public async Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new ChargeService();
+            var charge = await service.GetAsync(chargeId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            return charge.CustomerId;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting charge {ChargeId}", chargeId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting charge {ChargeId}", chargeId);
             return null;
         }
     }
@@ -469,18 +489,18 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         return _portalConfigurationId;
     }
 
-    private static string? ExtractCustomerId(Event stripeEvent)
+    private static (string? CustomerId, string? UnresolvedChargeId) ExtractCustomerInfo(Event stripeEvent)
     {
         return stripeEvent.Data.Object switch
         {
-            Customer customer => customer.Id,
-            StripeSubscription subscription => subscription.CustomerId,
-            Invoice invoice => invoice.CustomerId,
-            Session session => session.CustomerId,
-            Charge charge => charge.CustomerId,
-            Dispute dispute => dispute.Charge?.CustomerId,
-            Refund refund => refund.Charge?.CustomerId,
-            _ => null
+            Customer customer => (customer.Id, null),
+            StripeSubscription subscription => (subscription.CustomerId, null),
+            Invoice invoice => (invoice.CustomerId, null),
+            Session session => (session.CustomerId, null),
+            Charge charge => (charge.CustomerId, null),
+            Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null),
+            Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null),
+            _ => (null, null)
         };
     }
 

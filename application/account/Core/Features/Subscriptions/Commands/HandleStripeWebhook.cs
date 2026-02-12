@@ -40,18 +40,30 @@ public sealed class HandleStripeWebhookHandler(
             return Result.Success();
         }
 
-        if (webhookEvent.CustomerId is null)
+        var now = timeProvider.GetUtcNow();
+
+        var customerId = webhookEvent.CustomerId;
+        if (customerId is null && webhookEvent.UnresolvedChargeId is not null)
         {
+            customerId = await stripeClient.GetCustomerIdByChargeAsync(webhookEvent.UnresolvedChargeId, cancellationToken);
+        }
+
+        if (customerId is null)
+        {
+            await RecordEvent(webhookEvent, now, null, null, null, command.Payload, cancellationToken);
             return Result.Success();
         }
 
-        var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(webhookEvent.CustomerId, cancellationToken);
+        var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(customerId, cancellationToken);
         if (subscription is null)
         {
-            return Result.BadRequest($"No subscription found for Stripe customer '{webhookEvent.CustomerId}'.");
+            await RecordEvent(webhookEvent, now, customerId, null, null, command.Payload, cancellationToken);
+            return Result.Success();
         }
 
-        var syncResult = await stripeClient.SyncSubscriptionStateAsync(webhookEvent.CustomerId, cancellationToken);
+        var stripeSubscriptionId = subscription.StripeSubscriptionId;
+
+        var syncResult = await stripeClient.SyncSubscriptionStateAsync(customerId, cancellationToken);
         if (syncResult is not null)
         {
             subscription.SyncFromStripe(
@@ -64,8 +76,6 @@ public sealed class HandleStripeWebhookHandler(
                 syncResult.PaymentMethod
             );
         }
-
-        var now = timeProvider.GetUtcNow();
 
         if (webhookEvent.EventType == "invoice.payment_succeeded")
         {
@@ -103,9 +113,7 @@ public sealed class HandleStripeWebhookHandler(
 
         subscriptionRepository.Update(subscription);
 
-        var idempotencyRecord = StripeWebhookEvent.Create(webhookEvent.EventId, webhookEvent.EventType, now);
-        await stripeWebhookEventRepository.AddAsync(idempotencyRecord, cancellationToken);
-
+        await RecordEvent(webhookEvent, now, customerId, stripeSubscriptionId, subscription.TenantId.Value, command.Payload, cancellationToken);
         events.CollectEvent(new WebhookProcessed(subscription.Id, webhookEvent.EventType));
 
         return Result.Success();
@@ -271,5 +279,11 @@ public sealed class HandleStripeWebhookHandler(
                                    """;
 
         await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
+    }
+
+    private async Task RecordEvent(StripeWebhookEventResult webhookEvent, DateTimeOffset now, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload, CancellationToken cancellationToken)
+    {
+        var record = StripeWebhookEvent.Create(webhookEvent.EventId, webhookEvent.EventType, now, stripeCustomerId, stripeSubscriptionId, tenantId, payload);
+        await stripeWebhookEventRepository.AddAsync(record, cancellationToken);
     }
 }
