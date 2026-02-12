@@ -141,6 +141,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<string?>(MockCustomerId);
     }
 
+    public Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        var billingInfo = new BillingInfo("billing@example.com", new BillingAddress("Vestergade 12", null, "København K", null, "1456", "DK"), "+45 12345678");
+        return Task.FromResult<BillingInfo?>(billingInfo);
+    }
+
     private void EnsureEnabled()
     {
         if (!_isEnabled)
