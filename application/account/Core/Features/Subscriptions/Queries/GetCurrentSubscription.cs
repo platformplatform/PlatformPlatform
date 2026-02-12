@@ -17,6 +17,7 @@ public sealed record SubscriptionResponse(
     bool HasStripeCustomer,
     bool HasStripeSubscription,
     PaymentMethod? PaymentMethod,
+    BillingInfo? BillingInfo,
     DateTimeOffset? DisputedAt,
     DateTimeOffset? RefundedAt
 );
@@ -41,6 +42,7 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
             subscription.StripeCustomerId is not null,
             subscription.StripeSubscriptionId is not null,
             subscription.PaymentMethod,
+            subscription.BillingInfo,
             subscription.DisputedAt,
             subscription.RefundedAt
         );

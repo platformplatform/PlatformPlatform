@@ -5,6 +5,7 @@ using Stripe;
 using Stripe.BillingPortal;
 using Stripe.Checkout;
 using DomainPaymentMethod = PlatformPlatform.Account.Features.Subscriptions.Domain.PaymentMethod;
+using PaymentMethod = Stripe.PaymentMethod;
 using Session = Stripe.Checkout.Session;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
@@ -65,6 +66,8 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             {
                 Customer = stripeCustomerId,
                 Mode = "subscription",
+                BillingAddressCollection = "required",
+                CustomerUpdate = new SessionCustomerUpdateOptions { Address = "auto", Name = "auto" },
                 SuccessUrl = successUrl,
                 CancelUrl = cancelUrl,
                 LineItems =
@@ -464,6 +467,49 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
+    public async Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var customerService = new CustomerService();
+            var customer = await customerService.GetAsync(stripeCustomerId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+
+            BillingAddress? address = null;
+            var email = customer.Email;
+            var phone = customer.Phone;
+
+            if (customer.Address is not null)
+            {
+                address = new BillingAddress(customer.Address.Line1, customer.Address.Line2, customer.Address.City, customer.Address.State, customer.Address.PostalCode, customer.Address.Country);
+            }
+            else
+            {
+                var paymentMethodService = new PaymentMethodService();
+                var paymentMethods = await paymentMethodService.ListAsync(new PaymentMethodListOptions { Customer = stripeCustomerId, Limit = 1 }, GetRequestOptions(), cancellationToken);
+                var billingDetails = paymentMethods.Data.FirstOrDefault()?.BillingDetails;
+
+                if (billingDetails?.Address is { } paymentMethodAddress)
+                {
+                    address = new BillingAddress(paymentMethodAddress.Line1, paymentMethodAddress.Line2, paymentMethodAddress.City, paymentMethodAddress.State, paymentMethodAddress.PostalCode, paymentMethodAddress.Country);
+                    email ??= billingDetails.Email;
+                    phone ??= billingDetails.Phone;
+                }
+            }
+
+            return new BillingInfo(email, address, phone);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting customer billing info for {CustomerId}", stripeCustomerId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting customer billing info for {CustomerId}", stripeCustomerId);
+            return null;
+        }
+    }
+
     private async Task<string> GetOrCreatePortalConfigurationAsync(string publicUrl, CancellationToken cancellationToken)
     {
         if (_portalConfigurationId is not null)
@@ -481,7 +527,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                     SubscriptionCancel = new ConfigurationFeaturesSubscriptionCancelOptions { Enabled = false },
                     SubscriptionUpdate = new ConfigurationFeaturesSubscriptionUpdateOptions { Enabled = false },
                     InvoiceHistory = new ConfigurationFeaturesInvoiceHistoryOptions { Enabled = false },
-                    CustomerUpdate = new ConfigurationFeaturesCustomerUpdateOptions { Enabled = false }
+                    CustomerUpdate = new ConfigurationFeaturesCustomerUpdateOptions { Enabled = true, AllowedUpdates = ["email", "address", "phone"] }
                 }
             }, GetRequestOptions(), cancellationToken
         );
@@ -501,6 +547,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             PaymentIntent paymentIntent => (paymentIntent.CustomerId, null, null),
             Session session => (session.CustomerId, null, null),
             Charge charge => (charge.CustomerId, null, null),
+            PaymentMethod paymentMethod => (paymentMethod.CustomerId, null, null),
             Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null, null),
             Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null, null),
             _ => (null, null, null)
