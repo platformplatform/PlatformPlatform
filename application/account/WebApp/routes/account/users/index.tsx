@@ -132,14 +132,9 @@ export default function UsersPage() {
 
   return (
     <>
-      <AppLayout
-        sidePane={getSidePane()}
-        title={t`Users`}
-        subtitle={t`Manage your users and permissions here.`}
-        scrollAwayHeader={true}
-      >
+      <AppLayout sidePane={getSidePane()} title={t`Users`} subtitle={t`Manage your users and permissions here.`}>
+        {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
         <div className="flex min-h-0 flex-1 flex-col">
-          {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
           <div className="max-sm:sticky max-sm:top-12">
             <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
           </div>
