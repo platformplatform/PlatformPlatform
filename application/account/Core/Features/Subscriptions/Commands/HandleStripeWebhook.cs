@@ -14,7 +14,7 @@ public sealed record HandleStripeWebhookCommand(string Payload, string Signature
 
 public sealed class HandleStripeWebhookHandler(
     ISubscriptionRepository subscriptionRepository,
-    IStripeWebhookEventRepository stripeWebhookEventRepository,
+    IStripeEventRepository stripeEventRepository,
     ITenantRepository tenantRepository,
     IUserRepository userRepository,
     StripeClientFactory stripeClientFactory,
@@ -35,7 +35,7 @@ public sealed class HandleStripeWebhookHandler(
             return Result.BadRequest("Invalid webhook signature.");
         }
 
-        if (await stripeWebhookEventRepository.ExistsByStripeEventIdAsync(webhookEvent.EventId, cancellationToken))
+        if (await stripeEventRepository.ExistsAsync(webhookEvent.EventId, cancellationToken))
         {
             return Result.Success();
         }
@@ -283,7 +283,7 @@ public sealed class HandleStripeWebhookHandler(
 
     private async Task RecordEvent(StripeWebhookEventResult webhookEvent, DateTimeOffset now, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload, CancellationToken cancellationToken)
     {
-        var record = StripeWebhookEvent.Create(webhookEvent.EventId, webhookEvent.EventType, now, stripeCustomerId, stripeSubscriptionId, tenantId, payload);
-        await stripeWebhookEventRepository.AddAsync(record, cancellationToken);
+        var record = StripeEvent.Create(webhookEvent.EventId, webhookEvent.EventType, now, stripeCustomerId, stripeSubscriptionId, tenantId, payload);
+        await stripeEventRepository.AddAsync(record, cancellationToken);
     }
 }

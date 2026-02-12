@@ -67,16 +67,15 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         // Arrange
         InsertSubscription();
         var eventId = $"{MockStripeClient.MockWebhookEventId}_duplicate";
-        Connection.Insert("StripeWebhookEvents", [
-                ("Id", StripeWebhookEventId.NewId().ToString()),
+        Connection.Insert("StripeEvents", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
+                ("Id", eventId),
                 ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
-                ("StripeEventId", eventId),
-                ("EventType", "checkout.session.completed"),
                 ("ProcessedAt", TimeProvider.GetUtcNow()),
+                ("EventType", "checkout.session.completed"),
                 ("StripeCustomerId", MockStripeClient.MockCustomerId),
                 ("StripeSubscriptionId", MockStripeClient.MockSubscriptionId),
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
                 ("Payload", null)
             ]
         );
