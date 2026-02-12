@@ -80,4 +80,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot verify webhook signature");
         return null;
     }
+
+    public Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get charge {ChargeId}", chargeId);
+        return Task.FromResult<string?>(null);
+    }
 }

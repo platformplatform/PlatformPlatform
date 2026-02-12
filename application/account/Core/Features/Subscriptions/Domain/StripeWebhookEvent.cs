@@ -29,13 +29,25 @@ public sealed class StripeWebhookEvent : AggregateRoot<StripeWebhookEventId>
 
     public DateTimeOffset ProcessedAt { get; private set; }
 
-    public static StripeWebhookEvent Create(string stripeEventId, string eventType, DateTimeOffset processedAt)
+    public string? StripeCustomerId { get; private set; }
+
+    public string? StripeSubscriptionId { get; private set; }
+
+    public long? TenantId { get; private set; }
+
+    public string? Payload { get; private set; }
+
+    public static StripeWebhookEvent Create(string stripeEventId, string eventType, DateTimeOffset processedAt, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload)
     {
         return new StripeWebhookEvent
         {
             StripeEventId = stripeEventId,
             EventType = eventType,
-            ProcessedAt = processedAt
+            ProcessedAt = processedAt,
+            StripeCustomerId = stripeCustomerId,
+            StripeSubscriptionId = stripeSubscriptionId,
+            TenantId = tenantId,
+            Payload = payload
         };
     }
 }

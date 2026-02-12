@@ -27,9 +27,11 @@ public interface IStripeClient
     StripeHealthResult GetHealth();
 
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
+
+    Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken);
 }
 
-public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId);
+public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId);
 
 public sealed record CheckoutSessionResult(string SessionId, string Url);
 
