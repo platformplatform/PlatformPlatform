@@ -139,7 +139,7 @@ const HeaderContent = React.forwardRef<HTMLDivElement, HeaderContentProps>(({ ti
     {subtitle && (
       <p
         className={cn(
-          "mt-2 text-muted-foreground",
+          "mt-2 mb-0 text-muted-foreground",
           "transition-opacity duration-200",
           isSticky ? "opacity-0 sm:opacity-100" : "opacity-100"
         )}
@@ -167,7 +167,7 @@ function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxW
       {/* Header - scrolls naturally with content */}
       <div ref={headerRef} className="scroll-away-header mb-4">
         <h1>{title}</h1>
-        {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+        {subtitle && <p className="mt-2 mb-0 text-muted-foreground">{subtitle}</p>}
       </div>
 
       {children}
