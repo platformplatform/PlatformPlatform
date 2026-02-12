@@ -20,14 +20,15 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     private readonly string? _standardPriceId = configuration["Stripe:Prices:Standard"];
     private readonly string? _webhookSecret = configuration["Stripe:WebhookSecret"];
 
-    public async Task<string?> CreateCustomerAsync(string tenantName, string email, CancellationToken cancellationToken)
+    public async Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         try
         {
             var options = new CustomerCreateOptions
             {
                 Name = tenantName,
-                Email = email
+                Email = email,
+                Metadata = new Dictionary<string, string> { { "tenant_id", tenantId.ToString() } }
             };
 
             var service = new CustomerService();
@@ -432,9 +433,9 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             }
 
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
-            var (customerId, unresolvedChargeId) = ExtractCustomerInfo(stripeEvent);
+            var (customerId, unresolvedChargeId, metadataTenantId) = ExtractCustomerInfo(stripeEvent);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, unresolvedChargeId);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, unresolvedChargeId, metadataTenantId);
         }
         catch (StripeException ex)
         {
@@ -489,21 +490,31 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         return _portalConfigurationId;
     }
 
-    private static (string? CustomerId, string? UnresolvedChargeId) ExtractCustomerInfo(Event stripeEvent)
+    private static (string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId) ExtractCustomerInfo(Event stripeEvent)
     {
         return stripeEvent.Data.Object switch
         {
-            Customer customer => (customer.Id, null),
-            StripeSubscription subscription => (subscription.CustomerId, null),
-            Invoice invoice => (invoice.CustomerId, null),
-            InvoiceItem invoiceItem => (invoiceItem.CustomerId, null),
-            PaymentIntent paymentIntent => (paymentIntent.CustomerId, null),
-            Session session => (session.CustomerId, null),
-            Charge charge => (charge.CustomerId, null),
-            Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null),
-            Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null),
-            _ => (null, null)
+            Customer customer => (customer.Id, null, ParseMetadataTenantId(customer.Metadata)),
+            StripeSubscription subscription => (subscription.CustomerId, null, null),
+            Invoice invoice => (invoice.CustomerId, null, null),
+            InvoiceItem invoiceItem => (invoiceItem.CustomerId, null, null),
+            PaymentIntent paymentIntent => (paymentIntent.CustomerId, null, null),
+            Session session => (session.CustomerId, null, null),
+            Charge charge => (charge.CustomerId, null, null),
+            Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null, null),
+            Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null, null),
+            _ => (null, null, null)
         };
+    }
+
+    private static long? ParseMetadataTenantId(Dictionary<string, string>? metadata)
+    {
+        if (metadata is not null && metadata.TryGetValue("tenant_id", out var value) && long.TryParse(value, out var tenantId))
+        {
+            return tenantId;
+        }
+
+        return null;
     }
 
     private RequestOptions GetRequestOptions()

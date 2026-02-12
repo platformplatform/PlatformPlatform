@@ -57,7 +57,7 @@ public sealed class HandleStripeWebhookHandler(
         var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(customerId, cancellationToken);
         if (subscription is null)
         {
-            await RecordEvent(webhookEvent, now, customerId, null, null, command.Payload, cancellationToken);
+            await RecordEvent(webhookEvent, now, customerId, null, webhookEvent.MetadataTenantId, command.Payload, cancellationToken);
             return Result.Success();
         }
 
