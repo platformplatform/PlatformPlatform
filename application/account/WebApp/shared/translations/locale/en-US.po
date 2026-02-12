@@ -66,6 +66,12 @@ msgstr "A different user logged in from another browser tab."
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
 
+msgid "A payment dispute has been filed. Please review your payment settings or contact support."
+msgstr "A payment dispute has been filed. Please review your payment settings or contact support."
+
+msgid "A refund has been processed for your subscription. This is for your information only."
+msgstr "A refund has been processed for your subscription. This is for your information only."
+
 msgid "Accept invitation"
 msgstr "Accept invitation"
 
@@ -900,6 +906,9 @@ msgstr "Restore user"
 
 msgid "Restoring..."
 msgstr "Restoring..."
+
+msgid "Review payment settings"
+msgstr "Review payment settings"
 
 msgid "Revoke"
 msgstr "Revoke"

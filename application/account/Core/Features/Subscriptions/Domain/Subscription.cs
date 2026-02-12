@@ -52,6 +52,10 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public DateTimeOffset? LastNotificationSentAt { get; private set; }
 
+    public DateTimeOffset? DisputedAt { get; private set; }
+
+    public DateTimeOffset? RefundedAt { get; private set; }
+
     public CancellationReason? CancellationReason { get; private set; }
 
     public string? CancellationFeedback { get; private set; }
@@ -105,6 +109,26 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     {
         FirstPaymentFailedAt = null;
         LastNotificationSentAt = null;
+    }
+
+    public void SetDisputed(DateTimeOffset disputedAt)
+    {
+        DisputedAt = disputedAt;
+    }
+
+    public void ClearDispute()
+    {
+        DisputedAt = null;
+    }
+
+    public void SetRefunded(DateTimeOffset refundedAt)
+    {
+        RefundedAt = refundedAt;
+    }
+
+    public void ClearRefund()
+    {
+        RefundedAt = null;
     }
 
     public void ResetToFreePlan()
