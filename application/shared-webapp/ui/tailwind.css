@@ -39,6 +39,7 @@
 }
 
 @theme inline {
+  --text-3xl: 1.75rem;
   --font-sans: "Inter", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -156,7 +157,7 @@ html {
     @apply mb-1 font-semibold text-2xl text-foreground;
   }
   h3 {
-    @apply mb-2 font-semibold text-[1.75rem] text-foreground;
+    @apply mb-2 font-semibold text-xl text-foreground;
   }
   h4 {
     @apply mb-0 font-semibold text-lg text-foreground;
