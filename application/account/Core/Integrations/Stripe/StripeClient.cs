@@ -496,6 +496,8 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             Customer customer => (customer.Id, null),
             StripeSubscription subscription => (subscription.CustomerId, null),
             Invoice invoice => (invoice.CustomerId, null),
+            InvoiceItem invoiceItem => (invoiceItem.CustomerId, null),
+            PaymentIntent paymentIntent => (paymentIntent.CustomerId, null),
             Session session => (session.CustomerId, null),
             Charge charge => (charge.CustomerId, null),
             Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null),
