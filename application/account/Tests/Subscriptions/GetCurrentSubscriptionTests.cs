@@ -30,6 +30,8 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
                 ("LastNotificationSentAt", null),
+                ("DisputedAt", null),
+                ("RefundedAt", null),
                 ("PaymentTransactions", "[]")
             ]
         );
