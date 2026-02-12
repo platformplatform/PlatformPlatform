@@ -4,7 +4,7 @@ namespace PlatformPlatform.Account.Integrations.Stripe;
 
 public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> logger) : IStripeClient
 {
-    public Task<string?> CreateCustomerAsync(string tenantName, string email, CancellationToken cancellationToken)
+    public Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot create customer for tenant {TenantName}", tenantName);
         return Task.FromResult<string?>(null);

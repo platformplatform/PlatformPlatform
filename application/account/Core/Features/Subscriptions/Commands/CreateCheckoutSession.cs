@@ -67,7 +67,7 @@ public sealed class CreateCheckoutSessionHandler(
 
         if (subscription.StripeCustomerId is null)
         {
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, cancellationToken);
+            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create Stripe customer.");
