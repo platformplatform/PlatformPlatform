@@ -5,9 +5,9 @@ using PlatformPlatform.SharedKernel.StronglyTypedIds;
 namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
 
 [PublicAPI]
-[IdPrefix("swev")]
-[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, StripeWebhookEventId>))]
-public sealed record StripeWebhookEventId(string Value) : StronglyTypedUlid<StripeWebhookEventId>(Value)
+[IdPrefix("evt")]
+[JsonConverter(typeof(StronglyTypedIdJsonConverter<string, StripeEventId>))]
+public sealed record StripeEventId(string Value) : StronglyTypedString<StripeEventId>(Value)
 {
     public override string ToString()
     {
@@ -15,15 +15,12 @@ public sealed record StripeWebhookEventId(string Value) : StronglyTypedUlid<Stri
     }
 }
 
-public sealed class StripeWebhookEvent : AggregateRoot<StripeWebhookEventId>
+public sealed class StripeEvent : AggregateRoot<StripeEventId>
 {
-    private StripeWebhookEvent() : base(StripeWebhookEventId.NewId())
+    private StripeEvent(StripeEventId id) : base(id)
     {
-        StripeEventId = string.Empty;
         EventType = string.Empty;
     }
-
-    public string StripeEventId { get; private set; }
 
     public string EventType { get; private set; }
 
@@ -37,11 +34,10 @@ public sealed class StripeWebhookEvent : AggregateRoot<StripeWebhookEventId>
 
     public string? Payload { get; private set; }
 
-    public static StripeWebhookEvent Create(string stripeEventId, string eventType, DateTimeOffset processedAt, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload)
+    public static StripeEvent Create(string stripeEventId, string eventType, DateTimeOffset processedAt, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload)
     {
-        return new StripeWebhookEvent
+        return new StripeEvent(StripeEventId.NewId(stripeEventId))
         {
-            StripeEventId = stripeEventId,
             EventType = eventType,
             ProcessedAt = processedAt,
             StripeCustomerId = stripeCustomerId,
