@@ -132,7 +132,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
         var customerId = payload.StartsWith("customer:") ? payload.Split(':')[1] : MockCustomerId;
 
-        return new StripeWebhookEventResult(eventId, eventType, customerId);
+        return new StripeWebhookEventResult(eventId, eventType, customerId, null);
+    }
+
+    public Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<string?>(MockCustomerId);
     }
 
     private void EnsureEnabled()
