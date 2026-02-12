@@ -66,8 +66,14 @@ msgstr "En anden bruger loggede ind fra en anden browsertab."
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
+msgid "A payment dispute has been filed. Please review your payment settings or contact support."
+msgstr "En betalingstvist er blevet indgivet. Gennemse venligst dine betalingsindstillinger eller kontakt support."
+
 msgid "A quick summary of your account activity."
 msgstr "Et hurtigt overblik over din kontoaktivitet."
+
+msgid "A refund has been processed for your subscription. This is for your information only."
+msgstr "En refusion er blevet behandlet for dit abonnement. Dette er kun til din information."
 
 msgid "Accept invitation"
 msgstr "Accepter invitation"
@@ -939,6 +945,9 @@ msgstr "Gendan bruger"
 
 msgid "Restoring..."
 msgstr "Gendanner..."
+
+msgid "Review payment settings"
+msgstr "Gennemse betalingsindstillinger"
 
 msgid "Revoke"
 msgstr "Tilbagekald"

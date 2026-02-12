@@ -15,7 +15,9 @@ public sealed record SubscriptionResponse(
     DateTimeOffset? CurrentPeriodEnd,
     bool CancelAtPeriodEnd,
     bool HasStripeSubscription,
-    PaymentMethod? PaymentMethod
+    PaymentMethod? PaymentMethod,
+    DateTimeOffset? DisputedAt,
+    DateTimeOffset? RefundedAt
 );
 
 public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository)
@@ -36,7 +38,9 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
             subscription.CurrentPeriodEnd,
             subscription.CancelAtPeriodEnd,
             subscription.StripeSubscriptionId is not null,
-            subscription.PaymentMethod
+            subscription.PaymentMethod,
+            subscription.DisputedAt,
+            subscription.RefundedAt
         );
     }
 }
