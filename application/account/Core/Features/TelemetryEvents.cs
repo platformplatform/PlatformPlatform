@@ -115,6 +115,9 @@ public sealed class SubscriptionReactivated(SubscriptionId subscriptionId, Subsc
 public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
+public sealed class SubscriptionSynced(SubscriptionId subscriptionId, SubscriptionPlan plan)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
 public sealed class SubscriptionUpgraded(SubscriptionId subscriptionId, SubscriptionPlan fromPlan, SubscriptionPlan toPlan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan));
 
