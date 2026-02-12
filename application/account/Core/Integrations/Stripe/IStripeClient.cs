@@ -29,6 +29,8 @@ public interface IStripeClient
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
     Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken);
+
+    Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken);
 }
 
 public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId);

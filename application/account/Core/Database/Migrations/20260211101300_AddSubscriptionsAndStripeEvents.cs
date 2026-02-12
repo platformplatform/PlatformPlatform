@@ -30,7 +30,8 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
                 CancellationReason = table.Column<string>("varchar(20)", nullable: true),
                 CancellationFeedback = table.Column<string>("nvarchar(500)", nullable: true),
                 PaymentTransactions = table.Column<string>("nvarchar(max)", nullable: false),
-                PaymentMethod = table.Column<string>("nvarchar(max)", nullable: true)
+                PaymentMethod = table.Column<string>("nvarchar(max)", nullable: true),
+                BillingInfo = table.Column<string>("nvarchar(max)", nullable: true)
             },
             constraints: table => { table.PrimaryKey("PK_Subscriptions", x => x.Id); }
         );

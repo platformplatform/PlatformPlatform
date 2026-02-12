@@ -31,5 +31,12 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
             );
 
         builder.OwnsOne(s => s.PaymentMethod, b => b.ToJson());
+
+        builder.Property(s => s.BillingInfo)
+            .HasColumnName("BillingInfo")
+            .HasConversion(
+                v => v == null ? null : JsonSerializer.Serialize(v, JsonSerializerOptions),
+                v => v == null ? null : JsonSerializer.Deserialize<BillingInfo>(v, JsonSerializerOptions)
+            );
     }
 }

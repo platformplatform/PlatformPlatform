@@ -227,6 +227,9 @@ msgstr "Basis"
 msgid "Billing history"
 msgstr "Billing history"
 
+msgid "Billing information"
+msgstr "Billing information"
+
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Billing is not configured. Please contact support to enable payment processing."
 
@@ -432,6 +435,9 @@ msgstr "E.g. Taylor"
 
 msgid "Edit"
 msgstr "Edit"
+
+msgid "Edit billing information"
+msgstr "Edit billing information"
 
 msgid "Email"
 msgstr "Email"
@@ -712,6 +718,9 @@ msgstr "No account found for this email address. Please sign up to create an acc
 
 msgid "No active sessions found."
 msgstr "No active sessions found."
+
+msgid "No billing information on file"
+msgstr "No billing information on file"
 
 msgid "No longer needed"
 msgstr "No longer needed"

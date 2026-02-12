@@ -64,6 +64,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public PaymentMethod? PaymentMethod { get; private set; }
 
+    public BillingInfo? BillingInfo { get; private set; }
+
     public TenantId TenantId { get; }
 
     public static Subscription Create(TenantId tenantId)
@@ -74,6 +76,11 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     public void SetStripeCustomerId(string stripeCustomerId)
     {
         StripeCustomerId = stripeCustomerId;
+    }
+
+    public void SetBillingInfo(BillingInfo? billingInfo)
+    {
+        BillingInfo = billingInfo;
     }
 
     public void SyncFromStripe(
@@ -151,6 +158,19 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         return StripeSubscriptionId is not null && Plan != SubscriptionPlan.Basis && !CancelAtPeriodEnd;
     }
 }
+
+[PublicAPI]
+public sealed record BillingAddress(
+    string? Line1,
+    string? Line2,
+    string? City,
+    string? State,
+    string? PostalCode,
+    string? Country
+);
+
+[PublicAPI]
+public sealed record BillingInfo(string? Email, BillingAddress? Address, string? Phone);
 
 [PublicAPI]
 public sealed record PaymentMethod(string Brand, string Last4, int ExpMonth, int ExpYear);
