@@ -41,9 +41,9 @@ export default function DeletedUsersPage() {
 
   return (
     <>
-      <AppLayout title={t`Users`} subtitle={t`Manage your users and permissions here.`} scrollAwayHeader={true}>
+      <AppLayout title={t`Users`} subtitle={t`Manage your users and permissions here.`}>
+        <UserTabNavigation activeTab="recycle-bin" />
         <div className="flex min-h-0 flex-1 flex-col">
-          <UserTabNavigation activeTab="recycle-bin" />
           <DeletedUsersToolbar
             selectedUsers={selectedDeletedUsers}
             onSelectedUsersChange={setSelectedDeletedUsers}
