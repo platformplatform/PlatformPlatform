@@ -348,6 +348,9 @@ msgstr "Close"
 msgid "Close user profile"
 msgstr "Close user profile"
 
+msgid "Complete your payment to activate your subscription."
+msgstr "Complete your payment to activate your subscription."
+
 msgid "Compliance"
 msgstr "Compliance"
 

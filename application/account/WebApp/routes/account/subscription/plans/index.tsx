@@ -10,6 +10,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
+import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
 import { PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
@@ -26,19 +27,15 @@ function PlansPage() {
   const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
+  const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [downgradePlan, setDowngradePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivatePlan, setReactivatePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
+  const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
+  const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
-
-  const checkoutMutation = api.useMutation("post", "/api/account/subscriptions/checkout", {
-    onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      }
-    }
-  });
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
     onSuccess: () => {
@@ -65,8 +62,12 @@ function PlansPage() {
 
   const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
     onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (data.clientSecret && data.publishableKey) {
+        setIsReactivateDialogOpen(false);
+        setCheckoutPlan(reactivatePlan);
+        setReactivateClientSecret(data.clientSecret);
+        setReactivatePublishableKey(data.publishableKey);
+        setIsCheckoutDialogOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -95,30 +96,22 @@ function PlansPage() {
   }
 
   const isPending =
-    checkoutMutation.isPending ||
     upgradeMutation.isPending ||
     downgradeMutation.isPending ||
     cancelDowngradeMutation.isPending ||
     reactivateMutation.isPending;
 
-  const pendingPlan = checkoutMutation.isPending
-    ? (checkoutMutation.variables?.body?.plan ?? null)
-    : upgradeMutation.isPending
-      ? (upgradeMutation.variables?.body?.newPlan ?? null)
-      : downgradeMutation.isPending
-        ? downgradePlan
-        : reactivateMutation.isPending
-          ? (reactivateMutation.variables?.body?.plan ?? null)
-          : null;
+  const pendingPlan = upgradeMutation.isPending
+    ? (upgradeMutation.variables?.body?.newPlan ?? null)
+    : downgradeMutation.isPending
+      ? downgradePlan
+      : reactivateMutation.isPending
+        ? (reactivateMutation.variables?.body?.plan ?? null)
+        : null;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
-    checkoutMutation.mutate({
-      body: {
-        plan,
-        successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/account/subscription/plans/`
-      }
-    });
+    setCheckoutPlan(plan);
+    setIsCheckoutDialogOpen(true);
   };
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
@@ -151,8 +144,7 @@ function PlansPage() {
     reactivateMutation.mutate({
       body: {
         plan: reactivatePlan,
-        successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl: `${window.location.origin}/account/subscription/plans/`
+        returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
       }
     });
   };
@@ -257,6 +249,20 @@ function PlansPage() {
         isPending={reactivateMutation.isPending}
         currentPlan={currentPlan}
         targetPlan={reactivatePlan}
+      />
+
+      <CheckoutDialog
+        isOpen={isCheckoutDialogOpen}
+        onOpenChange={(open) => {
+          setIsCheckoutDialogOpen(open);
+          if (!open) {
+            setReactivateClientSecret(undefined);
+            setReactivatePublishableKey(undefined);
+          }
+        }}
+        plan={checkoutPlan}
+        prefetchedClientSecret={reactivateClientSecret}
+        prefetchedPublishableKey={reactivatePublishableKey}
       />
     </>
   );

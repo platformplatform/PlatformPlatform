@@ -32,30 +32,30 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var service = new CustomerService();
             var customer = await service.CreateAsync(options, GetRequestOptions(), cancellationToken);
 
-            logger.LogInformation("Created Stripe customer {CustomerId} for tenant {TenantName}", customer.Id, tenantName);
+            logger.LogInformation("Created Stripe customer '{CustomerId}' for tenant '{TenantName}'", customer.Id, tenantName);
 
             return customer.Id;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error creating customer for tenant {TenantName}", tenantName);
+            logger.LogError(ex, "Stripe error creating customer for tenant '{TenantName}'", tenantName);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout creating Stripe customer for tenant {TenantName}", tenantName);
+            logger.LogError(ex, "Timeout creating Stripe customer for tenant '{TenantName}'", tenantName);
             return null;
         }
     }
 
-    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string successUrl, string cancelUrl, CancellationToken cancellationToken)
+    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, CancellationToken cancellationToken)
     {
         try
         {
             var priceId = GetPriceId(plan);
             if (priceId is null)
             {
-                logger.LogError("Price ID not configured for plan {Plan}", plan);
+                logger.LogError("Price ID not configured for plan '{Plan}'", plan);
                 return null;
             }
 
@@ -63,10 +63,10 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             {
                 Customer = stripeCustomerId,
                 Mode = "subscription",
+                UiMode = "embedded",
                 BillingAddressCollection = "required",
                 CustomerUpdate = new SessionCustomerUpdateOptions { Address = "auto", Name = "auto" },
-                SuccessUrl = successUrl,
-                CancelUrl = cancelUrl,
+                ReturnUrl = returnUrl,
                 LineItems =
                 [
                     new SessionLineItemOptions
@@ -80,18 +80,18 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var service = new SessionService();
             var session = await service.CreateAsync(options, GetRequestOptions(), cancellationToken);
 
-            logger.LogInformation("Created checkout session {SessionId} for customer {CustomerId}", session.Id, stripeCustomerId);
+            logger.LogInformation("Created checkout session '{SessionId}' for customer '{CustomerId}'", session.Id, stripeCustomerId);
 
-            return new CheckoutSessionResult(session.Id, session.Url);
+            return new CheckoutSessionResult(session.Id, session.ClientSecret);
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error creating checkout session for customer {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Stripe error creating checkout session for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout creating checkout session for customer {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Timeout creating checkout session for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
     }
@@ -160,12 +160,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error syncing subscription state for customer {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Stripe error syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout syncing subscription state for customer {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Timeout syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
     }
@@ -180,12 +180,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error getting checkout session {SessionId}", sessionId);
+            logger.LogError(ex, "Stripe error getting checkout session '{SessionId}'", sessionId);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout getting checkout session {SessionId}", sessionId);
+            logger.LogError(ex, "Timeout getting checkout session '{SessionId}'", sessionId);
             return null;
         }
     }
@@ -197,7 +197,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var priceId = GetPriceId(newPlan);
             if (priceId is null)
             {
-                logger.LogError("Price ID not configured for plan {Plan}", newPlan);
+                logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
                 return false;
             }
 
@@ -215,17 +215,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }, GetRequestOptions(), cancellationToken
             );
 
-            logger.LogInformation("Upgraded subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogInformation("Upgraded subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return true;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error upgrading subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogError(ex, "Stripe error upgrading subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return false;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout upgrading subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogError(ex, "Timeout upgrading subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return false;
         }
     }
@@ -237,7 +237,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var priceId = GetPriceId(newPlan);
             if (priceId is null)
             {
-                logger.LogError("Price ID not configured for plan {Plan}", newPlan);
+                logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
                 return false;
             }
 
@@ -274,17 +274,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }, GetRequestOptions(), cancellationToken
             );
 
-            logger.LogInformation("Scheduled downgrade for subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogInformation("Scheduled downgrade for subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return true;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error scheduling downgrade for subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogError(ex, "Stripe error scheduling downgrade for subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return false;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout scheduling downgrade for subscription {SubscriptionId} to {Plan}", stripeSubscriptionId, newPlan);
+            logger.LogError(ex, "Timeout scheduling downgrade for subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
             return false;
         }
     }
@@ -298,24 +298,24 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
             if (subscription.ScheduleId is null)
             {
-                logger.LogWarning("No schedule found for subscription {SubscriptionId}", stripeSubscriptionId);
+                logger.LogWarning("No schedule found for subscription '{SubscriptionId}'", stripeSubscriptionId);
                 return true;
             }
 
             var scheduleService = new SubscriptionScheduleService();
             await scheduleService.ReleaseAsync(subscription.ScheduleId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
 
-            logger.LogInformation("Cancelled scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogInformation("Cancelled scheduled downgrade for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return true;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error cancelling scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Stripe error cancelling scheduled downgrade for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout cancelling scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Timeout cancelling scheduled downgrade for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
     }
@@ -339,17 +339,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }, GetRequestOptions(), cancellationToken
             );
 
-            logger.LogInformation("Scheduled cancellation for subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogInformation("Scheduled cancellation for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return true;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error cancelling subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Stripe error cancelling subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout cancelling subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Timeout cancelling subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
     }
@@ -365,17 +365,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }, GetRequestOptions(), cancellationToken
             );
 
-            logger.LogInformation("Reactivated subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogInformation("Reactivated subscription '{SubscriptionId}'", stripeSubscriptionId);
             return true;
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error reactivating subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Stripe error reactivating subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout reactivating subscription {SubscriptionId}", stripeSubscriptionId);
+            logger.LogError(ex, "Timeout reactivating subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
     }
@@ -423,12 +423,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error getting charge {ChargeId}", chargeId);
+            logger.LogError(ex, "Stripe error getting charge '{ChargeId}'", chargeId);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout getting charge {ChargeId}", chargeId);
+            logger.LogError(ex, "Timeout getting charge '{ChargeId}'", chargeId);
             return null;
         }
     }
@@ -464,12 +464,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
         catch (StripeException ex)
         {
-            logger.LogError(ex, "Stripe error getting customer billing info for {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Stripe error getting customer billing info for '{CustomerId}'", stripeCustomerId);
             return null;
         }
         catch (TaskCanceledException ex)
         {
-            logger.LogError(ex, "Timeout getting customer billing info for {CustomerId}", stripeCustomerId);
+            logger.LogError(ex, "Timeout getting customer billing info for '{CustomerId}'", stripeCustomerId);
             return null;
         }
     }
