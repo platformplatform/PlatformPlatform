@@ -15,7 +15,8 @@ public sealed class ScheduleDowngradeHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<ScheduleDowngradeHandler> logger
 ) : IRequestHandler<ScheduleDowngradeCommand, Result>
 {
     public async Task<Result> Handle(ScheduleDowngradeCommand command, CancellationToken cancellationToken)
@@ -28,11 +29,13 @@ public sealed class ScheduleDowngradeHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result.NotFound("Subscription not found for current tenant.");
         }
 
         if (subscription.StripeSubscriptionId is null)
         {
+            logger.LogWarning("No Stripe subscription found for subscription '{SubscriptionId}'", subscription.Id);
             return Result.BadRequest("No active Stripe subscription found.");
         }
 

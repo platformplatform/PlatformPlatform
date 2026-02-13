@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
 
@@ -20,7 +21,7 @@ public sealed record PaymentTransactionResponse(
     string? InvoiceUrl
 );
 
-public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository)
+public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext, ILogger<GetPaymentHistoryHandler> logger)
     : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
 {
     public async Task<Result<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery query, CancellationToken cancellationToken)
@@ -28,6 +29,7 @@ public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptio
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result<PaymentHistoryResponse>.NotFound("Subscription not found for current tenant.");
         }
 

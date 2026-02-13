@@ -17,7 +17,8 @@ public sealed class SyncSubscriptionHandler(
     ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<SyncSubscriptionHandler> logger
 ) : IRequestHandler<SyncSubscriptionCommand, Result>
 {
     public async Task<Result> Handle(SyncSubscriptionCommand command, CancellationToken cancellationToken)
@@ -30,11 +31,13 @@ public sealed class SyncSubscriptionHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result.NotFound("Subscription not found for current tenant.");
         }
 
         if (subscription.StripeCustomerId is null)
         {
+            logger.LogWarning("No Stripe customer found for subscription '{SubscriptionId}'", subscription.Id);
             return Result.BadRequest("No Stripe customer linked to this subscription.");
         }
 

@@ -28,7 +28,8 @@ public sealed class CreateBillingPortalSessionHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<CreateBillingPortalSessionHandler> logger
 ) : IRequestHandler<CreateBillingPortalSessionCommand, Result<CreateBillingPortalSessionResponse>>
 {
     public async Task<Result<CreateBillingPortalSessionResponse>> Handle(CreateBillingPortalSessionCommand command, CancellationToken cancellationToken)
@@ -41,11 +42,13 @@ public sealed class CreateBillingPortalSessionHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result<CreateBillingPortalSessionResponse>.NotFound("Subscription not found for current tenant.");
         }
 
         if (subscription.StripeCustomerId is null)
         {
+            logger.LogWarning("No Stripe customer found for subscription '{SubscriptionId}'", subscription.Id);
             return Result<CreateBillingPortalSessionResponse>.BadRequest("No Stripe customer found. A subscription must be created first.");
         }
 
