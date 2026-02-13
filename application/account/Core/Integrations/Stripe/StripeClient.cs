@@ -63,7 +63,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             {
                 Customer = stripeCustomerId,
                 Mode = "subscription",
-                UiMode = "embedded",
+                UiMode = "custom",
                 Locale = locale,
                 BillingAddressCollection = "required",
                 CustomerUpdate = new SessionCustomerUpdateOptions { Address = "auto", Name = "auto" },

@@ -1,5 +1,7 @@
 import { t } from "@lingui/core/macro";
+import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
+import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -11,25 +13,345 @@ import {
   DialogTitle
 } from "@repo/ui/components/Dialog";
 import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
-import { Form } from "@repo/ui/components/Form";
+import { Field, FieldError, FieldLabel } from "@repo/ui/components/Field";
+import { Form, FormValidationContext } from "@repo/ui/components/Form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
 
 type BillingInfo = components["schemas"]["BillingInfo"];
 
+// Hardcoded ISO 3166-1 alpha-2 codes because Intl.DisplayNames resolves historical and pseudo codes that Stripe rejects
+const countryCodes = [
+  "AD",
+  "AE",
+  "AF",
+  "AG",
+  "AI",
+  "AL",
+  "AM",
+  "AO",
+  "AQ",
+  "AR",
+  "AS",
+  "AT",
+  "AU",
+  "AW",
+  "AX",
+  "AZ",
+  "BA",
+  "BB",
+  "BD",
+  "BE",
+  "BF",
+  "BG",
+  "BH",
+  "BI",
+  "BJ",
+  "BL",
+  "BM",
+  "BN",
+  "BO",
+  "BQ",
+  "BR",
+  "BS",
+  "BT",
+  "BV",
+  "BW",
+  "BY",
+  "BZ",
+  "CA",
+  "CC",
+  "CD",
+  "CF",
+  "CG",
+  "CH",
+  "CI",
+  "CK",
+  "CL",
+  "CM",
+  "CN",
+  "CO",
+  "CR",
+  "CU",
+  "CV",
+  "CW",
+  "CX",
+  "CY",
+  "CZ",
+  "DE",
+  "DJ",
+  "DK",
+  "DM",
+  "DO",
+  "DZ",
+  "EC",
+  "EE",
+  "EG",
+  "EH",
+  "ER",
+  "ES",
+  "ET",
+  "FI",
+  "FJ",
+  "FK",
+  "FM",
+  "FO",
+  "FR",
+  "GA",
+  "GB",
+  "GD",
+  "GE",
+  "GF",
+  "GG",
+  "GH",
+  "GI",
+  "GL",
+  "GM",
+  "GN",
+  "GP",
+  "GQ",
+  "GR",
+  "GS",
+  "GT",
+  "GU",
+  "GW",
+  "GY",
+  "HK",
+  "HM",
+  "HN",
+  "HR",
+  "HT",
+  "HU",
+  "ID",
+  "IE",
+  "IL",
+  "IM",
+  "IN",
+  "IO",
+  "IQ",
+  "IR",
+  "IS",
+  "IT",
+  "JE",
+  "JM",
+  "JO",
+  "JP",
+  "KE",
+  "KG",
+  "KH",
+  "KI",
+  "KM",
+  "KN",
+  "KP",
+  "KR",
+  "KW",
+  "KY",
+  "KZ",
+  "LA",
+  "LB",
+  "LC",
+  "LI",
+  "LK",
+  "LR",
+  "LS",
+  "LT",
+  "LU",
+  "LV",
+  "LY",
+  "MA",
+  "MC",
+  "MD",
+  "ME",
+  "MF",
+  "MG",
+  "MH",
+  "MK",
+  "ML",
+  "MM",
+  "MN",
+  "MO",
+  "MP",
+  "MQ",
+  "MR",
+  "MS",
+  "MT",
+  "MU",
+  "MV",
+  "MW",
+  "MX",
+  "MY",
+  "MZ",
+  "NA",
+  "NC",
+  "NE",
+  "NF",
+  "NG",
+  "NI",
+  "NL",
+  "NO",
+  "NP",
+  "NR",
+  "NU",
+  "NZ",
+  "OM",
+  "PA",
+  "PE",
+  "PF",
+  "PG",
+  "PH",
+  "PK",
+  "PL",
+  "PM",
+  "PN",
+  "PR",
+  "PS",
+  "PT",
+  "PW",
+  "PY",
+  "QA",
+  "RE",
+  "RO",
+  "RS",
+  "RU",
+  "RW",
+  "SA",
+  "SB",
+  "SC",
+  "SD",
+  "SE",
+  "SG",
+  "SH",
+  "SI",
+  "SJ",
+  "SK",
+  "SL",
+  "SM",
+  "SN",
+  "SO",
+  "SR",
+  "SS",
+  "ST",
+  "SV",
+  "SX",
+  "SY",
+  "SZ",
+  "TC",
+  "TD",
+  "TF",
+  "TG",
+  "TH",
+  "TJ",
+  "TK",
+  "TL",
+  "TM",
+  "TN",
+  "TO",
+  "TR",
+  "TT",
+  "TV",
+  "TW",
+  "TZ",
+  "UA",
+  "UG",
+  "UM",
+  "US",
+  "UY",
+  "UZ",
+  "VA",
+  "VC",
+  "VE",
+  "VG",
+  "VI",
+  "VN",
+  "VU",
+  "WF",
+  "WS",
+  "YE",
+  "YT",
+  "ZA",
+  "ZM",
+  "ZW"
+] as const;
+
+function useCountryOptions(locale: string) {
+  return useMemo(() => {
+    const displayNames = new Intl.DisplayNames([locale], { type: "region" });
+    return countryCodes
+      .map((code) => ({ code, name: displayNames.of(code) ?? code }))
+      .sort((a, b) => a.name.localeCompare(b.name, locale));
+  }, [locale]);
+}
+
+type CountryOption = { code: string; name: string };
+
+function CountrySelect({
+  countries,
+  defaultValue,
+  onValueChange
+}: Readonly<{ countries: CountryOption[]; defaultValue: string | undefined; onValueChange: () => void }>) {
+  const formErrors = useContext(FormValidationContext);
+  const countryErrors = formErrors.country;
+  const errors = countryErrors
+    ? Array.isArray(countryErrors)
+      ? countryErrors.map((err) => ({ message: err }))
+      : [{ message: countryErrors }]
+    : undefined;
+
+  return (
+    <Field>
+      <FieldLabel>{t`Country`}</FieldLabel>
+      <Select name="country" defaultValue={defaultValue} onValueChange={onValueChange}>
+        <SelectTrigger className="w-full" aria-label={t`Country`}>
+          <SelectValue>
+            {(value: string | null) => {
+              if (!value) {
+                return <span className="text-muted-foreground">{t`Select country`}</span>;
+              }
+              const country = countries.find((c) => c.code === value);
+              return country?.name ?? value;
+            }}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          {countries.map((country) => (
+            <SelectItem key={country.code} value={country.code}>
+              {country.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FieldError errors={errors} />
+    </Field>
+  );
+}
+
 interface EditBillingInfoDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   billingInfo: BillingInfo | null | undefined;
+  onSuccess?: () => void;
+  submitLabel?: string;
+  pendingLabel?: string;
 }
 
-export function EditBillingInfoDialog({ isOpen, onOpenChange, billingInfo }: Readonly<EditBillingInfoDialogProps>) {
+export function EditBillingInfoDialog({
+  isOpen,
+  onOpenChange,
+  billingInfo,
+  onSuccess,
+  submitLabel,
+  pendingLabel
+}: Readonly<EditBillingInfoDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const userInfo = useUserInfo();
+  const { i18n } = useLingui();
+  const countries = useCountryOptions(i18n.locale);
   const queryClient = useQueryClient();
 
   const mutation = api.useMutation("put", "/api/account/subscriptions/billing-info", {
@@ -38,6 +360,7 @@ export function EditBillingInfoDialog({ isOpen, onOpenChange, billingInfo }: Rea
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
       toast.success(t`Billing information updated`);
       onOpenChange(false);
+      onSuccess?.();
     }
   });
 
@@ -72,8 +395,7 @@ export function EditBillingInfoDialog({ isOpen, onOpenChange, billingInfo }: Rea
         <Form
           onSubmit={mutationSubmitter(mutation)}
           validationErrors={mutation.error?.errors}
-          validationBehavior="aria"
-          className="flex flex-col max-sm:h-full"
+          className="flex min-h-0 flex-1 flex-col"
         >
           <DialogBody>
             <div className="flex flex-col gap-4">
@@ -97,33 +419,33 @@ export function EditBillingInfoDialog({ isOpen, onOpenChange, billingInfo }: Rea
                   name="postalCode"
                   label={t`Postal code`}
                   defaultValue={billingInfo?.address?.postalCode ?? ""}
+                  placeholder={t`E.g., 1234`}
                   onChange={markDirty}
                 />
                 <TextField
                   name="city"
                   label={t`City`}
                   defaultValue={billingInfo?.address?.city ?? ""}
-                  onChange={markDirty}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <TextField
-                  name="state"
-                  label={t`State / Province`}
-                  defaultValue={billingInfo?.address?.state ?? ""}
-                  onChange={markDirty}
-                />
-                <TextField
-                  name="country"
-                  label={t`Country`}
-                  defaultValue={billingInfo?.address?.country ?? ""}
+                  placeholder={t`E.g., Copenhagen`}
                   onChange={markDirty}
                 />
               </div>
               <TextField
+                name="state"
+                label={t`State / Province`}
+                defaultValue={billingInfo?.address?.state ?? ""}
+                placeholder={t`E.g., Capital Region`}
+                onChange={markDirty}
+              />
+              <CountrySelect
+                countries={countries}
+                defaultValue={billingInfo?.address?.country ?? undefined}
+                onValueChange={markDirty}
+              />
+              <TextField
                 name="email"
                 label={t`Email`}
-                defaultValue={billingInfo?.email ?? ""}
+                defaultValue={billingInfo?.email ?? userInfo?.email ?? ""}
                 placeholder={t`billing@company.com`}
                 onChange={markDirty}
               />
@@ -134,7 +456,7 @@ export function EditBillingInfoDialog({ isOpen, onOpenChange, billingInfo }: Rea
               <Trans>Cancel</Trans>
             </DialogClose>
             <Button type="submit" disabled={mutation.isPending}>
-              {mutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save</Trans>}
+              {mutation.isPending ? (pendingLabel ?? t`Saving...`) : (submitLabel ?? t`Save`)}
             </Button>
           </DialogFooter>
         </Form>
