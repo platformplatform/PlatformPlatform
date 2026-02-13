@@ -975,24 +975,12 @@
         }
       }
     },
-    "/api/account/subscriptions/billing-portal": {
+    "/api/account/subscriptions/payment-method-setup": {
       "post": {
         "tags": [
           "Subscriptions"
         ],
-        "operationId": "PostApiAccountSubscriptionsBillingPortal",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateBillingPortalSessionCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
+        "operationId": "PostApiAccountSubscriptionsPaymentMethodSetup",
         "responses": {
           "400": {
             "description": "",
@@ -1009,7 +997,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateBillingPortalSessionResponse"
+                  "$ref": "#/components/schemas/CreatePaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/confirm-payment-method": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsConfirmPaymentMethod",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentMethodSetupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
                 }
               }
             }
@@ -2660,20 +2680,23 @@
           }
         }
       },
-      "CreateBillingPortalSessionResponse": {
+      "CreatePaymentMethodSetupResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "portalUrl": {
+          "clientSecret": {
+            "type": "string"
+          },
+          "publishableKey": {
             "type": "string"
           }
         }
       },
-      "CreateBillingPortalSessionCommand": {
+      "ConfirmPaymentMethodSetupCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "returnUrl": {
+          "setupIntentId": {
             "type": "string"
           }
         }

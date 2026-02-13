@@ -168,6 +168,9 @@ msgstr "An account with this email already exists. Please log in instead."
 msgid "An email with login instructions will be sent to the user."
 msgstr "An email with login instructions will be sent to the user."
 
+msgid "An error occurred while updating your payment method."
+msgstr "An error occurred while updating your payment method."
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
 
@@ -499,6 +502,9 @@ msgstr "Empty recycle bin"
 msgid "Enter your email below to log in"
 msgstr "Enter your email below to log in"
 
+msgid "Enter your new payment details below."
+msgstr "Enter your new payment details below."
+
 msgid "Enter your verification code"
 msgstr "Enter your verification code"
 
@@ -701,9 +707,6 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
-msgid "Manage payment method"
-msgstr "Manage payment method"
-
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
@@ -829,6 +832,9 @@ msgstr "Payment failed. Your subscription will be suspended soon."
 
 msgid "Payment method"
 msgstr "Payment method"
+
+msgid "Payment method updated"
+msgstr "Payment method updated"
 
 msgid "Pending"
 msgstr "Pending"
@@ -1253,6 +1259,9 @@ msgstr "Update the billing details associated with your subscription."
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."
+
+msgid "Updating..."
+msgstr "Updating..."
 
 msgid "Upgrade"
 msgstr "Upgrade"

@@ -168,6 +168,9 @@ msgstr "Der findes allerede en konto med denne e-mailadresse. Log ind i stedet."
 msgid "An email with login instructions will be sent to the user."
 msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
 
+msgid "An error occurred while updating your payment method."
+msgstr "Der opstod en fejl under opdatering af din betalingsmetode."
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
 
@@ -499,6 +502,9 @@ msgstr "Tøm papirkurv"
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
 
+msgid "Enter your new payment details below."
+msgstr "Indtast dine nye betalingsoplysninger nedenfor."
+
 msgid "Enter your verification code"
 msgstr "Indtast din bekræftelseskode"
 
@@ -701,9 +707,6 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
-msgid "Manage payment method"
-msgstr "Administrer betalingsmetode"
-
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
@@ -829,6 +832,9 @@ msgstr "Betaling mislykkedes. Dit abonnement vil blive suspenderet snart."
 
 msgid "Payment method"
 msgstr "Betalingsmetode"
+
+msgid "Payment method updated"
+msgstr "Betalingsmetode opdateret"
 
 msgid "Pending"
 msgstr "Afventer"
@@ -1249,10 +1255,13 @@ msgid "Update payment method"
 msgstr "Opdater betalingsmetode"
 
 msgid "Update the billing details associated with your subscription."
-msgstr ""
+msgstr "Opdater faktureringsoplysningerne tilknyttet dit abonnement."
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
+
+msgid "Updating..."
+msgstr "Opdaterer..."
 
 msgid "Upgrade"
 msgstr "Opgrader"

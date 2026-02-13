@@ -9,6 +9,12 @@ public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfi
 {
     private readonly bool _allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
     private readonly bool _isConfigured = configuration["Stripe:ApiKey"] is not null;
+    private readonly string? _publishableKey = configuration["Stripe:PublishableKey"];
+
+    public string? GetPublishableKey()
+    {
+        return _publishableKey;
+    }
 
     public IStripeClient GetClient()
     {
