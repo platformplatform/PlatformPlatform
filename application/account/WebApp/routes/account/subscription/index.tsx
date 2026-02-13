@@ -15,6 +15,7 @@ import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
 import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
+import { CheckoutDialog } from "./-components/CheckoutDialog";
 import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { PlanCard } from "./-components/PlanCard";
@@ -37,17 +38,13 @@ function SubscriptionPage() {
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
   const [isUpdatePaymentMethodOpen, setIsUpdatePaymentMethodOpen] = useState(false);
+  const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Basis);
+  const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
+  const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
-
-  const checkoutMutation = api.useMutation("post", "/api/account/subscriptions/checkout", {
-    onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      }
-    }
-  });
 
   const checkoutSuccessMutation = api.useMutation("post", "/api/account/subscriptions/checkout-success", {
     onSuccess: () => {
@@ -59,8 +56,12 @@ function SubscriptionPage() {
 
   const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
     onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (data.clientSecret && data.publishableKey) {
+        setIsReactivateDialogOpen(false);
+        setCheckoutPlan(currentPlan);
+        setReactivateClientSecret(data.clientSecret);
+        setReactivatePublishableKey(data.publishableKey);
+        setIsCheckoutDialogOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -118,13 +119,8 @@ function SubscriptionPage() {
 
   if (!hasStripeSubscription) {
     const handleSubscribe = (plan: SubscriptionPlan) => {
-      checkoutMutation.mutate({
-        body: {
-          plan,
-          successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/account/subscription/`
-        }
-      });
+      setCheckoutPlan(plan);
+      setIsCheckoutDialogOpen(true);
     };
 
     return (
@@ -156,8 +152,8 @@ function SubscriptionPage() {
                 onDowngrade={() => {}}
                 onReactivate={() => {}}
                 onCancelDowngrade={() => {}}
-                isPending={checkoutMutation.isPending}
-                pendingPlan={checkoutMutation.isPending ? (checkoutMutation.variables?.body?.plan ?? null) : null}
+                isPending={false}
+                pendingPlan={null}
                 isCancelDowngradePending={false}
               />
             ))}
@@ -176,6 +172,8 @@ function SubscriptionPage() {
         </AppLayout>
 
         <ProcessingPaymentModal isOpen={isProcessing} />
+
+        <CheckoutDialog isOpen={isCheckoutDialogOpen} onOpenChange={setIsCheckoutDialogOpen} plan={checkoutPlan} />
       </>
     );
   }
@@ -343,8 +341,7 @@ function SubscriptionPage() {
           reactivateMutation.mutate({
             body: {
               plan: currentPlan,
-              successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-              cancelUrl: `${window.location.origin}/account/subscription/`
+              returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
             }
           })
         }
@@ -360,6 +357,20 @@ function SubscriptionPage() {
       />
 
       <UpdatePaymentMethodDialog isOpen={isUpdatePaymentMethodOpen} onOpenChange={setIsUpdatePaymentMethodOpen} />
+
+      <CheckoutDialog
+        isOpen={isCheckoutDialogOpen}
+        onOpenChange={(open) => {
+          setIsCheckoutDialogOpen(open);
+          if (!open) {
+            setReactivateClientSecret(undefined);
+            setReactivatePublishableKey(undefined);
+          }
+        }}
+        plan={checkoutPlan}
+        prefetchedClientSecret={reactivateClientSecret}
+        prefetchedPublishableKey={reactivatePublishableKey}
+      />
     </>
   );
 }
