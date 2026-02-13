@@ -21,7 +21,7 @@ test.describe("@smoke", () => {
    *
    * Tests the complete subscription lifecycle using MockStripeClient responses:
    * - Basis plan display with plan comparison cards (no-subscription view)
-   * - Subscribe flow via mock checkout redirect and success callback
+   * - Subscribe flow with billing info gate and mock checkout session callback
    * - Upgrade from Standard to Premium (plans page)
    * - Schedule downgrade from Premium to Standard (plans page with mocked state)
    * - Cancel subscription with reason selection (cancel page)
@@ -68,30 +68,46 @@ test.describe("@smoke", () => {
     })();
 
     // === SUBSCRIBE FLOW (MOCK CHECKOUT) ===
-    await step("Click Subscribe on Standard plan & verify subscription activated with payment history")(async () => {
+    await step("Click Subscribe on Standard plan & fill billing info & create Stripe customer")(async () => {
       await setMockProviderCookie(ownerPage);
 
-      await ownerPage.route("**/mock.stripe.local/**", (route) =>
-        route.fulfill({
-          status: 200,
-          contentType: "text/html",
-          body: '<html><head><meta http-equiv="refresh" content="0;url=https://localhost:9000/account/subscription?session_id=cs_mock_session_12345"></head></html>'
-        })
-      );
+      await ownerPage.route("**/api/account/subscriptions/checkout", (route) => route.abort());
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
-      const checkoutSuccessResponse = ownerPage.waitForResponse("**/api/account/subscriptions/checkout-success");
       await standardCard.getByRole("button", { name: "Subscribe" }).click();
-      await checkoutSuccessResponse;
-      await expectToastMessage(context, "Your subscription has been activated.");
 
-      await ownerPage.unroute("**/mock.stripe.local/**");
+      await expect(ownerPage.getByRole("heading", { name: "Add billing information" })).toBeVisible();
+      await ownerPage.getByLabel("Name").fill("Test Organization");
+      await ownerPage.getByLabel("Address line 1").fill("Vestergade 12");
+      await ownerPage.getByLabel("Postal code").fill("1456");
+      await ownerPage.getByLabel("City").fill("Copenhagen");
+      await ownerPage.getByLabel("Country").click();
+      await expect(ownerPage.getByRole("listbox")).toBeVisible();
+      await ownerPage.getByRole("option", { name: "Denmark" }).scrollIntoViewIfNeeded();
+      await ownerPage.getByRole("option", { name: "Denmark" }).click();
+      await ownerPage.getByLabel("Email").fill("billing@example.com");
 
+      const billingInfoResponse = ownerPage.waitForResponse("**/api/account/subscriptions/billing-info");
+      await ownerPage.getByRole("button", { name: "Next" }).click();
+      await billingInfoResponse;
+      await expectToastMessage(context, "Billing information updated");
+
+      await ownerPage.unroute("**/api/account/subscriptions/checkout");
+    })();
+
+    await step("Sync subscription with Stripe & verify subscription activated with payment history")(async () => {
       await ownerPage.goto("/account/subscription");
+      await expect(ownerPage.getByRole("button", { name: "Sync with Stripe" })).toBeVisible();
+
+      const syncResponse = ownerPage.waitForResponse("**/api/account/subscriptions/sync");
+      await ownerPage.getByRole("button", { name: "Sync with Stripe" }).click();
+      await syncResponse;
+      await expectToastMessage(context, "Subscription synced with Stripe.");
+
       await expect(ownerPage.getByText("Active")).toBeVisible();
       await expect(ownerPage.getByText("Standard", { exact: true }).first()).toBeVisible();
       await expect(ownerPage.getByText("Next billing date:")).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Manage payment method" })).toBeEnabled();
+      await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeEnabled();
 
       await expect(ownerPage.getByRole("columnheader", { name: "Date" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Amount" })).toBeVisible();
@@ -261,7 +277,7 @@ test.describe("@smoke", () => {
         )
       ).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeVisible();
-      await expect(ownerPage.getByRole("link", { name: "Reactivate subscription" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Reactivate subscription" })).toBeVisible();
     })();
 
     await step("Navigate to subscription page while Suspended & verify access is allowed")(async () => {
@@ -350,7 +366,7 @@ test.describe("@smoke", () => {
         )
       ).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Update payment method" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("link", { name: "Reactivate subscription" })).not.toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Reactivate subscription" })).not.toBeVisible();
 
       await ownerPage.unroute("**/api/account/tenants/current");
     })();

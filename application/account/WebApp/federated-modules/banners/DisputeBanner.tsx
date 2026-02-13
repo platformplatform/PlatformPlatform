@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { buttonVariants } from "@repo/ui/components/Button";
-import { Link } from "@repo/ui/components/Link";
+import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
 import { api } from "@/shared/lib/api/client";
 
@@ -27,9 +26,9 @@ export default function DisputeBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>A payment dispute has been filed. Please review your payment settings or contact support.</Trans>
       </span>
-      <Link href="/account/subscription" className={buttonVariants({ size: "sm" })}>
+      <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
         <Trans>Review payment settings</Trans>
-      </Link>
+      </Button>
     </div>
   );
 }
