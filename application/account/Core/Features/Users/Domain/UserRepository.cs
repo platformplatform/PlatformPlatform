@@ -44,12 +44,6 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetTenantUsers(CancellationToken cancellationToken);
 
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Retrieves the Owner user for a given tenant without applying tenant query filters.
-    ///     This method should only be used in webhook processing where tenant context is not established.
-    /// </summary>
-    Task<User?> GetOwnerByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -248,17 +242,6 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(u => u.Email == email.ToLowerInvariant())
             .ToArrayAsync(cancellationToken);
-    }
-
-    /// <summary>
-    ///     Retrieves the Owner user for a given tenant without applying tenant query filters.
-    ///     This method should only be used in webhook processing where tenant context is not established.
-    /// </summary>
-    public async Task<User?> GetOwnerByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken)
-    {
-        return await DbSet
-            .IgnoreQueryFilters([QueryFilterNames.Tenant])
-            .FirstOrDefaultAsync(u => u.TenantId == tenantId && u.Role == UserRole.Owner, cancellationToken);
     }
 
     [UsedImplicitly]

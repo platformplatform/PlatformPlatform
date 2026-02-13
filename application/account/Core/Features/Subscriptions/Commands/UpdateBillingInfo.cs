@@ -1,7 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -13,6 +12,7 @@ namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
 public sealed record UpdateBillingInfoCommand(
+    string Name,
     string Line1,
     string? Line2,
     string PostalCode,
@@ -27,6 +27,7 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
 {
     public UpdateBillingInfoValidator()
     {
+        RuleFor(x => x.Name).Length(1, 100).WithMessage("Name must be between 1 and 100 characters.");
         RuleFor(x => x.Line1).Length(1, 100).WithMessage("Address line 1 must be between 1 and 100 characters.");
         RuleFor(x => x.Line2).MaximumLength(100).WithMessage("Address line 2 must be no longer than 100 characters.");
         RuleFor(x => x.PostalCode).Length(1, 10).WithMessage("Postal code must be between 1 and 10 characters.");
@@ -39,7 +40,6 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
 
 public sealed class UpdateBillingInfoHandler(
     ISubscriptionRepository subscriptionRepository,
-    ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
@@ -69,8 +69,7 @@ public sealed class UpdateBillingInfoHandler(
                 return Result.BadRequest("User email is required to create a Stripe customer.");
             }
 
-            var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
+            var customerId = await stripeClient.CreateCustomerAsync(command.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result.BadRequest("Failed to create Stripe customer.");
@@ -81,6 +80,7 @@ public sealed class UpdateBillingInfoHandler(
         }
 
         var billingInfo = new BillingInfo(
+            command.Name,
             new BillingAddress(command.Line1, command.Line2, command.PostalCode, command.City, command.State, command.Country),
             command.Email
         );

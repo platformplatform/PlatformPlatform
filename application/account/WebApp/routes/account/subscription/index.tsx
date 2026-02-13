@@ -45,6 +45,7 @@ function SubscriptionPage() {
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
+  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
   const checkoutSuccessMutation = api.useMutation("post", "/api/account/subscriptions/checkout-success", {
     onSuccess: () => {
@@ -188,6 +189,7 @@ function SubscriptionPage() {
           isOpen={isEditBillingInfoOpen}
           onOpenChange={setIsEditBillingInfoOpen}
           billingInfo={billingInfo}
+          tenantName={tenant?.name ?? ""}
           onSuccess={handleBillingInfoSuccess}
           submitLabel={t`Next`}
           pendingLabel={t`Saving...`}
@@ -374,6 +376,7 @@ function SubscriptionPage() {
         isOpen={isEditBillingInfoOpen}
         onOpenChange={setIsEditBillingInfoOpen}
         billingInfo={billingInfo}
+        tenantName={tenant?.name ?? ""}
         onSuccess={handleBillingInfoSuccess}
         submitLabel={pendingCheckoutPlan != null ? t`Next` : undefined}
         pendingLabel={pendingCheckoutPlan != null ? t`Saving...` : undefined}

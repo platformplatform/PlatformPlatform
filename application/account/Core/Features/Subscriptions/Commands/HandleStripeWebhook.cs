@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
@@ -16,7 +15,6 @@ public sealed class HandleStripeWebhookHandler(
     ISubscriptionRepository subscriptionRepository,
     IStripeEventRepository stripeEventRepository,
     ITenantRepository tenantRepository,
-    IUserRepository userRepository,
     StripeClientFactory stripeClientFactory,
     IEmailClient emailClient,
     TimeProvider timeProvider,
@@ -141,7 +139,7 @@ public sealed class HandleStripeWebhookHandler(
     private async Task HandlePaymentFailed(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken);
-        var owner = await userRepository.GetOwnerByTenantIdUnfilteredAsync(subscription.TenantId, cancellationToken);
+        var billingEmail = subscription.BillingInfo?.Email;
 
         if (subscription.FirstPaymentFailedAt is null)
         {
@@ -154,9 +152,9 @@ public sealed class HandleStripeWebhookHandler(
                 tenantRepository.Update(tenant);
             }
 
-            if (owner is not null)
+            if (billingEmail is not null)
             {
-                await SendPaymentFailedEmail(owner.Email, cancellationToken);
+                await SendPaymentFailedEmail(billingEmail, cancellationToken);
             }
 
             events.CollectEvent(new PaymentFailed(subscription.Id, subscription.Plan));
@@ -173,9 +171,9 @@ public sealed class HandleStripeWebhookHandler(
                     tenantRepository.Update(tenant);
                 }
 
-                if (owner is not null)
+                if (billingEmail is not null)
                 {
-                    await SendSubscriptionSuspendedEmail(owner.Email, cancellationToken);
+                    await SendSubscriptionSuspendedEmail(billingEmail, cancellationToken);
                 }
 
                 events.CollectEvent(new SubscriptionSuspended(subscription.Id, subscription.Plan));
@@ -185,11 +183,11 @@ public sealed class HandleStripeWebhookHandler(
                 var shouldSendReminder = subscription.LastNotificationSentAt is null ||
                                          now - subscription.LastNotificationSentAt.Value >= NotificationCooldown;
 
-                if (shouldSendReminder && owner is not null)
+                if (shouldSendReminder && billingEmail is not null)
                 {
                     var hoursRemaining = (GracePeriod - timeSinceFirstFailure).TotalHours;
                     var daysRemaining = Math.Max(1, (int)Math.Ceiling(hoursRemaining / 24));
-                    await SendGracePeriodReminderEmail(owner.Email, daysRemaining, cancellationToken);
+                    await SendGracePeriodReminderEmail(billingEmail, daysRemaining, cancellationToken);
                     subscription.SetLastNotificationSentAt(now);
                 }
             }
@@ -250,10 +248,10 @@ public sealed class HandleStripeWebhookHandler(
     {
         subscription.SetDisputed(now);
 
-        var owner = await userRepository.GetOwnerByTenantIdUnfilteredAsync(subscription.TenantId, cancellationToken);
-        if (owner is not null)
+        var billingEmail = subscription.BillingInfo?.Email;
+        if (billingEmail is not null)
         {
-            await SendDisputeCreatedEmail(owner.Email, cancellationToken);
+            await SendDisputeCreatedEmail(billingEmail, cancellationToken);
         }
 
         events.CollectEvent(new PaymentDisputed(subscription.Id, subscription.Plan));
