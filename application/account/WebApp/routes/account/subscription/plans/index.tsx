@@ -12,6 +12,7 @@ import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
 import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
+import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
@@ -28,7 +29,9 @@ function PlansPage() {
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
+  const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
+  const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
   const [downgradePlan, setDowngradePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivatePlan, setReactivatePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
@@ -64,10 +67,10 @@ function PlansPage() {
     onSuccess: (data) => {
       if (data.clientSecret && data.publishableKey) {
         setIsReactivateDialogOpen(false);
-        setCheckoutPlan(reactivatePlan);
         setReactivateClientSecret(data.clientSecret);
         setReactivatePublishableKey(data.publishableKey);
-        setIsCheckoutDialogOpen(true);
+        setPendingCheckoutPlan(reactivatePlan);
+        setIsEditBillingInfoOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -82,6 +85,7 @@ function PlansPage() {
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const scheduledPlan = subscription?.scheduledPlan ?? null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
+  const billingInfo = subscription?.billingInfo;
   const formattedPeriodEnd = formatLongDate(currentPeriodEnd);
 
   function getPlanLabel(plan: SubscriptionPlan): string {
@@ -110,8 +114,8 @@ function PlansPage() {
         : null;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
-    setCheckoutPlan(plan);
-    setIsCheckoutDialogOpen(true);
+    setPendingCheckoutPlan(plan);
+    setIsEditBillingInfoOpen(true);
   };
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
@@ -147,6 +151,15 @@ function PlansPage() {
         returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
       }
     });
+  };
+
+  const handleBillingInfoSuccess = () => {
+    if (pendingCheckoutPlan == null) {
+      return;
+    }
+    setCheckoutPlan(pendingCheckoutPlan);
+    setPendingCheckoutPlan(null);
+    setIsCheckoutDialogOpen(true);
   };
 
   return (
@@ -249,6 +262,15 @@ function PlansPage() {
         isPending={reactivateMutation.isPending}
         currentPlan={currentPlan}
         targetPlan={reactivatePlan}
+      />
+
+      <EditBillingInfoDialog
+        isOpen={isEditBillingInfoOpen}
+        onOpenChange={setIsEditBillingInfoOpen}
+        billingInfo={billingInfo}
+        onSuccess={handleBillingInfoSuccess}
+        submitLabel={t`Next`}
+        pendingLabel={t`Saving...`}
       />
 
       <CheckoutDialog

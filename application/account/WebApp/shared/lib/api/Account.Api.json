@@ -2706,32 +2706,27 @@
         "additionalProperties": false,
         "properties": {
           "line1": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "line2": {
             "type": "string",
             "nullable": true
           },
           "postalCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "city": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "state": {
             "type": "string",
             "nullable": true
           },
           "country": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         }
       },
