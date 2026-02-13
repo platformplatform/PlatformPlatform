@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -33,7 +34,7 @@ export function UpdatePaymentMethodDialog({ isOpen, onOpenChange }: Readonly<Upd
   const setupMutation = api.useMutation("post", "/api/account/subscriptions/payment-method-setup", {
     onSuccess: (data) => {
       setClientSecret(data.clientSecret);
-      setStripePromise(loadStripe(data.publishableKey));
+      setStripePromise(loadStripe(data.publishableKey, { locale: i18n.locale as "auto" }));
       setIsLoading(false);
     },
     onError: () => {
