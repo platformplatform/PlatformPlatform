@@ -11,11 +11,11 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record ReactivateSubscriptionCommand(SubscriptionPlan Plan, string? SuccessUrl, string? CancelUrl)
+public sealed record ReactivateSubscriptionCommand(SubscriptionPlan Plan, string? ReturnUrl)
     : ICommand, IRequest<Result<ReactivateSubscriptionResponse>>;
 
 [PublicAPI]
-public sealed record ReactivateSubscriptionResponse(string? CheckoutUrl);
+public sealed record ReactivateSubscriptionResponse(string? ClientSecret, string? PublishableKey);
 
 public sealed class ReactivateSubscriptionValidator : AbstractValidator<ReactivateSubscriptionCommand>
 {
@@ -92,19 +92,31 @@ public sealed class ReactivateSubscriptionHandler(
 
         events.CollectEvent(new SubscriptionReactivated(subscription.Id, command.Plan));
 
-        return new ReactivateSubscriptionResponse(null);
+        return new ReactivateSubscriptionResponse(null, null);
     }
 
     private async Task<Result<ReactivateSubscriptionResponse>> HandleSuspendedReactivation(Subscription subscription, ReactivateSubscriptionCommand command, Tenant tenant, IStripeClient stripeClient, CancellationToken cancellationToken)
     {
-        if (command.SuccessUrl is null || command.CancelUrl is null)
+        if (command.ReturnUrl is null)
         {
-            return Result<ReactivateSubscriptionResponse>.BadRequest("Success and cancel URLs are required for suspended subscription reactivation.");
+            return Result<ReactivateSubscriptionResponse>.BadRequest("Return URL is required for suspended subscription reactivation.");
+        }
+
+        if (executionContext.UserInfo.Email is null)
+        {
+            return Result<ReactivateSubscriptionResponse>.BadRequest("User email is required to reactivate a suspended subscription.");
+        }
+
+        var publishableKey = stripeClientFactory.GetPublishableKey();
+        if (publishableKey is null)
+        {
+            logger.LogWarning("Stripe publishable key is not configured");
+            return Result<ReactivateSubscriptionResponse>.BadRequest("Stripe is not configured for checkout.");
         }
 
         if (subscription.StripeCustomerId is null)
         {
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email!, subscription.TenantId.Value, cancellationToken);
+            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create Stripe customer.");
@@ -114,7 +126,7 @@ public sealed class ReactivateSubscriptionHandler(
             subscriptionRepository.Update(subscription);
         }
 
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.SuccessUrl, command.CancelUrl, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, cancellationToken);
         if (result is null)
         {
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create checkout session for reactivation.");
@@ -122,6 +134,6 @@ public sealed class ReactivateSubscriptionHandler(
 
         events.CollectEvent(new SubscriptionReactivated(subscription.Id, command.Plan));
 
-        return new ReactivateSubscriptionResponse(result.Url);
+        return new ReactivateSubscriptionResponse(result.ClientSecret, publishableKey);
     }
 }

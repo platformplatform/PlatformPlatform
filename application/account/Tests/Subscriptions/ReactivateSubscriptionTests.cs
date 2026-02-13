@@ -35,7 +35,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null, null);
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -44,7 +44,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
-        result!.CheckoutUrl.Should().BeNull();
+        result!.ClientSecret.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
@@ -73,7 +73,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Premium, null, null);
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Premium, null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -82,7 +82,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
-        result!.CheckoutUrl.Should().BeNull();
+        result!.ClientSecret.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
@@ -111,7 +111,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null, null);
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -120,7 +120,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
-        result!.CheckoutUrl.Should().BeNull();
+        result!.ClientSecret.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
@@ -152,7 +152,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, "https://localhost:9000/subscription/success", "https://localhost:9000/subscription/cancel");
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, "https://localhost:9000/subscription/return");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -161,7 +161,8 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
-        result!.CheckoutUrl.Should().NotBeNullOrEmpty();
+        result!.ClientSecret.Should().NotBeNullOrEmpty();
+        result.PublishableKey.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
@@ -190,7 +191,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null, null);
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -224,7 +225,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null, null);
+        var command = new ReactivateSubscriptionCommand(SubscriptionPlan.Standard, null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
