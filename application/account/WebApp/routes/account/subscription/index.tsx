@@ -8,13 +8,14 @@ import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangleIcon, ExternalLinkIcon, RefreshCwIcon } from "lucide-react";
+import { AlertTriangleIcon, ExternalLinkIcon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
 import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
+import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { PlanCard } from "./-components/PlanCard";
 import { ProcessingPaymentModal } from "./-components/ProcessingPaymentModal";
@@ -31,9 +32,10 @@ function SubscriptionPage() {
   const formatLongDate = useFormatLongDate();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isRedirectingToBillingPortal, setIsRedirectingToBillingPortal] = useState<"payment" | "billing" | null>(null);
+  const [isRedirectingToBillingPortal, setIsRedirectingToBillingPortal] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
+  const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
@@ -54,11 +56,10 @@ function SubscriptionPage() {
     }
   });
 
-  const [billingPortalSource, setBillingPortalSource] = useState<"payment" | "billing" | null>(null);
   const billingPortalMutation = api.useMutation("post", "/api/account/subscriptions/billing-portal", {
     onSuccess: (data) => {
       if (data.portalUrl) {
-        setIsRedirectingToBillingPortal(billingPortalSource);
+        setIsRedirectingToBillingPortal(true);
         window.location.href = data.portalUrl;
       }
     }
@@ -292,15 +293,11 @@ function SubscriptionPage() {
             <Button
               variant="outline"
               className="w-fit"
-              onClick={() => {
-                setBillingPortalSource("payment");
-                billingPortalMutation.mutate({ body: { returnUrl: window.location.href } });
-              }}
-              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal !== null || !isStripeConfigured}
+              onClick={() => billingPortalMutation.mutate({ body: { returnUrl: window.location.href } })}
+              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal || !isStripeConfigured}
             >
               <ExternalLinkIcon className="size-4" />
-              {(billingPortalMutation.isPending && billingPortalSource === "payment") ||
-              isRedirectingToBillingPortal === "payment"
+              {billingPortalMutation.isPending || isRedirectingToBillingPortal
                 ? t`Loading...`
                 : t`Manage payment method`}
             </Button>
@@ -317,17 +314,11 @@ function SubscriptionPage() {
             <Button
               variant="outline"
               className="w-fit shrink-0"
-              onClick={() => {
-                setBillingPortalSource("billing");
-                billingPortalMutation.mutate({ body: { returnUrl: window.location.href } });
-              }}
-              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal !== null || !isStripeConfigured}
+              onClick={() => setIsEditBillingInfoOpen(true)}
+              disabled={!isStripeConfigured}
             >
-              <ExternalLinkIcon className="size-4" />
-              {(billingPortalMutation.isPending && billingPortalSource === "billing") ||
-              isRedirectingToBillingPortal === "billing"
-                ? t`Loading...`
-                : t`Edit billing information`}
+              <PencilIcon className="size-4" />
+              <Trans>Edit billing information</Trans>
             </Button>
           </div>
         </div>
@@ -370,6 +361,12 @@ function SubscriptionPage() {
         isPending={reactivateMutation.isPending}
         currentPlan={currentPlan}
         targetPlan={currentPlan}
+      />
+
+      <EditBillingInfoDialog
+        isOpen={isEditBillingInfoOpen}
+        onOpenChange={setIsEditBillingInfoOpen}
+        billingInfo={subscription?.billingInfo}
       />
     </>
   );

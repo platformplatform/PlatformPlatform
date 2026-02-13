@@ -1017,6 +1017,38 @@
         }
       }
     },
+    "/api/account/subscriptions/billing-info": {
+      "put": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PutApiAccountSubscriptionsBillingInfo",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillingInfoCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/sync": {
       "post": {
         "tags": [
@@ -2370,10 +2402,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "email": {
-            "type": "string",
-            "nullable": true
-          },
           "address": {
             "nullable": true,
             "oneOf": [
@@ -2382,7 +2410,7 @@
               }
             ]
           },
-          "phone": {
+          "email": {
             "type": "string",
             "nullable": true
           }
@@ -2400,15 +2428,15 @@
             "type": "string",
             "nullable": true
           },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
           "city": {
             "type": "string",
             "nullable": true
           },
           "state": {
-            "type": "string",
-            "nullable": true
-          },
-          "postalCode": {
             "type": "string",
             "nullable": true
           },
@@ -2647,6 +2675,40 @@
         "properties": {
           "returnUrl": {
             "type": "string"
+          }
+        }
+      },
+      "UpdateBillingInfoCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "line1": {
+            "type": "string",
+            "nullable": true
+          },
+          "line2": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

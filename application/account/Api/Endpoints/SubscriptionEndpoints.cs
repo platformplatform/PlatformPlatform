@@ -57,6 +57,10 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<CreateBillingPortalSessionResponse>();
 
+        group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapPost("/sync", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new SyncSubscriptionCommand())
         );
