@@ -350,6 +350,14 @@ body {
   border: 0.1rem solid var(--toast-color) !important;
 }
 
+/* Remove outer border and inner padding on embedded Stripe Elements */
+.StripeElement {
+  margin-top: -1rem;
+  margin-bottom: -0.5rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+}
+
 /* OTP input styling - use 3.5rem (size-14) as base, constrain only when 6 slots would overflow viewport */
 @media (max-width: 640px) {
   [data-slot="input-otp-slot"] {
