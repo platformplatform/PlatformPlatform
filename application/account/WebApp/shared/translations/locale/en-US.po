@@ -144,6 +144,12 @@ msgstr "Add your account name"
 msgid "Add your account name and logo."
 msgstr "Add your account name and logo."
 
+msgid "Address line 1"
+msgstr "Address line 1"
+
+msgid "Address line 2"
+msgstr "Address line 2"
+
 msgid "Adjust the interface size on this device to your preference."
 msgstr "Adjust the interface size on this device to your preference."
 
@@ -182,6 +188,9 @@ msgstr "Any role"
 
 msgid "Any status"
 msgstr "Any status"
+
+msgid "Apartment, suite, etc."
+msgstr "Apartment, suite, etc."
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -242,8 +251,14 @@ msgstr "Billing history"
 msgid "Billing information"
 msgstr "Billing information"
 
+msgid "Billing information updated"
+msgstr "Billing information updated"
+
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Billing is not configured. Please contact support to enable payment processing."
+
+msgid "billing@company.com"
+msgstr "billing@company.com"
 
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
@@ -312,6 +327,9 @@ msgstr "Choose a plan to get started."
 msgid "Choose how the application looks to you on this device."
 msgstr "Choose how the application looks to you on this device."
 
+msgid "City"
+msgstr "City"
+
 msgid "Clear"
 msgstr "Clear"
 
@@ -344,6 +362,9 @@ msgstr "Contact your administrator if you believe this is a mistake."
 
 msgid "Continue"
 msgstr "Continue"
+
+msgid "Country"
+msgstr "Country"
 
 msgid "Create new account"
 msgstr "Create new account"
@@ -463,14 +484,14 @@ msgstr "E.g. Software engineer"
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
 
+msgid "Edit billing information"
+msgstr "Edit billing information"
+
 msgid "Edit profile"
 msgstr "Edit profile"
 
 msgid "Edit user profile"
 msgstr "Edit user profile"
-
-msgid "Edit billing information"
-msgstr "Edit billing information"
 
 msgid "Email"
 msgstr "Email"
@@ -861,6 +882,9 @@ msgstr "Please try again or return to the home page."
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Please wait while we confirm your payment. This may take a few moments."
 
+msgid "Postal code"
+msgstr "Postal code"
+
 msgid "Powered by"
 msgstr "Powered by"
 
@@ -970,6 +994,9 @@ msgstr "Revoking..."
 msgid "Role"
 msgstr "Role"
 
+msgid "Save"
+msgstr "Save"
+
 msgid "Save changes"
 msgstr "Save changes"
 
@@ -1071,11 +1098,17 @@ msgstr "Standard"
 msgid "Standard user access"
 msgstr "Standard user access"
 
+msgid "State / Province"
+msgstr "State / Province"
+
 msgid "Status"
 msgstr "Status"
 
 msgid "Stay"
 msgstr "Stay"
+
+msgid "Street address"
+msgstr "Street address"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
@@ -1220,6 +1253,9 @@ msgstr "Unsaved changes"
 
 msgid "Update payment method"
 msgstr "Update payment method"
+
+msgid "Update the billing details associated with your subscription."
+msgstr "Update the billing details associated with your subscription."
 
 msgid "Update your profile picture and personal details here."
 msgstr "Update your profile picture and personal details here."

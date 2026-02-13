@@ -31,6 +31,8 @@ public interface IStripeClient
     Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken);
 
     Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken);
+
+    Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken);
 }
 
 public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId);

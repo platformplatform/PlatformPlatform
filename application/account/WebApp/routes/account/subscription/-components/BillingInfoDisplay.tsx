@@ -1,5 +1,5 @@
 import { Trans } from "@lingui/react/macro";
-import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
+import { MailIcon, MapPinIcon } from "lucide-react";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type BillingInfo = components["schemas"]["BillingInfo"];
@@ -21,9 +21,9 @@ export function BillingInfoDisplay({ billingInfo }: Readonly<BillingInfoDisplayP
   const addressParts = [
     address?.line1,
     address?.line2,
+    address?.postalCode,
     address?.city,
     address?.state,
-    address?.postalCode,
     address?.country
   ]
     .filter(Boolean)
@@ -31,22 +31,16 @@ export function BillingInfoDisplay({ billingInfo }: Readonly<BillingInfoDisplayP
 
   return (
     <div className="flex flex-col gap-2 text-sm">
-      {billingInfo.email && (
-        <div className="flex items-center gap-2">
-          <MailIcon className="size-4 text-muted-foreground" />
-          <span>{billingInfo.email}</span>
-        </div>
-      )}
       {addressParts && (
         <div className="flex items-center gap-2">
           <MapPinIcon className="size-4 text-muted-foreground" />
           <span>{addressParts}</span>
         </div>
       )}
-      {billingInfo.phone && (
+      {billingInfo.email && (
         <div className="flex items-center gap-2">
-          <PhoneIcon className="size-4 text-muted-foreground" />
-          <span>{billingInfo.phone}</span>
+          <MailIcon className="size-4 text-muted-foreground" />
+          <span>{billingInfo.email}</span>
         </div>
       )}
     </div>

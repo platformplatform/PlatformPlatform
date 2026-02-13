@@ -476,11 +476,10 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
             BillingAddress? address = null;
             var email = customer.Email;
-            var phone = customer.Phone;
 
             if (customer.Address is not null)
             {
-                address = new BillingAddress(customer.Address.Line1, customer.Address.Line2, customer.Address.City, customer.Address.State, customer.Address.PostalCode, customer.Address.Country);
+                address = new BillingAddress(customer.Address.Line1, customer.Address.Line2, customer.Address.PostalCode, customer.Address.City, customer.Address.State, customer.Address.Country);
             }
             else
             {
@@ -490,13 +489,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
                 if (billingDetails?.Address is { } paymentMethodAddress)
                 {
-                    address = new BillingAddress(paymentMethodAddress.Line1, paymentMethodAddress.Line2, paymentMethodAddress.City, paymentMethodAddress.State, paymentMethodAddress.PostalCode, paymentMethodAddress.Country);
+                    address = new BillingAddress(paymentMethodAddress.Line1, paymentMethodAddress.Line2, paymentMethodAddress.PostalCode, paymentMethodAddress.City, paymentMethodAddress.State, paymentMethodAddress.Country);
                     email ??= billingDetails.Email;
-                    phone ??= billingDetails.Phone;
                 }
             }
 
-            return new BillingInfo(email, address, phone);
+            return new BillingInfo(address, email);
         }
         catch (StripeException ex)
         {
@@ -507,6 +505,41 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         {
             logger.LogError(ex, "Timeout getting customer billing info for {CustomerId}", stripeCustomerId);
             return null;
+        }
+    }
+
+    public async Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new CustomerService();
+            await service.UpdateAsync(stripeCustomerId, new CustomerUpdateOptions
+                {
+                    Email = billingInfo.Email,
+                    Address = new AddressOptions
+                    {
+                        Line1 = billingInfo.Address?.Line1,
+                        Line2 = billingInfo.Address?.Line2,
+                        City = billingInfo.Address?.City,
+                        State = billingInfo.Address?.State,
+                        PostalCode = billingInfo.Address?.PostalCode,
+                        Country = billingInfo.Address?.Country
+                    }
+                }, GetRequestOptions(), cancellationToken
+            );
+
+            logger.LogInformation("Updated billing info for customer '{CustomerId}'", stripeCustomerId);
+            return true;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error updating billing info for customer '{CustomerId}'", stripeCustomerId);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout updating billing info for customer '{CustomerId}'", stripeCustomerId);
+            return false;
         }
     }
 
@@ -527,7 +560,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                     SubscriptionCancel = new ConfigurationFeaturesSubscriptionCancelOptions { Enabled = false },
                     SubscriptionUpdate = new ConfigurationFeaturesSubscriptionUpdateOptions { Enabled = false },
                     InvoiceHistory = new ConfigurationFeaturesInvoiceHistoryOptions { Enabled = false },
-                    CustomerUpdate = new ConfigurationFeaturesCustomerUpdateOptions { Enabled = true, AllowedUpdates = ["email", "address", "phone"] }
+                    CustomerUpdate = new ConfigurationFeaturesCustomerUpdateOptions { Enabled = false }
                 }
             }, GetRequestOptions(), cancellationToken
         );
