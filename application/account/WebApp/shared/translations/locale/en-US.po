@@ -168,6 +168,9 @@ msgstr "An account with this email already exists. Please log in instead."
 msgid "An email with login instructions will be sent to the user."
 msgstr "An email with login instructions will be sent to the user."
 
+msgid "An error occurred while processing your payment."
+msgstr "An error occurred while processing your payment."
+
 msgid "An error occurred while updating your payment method."
 msgstr "An error occurred while updating your payment method."
 
@@ -268,6 +271,9 @@ msgstr "Built with"
 
 msgid "By continuing, you accept our policies"
 msgstr "By continuing, you accept our policies"
+
+msgid "By subscribing, you agree to our <0>terms of service</0> and <1>privacy policy</1>."
+msgstr "By subscribing, you agree to our <0>terms of service</0> and <1>privacy policy</1>."
 
 msgid "Can't find your code?"
 msgstr "Can't find your code?"
@@ -483,6 +489,15 @@ msgstr "E.g. Software engineer"
 
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
+
+msgid "E.g., 1234"
+msgstr "E.g., 1234"
+
+msgid "E.g., Capital Region"
+msgstr "E.g., Capital Region"
+
+msgid "E.g., Copenhagen"
+msgstr "E.g., Copenhagen"
 
 msgid "Edit billing information"
 msgstr "Edit billing information"
@@ -882,6 +897,9 @@ msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
+msgid "Please update your billing information before subscribing."
+msgstr "Please update your billing information before subscribing."
+
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Please wait while we confirm your payment. This may take a few moments."
 
@@ -1028,6 +1046,9 @@ msgstr "Select account"
 
 msgid "Select all users"
 msgstr "Select all users"
+
+msgid "Select country"
+msgstr "Select country"
 
 msgid "Select dates"
 msgstr "Select dates"

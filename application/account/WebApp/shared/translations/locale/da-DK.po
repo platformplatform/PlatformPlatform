@@ -168,6 +168,9 @@ msgstr "Der findes allerede en konto med denne e-mailadresse. Log ind i stedet."
 msgid "An email with login instructions will be sent to the user."
 msgstr "En e-mail med login-instruktioner vil blive sendt til brugeren."
 
+msgid "An error occurred while processing your payment."
+msgstr "Der opstod en fejl under behandling af din betaling."
+
 msgid "An error occurred while updating your payment method."
 msgstr "Der opstod en fejl under opdatering af din betalingsmetode."
 
@@ -268,6 +271,9 @@ msgstr "Bygget med"
 
 msgid "By continuing, you accept our policies"
 msgstr "Ved at fortsætte accepterer du vores vilkår"
+
+msgid "By subscribing, you agree to our <0>terms of service</0> and <1>privacy policy</1>."
+msgstr "Ved at abonnere accepterer du vores <0>servicevilkår</0> og <1>privatlivspolitik</1>."
 
 msgid "Can't find your code?"
 msgstr "Kan du ikke finde din kode?"
@@ -483,6 +489,15 @@ msgstr "F.eks. Softwareingeniør"
 
 msgid "E.g. Taylor"
 msgstr "F.eks. Jensen"
+
+msgid "E.g., 1234"
+msgstr "F.eks. 1234"
+
+msgid "E.g., Capital Region"
+msgstr "F.eks. Hovedstaden"
+
+msgid "E.g., Copenhagen"
+msgstr "F.eks. København"
 
 msgid "Edit billing information"
 msgstr "Rediger faktureringsoplysninger"
@@ -882,6 +897,9 @@ msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
 msgid "Please try again or return to the home page."
 msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
+msgid "Please update your billing information before subscribing."
+msgstr "Opdater venligst dine faktureringsoplysninger, inden du abonnerer."
+
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Vent venligst mens vi bekræfter din betaling. Det kan tage et øjeblik."
 
@@ -1028,6 +1046,9 @@ msgstr "Vælg konto"
 
 msgid "Select all users"
 msgstr "Vælg alle brugere"
+
+msgid "Select country"
+msgstr "Vælg land"
 
 msgid "Select dates"
 msgstr "Vælg datoer"

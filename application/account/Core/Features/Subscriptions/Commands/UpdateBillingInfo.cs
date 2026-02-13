@@ -6,18 +6,19 @@ using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
+using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
 public sealed record UpdateBillingInfoCommand(
-    string? Line1,
+    string Line1,
     string? Line2,
-    string? PostalCode,
-    string? City,
+    string PostalCode,
+    string City,
     string? State,
-    string? Country,
-    string? Email
+    string Country,
+    string Email
 )
     : ICommand, IRequest<Result>;
 
@@ -25,7 +26,13 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
 {
     public UpdateBillingInfoValidator()
     {
-        RuleFor(x => x.Email).EmailAddress().When(x => x.Email is not null).WithMessage("Email must be a valid email address.");
+        RuleFor(x => x.Line1).Length(1, 100).WithMessage("Address line 1 must be between 1 and 100 characters.");
+        RuleFor(x => x.Line2).MaximumLength(100).WithMessage("Address line 2 must be no longer than 100 characters.");
+        RuleFor(x => x.PostalCode).Length(1, 10).WithMessage("Postal code must be between 1 and 10 characters.");
+        RuleFor(x => x.City).Length(1, 50).WithMessage("City must be between 1 and 50 characters.");
+        RuleFor(x => x.State).MaximumLength(50).WithMessage("State must be no longer than 50 characters.");
+        RuleFor(x => x.Country).Length(2).WithMessage("Country must be a 2-letter ISO country code.");
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
     }
 }
 

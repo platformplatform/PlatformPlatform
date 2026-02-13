@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
 import { CheckoutDialog } from "../-components/CheckoutDialog";
+import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 
@@ -26,6 +27,8 @@ function CancelSubscriptionPage() {
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
+  const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
+  const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
@@ -45,7 +48,8 @@ function CancelSubscriptionPage() {
         setIsReactivateDialogOpen(false);
         setReactivateClientSecret(data.clientSecret);
         setReactivatePublishableKey(data.publishableKey);
-        setIsCheckoutDialogOpen(true);
+        setPendingCheckoutPlan(currentPlan);
+        setIsEditBillingInfoOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -54,6 +58,7 @@ function CancelSubscriptionPage() {
     }
   });
 
+  const billingInfo = subscription?.billingInfo;
   const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
@@ -69,6 +74,14 @@ function CancelSubscriptionPage() {
         return t`Premium`;
     }
   }
+
+  const handleBillingInfoSuccess = () => {
+    if (pendingCheckoutPlan == null) {
+      return;
+    }
+    setPendingCheckoutPlan(null);
+    setIsCheckoutDialogOpen(true);
+  };
 
   return (
     <>
@@ -150,6 +163,15 @@ function CancelSubscriptionPage() {
         isPending={reactivateMutation.isPending}
         currentPlan={currentPlan}
         targetPlan={currentPlan}
+      />
+
+      <EditBillingInfoDialog
+        isOpen={isEditBillingInfoOpen}
+        onOpenChange={setIsEditBillingInfoOpen}
+        billingInfo={billingInfo}
+        onSuccess={handleBillingInfoSuccess}
+        submitLabel={t`Next`}
+        pendingLabel={t`Saving...`}
       />
 
       <CheckoutDialog
