@@ -19,9 +19,6 @@ namespace PlatformPlatform.Account.Features;
 public sealed class BillingInfoUpdated(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
-public sealed class BillingPortalSessionCreated(SubscriptionId subscriptionId)
-    : TelemetryEvent(("subscription_id", subscriptionId));
-
 public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
@@ -78,6 +75,12 @@ public sealed class PaymentDisputed(SubscriptionId subscriptionId, SubscriptionP
 
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+
+public sealed class PaymentMethodSetupCreated(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
+public sealed class PaymentMethodUpdated(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
