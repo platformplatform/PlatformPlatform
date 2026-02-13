@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { buttonVariants } from "@repo/ui/components/Button";
-import { Link } from "@repo/ui/components/Link";
+import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
 import { api } from "@/shared/lib/api/client";
 
@@ -40,9 +39,9 @@ export default function ExpiringCardBanner() {
           interruption.
         </Trans>
       </span>
-      <Link href="/account/subscription" className={buttonVariants({ size: "sm" })}>
+      <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
         <Trans>Update payment method</Trans>
-      </Link>
+      </Button>
     </div>
   );
 }

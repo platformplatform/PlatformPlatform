@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { buttonVariants } from "@repo/ui/components/Button";
-import { Link } from "@repo/ui/components/Link";
+import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
 import { api, TenantState } from "@/shared/lib/api/client";
 
@@ -29,9 +28,9 @@ export default function PastDueBanner() {
         <Trans>Payment failed. Your subscription will be suspended soon.</Trans>
       </span>
       {isOwner && (
-        <Link href="/account/subscription" className={buttonVariants({ size: "sm" })}>
+        <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
           <Trans>Update payment method</Trans>
-        </Link>
+        </Button>
       )}
     </div>
   );
