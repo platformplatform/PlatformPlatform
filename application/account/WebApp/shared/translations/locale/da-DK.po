@@ -345,6 +345,9 @@ msgstr "Luk"
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
 
+msgid "Complete your payment to activate your subscription."
+msgstr "Gennemfør din betaling for at aktivere dit abonnement."
+
 msgid "Compliance"
 msgstr "Overholdelse"
 

@@ -11,6 +11,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
+import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 
@@ -24,6 +25,9 @@ function CancelSubscriptionPage() {
   const queryClient = useQueryClient();
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
+  const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
+  const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
+  const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
 
@@ -37,8 +41,11 @@ function CancelSubscriptionPage() {
 
   const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
     onSuccess: (data) => {
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (data.clientSecret && data.publishableKey) {
+        setIsReactivateDialogOpen(false);
+        setReactivateClientSecret(data.clientSecret);
+        setReactivatePublishableKey(data.publishableKey);
+        setIsCheckoutDialogOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -136,14 +143,27 @@ function CancelSubscriptionPage() {
           reactivateMutation.mutate({
             body: {
               plan: currentPlan,
-              successUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`,
-              cancelUrl: `${window.location.origin}/account/subscription/cancel/`
+              returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
             }
           })
         }
         isPending={reactivateMutation.isPending}
         currentPlan={currentPlan}
         targetPlan={currentPlan}
+      />
+
+      <CheckoutDialog
+        isOpen={isCheckoutDialogOpen}
+        onOpenChange={(open) => {
+          setIsCheckoutDialogOpen(open);
+          if (!open) {
+            setReactivateClientSecret(undefined);
+            setReactivatePublishableKey(undefined);
+          }
+        }}
+        plan={currentPlan}
+        prefetchedClientSecret={reactivateClientSecret}
+        prefetchedPublishableKey={reactivatePublishableKey}
       />
     </>
   );

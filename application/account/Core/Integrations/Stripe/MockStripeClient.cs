@@ -8,7 +8,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockCustomerId = "cus_mock_12345";
     public const string MockSubscriptionId = "sub_mock_12345";
     public const string MockSessionId = "cs_mock_session_12345";
-    public const string MockCheckoutUrl = "https://mock.stripe.local/checkout";
+    public const string MockClientSecret = "cs_mock_client_secret_12345";
     public const string MockInvoiceUrl = "https://mock.stripe.local/invoice/12345";
     public const string MockWebhookEventId = "evt_mock_12345";
 
@@ -20,10 +20,10 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<string?>(MockCustomerId);
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string successUrl, string cancelUrl, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<CheckoutSessionResult?>(new CheckoutSessionResult(MockSessionId, MockCheckoutUrl));
+        return Task.FromResult<CheckoutSessionResult?>(new CheckoutSessionResult(MockSessionId, MockClientSecret));
     }
 
     public Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(string stripeCustomerId, CancellationToken cancellationToken)

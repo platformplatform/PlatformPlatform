@@ -6,55 +6,55 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
 {
     public Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot create customer for tenant {TenantName}", tenantName);
+        logger.LogWarning("Stripe is not configured. Cannot create customer for tenant '{TenantName}'", tenantName);
         return Task.FromResult<string?>(null);
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string successUrl, string cancelUrl, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot create checkout session for customer {CustomerId}", stripeCustomerId);
+        logger.LogWarning("Stripe is not configured. Cannot create checkout session for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<CheckoutSessionResult?>(null);
     }
 
     public Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(string stripeCustomerId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot sync subscription state for customer {CustomerId}", stripeCustomerId);
+        logger.LogWarning("Stripe is not configured. Cannot sync subscription state for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<SubscriptionSyncResult?>(null);
     }
 
     public Task<string?> GetCheckoutSessionSubscriptionIdAsync(string sessionId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot get checkout session {SessionId}", sessionId);
+        logger.LogWarning("Stripe is not configured. Cannot get checkout session '{SessionId}'", sessionId);
         return Task.FromResult<string?>(null);
     }
 
     public Task<bool> UpgradeSubscriptionAsync(string stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot upgrade subscription {SubscriptionId}", stripeSubscriptionId);
+        logger.LogWarning("Stripe is not configured. Cannot upgrade subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 
     public Task<bool> ScheduleDowngradeAsync(string stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot schedule downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+        logger.LogWarning("Stripe is not configured. Cannot schedule downgrade for subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 
     public Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot cancel scheduled downgrade for subscription {SubscriptionId}", stripeSubscriptionId);
+        logger.LogWarning("Stripe is not configured. Cannot cancel scheduled downgrade for subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 
     public Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot cancel subscription {SubscriptionId}", stripeSubscriptionId);
+        logger.LogWarning("Stripe is not configured. Cannot cancel subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 
     public Task<bool> ReactivateSubscriptionAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot reactivate subscription {SubscriptionId}", stripeSubscriptionId);
+        logger.LogWarning("Stripe is not configured. Cannot reactivate subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 
@@ -77,13 +77,13 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
 
     public Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot get charge {ChargeId}", chargeId);
+        logger.LogWarning("Stripe is not configured. Cannot get charge '{ChargeId}'", chargeId);
         return Task.FromResult<string?>(null);
     }
 
     public Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken)
     {
-        logger.LogWarning("Stripe is not configured. Cannot get customer billing info for {CustomerId}", stripeCustomerId);
+        logger.LogWarning("Stripe is not configured. Cannot get customer billing info for '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<BillingInfo?>(null);
     }
 
