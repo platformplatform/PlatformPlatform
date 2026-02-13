@@ -1,6 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -38,6 +39,7 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
 
 public sealed class UpdateBillingInfoHandler(
     ISubscriptionRepository subscriptionRepository,
+    ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
@@ -58,10 +60,24 @@ public sealed class UpdateBillingInfoHandler(
             return Result.NotFound("Subscription not found for current tenant.");
         }
 
+        var stripeClient = stripeClientFactory.GetClient();
+
         if (subscription.StripeCustomerId is null)
         {
-            logger.LogWarning("No Stripe customer found for subscription '{SubscriptionId}'", subscription.Id);
-            return Result.BadRequest("No Stripe customer found. A subscription must be created first.");
+            if (executionContext.UserInfo.Email is null)
+            {
+                return Result.BadRequest("User email is required to create a Stripe customer.");
+            }
+
+            var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
+            if (customerId is null)
+            {
+                return Result.BadRequest("Failed to create Stripe customer.");
+            }
+
+            subscription.SetStripeCustomerId(customerId);
+            subscriptionRepository.Update(subscription);
         }
 
         var billingInfo = new BillingInfo(
@@ -69,8 +85,7 @@ public sealed class UpdateBillingInfoHandler(
             command.Email
         );
 
-        var stripeClient = stripeClientFactory.GetClient();
-        var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId, billingInfo, cancellationToken);
+        var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId!, billingInfo, cancellationToken);
         if (!success)
         {
             return Result.BadRequest("Failed to update billing information in Stripe.");

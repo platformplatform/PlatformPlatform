@@ -54,7 +54,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task UpdateBillingInfo_WhenNoStripeCustomer_ShouldReturnBadRequest()
+    public async Task UpdateBillingInfo_WhenNoStripeCustomer_ShouldCreateCustomerAndSucceed()
     {
         // Arrange
         var subscriptionId = SubscriptionId.NewId().ToString();
@@ -82,7 +82,15 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
 
         // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "No Stripe customer found. A subscription must be created first.");
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        object[] parameters = [new { id = subscriptionId }];
+        var billingInfo = Connection.ExecuteScalar<string>("SELECT BillingInfo FROM Subscriptions WHERE Id = @id", parameters);
+        billingInfo.Should().Contain("billing@example.com");
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("BillingInfoUpdated");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
