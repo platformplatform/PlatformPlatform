@@ -129,6 +129,9 @@ msgstr "Aktive brugere"
 msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
+msgid "Add billing information"
+msgstr ""
+
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i Brugere menuen"
 
@@ -516,6 +519,9 @@ msgstr "E-mail-support"
 
 msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
+
+msgid "Enter the billing details for your subscription."
+msgstr ""
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"

@@ -369,6 +369,7 @@ export function EditBillingInfoDialog({
   };
 
   const markDirty = () => setIsFormDirty(true);
+  const isNewBillingInfo = !billingInfo?.address;
 
   return (
     <DirtyDialog
@@ -385,10 +386,14 @@ export function EditBillingInfoDialog({
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>
-            <Trans>Edit billing information</Trans>
+            {isNewBillingInfo ? <Trans>Add billing information</Trans> : <Trans>Edit billing information</Trans>}
           </DialogTitle>
           <DialogDescription>
-            <Trans>Update the billing details associated with your subscription.</Trans>
+            {isNewBillingInfo ? (
+              <Trans>Enter the billing details for your subscription.</Trans>
+            ) : (
+              <Trans>Update the billing details associated with your subscription.</Trans>
+            )}
           </DialogDescription>
         </DialogHeader>
 
