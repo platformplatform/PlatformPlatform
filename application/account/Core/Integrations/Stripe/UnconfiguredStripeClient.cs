@@ -10,7 +10,7 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<string?>(null);
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot create checkout session for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<CheckoutSessionResult?>(null);

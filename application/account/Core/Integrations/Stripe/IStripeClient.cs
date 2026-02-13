@@ -6,7 +6,7 @@ public interface IStripeClient
 {
     Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken);
 
-    Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, CancellationToken cancellationToken);
+    Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken);
 
     Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(string stripeCustomerId, CancellationToken cancellationToken);
 
