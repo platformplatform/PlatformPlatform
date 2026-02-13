@@ -39,6 +39,7 @@ function SubscriptionPage() {
   const [isUpdatePaymentMethodOpen, setIsUpdatePaymentMethodOpen] = useState(false);
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Basis);
+  const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
@@ -57,10 +58,10 @@ function SubscriptionPage() {
     onSuccess: (data) => {
       if (data.clientSecret && data.publishableKey) {
         setIsReactivateDialogOpen(false);
-        setCheckoutPlan(currentPlan);
         setReactivateClientSecret(data.clientSecret);
         setReactivatePublishableKey(data.publishableKey);
-        setIsCheckoutDialogOpen(true);
+        setPendingCheckoutPlan(currentPlan);
+        setIsEditBillingInfoOpen(true);
       } else {
         setIsReactivateDialogOpen(false);
         queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
@@ -105,6 +106,8 @@ function SubscriptionPage() {
   const hasStripeSubscription = subscription?.hasStripeSubscription ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);
 
+  const billingInfo = subscription?.billingInfo;
+
   function getPlanLabel(plan: SubscriptionPlan): string {
     switch (plan) {
       case SubscriptionPlan.Basis:
@@ -116,10 +119,19 @@ function SubscriptionPage() {
     }
   }
 
+  const handleBillingInfoSuccess = () => {
+    if (pendingCheckoutPlan == null) {
+      return;
+    }
+    setCheckoutPlan(pendingCheckoutPlan);
+    setPendingCheckoutPlan(null);
+    setIsCheckoutDialogOpen(true);
+  };
+
   if (!hasStripeSubscription) {
     const handleSubscribe = (plan: SubscriptionPlan) => {
-      setCheckoutPlan(plan);
-      setIsCheckoutDialogOpen(true);
+      setPendingCheckoutPlan(plan);
+      setIsEditBillingInfoOpen(true);
     };
 
     return (
@@ -171,6 +183,15 @@ function SubscriptionPage() {
         </AppLayout>
 
         <ProcessingPaymentModal isOpen={isProcessing} />
+
+        <EditBillingInfoDialog
+          isOpen={isEditBillingInfoOpen}
+          onOpenChange={setIsEditBillingInfoOpen}
+          billingInfo={billingInfo}
+          onSuccess={handleBillingInfoSuccess}
+          submitLabel={t`Next`}
+          pendingLabel={t`Saving...`}
+        />
 
         <CheckoutDialog isOpen={isCheckoutDialogOpen} onOpenChange={setIsCheckoutDialogOpen} plan={checkoutPlan} />
       </>
@@ -352,7 +373,10 @@ function SubscriptionPage() {
       <EditBillingInfoDialog
         isOpen={isEditBillingInfoOpen}
         onOpenChange={setIsEditBillingInfoOpen}
-        billingInfo={subscription?.billingInfo}
+        billingInfo={billingInfo}
+        onSuccess={handleBillingInfoSuccess}
+        submitLabel={pendingCheckoutPlan != null ? t`Next` : undefined}
+        pendingLabel={pendingCheckoutPlan != null ? t`Saving...` : undefined}
       />
 
       <UpdatePaymentMethodDialog isOpen={isUpdatePaymentMethodOpen} onOpenChange={setIsUpdatePaymentMethodOpen} />

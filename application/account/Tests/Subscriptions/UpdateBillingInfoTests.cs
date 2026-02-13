@@ -6,6 +6,7 @@ using PlatformPlatform.Account.Features.Subscriptions.Commands;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
+using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
 namespace PlatformPlatform.Account.Tests.Subscriptions;
@@ -74,7 +75,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand(null, null, null, null, null, null, "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -106,7 +107,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand(null, null, null, null, null, null, "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -114,5 +115,26 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners can manage billing information.");
+    }
+
+    [Fact]
+    public async Task UpdateBillingInfo_WhenRequiredFieldsEmpty_ShouldReturnValidationErrors()
+    {
+        // Arrange
+        var command = new UpdateBillingInfoCommand("", null, "", "", null, "", "");
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("line1", "Address line 1 must be between 1 and 100 characters."),
+            new ErrorDetail("postalCode", "Postal code must be between 1 and 10 characters."),
+            new ErrorDetail("city", "City must be between 1 and 50 characters."),
+            new ErrorDetail("country", "Country must be a 2-letter ISO country code."),
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
+        };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
     }
 }
