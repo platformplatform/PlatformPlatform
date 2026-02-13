@@ -30,7 +30,8 @@ public sealed class ReactivateSubscriptionHandler(
     ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<ReactivateSubscriptionHandler> logger
 ) : IRequestHandler<ReactivateSubscriptionCommand, Result<ReactivateSubscriptionResponse>>
 {
     public async Task<Result<ReactivateSubscriptionResponse>> Handle(ReactivateSubscriptionCommand command, CancellationToken cancellationToken)
@@ -43,6 +44,7 @@ public sealed class ReactivateSubscriptionHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result<ReactivateSubscriptionResponse>.NotFound("Subscription not found for current tenant.");
         }
 
@@ -61,6 +63,7 @@ public sealed class ReactivateSubscriptionHandler(
 
         if (subscription.StripeSubscriptionId is null)
         {
+            logger.LogWarning("No Stripe subscription found for subscription '{SubscriptionId}'", subscription.Id);
             return Result<ReactivateSubscriptionResponse>.BadRequest("No active Stripe subscription found.");
         }
 

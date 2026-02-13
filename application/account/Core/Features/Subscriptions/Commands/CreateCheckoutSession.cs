@@ -31,7 +31,8 @@ public sealed class CreateCheckoutSessionHandler(
     ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<CreateCheckoutSessionHandler> logger
 ) : IRequestHandler<CreateCheckoutSessionCommand, Result<CreateCheckoutSessionResponse>>
 {
     public async Task<Result<CreateCheckoutSessionResponse>> Handle(CreateCheckoutSessionCommand command, CancellationToken cancellationToken)
@@ -49,6 +50,7 @@ public sealed class CreateCheckoutSessionHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result<CreateCheckoutSessionResponse>.NotFound("Subscription not found for current tenant.");
         }
 
