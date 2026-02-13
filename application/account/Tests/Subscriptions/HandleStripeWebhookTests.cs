@@ -174,7 +174,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         tenantState.Should().Be(nameof(TenantState.PastDue));
 
         await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "owner@tenant-1.com"),
+            Arg.Is<string>(e => e == "billing@example.com"),
             Arg.Is<string>(s => s.Contains("Payment failed")),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
@@ -206,7 +206,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         response.EnsureSuccessStatusCode();
 
         await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "owner@tenant-1.com"),
+            Arg.Is<string>(e => e == "billing@example.com"),
             Arg.Is<string>(s => s.Contains("Payment reminder")),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
@@ -272,7 +272,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         tenantState.Should().Be(nameof(TenantState.Suspended));
 
         await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "owner@tenant-1.com"),
+            Arg.Is<string>(e => e == "billing@example.com"),
             Arg.Is<string>(s => s.Contains("suspended")),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
@@ -371,7 +371,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
         disputedAt.Should().NotBeNullOrEmpty();
 
         await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "owner@tenant-1.com"),
+            Arg.Is<string>(e => e == "billing@example.com"),
             Arg.Is<string>(s => s.Contains("dispute")),
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()

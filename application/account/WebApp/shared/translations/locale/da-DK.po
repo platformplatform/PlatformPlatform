@@ -357,6 +357,9 @@ msgstr "Luk"
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
 
+msgid "Name as it appears on invoices"
+msgstr "Navn som det fremgår på fakturaer"
+
 msgid "Complete your payment to activate your subscription."
 msgstr "Gennemfør din betaling for at aktivere dit abonnement."
 

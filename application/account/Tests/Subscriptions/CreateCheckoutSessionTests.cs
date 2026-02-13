@@ -32,7 +32,8 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("FirstPaymentFailedAt", null),
                 ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("PaymentMethod", null),
+                ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
         );
         var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Standard, "https://localhost:9000/subscription/return");
