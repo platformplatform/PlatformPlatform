@@ -1,7 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { buttonVariants } from "@repo/ui/components/Button";
-import { Link } from "@repo/ui/components/Link";
+import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
 
 export default function SuspendedPage() {
@@ -33,12 +32,12 @@ export default function SuspendedPage() {
       </div>
       {isOwner && (
         <div className="flex gap-3">
-          <Link href="/account/subscription" className={buttonVariants()}>
+          <Button onClick={() => (window.location.href = "/account/subscription")}>
             <Trans>Update payment method</Trans>
-          </Link>
-          <Link href="/account/subscription" className={buttonVariants({ variant: "outline" })}>
+          </Button>
+          <Button variant="outline" onClick={() => (window.location.href = "/account/subscription")}>
             <Trans>Reactivate subscription</Trans>
-          </Link>
+          </Button>
         </div>
       )}
     </div>
