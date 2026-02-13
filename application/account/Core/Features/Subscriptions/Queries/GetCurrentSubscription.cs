@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
 
@@ -22,7 +23,7 @@ public sealed record SubscriptionResponse(
     DateTimeOffset? RefundedAt
 );
 
-public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository)
+public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext, ILogger<GetCurrentSubscriptionHandler> logger)
     : IRequestHandler<GetCurrentSubscriptionQuery, Result<SubscriptionResponse>>
 {
     public async Task<Result<SubscriptionResponse>> Handle(GetCurrentSubscriptionQuery query, CancellationToken cancellationToken)
@@ -30,6 +31,7 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result<SubscriptionResponse>.NotFound("Subscription not found for current tenant.");
         }
 
