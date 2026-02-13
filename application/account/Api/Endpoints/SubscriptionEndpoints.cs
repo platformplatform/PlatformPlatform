@@ -53,9 +53,13 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<ReactivateSubscriptionResponse>();
 
-        group.MapPost("/billing-portal", async Task<ApiResult<CreateBillingPortalSessionResponse>> (CreateBillingPortalSessionCommand command, IMediator mediator)
+        group.MapPost("/payment-method-setup", async Task<ApiResult<CreatePaymentMethodSetupResponse>> (IMediator mediator)
+            => await mediator.Send(new CreatePaymentMethodSetupCommand())
+        ).Produces<CreatePaymentMethodSetupResponse>();
+
+        group.MapPost("/confirm-payment-method", async Task<ApiResult> (ConfirmPaymentMethodSetupCommand command, IMediator mediator)
             => await mediator.Send(command)
-        ).Produces<CreateBillingPortalSessionResponse>();
+        );
 
         group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
             => await mediator.Send(command)

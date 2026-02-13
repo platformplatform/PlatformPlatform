@@ -27,6 +27,8 @@ var stripePriceStandard = builder.AddParameter("stripe-price-standard", true)
     .WithDescription("Stripe Price ID for Standard plan", true);
 var stripePricePremium = builder.AddParameter("stripe-price-premium", true)
     .WithDescription("Stripe Price ID for Premium plan", true);
+var stripePublishableKey = builder.AddParameter("stripe-publishable-key", true)
+    .WithDescription("Stripe Publishable Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
@@ -95,6 +97,7 @@ var accountApi = builder
     .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
     .WithEnvironment("Stripe__Prices__Standard", stripePriceStandard)
     .WithEnvironment("Stripe__Prices__Premium", stripePricePremium)
+    .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
     .WithEnvironment("Stripe__AllowMockProvider", "true")
     .WaitFor(accountWorkers);
 
