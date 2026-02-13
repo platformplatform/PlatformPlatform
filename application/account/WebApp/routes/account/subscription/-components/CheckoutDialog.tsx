@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -47,7 +48,7 @@ export function CheckoutDialog({
     onSuccess: (data) => {
       setClientSecret(data.clientSecret ?? null);
       if (data.publishableKey) {
-        setStripePromise(loadStripe(data.publishableKey));
+        setStripePromise(loadStripe(data.publishableKey, { locale: i18n.locale as "auto" }));
       }
       setIsLoading(false);
     },
@@ -68,7 +69,7 @@ export function CheckoutDialog({
       setIsWaitingForWebhook(false);
       if (prefetchedClientSecret && prefetchedPublishableKey) {
         setClientSecret(prefetchedClientSecret);
-        setStripePromise(loadStripe(prefetchedPublishableKey));
+        setStripePromise(loadStripe(prefetchedPublishableKey, { locale: i18n.locale as "auto" }));
         setIsLoading(false);
       } else {
         setIsLoading(true);
