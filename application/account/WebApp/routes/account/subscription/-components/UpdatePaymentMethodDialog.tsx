@@ -19,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { api } from "@/shared/lib/api/client";
+import { getStripeAppearance } from "./stripeAppearance";
 
 interface UpdatePaymentMethodDialogProps {
   isOpen: boolean;
@@ -61,14 +62,9 @@ export function UpdatePaymentMethodDialog({ isOpen, onOpenChange }: Readonly<Upd
     if (!clientSecret) {
       return undefined;
     }
-    const rootFontSize = getComputedStyle(document.documentElement).fontSize;
     return {
       clientSecret,
-      appearance: {
-        variables: {
-          fontSizeBase: rootFontSize
-        }
-      }
+      appearance: getStripeAppearance()
     };
   }, [clientSecret]);
 

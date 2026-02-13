@@ -19,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan, type SubscriptionPlan as SubscriptionPlanType } from "@/shared/lib/api/client";
+import { getStripeAppearance } from "./stripeAppearance";
 
 interface CheckoutDialogProps {
   isOpen: boolean;
@@ -83,15 +84,10 @@ export function CheckoutDialog({
     if (!clientSecret) {
       return undefined;
     }
-    const rootFontSize = getComputedStyle(document.documentElement).fontSize;
     return {
       clientSecret,
       elementsOptions: {
-        appearance: {
-          variables: {
-            fontSizeBase: rootFontSize
-          }
-        }
+        appearance: getStripeAppearance()
       }
     };
   }, [clientSecret]);
