@@ -33,7 +33,8 @@ public sealed class UpdateBillingInfoHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    ITelemetryEventsCollector events,
+    ILogger<UpdateBillingInfoHandler> logger
 ) : IRequestHandler<UpdateBillingInfoCommand, Result>
 {
     public async Task<Result> Handle(UpdateBillingInfoCommand command, CancellationToken cancellationToken)
@@ -46,11 +47,13 @@ public sealed class UpdateBillingInfoHandler(
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
+            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
             return Result.NotFound("Subscription not found for current tenant.");
         }
 
         if (subscription.StripeCustomerId is null)
         {
+            logger.LogWarning("No Stripe customer found for subscription '{SubscriptionId}'", subscription.Id);
             return Result.BadRequest("No Stripe customer found. A subscription must be created first.");
         }
 
