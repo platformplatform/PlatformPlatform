@@ -11,18 +11,18 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record CreateCheckoutSessionCommand(SubscriptionPlan Plan, string SuccessUrl, string CancelUrl)
+public sealed record CreateCheckoutSessionCommand(SubscriptionPlan Plan, string ReturnUrl)
     : ICommand, IRequest<Result<CreateCheckoutSessionResponse>>;
 
 [PublicAPI]
-public sealed record CreateCheckoutSessionResponse(string CheckoutUrl);
+public sealed record CreateCheckoutSessionResponse(string ClientSecret, string PublishableKey);
 
 public sealed class CreateCheckoutSessionValidator : AbstractValidator<CreateCheckoutSessionCommand>
 {
     public CreateCheckoutSessionValidator()
     {
-        RuleFor(x => x.SuccessUrl).NotEmpty().WithMessage("Success URL is required.");
-        RuleFor(x => x.CancelUrl).NotEmpty().WithMessage("Cancel URL is required.");
+        RuleFor(x => x.Plan).NotEqual(SubscriptionPlan.Basis).WithMessage("Cannot create a checkout session for the Basis plan.");
+        RuleFor(x => x.ReturnUrl).NotEmpty().WithMessage("Return URL is required.");
     }
 }
 
@@ -59,9 +59,11 @@ public sealed class CreateCheckoutSessionHandler(
             return Result<CreateCheckoutSessionResponse>.BadRequest("An active subscription already exists. Cannot create a new checkout session.");
         }
 
-        if (command.Plan == SubscriptionPlan.Basis)
+        var publishableKey = stripeClientFactory.GetPublishableKey();
+        if (publishableKey is null)
         {
-            return Result<CreateCheckoutSessionResponse>.BadRequest("Cannot create a checkout session for the Basis plan.");
+            logger.LogWarning("Stripe publishable key is not configured");
+            return Result<CreateCheckoutSessionResponse>.BadRequest("Stripe is not configured for checkout.");
         }
 
         var stripeClient = stripeClientFactory.GetClient();
@@ -79,7 +81,7 @@ public sealed class CreateCheckoutSessionHandler(
             subscriptionRepository.Update(subscription);
         }
 
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.SuccessUrl, command.CancelUrl, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, cancellationToken);
         if (result is null)
         {
             return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create checkout session.");
@@ -87,6 +89,6 @@ public sealed class CreateCheckoutSessionHandler(
 
         events.CollectEvent(new CheckoutSessionCreated(subscription.Id, command.Plan));
 
-        return new CreateCheckoutSessionResponse(result.Url);
+        return new CreateCheckoutSessionResponse(result.ClientSecret, publishableKey);
     }
 }

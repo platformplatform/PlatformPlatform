@@ -2513,7 +2513,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "checkoutUrl": {
+          "clientSecret": {
+            "type": "string"
+          },
+          "publishableKey": {
             "type": "string"
           }
         }
@@ -2525,10 +2528,7 @@
           "plan": {
             "$ref": "#/components/schemas/SubscriptionPlan"
           },
-          "successUrl": {
-            "type": "string"
-          },
-          "cancelUrl": {
+          "returnUrl": {
             "type": "string"
           }
         }
@@ -2593,7 +2593,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "checkoutUrl": {
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishableKey": {
             "type": "string",
             "nullable": true
           }
@@ -2606,11 +2610,7 @@
           "plan": {
             "$ref": "#/components/schemas/SubscriptionPlan"
           },
-          "successUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "cancelUrl": {
+          "returnUrl": {
             "type": "string",
             "nullable": true
           }
