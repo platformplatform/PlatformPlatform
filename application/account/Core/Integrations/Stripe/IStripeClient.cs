@@ -22,8 +22,6 @@ public interface IStripeClient
 
     Task<bool> ReactivateSubscriptionAsync(string stripeSubscriptionId, CancellationToken cancellationToken);
 
-    Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, string locale, CancellationToken cancellationToken);
-
     StripeHealthResult GetHealth();
 
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
@@ -33,6 +31,12 @@ public interface IStripeClient
     Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken);
 
     Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken);
+
+    Task<string?> CreateSetupIntentAsync(string stripeCustomerId, CancellationToken cancellationToken);
+
+    Task<string?> GetSetupIntentPaymentMethodAsync(string setupIntentId, CancellationToken cancellationToken);
+
+    Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken);
 }
 
 public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId);

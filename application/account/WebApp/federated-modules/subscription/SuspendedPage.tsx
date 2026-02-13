@@ -1,22 +1,12 @@
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Button, buttonVariants } from "@repo/ui/components/Button";
+import { buttonVariants } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { AlertTriangleIcon } from "lucide-react";
-import { api } from "@/shared/lib/api/client";
 
 export default function SuspendedPage() {
   const userInfo = useUserInfo();
   const isOwner = userInfo?.role === "Owner";
-
-  const billingPortalMutation = api.useMutation("post", "/api/account/subscriptions/billing-portal", {
-    onSuccess: (data) => {
-      if (data.portalUrl) {
-        window.location.href = data.portalUrl;
-      }
-    }
-  });
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
@@ -43,16 +33,9 @@ export default function SuspendedPage() {
       </div>
       {isOwner && (
         <div className="flex gap-3">
-          <Button
-            onClick={() =>
-              billingPortalMutation.mutate({
-                body: { returnUrl: window.location.href }
-              })
-            }
-            disabled={billingPortalMutation.isPending}
-          >
-            {billingPortalMutation.isPending ? t`Loading...` : t`Update payment method`}
-          </Button>
+          <Link href="/account/subscription" className={buttonVariants()}>
+            <Trans>Update payment method</Trans>
+          </Link>
           <Link href="/account/subscription" className={buttonVariants({ variant: "outline" })}>
             <Trans>Reactivate subscription</Trans>
           </Link>

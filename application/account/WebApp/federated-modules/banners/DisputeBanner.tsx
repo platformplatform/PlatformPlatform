@@ -1,14 +1,12 @@
-import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import { Button } from "@repo/ui/components/Button";
+import { buttonVariants } from "@repo/ui/components/Button";
+import { Link } from "@repo/ui/components/Link";
 import { AlertTriangleIcon } from "lucide-react";
-import { useState } from "react";
 import { api } from "@/shared/lib/api/client";
 
 export default function DisputeBanner() {
   const userInfo = useUserInfo();
-  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const { data: subscription } = api.useQuery(
     "get",
@@ -16,15 +14,6 @@ export default function DisputeBanner() {
     {},
     { enabled: userInfo?.isAuthenticated && userInfo?.role === "Owner" }
   );
-
-  const billingPortalMutation = api.useMutation("post", "/api/account/subscriptions/billing-portal", {
-    onSuccess: (data) => {
-      if (data.portalUrl) {
-        setIsRedirecting(true);
-        window.location.href = data.portalUrl;
-      }
-    }
-  });
 
   const isOwner = userInfo?.role === "Owner";
 
@@ -38,18 +27,9 @@ export default function DisputeBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>A payment dispute has been filed. Please review your payment settings or contact support.</Trans>
       </span>
-      <Button
-        variant="default"
-        size="sm"
-        onClick={() =>
-          billingPortalMutation.mutate({
-            body: { returnUrl: window.location.href }
-          })
-        }
-        disabled={billingPortalMutation.isPending || isRedirecting}
-      >
-        {billingPortalMutation.isPending || isRedirecting ? t`Loading...` : t`Review payment settings`}
-      </Button>
+      <Link href="/account/subscription" className={buttonVariants({ size: "sm" })}>
+        <Trans>Review payment settings</Trans>
+      </Link>
     </div>
   );
 }

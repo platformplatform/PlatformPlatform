@@ -9,7 +9,6 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public const string MockSubscriptionId = "sub_mock_12345";
     public const string MockSessionId = "cs_mock_session_12345";
     public const string MockCheckoutUrl = "https://mock.stripe.local/checkout";
-    public const string MockBillingPortalUrl = "https://mock.stripe.local/billing-portal";
     public const string MockInvoiceUrl = "https://mock.stripe.local/invoice/12345";
     public const string MockWebhookEventId = "evt_mock_12345";
 
@@ -94,12 +93,6 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
-    public Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, string locale, CancellationToken cancellationToken)
-    {
-        EnsureEnabled();
-        return Task.FromResult<string?>(MockBillingPortalUrl);
-    }
-
     public StripeHealthResult GetHealth()
     {
         return new StripeHealthResult(
@@ -149,6 +142,24 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult(true);
+    }
+
+    public Task<string?> CreateSetupIntentAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<string?>("seti_mock_client_secret_12345");
+    }
+
+    public Task<string?> GetSetupIntentPaymentMethodAsync(string setupIntentId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<string?>("pm_mock_12345");
+    }
+
+    public Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
