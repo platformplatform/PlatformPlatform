@@ -38,6 +38,7 @@ function PlansPage() {
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
+  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
     onSuccess: () => {
@@ -267,6 +268,7 @@ function PlansPage() {
         isOpen={isEditBillingInfoOpen}
         onOpenChange={setIsEditBillingInfoOpen}
         billingInfo={billingInfo}
+        tenantName={tenant?.name ?? ""}
         onSuccess={handleBillingInfoSuccess}
         submitLabel={t`Next`}
         pendingLabel={t`Saving...`}

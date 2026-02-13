@@ -2358,6 +2358,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
           "address": {
             "nullable": true,
             "oneOf": [
@@ -2641,6 +2645,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "name": {
+            "type": "string"
+          },
           "line1": {
             "type": "string"
           },
