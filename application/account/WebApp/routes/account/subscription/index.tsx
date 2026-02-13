@@ -8,7 +8,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangleIcon, ExternalLinkIcon, PencilIcon, RefreshCwIcon } from "lucide-react";
+import { AlertTriangleIcon, PencilIcon, RefreshCwIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -21,6 +21,7 @@ import { PlanCard } from "./-components/PlanCard";
 import { ProcessingPaymentModal } from "./-components/ProcessingPaymentModal";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
+import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
 
 export const Route = createFileRoute("/account/subscription/")({
   staticData: { trackingTitle: "Subscription" },
@@ -32,10 +33,10 @@ function SubscriptionPage() {
   const formatLongDate = useFormatLongDate();
   const queryClient = useQueryClient();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isRedirectingToBillingPortal, setIsRedirectingToBillingPortal] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
+  const [isUpdatePaymentMethodOpen, setIsUpdatePaymentMethodOpen] = useState(false);
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
@@ -53,15 +54,6 @@ function SubscriptionPage() {
       setIsProcessing(false);
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
       toast.success(t`Your subscription has been activated.`);
-    }
-  });
-
-  const billingPortalMutation = api.useMutation("post", "/api/account/subscriptions/billing-portal", {
-    onSuccess: (data) => {
-      if (data.portalUrl) {
-        setIsRedirectingToBillingPortal(true);
-        window.location.href = data.portalUrl;
-      }
     }
   });
 
@@ -293,13 +285,11 @@ function SubscriptionPage() {
             <Button
               variant="outline"
               className="w-fit"
-              onClick={() => billingPortalMutation.mutate({ body: { returnUrl: window.location.href } })}
-              disabled={billingPortalMutation.isPending || isRedirectingToBillingPortal || !isStripeConfigured}
+              onClick={() => setIsUpdatePaymentMethodOpen(true)}
+              disabled={!isStripeConfigured}
             >
-              <ExternalLinkIcon className="size-4" />
-              {billingPortalMutation.isPending || isRedirectingToBillingPortal
-                ? t`Loading...`
-                : t`Manage payment method`}
+              <PencilIcon className="size-4" />
+              <Trans>Update payment method</Trans>
             </Button>
           </div>
         </div>
@@ -368,6 +358,8 @@ function SubscriptionPage() {
         onOpenChange={setIsEditBillingInfoOpen}
         billingInfo={subscription?.billingInfo}
       />
+
+      <UpdatePaymentMethodDialog isOpen={isUpdatePaymentMethodOpen} onOpenChange={setIsUpdatePaymentMethodOpen} />
     </>
   );
 }

@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.SinglePageApp;
 using Stripe;
-using Stripe.BillingPortal;
 using Stripe.Checkout;
 using DomainPaymentMethod = PlatformPlatform.Account.Features.Subscriptions.Domain.PaymentMethod;
 using PaymentMethod = Stripe.PaymentMethod;
@@ -15,7 +13,6 @@ namespace PlatformPlatform.Account.Integrations.Stripe;
 
 public sealed class StripeClient(IConfiguration configuration, ILogger<StripeClient> logger) : IStripeClient
 {
-    private static string? _portalConfigurationId;
     private readonly string? _apiKey = configuration["Stripe:ApiKey"];
     private readonly string? _premiumPriceId = configuration["Stripe:Prices:Premium"];
     private readonly string? _standardPriceId = configuration["Stripe:Prices:Standard"];
@@ -383,37 +380,6 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, string locale, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var publicUrl = Environment.GetEnvironmentVariable(SinglePageAppConfiguration.PublicUrlKey)!;
-            var configurationId = await GetOrCreatePortalConfigurationAsync(publicUrl, cancellationToken);
-
-            var service = new global::Stripe.BillingPortal.SessionService();
-            var session = await service.CreateAsync(new global::Stripe.BillingPortal.SessionCreateOptions
-                {
-                    Customer = stripeCustomerId,
-                    ReturnUrl = returnUrl,
-                    Configuration = configurationId,
-                    Locale = locale[..2]
-                }, GetRequestOptions(), cancellationToken
-            );
-
-            return session.Url;
-        }
-        catch (StripeException ex)
-        {
-            logger.LogError(ex, "Stripe error creating billing portal session for customer {CustomerId}", stripeCustomerId);
-            return null;
-        }
-        catch (TaskCanceledException ex)
-        {
-            logger.LogError(ex, "Timeout creating billing portal session for customer {CustomerId}", stripeCustomerId);
-            return null;
-        }
-    }
-
     public StripeHealthResult GetHealth()
     {
         return new StripeHealthResult(
@@ -543,30 +509,77 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    private async Task<string> GetOrCreatePortalConfigurationAsync(string publicUrl, CancellationToken cancellationToken)
+    public async Task<string?> CreateSetupIntentAsync(string stripeCustomerId, CancellationToken cancellationToken)
     {
-        if (_portalConfigurationId is not null)
+        try
         {
-            return _portalConfigurationId;
-        }
-
-        var configurationService = new ConfigurationService();
-        var configuration = await configurationService.CreateAsync(new ConfigurationCreateOptions
-            {
-                BusinessProfile = new ConfigurationBusinessProfileOptions { PrivacyPolicyUrl = $"{publicUrl}/legal/privacy", TermsOfServiceUrl = $"{publicUrl}/legal/terms" },
-                Features = new ConfigurationFeaturesOptions
+            var service = new SetupIntentService();
+            var setupIntent = await service.CreateAsync(new SetupIntentCreateOptions
                 {
-                    PaymentMethodUpdate = new ConfigurationFeaturesPaymentMethodUpdateOptions { Enabled = true },
-                    SubscriptionCancel = new ConfigurationFeaturesSubscriptionCancelOptions { Enabled = false },
-                    SubscriptionUpdate = new ConfigurationFeaturesSubscriptionUpdateOptions { Enabled = false },
-                    InvoiceHistory = new ConfigurationFeaturesInvoiceHistoryOptions { Enabled = false },
-                    CustomerUpdate = new ConfigurationFeaturesCustomerUpdateOptions { Enabled = false }
-                }
-            }, GetRequestOptions(), cancellationToken
-        );
+                    Customer = stripeCustomerId,
+                    AutomaticPaymentMethods = new SetupIntentAutomaticPaymentMethodsOptions { Enabled = true }
+                }, GetRequestOptions(), cancellationToken
+            );
 
-        _portalConfigurationId = configuration.Id;
-        return _portalConfigurationId;
+            logger.LogInformation("Created SetupIntent for customer '{CustomerId}'", stripeCustomerId);
+            return setupIntent.ClientSecret;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error creating SetupIntent for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout creating SetupIntent for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+    }
+
+    public async Task<string?> GetSetupIntentPaymentMethodAsync(string setupIntentId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new SetupIntentService();
+            var setupIntent = await service.GetAsync(setupIntentId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            return setupIntent.PaymentMethodId;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting SetupIntent '{SetupIntentId}'", setupIntentId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting SetupIntent '{SetupIntentId}'", setupIntentId);
+            return null;
+        }
+    }
+
+    public async Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new SubscriptionService();
+            await service.UpdateAsync(stripeSubscriptionId, new SubscriptionUpdateOptions
+                {
+                    DefaultPaymentMethod = paymentMethodId
+                }, GetRequestOptions(), cancellationToken
+            );
+
+            logger.LogInformation("Updated default payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return true;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error updating payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout updating payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return false;
+        }
     }
 
     private static (string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId) ExtractCustomerInfo(Event stripeEvent)

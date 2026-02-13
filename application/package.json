@@ -26,6 +26,8 @@
     "@lingui/react": "5.7.0",
     "@microsoft/applicationinsights-react-js": "19.3.8",
     "@microsoft/applicationinsights-web": "3.3.10",
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.7.0",
     "@tanstack/react-query": "5.90.16",
     "@tanstack/react-router": "1.145.7",
     "class-variance-authority": "0.7.1",

@@ -58,12 +58,6 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
-    public Task<string?> CreateBillingPortalSessionAsync(string stripeCustomerId, string returnUrl, string locale, CancellationToken cancellationToken)
-    {
-        logger.LogWarning("Stripe is not configured. Cannot create billing portal session for customer {CustomerId}", stripeCustomerId);
-        return Task.FromResult<string?>(null);
-    }
-
     public StripeHealthResult GetHealth()
     {
         return new StripeHealthResult(
@@ -96,6 +90,24 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
     public Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot update billing info for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult(false);
+    }
+
+    public Task<string?> CreateSetupIntentAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot create SetupIntent for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<string?> GetSetupIntentPaymentMethodAsync(string setupIntentId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get SetupIntent '{SetupIntentId}'", setupIntentId);
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot update payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
 }
