@@ -35,7 +35,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -75,7 +75,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -115,7 +115,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -129,7 +129,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenRequiredFieldsEmpty_ShouldReturnValidationErrors()
     {
         // Arrange
-        var command = new UpdateBillingInfoCommand("", null, "", "", null, "", "");
+        var command = new UpdateBillingInfoCommand("", "", null, "", "", null, "", "");
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
@@ -137,6 +137,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         // Assert
         var expectedErrors = new[]
         {
+            new ErrorDetail("name", "Name must be between 1 and 100 characters."),
             new ErrorDetail("line1", "Address line 1 must be between 1 and 100 characters."),
             new ErrorDetail("postalCode", "Postal code must be between 1 and 10 characters."),
             new ErrorDetail("city", "City must be between 1 and 50 characters."),

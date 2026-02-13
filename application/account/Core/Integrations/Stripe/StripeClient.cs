@@ -461,7 +461,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }
             }
 
-            return new BillingInfo(address, email);
+            return new BillingInfo(customer.Name, address, email);
         }
         catch (StripeException ex)
         {
@@ -482,6 +482,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var service = new CustomerService();
             await service.UpdateAsync(stripeCustomerId, new CustomerUpdateOptions
                 {
+                    Name = billingInfo.Name,
                     Email = billingInfo.Email,
                     Address = new AddressOptions
                     {

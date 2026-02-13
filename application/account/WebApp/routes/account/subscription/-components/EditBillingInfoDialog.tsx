@@ -335,6 +335,7 @@ interface EditBillingInfoDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   billingInfo: BillingInfo | null | undefined;
+  tenantName: string;
   onSuccess?: () => void;
   submitLabel?: string;
   pendingLabel?: string;
@@ -344,6 +345,7 @@ export function EditBillingInfoDialog({
   isOpen,
   onOpenChange,
   billingInfo,
+  tenantName,
   onSuccess,
   submitLabel,
   pendingLabel
@@ -406,6 +408,13 @@ export function EditBillingInfoDialog({
             <div className="flex flex-col gap-4">
               <TextField
                 autoFocus={true}
+                name="name"
+                label={t`Name`}
+                defaultValue={billingInfo?.name ?? tenantName}
+                placeholder={t`Name as it appears on invoices`}
+                onChange={markDirty}
+              />
+              <TextField
                 name="line1"
                 label={t`Address line 1`}
                 defaultValue={billingInfo?.address?.line1 ?? ""}

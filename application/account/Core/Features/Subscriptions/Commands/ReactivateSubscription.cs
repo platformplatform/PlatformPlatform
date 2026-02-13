@@ -53,7 +53,7 @@ public sealed class ReactivateSubscriptionHandler(
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
         if (tenant.State == TenantState.Suspended)
         {
-            return await HandleSuspendedReactivation(subscription, command, tenant, stripeClient, cancellationToken);
+            return await HandleSuspendedReactivation(subscription, command, stripeClient, cancellationToken);
         }
 
         if (!subscription.CancelAtPeriodEnd)
@@ -95,7 +95,7 @@ public sealed class ReactivateSubscriptionHandler(
         return new ReactivateSubscriptionResponse(null, null);
     }
 
-    private async Task<Result<ReactivateSubscriptionResponse>> HandleSuspendedReactivation(Subscription subscription, ReactivateSubscriptionCommand command, Tenant tenant, IStripeClient stripeClient, CancellationToken cancellationToken)
+    private async Task<Result<ReactivateSubscriptionResponse>> HandleSuspendedReactivation(Subscription subscription, ReactivateSubscriptionCommand command, IStripeClient stripeClient, CancellationToken cancellationToken)
     {
         if (command.ReturnUrl is null)
         {
@@ -116,7 +116,13 @@ public sealed class ReactivateSubscriptionHandler(
 
         if (subscription.StripeCustomerId is null)
         {
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
+            var billingName = subscription.BillingInfo?.Name;
+            if (billingName is null)
+            {
+                return Result<ReactivateSubscriptionResponse>.BadRequest("Billing information is required before reactivation.");
+            }
+
+            var customerId = await stripeClient.CreateCustomerAsync(billingName, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create Stripe customer.");

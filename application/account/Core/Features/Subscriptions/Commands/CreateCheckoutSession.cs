@@ -1,7 +1,6 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -28,7 +27,6 @@ public sealed class CreateCheckoutSessionValidator : AbstractValidator<CreateChe
 
 public sealed class CreateCheckoutSessionHandler(
     ISubscriptionRepository subscriptionRepository,
-    ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
@@ -67,11 +65,16 @@ public sealed class CreateCheckoutSessionHandler(
         }
 
         var stripeClient = stripeClientFactory.GetClient();
-        var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
 
         if (subscription.StripeCustomerId is null)
         {
-            var customerId = await stripeClient.CreateCustomerAsync(tenant.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
+            var billingName = subscription.BillingInfo?.Name;
+            if (billingName is null)
+            {
+                return Result<CreateCheckoutSessionResponse>.BadRequest("Billing information is required before checkout.");
+            }
+
+            var customerId = await stripeClient.CreateCustomerAsync(billingName, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
             if (customerId is null)
             {
                 return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create Stripe customer.");
