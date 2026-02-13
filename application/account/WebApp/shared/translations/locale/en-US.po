@@ -132,6 +132,9 @@ msgstr "Active users"
 msgid "Active users in the past 30 days"
 msgstr "Active users in the past 30 days"
 
+msgid "Add billing information"
+msgstr "Add billing information"
+
 msgid "Add more in the Users menu"
 msgstr "Add more in the Users menu"
 
@@ -522,6 +525,9 @@ msgstr "Email support"
 
 msgid "Empty recycle bin"
 msgstr "Empty recycle bin"
+
+msgid "Enter the billing details for your subscription."
+msgstr "Enter the billing details for your subscription."
 
 msgid "Enter your email below to log in"
 msgstr "Enter your email below to log in"
