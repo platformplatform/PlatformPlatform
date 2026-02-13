@@ -163,14 +163,14 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 public sealed record BillingAddress(
     string? Line1,
     string? Line2,
+    string? PostalCode,
     string? City,
     string? State,
-    string? PostalCode,
     string? Country
 );
 
 [PublicAPI]
-public sealed record BillingInfo(string? Email, BillingAddress? Address, string? Phone);
+public sealed record BillingInfo(BillingAddress? Address, string? Email);
 
 [PublicAPI]
 public sealed record PaymentMethod(string Brand, string Last4, int ExpMonth, int ExpYear);

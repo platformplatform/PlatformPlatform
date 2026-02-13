@@ -16,6 +16,9 @@ namespace PlatformPlatform.Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class BillingInfoUpdated(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class BillingPortalSessionCreated(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
