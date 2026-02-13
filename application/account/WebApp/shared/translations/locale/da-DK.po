@@ -141,6 +141,12 @@ msgstr "Tilføj dit kontonavn"
 msgid "Add your account name and logo."
 msgstr "Tilføj dit kontonavn og logo."
 
+msgid "Address line 1"
+msgstr "Adresselinje 1"
+
+msgid "Address line 2"
+msgstr "Adresselinje 2"
+
 msgid "Adjust the interface size on this device to your preference."
 msgstr "Juster grænsefladens størrelse på denne enhed efter dine præferencer."
 
@@ -179,6 +185,9 @@ msgstr "Enhver rolle"
 
 msgid "Any status"
 msgstr "Enhver status"
+
+msgid "Apartment, suite, etc."
+msgstr "Lejlighed, suite osv."
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -237,10 +246,16 @@ msgid "Billing history"
 msgstr "Betalingshistorik"
 
 msgid "Billing information"
-msgstr ""
+msgstr "Faktureringsoplysninger"
+
+msgid "Billing information updated"
+msgstr "Faktureringsoplysninger opdateret"
 
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Betaling er ikke konfigureret. Kontakt support for at aktivere betalingsbehandling."
+
+msgid "billing@company.com"
+msgstr "fakturering@firma.dk"
 
 msgid "Built on <0>PlatformPlatform<1/></0> - an open-source platform by industry experts showcasing how to build enterprise-grade B2B SaaS products"
 msgstr "Bygget på <0>PlatformPlatform<1/></0> - en open-source platform af brancheeksperter til professionel B2B SaaS udvikling"
@@ -309,6 +324,9 @@ msgstr "Vælg en plan for at komme i gang."
 msgid "Choose how the application looks to you on this device."
 msgstr "Vælg hvordan applikationen ser ud for dig på denne enhed."
 
+msgid "City"
+msgstr "By"
+
 msgid "Clear"
 msgstr "Ryd"
 
@@ -338,6 +356,9 @@ msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
 msgid "Continue"
 msgstr "Fortsæt"
+
+msgid "Country"
+msgstr "Land"
 
 msgid "Create new account"
 msgstr "Opret ny konto"
@@ -457,14 +478,14 @@ msgstr "F.eks. Softwareingeniør"
 msgid "E.g. Taylor"
 msgstr "F.eks. Jensen"
 
+msgid "Edit billing information"
+msgstr "Rediger faktureringsoplysninger"
+
 msgid "Edit profile"
 msgstr "Rediger profil"
 
 msgid "Edit user profile"
 msgstr "Rediger brugerprofil"
-
-msgid "Edit billing information"
-msgstr ""
 
 msgid "Email"
 msgstr "E-mail"
@@ -747,7 +768,7 @@ msgid "No active sessions found."
 msgstr "Ingen aktive sessioner"
 
 msgid "No billing information on file"
-msgstr ""
+msgstr "Ingen faktureringsoplysninger registreret"
 
 msgid "No longer needed"
 msgstr "Ikke længere nødvendigt"
@@ -854,6 +875,9 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Vent venligst mens vi bekræfter din betaling. Det kan tage et øjeblik."
+
+msgid "Postal code"
+msgstr "Postnummer"
 
 msgid "Powered by"
 msgstr "Powered by"
@@ -964,6 +988,9 @@ msgstr "Tilbagekalder..."
 msgid "Role"
 msgstr "Rolle"
 
+msgid "Save"
+msgstr "Gem"
+
 msgid "Save changes"
 msgstr "Gem ændringer"
 
@@ -1065,11 +1092,17 @@ msgstr "Standard"
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
 
+msgid "State / Province"
+msgstr "Stat / Region"
+
 msgid "Status"
 msgstr "Status"
 
 msgid "Stay"
 msgstr "Bliv"
+
+msgid "Street address"
+msgstr "Vejnavn"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
@@ -1214,6 +1247,9 @@ msgstr "Ugemte ændringer"
 
 msgid "Update payment method"
 msgstr "Opdater betalingsmetode"
+
+msgid "Update the billing details associated with your subscription."
+msgstr ""
 
 msgid "Update your profile picture and personal details here."
 msgstr "Opdater dit profilbillede og personlige oplysninger her."
