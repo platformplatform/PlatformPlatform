@@ -81,7 +81,8 @@ public sealed class CreateCheckoutSessionHandler(
             subscriptionRepository.Update(subscription);
         }
 
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, cancellationToken);
+        var locale = executionContext.UserInfo.Locale?[..2] ?? "en";
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, locale, cancellationToken);
         if (result is null)
         {
             return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create checkout session.");
