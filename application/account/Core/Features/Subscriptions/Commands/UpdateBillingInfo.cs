@@ -80,7 +80,7 @@ public sealed class UpdateBillingInfoHandler(
             command.Email
         );
 
-        var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId!, billingInfo, cancellationToken);
+        var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId!, billingInfo, executionContext.UserInfo.Locale!, cancellationToken);
         if (!success)
         {
             return Result.BadRequest("Failed to update billing information in Stripe.");
