@@ -28,6 +28,8 @@ public interface IStripeClient
 
     Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken);
 
+    Task<string?> GetCustomerIdByInvoiceAsync(string invoiceId, CancellationToken cancellationToken);
+
     Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken);
 
     Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken);
@@ -39,7 +41,14 @@ public interface IStripeClient
     Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken);
 }
 
-public sealed record StripeWebhookEventResult(string EventId, string EventType, string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId);
+public sealed record StripeWebhookEventResult(
+    string EventId,
+    string EventType,
+    string? CustomerId,
+    string? UnresolvedChargeId,
+    string? UnresolvedInvoiceId,
+    long? MetadataTenantId
+);
 
 public sealed record CheckoutSessionResult(string SessionId, string ClientSecret);
 
