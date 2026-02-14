@@ -87,6 +87,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
+    public Task<bool> SyncCustomerTaxIdAsync(StripeCustomerId stripeCustomerId, string? taxId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot sync tax ID for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult(false);
+    }
+
     public Task<string?> CreateSetupIntentAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot create SetupIntent for customer '{CustomerId}'", stripeCustomerId);

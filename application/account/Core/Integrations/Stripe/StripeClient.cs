@@ -443,7 +443,11 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }
             }
 
-            return new BillingInfo(customer.Name, address, email);
+            var taxIdService = new CustomerTaxIdService();
+            var taxIds = await taxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var taxId = taxIds.Data.FirstOrDefault()?.Value;
+
+            return new BillingInfo(customer.Name, address, email, taxId);
         }
         catch (StripeException ex)
         {
@@ -490,6 +494,43 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         catch (TaskCanceledException ex)
         {
             logger.LogError(ex, "Timeout updating billing info for customer '{CustomerId}'", stripeCustomerId);
+            return false;
+        }
+    }
+
+    public async Task<bool> SyncCustomerTaxIdAsync(StripeCustomerId stripeCustomerId, string? taxId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new CustomerTaxIdService();
+            var existingTaxIds = await service.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            foreach (var existing in existingTaxIds.Data)
+            {
+                await service.DeleteAsync(stripeCustomerId.Value, existing.Id, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            }
+
+            if (!string.IsNullOrWhiteSpace(taxId))
+            {
+                var taxIdType = InferTaxIdType(taxId);
+                await service.CreateAsync(stripeCustomerId.Value, new CustomerTaxIdCreateOptions
+                    {
+                        Type = taxIdType,
+                        Value = taxId
+                    }, GetRequestOptions(), cancellationToken
+                );
+            }
+
+            logger.LogInformation("Synced tax ID for customer '{CustomerId}'", stripeCustomerId);
+            return true;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error syncing tax ID for customer '{CustomerId}'", stripeCustomerId);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout syncing tax ID for customer '{CustomerId}'", stripeCustomerId);
             return false;
         }
     }
@@ -565,6 +606,18 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             logger.LogError(ex, "Timeout updating payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
+    }
+
+    private static string InferTaxIdType(string taxId)
+    {
+        var prefix = taxId[..2].ToUpperInvariant();
+        return prefix switch
+        {
+            "GB" => "gb_vat",
+            "NO" => "no_vat",
+            "CH" => "ch_vat",
+            _ => "eu_vat"
+        };
     }
 
     private static StripeCustomerId? ExtractCustomerId(string payload)

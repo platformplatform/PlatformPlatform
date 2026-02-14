@@ -19,7 +19,8 @@ public sealed record UpdateBillingInfoCommand(
     string City,
     string? State,
     string Country,
-    string Email
+    string Email,
+    string? TaxId
 )
     : ICommand, IRequest<Result>;
 
@@ -35,6 +36,7 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
         RuleFor(x => x.State).MaximumLength(50).WithMessage("State must be no longer than 50 characters.");
         RuleFor(x => x.Country).Length(2).WithMessage("Country must be a 2-letter ISO country code.");
         RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
+        RuleFor(x => x.TaxId).MaximumLength(20).WithMessage("Tax ID must be no longer than 20 characters.");
     }
 }
 
@@ -77,13 +79,19 @@ public sealed class UpdateBillingInfoHandler(
         var billingInfo = new BillingInfo(
             command.Name,
             new BillingAddress(command.Line1, command.Line2, command.PostalCode, command.City, command.State, command.Country),
-            command.Email
+            command.Email,
+            command.TaxId
         );
 
         var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId!, billingInfo, executionContext.UserInfo.Locale!, cancellationToken);
         if (!success)
         {
             return Result.BadRequest("Failed to update billing information in Stripe.");
+        }
+
+        if (command.TaxId != subscription.BillingInfo?.TaxId)
+        {
+            await stripeClient.SyncCustomerTaxIdAsync(subscription.StripeCustomerId!, command.TaxId, cancellationToken);
         }
 
         subscription.SetBillingInfo(billingInfo);
