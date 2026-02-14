@@ -48,7 +48,7 @@ export function CancelSubscriptionDialog({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleOpenChange} trackingTitle="Cancel subscription">
-      <AlertDialogContent className="sm:w-dialog-lg">
+      <AlertDialogContent className="max-h-[calc(100vh-2rem)] grid-rows-[auto_1fr_auto] sm:w-dialog-lg">
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10">
             <AlertTriangleIcon className="text-destructive" />
@@ -69,7 +69,7 @@ export function CancelSubscriptionDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex flex-col gap-4 px-6">
+        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto px-6">
           <RadioGroup
             aria-label={t`Cancellation reason`}
             value={reason ?? ""}

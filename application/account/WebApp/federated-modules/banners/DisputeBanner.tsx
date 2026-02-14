@@ -26,7 +26,12 @@ export default function DisputeBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>A payment dispute has been filed. Please review your payment settings or contact support.</Trans>
       </span>
-      <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
+      <Button
+        size="sm"
+        onClick={() => {
+          window.location.href = "/account/subscription";
+        }}
+      >
         <Trans>Review payment settings</Trans>
       </Button>
     </div>

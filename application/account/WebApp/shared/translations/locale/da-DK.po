@@ -302,11 +302,17 @@ msgstr "Annullerer"
 msgid "Cancelling..."
 msgstr "Annullerer..."
 
+msgid "Change"
+msgstr "Skift"
+
 msgid "Change language"
 msgstr "Skift sprog"
 
 msgid "Change logo"
 msgstr "Skift logo"
+
+msgid "Change plan"
+msgstr "Skift plan"
 
 msgid "Change profile picture"
 msgstr "Skift profilbillede"
@@ -353,9 +359,6 @@ msgstr "Luk"
 
 msgid "Close user profile"
 msgstr "Luk brugerprofil"
-
-msgid "Name as it appears on invoices"
-msgstr "Navn som det fremgår på fakturaer"
 
 msgid "Complete your payment to activate your subscription."
 msgstr "Gennemfør din betaling for at aktivere dit abonnement."
@@ -504,6 +507,9 @@ msgstr "F.eks. Hovedstaden"
 
 msgid "E.g., Copenhagen"
 msgstr "F.eks. København"
+
+msgid "Edit"
+msgstr "Rediger"
 
 msgid "Edit billing information"
 msgstr "Rediger faktureringsoplysninger"
@@ -778,6 +784,9 @@ msgstr "Mere information"
 
 msgid "Name"
 msgstr "Navn"
+
+msgid "Name as it appears on invoices"
+msgstr "Navn som det fremgår på fakturaer"
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -1158,9 +1167,6 @@ msgstr "Abonnement"
 msgid "Subscription plans"
 msgstr "Abonnementsplaner"
 
-msgid "Subscription synced with Stripe."
-msgstr "Abonnement synkroniseret med Stripe."
-
 msgid "Subscription tabs"
 msgstr "Abonnementsfaner"
 
@@ -1172,12 +1178,6 @@ msgstr "Skift konto"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."
-
-msgid "Sync with Stripe"
-msgstr "Synkroniser med Stripe"
-
-msgid "Syncing..."
-msgstr "Synkroniserer..."
 
 msgid "System"
 msgstr "System"
@@ -1283,6 +1283,9 @@ msgstr "Unavngivet konto"
 
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"
+
+msgid "Update"
+msgstr "Opdater"
 
 msgid "Update payment method"
 msgstr "Opdater betalingsmetode"
@@ -1428,10 +1431,6 @@ msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
-msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEnd}."
-
-#. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
 msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEnd}. Fortryd opsigelsen ved at vælge en plan nedenfor."
 
@@ -1450,6 +1449,9 @@ msgstr "Din opsigelse vil blive fortrudt, og dit {planName}-abonnement vil forbl
 
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Din opsigelse vil blive fortrudt, og dit abonnement vil blive ændret til {planName}."
+
+msgid "Your changes are being processed. Please refresh if you don't see the update."
+msgstr ""
 
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"

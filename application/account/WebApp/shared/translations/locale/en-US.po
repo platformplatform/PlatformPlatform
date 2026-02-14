@@ -302,11 +302,17 @@ msgstr "Cancelling"
 msgid "Cancelling..."
 msgstr "Cancelling..."
 
+msgid "Change"
+msgstr "Change"
+
 msgid "Change language"
 msgstr "Change language"
 
 msgid "Change logo"
 msgstr "Change logo"
+
+msgid "Change plan"
+msgstr "Change plan"
 
 msgid "Change profile picture"
 msgstr "Change profile picture"
@@ -353,9 +359,6 @@ msgstr "Close"
 
 msgid "Close user profile"
 msgstr "Close user profile"
-
-msgid "Name as it appears on invoices"
-msgstr "Name as it appears on invoices"
 
 msgid "Complete your payment to activate your subscription."
 msgstr "Complete your payment to activate your subscription."
@@ -504,6 +507,9 @@ msgstr "E.g., Capital Region"
 
 msgid "E.g., Copenhagen"
 msgstr "E.g., Copenhagen"
+
+msgid "Edit"
+msgstr "Edit"
 
 msgid "Edit billing information"
 msgstr "Edit billing information"
@@ -778,6 +784,9 @@ msgstr "More information"
 
 msgid "Name"
 msgstr "Name"
+
+msgid "Name as it appears on invoices"
+msgstr "Name as it appears on invoices"
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -1158,9 +1167,6 @@ msgstr "Subscription"
 msgid "Subscription plans"
 msgstr "Subscription plans"
 
-msgid "Subscription synced with Stripe."
-msgstr "Subscription synced with Stripe."
-
 msgid "Subscription tabs"
 msgstr "Subscription tabs"
 
@@ -1172,12 +1178,6 @@ msgstr "Switch account"
 
 msgid "Switching account..."
 msgstr "Switching account..."
-
-msgid "Sync with Stripe"
-msgstr "Sync with Stripe"
-
-msgid "Syncing..."
-msgstr "Syncing..."
 
 msgid "System"
 msgstr "System"
@@ -1283,6 +1283,9 @@ msgstr "Unnamed account"
 
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
+
+msgid "Update"
+msgstr "Update"
 
 msgid "Update payment method"
 msgstr "Update payment method"
@@ -1428,10 +1431,6 @@ msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
-msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
-
-#. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
 msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
 
@@ -1450,6 +1449,9 @@ msgstr "Your cancellation will be reversed and your {planName} subscription will
 
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Your cancellation will be reversed and your subscription will be changed to {planName}."
+
+msgid "Your changes are being processed. Please refresh if you don't see the update."
+msgstr "Your changes are being processed. Please refresh if you don't see the update."
 
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"

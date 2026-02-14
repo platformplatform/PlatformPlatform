@@ -39,7 +39,12 @@ export default function ExpiringCardBanner() {
           interruption.
         </Trans>
       </span>
-      <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
+      <Button
+        size="sm"
+        onClick={() => {
+          window.location.href = "/account/subscription";
+        }}
+      >
         <Trans>Update payment method</Trans>
       </Button>
     </div>
