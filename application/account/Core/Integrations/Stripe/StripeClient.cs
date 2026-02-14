@@ -403,9 +403,9 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             }
 
             var stripeEvent = EventUtility.ConstructEvent(payload, signatureHeader, _webhookSecret);
-            var (customerId, unresolvedChargeId, metadataTenantId) = ExtractCustomerInfo(stripeEvent);
+            var (customerId, unresolvedChargeId, unresolvedInvoiceId, metadataTenantId) = ExtractCustomerInfo(stripeEvent);
 
-            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, unresolvedChargeId, metadataTenantId);
+            return new StripeWebhookEventResult(stripeEvent.Id, stripeEvent.Type, customerId, unresolvedChargeId, unresolvedInvoiceId, metadataTenantId);
         }
         catch (StripeException ex)
         {
@@ -430,6 +430,26 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         catch (TaskCanceledException ex)
         {
             logger.LogError(ex, "Timeout getting charge '{ChargeId}'", chargeId);
+            return null;
+        }
+    }
+
+    public async Task<string?> GetCustomerIdByInvoiceAsync(string invoiceId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var service = new InvoiceService();
+            var invoice = await service.GetAsync(invoiceId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            return invoice.CustomerId;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting invoice '{InvoiceId}'", invoiceId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting invoice '{InvoiceId}'", invoiceId);
             return null;
         }
     }
@@ -584,21 +604,23 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    private static (string? CustomerId, string? UnresolvedChargeId, long? MetadataTenantId) ExtractCustomerInfo(Event stripeEvent)
+    private static (string? CustomerId, string? UnresolvedChargeId, string? UnresolvedInvoiceId, long? MetadataTenantId) ExtractCustomerInfo(Event stripeEvent)
     {
         return stripeEvent.Data.Object switch
         {
-            Customer customer => (customer.Id, null, ParseMetadataTenantId(customer.Metadata)),
-            StripeSubscription subscription => (subscription.CustomerId, null, null),
-            Invoice invoice => (invoice.CustomerId, null, null),
-            InvoiceItem invoiceItem => (invoiceItem.CustomerId, null, null),
-            PaymentIntent paymentIntent => (paymentIntent.CustomerId, null, null),
-            Session session => (session.CustomerId, null, null),
-            Charge charge => (charge.CustomerId, null, null),
-            PaymentMethod paymentMethod => (paymentMethod.CustomerId, null, null),
-            Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null, null),
-            Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null, null),
-            _ => (null, null, null)
+            Customer customer => (customer.Id, null, null, ParseMetadataTenantId(customer.Metadata)),
+            StripeSubscription subscription => (subscription.CustomerId, null, null, null),
+            Invoice invoice => (invoice.CustomerId, null, null, null),
+            InvoiceItem invoiceItem => (invoiceItem.CustomerId, null, null, null),
+            InvoicePayment invoicePayment => (null, null, invoicePayment.InvoiceId, null),
+            PaymentIntent paymentIntent => (paymentIntent.CustomerId, null, null, null),
+            Session session => (session.CustomerId, null, null, null),
+            Charge charge => (charge.CustomerId, null, null, null),
+            PaymentMethod paymentMethod => (paymentMethod.CustomerId, null, null, null),
+            SetupIntent setupIntent => (setupIntent.CustomerId, null, null, null),
+            Dispute dispute => (dispute.Charge?.CustomerId, dispute.Charge?.CustomerId is null ? dispute.ChargeId : null, null, null),
+            Refund refund => (refund.Charge?.CustomerId, refund.Charge?.CustomerId is null ? refund.ChargeId : null, null, null),
+            _ => (null, null, null, null)
         };
     }
 
