@@ -46,6 +46,11 @@ public sealed class HandleStripeWebhookHandler(
             customerId = await stripeClient.GetCustomerIdByChargeAsync(webhookEvent.UnresolvedChargeId, cancellationToken);
         }
 
+        if (customerId is null && webhookEvent.UnresolvedInvoiceId is not null)
+        {
+            customerId = await stripeClient.GetCustomerIdByInvoiceAsync(webhookEvent.UnresolvedInvoiceId, cancellationToken);
+        }
+
         if (customerId is null)
         {
             await RecordEvent(webhookEvent, now, null, null, null, command.Payload, cancellationToken);
@@ -58,8 +63,6 @@ public sealed class HandleStripeWebhookHandler(
             await RecordEvent(webhookEvent, now, customerId, null, webhookEvent.MetadataTenantId, command.Payload, cancellationToken);
             return Result.Success();
         }
-
-        var stripeSubscriptionId = subscription.StripeSubscriptionId;
 
         var syncResult = await stripeClient.SyncSubscriptionStateAsync(customerId, cancellationToken);
         if (syncResult is not null)
@@ -74,6 +77,8 @@ public sealed class HandleStripeWebhookHandler(
                 syncResult.PaymentMethod
             );
         }
+
+        var stripeSubscriptionId = subscription.StripeSubscriptionId;
 
         var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(customerId, cancellationToken);
         subscription.SetBillingInfo(billingInfo);
