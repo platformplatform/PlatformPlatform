@@ -20,20 +20,20 @@ public sealed record SubscriptionResponse(
     PaymentMethod? PaymentMethod,
     BillingInfo? BillingInfo,
     DateTimeOffset? DisputedAt,
-    DateTimeOffset? RefundedAt
+    DateTimeOffset? RefundedAt,
+    bool HasPendingStripeEvents
 );
 
-public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext, ILogger<GetCurrentSubscriptionHandler> logger)
+public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository, IStripeEventRepository stripeEventRepository, IExecutionContext executionContext)
     : IRequestHandler<GetCurrentSubscriptionQuery, Result<SubscriptionResponse>>
 {
     public async Task<Result<SubscriptionResponse>> Handle(GetCurrentSubscriptionQuery query, CancellationToken cancellationToken)
     {
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result<SubscriptionResponse>.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
+                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+
+        var hasPendingStripeEvents = subscription.StripeCustomerId is not null
+                                     && await stripeEventRepository.HasPendingByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);
 
         return new SubscriptionResponse(
             subscription.Id,
@@ -46,7 +46,8 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
             subscription.PaymentMethod,
             subscription.BillingInfo,
             subscription.DisputedAt,
-            subscription.RefundedAt
+            subscription.RefundedAt,
+            hasPendingStripeEvents
         );
     }
 }

@@ -183,6 +183,3 @@ public sealed class UserUpdated
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));
-
-public sealed class WebhookProcessed(SubscriptionId subscriptionId, string eventType)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("event_type", eventType));

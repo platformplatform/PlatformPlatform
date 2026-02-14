@@ -352,14 +352,14 @@ export function EditBillingInfoDialog({
 }: Readonly<EditBillingInfoDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
   const userInfo = useUserInfo();
+  const queryClient = useQueryClient();
   const { i18n } = useLingui();
   const countries = useCountryOptions(i18n.locale);
-  const queryClient = useQueryClient();
 
   const mutation = api.useMutation("put", "/api/account/subscriptions/billing-info", {
-    onSuccess: () => {
+    onSuccess: async () => {
       setIsFormDirty(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
+      await queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
       toast.success(t`Billing information updated`);
       onOpenChange(false);
       onSuccess?.();

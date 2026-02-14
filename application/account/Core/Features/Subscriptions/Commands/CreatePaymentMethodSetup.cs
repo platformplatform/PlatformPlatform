@@ -29,12 +29,8 @@ public sealed class CreatePaymentMethodSetupHandler(
             return Result<CreatePaymentMethodSetupResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result<CreatePaymentMethodSetupResponse>.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
+                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
 
         if (subscription.StripeCustomerId is null)
         {
