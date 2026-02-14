@@ -1,138 +1,130 @@
-using JetBrains.Annotations;
+using System.Data;
+using Microsoft.ApplicationInsights;
+using Microsoft.EntityFrameworkCore;
+using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
 
-[PublicAPI]
-public sealed record HandleStripeWebhookCommand(string Payload, string SignatureHeader) : ICommand, IRequest<Result>;
-
-public sealed class HandleStripeWebhookHandler(
+/// <summary>
+///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row
+///     to serialize concurrent webhook processing, syncs current state from Stripe, then applies
+///     side effects (emails, tenant state changes) based on the batch of event types.
+/// </summary>
+public sealed class ProcessPendingStripeEvents(
+    AccountDbContext dbContext,
     ISubscriptionRepository subscriptionRepository,
     IStripeEventRepository stripeEventRepository,
     ITenantRepository tenantRepository,
-    StripeClientFactory stripeClientFactory,
+    SyncSubscriptionFromStripe syncSubscriptionFromStripe,
     IEmailClient emailClient,
     TimeProvider timeProvider,
-    ITelemetryEventsCollector events
-) : IRequestHandler<HandleStripeWebhookCommand, Result>
+    ITelemetryEventsCollector events,
+    TelemetryClient telemetryClient,
+    ILogger<ProcessPendingStripeEvents> logger
+)
 {
     private static readonly TimeSpan GracePeriod = TimeSpan.FromHours(72);
     private static readonly TimeSpan NotificationCooldown = TimeSpan.FromHours(24);
 
-    public async Task<Result> Handle(HandleStripeWebhookCommand command, CancellationToken cancellationToken)
+    public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        var stripeClient = stripeClientFactory.GetClient();
-        var webhookEvent = stripeClient.VerifyWebhookSignature(command.Payload, command.SignatureHeader);
-        if (webhookEvent is null)
+        var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
+        await using var transaction = isSqlite
+            ? await dbContext.Database.BeginTransactionAsync(cancellationToken)
+            : await dbContext.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+
+        var subscription = await subscriptionRepository.GetByStripeCustomerIdWithLockUnfilteredAsync(stripeCustomerId, cancellationToken);
+        if (subscription is null)
         {
-            return Result.BadRequest("Invalid webhook signature.");
+            logger.LogWarning("Subscription not found for Stripe customer '{StripeCustomerId}', events will be retried on next webhook", stripeCustomerId);
+            await transaction.RollbackAsync(cancellationToken);
+            return;
         }
 
-        if (await stripeEventRepository.ExistsAsync(webhookEvent.EventId, cancellationToken))
+        var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
+
+        if (pendingEvents.Length == 0)
         {
-            return Result.Success();
+            await transaction.RollbackAsync(cancellationToken);
+            return;
         }
 
         var now = timeProvider.GetUtcNow();
 
-        var customerId = webhookEvent.CustomerId;
-        if (customerId is null && webhookEvent.UnresolvedChargeId is not null)
-        {
-            customerId = await stripeClient.GetCustomerIdByChargeAsync(webhookEvent.UnresolvedChargeId, cancellationToken);
-        }
+        await syncSubscriptionFromStripe.ExecuteAsync(subscription, cancellationToken);
 
-        if (customerId is null && webhookEvent.UnresolvedInvoiceId is not null)
-        {
-            customerId = await stripeClient.GetCustomerIdByInvoiceAsync(webhookEvent.UnresolvedInvoiceId, cancellationToken);
-        }
+        var eventTypes = pendingEvents.Select(e => e.EventType).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        if (customerId is null)
-        {
-            await RecordEvent(webhookEvent, now, null, null, null, command.Payload, cancellationToken);
-            return Result.Success();
-        }
-
-        var subscription = await subscriptionRepository.GetByStripeCustomerIdUnfilteredAsync(customerId, cancellationToken);
-        if (subscription is null)
-        {
-            await RecordEvent(webhookEvent, now, customerId, null, webhookEvent.MetadataTenantId, command.Payload, cancellationToken);
-            return Result.Success();
-        }
-
-        var syncResult = await stripeClient.SyncSubscriptionStateAsync(customerId, cancellationToken);
-        if (syncResult is not null)
-        {
-            subscription.SyncFromStripe(
-                syncResult.Plan,
-                syncResult.ScheduledPlan,
-                syncResult.StripeSubscriptionId,
-                syncResult.CurrentPeriodEnd,
-                syncResult.CancelAtPeriodEnd,
-                [.. syncResult.PaymentTransactions],
-                syncResult.PaymentMethod
-            );
-        }
-
-        var stripeSubscriptionId = subscription.StripeSubscriptionId;
-
-        var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(customerId, cancellationToken);
-        subscription.SetBillingInfo(billingInfo);
-
-        if (webhookEvent.EventType == "invoice.payment_succeeded")
+        if (eventTypes.Contains("invoice.payment_succeeded"))
         {
             await HandlePaymentSucceeded(subscription, cancellationToken);
         }
-        else if (webhookEvent.EventType == "invoice.payment_failed")
+
+        if (eventTypes.Contains("invoice.payment_failed"))
         {
             await HandlePaymentFailed(subscription, now, cancellationToken);
         }
-        else if (webhookEvent.EventType == "charge.dispute.created")
+
+        if (eventTypes.Contains("charge.dispute.created"))
         {
             await HandleDisputeCreated(subscription, now, cancellationToken);
         }
-        else if (webhookEvent.EventType == "charge.dispute.closed")
+
+        if (eventTypes.Contains("charge.dispute.closed"))
         {
             HandleDisputeClosed(subscription);
         }
-        else if (webhookEvent.EventType == "charge.refunded")
+
+        if (eventTypes.Contains("charge.refunded"))
         {
             HandleRefund(subscription, now);
         }
-        else if (webhookEvent.EventType == "checkout.session.completed")
+
+        if (eventTypes.Contains("checkout.session.completed"))
         {
             events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan));
         }
-        else if (webhookEvent.EventType == "customer.subscription.deleted")
-        {
-            if (syncResult is null)
-            {
-                subscription.ResetToFreePlan();
-            }
 
+        if (eventTypes.Contains("customer.subscription.deleted"))
+        {
             await HandleSubscriptionDeleted(subscription, cancellationToken);
         }
 
         subscriptionRepository.Update(subscription);
 
-        await RecordEvent(webhookEvent, now, customerId, stripeSubscriptionId, subscription.TenantId.Value, command.Payload, cancellationToken);
-        events.CollectEvent(new WebhookProcessed(subscription.Id, webhookEvent.EventType));
+        foreach (var pendingEvent in pendingEvents)
+        {
+            pendingEvent.MarkProcessed(now);
+            pendingEvent.SetStripeSubscriptionId(subscription.StripeSubscriptionId);
+            pendingEvent.SetTenantId(subscription.TenantId);
+            stripeEventRepository.Update(pendingEvent);
+        }
 
-        return Result.Success();
+        await dbContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        while (events.HasEvents)
+        {
+            var telemetryEvent = events.Dequeue();
+            telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
+        }
     }
 
+    /// <summary>
+    ///     Clears payment failure state and restores tenant to Active if currently PastDue.
+    /// </summary>
     private async Task HandlePaymentSucceeded(Subscription subscription, CancellationToken cancellationToken)
     {
         if (subscription.FirstPaymentFailedAt is null) return;
 
         subscription.ClearPaymentFailure();
 
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken);
-        if (tenant is not null && tenant.State == TenantState.PastDue)
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+        if (tenant.State == TenantState.PastDue)
         {
             tenant.SetState(TenantState.Active);
             tenantRepository.Update(tenant);
@@ -141,9 +133,13 @@ public sealed class HandleStripeWebhookHandler(
         events.CollectEvent(new PaymentRecovered(subscription.Id, subscription.Plan));
     }
 
+    /// <summary>
+    ///     Implements a 72-hour grace period with 24-hour reminder emails. First failure sets PastDue;
+    ///     after grace period expires, suspends the tenant.
+    /// </summary>
     private async Task HandlePaymentFailed(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken);
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var billingEmail = subscription.BillingInfo?.Email;
 
         if (subscription.FirstPaymentFailedAt is null)
@@ -151,7 +147,7 @@ public sealed class HandleStripeWebhookHandler(
             subscription.SetPaymentFailed(now);
             subscription.SetLastNotificationSentAt(now);
 
-            if (tenant is not null && tenant.State != TenantState.Suspended)
+            if (tenant.State != TenantState.Suspended)
             {
                 tenant.SetState(TenantState.PastDue);
                 tenantRepository.Update(tenant);
@@ -170,7 +166,7 @@ public sealed class HandleStripeWebhookHandler(
 
             if (timeSinceFirstFailure >= GracePeriod)
             {
-                if (tenant is not null && tenant.State != TenantState.Suspended)
+                if (tenant.State != TenantState.Suspended)
                 {
                     tenant.SetState(TenantState.Suspended);
                     tenantRepository.Update(tenant);
@@ -199,10 +195,13 @@ public sealed class HandleStripeWebhookHandler(
         }
     }
 
+    /// <summary>
+    ///     Suspends the tenant when Stripe deletes the subscription (e.g., after max retry failures).
+    /// </summary>
     private async Task HandleSubscriptionDeleted(Subscription subscription, CancellationToken cancellationToken)
     {
-        var tenant = await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken);
-        if (tenant is not null && tenant.State != TenantState.Suspended)
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+        if (tenant.State != TenantState.Suspended)
         {
             tenant.SetState(TenantState.Suspended);
             tenantRepository.Update(tenant);
@@ -285,11 +284,5 @@ public sealed class HandleStripeWebhookHandler(
                                    """;
 
         await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
-    }
-
-    private async Task RecordEvent(StripeWebhookEventResult webhookEvent, DateTimeOffset now, string? stripeCustomerId, string? stripeSubscriptionId, long? tenantId, string? payload, CancellationToken cancellationToken)
-    {
-        var record = StripeEvent.Create(webhookEvent.EventId, webhookEvent.EventType, now, stripeCustomerId, stripeSubscriptionId, tenantId, payload);
-        await stripeEventRepository.AddAsync(record, cancellationToken);
     }
 }

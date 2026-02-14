@@ -189,6 +189,3 @@ public sealed class UserZoomLevelChanged(string fromZoomLevel, string toZoomLeve
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));
-
-public sealed class WebhookProcessed(SubscriptionId subscriptionId, string eventType)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("event_type", eventType));

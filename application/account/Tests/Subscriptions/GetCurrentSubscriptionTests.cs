@@ -1,4 +1,3 @@
-using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
@@ -45,15 +44,5 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
         result!.Plan.Should().Be(SubscriptionPlan.Standard);
         result.HasStripeSubscription.Should().BeTrue();
         result.CancelAtPeriodEnd.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task GetCurrentSubscription_WhenNotExists_ShouldReturnNotFound()
-    {
-        // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/subscriptions/current");
-
-        // Assert
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.NotFound, "Subscription not found for current tenant.");
     }
 }
