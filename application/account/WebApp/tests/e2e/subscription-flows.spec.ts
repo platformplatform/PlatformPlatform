@@ -24,7 +24,7 @@ test.describe("@smoke", () => {
    * - Subscribe flow with billing info gate and mock checkout session callback
    * - Upgrade from Standard to Premium (plans page)
    * - Schedule downgrade from Premium to Standard (plans page with mocked state)
-   * - Cancel subscription with reason selection (cancel page)
+   * - Cancel subscription with reason selection (plans page)
    * - Cancelling state with reactivation banner and confirmation dialog
    * - Payment history table with invoice links
    * - PastDue warning banner display
@@ -95,19 +95,16 @@ test.describe("@smoke", () => {
       await ownerPage.unroute("**/api/account/subscriptions/checkout");
     })();
 
-    await step("Sync subscription with Stripe & verify subscription activated with payment history")(async () => {
-      await ownerPage.goto("/account/subscription");
-      await expect(ownerPage.getByRole("button", { name: "Sync with Stripe" })).toBeVisible();
+    await step("Simulate checkout success & verify subscription activated with payment history")(async () => {
+      await ownerPage.goto("/account/subscription?session_id=mock_session_id");
 
-      const syncResponse = ownerPage.waitForResponse("**/api/account/subscriptions/sync");
-      await ownerPage.getByRole("button", { name: "Sync with Stripe" }).click();
-      await syncResponse;
-      await expectToastMessage(context, "Subscription synced with Stripe.");
+      await expectToastMessage(context, "Your subscription has been activated.");
 
       await expect(ownerPage.getByText("Active")).toBeVisible();
       await expect(ownerPage.getByText("Standard", { exact: true }).first()).toBeVisible();
       await expect(ownerPage.getByText("Next billing date:")).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeEnabled();
+      await expect(ownerPage.getByRole("button", { name: "Change" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Update" })).toBeEnabled();
 
       await expect(ownerPage.getByRole("columnheader", { name: "Date" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Amount" })).toBeVisible();
@@ -167,8 +164,8 @@ test.describe("@smoke", () => {
     })();
 
     // === CANCEL SUBSCRIPTION ===
-    await step("Navigate to cancel page & click Cancel subscription & verify confirmation dialog")(async () => {
-      await ownerPage.goto("/account/subscription/cancel");
+    await step("Navigate to plans page & click Cancel subscription & verify confirmation dialog")(async () => {
+      await ownerPage.goto("/account/subscription/plans");
 
       await ownerPage.getByRole("button", { name: "Cancel subscription" }).click();
 
