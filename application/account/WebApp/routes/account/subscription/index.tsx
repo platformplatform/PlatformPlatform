@@ -5,10 +5,11 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangleIcon, PencilIcon, RefreshCwIcon } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { AlertTriangleIcon, PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -23,6 +24,7 @@ import { ProcessingPaymentModal } from "./-components/ProcessingPaymentModal";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
+import { useSubscriptionPolling } from "./-components/useSubscriptionPolling";
 
 export const Route = createFileRoute("/account/subscription/")({
   beforeLoad: () => requirePermission({ allowedRoles: ["Owner"] }),
@@ -30,8 +32,10 @@ export const Route = createFileRoute("/account/subscription/")({
 });
 
 function SubscriptionPage() {
+  const navigate = useNavigate();
   const formatLongDate = useFormatLongDate();
   const queryClient = useQueryClient();
+  const { isPolling, startPolling, subscription } = useSubscriptionPolling();
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
@@ -43,7 +47,6 @@ function SubscriptionPage() {
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
-  const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
@@ -64,26 +67,22 @@ function SubscriptionPage() {
         setPendingCheckoutPlan(currentPlan);
         setIsEditBillingInfoOpen(true);
       } else {
-        setIsReactivateDialogOpen(false);
-        queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-        toast.success(t`Your subscription has been reactivated.`);
+        startPolling({
+          check: (subscription) => subscription.cancelAtPeriodEnd === false,
+          successMessage: t`Your subscription has been reactivated.`,
+          onComplete: () => setIsReactivateDialogOpen(false)
+        });
       }
     }
   });
 
   const cancelDowngradeMutation = api.useMutation("post", "/api/account/subscriptions/cancel-downgrade", {
     onSuccess: () => {
-      setIsCancelDowngradeDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your scheduled downgrade has been cancelled.`);
-    }
-  });
-
-  const syncMutation = api.useMutation("post", "/api/account/subscriptions/sync", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/payment-history"] });
-      toast.success(t`Subscription synced with Stripe.`);
+      startPolling({
+        check: (subscription) => subscription.scheduledPlan == null,
+        successMessage: t`Your scheduled downgrade has been cancelled.`,
+        onComplete: () => setIsCancelDowngradeDialogOpen(false)
+      });
     }
   });
 
@@ -103,7 +102,6 @@ function SubscriptionPage() {
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const scheduledPlan = subscription?.scheduledPlan ?? null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
-  const hasStripeCustomer = subscription?.hasStripeCustomer ?? false;
   const hasStripeSubscription = subscription?.hasStripeSubscription ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);
 
@@ -170,17 +168,6 @@ function SubscriptionPage() {
               />
             ))}
           </div>
-          {hasStripeCustomer && (
-            <Button
-              variant="outline"
-              className="mt-4 w-fit md:self-end"
-              onClick={() => syncMutation.mutate({})}
-              disabled={syncMutation.isPending}
-            >
-              <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-              {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
-            </Button>
-          )}
         </AppLayout>
 
         <ProcessingPaymentModal isOpen={isProcessing} />
@@ -257,7 +244,7 @@ function SubscriptionPage() {
             <Trans>Current plan</Trans>
           </h3>
           <Separator />
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-medium">{getPlanLabel(currentPlan)}</span>
@@ -281,17 +268,27 @@ function SubscriptionPage() {
                 </p>
               )}
             </div>
-            {hasStripeCustomer && (
-              <Button
-                variant="outline"
-                className="w-fit"
-                onClick={() => syncMutation.mutate({})}
-                disabled={syncMutation.isPending}
-              >
-                <RefreshCwIcon className={`size-4 ${syncMutation.isPending ? "animate-spin" : ""}`} />
-                {syncMutation.isPending ? t`Syncing...` : t`Sync with Stripe`}
-              </Button>
-            )}
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 gap-1.5"
+                    aria-label={t`Change plan`}
+                    onClick={() => navigate({ to: "/account/subscription/plans" })}
+                  >
+                    <PencilIcon className="size-4" />
+                    <span className="hidden sm:inline" aria-hidden="true">
+                      <Trans>Change</Trans>
+                    </span>
+                  </Button>
+                }
+              />
+              <TooltipContent className="sm:hidden">
+                <Trans>Change plan</Trans>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -300,17 +297,30 @@ function SubscriptionPage() {
             <Trans>Payment method</Trans>
           </h3>
           <Separator />
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center justify-between gap-4">
             <PaymentMethodDisplay paymentMethod={subscription?.paymentMethod} />
-            <Button
-              variant="outline"
-              className="w-fit"
-              onClick={() => setIsUpdatePaymentMethodOpen(true)}
-              disabled={!isStripeConfigured}
-            >
-              <PencilIcon className="size-4" />
-              <Trans>Update payment method</Trans>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 gap-1.5"
+                    aria-label={t`Update payment method`}
+                    onClick={() => setIsUpdatePaymentMethodOpen(true)}
+                    disabled={!isStripeConfigured}
+                  >
+                    <PencilIcon className="size-4" />
+                    <span className="hidden sm:inline" aria-hidden="true">
+                      <Trans>Update</Trans>
+                    </span>
+                  </Button>
+                }
+              />
+              <TooltipContent className="sm:hidden">
+                <Trans>Update payment method</Trans>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -319,17 +329,30 @@ function SubscriptionPage() {
             <Trans>Billing information</Trans>
           </h3>
           <Separator />
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex items-start justify-between gap-4">
             <BillingInfoDisplay billingInfo={subscription?.billingInfo} />
-            <Button
-              variant="outline"
-              className="w-fit shrink-0"
-              onClick={() => setIsEditBillingInfoOpen(true)}
-              disabled={!isStripeConfigured}
-            >
-              <PencilIcon className="size-4" />
-              <Trans>Edit billing information</Trans>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0 gap-1.5"
+                    aria-label={t`Edit billing information`}
+                    onClick={() => setIsEditBillingInfoOpen(true)}
+                    disabled={!isStripeConfigured}
+                  >
+                    <PencilIcon className="size-4" />
+                    <span className="hidden sm:inline" aria-hidden="true">
+                      <Trans>Edit</Trans>
+                    </span>
+                  </Button>
+                }
+              />
+              <TooltipContent className="sm:hidden">
+                <Trans>Edit billing information</Trans>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -349,7 +372,7 @@ function SubscriptionPage() {
           isOpen={isCancelDowngradeDialogOpen}
           onOpenChange={setIsCancelDowngradeDialogOpen}
           onConfirm={() => cancelDowngradeMutation.mutate({})}
-          isPending={cancelDowngradeMutation.isPending}
+          isPending={cancelDowngradeMutation.isPending || isPolling}
           currentPlan={currentPlan}
           scheduledPlan={scheduledPlan}
           currentPeriodEnd={currentPeriodEnd}
@@ -367,7 +390,7 @@ function SubscriptionPage() {
             }
           })
         }
-        isPending={reactivateMutation.isPending}
+        isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
         targetPlan={currentPlan}
       />

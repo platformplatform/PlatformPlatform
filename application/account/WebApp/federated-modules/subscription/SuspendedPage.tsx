@@ -32,10 +32,19 @@ export default function SuspendedPage() {
       </div>
       {isOwner && (
         <div className="flex gap-3">
-          <Button onClick={() => (window.location.href = "/account/subscription")}>
+          <Button
+            onClick={() => {
+              window.location.href = "/account/subscription";
+            }}
+          >
             <Trans>Update payment method</Trans>
           </Button>
-          <Button variant="outline" onClick={() => (window.location.href = "/account/subscription")}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              window.location.href = "/account/subscription";
+            }}
+          >
             <Trans>Reactivate subscription</Trans>
           </Button>
         </div>
