@@ -170,7 +170,7 @@ public sealed record BillingAddress(
 );
 
 [PublicAPI]
-public sealed record BillingInfo(string? Name, BillingAddress? Address, string? Email);
+public sealed record BillingInfo(string? Name, BillingAddress? Address, string? Email, string? TaxId);
 
 [PublicAPI]
 public sealed record PaymentMethod(string Brand, string Last4, int ExpMonth, int ExpYear);
