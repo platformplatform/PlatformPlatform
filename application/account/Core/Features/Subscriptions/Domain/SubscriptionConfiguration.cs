@@ -16,6 +16,8 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
     {
         builder.MapStronglyTypedUuid<Subscription, SubscriptionId>(s => s.Id);
         builder.MapStronglyTypedLongId<Subscription, TenantId>(s => s.TenantId);
+        builder.MapStronglyTypedNullableId<Subscription, StripeCustomerId, string>(s => s.StripeCustomerId);
+        builder.MapStronglyTypedNullableId<Subscription, StripeSubscriptionId, string>(s => s.StripeSubscriptionId);
 
         builder.Property(s => s.PaymentTransactions)
             .HasColumnName("PaymentTransactions")

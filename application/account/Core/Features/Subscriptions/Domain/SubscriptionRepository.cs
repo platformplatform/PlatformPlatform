@@ -11,10 +11,11 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     Task<Subscription?> GetByTenantIdAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves a subscription by Stripe customer ID without applying tenant query filters.
-    ///     This method should only be used in webhook processing where tenant context is not established.
+    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (UPDLOCK).
+    ///     This method should only be used in webhook processing to serialize with user-action commands.
+    ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
-    Task<Subscription?> GetByStripeCustomerIdUnfilteredAsync(string stripeCustomerId, CancellationToken cancellationToken);
+    Task<Subscription?> GetByStripeCustomerIdWithLockUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -27,11 +28,20 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     }
 
     /// <summary>
-    ///     Retrieves a subscription by Stripe customer ID without applying tenant query filters.
-    ///     This method should only be used in webhook processing where tenant context is not established.
+    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (UPDLOCK).
+    ///     This method should only be used in webhook processing to serialize with user-action commands.
+    ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
-    public async Task<Subscription?> GetByStripeCustomerIdUnfilteredAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    public async Task<Subscription?> GetByStripeCustomerIdWithLockUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
+        if (accountDbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
+        }
+
+        return await DbSet
+            .FromSqlInterpolated($"SELECT * FROM Subscriptions WITH (UPDLOCK, ROWLOCK) WHERE StripeCustomerId = {stripeCustomerId.Value}")
+            .IgnoreQueryFilters()
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

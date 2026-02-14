@@ -921,9 +921,6 @@ msgstr "Please select a JPEG, PNG, GIF, WebP, or SVG image."
 msgid "Please try again or return to the home page."
 msgstr "Please try again or return to the home page."
 
-msgid "Please update your billing information before subscribing."
-msgstr "Please update your billing information before subscribing."
-
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Please wait while we confirm your payment. This may take a few moments."
 

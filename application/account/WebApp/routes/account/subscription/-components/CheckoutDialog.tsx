@@ -160,9 +160,6 @@ function getDisplayError(message: string | undefined): string {
   if (!message) {
     return t`An error occurred while processing your payment.`;
   }
-  if (/billing.*(address|info)/i.test(message)) {
-    return t`Please update your billing information before subscribing.`;
-  }
   return message;
 }
 
@@ -213,7 +210,7 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
   const hasCheckoutError = checkoutResult.type === "error";
 
   useEffect(() => {
-    if (hasCheckoutError) {
+    if (hasCheckoutError && !isWaitingForWebhook) {
       console.error("[Checkout] useCheckout() error:", checkoutResult.error);
       const errorMessage = getDisplayError(checkoutResult.error.message);
       onError(errorMessage);
@@ -230,24 +227,24 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
     onError("");
 
     const billingInfo = subscription?.billingInfo;
-    const billingAddress = billingInfo?.address
-      ? {
-          address: {
-            country: billingInfo.address.country ?? "",
-            line1: billingInfo.address.line1 ?? "",
-            line2: billingInfo.address.line2 ?? null,
-            city: billingInfo.address.city ?? "",
-            // biome-ignore lint/style/useNamingConvention: Stripe API requires snake_case
-            postal_code: billingInfo.address.postalCode ?? "",
-            state: billingInfo.address.state ?? null
-          }
-        }
-      : undefined;
+    const billingContact = {
+      name: billingInfo?.name,
+      address: {
+        country: billingInfo?.address?.country ?? "",
+        line1: billingInfo?.address?.line1,
+        line2: billingInfo?.address?.line2 ?? null,
+        city: billingInfo?.address?.city,
+        // biome-ignore lint/style/useNamingConvention: Stripe API requires snake_case
+        postal_code: billingInfo?.address?.postalCode,
+        state: billingInfo?.address?.state ?? null
+      }
+    };
 
     try {
+      await checkoutResult.checkout.updateBillingAddress(billingContact);
+
       const result = await checkoutResult.checkout.confirm({
-        redirect: "if_required",
-        billingAddress
+        redirect: "if_required"
       });
 
       if (result.type === "error") {
@@ -279,7 +276,7 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
         <span className="font-medium">{planSummary.name}</span>
         <span className="font-semibold">{planSummary.price}</span>
       </div>
-      {hasCheckoutError ? (
+      {hasCheckoutError && !isWaitingForWebhook ? (
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             <Trans>Close</Trans>
@@ -287,7 +284,10 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
         </DialogFooter>
       ) : (
         <>
-          <PaymentElement onReady={() => setIsPaymentReady(true)} />
+          <PaymentElement
+            options={{ fields: { billingDetails: { name: "never" } } }}
+            onReady={() => setIsPaymentReady(true)}
+          />
           {isPaymentReady && (
             <>
               <p className="text-muted-foreground text-xs">
