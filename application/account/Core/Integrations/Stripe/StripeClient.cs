@@ -457,7 +457,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
+    public async Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string locale, CancellationToken cancellationToken)
     {
         try
         {
@@ -474,7 +474,8 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                         State = billingInfo.Address?.State,
                         PostalCode = billingInfo.Address?.PostalCode,
                         Country = billingInfo.Address?.Country
-                    }
+                    },
+                    PreferredLocales = locale == "da-DK" ? ["da", "en"] : ["en"]
                 }, GetRequestOptions(), cancellationToken
             );
 
