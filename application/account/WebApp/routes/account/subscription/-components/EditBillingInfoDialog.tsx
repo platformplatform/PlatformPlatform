@@ -457,6 +457,13 @@ export function EditBillingInfoDialog({
                 onValueChange={markDirty}
               />
               <TextField
+                name="taxId"
+                label={t`Tax ID (VAT number)`}
+                defaultValue={billingInfo?.taxId ?? ""}
+                placeholder={t`E.g., DK12345678`}
+                onChange={markDirty}
+              />
+              <TextField
                 name="email"
                 label={t`Email`}
                 defaultValue={billingInfo?.email ?? userInfo?.email ?? ""}

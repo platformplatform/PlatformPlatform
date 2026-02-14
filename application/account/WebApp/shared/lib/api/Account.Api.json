@@ -2440,6 +2440,10 @@
           "email": {
             "type": "string",
             "nullable": true
+          },
+          "taxId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2737,6 +2741,10 @@
           },
           "email": {
             "type": "string"
+          },
+          "taxId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

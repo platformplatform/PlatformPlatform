@@ -508,6 +508,9 @@ msgstr "F.eks. Hovedstaden"
 msgid "E.g., Copenhagen"
 msgstr "F.eks. København"
 
+msgid "E.g., DK12345678"
+msgstr "F.eks. DK12345678"
+
 msgid "Edit"
 msgstr "Rediger"
 
@@ -1181,6 +1184,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tax ID (VAT number)"
+msgstr "CVR-nummer (momsnummer)"
 
 msgid "Tell us a bit about yourself to get started."
 msgstr "Fortæl os lidt om dig selv for at komme i gang."
