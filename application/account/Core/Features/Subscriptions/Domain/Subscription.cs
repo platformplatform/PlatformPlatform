@@ -40,9 +40,9 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public SubscriptionPlan? ScheduledPlan { get; private set; }
 
-    public string? StripeCustomerId { get; private set; }
+    public StripeCustomerId? StripeCustomerId { get; private set; }
 
-    public string? StripeSubscriptionId { get; private set; }
+    public StripeSubscriptionId? StripeSubscriptionId { get; private set; }
 
     public DateTimeOffset? CurrentPeriodEnd { get; private set; }
 
@@ -73,7 +73,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         return new Subscription(tenantId);
     }
 
-    public void SetStripeCustomerId(string stripeCustomerId)
+    public void SetStripeCustomerId(StripeCustomerId stripeCustomerId)
     {
         StripeCustomerId = stripeCustomerId;
     }
@@ -86,7 +86,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
     public void SyncFromStripe(
         SubscriptionPlan plan,
         SubscriptionPlan? scheduledPlan,
-        string? stripeSubscriptionId,
+        StripeSubscriptionId? stripeSubscriptionId,
         DateTimeOffset? currentPeriodEnd,
         bool cancelAtPeriodEnd,
         ImmutableArray<PaymentTransaction> paymentTransactions,

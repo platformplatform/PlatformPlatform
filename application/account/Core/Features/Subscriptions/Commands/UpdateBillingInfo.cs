@@ -42,8 +42,7 @@ public sealed class UpdateBillingInfoHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
-    ILogger<UpdateBillingInfoHandler> logger
+    ITelemetryEventsCollector events
 ) : IRequestHandler<UpdateBillingInfoCommand, Result>
 {
     public async Task<Result> Handle(UpdateBillingInfoCommand command, CancellationToken cancellationToken)
@@ -53,12 +52,8 @@ public sealed class UpdateBillingInfoHandler(
             return Result.Forbidden("Only owners can manage billing information.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
+                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
 
         var stripeClient = stripeClientFactory.GetClient();
 

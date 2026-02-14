@@ -130,7 +130,7 @@ msgid "Active users in the past 30 days"
 msgstr "Aktive brugere i de sidste 30 dage"
 
 msgid "Add billing information"
-msgstr ""
+msgstr "Tilføj faktureringsoplysninger"
 
 msgid "Add more in the Users menu"
 msgstr "Tilføj flere i Brugere menuen"
@@ -530,7 +530,7 @@ msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
 
 msgid "Enter the billing details for your subscription."
-msgstr ""
+msgstr "Indtast faktureringsoplysningerne for dit abonnement."
 
 msgid "Enter your email below to log in"
 msgstr "Indtast din e-mail nedenfor for at logge ind"
@@ -914,9 +914,6 @@ msgstr "Vælg et JPEG-, PNG-, GIF-, WebP- eller SVG-billede."
 
 msgid "Please try again or return to the home page."
 msgstr "Prøv venligst igen eller vend tilbage til forsiden."
-
-msgid "Please update your billing information before subscribing."
-msgstr "Opdater venligst dine faktureringsoplysninger, inden du abonnerer."
 
 msgid "Please wait while we confirm your payment. This may take a few moments."
 msgstr "Vent venligst mens vi bekræfter din betaling. Det kan tage et øjeblik."
@@ -1451,7 +1448,7 @@ msgid "Your cancellation will be reversed and your subscription will be changed 
 msgstr "Din opsigelse vil blive fortrudt, og dit abonnement vil blive ændret til {planName}."
 
 msgid "Your changes are being processed. Please refresh if you don't see the update."
-msgstr ""
+msgstr "Dine ændringer bliver behandlet. Opdater siden, hvis du ikke kan se opdateringen."
 
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"

@@ -46,16 +46,18 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
                 Id = table.Column<string>("varchar(32)", nullable: false),
                 CreatedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 ModifiedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                ProcessedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: false),
                 EventType = table.Column<string>("varchar(50)", nullable: false),
+                Status = table.Column<string>("varchar(20)", nullable: false),
+                ProcessedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 StripeCustomerId = table.Column<string>("varchar(32)", nullable: true),
                 StripeSubscriptionId = table.Column<string>("varchar(32)", nullable: true),
-                Payload = table.Column<string>("nvarchar(max)", nullable: true)
+                Payload = table.Column<string>("nvarchar(max)", nullable: true),
+                Error = table.Column<string>("nvarchar(500)", nullable: true)
             },
             constraints: table => { table.PrimaryKey("PK_StripeEvents", x => x.Id); }
         );
 
         migrationBuilder.CreateIndex("IX_StripeEvents_TenantId", "StripeEvents", "TenantId");
-        migrationBuilder.CreateIndex("IX_StripeEvents_StripeCustomerId", "StripeEvents", "StripeCustomerId");
+        migrationBuilder.CreateIndex("IX_StripeEvents_StripeCustomerId_Status", "StripeEvents", ["StripeCustomerId", "Status"]);
     }
 }

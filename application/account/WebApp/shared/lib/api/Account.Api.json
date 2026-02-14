@@ -2354,6 +2354,9 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "hasPendingStripeEvents": {
+            "type": "boolean"
           }
         }
       },
@@ -3211,6 +3214,15 @@
             "nullable": true
           }
         }
+      },
+      "StripeEventStatus": {
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Processed",
+          "Ignored",
+          "Failed"
+        ]
       },
       "ExternalLoginType": {
         "type": "string",

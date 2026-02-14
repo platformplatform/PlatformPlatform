@@ -1,8 +1,8 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
@@ -15,7 +15,7 @@ public sealed record SyncSubscriptionCommand : ICommand, IRequest<Result>;
 public sealed class SyncSubscriptionHandler(
     ISubscriptionRepository subscriptionRepository,
     ITenantRepository tenantRepository,
-    StripeClientFactory stripeClientFactory,
+    SyncSubscriptionFromStripe syncSubscriptionFromStripe,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events,
     ILogger<SyncSubscriptionHandler> logger
@@ -28,12 +28,8 @@ public sealed class SyncSubscriptionHandler(
             return Result.Forbidden("Only owners can sync subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
+                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
 
         if (subscription.StripeCustomerId is null)
         {
@@ -41,31 +37,12 @@ public sealed class SyncSubscriptionHandler(
             return Result.BadRequest("No Stripe customer linked to this subscription.");
         }
 
-        var stripeClient = stripeClientFactory.GetClient();
-        var syncResult = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId, cancellationToken);
-        if (syncResult is null)
-        {
-            subscription.ResetToFreePlan();
-        }
-        else
-        {
-            subscription.SyncFromStripe(
-                syncResult.Plan,
-                syncResult.ScheduledPlan,
-                syncResult.StripeSubscriptionId,
-                syncResult.CurrentPeriodEnd,
-                syncResult.CancelAtPeriodEnd,
-                [.. syncResult.PaymentTransactions],
-                syncResult.PaymentMethod
-            );
-        }
-
-        var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId, cancellationToken);
-        subscription.SetBillingInfo(billingInfo);
+        await syncSubscriptionFromStripe.ExecuteAsync(subscription, cancellationToken);
 
         subscription.ClearPaymentFailure();
         subscription.ClearDispute();
         subscription.ClearRefund();
+        subscriptionRepository.Update(subscription);
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
         if (tenant.State is TenantState.PastDue or TenantState.Suspended)
@@ -73,8 +50,6 @@ public sealed class SyncSubscriptionHandler(
             tenant.SetState(TenantState.Active);
             tenantRepository.Update(tenant);
         }
-
-        subscriptionRepository.Update(subscription);
 
         events.CollectEvent(new SubscriptionSynced(subscription.Id, subscription.Plan));
 
