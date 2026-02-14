@@ -14,19 +14,19 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
 
-    public Task<string?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
+    public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<string?>(MockCustomerId);
+        return Task.FromResult<StripeCustomerId?>(StripeCustomerId.NewId(MockCustomerId));
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(string stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult<CheckoutSessionResult?>(new CheckoutSessionResult(MockSessionId, MockClientSecret));
     }
 
-    public Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    public Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
 
@@ -47,7 +47,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var result = new SubscriptionSyncResult(
             SubscriptionPlan.Standard,
             null,
-            MockSubscriptionId,
+            StripeSubscriptionId.NewId(MockSubscriptionId),
             now.AddDays(30),
             false,
             transactions,
@@ -57,37 +57,37 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<SubscriptionSyncResult?>(result);
     }
 
-    public Task<string?> GetCheckoutSessionSubscriptionIdAsync(string sessionId, CancellationToken cancellationToken)
+    public Task<StripeSubscriptionId?> GetCheckoutSessionSubscriptionIdAsync(string sessionId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<string?>(MockSubscriptionId);
+        return Task.FromResult<StripeSubscriptionId?>(StripeSubscriptionId.NewId(MockSubscriptionId));
     }
 
-    public Task<bool> UpgradeSubscriptionAsync(string stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
-    {
-        EnsureEnabled();
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> ScheduleDowngradeAsync(string stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    public Task<bool> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
     }
 
-    public Task<bool> CancelScheduledDowngradeAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    public Task<bool> ScheduleDowngradeAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
     }
 
-    public Task<bool> CancelSubscriptionAtPeriodEndAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    public Task<bool> CancelScheduledDowngradeAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
     }
 
-    public Task<bool> ReactivateSubscriptionAsync(string stripeSubscriptionId, CancellationToken cancellationToken)
+    public Task<bool> CancelSubscriptionAtPeriodEndAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> ReactivateSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
@@ -123,37 +123,26 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             if (part.StartsWith("event_id:")) eventId = part["event_id:".Length..];
         }
 
-        var customerId = payload.StartsWith("customer:") ? payload.Split(':')[1] : MockCustomerId;
+        var customerIdString = payload.StartsWith("customer:") ? payload.Split(':')[1] : payload == "no_customer" ? null : MockCustomerId;
+        StripeCustomerId.TryParse(customerIdString, out var customerId);
 
-        return new StripeWebhookEventResult(eventId, eventType, customerId, null, null, null);
+        return new StripeWebhookEventResult(eventId, eventType, customerId);
     }
 
-    public Task<string?> GetCustomerIdByChargeAsync(string chargeId, CancellationToken cancellationToken)
+    public Task<BillingInfo?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<string?>(MockCustomerId);
-    }
-
-    public Task<string?> GetCustomerIdByInvoiceAsync(string invoiceId, CancellationToken cancellationToken)
-    {
-        EnsureEnabled();
-        return Task.FromResult<string?>(MockCustomerId);
-    }
-
-    public Task<BillingInfo?> GetCustomerBillingInfoAsync(string stripeCustomerId, CancellationToken cancellationToken)
-    {
-        EnsureEnabled();
-        var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "København K", null, "DK"), "billing@example.com");
+        var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "K\u00f8benhavn K", null, "DK"), "billing@example.com");
         return Task.FromResult<BillingInfo?>(billingInfo);
     }
 
-    public Task<bool> UpdateCustomerBillingInfoAsync(string stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
+    public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);
     }
 
-    public Task<string?> CreateSetupIntentAsync(string stripeCustomerId, CancellationToken cancellationToken)
+    public Task<string?> CreateSetupIntentAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult<string?>("seti_mock_client_secret_12345");
@@ -165,7 +154,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<string?>("pm_mock_12345");
     }
 
-    public Task<bool> SetSubscriptionDefaultPaymentMethodAsync(string stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    public Task<bool> SetSubscriptionDefaultPaymentMethodAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult(true);

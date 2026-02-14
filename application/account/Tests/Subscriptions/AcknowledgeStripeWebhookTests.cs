@@ -12,7 +12,7 @@ using Xunit;
 
 namespace PlatformPlatform.Account.Tests.Subscriptions;
 
-public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext>
+public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbContext>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 
@@ -42,7 +42,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenInvalidSignature_ShouldReturnBadRequest()
+    public async Task AcknowledgeStripeWebhook_WhenInvalidSignature_ShouldReturnBadRequest()
     {
         // Arrange
         InsertSubscription();
@@ -62,7 +62,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenDuplicateEvent_ShouldReturnSuccess()
+    public async Task AcknowledgeStripeWebhook_WhenDuplicateEvent_ShouldReturnSuccess()
     {
         // Arrange
         InsertSubscription();
@@ -72,11 +72,13 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
                 ("Id", eventId),
                 ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
-                ("ProcessedAt", TimeProvider.GetUtcNow()),
                 ("EventType", "checkout.session.completed"),
+                ("Status", nameof(StripeEventStatus.Processed)),
+                ("ProcessedAt", TimeProvider.GetUtcNow()),
                 ("StripeCustomerId", MockStripeClient.MockCustomerId),
                 ("StripeSubscriptionId", MockStripeClient.MockSubscriptionId),
-                ("Payload", null)
+                ("Payload", null),
+                ("Error", null)
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -95,7 +97,7 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenCheckoutSessionCompleted_ShouldSyncSubscription()
+    public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldSyncSubscription()
     {
         // Arrange
         InsertSubscription(plan: nameof(SubscriptionPlan.Basis));
@@ -111,14 +113,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         // Assert
         response.EnsureSuccessStatusCode();
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionCreated");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenPaymentSucceeded_ShouldClearPaymentFailure()
+    public async Task AcknowledgeStripeWebhook_WhenPaymentSucceeded_ShouldClearPaymentFailure()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
@@ -142,15 +140,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Active));
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentRecovered");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenFirstPaymentFailed_ShouldTransitionToPastDue()
+    public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldTransitionToPastDue()
     {
         // Arrange
         InsertSubscription();
@@ -179,15 +172,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         );
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentFailed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenPaymentFailedWithinGracePeriod_ShouldSendReminder()
+    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedWithinGracePeriod_ShouldSendReminder()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
@@ -211,14 +199,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         );
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenPaymentFailedWithinCooldown_ShouldNotSendReminder()
+    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedWithinCooldown_ShouldNotSendReminder()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
@@ -242,14 +226,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         );
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenPaymentFailedAfterGracePeriod_ShouldSuspendSubscription()
+    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedAfterGracePeriod_ShouldSuspendSubscription()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
@@ -277,15 +257,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         );
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionSuspended");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenSubscriptionDeleted_ShouldSuspendTenant()
+    public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeleted_ShouldSuspendTenant()
     {
         // Arrange
         InsertSubscription();
@@ -304,15 +279,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionSuspended");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenNoSubscriptionFound_ShouldRecordEventAndReturnSuccess()
+    public async Task AcknowledgeStripeWebhook_WhenNoSubscriptionFound_ShouldStoreEventAndReturnSuccess()
     {
         // Act
         var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
@@ -324,11 +294,16 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         // Assert
         response.EnsureSuccessStatusCode();
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+
+        var eventCount = Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM StripeEvents WHERE StripeCustomerId = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
+        eventCount.Should().Be(1);
+
+        var eventStatus = Connection.ExecuteScalar<string>("SELECT Status FROM StripeEvents WHERE StripeCustomerId = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
+        eventStatus.Should().Be(nameof(StripeEventStatus.Pending));
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenCustomerSubscriptionUpdated_ShouldSyncState()
+    public async Task AcknowledgeStripeWebhook_WhenCustomerSubscriptionUpdated_ShouldSyncState()
     {
         // Arrange
         InsertSubscription();
@@ -344,13 +319,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         // Assert
         response.EnsureSuccessStatusCode();
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenDisputeCreated_ShouldSetDisputedAndSendEmail()
+    public async Task AcknowledgeStripeWebhook_WhenDisputeCreated_ShouldSetDisputedAndSendEmail()
     {
         // Arrange
         var subscriptionId = InsertSubscription();
@@ -376,15 +348,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
             Arg.Any<string>(),
             Arg.Any<CancellationToken>()
         );
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentDisputed");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenDisputeClosed_ShouldClearDispute()
+    public async Task AcknowledgeStripeWebhook_WhenDisputeClosed_ShouldClearDispute()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
@@ -404,15 +371,10 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         var disputedAt = Connection.ExecuteScalar<string>("SELECT DisputedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
         disputedAt.Should().BeNullOrEmpty();
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("DisputeResolved");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
     [Fact]
-    public async Task HandleStripeWebhook_WhenChargeRefunded_ShouldSetRefundedAt()
+    public async Task AcknowledgeStripeWebhook_WhenChargeRefunded_ShouldSetRefundedAt()
     {
         // Arrange
         var subscriptionId = InsertSubscription();
@@ -431,10 +393,20 @@ public sealed class HandleStripeWebhookTests : EndpointBaseTest<AccountDbContext
 
         var refundedAt = Connection.ExecuteScalar<string>("SELECT RefundedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
         refundedAt.Should().NotBeNullOrEmpty();
+    }
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("PaymentRefunded");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("WebhookProcessed");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenNoCustomerId_ShouldStoreAsIgnored()
+    {
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent("no_customer", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:product.created");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
     }
 }

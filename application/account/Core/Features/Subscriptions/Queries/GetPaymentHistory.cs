@@ -21,17 +21,13 @@ public sealed record PaymentTransactionResponse(
     string? InvoiceUrl
 );
 
-public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext, ILogger<GetPaymentHistoryHandler> logger)
+public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext)
     : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
 {
     public async Task<Result<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery query, CancellationToken cancellationToken)
     {
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result<PaymentHistoryResponse>.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
+                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
 
         var allTransactions = subscription.PaymentTransactions
             .OrderByDescending(t => t.Date)
