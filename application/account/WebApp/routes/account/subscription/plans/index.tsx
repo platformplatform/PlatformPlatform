@@ -2,20 +2,22 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { Button } from "@repo/ui/components/Button";
+import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
+import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
 import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
 import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
+import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
 export const Route = createFileRoute("/account/subscription/plans/")({
   staticData: { trackingTitle: "Subscription plans" },
@@ -24,8 +26,9 @@ export const Route = createFileRoute("/account/subscription/plans/")({
 });
 
 function PlansPage() {
-  const queryClient = useQueryClient();
+  const { isPolling, startPolling, subscription } = useSubscriptionPolling();
   const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
@@ -37,30 +40,46 @@ function PlansPage() {
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
-  const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your plan has been upgraded.`);
+    onSuccess: (_data, variables) => {
+      const targetPlan = variables.body?.newPlan;
+      startPolling({
+        check: (subscription) => subscription.plan === targetPlan,
+        successMessage: t`Your plan has been upgraded.`
+      });
     }
   });
 
   const downgradeMutation = api.useMutation("post", "/api/account/subscriptions/schedule-downgrade", {
     onSuccess: () => {
-      setIsDowngradeDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your downgrade has been scheduled.`);
+      startPolling({
+        check: (subscription) => subscription.scheduledPlan === downgradePlan,
+        successMessage: t`Your downgrade has been scheduled.`,
+        onComplete: () => setIsDowngradeDialogOpen(false)
+      });
+    }
+  });
+
+  const cancelMutation = api.useMutation("post", "/api/account/subscriptions/cancel", {
+    onSuccess: () => {
+      startPolling({
+        check: (subscription) => subscription.cancelAtPeriodEnd === true,
+        successMessage: t`Your subscription has been cancelled.`,
+        onComplete: () => setIsCancelDialogOpen(false)
+      });
     }
   });
 
   const cancelDowngradeMutation = api.useMutation("post", "/api/account/subscriptions/cancel-downgrade", {
     onSuccess: () => {
-      setIsCancelDowngradeDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your scheduled downgrade has been cancelled.`);
+      startPolling({
+        check: (subscription) => subscription.scheduledPlan == null,
+        successMessage: t`Your scheduled downgrade has been cancelled.`,
+        onComplete: () => setIsCancelDowngradeDialogOpen(false)
+      });
     }
   });
 
@@ -73,9 +92,19 @@ function PlansPage() {
         setPendingCheckoutPlan(reactivatePlan);
         setIsEditBillingInfoOpen(true);
       } else {
-        setIsReactivateDialogOpen(false);
-        queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-        toast.success(t`Your subscription has been reactivated.`);
+        startPolling({
+          check: (subscription) => {
+            if (subscription.cancelAtPeriodEnd) {
+              return false;
+            }
+            if (reactivatePlan === currentPlan) {
+              return true;
+            }
+            return subscription.scheduledPlan === reactivatePlan || subscription.plan === reactivatePlan;
+          },
+          successMessage: t`Your subscription has been reactivated.`,
+          onComplete: () => setIsReactivateDialogOpen(false)
+        });
       }
     }
   });
@@ -104,7 +133,9 @@ function PlansPage() {
     upgradeMutation.isPending ||
     downgradeMutation.isPending ||
     cancelDowngradeMutation.isPending ||
-    reactivateMutation.isPending;
+    reactivateMutation.isPending ||
+    cancelMutation.isPending ||
+    isPolling;
 
   const pendingPlan = upgradeMutation.isPending
     ? (upgradeMutation.variables?.body?.newPlan ?? null)
@@ -233,13 +264,51 @@ function PlansPage() {
             />
           ))}
         </div>
+
+        {subscription?.hasStripeSubscription && !cancelAtPeriodEnd && (
+          <div className="mt-8 flex flex-col gap-4">
+            <h3>
+              <Trans>Cancel subscription</Trans>
+            </h3>
+            <Separator />
+            <p className="text-muted-foreground text-sm">
+              {formattedPeriodEnd ? (
+                <Trans>
+                  If you cancel, you will keep access to your {getPlanLabel(currentPlan)} plan until{" "}
+                  {formattedPeriodEnd}. After that, your account will be downgraded.
+                </Trans>
+              ) : (
+                <Trans>
+                  If you cancel, you will keep access to your current plan until the end of your billing period. After
+                  that, your account will be downgraded.
+                </Trans>
+              )}
+            </p>
+            <Button
+              variant="destructive"
+              className="mt-2 w-fit"
+              onClick={() => setIsCancelDialogOpen(true)}
+              disabled={isPending}
+            >
+              <Trans>Cancel subscription</Trans>
+            </Button>
+          </div>
+        )}
       </AppLayout>
+
+      <CancelSubscriptionDialog
+        isOpen={isCancelDialogOpen}
+        onOpenChange={setIsCancelDialogOpen}
+        onConfirm={(reason, feedback) => cancelMutation.mutate({ body: { reason, feedback } })}
+        isPending={cancelMutation.isPending || isPolling}
+        currentPeriodEnd={currentPeriodEnd}
+      />
 
       <DowngradeConfirmationDialog
         isOpen={isDowngradeDialogOpen}
         onOpenChange={setIsDowngradeDialogOpen}
         onConfirm={handleConfirmDowngrade}
-        isPending={downgradeMutation.isPending}
+        isPending={downgradeMutation.isPending || isPolling}
         targetPlan={downgradePlan}
         currentPeriodEnd={currentPeriodEnd}
       />
@@ -249,7 +318,7 @@ function PlansPage() {
           isOpen={isCancelDowngradeDialogOpen}
           onOpenChange={setIsCancelDowngradeDialogOpen}
           onConfirm={handleConfirmCancelDowngrade}
-          isPending={cancelDowngradeMutation.isPending}
+          isPending={cancelDowngradeMutation.isPending || isPolling}
           currentPlan={currentPlan}
           scheduledPlan={scheduledPlan}
           currentPeriodEnd={currentPeriodEnd}
@@ -260,7 +329,7 @@ function PlansPage() {
         isOpen={isReactivateDialogOpen}
         onOpenChange={setIsReactivateDialogOpen}
         onConfirm={handleConfirmReactivate}
-        isPending={reactivateMutation.isPending}
+        isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
         targetPlan={reactivatePlan}
       />

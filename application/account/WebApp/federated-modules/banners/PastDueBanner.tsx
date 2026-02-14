@@ -28,7 +28,12 @@ export default function PastDueBanner() {
         <Trans>Payment failed. Your subscription will be suspended soon.</Trans>
       </span>
       {isOwner && (
-        <Button size="sm" onClick={() => (window.location.href = "/account/subscription")}>
+        <Button
+          size="sm"
+          onClick={() => {
+            window.location.href = "/account/subscription";
+          }}
+        >
           <Trans>Update payment method</Trans>
         </Button>
       )}

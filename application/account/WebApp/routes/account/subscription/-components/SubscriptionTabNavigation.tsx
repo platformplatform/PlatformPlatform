@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from "@repo/ui/components/Tabs";
 import { Link } from "@tanstack/react-router";
 
 type SubscriptionTabNavigationProps = {
-  activeTab: "overview" | "plans" | "cancel";
+  activeTab: "overview" | "plans";
 };
 
 export function SubscriptionTabNavigation({ activeTab }: SubscriptionTabNavigationProps) {
@@ -16,9 +16,6 @@ export function SubscriptionTabNavigation({ activeTab }: SubscriptionTabNavigati
         </TabsTrigger>
         <TabsTrigger value="plans" nativeButton={false} render={<Link to="/account/subscription/plans" />}>
           <Trans>Plans</Trans>
-        </TabsTrigger>
-        <TabsTrigger value="cancel" nativeButton={false} render={<Link to="/account/subscription/cancel" />}>
-          <Trans>Cancel subscription</Trans>
         </TabsTrigger>
       </TabsList>
     </Tabs>
