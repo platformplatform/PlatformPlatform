@@ -514,6 +514,9 @@ msgstr "E.g., Capital Region"
 msgid "E.g., Copenhagen"
 msgstr "E.g., Copenhagen"
 
+msgid "E.g., DK12345678"
+msgstr "E.g., DK12345678"
+
 msgid "Edit"
 msgstr "Edit"
 
@@ -1187,6 +1190,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tax ID (VAT number)"
+msgstr "Tax ID (VAT number)"
 
 msgid "Tell us a bit about yourself to get started."
 msgstr "Tell us a bit about yourself to get started."

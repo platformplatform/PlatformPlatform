@@ -35,7 +35,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com", null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -75,7 +75,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com", null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -115,7 +115,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
                 ("PaymentMethod", null)
             ]
         );
-        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com");
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", null, "1456", "Copenhagen", null, "DK", "billing@example.com", null);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -129,7 +129,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenRequiredFieldsEmpty_ShouldReturnValidationErrors()
     {
         // Arrange
-        var command = new UpdateBillingInfoCommand("", "", null, "", "", null, "", "");
+        var command = new UpdateBillingInfoCommand("", "", null, "", "", null, "", "", null);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
