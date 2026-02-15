@@ -54,6 +54,12 @@ public sealed class ConfirmPaymentMethodSetupHandler(
             return Result.BadRequest("Failed to update subscription payment method.");
         }
 
+        var invoiceRetried = await stripeClient.RetryOpenInvoicePaymentAsync(subscription.StripeSubscriptionId, paymentMethodId, cancellationToken);
+        if (invoiceRetried == true)
+        {
+            events.CollectEvent(new PendingInvoicePaymentRetried(subscription.Id));
+        }
+
         events.CollectEvent(new PaymentMethodUpdated(subscription.Id));
 
         return Result.Success();
