@@ -56,6 +56,14 @@ public enum PaymentTransactionStatus
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]
+public enum BannerType
+{
+    Refund,
+    Dispute
+}
+
+[PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum StripeEventStatus
 {
     Pending,
