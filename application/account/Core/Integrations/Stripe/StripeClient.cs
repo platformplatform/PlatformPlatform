@@ -623,6 +623,40 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
+    public async Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var invoiceService = new InvoiceService();
+            var openInvoices = await invoiceService.ListAsync(
+                new InvoiceListOptions { Subscription = stripeSubscriptionId.Value, Status = "open", Limit = 1 },
+                GetRequestOptions(), cancellationToken
+            );
+
+            var invoice = openInvoices.Data.FirstOrDefault();
+            if (invoice is null)
+            {
+                logger.LogInformation("No open invoices found for subscription '{SubscriptionId}'", stripeSubscriptionId);
+                return null;
+            }
+
+            await invoiceService.PayAsync(invoice.Id, new InvoicePayOptions { PaymentMethod = paymentMethodId }, GetRequestOptions(), cancellationToken);
+
+            logger.LogInformation("Retried payment for open invoice on subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return true;
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error retrying invoice payment for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout retrying invoice payment for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return false;
+        }
+    }
+
     public async Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         try
