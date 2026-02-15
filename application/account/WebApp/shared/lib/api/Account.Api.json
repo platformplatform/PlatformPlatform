@@ -743,6 +743,47 @@
         }
       }
     },
+    "/api/account/subscriptions/upgrade-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsUpgradePreview",
+        "parameters": [
+          {
+            "name": "NewPlan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradePreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/checkout": {
       "post": {
         "tags": [
@@ -2528,6 +2569,44 @@
             "type": "boolean"
           },
           "hasPremiumPriceId": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpgradePreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpgradePreviewLineItemResponse"
+            }
+          }
+        }
+      },
+      "UpgradePreviewLineItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "isProration": {
             "type": "boolean"
           }
         }

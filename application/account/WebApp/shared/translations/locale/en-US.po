@@ -260,6 +260,9 @@ msgstr "Basic support"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Bill to"
+msgstr "Bill to"
+
 msgid "Billing history"
 msgstr "Billing history"
 
@@ -561,6 +564,10 @@ msgstr "Enterprise-grade Azure infrastructure"
 
 msgid "Environment isolation"
 msgstr "Environment isolation"
+
+#. placeholder {0}: targetPlanDetails.price
+msgid "Estimated next bill: {0}"
+msgstr "Estimated next bill: {0}"
 
 msgid "EUR 19/month"
 msgstr "EUR 19/month"
@@ -877,6 +884,9 @@ msgstr "Passwordless deployments"
 
 msgid "Pay and subscribe"
 msgstr "Pay and subscribe"
+
+msgid "Pay and upgrade"
+msgstr "Pay and upgrade"
 
 msgid "Payment failed"
 msgstr "Payment failed"
@@ -1266,6 +1276,9 @@ msgstr "Toggle sidebar"
 msgid "Too expensive"
 msgstr "Too expensive"
 
+msgid "Total"
+msgstr "Total"
+
 msgid "Total users"
 msgstr "Total users"
 
@@ -1319,6 +1332,10 @@ msgstr "Updating..."
 
 msgid "Upgrade"
 msgstr "Upgrade"
+
+#. placeholder {0}: targetPlanDetails.name
+msgid "Upgrade to {0}"
+msgstr "Upgrade to {0}"
 
 msgid "Upload logo"
 msgstr "Upload logo"
@@ -1470,9 +1487,6 @@ msgstr "Your cancellation will be reversed and your {planName} subscription will
 
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Your cancellation will be reversed and your subscription will be changed to {planName}."
-
-msgid "Your changes are being processed. Please refresh if you don't see the update."
-msgstr "Your changes are being processed. Please refresh if you don't see the update."
 
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"

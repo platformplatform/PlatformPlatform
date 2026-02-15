@@ -260,6 +260,9 @@ msgstr "Basal support"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Bill to"
+msgstr "Faktureres til"
+
 msgid "Billing history"
 msgstr "Betalingshistorik"
 
@@ -561,6 +564,10 @@ msgstr "Azure infrastruktur i virksomhedsklasse"
 
 msgid "Environment isolation"
 msgstr "Miljøisolering"
+
+#. placeholder {0}: targetPlanDetails.price
+msgid "Estimated next bill: {0}"
+msgstr "Forventet næste regning: {0}"
 
 msgid "EUR 19/month"
 msgstr "EUR 19/måned"
@@ -877,6 +884,9 @@ msgstr "Adgangskodeløse implementeringer"
 
 msgid "Pay and subscribe"
 msgstr "Betal og abonner"
+
+msgid "Pay and upgrade"
+msgstr "Betal og opgrader"
 
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
@@ -1266,6 +1276,9 @@ msgstr "Skift sidepanel"
 msgid "Too expensive"
 msgstr "For dyrt"
 
+msgid "Total"
+msgstr "Total"
+
 msgid "Total users"
 msgstr "Totalt antal brugere"
 
@@ -1319,6 +1332,10 @@ msgstr "Opdaterer..."
 
 msgid "Upgrade"
 msgstr "Opgrader"
+
+#. placeholder {0}: targetPlanDetails.name
+msgid "Upgrade to {0}"
+msgstr "Opgrader til {0}"
 
 msgid "Upload logo"
 msgstr "Upload logo"
@@ -1471,9 +1488,6 @@ msgstr "Din opsigelse vil blive fortrudt, og dit {planName}-abonnement vil forbl
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Din opsigelse vil blive fortrudt, og dit abonnement vil blive ændret til {planName}."
 
-msgid "Your changes are being processed. Please refresh if you don't see the update."
-msgstr "Dine ændringer bliver behandlet. Opdater siden, hvis du ikke kan se opdateringen."
-
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 
@@ -1487,10 +1501,10 @@ msgid "Your plan has been upgraded."
 msgstr "Dit abonnement er blevet opgraderet."
 
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period on {formattedDate}. You will keep your current plan features until then."
-msgstr "Dit abonnement vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode den {formattedDate}. Du beholder dine nuværende funktioner indtil da."
+msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode den {formattedDate}. Du beholder dine nuværende planfunktioner indtil da."
 
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
-msgstr "Dit abonnement vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende funktioner indtil da."
+msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende planfunktioner indtil da."
 
 msgid "Your professional title or role"
 msgstr "Din professionelle titel eller rolle"

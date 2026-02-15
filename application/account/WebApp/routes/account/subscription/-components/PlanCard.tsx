@@ -27,7 +27,7 @@ type PlanDetails = {
   features: string[];
 };
 
-function getPlanDetails(plan: SubscriptionPlan): PlanDetails {
+export function getPlanDetails(plan: SubscriptionPlan): PlanDetails {
   switch (plan) {
     case SubscriptionPlan.Basis:
       return {

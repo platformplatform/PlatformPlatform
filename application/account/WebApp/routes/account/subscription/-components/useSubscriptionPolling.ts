@@ -1,4 +1,3 @@
-import { t } from "@lingui/core/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -54,7 +53,7 @@ export function useSubscriptionPolling() {
     const timeout = setTimeout(() => {
       setIsPolling(false);
       queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.info(t`Your changes are being processed. Please refresh if you don't see the update.`);
+      toast.success(successMessageRef.current);
       onCompleteRef.current?.();
     }, WebhookTimeoutMs);
     return () => clearTimeout(timeout);

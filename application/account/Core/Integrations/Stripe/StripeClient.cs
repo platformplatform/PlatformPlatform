@@ -25,7 +25,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             {
                 Name = tenantName,
                 Email = email,
-                Metadata = new Dictionary<string, string> { { "tenant_id", tenantId.ToString() } }
+                Metadata = new Dictionary<string, string> { { "TenantId", tenantId.ToString() } }
             };
 
             var service = new CustomerService();
@@ -605,6 +605,67 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         {
             logger.LogError(ex, "Timeout updating payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
+        }
+    }
+
+    public async Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var priceId = GetPriceId(newPlan);
+            if (priceId is null)
+            {
+                logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
+                return null;
+            }
+
+            var subscriptionService = new SubscriptionService();
+            var subscription = await subscriptionService.GetAsync(stripeSubscriptionId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var itemId = subscription.Items.Data.First().Id;
+
+            var invoiceService = new InvoiceService();
+            var invoice = await invoiceService.CreatePreviewAsync(new InvoiceCreatePreviewOptions
+                {
+                    Customer = subscription.CustomerId,
+                    Subscription = stripeSubscriptionId.Value,
+                    SubscriptionDetails = new InvoiceSubscriptionDetailsOptions
+                    {
+                        Items =
+                        [
+                            new InvoiceSubscriptionDetailsItemOptions { Id = itemId, Price = priceId }
+                        ],
+                        ProrationBehavior = "always_invoice"
+                    }
+                }, GetRequestOptions(), cancellationToken
+            );
+
+            var lineItems = invoice.Lines.Data
+                .Select(line => new UpgradePreviewLineItem(
+                        line.Description ?? "",
+                        line.Amount / 100m,
+                        line.Currency,
+                        line.Parent?.InvoiceItemDetails?.Proration == true || line.Parent?.SubscriptionItemDetails?.Proration == true
+                    )
+                )
+                .ToList();
+
+            var totalTax = (invoice.TotalTaxes ?? []).Sum(t => t.Amount);
+            if (totalTax > 0)
+            {
+                lineItems.Add(new UpgradePreviewLineItem("Tax", totalTax / 100m, invoice.Currency, false));
+            }
+
+            return new UpgradePreviewResult(invoice.AmountDue / 100m, invoice.Currency, lineItems.ToArray());
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return null;
         }
     }
 

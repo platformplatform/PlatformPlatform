@@ -114,11 +114,16 @@ test.describe("@smoke", () => {
     })();
 
     // === UPGRADE FLOW ===
-    await step("Navigate to plans page & click Upgrade on Premium plan & verify plan upgraded")(async () => {
+    await step("Navigate to plans page & click Upgrade on Premium plan & confirm upgrade dialog")(async () => {
       await ownerPage.goto("/account/subscription/plans");
 
       const premiumCard = ownerPage.locator(".grid > div").filter({ hasText: "Premium" }).first();
       await premiumCard.getByRole("button", { name: "Upgrade" }).click();
+
+      await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
+      await expect(ownerPage.getByText("Upgrade to Premium")).toBeVisible();
+      await expect(ownerPage.getByText("Your plan will be upgraded to Premium immediately")).toBeVisible();
+      await ownerPage.getByRole("button", { name: "Confirm upgrade" }).click();
 
       await expectToastMessage(context, "Your plan has been upgraded.");
     })();
