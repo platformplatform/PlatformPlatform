@@ -40,7 +40,7 @@ export function useSubscriptionPolling() {
     }
     if (checkFnRef.current?.(subscription)) {
       setIsPolling(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
+      queryClient.invalidateQueries();
       toast.success(successMessageRef.current);
       onCompleteRef.current?.();
     }
@@ -52,7 +52,7 @@ export function useSubscriptionPolling() {
     }
     const timeout = setTimeout(() => {
       setIsPolling(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
+      queryClient.invalidateQueries();
       toast.success(successMessageRef.current);
       onCompleteRef.current?.();
     }, WebhookTimeoutMs);

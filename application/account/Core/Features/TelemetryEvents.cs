@@ -88,6 +88,9 @@ public sealed class PaymentRecovered(SubscriptionId subscriptionId, Subscription
 public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
+public sealed class PendingInvoicePaymentRetried(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class SessionCreated(SessionId sessionId)
     : TelemetryEvent(("session_id", sessionId));
 
