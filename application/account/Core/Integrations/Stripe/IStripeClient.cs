@@ -37,6 +37,8 @@ public interface IStripeClient
     Task<string?> GetSetupIntentPaymentMethodAsync(string setupIntentId, CancellationToken cancellationToken);
 
     Task<bool> SetSubscriptionDefaultPaymentMethodAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken);
+
+    Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken);
 }
 
 public sealed record StripeWebhookEventResult(
@@ -58,3 +60,7 @@ public sealed record SubscriptionSyncResult(
 );
 
 public sealed record StripeHealthResult(bool IsConfigured, bool HasApiKey, bool HasWebhookSecret, bool HasStandardPriceId, bool HasPremiumPriceId);
+
+public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, UpgradePreviewLineItem[] LineItems);
+
+public sealed record UpgradePreviewLineItem(string Description, decimal Amount, string Currency, bool IsProration);

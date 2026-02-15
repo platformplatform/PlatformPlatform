@@ -25,6 +25,10 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<StripeHealthResponse>();
 
+        group.MapGet("/upgrade-preview", async Task<ApiResult<UpgradePreviewResponse>> ([AsParameters] GetUpgradePreviewQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<UpgradePreviewResponse>();
+
         group.MapPost("/checkout", async Task<ApiResult<CreateCheckoutSessionResponse>> (CreateCheckoutSessionCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<CreateCheckoutSessionResponse>();
