@@ -24,6 +24,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var options = new CustomerCreateOptions
             {
                 Name = tenantName,
+                BusinessName = tenantName,
                 Email = email,
                 Metadata = new Dictionary<string, string> { { "TenantId", tenantId.ToString() } }
             };
@@ -484,6 +485,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             await service.UpdateAsync(stripeCustomerId.Value, new CustomerUpdateOptions
                 {
                     Name = billingInfo.Name,
+                    BusinessName = billingInfo.Name,
                     Email = billingInfo.Email,
                     Address = new AddressOptions
                     {
@@ -714,6 +716,46 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         catch (TaskCanceledException ex)
         {
             logger.LogError(ex, "Timeout getting upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
+            return null;
+        }
+    }
+
+    public async Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var priceId = GetPriceId(plan);
+            if (priceId is null)
+            {
+                logger.LogError("Price ID not configured for plan '{Plan}'", plan);
+                return null;
+            }
+
+            var invoiceService = new InvoiceService();
+            var invoice = await invoiceService.CreatePreviewAsync(new InvoiceCreatePreviewOptions
+                {
+                    Customer = stripeCustomerId.Value,
+                    SubscriptionDetails = new InvoiceSubscriptionDetailsOptions
+                    {
+                        Items = [new InvoiceSubscriptionDetailsItemOptions { Price = priceId }]
+                    },
+                    AutomaticTax = new InvoiceAutomaticTaxOptions { Enabled = true }
+                }, GetRequestOptions(), cancellationToken
+            );
+
+            var totalTax = (invoice.TotalTaxes ?? []).Sum(t => t.Amount);
+
+            logger.LogInformation("Generated checkout preview for customer '{CustomerId}' plan '{Plan}'", stripeCustomerId, plan);
+            return new CheckoutPreviewResult(invoice.AmountDue / 100m, invoice.Currency, totalTax / 100m);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error getting checkout preview for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout getting checkout preview for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
     }
