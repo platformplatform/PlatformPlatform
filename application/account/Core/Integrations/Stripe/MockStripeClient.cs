@@ -185,6 +185,12 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "usd", lineItems));
     }
 
+    public Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "eur", 0m));
+    }
+
     private void EnsureEnabled()
     {
         if (!_isEnabled)

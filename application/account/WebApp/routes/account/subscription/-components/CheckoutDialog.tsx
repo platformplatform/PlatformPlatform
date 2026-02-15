@@ -12,13 +12,15 @@ import {
   DialogHeader,
   DialogTitle
 } from "@repo/ui/components/Dialog";
+import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { CheckoutProvider, PaymentElement, useCheckout } from "@stripe/react-stripe-js/checkout";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { api, SubscriptionPlan, type SubscriptionPlan as SubscriptionPlanType } from "@/shared/lib/api/client";
+import { api, type SubscriptionPlan as SubscriptionPlanType } from "@/shared/lib/api/client";
+import { getPlanDetails } from "./PlanCard";
 import { getStripeAppearance } from "./stripeAppearance";
 
 const ActivationPollingIntervalMs = 1000;
@@ -188,15 +190,11 @@ function CheckoutSkeleton() {
   );
 }
 
-function getPlanSummary(plan: SubscriptionPlanType): { name: string; price: string } {
-  switch (plan) {
-    case SubscriptionPlan.Standard:
-      return { name: t`Standard`, price: t`EUR 19/month` };
-    case SubscriptionPlan.Premium:
-      return { name: t`Premium`, price: t`EUR 39/month` };
-    default:
-      return { name: t`Basis`, price: t`Free` };
-  }
+function formatCurrency(amount: number, currency: string): string {
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: currency.toUpperCase()
+  }).format(amount);
 }
 
 interface CheckoutFormProps {
@@ -218,8 +216,11 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
   const [isPaymentReady, setIsPaymentReady] = useState(false);
 
   const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
+  const { data: preview } = api.useQuery("get", "/api/account/subscriptions/checkout-preview", {
+    params: { query: { Plan: plan } }
+  });
 
-  const planSummary = getPlanSummary(plan);
+  const planDetails = getPlanDetails(plan);
   const hasCheckoutError = checkoutResult.type === "error";
 
   useEffect(() => {
@@ -285,9 +286,48 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
 
   return (
     <>
-      <div className="flex items-center justify-between rounded-lg border border-border bg-muted/50 p-4">
-        <span className="font-medium">{planSummary.name}</span>
-        <span className="font-semibold">{planSummary.price}</span>
+      <div className="mb-2 flex flex-col gap-2">
+        {preview ? (
+          <>
+            <div className="flex items-baseline justify-between gap-4 text-sm">
+              <span className="text-muted-foreground">{planDetails.name}</span>
+              <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
+                {formatCurrency(preview.totalAmount - preview.taxAmount, preview.currency)}
+              </span>
+            </div>
+            {preview.taxAmount > 0 && (
+              <div className="flex items-baseline justify-between gap-4 text-sm">
+                <span className="text-muted-foreground">
+                  <Trans>Tax</Trans>
+                </span>
+                <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
+                  {formatCurrency(preview.taxAmount, preview.currency)}
+                </span>
+              </div>
+            )}
+            <Separator />
+            <div className="flex items-baseline justify-between gap-4 font-medium">
+              <span>
+                <Trans>Total</Trans>
+              </span>
+              <span className="shrink-0 whitespace-nowrap text-lg tabular-nums">
+                {formatCurrency(preview.totalAmount, preview.currency)}
+              </span>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-4 w-[10rem]" />
+              <Skeleton className="h-4 w-[4rem]" />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-5 w-[6rem]" />
+              <Skeleton className="h-5 w-[5rem]" />
+            </div>
+          </>
+        )}
       </div>
       {hasCheckoutError ? (
         <DialogFooter>
@@ -320,7 +360,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
                 <DialogClose render={<Button type="reset" variant="secondary" disabled={isConfirming} />}>
                   <Trans>Cancel</Trans>
                 </DialogClose>
-                <Button onClick={handleSubmit} disabled={isConfirming || !isCheckoutReady}>
+                <Button onClick={handleSubmit} disabled={isConfirming || !isCheckoutReady || !preview}>
                   {isConfirming ? <Trans>Processing payment...</Trans> : <Trans>Pay and subscribe</Trans>}
                 </Button>
               </DialogFooter>

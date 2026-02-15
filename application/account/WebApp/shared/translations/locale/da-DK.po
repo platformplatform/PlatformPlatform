@@ -1210,6 +1210,9 @@ msgstr "System"
 msgid "Tablet"
 msgstr "Tablet"
 
+msgid "Tax"
+msgstr "Moms"
+
 msgid "Tax ID (VAT number)"
 msgstr "CVR-nummer (momsnummer)"
 

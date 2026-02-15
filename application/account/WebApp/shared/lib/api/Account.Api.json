@@ -784,6 +784,47 @@
         }
       }
     },
+    "/api/account/subscriptions/checkout-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsCheckoutPreview",
+        "parameters": [
+          {
+            "name": "Plan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutPreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/checkout": {
       "post": {
         "tags": [
@@ -2618,6 +2659,23 @@
           },
           "isProration": {
             "type": "boolean"
+          }
+        }
+      },
+      "CheckoutPreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "decimal"
           }
         }
       },
