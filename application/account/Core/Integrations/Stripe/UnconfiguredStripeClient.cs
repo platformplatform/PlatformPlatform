@@ -28,10 +28,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<StripeSubscriptionId?>(null);
     }
 
-    public Task<bool> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    public Task<UpgradeSubscriptionResult?> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot upgrade subscription '{SubscriptionId}'", stripeSubscriptionId);
-        return Task.FromResult(false);
+        return Task.FromResult<UpgradeSubscriptionResult?>(null);
     }
 
     public Task<bool> ScheduleDowngradeAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)

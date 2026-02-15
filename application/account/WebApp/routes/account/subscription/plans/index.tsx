@@ -1,3 +1,4 @@
+import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
@@ -5,9 +6,11 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
+import { loadStripe } from "@stripe/stripe-js";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
@@ -42,18 +45,47 @@ function PlansPage() {
   const [reactivatePlan, setReactivatePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
+  const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
 
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
-    onSuccess: (_data, variables) => {
+    onSuccess: async (data, variables) => {
       const targetPlan = variables.body?.newPlan;
-      startPolling({
-        check: (subscription) => subscription.plan === targetPlan,
-        successMessage: t`Your plan has been upgraded.`,
-        onComplete: () => setIsUpgradeDialogOpen(false)
-      });
+      if (data.clientSecret && data.publishableKey) {
+        setIsConfirmingPayment(true);
+        const stripe = await loadStripe(data.publishableKey, { locale: i18n.locale as "auto" });
+        if (!stripe) {
+          setIsConfirmingPayment(false);
+          toast.error(t`Failed to load payment processor.`);
+          return;
+        }
+        const result = await stripe.confirmPayment({
+          clientSecret: data.clientSecret,
+          confirmParams: {
+            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
+            return_url: window.location.href
+          },
+          redirect: "if_required"
+        });
+        setIsConfirmingPayment(false);
+        if (result.error) {
+          toast.error(result.error.message ?? t`Payment authentication failed.`);
+          return;
+        }
+        startPolling({
+          check: (subscription) => subscription.plan === targetPlan,
+          successMessage: t`Your plan has been upgraded.`,
+          onComplete: () => setIsUpgradeDialogOpen(false)
+        });
+      } else {
+        startPolling({
+          check: (subscription) => subscription.plan === targetPlan,
+          successMessage: t`Your plan has been upgraded.`,
+          onComplete: () => setIsUpgradeDialogOpen(false)
+        });
+      }
     }
   });
 
@@ -317,7 +349,7 @@ function PlansPage() {
         isOpen={isUpgradeDialogOpen}
         onOpenChange={setIsUpgradeDialogOpen}
         onConfirm={handleConfirmUpgrade}
-        isPending={upgradeMutation.isPending || isPolling}
+        isPending={upgradeMutation.isPending || isConfirmingPayment || isPolling}
         targetPlan={upgradeTarget}
         billingInfo={billingInfo}
         paymentMethod={subscription?.paymentMethod}
