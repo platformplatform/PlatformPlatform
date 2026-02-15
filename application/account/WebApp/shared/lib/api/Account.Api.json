@@ -854,6 +854,16 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradeSubscriptionResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -2632,6 +2642,20 @@
           },
           "returnUrl": {
             "type": "string"
+          }
+        }
+      },
+      "UpgradeSubscriptionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishableKey": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

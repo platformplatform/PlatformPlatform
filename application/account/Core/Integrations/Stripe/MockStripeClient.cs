@@ -63,10 +63,10 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<StripeSubscriptionId?>(StripeSubscriptionId.NewId(MockSubscriptionId));
     }
 
-    public Task<bool> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    public Task<UpgradeSubscriptionResult?> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult(true);
+        return Task.FromResult<UpgradeSubscriptionResult?>(new UpgradeSubscriptionResult(null));
     }
 
     public Task<bool> ScheduleDowngradeAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)

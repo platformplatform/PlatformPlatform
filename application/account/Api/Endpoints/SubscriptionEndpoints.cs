@@ -33,9 +33,9 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<CreateCheckoutSessionResponse>();
 
-        group.MapPost("/upgrade", async Task<ApiResult> (UpgradeSubscriptionCommand command, IMediator mediator)
+        group.MapPost("/upgrade", async Task<ApiResult<UpgradeSubscriptionResponse>> (UpgradeSubscriptionCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<UpgradeSubscriptionResponse>();
 
         group.MapPost("/schedule-downgrade", async Task<ApiResult> (ScheduleDowngradeCommand command, IMediator mediator)
             => await mediator.Send(command)

@@ -578,6 +578,9 @@ msgstr "udløber"
 msgid "Failed"
 msgstr "Mislykket"
 
+msgid "Failed to load payment processor."
+msgstr "Kunne ikke indlæse betalingsprocessor."
+
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
 
@@ -881,6 +884,9 @@ msgstr "Betal og abonner"
 
 msgid "Pay and upgrade"
 msgstr "Betal og opgrader"
+
+msgid "Payment authentication failed."
+msgstr "Betalingsgodkendelse mislykkedes."
 
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"

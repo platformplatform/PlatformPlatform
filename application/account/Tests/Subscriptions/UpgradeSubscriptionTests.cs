@@ -42,6 +42,9 @@ public sealed class UpgradeSubscriptionTests : EndpointBaseTest<AccountDbContext
 
         // Assert
         response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadFromJsonAsync<UpgradeSubscriptionResponse>();
+        result!.ClientSecret.Should().BeNull();
+        result.PublishableKey.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionUpgraded");
