@@ -785,38 +785,6 @@
         }
       }
     },
-    "/api/account/subscriptions/checkout-success": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsCheckoutSuccess",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CheckoutSuccessCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account/subscriptions/upgrade": {
       "post": {
         "tags": [
@@ -1055,26 +1023,6 @@
           "required": true,
           "x-position": 1
         },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/sync": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsSync",
         "responses": {
           "400": {
             "description": "",
@@ -2604,15 +2552,6 @@
             "$ref": "#/components/schemas/SubscriptionPlan"
           },
           "returnUrl": {
-            "type": "string"
-          }
-        }
-      },
-      "CheckoutSuccessCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "sessionId": {
             "type": "string"
           }
         }

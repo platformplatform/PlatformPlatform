@@ -25,7 +25,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("ModifiedAt", null),
                 ("Plan", nameof(SubscriptionPlan.Basis)),
                 ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
+                ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", null),
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),

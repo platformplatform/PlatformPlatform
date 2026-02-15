@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
@@ -35,7 +36,7 @@ public sealed class ScheduleDowngradeHandler(
             return Result.BadRequest("No active Stripe subscription found.");
         }
 
-        if (subscription.Plan <= command.NewPlan)
+        if (!command.NewPlan.IsDowngradeFrom(subscription.Plan))
         {
             return Result.BadRequest($"Cannot downgrade from '{subscription.Plan}' to '{command.NewPlan}'. Target plan must be lower.");
         }

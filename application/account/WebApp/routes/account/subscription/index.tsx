@@ -7,11 +7,9 @@ import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangleIcon, PencilIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
@@ -20,7 +18,6 @@ import { CheckoutDialog } from "./-components/CheckoutDialog";
 import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { PlanCard } from "./-components/PlanCard";
-import { ProcessingPaymentModal } from "./-components/ProcessingPaymentModal";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
@@ -35,9 +32,7 @@ export const Route = createFileRoute("/account/subscription/")({
 function SubscriptionPage() {
   const navigate = useNavigate();
   const formatLongDate = useFormatLongDate();
-  const queryClient = useQueryClient();
   const { isPolling, startPolling, subscription } = useSubscriptionPolling();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
@@ -50,14 +45,6 @@ function SubscriptionPage() {
 
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
-
-  const checkoutSuccessMutation = api.useMutation("post", "/api/account/subscriptions/checkout-success", {
-    onSuccess: () => {
-      setIsProcessing(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your subscription has been activated.`);
-    }
-  });
 
   const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
     onSuccess: (data) => {
@@ -86,17 +73,6 @@ function SubscriptionPage() {
       });
     }
   });
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get("session_id");
-
-    if (sessionId) {
-      setIsProcessing(true);
-      window.history.replaceState({}, "", window.location.pathname);
-      checkoutSuccessMutation.mutate({ body: { sessionId } });
-    }
-  }, []);
 
   const isStripeConfigured = stripeHealth?.isConfigured ?? false;
   const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
@@ -347,8 +323,6 @@ function SubscriptionPage() {
           </div>
         </AppLayout>
       )}
-
-      <ProcessingPaymentModal isOpen={isProcessing} />
 
       {scheduledPlan && (
         <CancelDowngradeDialog
