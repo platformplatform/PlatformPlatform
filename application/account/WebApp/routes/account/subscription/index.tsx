@@ -128,14 +128,190 @@ function SubscriptionPage() {
     setIsCheckoutDialogOpen(true);
   };
 
-  if (!hasStripeSubscription) {
-    const handleSubscribe = (plan: SubscriptionPlan) => {
-      setPendingCheckoutPlan(plan);
-      setIsEditBillingInfoOpen(true);
-    };
+  const handleSubscribe = (plan: SubscriptionPlan) => {
+    setPendingCheckoutPlan(plan);
+    setIsEditBillingInfoOpen(true);
+  };
 
-    return (
-      <>
+  return (
+    <>
+      {hasStripeSubscription ? (
+        <AppLayout
+          variant="center"
+          maxWidth="60rem"
+          title={t`Subscription`}
+          subtitle={t`Manage your subscription and billing.`}
+        >
+          <SubscriptionTabNavigation activeTab="overview" />
+
+          {cancelAtPeriodEnd && (
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+              <div className="flex items-center gap-3">
+                <AlertTriangleIcon className="size-4 shrink-0" />
+                {formattedPeriodEndLong ? (
+                  <Trans>
+                    Your {getPlanLabel(currentPlan)} subscription has been cancelled and will end on{" "}
+                    {formattedPeriodEndLong}.
+                  </Trans>
+                ) : (
+                  <Trans>
+                    Your subscription has been cancelled and will end at the end of the current billing period.
+                  </Trans>
+                )}
+              </div>
+              <Button size="sm" className="shrink-0" onClick={() => setIsReactivateDialogOpen(true)}>
+                <Trans>Reactivate</Trans>
+              </Button>
+            </div>
+          )}
+
+          {scheduledPlan && !cancelAtPeriodEnd && (
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+              <div className="flex items-center gap-3">
+                <AlertTriangleIcon className="size-4 shrink-0" />
+                {formattedPeriodEndLong ? (
+                  <Trans>
+                    Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} on {formattedPeriodEndLong}.
+                  </Trans>
+                ) : (
+                  <Trans>
+                    Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} at the end of the current
+                    billing period.
+                  </Trans>
+                )}
+              </div>
+              <Button size="sm" className="shrink-0" onClick={() => setIsCancelDowngradeDialogOpen(true)}>
+                <Trans>Cancel downgrade</Trans>
+              </Button>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-4">
+            <h3>
+              <Trans>Current plan</Trans>
+            </h3>
+            <Separator />
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="font-medium">{getPlanLabel(currentPlan)}</span>
+                  {cancelAtPeriodEnd ? (
+                    <Badge variant="destructive">
+                      <Trans>Cancelling</Trans>
+                    </Badge>
+                  ) : (
+                    <Badge variant="default">
+                      <Trans>Active</Trans>
+                    </Badge>
+                  )}
+                </div>
+                {formattedPeriodEndLong && (
+                  <p className="text-muted-foreground text-sm">
+                    {cancelAtPeriodEnd ? (
+                      <Trans>Access until {formattedPeriodEndLong}</Trans>
+                    ) : (
+                      <Trans>Next billing date: {formattedPeriodEndLong}</Trans>
+                    )}
+                  </p>
+                )}
+              </div>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-1.5"
+                      aria-label={t`Change plan`}
+                      onClick={() => navigate({ to: "/account/subscription/plans" })}
+                    >
+                      <PencilIcon className="size-4" />
+                      <span className="hidden sm:inline" aria-hidden="true">
+                        <Trans>Change</Trans>
+                      </span>
+                    </Button>
+                  }
+                />
+                <TooltipContent className="sm:hidden">
+                  <Trans>Change plan</Trans>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4">
+            <h3>
+              <Trans>Payment method</Trans>
+            </h3>
+            <Separator />
+            <div className="flex items-center justify-between gap-4">
+              <PaymentMethodDisplay paymentMethod={subscription?.paymentMethod} />
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-1.5"
+                      aria-label={t`Update payment method`}
+                      onClick={() => setIsUpdatePaymentMethodOpen(true)}
+                      disabled={!isStripeConfigured}
+                    >
+                      <PencilIcon className="size-4" />
+                      <span className="hidden sm:inline" aria-hidden="true">
+                        <Trans>Update</Trans>
+                      </span>
+                    </Button>
+                  }
+                />
+                <TooltipContent className="sm:hidden">
+                  <Trans>Update payment method</Trans>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4">
+            <h3>
+              <Trans>Billing information</Trans>
+            </h3>
+            <Separator />
+            <div className="flex items-start justify-between gap-4">
+              <BillingInfoDisplay billingInfo={subscription?.billingInfo} />
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 gap-1.5"
+                      aria-label={t`Edit billing information`}
+                      onClick={() => setIsEditBillingInfoOpen(true)}
+                      disabled={!isStripeConfigured}
+                    >
+                      <PencilIcon className="size-4" />
+                      <span className="hidden sm:inline" aria-hidden="true">
+                        <Trans>Edit</Trans>
+                      </span>
+                    </Button>
+                  }
+                />
+                <TooltipContent className="sm:hidden">
+                  <Trans>Edit billing information</Trans>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4">
+            <h3>
+              <Trans>Billing history</Trans>
+            </h3>
+            <Separator />
+            <BillingHistoryTable />
+          </div>
+        </AppLayout>
+      ) : (
         <AppLayout
           variant="center"
           maxWidth="60rem"
@@ -170,201 +346,7 @@ function SubscriptionPage() {
             ))}
           </div>
         </AppLayout>
-
-        <ProcessingPaymentModal isOpen={isProcessing} />
-
-        <EditBillingInfoDialog
-          isOpen={isEditBillingInfoOpen}
-          onOpenChange={setIsEditBillingInfoOpen}
-          billingInfo={billingInfo}
-          tenantName={tenant?.name ?? ""}
-          onSuccess={handleBillingInfoSuccess}
-          submitLabel={t`Next`}
-          pendingLabel={t`Saving...`}
-        />
-
-        <CheckoutDialog isOpen={isCheckoutDialogOpen} onOpenChange={setIsCheckoutDialogOpen} plan={checkoutPlan} />
-      </>
-    );
-  }
-
-  return (
-    <>
-      <AppLayout
-        variant="center"
-        maxWidth="60rem"
-        title={t`Subscription`}
-        subtitle={t`Manage your subscription and billing.`}
-      >
-        <SubscriptionTabNavigation activeTab="overview" />
-
-        {cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
-            <div className="flex items-center gap-3">
-              <AlertTriangleIcon className="size-4 shrink-0" />
-              {formattedPeriodEndLong ? (
-                <Trans>
-                  Your {getPlanLabel(currentPlan)} subscription has been cancelled and will end on{" "}
-                  {formattedPeriodEndLong}.
-                </Trans>
-              ) : (
-                <Trans>
-                  Your subscription has been cancelled and will end at the end of the current billing period.
-                </Trans>
-              )}
-            </div>
-            <Button size="sm" className="shrink-0" onClick={() => setIsReactivateDialogOpen(true)}>
-              <Trans>Reactivate</Trans>
-            </Button>
-          </div>
-        )}
-
-        {scheduledPlan && !cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
-            <div className="flex items-center gap-3">
-              <AlertTriangleIcon className="size-4 shrink-0" />
-              {formattedPeriodEndLong ? (
-                <Trans>
-                  Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} on {formattedPeriodEndLong}.
-                </Trans>
-              ) : (
-                <Trans>
-                  Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} at the end of the current
-                  billing period.
-                </Trans>
-              )}
-            </div>
-            <Button size="sm" className="shrink-0" onClick={() => setIsCancelDowngradeDialogOpen(true)}>
-              <Trans>Cancel downgrade</Trans>
-            </Button>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-4">
-          <h3>
-            <Trans>Current plan</Trans>
-          </h3>
-          <Separator />
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="font-medium">{getPlanLabel(currentPlan)}</span>
-                {cancelAtPeriodEnd ? (
-                  <Badge variant="destructive">
-                    <Trans>Cancelling</Trans>
-                  </Badge>
-                ) : (
-                  <Badge variant="default">
-                    <Trans>Active</Trans>
-                  </Badge>
-                )}
-              </div>
-              {formattedPeriodEndLong && (
-                <p className="text-muted-foreground text-sm">
-                  {cancelAtPeriodEnd ? (
-                    <Trans>Access until {formattedPeriodEndLong}</Trans>
-                  ) : (
-                    <Trans>Next billing date: {formattedPeriodEndLong}</Trans>
-                  )}
-                </p>
-              )}
-            </div>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5"
-                    aria-label={t`Change plan`}
-                    onClick={() => navigate({ to: "/account/subscription/plans" })}
-                  >
-                    <PencilIcon className="size-4" />
-                    <span className="hidden sm:inline" aria-hidden="true">
-                      <Trans>Change</Trans>
-                    </span>
-                  </Button>
-                }
-              />
-              <TooltipContent className="sm:hidden">
-                <Trans>Change plan</Trans>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-col gap-4">
-          <h3>
-            <Trans>Payment method</Trans>
-          </h3>
-          <Separator />
-          <div className="flex items-center justify-between gap-4">
-            <PaymentMethodDisplay paymentMethod={subscription?.paymentMethod} />
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5"
-                    aria-label={t`Update payment method`}
-                    onClick={() => setIsUpdatePaymentMethodOpen(true)}
-                    disabled={!isStripeConfigured}
-                  >
-                    <PencilIcon className="size-4" />
-                    <span className="hidden sm:inline" aria-hidden="true">
-                      <Trans>Update</Trans>
-                    </span>
-                  </Button>
-                }
-              />
-              <TooltipContent className="sm:hidden">
-                <Trans>Update payment method</Trans>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-col gap-4">
-          <h3>
-            <Trans>Billing information</Trans>
-          </h3>
-          <Separator />
-          <div className="flex items-start justify-between gap-4">
-            <BillingInfoDisplay billingInfo={subscription?.billingInfo} />
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="shrink-0 gap-1.5"
-                    aria-label={t`Edit billing information`}
-                    onClick={() => setIsEditBillingInfoOpen(true)}
-                    disabled={!isStripeConfigured}
-                  >
-                    <PencilIcon className="size-4" />
-                    <span className="hidden sm:inline" aria-hidden="true">
-                      <Trans>Edit</Trans>
-                    </span>
-                  </Button>
-                }
-              />
-              <TooltipContent className="sm:hidden">
-                <Trans>Edit billing information</Trans>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-col gap-4">
-          <h3>
-            <Trans>Billing history</Trans>
-          </h3>
-          <Separator />
-          <BillingHistoryTable />
-        </div>
-      </AppLayout>
+      )}
 
       <ProcessingPaymentModal isOpen={isProcessing} />
 

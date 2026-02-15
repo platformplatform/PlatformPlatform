@@ -123,6 +123,12 @@ msgstr "Konto skiftet"
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
 
+msgid "Activating subscription"
+msgstr "Aktiverer abonnement"
+
+msgid "Activating your subscription..."
+msgstr "Aktiverer dit abonnement..."
+
 msgid "Active"
 msgstr "Aktiv"
 
@@ -869,6 +875,9 @@ msgstr "Siden blev ikke fundet"
 msgid "Passwordless deployments"
 msgstr "Adgangskodeløse implementeringer"
 
+msgid "Pay and subscribe"
+msgstr "Betal og abonner"
+
 msgid "Payment failed"
 msgstr "Betaling mislykkedes"
 
@@ -956,6 +965,9 @@ msgstr "Privatlivspolitik"
 
 msgid "Processing payment"
 msgstr "Behandler betaling"
+
+msgid "Processing payment..."
+msgstr "Behandler betaling..."
 
 msgid "Processing..."
 msgstr "Behandler..."
