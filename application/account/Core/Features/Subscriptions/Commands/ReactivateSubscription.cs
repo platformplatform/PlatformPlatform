@@ -76,8 +76,8 @@ public sealed class ReactivateSubscriptionHandler(
 
         if (command.Plan.IsUpgradeFrom(subscription.Plan))
         {
-            var upgradeSuccess = await stripeClient.UpgradeSubscriptionAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
-            if (!upgradeSuccess)
+            var upgradeResult = await stripeClient.UpgradeSubscriptionAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
+            if (upgradeResult is null)
             {
                 return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to upgrade subscription during reactivation.");
             }

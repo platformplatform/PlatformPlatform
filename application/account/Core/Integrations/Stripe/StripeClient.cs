@@ -191,7 +191,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<bool> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    public async Task<UpgradeSubscriptionResult?> UpgradeSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         try
         {
@@ -199,14 +199,14 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
-                return false;
+                return null;
             }
 
             var service = new SubscriptionService();
             var subscription = await service.GetAsync(stripeSubscriptionId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             var itemId = subscription.Items.Data.First().Id;
 
-            await service.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
+            var updatedSubscription = await service.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
                 {
                     Items =
                     [
@@ -217,18 +217,33 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 }, GetRequestOptions(), cancellationToken
             );
 
+            string? clientSecret = null;
+            if (updatedSubscription.LatestInvoiceId is not null)
+            {
+                var invoiceService = new InvoiceService();
+                var invoice = await invoiceService.GetAsync(updatedSubscription.LatestInvoiceId, new InvoiceGetOptions
+                    {
+                        Expand = ["payments.data.payment.payment_intent"]
+                    }, GetRequestOptions(), cancellationToken
+                );
+
+                clientSecret = invoice.Payments?.Data
+                    .FirstOrDefault(p => p.Payment?.PaymentIntent?.Status == "requires_action")
+                    ?.Payment?.PaymentIntent?.ClientSecret;
+            }
+
             logger.LogInformation("Upgraded subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
-            return true;
+            return new UpgradeSubscriptionResult(clientSecret);
         }
         catch (StripeException ex)
         {
             logger.LogError(ex, "Stripe error upgrading subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
-            return false;
+            return null;
         }
         catch (TaskCanceledException ex)
         {
             logger.LogError(ex, "Timeout upgrading subscription '{SubscriptionId}' to '{Plan}'", stripeSubscriptionId, newPlan);
-            return false;
+            return null;
         }
     }
 
