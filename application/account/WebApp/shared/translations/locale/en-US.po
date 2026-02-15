@@ -957,9 +957,6 @@ msgstr "Privacy policies"
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
-msgid "Processing payment"
-msgstr "Processing payment"
-
 msgid "Processing payment..."
 msgstr "Processing payment..."
 

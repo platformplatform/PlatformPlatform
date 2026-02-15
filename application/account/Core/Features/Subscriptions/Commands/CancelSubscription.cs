@@ -1,3 +1,4 @@
+using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
@@ -9,7 +10,23 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record CancelSubscriptionCommand(CancellationReason Reason, string? Feedback) : ICommand, IRequest<Result>;
+public sealed record CancelSubscriptionCommand(CancellationReason Reason, string? Feedback) : ICommand, IRequest<Result>
+{
+    public string? Feedback { get; } = Feedback?.Trim();
+}
+
+public sealed class CancelSubscriptionValidator : AbstractValidator<CancelSubscriptionCommand>
+{
+    public CancelSubscriptionValidator()
+    {
+        RuleFor(x => x.Feedback)
+            .MaximumLength(500)
+            .WithMessage("Feedback must be no longer than 500 characters.")
+            .Must(feedback => !feedback!.Contains('<') && !feedback.Contains('>'))
+            .WithMessage("Feedback must be no longer than 500 characters.")
+            .When(x => x.Feedback is not null);
+    }
+}
 
 public sealed class CancelSubscriptionHandler(
     ISubscriptionRepository subscriptionRepository,

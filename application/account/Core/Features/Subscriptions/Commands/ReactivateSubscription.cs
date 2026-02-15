@@ -1,6 +1,7 @@
 using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
@@ -73,7 +74,7 @@ public sealed class ReactivateSubscriptionHandler(
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to reactivate subscription in Stripe.");
         }
 
-        if (command.Plan > subscription.Plan)
+        if (command.Plan.IsUpgradeFrom(subscription.Plan))
         {
             var upgradeSuccess = await stripeClient.UpgradeSubscriptionAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
             if (!upgradeSuccess)
@@ -81,7 +82,7 @@ public sealed class ReactivateSubscriptionHandler(
                 return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to upgrade subscription during reactivation.");
             }
         }
-        else if (command.Plan < subscription.Plan)
+        else if (command.Plan.IsDowngradeFrom(subscription.Plan))
         {
             var downgradeSuccess = await stripeClient.ScheduleDowngradeAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
             if (!downgradeSuccess)
@@ -102,11 +103,6 @@ public sealed class ReactivateSubscriptionHandler(
             return Result<ReactivateSubscriptionResponse>.BadRequest("Return URL is required for suspended subscription reactivation.");
         }
 
-        if (executionContext.UserInfo.Email is null)
-        {
-            return Result<ReactivateSubscriptionResponse>.BadRequest("User email is required to reactivate a suspended subscription.");
-        }
-
         var publishableKey = stripeClientFactory.GetPublishableKey();
         if (publishableKey is null)
         {
@@ -116,24 +112,10 @@ public sealed class ReactivateSubscriptionHandler(
 
         if (subscription.StripeCustomerId is null)
         {
-            var billingName = subscription.BillingInfo?.Name;
-            if (billingName is null)
-            {
-                return Result<ReactivateSubscriptionResponse>.BadRequest("Billing information is required before reactivation.");
-            }
-
-            var customerId = await stripeClient.CreateCustomerAsync(billingName, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
-            if (customerId is null)
-            {
-                return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create Stripe customer.");
-            }
-
-            subscription.SetStripeCustomerId(customerId);
-            subscriptionRepository.Update(subscription);
+            return Result<ReactivateSubscriptionResponse>.BadRequest("Billing information must be saved before checkout.");
         }
 
-        var locale = executionContext.UserInfo.Locale?[..2] ?? "en";
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, locale, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, executionContext.UserInfo.Locale, cancellationToken);
         if (result is null)
         {
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create checkout session for reactivation.");

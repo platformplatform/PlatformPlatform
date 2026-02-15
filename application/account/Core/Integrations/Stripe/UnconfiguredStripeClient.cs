@@ -10,7 +10,7 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<StripeCustomerId?>(null);
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string? locale, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot create checkout session for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<CheckoutSessionResult?>(null);
@@ -81,7 +81,7 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult<BillingInfo?>(null);
     }
 
-    public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string locale, CancellationToken cancellationToken)
+    public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot update billing info for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult(false);

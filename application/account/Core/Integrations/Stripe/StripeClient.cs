@@ -47,7 +47,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string locale, CancellationToken cancellationToken)
+    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string? locale, CancellationToken cancellationToken)
     {
         try
         {
@@ -63,7 +63,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 Customer = stripeCustomerId.Value,
                 Mode = "subscription",
                 UiMode = "custom",
-                Locale = locale,
+                Locale = string.IsNullOrEmpty(locale) ? "auto" : locale[..2],
                 BillingAddressCollection = "required",
                 AutomaticTax = new SessionAutomaticTaxOptions { Enabled = true },
                 CustomerUpdate = new SessionCustomerUpdateOptions { Address = "auto", Name = "auto" },
@@ -461,7 +461,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string locale, CancellationToken cancellationToken)
+    public async Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)
     {
         try
         {
@@ -479,7 +479,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                         PostalCode = billingInfo.Address?.PostalCode,
                         Country = billingInfo.Address?.Country
                     },
-                    PreferredLocales = locale == "da-DK" ? ["da", "en"] : ["en"]
+                    PreferredLocales = locale == "da-DK" ? ["da", "en"] : locale is not null ? [locale[..2]] : ["en"]
                 }, GetRequestOptions(), cancellationToken
             );
 
