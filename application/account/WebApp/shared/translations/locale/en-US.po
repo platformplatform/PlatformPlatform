@@ -584,6 +584,9 @@ msgstr "expires"
 msgid "Failed"
 msgstr "Failed"
 
+msgid "Failed to load payment processor."
+msgstr "Failed to load payment processor."
+
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
 
@@ -887,6 +890,9 @@ msgstr "Pay and subscribe"
 
 msgid "Pay and upgrade"
 msgstr "Pay and upgrade"
+
+msgid "Payment authentication failed."
+msgstr "Payment authentication failed."
 
 msgid "Payment failed"
 msgstr "Payment failed"
