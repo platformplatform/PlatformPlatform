@@ -963,9 +963,6 @@ msgstr "Fortrolighedspolitikker"
 msgid "Privacy Policy"
 msgstr "Privatlivspolitik"
 
-msgid "Processing payment"
-msgstr "Behandler betaling"
-
 msgid "Processing payment..."
 msgstr "Behandler betaling..."
 

@@ -40,11 +40,6 @@ public sealed class CreateCheckoutSessionHandler(
             return Result<CreateCheckoutSessionResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
-        if (executionContext.UserInfo.Email is null)
-        {
-            return Result<CreateCheckoutSessionResponse>.BadRequest("User email is required to create a checkout session.");
-        }
-
         var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
         if (subscription is null)
         {
@@ -68,24 +63,10 @@ public sealed class CreateCheckoutSessionHandler(
 
         if (subscription.StripeCustomerId is null)
         {
-            var billingName = subscription.BillingInfo?.Name;
-            if (billingName is null)
-            {
-                return Result<CreateCheckoutSessionResponse>.BadRequest("Billing information is required before checkout.");
-            }
-
-            var customerId = await stripeClient.CreateCustomerAsync(billingName, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
-            if (customerId is null)
-            {
-                return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create Stripe customer.");
-            }
-
-            subscription.SetStripeCustomerId(customerId);
-            subscriptionRepository.Update(subscription);
+            return Result<CreateCheckoutSessionResponse>.BadRequest("Billing information must be saved before checkout.");
         }
 
-        var locale = executionContext.UserInfo.Locale?[..2] ?? "en";
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, locale, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, executionContext.UserInfo.Locale, cancellationToken);
         if (result is null)
         {
             return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create checkout session.");

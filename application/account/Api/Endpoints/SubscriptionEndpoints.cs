@@ -29,10 +29,6 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<CreateCheckoutSessionResponse>();
 
-        group.MapPost("/checkout-success", async Task<ApiResult> (CheckoutSuccessCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        );
-
         group.MapPost("/upgrade", async Task<ApiResult> (UpgradeSubscriptionCommand command, IMediator mediator)
             => await mediator.Send(command)
         );
@@ -63,10 +59,6 @@ public sealed class SubscriptionEndpoints : IEndpoints
 
         group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
-
-        group.MapPost("/sync", async Task<ApiResult> (IMediator mediator)
-            => await mediator.Send(new SyncSubscriptionCommand())
         );
     }
 }
