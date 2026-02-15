@@ -166,6 +166,12 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
+    public Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<bool?>(null);
+    }
+
     public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         EnsureEnabled();

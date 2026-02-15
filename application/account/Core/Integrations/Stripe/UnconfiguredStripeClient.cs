@@ -111,6 +111,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
+    public Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot retry invoice payment for subscription '{SubscriptionId}'", stripeSubscriptionId);
+        return Task.FromResult<bool?>(false);
+    }
+
     public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot get upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
