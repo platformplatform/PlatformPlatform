@@ -65,6 +65,10 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        group.MapPost("/dismiss-banner", async Task<ApiResult> (DismissBannerCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
             => await mediator.Send(command)
         );

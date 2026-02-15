@@ -487,6 +487,9 @@ msgstr "Enheder, der har logget ind på din konto. Tilbagekald alle sessioner, d
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
 
+msgid "Dismiss"
+msgstr "Luk"
+
 msgid "Do you already have an account?"
 msgstr "Har du allerede en konto?"
 
