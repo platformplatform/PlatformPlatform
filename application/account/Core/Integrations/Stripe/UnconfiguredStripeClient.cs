@@ -122,4 +122,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot get upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult<UpgradePreviewResult?>(null);
     }
+
+    public Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get checkout preview for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult<CheckoutPreviewResult?>(null);
+    }
 }
