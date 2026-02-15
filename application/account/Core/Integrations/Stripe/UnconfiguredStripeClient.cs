@@ -110,4 +110,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot update payment method for subscription '{SubscriptionId}'", stripeSubscriptionId);
         return Task.FromResult(false);
     }
+
+    public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get upgrade preview for subscription '{SubscriptionId}'", stripeSubscriptionId);
+        return Task.FromResult<UpgradePreviewResult?>(null);
+    }
 }

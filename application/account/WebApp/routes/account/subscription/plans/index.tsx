@@ -17,6 +17,7 @@ import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
+import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
 import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
 export const Route = createFileRoute("/account/subscription/plans/")({
@@ -27,7 +28,10 @@ export const Route = createFileRoute("/account/subscription/plans/")({
 
 function PlansPage() {
   const { isPolling, startPolling, subscription } = useSubscriptionPolling();
+  const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
+  const [upgradeTarget, setUpgradeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false);
+  const [downgradeTarget, setDowngradeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
@@ -35,7 +39,6 @@ function PlansPage() {
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
-  const [downgradePlan, setDowngradePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivatePlan, setReactivatePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
@@ -48,7 +51,8 @@ function PlansPage() {
       const targetPlan = variables.body?.newPlan;
       startPolling({
         check: (subscription) => subscription.plan === targetPlan,
-        successMessage: t`Your plan has been upgraded.`
+        successMessage: t`Your plan has been upgraded.`,
+        onComplete: () => setIsUpgradeDialogOpen(false)
       });
     }
   });
@@ -56,7 +60,7 @@ function PlansPage() {
   const downgradeMutation = api.useMutation("post", "/api/account/subscriptions/schedule-downgrade", {
     onSuccess: () => {
       startPolling({
-        check: (subscription) => subscription.scheduledPlan === downgradePlan,
+        check: (subscription) => subscription.scheduledPlan === downgradeTarget,
         successMessage: t`Your downgrade has been scheduled.`,
         onComplete: () => setIsDowngradeDialogOpen(false)
       });
@@ -140,7 +144,7 @@ function PlansPage() {
   const pendingPlan = upgradeMutation.isPending
     ? (upgradeMutation.variables?.body?.newPlan ?? null)
     : downgradeMutation.isPending
-      ? downgradePlan
+      ? downgradeTarget
       : reactivateMutation.isPending
         ? (reactivateMutation.variables?.body?.plan ?? null)
         : null;
@@ -151,16 +155,21 @@ function PlansPage() {
   };
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
-    upgradeMutation.mutate({ body: { newPlan: plan } });
+    setUpgradeTarget(plan);
+    setIsUpgradeDialogOpen(true);
   };
 
   const handleDowngrade = (plan: SubscriptionPlan) => {
-    setDowngradePlan(plan);
+    setDowngradeTarget(plan);
     setIsDowngradeDialogOpen(true);
   };
 
+  const handleConfirmUpgrade = () => {
+    upgradeMutation.mutate({ body: { newPlan: upgradeTarget } });
+  };
+
   const handleConfirmDowngrade = () => {
-    downgradeMutation.mutate({ body: { newPlan: downgradePlan } });
+    downgradeMutation.mutate({ body: { newPlan: downgradeTarget } });
   };
 
   const handleCancelDowngrade = () => {
@@ -304,12 +313,22 @@ function PlansPage() {
         currentPeriodEnd={currentPeriodEnd}
       />
 
+      <UpgradeConfirmationDialog
+        isOpen={isUpgradeDialogOpen}
+        onOpenChange={setIsUpgradeDialogOpen}
+        onConfirm={handleConfirmUpgrade}
+        isPending={upgradeMutation.isPending || isPolling}
+        targetPlan={upgradeTarget}
+        billingInfo={billingInfo}
+        paymentMethod={subscription?.paymentMethod}
+      />
+
       <DowngradeConfirmationDialog
         isOpen={isDowngradeDialogOpen}
         onOpenChange={setIsDowngradeDialogOpen}
         onConfirm={handleConfirmDowngrade}
         isPending={downgradeMutation.isPending || isPolling}
-        targetPlan={downgradePlan}
+        targetPlan={downgradeTarget}
         currentPeriodEnd={currentPeriodEnd}
       />
 

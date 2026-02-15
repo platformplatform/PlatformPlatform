@@ -166,6 +166,19 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
+    public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        var now = timeProvider.GetUtcNow();
+        var lineItems = new[]
+        {
+            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "usd", true),
+            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "usd", true),
+            new UpgradePreviewLineItem("Tax", 1.55m, "usd", false)
+        };
+        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "usd", lineItems));
+    }
+
     private void EnsureEnabled()
     {
         if (!_isEnabled)
