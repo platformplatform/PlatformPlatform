@@ -487,6 +487,9 @@ msgstr "Devices that have logged into your account. Revoke any sessions you do n
 msgid "Different user logged in"
 msgstr "Different user logged in"
 
+msgid "Dismiss"
+msgstr "Dismiss"
+
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
 
