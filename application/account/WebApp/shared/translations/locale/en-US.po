@@ -1216,6 +1216,9 @@ msgstr "System"
 msgid "Tablet"
 msgstr "Tablet"
 
+msgid "Tax"
+msgstr "Tax"
+
 msgid "Tax ID (VAT number)"
 msgstr "Tax ID (VAT number)"
 
