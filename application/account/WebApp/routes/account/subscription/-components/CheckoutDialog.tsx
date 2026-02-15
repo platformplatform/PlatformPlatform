@@ -15,11 +15,14 @@ import {
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { CheckoutProvider, PaymentElement, useCheckout } from "@stripe/react-stripe-js/checkout";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import { useQueryClient } from "@tanstack/react-query";
+import { LoaderCircleIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan, type SubscriptionPlan as SubscriptionPlanType } from "@/shared/lib/api/client";
 import { getStripeAppearance } from "./stripeAppearance";
+
+const ActivationPollingIntervalMs = 1000;
+const ActivationTimeoutMs = 15_000;
 
 interface CheckoutDialogProps {
   isOpen: boolean;
@@ -40,6 +43,35 @@ export function CheckoutDialog({
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isWaitingForActivation, setIsWaitingForActivation] = useState(false);
+
+  const { data: subscription } = api.useQuery(
+    "get",
+    "/api/account/subscriptions/current",
+    {},
+    { refetchInterval: isWaitingForActivation ? ActivationPollingIntervalMs : false }
+  );
+
+  useEffect(() => {
+    if (!isWaitingForActivation || !subscription?.hasStripeSubscription) {
+      return;
+    }
+    setIsWaitingForActivation(false);
+    toast.success(t`Your subscription has been activated.`);
+    onOpenChange(false);
+  }, [isWaitingForActivation, subscription?.hasStripeSubscription, onOpenChange]);
+
+  useEffect(() => {
+    if (!isWaitingForActivation) {
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setIsWaitingForActivation(false);
+      toast.success(t`Your subscription has been activated.`);
+      onOpenChange(false);
+    }, ActivationTimeoutMs);
+    return () => clearTimeout(timeout);
+  }, [isWaitingForActivation, onOpenChange]);
 
   const checkoutMutation = api.useMutation("post", "/api/account/subscriptions/checkout", {
     onSuccess: (data) => {
@@ -77,8 +109,13 @@ export function CheckoutDialog({
       setStripePromise(null);
       setIsLoading(false);
       setPaymentError(null);
+      setIsWaitingForActivation(false);
     }
   }, [isOpen]);
+
+  const handleConfirmed = () => {
+    setIsWaitingForActivation(true);
+  };
 
   const checkoutOptions = useMemo(() => {
     if (!clientSecret) {
@@ -95,26 +132,41 @@ export function CheckoutDialog({
   const isReady = stripePromise && checkoutOptions;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Checkout">
+    <Dialog open={isOpen} onOpenChange={isWaitingForActivation ? undefined : onOpenChange} trackingTitle="Checkout">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>
-            <Trans>Subscribe</Trans>
+            {isWaitingForActivation ? <Trans>Activating subscription</Trans> : <Trans>Subscribe</Trans>}
           </DialogTitle>
           <DialogDescription>
-            <Trans>Complete your payment to activate your subscription.</Trans>
+            {isWaitingForActivation ? (
+              <Trans>Please wait while we confirm your payment. This may take a few moments.</Trans>
+            ) : (
+              <Trans>Complete your payment to activate your subscription.</Trans>
+            )}
           </DialogDescription>
         </DialogHeader>
         <DialogBody>
-          {isLoading && <CheckoutSkeleton />}
-          {paymentError && <div className="text-destructive text-sm">{paymentError}</div>}
-          {isReady && (
-            <CheckoutProvider stripe={stripePromise} options={checkoutOptions}>
-              <CheckoutForm plan={plan} onSuccess={() => onOpenChange(false)} onError={setPaymentError} />
-            </CheckoutProvider>
+          {isWaitingForActivation ? (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <LoaderCircleIcon className="size-8 animate-spin text-primary" />
+              <p className="text-muted-foreground text-sm">
+                <Trans>Activating your subscription...</Trans>
+              </p>
+            </div>
+          ) : (
+            <>
+              {isLoading && <CheckoutSkeleton />}
+              {paymentError && <div className="text-destructive text-sm">{paymentError}</div>}
+              {isReady && (
+                <CheckoutProvider stripe={stripePromise} options={checkoutOptions}>
+                  <CheckoutForm plan={plan} onConfirmed={handleConfirmed} onError={setPaymentError} />
+                </CheckoutProvider>
+              )}
+            </>
           )}
         </DialogBody>
-        {!isReady && (
+        {!isReady && !isWaitingForActivation && (
           <DialogFooter>
             <DialogClose render={<Button variant="secondary" />}>
               <Trans>Cancel</Trans>
@@ -149,12 +201,9 @@ function getPlanSummary(plan: SubscriptionPlanType): { name: string; price: stri
 
 interface CheckoutFormProps {
   plan: SubscriptionPlanType;
-  onSuccess: () => void;
+  onConfirmed: () => void;
   onError: (error: string) => void;
 }
-
-const WebhookPollIntervalMs = 1000;
-const WebhookTimeoutMs = 15000;
 
 function getDisplayError(message: string | undefined): string {
   if (!message) {
@@ -163,54 +212,18 @@ function getDisplayError(message: string | undefined): string {
   return message;
 }
 
-function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>) {
+function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps>) {
   const checkoutResult = useCheckout();
-  const queryClient = useQueryClient();
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPaymentReady, setIsPaymentReady] = useState(false);
-  const [isWaitingForWebhook, setIsWaitingForWebhook] = useState(false);
 
-  const { data: subscription } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { refetchInterval: isWaitingForWebhook ? WebhookPollIntervalMs : false }
-  );
+  const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
 
-  useEffect(() => {
-    if (!isWaitingForWebhook) {
-      return;
-    }
-
-    if (subscription?.hasStripeSubscription) {
-      setIsWaitingForWebhook(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your subscription has been activated.`);
-      onSuccess();
-    }
-  }, [isWaitingForWebhook, subscription?.hasStripeSubscription, queryClient, onSuccess]);
-
-  useEffect(() => {
-    if (!isWaitingForWebhook) {
-      return;
-    }
-
-    const timeout = setTimeout(() => {
-      setIsWaitingForWebhook(false);
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-      toast.success(t`Your subscription has been activated.`);
-      onSuccess();
-    }, WebhookTimeoutMs);
-
-    return () => clearTimeout(timeout);
-  }, [isWaitingForWebhook, queryClient, onSuccess]);
-
-  const isPending = isConfirming || isWaitingForWebhook;
   const planSummary = getPlanSummary(plan);
   const hasCheckoutError = checkoutResult.type === "error";
 
   useEffect(() => {
-    if (hasCheckoutError && !isWaitingForWebhook) {
+    if (hasCheckoutError) {
       console.error("[Checkout] useCheckout() error:", checkoutResult.error);
       const errorMessage = getDisplayError(checkoutResult.error.message);
       onError(errorMessage);
@@ -257,7 +270,7 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
       }
 
       setIsConfirming(false);
-      setIsWaitingForWebhook(true);
+      onConfirmed();
     } catch (error) {
       setIsConfirming(false);
       console.error("[Checkout] confirm() exception:", error);
@@ -276,7 +289,7 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
         <span className="font-medium">{planSummary.name}</span>
         <span className="font-semibold">{planSummary.price}</span>
       </div>
-      {hasCheckoutError && !isWaitingForWebhook ? (
+      {hasCheckoutError ? (
         <DialogFooter>
           <DialogClose render={<Button variant="secondary" />}>
             <Trans>Close</Trans>
@@ -304,11 +317,11 @@ function CheckoutForm({ plan, onSuccess, onError }: Readonly<CheckoutFormProps>)
                 </Trans>
               </p>
               <DialogFooter>
-                <DialogClose render={<Button type="reset" variant="secondary" disabled={isPending} />}>
+                <DialogClose render={<Button type="reset" variant="secondary" disabled={isConfirming} />}>
                   <Trans>Cancel</Trans>
                 </DialogClose>
-                <Button onClick={handleSubmit} disabled={isPending || !isCheckoutReady}>
-                  {isPending ? <Trans>Processing...</Trans> : <Trans>Subscribe</Trans>}
+                <Button onClick={handleSubmit} disabled={isConfirming || !isCheckoutReady}>
+                  {isConfirming ? <Trans>Processing payment...</Trans> : <Trans>Pay and subscribe</Trans>}
                 </Button>
               </DialogFooter>
             </>

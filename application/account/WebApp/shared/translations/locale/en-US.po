@@ -120,6 +120,12 @@ msgstr "Account switched"
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
 
+msgid "Activating subscription"
+msgstr "Activating subscription"
+
+msgid "Activating your subscription..."
+msgstr "Activating your subscription..."
+
 msgid "Active"
 msgstr "Active"
 
@@ -863,6 +869,9 @@ msgstr "Page not found"
 msgid "Passwordless deployments"
 msgstr "Passwordless deployments"
 
+msgid "Pay and subscribe"
+msgstr "Pay and subscribe"
+
 msgid "Payment failed"
 msgstr "Payment failed"
 
@@ -950,6 +959,9 @@ msgstr "Privacy Policy"
 
 msgid "Processing payment"
 msgstr "Processing payment"
+
+msgid "Processing payment..."
+msgstr "Processing payment..."
 
 msgid "Processing..."
 msgstr "Processing..."
