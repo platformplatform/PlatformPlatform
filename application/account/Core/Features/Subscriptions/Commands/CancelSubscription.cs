@@ -63,7 +63,7 @@ public sealed class CancelSubscriptionHandler(
         }
 
         var stripeClient = stripeClientFactory.GetClient();
-        var success = await stripeClient.CancelSubscriptionAtPeriodEndAsync(subscription.StripeSubscriptionId, cancellationToken);
+        var success = await stripeClient.CancelSubscriptionAtPeriodEndAsync(subscription.StripeSubscriptionId, command.Reason, command.Feedback, cancellationToken);
         if (!success)
         {
             return Result.BadRequest("Failed to cancel subscription in Stripe.");
@@ -72,7 +72,7 @@ public sealed class CancelSubscriptionHandler(
         subscription.SetCancellationFeedback(command.Reason, command.Feedback);
         subscriptionRepository.Update(subscription);
 
-        events.CollectEvent(new SubscriptionCancelled(subscription.Id, subscription.Plan, command.Reason, command.Feedback));
+        events.CollectEvent(new SubscriptionCancelled(subscription.Id, subscription.Plan, command.Reason));
 
         return Result.Success();
     }
