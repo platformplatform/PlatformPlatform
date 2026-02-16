@@ -18,7 +18,8 @@ public sealed record PaymentTransactionResponse(
     string Currency,
     PaymentTransactionStatus Status,
     DateTimeOffset Date,
-    string? InvoiceUrl
+    string? InvoiceUrl,
+    string? CreditNoteUrl
 );
 
 public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext)
@@ -36,7 +37,7 @@ public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptio
         var paginatedTransactions = allTransactions
             .Skip(query.PageOffset * query.PageSize)
             .Take(query.PageSize)
-            .Select(t => new PaymentTransactionResponse(t.Id, t.Amount, t.Currency, t.Status, t.Date, t.InvoiceUrl))
+            .Select(t => new PaymentTransactionResponse(t.Id, t.Amount, t.Currency, t.Status, t.Date, t.InvoiceUrl, t.CreditNoteUrl))
             .ToArray();
 
         return new PaymentHistoryResponse(allTransactions.Length, paginatedTransactions);

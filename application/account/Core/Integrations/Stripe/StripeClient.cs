@@ -125,14 +125,22 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 GetRequestOptions(), cancellationToken
             );
 
+            var creditNoteService = new CreditNoteService();
+            var creditNotes = await creditNoteService.ListAsync(
+                new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                GetRequestOptions(), cancellationToken
+            );
+            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+
             var paymentTransactions = invoices.Data.Select(invoice => new PaymentTransaction(
                     PaymentTransactionId.NewId(),
                     invoice.AmountPaid / 100m,
                     invoice.Currency,
-                    MapInvoiceStatus(invoice.Status),
+                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
                     invoice.Created,
                     invoice.Status == "uncollectible" ? "Payment failed." : null,
-                    invoice.InvoicePdf
+                    invoice.InvoicePdf,
+                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
                 )
             ).ToArray();
 
@@ -830,8 +838,13 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         return plan != GetPlanFromPriceId(subscription.Items.Data.FirstOrDefault()?.Price.Id) ? plan : null;
     }
 
-    private static PaymentTransactionStatus MapInvoiceStatus(string? status)
+    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount)
     {
+        if (status == "paid" && amountPaid > 0 && postPaymentCreditNotesAmount >= amountPaid)
+        {
+            return PaymentTransactionStatus.Refunded;
+        }
+
         return status switch
         {
             "paid" => PaymentTransactionStatus.Succeeded,
