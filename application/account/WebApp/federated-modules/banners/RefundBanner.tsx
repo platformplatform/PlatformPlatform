@@ -35,7 +35,7 @@ export default function RefundBanner() {
     <div className="flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
       <InfoIcon className="size-4 shrink-0 text-warning-foreground" />
       <span className="flex-1 text-warning-foreground">
-        <Trans>A refund has been processed for your subscription. This is for your information only.</Trans>
+        <Trans>A refund has been processed for your subscription.</Trans>
       </span>
       <Button variant="ghost" size="sm" onClick={handleDismiss} aria-label={t`Dismiss`}>
         <XIcon className="size-4 text-warning-foreground" />

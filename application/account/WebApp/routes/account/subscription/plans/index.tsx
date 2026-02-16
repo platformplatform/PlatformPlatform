@@ -285,7 +285,7 @@ function PlansPage() {
           </div>
         )}
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-3">
           {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
             <PlanCard
               key={plan}
@@ -327,7 +327,7 @@ function PlansPage() {
             </p>
             <Button
               variant="destructive"
-              className="mt-2 w-fit"
+              className="mt-2 w-fit max-sm:w-full"
               onClick={() => setIsCancelDialogOpen(true)}
               disabled={isPending}
             >

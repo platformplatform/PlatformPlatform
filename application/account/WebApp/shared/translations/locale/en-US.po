@@ -69,11 +69,14 @@ msgstr "A new verification code has been sent to your email."
 msgid "A payment dispute has been filed. Please review your payment settings or contact support."
 msgstr "A payment dispute has been filed. Please review your payment settings or contact support."
 
+msgid "A payment dispute has been filed. Please review your payment settings."
+msgstr "A payment dispute has been filed. Please review your payment settings."
+
 msgid "A quick summary of your account activity."
 msgstr "A quick summary of your account activity."
 
-msgid "A refund has been processed for your subscription. This is for your information only."
-msgstr "A refund has been processed for your subscription. This is for your information only."
+msgid "A refund has been processed for your subscription."
+msgstr "A refund has been processed for your subscription."
 
 msgid "Accept invitation"
 msgstr "Accept invitation"
@@ -153,11 +156,8 @@ msgstr "Add your account name"
 msgid "Add your account name and logo."
 msgstr "Add your account name and logo."
 
-msgid "Address line 1"
-msgstr "Address line 1"
-
-msgid "Address line 2"
-msgstr "Address line 2"
+msgid "Address"
+msgstr "Address"
 
 msgid "Adjust the interface size on this device to your preference."
 msgstr "Adjust the interface size on this device to your preference."
@@ -203,9 +203,6 @@ msgstr "Any role"
 
 msgid "Any status"
 msgstr "Any status"
-
-msgid "Apartment, suite, etc."
-msgstr "Apartment, suite, etc."
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -262,6 +259,9 @@ msgstr "Basis"
 
 msgid "Bill to"
 msgstr "Bill to"
+
+msgid "Billing email"
+msgstr "Billing email"
 
 msgid "Billing history"
 msgstr "Billing history"
@@ -345,6 +345,11 @@ msgstr "Change user role"
 msgid "Change user role for {0}"
 msgstr "Change user role for {0}"
 
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+#. placeholder {1}: getPlanDetails(scheduledPlan).price
+msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
+msgstr "Changing to {0} {1} on {formattedPeriodEndLong}"
+
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 
@@ -407,6 +412,9 @@ msgstr "Created"
 
 msgid "Credit note"
 msgstr "Credit note"
+
+msgid "Current"
+msgstr "Current"
 
 msgid "Current plan"
 msgstr "Current plan"
@@ -519,18 +527,6 @@ msgstr "E.g. Software engineer"
 
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
-
-msgid "E.g., 1234"
-msgstr "E.g., 1234"
-
-msgid "E.g., Capital Region"
-msgstr "E.g., Capital Region"
-
-msgid "E.g., Copenhagen"
-msgstr "E.g., Copenhagen"
-
-msgid "E.g., DK12345678"
-msgstr "E.g., DK12345678"
 
 msgid "Edit"
 msgstr "Edit"
@@ -943,6 +939,9 @@ msgstr "Please check the URL or return to the home page."
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 
+msgid "Please include your country code"
+msgstr "Please include your country code"
+
 msgid "Please log in again to continue."
 msgstr "Please log in again to continue."
 
@@ -1179,6 +1178,9 @@ msgstr "Standard user access"
 
 msgid "State / Province"
 msgstr "State / Province"
+
+msgid "State or region"
+msgstr "State or region"
 
 msgid "Status"
 msgstr "Status"
@@ -1421,6 +1423,9 @@ msgstr "Users loading"
 msgid "Users who haven't confirmed their email"
 msgstr "Users who haven't confirmed their email"
 
+msgid "VAT number"
+msgstr "VAT number"
+
 msgid "Verification code sent"
 msgstr "Verification code sent"
 
@@ -1511,6 +1516,9 @@ msgstr "Your downgrade has been scheduled."
 
 msgid "Your payment card is expired or expiring soon. Please update your payment method to avoid service interruption."
 msgstr "Your payment card is expired or expiring soon. Please update your payment method to avoid service interruption."
+
+msgid "Your payment card is expiring soon. Update your payment method to avoid interruption."
+msgstr "Your payment card is expiring soon. Update your payment method to avoid interruption."
 
 msgid "Your plan has been upgraded."
 msgstr "Your plan has been upgraded."

@@ -5,6 +5,7 @@ import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
+import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
@@ -17,7 +18,7 @@ import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
 import { CheckoutDialog } from "./-components/CheckoutDialog";
 import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
-import { PlanCard } from "./-components/PlanCard";
+import { getPlanDetails, PlanCard } from "./-components/PlanCard";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/account/subscription/")({
 function SubscriptionPage() {
   const navigate = useNavigate();
   const formatLongDate = useFormatLongDate();
-  const { isPolling, startPolling, subscription } = useSubscriptionPolling();
+  const { isPolling, isLoading, startPolling, subscription } = useSubscriptionPolling();
   const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
@@ -109,6 +110,16 @@ function SubscriptionPage() {
     setIsEditBillingInfoOpen(true);
   };
 
+  if (isLoading) {
+    return (
+      <AppLayout variant="center" maxWidth="60rem" title={t`Subscription`}>
+        <div className="flex flex-col gap-8">
+          <Skeleton className="h-6 w-48" />
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <>
       {hasStripeSubscription ? (
@@ -170,7 +181,9 @@ function SubscriptionPage() {
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-3">
-                  <span className="font-medium">{getPlanLabel(currentPlan)}</span>
+                  <span className="font-medium">
+                    {getPlanLabel(currentPlan)} {getPlanDetails(currentPlan).price}
+                  </span>
                   {cancelAtPeriodEnd ? (
                     <Badge variant="destructive">
                       <Trans>Cancelling</Trans>
@@ -188,6 +201,14 @@ function SubscriptionPage() {
                     ) : (
                       <Trans>Next billing date: {formattedPeriodEndLong}</Trans>
                     )}
+                  </p>
+                )}
+                {scheduledPlan && !cancelAtPeriodEnd && (
+                  <p className="text-muted-foreground text-sm">
+                    <Trans>
+                      Changing to {getPlanLabel(scheduledPlan)} {getPlanDetails(scheduledPlan).price} on{" "}
+                      {formattedPeriodEndLong}
+                    </Trans>
                   </p>
                 )}
               </div>
@@ -301,7 +322,7 @@ function SubscriptionPage() {
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 lg:grid-cols-3">
             {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
               <PlanCard
                 key={plan}

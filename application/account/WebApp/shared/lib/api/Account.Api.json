@@ -2876,12 +2876,8 @@
           "name": {
             "type": "string"
           },
-          "line1": {
+          "address": {
             "type": "string"
-          },
-          "line2": {
-            "type": "string",
-            "nullable": true
           },
           "postalCode": {
             "type": "string"
