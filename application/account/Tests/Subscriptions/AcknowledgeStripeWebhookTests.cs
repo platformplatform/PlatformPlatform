@@ -16,7 +16,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 
-    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, DateTimeOffset? lastNotificationSentAt = null, DateTimeOffset? disputedAt = null, DateTimeOffset? refundedAt = null)
+    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, DateTimeOffset? lastNotificationSentAt = null, DateTimeOffset? disputedAt = null, DateTimeOffset? refundedAt = null, string? cancellationReason = null)
     {
         var subscriptionId = SubscriptionId.NewId().ToString();
         Connection.Insert("Subscriptions", [
@@ -34,6 +34,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("LastNotificationSentAt", lastNotificationSentAt),
                 ("DisputedAt", disputedAt),
                 ("RefundedAt", refundedAt),
+                ("CancellationReason", cancellationReason),
+                ("CancellationFeedback", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -121,7 +123,6 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         var now = TimeProvider.GetUtcNow();
         var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48), lastNotificationSentAt: now.AddHours(-24));
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.PastDue))]);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -137,13 +138,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 
         var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
         firstPaymentFailed.Should().BeNullOrEmpty();
-
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
-        tenantState.Should().Be(nameof(TenantState.Active));
     }
 
     [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldTransitionToPastDue()
+    public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldSetFailureAndSendEmail()
     {
         // Arrange
         InsertSubscription();
@@ -164,7 +162,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         firstPaymentFailed.Should().NotBeNullOrEmpty();
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
-        tenantState.Should().Be(nameof(TenantState.PastDue));
+        tenantState.Should().Be(nameof(TenantState.Active));
 
         await EmailClient.Received(1).SendAsync(
             Arg.Is<string>(e => e == "billing@example.com"),
@@ -175,38 +173,11 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     }
 
     [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedWithinGracePeriod_ShouldSendReminder()
+    public async Task AcknowledgeStripeWebhook_WhenSubsequentPaymentFailed_ShouldNotSendEmail()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
         InsertSubscription(firstPaymentFailedAt: now.AddHours(-48), lastNotificationSentAt: now.AddHours(-25));
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
-        {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
-        };
-        request.Headers.Add("Stripe-Signature", "event_type:invoice.payment_failed");
-        var response = await AnonymousHttpClient.SendAsync(request);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-
-        await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "billing@example.com"),
-            Arg.Is<string>(s => s.Contains("Payment reminder")),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
-    }
-
-    [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedWithinCooldown_ShouldNotSendReminder()
-    {
-        // Arrange
-        var now = TimeProvider.GetUtcNow();
-        InsertSubscription(firstPaymentFailedAt: now.AddHours(-48), lastNotificationSentAt: now.AddHours(-12));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -229,41 +200,11 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     }
 
     [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenPaymentFailedAfterGracePeriod_ShouldSuspendSubscription()
+    public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedInvoluntarily_ShouldSuspendTenant()
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
-        InsertSubscription(firstPaymentFailedAt: now.AddHours(-73), lastNotificationSentAt: now.AddHours(-25));
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.PastDue))]);
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
-        {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
-        };
-        request.Headers.Add("Stripe-Signature", "event_type:invoice.payment_failed");
-        var response = await AnonymousHttpClient.SendAsync(request);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
-        tenantState.Should().Be(nameof(TenantState.Suspended));
-
-        await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "billing@example.com"),
-            Arg.Is<string>(s => s.Contains("suspended")),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
-    }
-
-    [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeleted_ShouldSuspendTenant()
-    {
-        // Arrange
-        InsertSubscription();
+        InsertSubscription(firstPaymentFailedAt: now.AddDays(-5));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -279,6 +220,147 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
+
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        suspensionReason.Should().Be(nameof(SuspensionReason.PaymentFailed));
+    }
+
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedVoluntarily_ShouldKeepTenantActive()
+    {
+        // Arrange
+        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.deleted");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        tenantState.Should().Be(nameof(TenantState.Active));
+    }
+
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldActivateSuspendedTenant()
+    {
+        // Arrange
+        InsertSubscription(plan: nameof(SubscriptionPlan.Basis));
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.PaymentFailed))]);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:checkout.session.completed");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        tenantState.Should().Be(nameof(TenantState.Active));
+
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        suspensionReason.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenCustomerDeleted_ShouldSuspendTenant()
+    {
+        // Arrange
+        InsertSubscription();
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.deleted");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+
+        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        tenantState.Should().Be(nameof(TenantState.Suspended));
+
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
+    }
+
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedAndTenantAlreadySuspended_ShouldNotOverrideSuspension()
+    {
+        // Arrange - tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
+        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.CustomerDeleted))]);
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.deleted");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert - tenant should remain Suspended with CustomerDeleted, not overridden to Active or PaymentFailed
+        response.EnsureSuccessStatusCode();
+
+        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        tenantState.Should().Be(nameof(TenantState.Suspended));
+
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
+    }
+
+    [Fact]
+    public async Task AcknowledgeStripeWebhook_WhenCustomerDeletedAndSubscriptionDeletedInSameBatch_ShouldSuspendWithCustomerDeleted()
+    {
+        // Arrange - pre-insert a pending customer.deleted event so both events process in the same batch
+        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        Connection.Insert("StripeEvents", [
+                ("TenantId", null),
+                ("Id", $"{MockStripeClient.MockWebhookEventId}_customer_deleted"),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("EventType", "customer.deleted"),
+                ("Status", nameof(StripeEventStatus.Pending)),
+                ("ProcessedAt", null),
+                ("StripeCustomerId", MockStripeClient.MockCustomerId),
+                ("StripeSubscriptionId", null),
+                ("Payload", null),
+                ("Error", null)
+            ]
+        );
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act - send subscription.deleted webhook, which triggers processing of both pending events
+        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
+        {
+            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("Stripe-Signature", "event_type:customer.subscription.deleted");
+        var response = await AnonymousHttpClient.SendAsync(request);
+
+        // Assert - customer.deleted should take priority, tenant suspended with CustomerDeleted
+        response.EnsureSuccessStatusCode();
+
+        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        tenantState.Should().Be(nameof(TenantState.Suspended));
+
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
     }
 
     [Fact]

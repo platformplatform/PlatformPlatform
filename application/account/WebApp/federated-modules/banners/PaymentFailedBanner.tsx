@@ -2,22 +2,21 @@ import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
-import { api, TenantState } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
-export default function PastDueBanner() {
+export default function PaymentFailedBanner() {
   const userInfo = useUserInfo();
 
-  const { data: tenant } = api.useQuery(
+  const { data: subscription } = api.useQuery(
     "get",
-    "/api/account/tenants/current",
+    "/api/account/subscriptions/current",
     {},
     { enabled: userInfo?.isAuthenticated }
   );
 
-  const isPastDue = tenant?.state === TenantState.PastDue;
   const isOwner = userInfo?.role === "Owner";
 
-  if (!isPastDue) {
+  if (!subscription?.isPaymentFailed) {
     return null;
   }
 
@@ -31,7 +30,7 @@ export default function PastDueBanner() {
         <Button
           size="sm"
           onClick={() => {
-            window.location.href = "/account/subscription";
+            globalThis.location.href = "/account/subscription";
           }}
         >
           <Trans>Update payment method</Trans>

@@ -145,6 +145,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         StripeSubscriptionId = null;
         CurrentPeriodEnd = null;
         CancelAtPeriodEnd = false;
+        CancellationReason = null;
+        CancellationFeedback = null;
     }
 
     public void SetCancellationFeedback(CancellationReason reason, string? feedback)

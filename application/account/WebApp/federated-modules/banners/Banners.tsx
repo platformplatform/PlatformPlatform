@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import DisputeBanner from "./DisputeBanner";
 import ExpiringCardBanner from "./ExpiringCardBanner";
 import InvitationBanner from "./InvitationBanner";
-import PastDueBanner from "./PastDueBanner";
+import PaymentFailedBanner from "./PaymentFailedBanner";
 import RefundBanner from "./RefundBanner";
 import "@repo/ui/tailwind.css";
 
@@ -18,7 +18,7 @@ export default function Banners() {
     <>
       <InvitationBanner />
       <DisputeBanner />
-      <PastDueBanner />
+      <PaymentFailedBanner />
       <ExpiringCardBanner />
       <RefundBanner />
     </>,
