@@ -42,12 +42,7 @@ public sealed class ReactivateSubscriptionHandler(
             return Result<ReactivateSubscriptionResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken);
-        if (subscription is null)
-        {
-            logger.LogWarning("Subscription not found for tenant '{TenantId}'", executionContext.TenantId);
-            return Result<ReactivateSubscriptionResponse>.NotFound("Subscription not found for current tenant.");
-        }
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         var stripeClient = stripeClientFactory.GetClient();
 

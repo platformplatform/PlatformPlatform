@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
 
@@ -24,13 +23,12 @@ public sealed record SubscriptionResponse(
     bool HasPendingStripeEvents
 );
 
-public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository, IStripeEventRepository stripeEventRepository, IExecutionContext executionContext)
+public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscriptionRepository, IStripeEventRepository stripeEventRepository)
     : IRequestHandler<GetCurrentSubscriptionQuery, Result<SubscriptionResponse>>
 {
     public async Task<Result<SubscriptionResponse>> Handle(GetCurrentSubscriptionQuery query, CancellationToken cancellationToken)
     {
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         var hasPendingStripeEvents = subscription.StripeCustomerId is not null
                                      && await stripeEventRepository.HasPendingByStripeCustomerIdAsync(subscription.StripeCustomerId, cancellationToken);

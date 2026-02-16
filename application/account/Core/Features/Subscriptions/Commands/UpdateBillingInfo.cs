@@ -52,8 +52,7 @@ public sealed class UpdateBillingInfoHandler(
             return Result.Forbidden("Only owners can manage billing information.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         var stripeClient = stripeClientFactory.GetClient();
 
