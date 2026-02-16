@@ -67,13 +67,16 @@ msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
 msgid "A payment dispute has been filed. Please review your payment settings or contact support."
-msgstr "En betalingstvist er blevet indgivet. Gennemse venligst dine betalingsindstillinger eller kontakt support."
+msgstr "En betalingstvist er blevet indgivet. Gennemgå venligst dine betalingsindstillinger eller kontakt support."
+
+msgid "A payment dispute has been filed. Please review your payment settings."
+msgstr "En betalingstvist er blevet indgivet. Gennemgå venligst dine betalingsindstillinger."
 
 msgid "A quick summary of your account activity."
 msgstr "Et hurtigt overblik over din kontoaktivitet."
 
-msgid "A refund has been processed for your subscription. This is for your information only."
-msgstr "En refusion er blevet behandlet for dit abonnement. Dette er kun til din information."
+msgid "A refund has been processed for your subscription."
+msgstr "En refusion er blevet behandlet for dit abonnement."
 
 msgid "Accept invitation"
 msgstr "Accepter invitation"
@@ -153,11 +156,8 @@ msgstr "Tilføj dit kontonavn"
 msgid "Add your account name and logo."
 msgstr "Tilføj dit kontonavn og logo."
 
-msgid "Address line 1"
-msgstr "Adresselinje 1"
-
-msgid "Address line 2"
-msgstr "Adresselinje 2"
+msgid "Address"
+msgstr "Adresse"
 
 msgid "Adjust the interface size on this device to your preference."
 msgstr "Juster grænsefladens størrelse på denne enhed efter dine præferencer."
@@ -203,9 +203,6 @@ msgstr "Enhver rolle"
 
 msgid "Any status"
 msgstr "Enhver status"
-
-msgid "Apartment, suite, etc."
-msgstr "Lejlighed, suite osv."
 
 #. placeholder {0}: users.length
 msgid "Are you sure you want to delete <0>{0} users</0>?"
@@ -262,6 +259,9 @@ msgstr "Basis"
 
 msgid "Bill to"
 msgstr "Faktureres til"
+
+msgid "Billing email"
+msgstr "Faktureringsmail"
 
 msgid "Billing history"
 msgstr "Betalingshistorik"
@@ -345,6 +345,11 @@ msgstr "Skift brugerrolle"
 msgid "Change user role for {0}"
 msgstr "Skift brugerrolle for {0}"
 
+#. placeholder {0}: getPlanLabel(scheduledPlan)
+#. placeholder {1}: getPlanDetails(scheduledPlan).price
+msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
+msgstr "Skifter til {0} {1} den {formattedPeriodEndLong}"
+
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
 
@@ -407,6 +412,9 @@ msgstr "Oprettet"
 
 msgid "Credit note"
 msgstr "Kreditnota"
+
+msgid "Current"
+msgstr "Nuværende"
 
 msgid "Current plan"
 msgstr "Nuværende plan"
@@ -519,18 +527,6 @@ msgstr "F.eks. Softwareingeniør"
 
 msgid "E.g. Taylor"
 msgstr "F.eks. Jensen"
-
-msgid "E.g., 1234"
-msgstr "F.eks. 1234"
-
-msgid "E.g., Capital Region"
-msgstr "F.eks. Hovedstaden"
-
-msgid "E.g., Copenhagen"
-msgstr "F.eks. København"
-
-msgid "E.g., DK12345678"
-msgstr "F.eks. DK12345678"
 
 msgid "Edit"
 msgstr "Rediger"
@@ -943,6 +939,9 @@ msgstr "Tjek venligst URL'en eller vend tilbage til forsiden."
 msgid "Please check your email for a verification code sent to <0>{email}</0>"
 msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 
+msgid "Please include your country code"
+msgstr "Inkluder venligst din landekode"
+
 msgid "Please log in again to continue."
 msgstr "Log venligst ind igen for at fortsætte."
 
@@ -1180,6 +1179,9 @@ msgstr "Standard brugeradgang"
 msgid "State / Province"
 msgstr "Stat / Region"
 
+msgid "State or region"
+msgstr "Stat eller region"
+
 msgid "Status"
 msgstr "Status"
 
@@ -1226,7 +1228,7 @@ msgid "Tax"
 msgstr "Moms"
 
 msgid "Tax ID (VAT number)"
-msgstr "CVR-nummer (momsnummer)"
+msgstr "CVR-nummer"
 
 msgid "Tell us a bit about yourself to get started."
 msgstr "Fortæl os lidt om dig selv for at komme i gang."
@@ -1421,6 +1423,9 @@ msgstr "Brugere indlæses"
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
 
+msgid "VAT number"
+msgstr "CVR-nummer"
+
 msgid "Verification code sent"
 msgstr "Bekræftelseskode sendt"
 
@@ -1510,7 +1515,10 @@ msgid "Your downgrade has been scheduled."
 msgstr "Din nedgradering er blevet planlagt."
 
 msgid "Your payment card is expired or expiring soon. Please update your payment method to avoid service interruption."
-msgstr "Dit betalingskort er udløbet eller udløber snart. Opdater venligst din betalingsmetode for at undgå afbrydelse af service."
+msgstr "Dit betalingskort er udløbet eller udløber snart. Opdater venligst din betalingsmetode for at undgå afbrydelse af tjenesten."
+
+msgid "Your payment card is expiring soon. Update your payment method to avoid interruption."
+msgstr "Dit betalingskort udløber snart. Opdater din betalingsmetode for at undgå afbrydelse."
 
 msgid "Your plan has been upgraded."
 msgstr "Dit abonnement er blevet opgraderet."

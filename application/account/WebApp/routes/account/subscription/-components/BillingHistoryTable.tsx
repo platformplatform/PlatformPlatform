@@ -2,8 +2,8 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { buttonVariants } from "@repo/ui/components/Button";
-import { Link } from "@repo/ui/components/Link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { DownloadIcon } from "lucide-react";
 import { api, PaymentTransactionStatus } from "@/shared/lib/api/client";
@@ -88,26 +88,52 @@ export function BillingHistoryTable() {
             <TableCell className="text-right">
               <div className="flex justify-end gap-1">
                 {transaction.invoiceUrl && (
-                  <Link
-                    href={transaction.invoiceUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={buttonVariants({ variant: "ghost", size: "sm" })}
-                  >
-                    <DownloadIcon className="size-4" />
-                    <Trans>Invoice</Trans>
-                  </Link>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
+                        <a
+                          href={transaction.invoiceUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={buttonVariants({ variant: "ghost", size: "sm" })}
+                          aria-label={t`Invoice`}
+                        />
+                      }
+                    >
+                      <DownloadIcon className="size-4" />
+                      <span className="hidden sm:inline" aria-hidden="true">
+                        <Trans>Invoice</Trans>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="sm:hidden">
+                      <Trans>Invoice</Trans>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
                 {transaction.creditNoteUrl && (
-                  <Link
-                    href={transaction.creditNoteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={buttonVariants({ variant: "ghost", size: "sm" })}
-                  >
-                    <DownloadIcon className="size-4" />
-                    <Trans>Credit note</Trans>
-                  </Link>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
+                        <a
+                          href={transaction.creditNoteUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={buttonVariants({ variant: "ghost", size: "sm" })}
+                          aria-label={t`Credit note`}
+                        />
+                      }
+                    >
+                      <DownloadIcon className="size-4" />
+                      <span className="hidden sm:inline" aria-hidden="true">
+                        <Trans>Credit note</Trans>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent className="sm:hidden">
+                      <Trans>Credit note</Trans>
+                    </TooltipContent>
+                  </Tooltip>
                 )}
               </div>
             </TableCell>

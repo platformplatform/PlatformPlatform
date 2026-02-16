@@ -31,7 +31,12 @@ export default function DisputeBanner() {
     <div className="flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
       <AlertTriangleIcon className="size-4 shrink-0 text-warning-foreground" />
       <span className="flex-1 text-warning-foreground">
-        <Trans>A payment dispute has been filed. Please review your payment settings or contact support.</Trans>
+        <span className="sm:hidden">
+          <Trans>A payment dispute has been filed. Please review your payment settings.</Trans>
+        </span>
+        <span className="hidden sm:inline">
+          <Trans>A payment dispute has been filed. Please review your payment settings or contact support.</Trans>
+        </span>
       </span>
       <Button
         size="sm"

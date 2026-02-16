@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { CheckIcon } from "lucide-react";
@@ -170,10 +171,15 @@ export function PlanCard({
     >
       <div className="flex items-center justify-between">
         <h3 className="m-0">{details.name}</h3>
+        {isCurrent && (
+          <Badge variant="default">
+            <Trans>Current</Trans>
+          </Badge>
+        )}
       </div>
       <div className="font-semibold text-2xl">{details.price}</div>
       <Separator />
-      <div className="flex flex-1 flex-col gap-2">
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
         {details.features.map((feature) => (
           <div key={feature} className="flex items-center gap-2 text-sm">
             <CheckIcon className="size-4 shrink-0 text-primary" />
