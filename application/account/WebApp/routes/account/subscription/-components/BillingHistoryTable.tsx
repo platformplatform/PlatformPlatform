@@ -60,16 +60,16 @@ export function BillingHistoryTable() {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>
+          <TableHead className="w-1/3">
             <Trans>Date</Trans>
           </TableHead>
-          <TableHead>
+          <TableHead className="w-1/3">
             <Trans>Amount</Trans>
           </TableHead>
-          <TableHead>
+          <TableHead className="w-1/3">
             <Trans>Status</Trans>
           </TableHead>
-          <TableHead />
+          <TableHead className="w-px text-right" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -85,18 +85,31 @@ export function BillingHistoryTable() {
             <TableCell>
               <Badge variant={getStatusVariant(transaction.status)}>{getStatusLabel(transaction.status)}</Badge>
             </TableCell>
-            <TableCell>
-              {transaction.invoiceUrl && (
-                <Link
-                  href={transaction.invoiceUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={buttonVariants({ variant: "ghost", size: "sm" })}
-                >
-                  <DownloadIcon className="size-4" />
-                  <Trans>Invoice</Trans>
-                </Link>
-              )}
+            <TableCell className="text-right">
+              <div className="flex justify-end gap-1">
+                {transaction.invoiceUrl && (
+                  <Link
+                    href={transaction.invoiceUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  >
+                    <DownloadIcon className="size-4" />
+                    <Trans>Invoice</Trans>
+                  </Link>
+                )}
+                {transaction.creditNoteUrl && (
+                  <Link
+                    href={transaction.creditNoteUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={buttonVariants({ variant: "ghost", size: "sm" })}
+                  >
+                    <DownloadIcon className="size-4" />
+                    <Trans>Credit note</Trans>
+                  </Link>
+                )}
+              </div>
             </TableCell>
           </TableRow>
         ))}

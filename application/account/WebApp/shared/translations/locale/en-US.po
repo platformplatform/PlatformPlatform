@@ -399,6 +399,9 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
+msgid "Credit note"
+msgstr "Credit note"
+
 msgid "Current plan"
 msgstr "Current plan"
 
