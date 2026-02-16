@@ -381,6 +381,9 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
+msgid "Credit note"
+msgstr "Kreditnota"
+
 msgid "Current plan"
 msgstr "Nuværende plan"
 

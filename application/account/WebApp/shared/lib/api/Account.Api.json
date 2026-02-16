@@ -2525,6 +2525,10 @@
           "invoiceUrl": {
             "type": "string",
             "nullable": true
+          },
+          "creditNoteUrl": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
