@@ -93,7 +93,11 @@ public sealed class UpdateBillingInfoHandler(
 
         if (command.TaxId != subscription.BillingInfo?.TaxId)
         {
-            await stripeClient.SyncCustomerTaxIdAsync(subscription.StripeCustomerId!, command.TaxId, cancellationToken);
+            var taxIdSynced = await stripeClient.SyncCustomerTaxIdAsync(subscription.StripeCustomerId!, command.TaxId, cancellationToken);
+            if (!taxIdSynced)
+            {
+                return Result.BadRequest("TaxId", "The provided Tax ID is not valid.");
+            }
         }
 
         subscription.SetBillingInfo(billingInfo);
