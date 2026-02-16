@@ -163,6 +163,40 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
+    public async Task UpdateBillingInfo_WhenInvalidTaxId_ShouldReturnBadRequest()
+    {
+        // Arrange
+        var subscriptionId = SubscriptionId.NewId().ToString();
+        Connection.Insert("Subscriptions", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
+                ("Id", subscriptionId),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Plan", nameof(SubscriptionPlan.Standard)),
+                ("ScheduledPlan", null),
+                ("StripeCustomerId", "cus_test_123"),
+                ("StripeSubscriptionId", "sub_test_123"),
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
+                ("CancelAtPeriodEnd", false),
+                ("FirstPaymentFailedAt", null),
+                ("LastNotificationSentAt", null),
+                ("PaymentTransactions", "[]"),
+                ("PaymentMethod", null)
+            ]
+        );
+        var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", "INVALID");
+        TelemetryEventsCollectorSpy.Reset();
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+
+        // Assert
+        var expectedErrors = new[] { new ErrorDetail("TaxId", "The provided Tax ID is not valid.") };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(0);
+    }
+
+    [Fact]
     public async Task UpdateBillingInfo_WhenRequiredFieldsEmpty_ShouldReturnValidationErrors()
     {
         // Arrange

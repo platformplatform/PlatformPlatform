@@ -146,6 +146,11 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<bool> SyncCustomerTaxIdAsync(StripeCustomerId stripeCustomerId, string? taxId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
+        if (taxId == "INVALID")
+        {
+            return Task.FromResult(false);
+        }
+
         return Task.FromResult(true);
     }
 
