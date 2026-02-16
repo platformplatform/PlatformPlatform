@@ -65,6 +65,16 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">)
   );
 }
 
+function AlertDialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="alert-dialog-body"
+      className={cn("-m-1 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-1", className)}
+      {...props}
+    />
+  );
+}
+
 function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -143,6 +153,7 @@ function AlertDialogCancel({
 export {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
