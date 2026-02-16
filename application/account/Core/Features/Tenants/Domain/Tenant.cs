@@ -6,7 +6,7 @@ public sealed class Tenant : AggregateRoot<TenantId>
 {
     private Tenant() : base(TenantId.NewId())
     {
-        State = TenantState.Trial;
+        State = TenantState.Active;
         Logo = new Logo();
     }
 

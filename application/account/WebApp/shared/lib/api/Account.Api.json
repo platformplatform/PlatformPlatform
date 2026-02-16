@@ -2869,13 +2869,11 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "Trial",
           "Active",
           "PastDue",
           "Suspended"
         ],
         "enum": [
-          "Trial",
           "Active",
           "PastDue",
           "Suspended"

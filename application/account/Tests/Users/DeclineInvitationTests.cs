@@ -27,7 +27,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Trial)),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -98,7 +98,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Trial)),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
@@ -108,7 +108,7 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("CreatedAt", TimeProvider.GetUtcNow()),
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Trial)),
+                ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
