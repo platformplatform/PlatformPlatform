@@ -15,7 +15,7 @@ export function useSubscriptionPolling() {
   const successMessageRef = useRef<string>("");
   const onCompleteRef = useRef<(() => void) | null>(null);
 
-  const { data: subscription } = api.useQuery(
+  const { data: subscription, isLoading } = api.useQuery(
     "get",
     "/api/account/subscriptions/current",
     {},
@@ -59,5 +59,5 @@ export function useSubscriptionPolling() {
     return () => clearTimeout(timeout);
   }, [isPolling, queryClient]);
 
-  return { isPolling, startPolling, subscription };
+  return { isPolling, isLoading, startPolling, subscription };
 }

@@ -1,5 +1,5 @@
 import { Trans } from "@lingui/react/macro";
-import { MailIcon, MapPinIcon, UserIcon } from "lucide-react";
+import { HashIcon, MailIcon, MapPinIcon, UserIcon } from "lucide-react";
 import type { components } from "@/shared/lib/api/api.generated";
 
 type BillingInfo = components["schemas"]["BillingInfo"];
@@ -47,6 +47,12 @@ export function BillingInfoDisplay({ billingInfo }: Readonly<BillingInfoDisplayP
         <div className="flex items-center gap-2">
           <MailIcon className="size-4 text-muted-foreground" />
           <span>{billingInfo.email}</span>
+        </div>
+      )}
+      {billingInfo.taxId && (
+        <div className="flex items-center gap-2">
+          <HashIcon className="size-4 text-muted-foreground" />
+          <span>{billingInfo.taxId}</span>
         </div>
       )}
     </div>
