@@ -30,8 +30,7 @@ public sealed class UpgradeSubscriptionHandler(
             return Result<UpgradeSubscriptionResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         if (subscription.StripeSubscriptionId is null)
         {
