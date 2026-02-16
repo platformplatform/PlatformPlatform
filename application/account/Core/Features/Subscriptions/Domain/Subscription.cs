@@ -183,5 +183,6 @@ public sealed record PaymentTransaction(
     PaymentTransactionStatus Status,
     DateTimeOffset Date,
     string? FailureReason,
-    string? InvoiceUrl
+    string? InvoiceUrl,
+    string? CreditNoteUrl
 );

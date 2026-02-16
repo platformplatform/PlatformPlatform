@@ -40,7 +40,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
                 PaymentTransactionStatus.Succeeded,
                 now,
                 null,
-                MockInvoiceUrl
+                MockInvoiceUrl,
+                null
             )
         };
 
