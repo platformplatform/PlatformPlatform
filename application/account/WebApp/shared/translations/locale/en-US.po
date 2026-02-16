@@ -120,6 +120,9 @@ msgstr "Account settings"
 msgid "Account settings updated successfully"
 msgstr "Account settings updated successfully"
 
+msgid "Account suspended"
+msgstr "Account suspended"
+
 msgid "Account switched"
 msgstr "Account switched"
 
@@ -767,6 +770,9 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Manage subscription"
+msgstr "Manage subscription"
+
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
@@ -895,9 +901,6 @@ msgstr "Pay and upgrade"
 
 msgid "Payment authentication failed."
 msgstr "Payment authentication failed."
-
-msgid "Payment failed"
-msgstr "Payment failed"
 
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Payment failed. Your subscription will be suspended soon."
@@ -1496,6 +1499,12 @@ msgstr "Your {0} subscription has been cancelled and will end on {formattedPerio
 msgid "Your account has been deleted."
 msgstr "Your account has been deleted."
 
+msgid "Your account has been suspended. Please contact the account owner to restore access."
+msgstr "Your account has been suspended. Please contact the account owner to restore access."
+
+msgid "Your account has been suspended. Please visit the subscription page to resolve any issues and restore access."
+msgstr "Your account has been suspended. Please visit the subscription page to resolve any issues and restore access."
+
 msgid "Your account was switched in another browser tab."
 msgstr "Your account was switched in another browser tab."
 
@@ -1555,12 +1564,6 @@ msgstr "Your subscription has been cancelled."
 
 msgid "Your subscription has been reactivated."
 msgstr "Your subscription has been reactivated."
-
-msgid "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
-msgstr "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
-
-msgid "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
-msgstr "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
 
 msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName} on {formattedDate}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
 msgstr "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName} on {formattedDate}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."

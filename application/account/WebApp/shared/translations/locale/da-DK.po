@@ -120,6 +120,9 @@ msgstr "Kontoindstillinger"
 msgid "Account settings updated successfully"
 msgstr "Kontoindstillinger opdateret"
 
+msgid "Account suspended"
+msgstr "Konto suspenderet"
+
 msgid "Account switched"
 msgstr "Konto skiftet"
 
@@ -767,6 +770,9 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
+msgid "Manage subscription"
+msgstr "Administrer abonnement"
+
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
@@ -895,9 +901,6 @@ msgstr "Betal og opgrader"
 
 msgid "Payment authentication failed."
 msgstr "Betalingsgodkendelse mislykkedes."
-
-msgid "Payment failed"
-msgstr "Betaling mislykkedes"
 
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Betaling mislykkedes. Dit abonnement vil blive suspenderet snart."
@@ -1496,6 +1499,12 @@ msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEndL
 msgid "Your account has been deleted."
 msgstr "Din konto er blevet slettet."
 
+msgid "Your account has been suspended. Please contact the account owner to restore access."
+msgstr "Din konto er blevet suspenderet. Kontakt venligst kontoejeren for at gendanne adgangen."
+
+msgid "Your account has been suspended. Please visit the subscription page to resolve any issues and restore access."
+msgstr "Din konto er blevet suspenderet. Besøg venligst abonnementssiden for at løse eventuelle problemer og gendanne adgangen."
+
 msgid "Your account was switched in another browser tab."
 msgstr "Din konto blev skiftet i en anden browsertab."
 
@@ -1555,12 +1564,6 @@ msgstr "Dit abonnement er blevet opsagt."
 
 msgid "Your subscription has been reactivated."
 msgstr "Din opsigelse er blevet fortrudt."
-
-msgid "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
-msgstr "Dit abonnement er blevet suspenderet på grund af en mislykket betaling. Kontakt venligst kontoejeren for at gendanne adgangen."
-
-msgid "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
-msgstr "Dit abonnement er blevet suspenderet på grund af en mislykket betaling. Opdater venligst din betalingsmetode for at gendanne adgangen."
 
 msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName} on {formattedDate}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
 msgstr "Dit abonnement er planlagt til at blive nedgraderet fra {currentPlanName} til {scheduledPlanName} den {formattedDate}. Hvis du afbryder nedgraderingen, forbliver du på {currentPlanName}-planen."
