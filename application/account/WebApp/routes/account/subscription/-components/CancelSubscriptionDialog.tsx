@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -11,8 +12,9 @@ import {
   AlertDialogMedia,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
-import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
+import { Field, FieldContent, FieldLabel, FieldTitle } from "@repo/ui/components/Field";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
+import { TextAreaField } from "@repo/ui/components/TextAreaField";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
@@ -48,7 +50,7 @@ export function CancelSubscriptionDialog({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={handleOpenChange} trackingTitle="Cancel subscription">
-      <AlertDialogContent className="max-h-[calc(100vh-2rem)] grid-rows-[auto_1fr_auto] sm:w-dialog-lg">
+      <AlertDialogContent className="max-h-[calc(100vh-2rem)] grid-rows-[auto_1fr_auto] sm:w-dialog-md">
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10">
             <AlertTriangleIcon className="text-destructive" />
@@ -69,7 +71,7 @@ export function CancelSubscriptionDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="flex min-h-0 flex-col gap-4 overflow-y-auto px-6">
+        <AlertDialogBody>
           <RadioGroup
             aria-label={t`Cancellation reason`}
             value={reason ?? ""}
@@ -117,22 +119,17 @@ export function CancelSubscriptionDialog({
             </FieldLabel>
           </RadioGroup>
 
-          <Field>
-            <FieldLabel>
-              <FieldDescription>
-                <Trans>Is there anything else you would like us to know? (optional)</Trans>
-              </FieldDescription>
-            </FieldLabel>
-            <textarea
-              className="min-h-[5rem] w-full rounded-md border border-input bg-white px-2.5 py-2 text-sm shadow-xs outline-ring placeholder:text-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-input/30"
-              placeholder={t`Tell us more...`}
-              value={feedback}
-              onChange={(event) => setFeedback(event.target.value)}
-              disabled={isPending}
-              maxLength={500}
-            />
-          </Field>
-        </div>
+          <TextAreaField
+            name="feedback"
+            label={t`Is there anything else you would like us to know? (optional)`}
+            placeholder={t`Tell us more...`}
+            value={feedback}
+            onChange={setFeedback}
+            isDisabled={isPending}
+            maxLength={500}
+            rows={5}
+          />
+        </AlertDialogBody>
 
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>{t`Keep subscription`}</AlertDialogCancel>
