@@ -347,7 +347,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<bool> CancelSubscriptionAtPeriodEndAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
+    public async Task<bool> CancelSubscriptionAtPeriodEndAsync(StripeSubscriptionId stripeSubscriptionId, CancellationReason reason, string? feedback, CancellationToken cancellationToken)
     {
         try
         {
@@ -362,7 +362,12 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
             await subscriptionService.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
                 {
-                    CancelAtPeriodEnd = true
+                    CancelAtPeriodEnd = true,
+                    CancellationDetails = new SubscriptionCancellationDetailsOptions
+                    {
+                        Feedback = MapCancellationFeedback(reason),
+                        Comment = feedback
+                    }
                 }, GetRequestOptions(), cancellationToken
             );
 
@@ -777,6 +782,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             "NO" => "no_vat",
             "CH" => "ch_vat",
             _ => "eu_vat"
+        };
+    }
+
+    private static string MapCancellationFeedback(CancellationReason reason)
+    {
+        return reason switch
+        {
+            CancellationReason.TooExpensive => "too_expensive",
+            CancellationReason.FoundAlternative => "switched_service",
+            CancellationReason.NoLongerNeeded => "unused",
+            _ => "other"
         };
     }
 

@@ -109,8 +109,8 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 public sealed class SignupStarted
     : TelemetryEvent;
 
-public sealed class SubscriptionCancelled(SubscriptionId subscriptionId, SubscriptionPlan plan, CancellationReason reason, string? feedback)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("feedback", feedback as object ?? "none"));
+public sealed class SubscriptionCancelled(SubscriptionId subscriptionId, SubscriptionPlan plan, CancellationReason reason)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason));
 
 public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
