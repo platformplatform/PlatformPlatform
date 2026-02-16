@@ -6,7 +6,6 @@ namespace PlatformPlatform.Account.Features.Tenants.Domain;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum TenantState
 {
-    Trial,
     Active,
     PastDue,
     Suspended
