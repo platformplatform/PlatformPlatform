@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
 
@@ -22,13 +21,12 @@ public sealed record PaymentTransactionResponse(
     string? CreditNoteUrl
 );
 
-public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext)
+public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository)
     : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
 {
     public async Task<Result<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery query, CancellationToken cancellationToken)
     {
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         var allTransactions = subscription.PaymentTransactions
             .OrderByDescending(t => t.Date)

@@ -29,8 +29,7 @@ public sealed class CreatePaymentMethodSetupHandler(
             return Result<CreatePaymentMethodSetupResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         if (subscription.StripeCustomerId is null)
         {

@@ -8,7 +8,7 @@ namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
 
 public interface ISubscriptionRepository : ICrudRepository<Subscription, SubscriptionId>
 {
-    Task<Subscription?> GetByTenantIdAsync(CancellationToken cancellationToken);
+    Task<Subscription> GetCurrentAsync(CancellationToken cancellationToken);
 
     /// <summary>
     ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (UPDLOCK).
@@ -21,10 +21,10 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
     : RepositoryBase<Subscription, SubscriptionId>(accountDbContext), ISubscriptionRepository
 {
-    public async Task<Subscription?> GetByTenantIdAsync(CancellationToken cancellationToken)
+    public async Task<Subscription> GetCurrentAsync(CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(executionContext.TenantId);
-        return await DbSet.FirstOrDefaultAsync(s => s.TenantId == executionContext.TenantId, cancellationToken);
+        return await DbSet.SingleAsync(s => s.TenantId == executionContext.TenantId, cancellationToken);
     }
 
     /// <summary>
@@ -36,12 +36,12 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     {
         if (accountDbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
         {
-            return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
+            return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
         }
 
         return await DbSet
             .FromSqlInterpolated($"SELECT * FROM Subscriptions WITH (UPDLOCK, ROWLOCK) WHERE StripeCustomerId = {stripeCustomerId.Value}")
             .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(cancellationToken);
+            .SingleOrDefaultAsync(cancellationToken);
     }
 }
