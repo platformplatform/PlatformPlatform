@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlatformPlatform.SharedKernel.Middleware;
 
@@ -24,6 +25,11 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
                 statusCode = StatusCodes.Status408RequestTimeout;
                 title = "Request Timeout";
                 detail = $"{httpContext.Request.Method} {httpContext.Request.Path} {httpContext.Request.QueryString}".Trim();
+                break;
+            case DbUpdateConcurrencyException:
+                statusCode = StatusCodes.Status409Conflict;
+                title = "Conflict";
+                detail = "The data was modified by another process. Please try again.";
                 break;
             default:
                 statusCode = StatusCodes.Status500InternalServerError;

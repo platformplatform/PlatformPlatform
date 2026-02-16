@@ -65,6 +65,11 @@ public sealed class Result : ResultBase
         return new Result(HttpStatusCode.BadRequest, new ErrorMessage(message), commitChanges, []);
     }
 
+    public static Result BadRequest(string propertyName, string message, bool commitChanges = false)
+    {
+        return new Result(HttpStatusCode.BadRequest, null, commitChanges, [new ErrorDetail(propertyName, message)]);
+    }
+
     public static Result Unauthorized(string message, bool commitChanges = false, IDictionary<string, string>? responseHeaders = null)
     {
         return new Result(HttpStatusCode.Unauthorized, new ErrorMessage(message), commitChanges, [], responseHeaders);
