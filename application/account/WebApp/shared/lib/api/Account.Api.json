@@ -2427,6 +2427,9 @@
             "format": "date-time",
             "nullable": true
           },
+          "isPaymentFailed": {
+            "type": "boolean"
+          },
           "hasPendingStripeEvents": {
             "type": "boolean"
           }
@@ -2923,6 +2926,14 @@
           "state": {
             "$ref": "#/components/schemas/TenantState"
           },
+          "suspensionReason": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/SuspensionReason"
+              }
+            ]
+          },
           "logoUrl": {
             "type": "string",
             "nullable": true
@@ -2934,13 +2945,29 @@
         "description": "",
         "x-enumNames": [
           "Active",
-          "PastDue",
           "Suspended"
         ],
         "enum": [
           "Active",
-          "PastDue",
           "Suspended"
+        ]
+      },
+      "SuspensionReason": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "PaymentFailed",
+          "CustomerDeleted",
+          "TermsViolation",
+          "SuspiciousActivity",
+          "AccountDeletionRequested"
+        ],
+        "enum": [
+          "PaymentFailed",
+          "CustomerDeleted",
+          "TermsViolation",
+          "SuspiciousActivity",
+          "AccountDeletionRequested"
         ]
       },
       "UpdateCurrentTenantCommand": {

@@ -20,6 +20,7 @@ public sealed record SubscriptionResponse(
     BillingInfo? BillingInfo,
     DateTimeOffset? DisputedAt,
     DateTimeOffset? RefundedAt,
+    bool IsPaymentFailed,
     bool HasPendingStripeEvents
 );
 
@@ -45,6 +46,7 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
             subscription.BillingInfo,
             subscription.DisputedAt,
             subscription.RefundedAt,
+            subscription.FirstPaymentFailedAt is not null,
             hasPendingStripeEvents
         );
     }

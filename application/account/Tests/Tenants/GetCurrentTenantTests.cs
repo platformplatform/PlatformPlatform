@@ -27,9 +27,10 @@ public sealed class GetCurrentTenantTests : EndpointBaseTest<AccountDbContext>
                     'modifiedAt': {'type': ['null', 'string'], 'format': 'date-time'},
                     'name': {'type': 'string', 'minLength': 0, 'maxLength': 30},
                     'state': {'type': 'string', 'minLength': 1, 'maxLength':20},
+                    'suspensionReason': {'type': ['null', 'string']},
                     'logoUrl': {'type': ['null', 'string']}
                 },
-                'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'logoUrl'],
+                'required': ['id', 'createdAt', 'modifiedAt', 'name', 'state', 'suspensionReason', 'logoUrl'],
                 'additionalProperties': false
             }
             """

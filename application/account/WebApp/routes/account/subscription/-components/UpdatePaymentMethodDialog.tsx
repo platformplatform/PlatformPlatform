@@ -18,7 +18,7 @@ import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { api, TenantState } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 import { getStripeAppearance } from "./stripeAppearance";
 
 interface UpdatePaymentMethodDialogProps {
@@ -133,7 +133,7 @@ function PaymentForm({ onSuccess, onError }: Readonly<PaymentFormProps>) {
   const [isPaymentReady, setIsPaymentReady] = useState(false);
   const [isWaitingForWebhook, setIsWaitingForWebhook] = useState(false);
   const previousPaymentMethodRef = useRef<{ last4: string; brand: string } | null>(null);
-  const wasPastDueRef = useRef(false);
+  const wasPaymentFailedRef = useRef(false);
 
   const { data: subscription } = api.useQuery(
     "get",
@@ -142,18 +142,11 @@ function PaymentForm({ onSuccess, onError }: Readonly<PaymentFormProps>) {
     { refetchInterval: isWaitingForWebhook ? WebhookPollIntervalMs : false }
   );
 
-  const { data: tenant } = api.useQuery(
-    "get",
-    "/api/account/tenants/current",
-    {},
-    { refetchInterval: isWaitingForWebhook ? WebhookPollIntervalMs : false }
-  );
-
   const confirmMutation = api.useMutation("post", "/api/account/subscriptions/confirm-payment-method", {
     onSuccess: () => {
       const current = subscription?.paymentMethod;
       previousPaymentMethodRef.current = current ? { last4: current.last4, brand: current.brand } : null;
-      wasPastDueRef.current = tenant?.state === TenantState.PastDue;
+      wasPaymentFailedRef.current = subscription?.isPaymentFailed ?? false;
       setIsWaitingForWebhook(true);
     }
   });
@@ -166,14 +159,14 @@ function PaymentForm({ onSuccess, onError }: Readonly<PaymentFormProps>) {
     const current = subscription?.paymentMethod;
     const previous = previousPaymentMethodRef.current;
     const hasPaymentMethodChanged = current?.last4 !== previous?.last4 || current?.brand !== previous?.brand;
-    const isTenantResolved = !wasPastDueRef.current || tenant?.state !== TenantState.PastDue;
+    const isPaymentResolved = !wasPaymentFailedRef.current || !subscription?.isPaymentFailed;
 
-    if (hasPaymentMethodChanged && isTenantResolved) {
+    if (hasPaymentMethodChanged && isPaymentResolved) {
       setIsWaitingForWebhook(false);
       toast.success(t`Payment method updated`);
       onSuccess();
     }
-  }, [isWaitingForWebhook, subscription?.paymentMethod, tenant?.state, onSuccess]);
+  }, [isWaitingForWebhook, subscription?.paymentMethod, subscription?.isPaymentFailed, onSuccess]);
 
   useEffect(() => {
     if (!isWaitingForWebhook) {
