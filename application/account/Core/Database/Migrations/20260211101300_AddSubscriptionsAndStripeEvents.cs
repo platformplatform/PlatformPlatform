@@ -9,6 +9,9 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.AddColumn<string>("SuspensionReason", "Tenants", "varchar(30)", nullable: true);
+        migrationBuilder.AddColumn<DateTimeOffset>("SuspendedAt", "Tenants", "datetimeoffset", nullable: true);
+
         migrationBuilder.CreateTable(
             "Subscriptions",
             table => new

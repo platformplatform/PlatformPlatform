@@ -16,6 +16,7 @@ public sealed record TenantResponse(
     DateTimeOffset? ModifiedAt,
     string Name,
     TenantState State,
+    SuspensionReason? SuspensionReason,
     string? LogoUrl
 );
 

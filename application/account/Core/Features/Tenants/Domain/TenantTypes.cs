@@ -7,6 +7,16 @@ namespace PlatformPlatform.Account.Features.Tenants.Domain;
 public enum TenantState
 {
     Active,
-    PastDue,
     Suspended
+}
+
+[PublicAPI]
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum SuspensionReason
+{
+    PaymentFailed,
+    CustomerDeleted,
+    TermsViolation,
+    SuspiciousActivity,
+    AccountDeletionRequested
 }

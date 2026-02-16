@@ -27,7 +27,7 @@ test.describe("@smoke", () => {
    * - Cancel subscription with reason selection (plans page)
    * - Cancelling state with reactivation banner and confirmation dialog
    * - Payment history table with invoice links
-   * - PastDue warning banner display
+   * - Payment failed warning banner display
    * - Suspension error page (Owner vs Member view)
    * - Stripe unconfigured state handling
    * - Access denied for non-Owner users
@@ -232,19 +232,20 @@ test.describe("@smoke", () => {
       await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
-    // === PAST DUE BANNER (MOCKED TENANT STATE) ===
-    await step("Mock tenant PastDue state & verify warning banner displayed")(async () => {
-      await ownerPage.route("**/api/account/tenants/current", async (route) => {
+    // === PAYMENT FAILED BANNER (MOCKED SUBSCRIPTION STATE) ===
+    await step("Mock subscription payment failed & verify warning banner displayed")(async () => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           json: {
-            id: 1,
-            createdAt: "2026-01-01T00:00:00Z",
-            modifiedAt: null,
-            name: "Test Organization",
-            state: "PastDue",
-            logoUrl: null
+            id: "sub_mock",
+            plan: "Standard",
+            scheduledPlan: null,
+            currentPeriodEnd: "2026-02-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            hasStripeSubscription: true,
+            isPaymentFailed: true
           }
         });
       });
@@ -252,6 +253,8 @@ test.describe("@smoke", () => {
       await ownerPage.goto("/account/subscription");
       await expect(ownerPage.getByText("Payment failed. Your subscription will be suspended soon.")).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Update payment method" }).first()).toBeVisible();
+
+      await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
     // === SUSPENDED STATE (MOCKED TENANT STATE) ===
@@ -272,14 +275,13 @@ test.describe("@smoke", () => {
       });
 
       await ownerPage.goto("/account");
-      await expect(ownerPage.getByRole("heading", { name: "Payment failed" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Account suspended" })).toBeVisible();
       await expect(
         ownerPage.getByText(
-          "Your subscription has been suspended due to a failed payment. Please update your payment method to restore access."
+          "Your account has been suspended. Please visit the subscription page to resolve any issues and restore access."
         )
       ).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Reactivate subscription" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Manage subscription" })).toBeVisible();
     })();
 
     await step("Navigate to subscription page while Suspended & verify access is allowed")(async () => {
@@ -361,14 +363,11 @@ test.describe("@smoke", () => {
       });
 
       await ownerPage.goto("/account");
-      await expect(ownerPage.getByRole("heading", { name: "Payment failed" })).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Account suspended" })).toBeVisible();
       await expect(
-        ownerPage.getByText(
-          "Your subscription has been suspended due to a failed payment. Please contact the account owner to restore access."
-        )
+        ownerPage.getByText("Your account has been suspended. Please contact the account owner to restore access.")
       ).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Update payment method" })).not.toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Reactivate subscription" })).not.toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Manage subscription" })).not.toBeVisible();
 
       await ownerPage.unroute("**/api/account/tenants/current");
     })();

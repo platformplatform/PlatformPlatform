@@ -14,6 +14,10 @@ public sealed class Tenant : AggregateRoot<TenantId>
 
     public TenantState State { get; private set; }
 
+    public SuspensionReason? SuspensionReason { get; private set; }
+
+    public DateTimeOffset? SuspendedAt { get; private set; }
+
     public Logo Logo { get; private set; }
 
     public static Tenant Create(string email)
@@ -23,9 +27,18 @@ public sealed class Tenant : AggregateRoot<TenantId>
         return tenant;
     }
 
-    public void SetState(TenantState state)
+    public void Suspend(SuspensionReason reason, DateTimeOffset suspendedAt)
     {
-        State = state;
+        State = TenantState.Suspended;
+        SuspensionReason = reason;
+        SuspendedAt = suspendedAt;
+    }
+
+    public void Activate()
+    {
+        State = TenantState.Active;
+        SuspensionReason = null;
+        SuspendedAt = null;
     }
 
     public void Update(string tenantName)
