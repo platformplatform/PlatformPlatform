@@ -46,6 +46,8 @@ This directory contains all shared UI components used across the application.
 | Table | `npx shadcn@latest add table` | Outline focus ring on TableRow, active:bg-muted, built-in keyboard navigation with roving tabindex (selectedIndex/onNavigate/onActivate on Table, index on TableRow) | - |
 | TablePagination | Custom | - | Pagination wrapper for tables |
 | TenantLogo | Custom | - | Avatar wrapper for tenant logos with square shape support |
+| Textarea | Custom | - | Native textarea with field-sizing:content, resize-none, outline focus ring, bg-white |
+| TextAreaField | Custom | - | Field + Textarea + validation composition |
 | TextField | Custom | - | Field + Input + validation composition |
 | Toggle | `npx shadcn@latest add toggle` | Outline focus ring, CSS variable heights, cursor-pointer, active:bg-accent | - |
 | Tooltip | `npx shadcn@latest add tooltip` | Tap-to-open support for touch devices | - |
