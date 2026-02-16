@@ -57,7 +57,7 @@ export function UpgradeConfirmationDialog({
   const targetPlanDetails = getPlanDetails(targetPlan);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Upgrade subscription">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>{t`Upgrade to ${targetPlanDetails.name}`}</DialogTitle>
