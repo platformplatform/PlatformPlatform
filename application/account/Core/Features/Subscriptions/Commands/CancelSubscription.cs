@@ -43,8 +43,7 @@ public sealed class CancelSubscriptionHandler(
             return Result.Forbidden("Only owners can manage subscriptions.");
         }
 
-        var subscription = await subscriptionRepository.GetByTenantIdAsync(cancellationToken)
-                           ?? throw new UnreachableException($"Subscription not found for tenant '{executionContext.TenantId}'.");
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         if (subscription.Plan == SubscriptionPlan.Basis)
         {
