@@ -13,8 +13,7 @@ namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 [PublicAPI]
 public sealed record UpdateBillingInfoCommand(
     string Name,
-    string Line1,
-    string? Line2,
+    string Address,
     string PostalCode,
     string City,
     string? State,
@@ -29,12 +28,11 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
     public UpdateBillingInfoValidator()
     {
         RuleFor(x => x.Name).Length(1, 100).WithMessage("Name must be between 1 and 100 characters.");
-        RuleFor(x => x.Line1).Length(1, 100).WithMessage("Address line 1 must be between 1 and 100 characters.");
-        RuleFor(x => x.Line2).MaximumLength(100).WithMessage("Address line 2 must be no longer than 100 characters.");
+        RuleFor(x => x.Address).Length(1, 200).WithMessage("Address must be between 1 and 200 characters.");
         RuleFor(x => x.PostalCode).Length(1, 10).WithMessage("Postal code must be between 1 and 10 characters.");
         RuleFor(x => x.City).Length(1, 50).WithMessage("City must be between 1 and 50 characters.");
         RuleFor(x => x.State).MaximumLength(50).WithMessage("State must be no longer than 50 characters.");
-        RuleFor(x => x.Country).Length(2).WithMessage("Country must be a 2-letter ISO country code.");
+        RuleFor(x => x.Country).Length(2).WithMessage("Country is required.");
         RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
         RuleFor(x => x.TaxId).MaximumLength(20).WithMessage("Tax ID must be no longer than 20 characters.");
     }
@@ -76,9 +74,13 @@ public sealed class UpdateBillingInfoHandler(
             subscriptionRepository.Update(subscription);
         }
 
+        var addressLines = command.Address.Split('\n', 2, StringSplitOptions.TrimEntries);
+        var line1 = addressLines[0];
+        var line2 = addressLines.Length > 1 ? addressLines[1] : null;
+
         var billingInfo = new BillingInfo(
             command.Name,
-            new BillingAddress(command.Line1, command.Line2, command.PostalCode, command.City, command.State, command.Country),
+            new BillingAddress(line1, line2, command.PostalCode, command.City, command.State, command.Country),
             command.Email,
             command.TaxId
         );

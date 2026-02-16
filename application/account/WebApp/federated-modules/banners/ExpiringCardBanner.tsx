@@ -34,10 +34,15 @@ export default function ExpiringCardBanner() {
     <div className="flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
       <AlertTriangleIcon className="size-4 shrink-0 text-warning-foreground" />
       <span className="flex-1 text-warning-foreground">
-        <Trans>
-          Your payment card is expired or expiring soon. Please update your payment method to avoid service
-          interruption.
-        </Trans>
+        <span className="sm:hidden">
+          <Trans>Your payment card is expiring soon. Update your payment method to avoid interruption.</Trans>
+        </span>
+        <span className="hidden sm:inline">
+          <Trans>
+            Your payment card is expired or expiring soon. Please update your payment method to avoid service
+            interruption.
+          </Trans>
+        </span>
       </span>
       <Button
         size="sm"
