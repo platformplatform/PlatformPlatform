@@ -27,9 +27,6 @@ public sealed class ProcessPendingStripeEvents(
     ILogger<ProcessPendingStripeEvents> logger
 )
 {
-    private static readonly TimeSpan GracePeriod = TimeSpan.FromHours(72);
-    private static readonly TimeSpan NotificationCooldown = TimeSpan.FromHours(24);
-
     public async Task ExecuteAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         var isSqlite = dbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
@@ -61,7 +58,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (eventTypes.Contains("invoice.payment_succeeded"))
         {
-            await HandlePaymentSucceeded(subscription, cancellationToken);
+            HandlePaymentSucceeded(subscription);
         }
 
         if (eventTypes.Contains("invoice.payment_failed"))
@@ -86,12 +83,28 @@ public sealed class ProcessPendingStripeEvents(
 
         if (eventTypes.Contains("checkout.session.completed"))
         {
+            var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+            if (tenant.State != TenantState.Active)
+            {
+                tenant.Activate();
+                tenantRepository.Update(tenant);
+            }
+
             events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan));
         }
 
-        if (eventTypes.Contains("customer.subscription.deleted"))
+        var customerDeleted = eventTypes.Contains("customer.deleted");
+
+        if (customerDeleted)
         {
-            await HandleSubscriptionDeleted(subscription, cancellationToken);
+            var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+            tenant.Suspend(SuspensionReason.CustomerDeleted, now);
+            tenantRepository.Update(tenant);
+        }
+
+        if (eventTypes.Contains("customer.subscription.deleted") && !customerDeleted)
+        {
+            await HandleSubscriptionDeleted(subscription, now, cancellationToken);
         }
 
         subscriptionRepository.Update(subscription);
@@ -114,100 +127,46 @@ public sealed class ProcessPendingStripeEvents(
         }
     }
 
-    /// <summary>
-    ///     Clears payment failure state and restores tenant to Active if currently PastDue.
-    /// </summary>
-    private async Task HandlePaymentSucceeded(Subscription subscription, CancellationToken cancellationToken)
+    private void HandlePaymentSucceeded(Subscription subscription)
     {
         if (subscription.FirstPaymentFailedAt is null) return;
 
         subscription.ClearPaymentFailure();
-
-        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
-        if (tenant.State == TenantState.PastDue)
-        {
-            tenant.SetState(TenantState.Active);
-            tenantRepository.Update(tenant);
-        }
-
         events.CollectEvent(new PaymentRecovered(subscription.Id, subscription.Plan));
     }
 
-    /// <summary>
-    ///     Implements a 72-hour grace period with 24-hour reminder emails. First failure sets PastDue;
-    ///     after grace period expires, suspends the tenant.
-    /// </summary>
     private async Task HandlePaymentFailed(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
+        if (subscription.FirstPaymentFailedAt is not null) return;
+
+        subscription.SetPaymentFailed(now);
+
         var billingEmail = subscription.BillingInfo?.Email;
-
-        if (subscription.FirstPaymentFailedAt is null)
+        if (billingEmail is not null)
         {
-            subscription.SetPaymentFailed(now);
-            subscription.SetLastNotificationSentAt(now);
+            await SendPaymentFailedEmail(billingEmail, cancellationToken);
+        }
 
-            if (tenant.State != TenantState.Suspended)
-            {
-                tenant.SetState(TenantState.PastDue);
-                tenantRepository.Update(tenant);
-            }
+        events.CollectEvent(new PaymentFailed(subscription.Id, subscription.Plan));
+    }
 
-            if (billingEmail is not null)
-            {
-                await SendPaymentFailedEmail(billingEmail, cancellationToken);
-            }
+    private async Task HandleSubscriptionDeleted(Subscription subscription, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
 
-            events.CollectEvent(new PaymentFailed(subscription.Id, subscription.Plan));
+        if (tenant.State == TenantState.Suspended) return;
+
+        if (subscription.CancellationReason is not null && subscription.FirstPaymentFailedAt is null)
+        {
+            tenant.Activate();
         }
         else
         {
-            var timeSinceFirstFailure = now - subscription.FirstPaymentFailedAt.Value;
-
-            if (timeSinceFirstFailure >= GracePeriod)
-            {
-                if (tenant.State != TenantState.Suspended)
-                {
-                    tenant.SetState(TenantState.Suspended);
-                    tenantRepository.Update(tenant);
-                }
-
-                if (billingEmail is not null)
-                {
-                    await SendSubscriptionSuspendedEmail(billingEmail, cancellationToken);
-                }
-
-                events.CollectEvent(new SubscriptionSuspended(subscription.Id, subscription.Plan));
-            }
-            else
-            {
-                var shouldSendReminder = subscription.LastNotificationSentAt is null ||
-                                         now - subscription.LastNotificationSentAt.Value >= NotificationCooldown;
-
-                if (shouldSendReminder && billingEmail is not null)
-                {
-                    var hoursRemaining = (GracePeriod - timeSinceFirstFailure).TotalHours;
-                    var daysRemaining = Math.Max(1, (int)Math.Ceiling(hoursRemaining / 24));
-                    await SendGracePeriodReminderEmail(billingEmail, daysRemaining, cancellationToken);
-                    subscription.SetLastNotificationSentAt(now);
-                }
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Suspends the tenant when Stripe deletes the subscription (e.g., after max retry failures).
-    /// </summary>
-    private async Task HandleSubscriptionDeleted(Subscription subscription, CancellationToken cancellationToken)
-    {
-        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
-        if (tenant.State != TenantState.Suspended)
-        {
-            tenant.SetState(TenantState.Suspended);
-            tenantRepository.Update(tenant);
+            tenant.Suspend(SuspensionReason.PaymentFailed, now);
+            events.CollectEvent(new SubscriptionSuspended(subscription.Id, subscription.Plan));
         }
 
-        events.CollectEvent(new SubscriptionSuspended(subscription.Id, subscription.Plan));
+        tenantRepository.Update(tenant);
     }
 
     private async Task SendPaymentFailedEmail(string recipientEmail, CancellationToken cancellationToken)
@@ -215,34 +174,9 @@ public sealed class ProcessPendingStripeEvents(
         const string subject = "Payment failed - action required";
         const string htmlContent = """
                                    <h2>Your payment has failed</h2>
-                                   <p>We were unable to process your subscription payment. Your subscription is now past due.</p>
-                                   <p>Please update your payment method to avoid service interruption. You have 3 days to resolve this before your subscription is suspended.</p>
+                                   <p>We were unable to process your subscription payment.</p>
+                                   <p>Please update your payment method to avoid service interruption.</p>
                                    <p>You can update your payment method from your subscription settings.</p>
-                                   """;
-
-        await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
-    }
-
-    private async Task SendGracePeriodReminderEmail(string recipientEmail, int daysRemaining, CancellationToken cancellationToken)
-    {
-        const string subject = "Payment reminder - subscription at risk";
-        var htmlContent = $"""
-                           <h2>Payment still outstanding</h2>
-                           <p>Your subscription payment is still failing. You have approximately {daysRemaining} day{(daysRemaining != 1 ? "s" : "")} remaining before your subscription is suspended.</p>
-                           <p>Please update your payment method as soon as possible to avoid losing access.</p>
-                           <p>You can update your payment method from your subscription settings.</p>
-                           """;
-
-        await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
-    }
-
-    private async Task SendSubscriptionSuspendedEmail(string recipientEmail, CancellationToken cancellationToken)
-    {
-        const string subject = "Subscription suspended";
-        const string htmlContent = """
-                                   <h2>Your subscription has been suspended</h2>
-                                   <p>Due to continued payment failure, your subscription has been suspended. All users in your organization will have limited access until the subscription is reactivated.</p>
-                                   <p>To restore access, please update your payment method and reactivate your subscription from your subscription settings.</p>
                                    """;
 
         await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
