@@ -66,17 +66,8 @@ msgstr "A different user logged in from another browser tab."
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
 
-msgid "A payment dispute has been filed. Please review your payment settings or contact support."
-msgstr "A payment dispute has been filed. Please review your payment settings or contact support."
-
-msgid "A payment dispute has been filed. Please review your payment settings."
-msgstr "A payment dispute has been filed. Please review your payment settings."
-
 msgid "A quick summary of your account activity."
 msgstr "A quick summary of your account activity."
-
-msgid "A refund has been processed for your subscription."
-msgstr "A refund has been processed for your subscription."
 
 msgid "Accept invitation"
 msgstr "Accept invitation"
@@ -494,9 +485,6 @@ msgstr "Devices that have logged into your account. Revoke any sessions you do n
 
 msgid "Different user logged in"
 msgstr "Different user logged in"
-
-msgid "Dismiss"
-msgstr "Dismiss"
 
 msgid "Do you already have an account?"
 msgstr "Do you already have an account?"
@@ -1050,9 +1038,6 @@ msgstr "Restore user"
 
 msgid "Restoring..."
 msgstr "Restoring..."
-
-msgid "Review payment settings"
-msgstr "Review payment settings"
 
 msgid "Revoke"
 msgstr "Revoke"

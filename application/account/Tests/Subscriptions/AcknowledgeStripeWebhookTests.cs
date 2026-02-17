@@ -16,7 +16,13 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
 
-    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, DateTimeOffset? lastNotificationSentAt = null, DateTimeOffset? disputedAt = null, DateTimeOffset? refundedAt = null, string? cancellationReason = null)
+    protected override void Dispose(bool disposing)
+    {
+        MockStripeClient.ResetOverrides();
+        base.Dispose(disposing);
+    }
+
+    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string? stripeSubscriptionId = MockStripeClient.MockSubscriptionId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, string? cancellationReason = null)
     {
         var subscriptionId = SubscriptionId.NewId().ToString();
         Connection.Insert("Subscriptions", [
@@ -27,13 +33,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("Plan", plan),
                 ("ScheduledPlan", null),
                 ("StripeCustomerId", stripeCustomerId),
-                ("StripeSubscriptionId", MockStripeClient.MockSubscriptionId),
+                ("StripeSubscriptionId", stripeSubscriptionId),
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", firstPaymentFailedAt),
-                ("LastNotificationSentAt", lastNotificationSentAt),
-                ("DisputedAt", disputedAt),
-                ("RefundedAt", refundedAt),
                 ("CancellationReason", cancellationReason),
                 ("CancellationFeedback", null),
                 ("PaymentTransactions", "[]"),
@@ -102,7 +105,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldSyncSubscription()
     {
         // Arrange
-        InsertSubscription(plan: nameof(SubscriptionPlan.Basis));
+        InsertSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -122,7 +125,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
-        var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48), lastNotificationSentAt: now.AddHours(-24));
+        var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -144,6 +147,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldSetFailureAndSendEmail()
     {
         // Arrange
+        MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
         InsertSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
@@ -176,8 +180,9 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenSubsequentPaymentFailed_ShouldNotSendEmail()
     {
         // Arrange
+        MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
         var now = TimeProvider.GetUtcNow();
-        InsertSubscription(firstPaymentFailedAt: now.AddHours(-48), lastNotificationSentAt: now.AddHours(-25));
+        InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -203,6 +208,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedInvoluntarily_ShouldSuspendTenant()
     {
         // Arrange
+        MockStripeClient.SimulateSubscriptionDeleted = true;
         var now = TimeProvider.GetUtcNow();
         InsertSubscription(firstPaymentFailedAt: now.AddDays(-5));
         TelemetryEventsCollectorSpy.Reset();
@@ -229,6 +235,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedVoluntarily_ShouldKeepTenantActive()
     {
         // Arrange
+        MockStripeClient.SimulateSubscriptionDeleted = true;
         InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         TelemetryEventsCollectorSpy.Reset();
 
@@ -251,7 +258,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldActivateSuspendedTenant()
     {
         // Arrange
-        InsertSubscription(plan: nameof(SubscriptionPlan.Basis));
+        InsertSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
         Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.PaymentFailed))]);
         TelemetryEventsCollectorSpy.Reset();
 
@@ -277,6 +284,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCustomerDeleted_ShouldSuspendTenant()
     {
         // Arrange
+        MockStripeClient.SimulateCustomerDeleted = true;
         InsertSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
@@ -302,6 +310,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenSubscriptionDeletedAndTenantAlreadySuspended_ShouldNotOverrideSuspension()
     {
         // Arrange - tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
+        MockStripeClient.SimulateSubscriptionDeleted = true;
         InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.CustomerDeleted))]);
         TelemetryEventsCollectorSpy.Reset();
@@ -328,6 +337,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCustomerDeletedAndSubscriptionDeletedInSameBatch_ShouldSuspendWithCustomerDeleted()
     {
         // Arrange - pre-insert a pending customer.deleted event so both events process in the same batch
+        MockStripeClient.SimulateCustomerDeleted = true;
         InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Insert("StripeEvents", [
                 ("TenantId", null),
@@ -401,80 +411,6 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 
         // Assert
         response.EnsureSuccessStatusCode();
-    }
-
-    [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenDisputeCreated_ShouldSetDisputedAndSendEmail()
-    {
-        // Arrange
-        var subscriptionId = InsertSubscription();
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
-        {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
-        };
-        request.Headers.Add("Stripe-Signature", "event_type:charge.dispute.created");
-        var response = await AnonymousHttpClient.SendAsync(request);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-
-        var disputedAt = Connection.ExecuteScalar<string>("SELECT DisputedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
-        disputedAt.Should().NotBeNullOrEmpty();
-
-        await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "billing@example.com"),
-            Arg.Is<string>(s => s.Contains("dispute")),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
-    }
-
-    [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenDisputeClosed_ShouldClearDispute()
-    {
-        // Arrange
-        var now = TimeProvider.GetUtcNow();
-        var subscriptionId = InsertSubscription(disputedAt: now.AddDays(-5));
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
-        {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
-        };
-        request.Headers.Add("Stripe-Signature", "event_type:charge.dispute.closed");
-        var response = await AnonymousHttpClient.SendAsync(request);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-
-        var disputedAt = Connection.ExecuteScalar<string>("SELECT DisputedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
-        disputedAt.Should().BeNullOrEmpty();
-    }
-
-    [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenChargeRefunded_ShouldSetRefundedAt()
-    {
-        // Arrange
-        var subscriptionId = InsertSubscription();
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var request = new HttpRequestMessage(HttpMethod.Post, WebhookUrl)
-        {
-            Content = new StringContent($"customer:{MockStripeClient.MockCustomerId}", Encoding.UTF8, "application/json")
-        };
-        request.Headers.Add("Stripe-Signature", "event_type:charge.refunded");
-        var response = await AnonymousHttpClient.SendAsync(request);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-
-        var refundedAt = Connection.ExecuteScalar<string>("SELECT RefundedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
-        refundedAt.Should().NotBeNullOrEmpty();
     }
 
     [Fact]

@@ -30,7 +30,6 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", transactionsJson)
             ]
         );

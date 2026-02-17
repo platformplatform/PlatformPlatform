@@ -165,7 +165,8 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
                 currentPeriodEnd,
                 cancelAtPeriodEnd,
                 paymentTransactions,
-                paymentMethod
+                paymentMethod,
+                stripeSubscription.Status
             );
         }
         catch (StripeException ex)
@@ -445,12 +446,17 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public async Task<BillingInfo?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public async Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         try
         {
             var customerService = new CustomerService();
             var customer = await customerService.GetAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+
+            if (customer.Deleted == true)
+            {
+                return new CustomerBillingResult(null, true);
+            }
 
             BillingAddress? address = null;
             var email = customer.Email;
@@ -476,7 +482,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
             var taxIds = await taxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             var taxId = taxIds.Data.FirstOrDefault()?.Value;
 
-            return new BillingInfo(customer.Name, address, email, taxId);
+            return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false);
         }
         catch (StripeException ex)
         {

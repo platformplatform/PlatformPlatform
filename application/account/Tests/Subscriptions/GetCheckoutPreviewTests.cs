@@ -30,7 +30,6 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -75,7 +74,6 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -105,7 +103,6 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
