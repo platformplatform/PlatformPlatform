@@ -825,6 +825,36 @@
         }
       }
     },
+    "/api/account/subscriptions/pricing-catalog": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsPricingCatalog",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingCatalogResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/checkout": {
       "post": {
         "tags": [
@@ -2607,16 +2637,7 @@
           "isConfigured": {
             "type": "boolean"
           },
-          "hasApiKey": {
-            "type": "boolean"
-          },
-          "hasWebhookSecret": {
-            "type": "boolean"
-          },
-          "hasStandardPriceId": {
-            "type": "boolean"
-          },
-          "hasPremiumPriceId": {
+          "hasPrices": {
             "type": "boolean"
           }
         }
@@ -2673,6 +2694,37 @@
           "taxAmount": {
             "type": "number",
             "format": "decimal"
+          }
+        }
+      },
+      "PricingCatalogResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanPriceItem"
+            }
+          }
+        }
+      },
+      "PlanPriceItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "unitAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "formattedPrice": {
+            "type": "string"
           }
         }
       },

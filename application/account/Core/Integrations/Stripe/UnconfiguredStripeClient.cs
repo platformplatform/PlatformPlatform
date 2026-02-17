@@ -58,15 +58,16 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
-    public StripeHealthResult GetHealth()
+    public Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
     {
-        return new StripeHealthResult(
-            false,
-            false,
-            false,
-            false,
-            false
-        );
+        logger.LogWarning("Stripe is not configured. Cannot resolve price for plan '{Plan}'", plan);
+        return Task.FromResult<string?>(null);
+    }
+
+    public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot get pricing catalog");
+        return Task.FromResult<PriceCatalogItem[]>([]);
     }
 
     public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)

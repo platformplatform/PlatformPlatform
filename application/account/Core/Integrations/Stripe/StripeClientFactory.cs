@@ -8,8 +8,9 @@ namespace PlatformPlatform.Account.Integrations.Stripe;
 public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
 {
     private readonly bool _allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
-    private readonly bool _isConfigured = configuration["Stripe:ApiKey"] is not null;
     private readonly string? _publishableKey = configuration["Stripe:PublishableKey"];
+
+    public bool IsConfigured { get; } = configuration["Stripe:ApiKey"] is not null;
 
     public string? GetPublishableKey()
     {
@@ -23,7 +24,7 @@ public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfi
             return serviceProvider.GetRequiredKeyedService<IStripeClient>("mock-stripe");
         }
 
-        if (_isConfigured)
+        if (IsConfigured)
         {
             return serviceProvider.GetRequiredKeyedService<IStripeClient>("stripe");
         }

@@ -18,7 +18,7 @@ import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
 import { CheckoutDialog } from "./-components/CheckoutDialog";
 import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
-import { getPlanDetails, PlanCard } from "./-components/PlanCard";
+import { getFormattedPrice, PlanCard } from "./-components/PlanCard";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
@@ -46,6 +46,7 @@ function SubscriptionPage() {
 
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
 
   const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
     onSuccess: (data) => {
@@ -182,7 +183,7 @@ function SubscriptionPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="font-medium">
-                    {getPlanLabel(currentPlan)} {getPlanDetails(currentPlan).price}
+                    {getPlanLabel(currentPlan)} {getFormattedPrice(currentPlan, pricingCatalog?.plans)}
                   </span>
                   {cancelAtPeriodEnd ? (
                     <Badge variant="destructive">
@@ -206,8 +207,8 @@ function SubscriptionPage() {
                 {scheduledPlan && !cancelAtPeriodEnd && (
                   <p className="text-muted-foreground text-sm">
                     <Trans>
-                      Changing to {getPlanLabel(scheduledPlan)} {getPlanDetails(scheduledPlan).price} on{" "}
-                      {formattedPeriodEndLong}
+                      Changing to {getPlanLabel(scheduledPlan)}{" "}
+                      {getFormattedPrice(scheduledPlan, pricingCatalog?.plans)} on {formattedPeriodEndLong}
                     </Trans>
                   </p>
                 )}
@@ -327,6 +328,7 @@ function SubscriptionPage() {
               <PlanCard
                 key={plan}
                 plan={plan}
+                formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
                 currentPlan={currentPlan}
                 cancelAtPeriodEnd={false}
                 scheduledPlan={null}
