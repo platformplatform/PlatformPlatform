@@ -52,6 +52,7 @@ public static class Configuration
             services.AddKeyedScoped<IOAuthProvider, MockOAuthProvider>("mock-google");
             services.AddScoped<OAuthProviderFactory>();
 
+            services.AddMemoryCache();
             services.AddKeyedScoped<IStripeClient, StripeClient>("stripe");
             services.AddKeyedScoped<IStripeClient, MockStripeClient>("mock-stripe");
             services.AddKeyedScoped<IStripeClient, UnconfiguredStripeClient>("unconfigured-stripe");

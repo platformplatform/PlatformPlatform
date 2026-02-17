@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using Stripe;
@@ -6,15 +7,18 @@ using Stripe.Checkout;
 using DomainPaymentMethod = PlatformPlatform.Account.Features.Subscriptions.Domain.PaymentMethod;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
+using StripePrice = Stripe.Price;
 using StripeSubscription = Stripe.Subscription;
 
 namespace PlatformPlatform.Account.Integrations.Stripe;
 
-public sealed class StripeClient(IConfiguration configuration, ILogger<StripeClient> logger) : IStripeClient
+public sealed class StripeClient(IConfiguration configuration, IMemoryCache memoryCache, ILogger<StripeClient> logger) : IStripeClient
 {
+    private const string PriceCacheKey = "stripe_resolved_prices";
+    private static readonly TimeSpan PriceCacheDuration = TimeSpan.FromMinutes(1);
+    private static readonly string[] LookupKeys = ["standard_monthly", "premium_monthly"];
+
     private readonly string? _apiKey = configuration["Stripe:ApiKey"];
-    private readonly string? _premiumPriceId = configuration["Stripe:Prices:Premium"];
-    private readonly string? _standardPriceId = configuration["Stripe:Prices:Standard"];
     private readonly string? _webhookSecret = configuration["Stripe:WebhookSecret"];
 
     public async Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
@@ -52,7 +56,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     {
         try
         {
-            var priceId = GetPriceId(plan);
+            var priceId = await GetPriceIdAsync(plan, cancellationToken);
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", plan);
@@ -205,7 +209,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     {
         try
         {
-            var priceId = GetPriceId(newPlan);
+            var priceId = await GetPriceIdAsync(newPlan, cancellationToken);
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
@@ -261,7 +265,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     {
         try
         {
-            var priceId = GetPriceId(newPlan);
+            var priceId = await GetPriceIdAsync(newPlan, cancellationToken);
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
@@ -413,15 +417,52 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         }
     }
 
-    public StripeHealthResult GetHealth()
+    public async Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
     {
-        return new StripeHealthResult(
-            _apiKey is not null,
-            _apiKey is not null,
-            _webhookSecret is not null,
-            _standardPriceId is not null,
-            _premiumPriceId is not null
-        );
+        var lookupKey = plan switch
+        {
+            SubscriptionPlan.Standard => "standard_monthly",
+            SubscriptionPlan.Premium => "premium_monthly",
+            _ => null
+        };
+
+        if (lookupKey is null)
+        {
+            return null;
+        }
+
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null && cached.TryGetValue(lookupKey, out var price))
+        {
+            return price.Id;
+        }
+
+        return null;
+    }
+
+    public async Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
+    {
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (!memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) || cached is null)
+        {
+            return [];
+        }
+
+        var items = new List<PriceCatalogItem>();
+
+        foreach (var (lookupKey, price) in cached)
+        {
+            var plan = ParseLookupKey(lookupKey);
+            var unitAmount = price.UnitAmount.GetValueOrDefault() / 100m;
+            var currency = price.Currency.ToUpperInvariant();
+            var formattedPrice = $"{currency} {unitAmount}/month";
+
+            items.Add(new PriceCatalogItem(plan, unitAmount, currency, formattedPrice));
+        }
+
+        return [.. items];
     }
 
     public StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader)
@@ -682,7 +723,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     {
         try
         {
-            var priceId = GetPriceId(newPlan);
+            var priceId = await GetPriceIdAsync(newPlan, cancellationToken);
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", newPlan);
@@ -743,7 +784,7 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
     {
         try
         {
-            var priceId = GetPriceId(plan);
+            var priceId = await GetPriceIdAsync(plan, cancellationToken);
             if (priceId is null)
             {
                 logger.LogError("Price ID not configured for plan '{Plan}'", plan);
@@ -829,20 +870,48 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
         return new RequestOptions { ApiKey = _apiKey };
     }
 
-    private string? GetPriceId(SubscriptionPlan plan)
+    private async Task EnsurePriceCachePopulatedAsync(CancellationToken cancellationToken)
     {
-        return plan switch
+        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null)
         {
-            SubscriptionPlan.Standard => _standardPriceId,
-            SubscriptionPlan.Premium => _premiumPriceId,
-            _ => null
-        };
+            return;
+        }
+
+        try
+        {
+            var priceService = new PriceService();
+            var options = new PriceListOptions { LookupKeys = [.. LookupKeys] };
+            var prices = await priceService.ListAsync(options, GetRequestOptions(), cancellationToken);
+
+            var result = prices.ToDictionary(p => p.LookupKey, p => p);
+            memoryCache.Set(PriceCacheKey, result, PriceCacheDuration);
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error resolving price lookup keys");
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout resolving price lookup keys");
+        }
     }
 
     private SubscriptionPlan GetPlanFromPriceId(string? priceId)
     {
-        if (priceId == _standardPriceId) return SubscriptionPlan.Standard;
-        if (priceId == _premiumPriceId) return SubscriptionPlan.Premium;
+        if (priceId is null)
+        {
+            return SubscriptionPlan.Basis;
+        }
+
+        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null)
+        {
+            var matchingEntry = cached.FirstOrDefault(kvp => kvp.Value.Id == priceId);
+            if (matchingEntry.Key is not null)
+            {
+                return ParseLookupKey(matchingEntry.Key);
+            }
+        }
+
         return SubscriptionPlan.Basis;
     }
 
@@ -858,6 +927,16 @@ public sealed class StripeClient(IConfiguration configuration, ILogger<StripeCli
 
         var plan = GetPlanFromPriceId(futurePriceId);
         return plan != GetPlanFromPriceId(subscription.Items.Data.FirstOrDefault()?.Price.Id) ? plan : null;
+    }
+
+    private static SubscriptionPlan ParseLookupKey(string lookupKey)
+    {
+        return lookupKey switch
+        {
+            "standard_monthly" => SubscriptionPlan.Standard,
+            "premium_monthly" => SubscriptionPlan.Premium,
+            _ => throw new UnreachableException($"Unknown lookup key: {lookupKey}.")
+        };
     }
 
     private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount)
