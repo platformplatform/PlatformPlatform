@@ -5,7 +5,6 @@ using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Integrations.Email;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
@@ -13,7 +12,7 @@ namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
 /// <summary>
 ///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row
 ///     to serialize concurrent webhook processing, syncs current state from Stripe, then applies
-///     side effects (emails, tenant state changes) based on state diffs between local and synced data.
+///     side effects (tenant state changes) based on state diffs between local and synced data.
 /// </summary>
 public sealed class ProcessPendingStripeEvents(
     AccountDbContext dbContext,
@@ -21,7 +20,6 @@ public sealed class ProcessPendingStripeEvents(
     IStripeEventRepository stripeEventRepository,
     ITenantRepository tenantRepository,
     SyncSubscriptionFromStripe syncSubscriptionFromStripe,
-    IEmailClient emailClient,
     TimeProvider timeProvider,
     ITelemetryEventsCollector events,
     TelemetryClient telemetryClient,
@@ -102,12 +100,6 @@ public sealed class ProcessPendingStripeEvents(
             if (syncResult.SubscriptionStatus == StripeSubscriptionStatus.PastDue && previousFirstPaymentFailedAt is null)
             {
                 subscription.SetPaymentFailed(now);
-                var billingEmail = subscription.BillingInfo?.Email;
-                if (billingEmail is not null)
-                {
-                    await SendPaymentFailedEmail(billingEmail, cancellationToken);
-                }
-
                 events.CollectEvent(new PaymentFailed(subscription.Id, subscription.Plan));
             }
 
@@ -136,18 +128,5 @@ public sealed class ProcessPendingStripeEvents(
             var telemetryEvent = events.Dequeue();
             telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
         }
-    }
-
-    private async Task SendPaymentFailedEmail(string recipientEmail, CancellationToken cancellationToken)
-    {
-        const string subject = "Payment failed - action required";
-        const string htmlContent = """
-                                   <h2>Your payment has failed</h2>
-                                   <p>We were unable to process your subscription payment.</p>
-                                   <p>Please update your payment method to avoid service interruption.</p>
-                                   <p>You can update your payment method from your subscription settings.</p>
-                                   """;
-
-        await emailClient.SendAsync(recipientEmail, subject, htmlContent, cancellationToken);
     }
 }
