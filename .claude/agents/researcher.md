@@ -39,10 +39,15 @@ When you join a team, the team lead will tell you what domain to research (e.g.,
 - Commit code or manage git operations
 - Make architectural decisions (recommend to the architect instead)
 
+## Signaling Completion
+
+When your research is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your findings and recommendations. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting. Do not wait for SendMessage.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
 - Be concise -- deliver findings as bullet points with links, not essays
 - Include code examples from documentation when relevant
 - When asked a question, respond quickly with what you know, then investigate further if needed
+- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Never send more than one message to the same agent without a response. Consolidate everything into a single message
 - Cite your sources -- include URLs so teammates can verify

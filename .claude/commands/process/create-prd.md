@@ -6,6 +6,8 @@ description: Workflow for creating a product requirement document (PRD) for a ne
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [tasks] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
 
+Team leads: execute this workflow directly. Do not delegate it.
+
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.

@@ -8,6 +8,8 @@ allowed-tools: Read, Write, Bash, Glob
 
 Track and manage flaky E2E test observations over time. This skill helps systematically log test failures that are unrelated to the current work, preserving error artifacts for later analysis.
 
+Team leads: delegate this to the agent that encountered the flaky test (typically qa or the engineer running tests).
+
 ## STEP 1: Load Database
 
 Read the flaky tests database from `.workspace/flaky-tests/flaky-tests.json`.
