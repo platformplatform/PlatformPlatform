@@ -44,7 +44,6 @@ function SubscriptionPage() {
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
-  const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
 
@@ -76,7 +75,7 @@ function SubscriptionPage() {
     }
   });
 
-  const isStripeConfigured = stripeHealth?.isConfigured ?? false;
+  const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
   const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const scheduledPlan = subscription?.scheduledPlan ?? null;
