@@ -7,6 +7,8 @@ alwaysApply: false
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [tasks] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
 
+Team leads: execute this workflow directly. Do not delegate it.
+
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.cursor/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
@@ -255,11 +257,9 @@ Each [task] description must include:
 1. A paragraph explaining what the task delivers
 2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
 
-**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. To implement, start the coordinator:
-```
-[DEVELOPER_CLI_ALIAS] claude-agent coordinator
-```
-The coordinator will prompt you to select which feature to implement.
+After creating all [tasks], update each [feature]'s description in [PRODUCT_MANAGEMENT_TOOL] with the full PRD content for that [feature] -- the intro paragraph, overview section, and core changes section (everything above the "Tasks overview" heading). This ensures the PRD context is available to anyone viewing the [feature] in [PRODUCT_MANAGEMENT_TOOL].
+
+**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. Ask the user if they would like to start implementing the first task now.
 
 ## Guidelines
 

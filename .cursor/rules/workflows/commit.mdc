@@ -7,7 +7,9 @@ alwaysApply: false
 
 ## Workflow
 
-Speed is critical—commit should be fast. Don't recommend slow commands unless the changes warrant it.
+If you are the team lead (coordinating agents, not writing code), delegate this entire workflow to an appropriate agent. Do not execute the steps below yourself.
+
+Speed is critical -- commit should be fast. Don't recommend slow commands unless the changes warrant it.
 
 1. **Run `git status --porcelain`** to see changed files (do NOT run `git log` or `git diff` — use session context)
    - Note file states: staged (A/M/D in first column), unstaged (in second column), deleted files need `git add` too
