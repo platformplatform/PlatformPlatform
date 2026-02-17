@@ -71,7 +71,7 @@ export function UpdatePaymentMethodDialog({ isOpen, onOpenChange }: Readonly<Upd
   const isReady = stripePromise && elementsOptions;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} disablePointerDismissal={true}>
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>
