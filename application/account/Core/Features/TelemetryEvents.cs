@@ -16,16 +16,10 @@ namespace PlatformPlatform.Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
-public sealed class BannerDismissed(SubscriptionId subscriptionId, BannerType bannerType)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("banner_type", bannerType));
-
 public sealed class BillingInfoUpdated(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
-
-public sealed class DisputeResolved(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class EmailLoginCodeBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
@@ -73,9 +67,6 @@ public sealed class GravatarUpdated(long size)
 public sealed class Logout
     : TelemetryEvent;
 
-public sealed class PaymentDisputed(SubscriptionId subscriptionId, SubscriptionPlan plan)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
-
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
@@ -86,9 +77,6 @@ public sealed class PaymentMethodUpdated(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
-
-public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
 
 public sealed class PendingInvoicePaymentRetried(SubscriptionId subscriptionId)

@@ -27,9 +27,6 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
                 CurrentPeriodEnd = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 CancelAtPeriodEnd = table.Column<bool>("bit", nullable: false),
                 FirstPaymentFailedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                LastNotificationSentAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                DisputedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
-                RefundedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 CancellationReason = table.Column<string>("varchar(20)", nullable: true),
                 CancellationFeedback = table.Column<string>("nvarchar(500)", nullable: true),
                 PaymentTransactions = table.Column<string>("nvarchar(max)", nullable: false),
@@ -40,6 +37,8 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
         );
 
         migrationBuilder.CreateIndex("IX_Subscriptions_TenantId", "Subscriptions", "TenantId", unique: true);
+
+        migrationBuilder.CreateIndex("IX_Subscriptions_StripeCustomerId", "Subscriptions", "StripeCustomerId", unique: true, filter: "StripeCustomerId IS NOT NULL");
 
         migrationBuilder.CreateTable(
             "StripeEvents",

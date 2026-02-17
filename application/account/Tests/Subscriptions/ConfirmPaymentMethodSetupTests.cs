@@ -29,7 +29,6 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -78,7 +77,6 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -109,7 +107,6 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]

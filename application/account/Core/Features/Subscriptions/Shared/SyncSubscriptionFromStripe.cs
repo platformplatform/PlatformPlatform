@@ -5,25 +5,32 @@ namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
 
 /// <summary>
 ///     Shared helper that fetches current subscription and billing state from Stripe and applies it
-///     to the local subscription aggregate. Used by user-action commands for immediate consistency
-///     and by the webhook processor for eventual consistency.
+///     to the local subscription aggregate. Mutates the aggregate in memory without persisting --
+///     the caller is responsible for calling subscriptionRepository.Update().
 /// </summary>
 public sealed class SyncSubscriptionFromStripe(
-    ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     ILogger<SyncSubscriptionFromStripe> logger
 )
 {
-    public async Task<bool> ExecuteAsync(Subscription subscription, CancellationToken cancellationToken)
+    public async Task<SyncResult> ExecuteAsync(Subscription subscription, CancellationToken cancellationToken)
     {
         if (subscription.StripeCustomerId is null)
         {
             logger.LogWarning("Cannot sync subscription '{SubscriptionId}' without Stripe customer ID", subscription.Id);
-            return false;
+            return new SyncResult(false, null);
         }
 
         var stripeClient = stripeClientFactory.GetClient();
+
+        var customerResult = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId, cancellationToken);
+        if (customerResult?.IsCustomerDeleted == true)
+        {
+            return new SyncResult(true, null);
+        }
+
         var syncResult = await stripeClient.SyncSubscriptionStateAsync(subscription.StripeCustomerId, cancellationToken);
+        string? subscriptionStatus = null;
         if (syncResult is not null)
         {
             subscription.SyncFromStripe(
@@ -35,17 +42,17 @@ public sealed class SyncSubscriptionFromStripe(
                 [.. syncResult.PaymentTransactions],
                 syncResult.PaymentMethod
             );
+            subscriptionStatus = syncResult.SubscriptionStatus;
         }
         else
         {
             subscription.ResetToFreePlan();
         }
 
-        var billingInfo = await stripeClient.GetCustomerBillingInfoAsync(subscription.StripeCustomerId, cancellationToken);
-        subscription.SetBillingInfo(billingInfo);
+        subscription.SetBillingInfo(customerResult?.BillingInfo);
 
-        subscriptionRepository.Update(subscription);
-
-        return true;
+        return new SyncResult(false, subscriptionStatus);
     }
 }
+
+public sealed record SyncResult(bool IsCustomerDeleted, string? SubscriptionStatus);
