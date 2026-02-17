@@ -93,10 +93,14 @@ If blocked, try to fix it. If unfixable, message the coordinator. Never approve 
 - **Investigate before suggesting** -- read actual types and context to avoid incorrect assumptions
 - **Devil's advocate**: actively search for problems and edge cases
 
+## Signaling Completion
+
+When your review is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your verdict and summary. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting. Do not wait for SendMessage.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
-- Send findings immediately -- do not batch
 - Always include file path, line number, and the violated rule or pattern
 - When the engineer pushes back with evidence, evaluate objectively
+- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Batch all findings into a single message. Never send more than one message to the same agent without a response
 - Escalate design disagreements to a teammate with architecture expertise

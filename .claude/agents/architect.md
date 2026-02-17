@@ -52,13 +52,17 @@ When asked a question, respond immediately with your best thinking. If you need 
 
 Plans may not account for existing patterns, rule constraints, or simpler approaches. If a plan conflicts with project rules or established patterns, say so with evidence.
 
+## Signaling Completion
+
+When your work is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your findings and recommendations. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting. Do not wait for SendMessage.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
-- **Be chatty.** Short frequent messages beat long delayed ones
 - Be specific: file paths, line numbers, what to change, where, and why
 - When two approaches exist, present trade-offs and recommend one
 - Proactively message engineers when you spot issues -- don't wait to be asked
+- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Never send more than one message to the same agent without a response. Consolidate everything into a single message
 
 ## Principles
 

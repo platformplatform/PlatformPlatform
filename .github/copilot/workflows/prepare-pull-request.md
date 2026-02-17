@@ -4,6 +4,8 @@ Use this workflow to create pull request titles and descriptions.
 
 ## Workflow
 
+Team leads: execute this workflow directly. Do not delegate it.
+
 1. Before creating a pull request, gather context by inspecting the changes:
    - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`
    - View the full diff: `git --no-pager diff main`
