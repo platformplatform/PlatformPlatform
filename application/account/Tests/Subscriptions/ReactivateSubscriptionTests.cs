@@ -30,7 +30,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", true),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -68,7 +67,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", true),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -106,7 +104,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", true),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -147,7 +144,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -186,7 +182,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -220,7 +215,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", true),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]

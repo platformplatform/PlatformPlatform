@@ -28,10 +28,10 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
-                ("DisputedAt", null),
-                ("RefundedAt", null),
-                ("PaymentTransactions", "[]")
+                ("CancellationReason", null),
+                ("CancellationFeedback", null),
+                ("PaymentTransactions", "[]"),
+                ("PaymentMethod", null)
             ]
         );
 

@@ -75,10 +75,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return null;
     }
 
-    public Task<BillingInfo?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot get customer billing info for '{CustomerId}'", stripeCustomerId);
-        return Task.FromResult<BillingInfo?>(null);
+        return Task.FromResult<CustomerBillingResult?>(null);
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)

@@ -1097,38 +1097,6 @@
         }
       }
     },
-    "/api/account/subscriptions/dismiss-banner": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsDismissBanner",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DismissBannerCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account/subscriptions/billing-info": {
       "put": {
         "tags": [
@@ -2417,16 +2385,6 @@
               }
             ]
           },
-          "disputedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "refundedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "isPaymentFailed": {
             "type": "boolean"
           },
@@ -2851,27 +2809,6 @@
           }
         }
       },
-      "DismissBannerCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "bannerType": {
-            "$ref": "#/components/schemas/BannerType"
-          }
-        }
-      },
-      "BannerType": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Refund",
-          "Dispute"
-        ],
-        "enum": [
-          "Refund",
-          "Dispute"
-        ]
-      },
       "UpdateBillingInfoCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2957,17 +2894,11 @@
         "description": "",
         "x-enumNames": [
           "PaymentFailed",
-          "CustomerDeleted",
-          "TermsViolation",
-          "SuspiciousActivity",
-          "AccountDeletionRequested"
+          "CustomerDeleted"
         ],
         "enum": [
           "PaymentFailed",
-          "CustomerDeleted",
-          "TermsViolation",
-          "SuspiciousActivity",
-          "AccountDeletionRequested"
+          "CustomerDeleted"
         ]
       },
       "UpdateCurrentTenantCommand": {
