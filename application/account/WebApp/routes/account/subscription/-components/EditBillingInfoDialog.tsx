@@ -381,7 +381,6 @@ export function EditBillingInfoDialog({
 
   return (
     <DirtyDialog
-      trackingTitle="Edit billing info"
       open={isOpen}
       onOpenChange={onOpenChange}
       hasUnsavedChanges={isFormDirty}
@@ -390,6 +389,7 @@ export function EditBillingInfoDialog({
       leaveLabel={t`Leave`}
       stayLabel={t`Stay`}
       onCloseComplete={handleCloseComplete}
+      trackingTitle="Edit billing info"
     >
       <DialogContent className="sm:w-dialog-lg">
         <DialogHeader>
