@@ -134,7 +134,12 @@ export function CheckoutDialog({
   const isReady = stripePromise && checkoutOptions;
 
   return (
-    <Dialog open={isOpen} onOpenChange={isWaitingForActivation ? undefined : onOpenChange} trackingTitle="Checkout">
+    <Dialog
+      open={isOpen}
+      onOpenChange={isWaitingForActivation ? undefined : onOpenChange}
+      disablePointerDismissal={true}
+      trackingTitle="Checkout"
+    >
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>
