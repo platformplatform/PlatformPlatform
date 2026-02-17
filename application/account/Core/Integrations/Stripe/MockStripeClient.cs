@@ -106,14 +106,25 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
-    public StripeHealthResult GetHealth()
+    public Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
     {
-        return new StripeHealthResult(
-            _isEnabled,
-            _isEnabled,
-            _isEnabled,
-            _isEnabled,
-            _isEnabled
+        EnsureEnabled();
+        var priceId = plan switch
+        {
+            SubscriptionPlan.Standard => "price_mock_standard",
+            SubscriptionPlan.Premium => "price_mock_premium",
+            _ => null
+        };
+        return Task.FromResult(priceId);
+    }
+
+    public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<PriceCatalogItem[]>([
+                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "USD 29.00/month"),
+                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "USD 99.00/month")
+            ]
         );
     }
 

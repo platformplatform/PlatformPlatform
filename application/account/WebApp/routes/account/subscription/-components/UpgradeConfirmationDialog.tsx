@@ -16,7 +16,7 @@ import type { components } from "@/shared/lib/api/api.generated";
 import { api, type SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
 import { PaymentMethodDisplay } from "./PaymentMethodDisplay";
-import { getPlanDetails } from "./PlanCard";
+import { getFormattedPrice, getPlanDetails } from "./PlanCard";
 
 type BillingInfo = components["schemas"]["BillingInfo"];
 type PaymentMethod = components["schemas"]["PaymentMethod"];
@@ -54,7 +54,9 @@ export function UpgradeConfirmationDialog({
     }).format(amount);
   }
 
+  const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
   const targetPlanDetails = getPlanDetails(targetPlan);
+  const targetFormattedPrice = getFormattedPrice(targetPlan, pricingCatalog?.plans);
 
   return (
     <Dialog
@@ -124,7 +126,7 @@ export function UpgradeConfirmationDialog({
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    <Trans>Estimated next bill: {targetPlanDetails.price}</Trans>
+                    <Trans>Estimated next bill: {targetFormattedPrice}</Trans>
                   </p>
                 </div>
               )}

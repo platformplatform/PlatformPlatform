@@ -340,7 +340,7 @@ msgid "Change user role for {0}"
 msgstr "Skift brugerrolle for {0}"
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
-#. placeholder {1}: getPlanDetails(scheduledPlan).price
+#. placeholder {1}: getFormattedPrice(scheduledPlan, pricingCatalog?.plans)
 msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
 msgstr "Skifter til {0} {1} den {formattedPeriodEndLong}"
 
@@ -558,15 +558,8 @@ msgstr "Azure infrastruktur i virksomhedsklasse"
 msgid "Environment isolation"
 msgstr "Miljøisolering"
 
-#. placeholder {0}: targetPlanDetails.price
-msgid "Estimated next bill: {0}"
-msgstr "Forventet næste regning: {0}"
-
-msgid "EUR 19/month"
-msgstr "EUR 19/måned"
-
-msgid "EUR 39/month"
-msgstr "EUR 39/måned"
+msgid "Estimated next bill: {targetFormattedPrice}"
+msgstr "Forventet næste regning: {targetFormattedPrice}"
 
 msgid "Europe"
 msgstr "Europa"
