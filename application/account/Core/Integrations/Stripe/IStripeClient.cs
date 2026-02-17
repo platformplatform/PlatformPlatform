@@ -26,7 +26,7 @@ public interface IStripeClient
 
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
-    Task<BillingInfo?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+    Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 
     Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken);
 
@@ -60,8 +60,11 @@ public sealed record SubscriptionSyncResult(
     DateTimeOffset? CurrentPeriodEnd,
     bool CancelAtPeriodEnd,
     PaymentTransaction[] PaymentTransactions,
-    PaymentMethod? PaymentMethod
+    PaymentMethod? PaymentMethod,
+    string? SubscriptionStatus
 );
+
+public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted);
 
 public sealed record StripeHealthResult(bool IsConfigured, bool HasApiKey, bool HasWebhookSecret, bool HasStandardPriceId, bool HasPremiumPriceId);
 
@@ -72,3 +75,9 @@ public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, 
 public sealed record UpgradePreviewLineItem(string Description, decimal Amount, string Currency, bool IsProration);
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
+
+public static class StripeSubscriptionStatus
+{
+    public const string Active = "active";
+    public const string PastDue = "past_due";
+}

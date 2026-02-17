@@ -29,7 +29,6 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -73,7 +72,6 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -103,7 +101,6 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -133,7 +130,6 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]

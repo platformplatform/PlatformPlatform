@@ -30,7 +30,6 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null),
                 ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
@@ -70,7 +69,6 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]
@@ -104,7 +102,6 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("CurrentPeriodEnd", null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
-                ("LastNotificationSentAt", null),
                 ("PaymentTransactions", "[]"),
                 ("PaymentMethod", null)
             ]

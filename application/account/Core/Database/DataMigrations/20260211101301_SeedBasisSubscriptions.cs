@@ -25,8 +25,8 @@ public sealed class SeedBasisSubscriptions(AccountDbContext dbContext) : IDataMi
             var subscriptionId = SubscriptionId.NewId();
             await dbContext.Database.ExecuteSqlAsync(
                 $"""
-                 INSERT INTO Subscriptions (TenantId, Id, CreatedAt, ModifiedAt, [Plan], ScheduledPlan, StripeCustomerId, StripeSubscriptionId, CurrentPeriodEnd, CancelAtPeriodEnd, FirstPaymentFailedAt, LastNotificationSentAt, PaymentTransactions, PaymentMethod, BillingInfo)
-                 VALUES ({tenantId}, {subscriptionId.Value}, GETUTCDATE(), NULL, 'Basis', NULL, NULL, NULL, NULL, 0, NULL, NULL, '[]', NULL, NULL)
+                 INSERT INTO Subscriptions (TenantId, Id, CreatedAt, ModifiedAt, [Plan], ScheduledPlan, StripeCustomerId, StripeSubscriptionId, CurrentPeriodEnd, CancelAtPeriodEnd, FirstPaymentFailedAt, PaymentTransactions, PaymentMethod, BillingInfo)
+                 VALUES ({tenantId}, {subscriptionId.Value}, GETUTCDATE(), NULL, 'Basis', NULL, NULL, NULL, NULL, 0, NULL, '[]', NULL, NULL)
                  """,
                 cancellationToken
             );

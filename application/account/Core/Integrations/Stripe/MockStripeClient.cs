@@ -14,6 +14,12 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     private readonly bool _isEnabled = configuration.GetValue<bool>("Stripe:AllowMockProvider");
 
+    public static string? OverrideSubscriptionStatus { get; set; }
+
+    public static bool SimulateSubscriptionDeleted { get; set; }
+
+    public static bool SimulateCustomerDeleted { get; set; }
+
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
@@ -29,6 +35,11 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     public Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
+
+        if (SimulateSubscriptionDeleted)
+        {
+            return Task.FromResult<SubscriptionSyncResult?>(null);
+        }
 
         var now = timeProvider.GetUtcNow();
         var transactions = new[]
@@ -52,7 +63,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             now.AddDays(30),
             false,
             transactions,
-            new PaymentMethod("visa", "4242", 12, 2026)
+            new PaymentMethod("visa", "4242", 12, 2026),
+            OverrideSubscriptionStatus ?? StripeSubscriptionStatus.Active
         );
 
         return Task.FromResult<SubscriptionSyncResult?>(result);
@@ -130,11 +142,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return new StripeWebhookEventResult(eventId, eventType, customerId);
     }
 
-    public Task<BillingInfo?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    public Task<CustomerBillingResult?> GetCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
+
+        if (SimulateCustomerDeleted)
+        {
+            return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(null, true));
+        }
+
         var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "K\u00f8benhavn K", null, "DK"), "billing@example.com", null);
-        return Task.FromResult<BillingInfo?>(billingInfo);
+        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false));
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)
@@ -195,6 +213,13 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "eur", 0m));
+    }
+
+    public static void ResetOverrides()
+    {
+        OverrideSubscriptionStatus = null;
+        SimulateSubscriptionDeleted = false;
+        SimulateCustomerDeleted = false;
     }
 
     private void EnsureEnabled()
