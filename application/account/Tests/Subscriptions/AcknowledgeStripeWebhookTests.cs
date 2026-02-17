@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text;
 using FluentAssertions;
-using NSubstitute;
 using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
@@ -144,7 +143,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     }
 
     [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldSetFailureAndSendEmail()
+    public async Task AcknowledgeStripeWebhook_WhenFirstPaymentFailed_ShouldSetFailure()
     {
         // Arrange
         MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
@@ -167,22 +166,15 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Active));
-
-        await EmailClient.Received(1).SendAsync(
-            Arg.Is<string>(e => e == "billing@example.com"),
-            Arg.Is<string>(s => s.Contains("Payment failed")),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
     }
 
     [Fact]
-    public async Task AcknowledgeStripeWebhook_WhenSubsequentPaymentFailed_ShouldNotSendEmail()
+    public async Task AcknowledgeStripeWebhook_WhenSubsequentPaymentFailed_ShouldNotUpdateFailureTimestamp()
     {
         // Arrange
         MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
         var now = TimeProvider.GetUtcNow();
-        InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
+        var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -196,12 +188,8 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        await EmailClient.DidNotReceive().SendAsync(
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<string>(),
-            Arg.Any<CancellationToken>()
-        );
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        firstPaymentFailed.Should().NotBeNullOrEmpty();
     }
 
     [Fact]
