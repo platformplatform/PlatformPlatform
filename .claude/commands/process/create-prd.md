@@ -6,6 +6,8 @@ description: Workflow for creating a product requirement document (PRD) for a ne
 
 Your job is to work with the user through an interactive wizard to create a high-level PRD using language that is easy to understand for non-technical people. The PRD defines a [feature] with all [tasks] to be created in `[PRODUCT_MANAGEMENT_TOOL]`.
 
+Team leads: execute this workflow directly. Do not delegate it.
+
 ## Mandatory Preparation
 
 1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
@@ -56,7 +58,7 @@ Conduct deep research for a feasible solution that takes the existing codebase a
 Now that you've done research, ask the user ALL required questions in ONE single AskUserQuestion call:
 
 ```
-AskUserQuestion with 4 questions:
+AskUserQuestion with 3 questions:
 
 Question 1 - Feature name:
 - question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
@@ -81,19 +83,11 @@ Question 3 - E2E tests:
 - options:
   - label: "Yes", description: "Include E2E tests as a separate [task]"
   - label: "No", description: "Skip E2E tests for now"
-
-Question 4 - Parallel optimization:
-- question: "Should [tasks] be optimized for parallel work of backend and frontend?"
-- header: "Parallel"
-- multiSelect: false
-- options:
-  - label: "Yes", description: "Backend and frontend with mocks work in parallel, then integration"
-  - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
 
 **Ask additional questions:**
 
-After the first 4 questions, ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
+After the first 3 questions, ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
 
 Ask as many questions as needed to understand:
 - User roles and permissions
@@ -105,7 +99,7 @@ Ask as many questions as needed to understand:
 
 **The more questions you ask, the better the PRD.**
 
-**Frontend-first approach (only ask if user selected "No" for parallel optimization):**
+**Implementation approach:**
 ```
 AskUserQuestion with:
 - question: "Should we create frontend mockups first for UI/UX exploration?"
@@ -113,7 +107,7 @@ AskUserQuestion with:
 - multiSelect: false
 - options:
   - label: "Yes", description: "Frontend mockups first to validate UI/UX before backend"
-  - label: "No", description: "Backend-first approach"
+  - label: "No", description: "Backend-first approach (default)"
 ```
 
 ### Step 5: Draft the complete PRD and get approval
@@ -133,10 +127,9 @@ Based on all the research and user answers, draft the complete PRD.
 
    **Examples based on common patterns:**
 
-   **Example 1 - Parallel optimization (small [feature]):**
-   - Frontend with mocked API responses
-   - Backend implementation with real data (can work in parallel)
-   - Integration (connect frontend to real backend, remove mocks)
+   **Example 1 - Backend-first approach (default):**
+   - Backend implementation
+   - Frontend implementation
    - E2E tests (if E2E tests selected)
 
    **Example 2 - Frontend-first approach:**
@@ -145,24 +138,17 @@ Based on all the research and user answers, draft the complete PRD.
    - Integration (connect frontend to backend)
    - E2E tests (if E2E tests selected)
 
-   **Example 3 - Backend-first approach:**
-   - Backend implementation
-   - Frontend implementation
-   - E2E tests (if E2E tests selected)
-
-   **Example 4 - Backend-only [feature]:**
+   **Example 3 - Backend-only [feature]:**
    - Backend implementation (API endpoints, commands, queries, migrations, tests)
 
-   **Example 5 - Large complex [feature]:**
-   - Frontend core UI with mocks
+   **Example 4 - Large complex [feature]:**
    - Backend core functionality
-   - Integration frontend with backend
-   - Frontend advanced features with mocks
+   - Frontend core UI
    - Backend advanced functionality
-   - Integration frontend with backend
+   - Frontend advanced features
    - E2E tests (if E2E tests selected)
 
-   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers.
+   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers. All work is sequential -- one [task] fully completed before the next starts.
 
 3. **[Task] guidelines:**
    - Each [task] should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
@@ -254,11 +240,9 @@ Each [task] description must include:
 1. A paragraph explaining what the task delivers
 2. Bullet points (NOT checkboxes) listing the subtasks for implementation guidance
 
-**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. To implement, start the coordinator:
-```
-[DEVELOPER_CLI_ALIAS] claude-agent coordinator
-```
-The coordinator will prompt you to select which feature to implement.
+After creating all [tasks], update each [feature]'s description in [PRODUCT_MANAGEMENT_TOOL] with the full PRD content for that [feature] -- the intro paragraph, overview section, and core changes section (everything above the "Tasks overview" heading). This ensures the PRD context is available to anyone viewing the [feature] in [PRODUCT_MANAGEMENT_TOOL].
+
+**Inform user:** The [feature] and all [tasks] have been created in [PRODUCT_MANAGEMENT_TOOL]. Ask the user if they would like to start implementing the first task now.
 
 ## Guidelines
 

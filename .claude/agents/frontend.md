@@ -98,9 +98,13 @@ You are the expert closest to the code. If something does not align with rules, 
 - Use rem-based values -- px only for hairline borders, SVG strokes, micro-offsets
 - Follow rule files as strict requirements
 
+## Signaling Completion
+
+When your work is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with a summary of what you implemented and which files changed. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting. Do not wait for SendMessage.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
-- **Be chatty.** Share what you are doing, what you just finished, what you are about to start
 - Be specific: file paths, line numbers, concrete details
 - Respond promptly when teammates message you
+- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Never send more than one message to the same agent without a response. Consolidate everything into a single message
