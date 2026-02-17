@@ -337,7 +337,7 @@ msgid "Change user role for {0}"
 msgstr "Change user role for {0}"
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
-#. placeholder {1}: getPlanDetails(scheduledPlan).price
+#. placeholder {1}: getFormattedPrice(scheduledPlan, pricingCatalog?.plans)
 msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
 msgstr "Changing to {0} {1} on {formattedPeriodEndLong}"
 
@@ -552,15 +552,8 @@ msgstr "Enterprise-grade Azure infrastructure"
 msgid "Environment isolation"
 msgstr "Environment isolation"
 
-#. placeholder {0}: targetPlanDetails.price
-msgid "Estimated next bill: {0}"
-msgstr "Estimated next bill: {0}"
-
-msgid "EUR 19/month"
-msgstr "EUR 19/month"
-
-msgid "EUR 39/month"
-msgstr "EUR 39/month"
+msgid "Estimated next bill: {targetFormattedPrice}"
+msgstr "Estimated next bill: {targetFormattedPrice}"
 
 msgid "Europe"
 msgstr "Europe"

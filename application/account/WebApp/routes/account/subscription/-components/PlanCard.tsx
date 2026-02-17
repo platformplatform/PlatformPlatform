@@ -4,10 +4,25 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { CheckIcon } from "lucide-react";
+import type { components } from "@/shared/lib/api/api.generated";
 import { SubscriptionPlan } from "@/shared/lib/api/client";
+
+type PlanPriceItem = components["schemas"]["PlanPriceItem"];
+
+export function getFormattedPrice(plan: SubscriptionPlan, pricingPlans: PlanPriceItem[] | undefined): string {
+  const item = pricingPlans?.find((p) => p.plan === plan);
+  if (item) {
+    return item.formattedPrice;
+  }
+  if (plan === SubscriptionPlan.Basis) {
+    return t`Free`;
+  }
+  return "";
+}
 
 type PlanCardProps = {
   plan: SubscriptionPlan;
+  formattedPrice: string;
   currentPlan: SubscriptionPlan;
   cancelAtPeriodEnd: boolean;
   scheduledPlan: SubscriptionPlan | null;
@@ -24,7 +39,6 @@ type PlanCardProps = {
 
 type PlanDetails = {
   name: string;
-  price: string;
   features: string[];
 };
 
@@ -33,19 +47,16 @@ export function getPlanDetails(plan: SubscriptionPlan): PlanDetails {
     case SubscriptionPlan.Basis:
       return {
         name: t`Basis`,
-        price: t`Free`,
         features: [t`5 users`, t`10 GB storage`, t`Basic support`]
       };
     case SubscriptionPlan.Standard:
       return {
         name: t`Standard`,
-        price: t`EUR 19/month`,
         features: [t`10 users`, t`100 GB storage`, t`Email support`, t`Analytics`]
       };
     case SubscriptionPlan.Premium:
       return {
         name: t`Premium`,
-        price: t`EUR 39/month`,
         features: [t`Unlimited users`, t`1 TB storage`, t`Priority support`, t`Advanced analytics`, t`SLA`]
       };
   }
@@ -64,6 +75,7 @@ function getPlanOrder(plan: SubscriptionPlan): number {
 
 export function PlanCard({
   plan,
+  formattedPrice,
   currentPlan,
   cancelAtPeriodEnd,
   scheduledPlan,
@@ -177,7 +189,7 @@ export function PlanCard({
           </Badge>
         )}
       </div>
-      <div className="font-semibold text-2xl">{details.price}</div>
+      <div className="font-semibold text-2xl">{formattedPrice}</div>
       <Separator />
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
         {details.features.map((feature) => (

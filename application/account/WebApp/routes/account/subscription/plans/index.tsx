@@ -17,7 +17,7 @@ import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialo
 import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
 import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
-import { PlanCard } from "../-components/PlanCard";
+import { getFormattedPrice, PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
@@ -49,6 +49,7 @@ function PlansPage() {
 
   const { data: stripeHealth } = api.useQuery("get", "/api/account/subscriptions/stripe-health");
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
     onSuccess: async (data, variables) => {
@@ -290,6 +291,7 @@ function PlansPage() {
             <PlanCard
               key={plan}
               plan={plan}
+              formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
               currentPlan={currentPlan}
               cancelAtPeriodEnd={cancelAtPeriodEnd}
               scheduledPlan={scheduledPlan}

@@ -20,10 +20,6 @@ var stripeApiKey = builder.AddParameter("stripe-api-key", true)
     .WithDescription("Stripe API Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
 var stripeWebhookSecret = builder.AddParameter("stripe-webhook-secret", true)
     .WithDescription("Stripe Webhook Secret from [Stripe Dashboard](https://dashboard.stripe.com/webhooks)", true);
-var stripePriceStandard = builder.AddParameter("stripe-price-standard", true)
-    .WithDescription("Stripe Price ID for Standard plan", true);
-var stripePricePremium = builder.AddParameter("stripe-price-premium", true)
-    .WithDescription("Stripe Price ID for Premium plan", true);
 var stripePublishableKey = builder.AddParameter("stripe-publishable-key", true)
     .WithDescription("Stripe Publishable Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
 
@@ -92,8 +88,6 @@ var accountApi = builder
     .WithEnvironment("OAuth__AllowMockProvider", "true")
     .WithEnvironment("Stripe__ApiKey", stripeApiKey)
     .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
-    .WithEnvironment("Stripe__Prices__Standard", stripePriceStandard)
-    .WithEnvironment("Stripe__Prices__Premium", stripePricePremium)
     .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
     .WithEnvironment("Stripe__AllowMockProvider", "true")
     .WaitFor(accountWorkers);

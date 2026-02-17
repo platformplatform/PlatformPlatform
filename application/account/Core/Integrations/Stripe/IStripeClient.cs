@@ -22,7 +22,9 @@ public interface IStripeClient
 
     Task<bool> ReactivateSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken);
 
-    StripeHealthResult GetHealth();
+    Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken);
+
+    Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken);
 
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
 
@@ -66,8 +68,6 @@ public sealed record SubscriptionSyncResult(
 
 public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted);
 
-public sealed record StripeHealthResult(bool IsConfigured, bool HasApiKey, bool HasWebhookSecret, bool HasStandardPriceId, bool HasPremiumPriceId);
-
 public sealed record UpgradeSubscriptionResult(string? ClientSecret);
 
 public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, UpgradePreviewLineItem[] LineItems);
@@ -75,6 +75,8 @@ public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, 
 public sealed record UpgradePreviewLineItem(string Description, decimal Amount, string Currency, bool IsProration);
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
+
+public sealed record PriceCatalogItem(SubscriptionPlan Plan, decimal UnitAmount, string Currency, string FormattedPrice);
 
 public static class StripeSubscriptionStatus
 {
