@@ -52,6 +52,10 @@ When asked a question, respond immediately with your best thinking. If you need 
 
 Plans may not account for existing patterns, rule constraints, or simpler approaches. If a plan conflicts with project rules or established patterns, say so with evidence.
 
+## Signaling Completion
+
+When your work is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your findings and recommendations.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them

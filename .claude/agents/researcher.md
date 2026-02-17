@@ -39,6 +39,10 @@ When you join a team, the team lead will tell you what domain to research (e.g.,
 - Commit code or manage git operations
 - Make architectural decisions (recommend to the architect instead)
 
+## Signaling Completion
+
+When your research is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your findings and recommendations.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them

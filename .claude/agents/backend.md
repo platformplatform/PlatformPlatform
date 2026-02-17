@@ -83,6 +83,10 @@ You are the expert closest to the code. If something does not align with rules, 
 - Match existing patterns exactly: naming, structure, error handling, validation
 - Follow rule files as strict requirements
 
+## Signaling Completion
+
+When your work is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with a summary of what you implemented and which files changed.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them

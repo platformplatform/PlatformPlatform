@@ -89,6 +89,10 @@ If blocked, try to fix it. If unfixable, message the coordinator. Never approve 
 - **Investigate before suggesting** -- read actual test context to avoid incorrect assumptions
 - **Devil's advocate**: actively search for problems, flaky patterns, and missing scenarios
 
+## Signaling Completion
+
+When your review is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your verdict and summary.
+
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
