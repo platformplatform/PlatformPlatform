@@ -292,17 +292,13 @@ test.describe("@smoke", () => {
     })();
 
     // === STRIPE UNCONFIGURED STATE ===
-    await step("Mock Stripe unconfigured state & verify warning message on plans page")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/stripe-health", async (route) => {
+    await step("Mock empty pricing catalog & verify warning message on plans page")(async () => {
+      await ownerPage.route("**/api/account/subscriptions/pricing-catalog", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           json: {
-            isConfigured: false,
-            hasApiKey: false,
-            hasWebhookSecret: false,
-            hasStandardPriceId: false,
-            hasPremiumPriceId: false
+            plans: []
           }
         });
       });
@@ -312,7 +308,7 @@ test.describe("@smoke", () => {
         ownerPage.getByText("Billing is not configured. Please contact support to enable payment processing.")
       ).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/subscriptions/stripe-health");
+      await ownerPage.unroute("**/api/account/subscriptions/pricing-catalog");
     })();
   });
 

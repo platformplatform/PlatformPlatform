@@ -713,36 +713,6 @@
         }
       }
     },
-    "/api/account/subscriptions/stripe-health": {
-      "get": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "GetApiAccountSubscriptionsStripeHealth",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StripeHealthResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account/subscriptions/upgrade-preview": {
       "get": {
         "tags": [
@@ -2629,18 +2599,6 @@
           "Pending",
           "Refunded"
         ]
-      },
-      "StripeHealthResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "isConfigured": {
-            "type": "boolean"
-          },
-          "hasPrices": {
-            "type": "boolean"
-          }
-        }
       },
       "UpgradePreviewResponse": {
         "type": "object",
