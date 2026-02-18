@@ -1,0 +1,144 @@
+// Catches TanStack Query options accidentally placed in the init argument (3rd arg) of api.useQuery()
+// instead of the options argument (4th arg). The openapi-react-query InitWithUnknowns type silently
+// accepts any extra keys via { [key: string]: unknown }, so TypeScript will not catch this mistake.
+//
+// Correct:   api.useQuery("get", "/api/path", { params: {...} }, { enabled: true })
+// Incorrect: api.useQuery("get", "/api/path", { params: {...}, enabled: true })
+//
+// Each option needs 4 patterns to cover all combinations:
+//   - Sole property without 4th arg:  api.useQuery(method, path, { option: value })
+//   - Sole property with 4th arg:     api.useQuery(method, path, { option: value }, options)
+//   - With other properties, no 4th:  api.useQuery(method, path, { ...rest, option: value })
+//   - With other properties, 4th arg: api.useQuery(method, path, { ...rest, option: value }, options)
+//
+// Note: $rest does NOT match zero properties, so sole-property patterns are required.
+// Note: enabled also has shorthand patterns ({ enabled } vs { enabled: value }) since it is
+// commonly passed as a variable from props.
+language js
+
+or {
+  // enabled (explicit key-value, e.g. enabled: true or enabled: isReady)
+  `api.useQuery($method, $path, { enabled: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { enabled: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, enabled: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, enabled: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  // enabled (shorthand property, e.g. { params: {...}, enabled } where enabled is a variable)
+  `api.useQuery($method, $path, { enabled })` where {
+    register_diagnostic(span=$path, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { enabled }, $options)` where {
+    register_diagnostic(span=$path, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, enabled })` where {
+    register_diagnostic(span=$path, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, enabled }, $options)` where {
+    register_diagnostic(span=$path, message="TanStack Query option `enabled` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // staleTime (how long data stays fresh before refetching)
+  `api.useQuery($method, $path, { staleTime: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `staleTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { staleTime: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `staleTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, staleTime: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `staleTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, staleTime: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `staleTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // gcTime (how long unused query data stays in cache before garbage collection)
+  `api.useQuery($method, $path, { gcTime: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `gcTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { gcTime: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `gcTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, gcTime: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `gcTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, gcTime: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `gcTime` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // retry (whether and how many times to retry failed queries)
+  `api.useQuery($method, $path, { retry: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `retry` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { retry: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `retry` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, retry: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `retry` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, retry: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `retry` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // select (transforms query data before it reaches the component)
+  `api.useQuery($method, $path, { select: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `select` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { select: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `select` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, select: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `select` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, select: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `select` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // placeholderData (data shown while the real query is loading)
+  `api.useQuery($method, $path, { placeholderData: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `placeholderData` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { placeholderData: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `placeholderData` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, placeholderData: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `placeholderData` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, placeholderData: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `placeholderData` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // throwOnError (whether query errors throw to the nearest error boundary)
+  `api.useQuery($method, $path, { throwOnError: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `throwOnError` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { throwOnError: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `throwOnError` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, throwOnError: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `throwOnError` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, throwOnError: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `throwOnError` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+
+  // refetchInterval (polls the endpoint on a recurring interval)
+  `api.useQuery($method, $path, { refetchInterval: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `refetchInterval` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { refetchInterval: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `refetchInterval` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, refetchInterval: $value })` where {
+    register_diagnostic(span=$value, message="TanStack Query option `refetchInterval` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  },
+  `api.useQuery($method, $path, { $rest, refetchInterval: $value }, $options)` where {
+    register_diagnostic(span=$value, message="TanStack Query option `refetchInterval` is in the init argument (3rd arg). Move it to the options argument (4th arg) of api.useQuery.")
+  }
+}
