@@ -12,13 +12,15 @@ public sealed record SubscriptionResponse(
     SubscriptionId Id,
     SubscriptionPlan Plan,
     SubscriptionPlan? ScheduledPlan,
-    DateTimeOffset? CurrentPeriodEnd,
-    bool CancelAtPeriodEnd,
     bool HasStripeCustomer,
     bool HasStripeSubscription,
+    decimal? CurrentPriceAmount,
+    string? CurrentPriceCurrency,
+    DateTimeOffset? CurrentPeriodEnd,
+    bool CancelAtPeriodEnd,
+    bool IsPaymentFailed,
     PaymentMethod? PaymentMethod,
     BillingInfo? BillingInfo,
-    bool IsPaymentFailed,
     bool HasPendingStripeEvents
 );
 
@@ -36,13 +38,15 @@ public sealed class GetCurrentSubscriptionHandler(ISubscriptionRepository subscr
             subscription.Id,
             subscription.Plan,
             subscription.ScheduledPlan,
-            subscription.CurrentPeriodEnd,
-            subscription.CancelAtPeriodEnd,
             subscription.StripeCustomerId is not null,
             subscription.StripeSubscriptionId is not null,
+            subscription.CurrentPriceAmount,
+            subscription.CurrentPriceCurrency,
+            subscription.CurrentPeriodEnd,
+            subscription.CancelAtPeriodEnd,
+            subscription.FirstPaymentFailedAt is not null,
             subscription.PaymentMethod,
             subscription.BillingInfo,
-            subscription.FirstPaymentFailedAt is not null,
             hasPendingStripeEvents
         );
     }

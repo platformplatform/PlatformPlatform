@@ -33,6 +33,11 @@ msgstr "{0} brugere slettet permanent"
 msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
+#. placeholder {0}: formatCurrency(currentPriceAmount, currentPriceCurrency)
+#. placeholder {0}: formatCurrency(subscription.currentPriceAmount, subscription.currentPriceCurrency)
+msgid "{0}/month"
+msgstr "{0}/måned"
+
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 

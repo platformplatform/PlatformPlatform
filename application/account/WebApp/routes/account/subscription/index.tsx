@@ -8,6 +8,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
+import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangleIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
@@ -182,7 +183,10 @@ function SubscriptionPage() {
               <div className="flex flex-col gap-2">
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="font-medium">
-                    {getPlanLabel(currentPlan)} {getFormattedPrice(currentPlan, pricingCatalog?.plans)}
+                    {getPlanLabel(currentPlan)}{" "}
+                    {subscription?.currentPriceAmount != null && subscription?.currentPriceCurrency != null
+                      ? t`${formatCurrency(subscription.currentPriceAmount, subscription.currentPriceCurrency)}/month`
+                      : getFormattedPrice(currentPlan, pricingCatalog?.plans)}
                   </span>
                   {cancelAtPeriodEnd ? (
                     <Badge variant="destructive">

@@ -37,6 +37,8 @@ public sealed class SyncSubscriptionFromStripe(
                 syncResult.Plan,
                 syncResult.ScheduledPlan,
                 syncResult.StripeSubscriptionId,
+                syncResult.CurrentPriceAmount,
+                syncResult.CurrentPriceCurrency,
                 syncResult.CurrentPeriodEnd,
                 syncResult.CancelAtPeriodEnd,
                 [.. syncResult.PaymentTransactions],
