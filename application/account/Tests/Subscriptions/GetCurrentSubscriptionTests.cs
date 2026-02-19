@@ -25,13 +25,16 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
+                ("CurrentPriceAmount", 29.99),
+                ("CurrentPriceCurrency", "USD"),
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", null),
                 ("CancellationReason", null),
                 ("CancellationFeedback", null),
                 ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("PaymentMethod", null),
+                ("BillingInfo", null)
             ]
         );
 
@@ -44,5 +47,7 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
         result!.Plan.Should().Be(SubscriptionPlan.Standard);
         result.HasStripeSubscription.Should().BeTrue();
         result.CancelAtPeriodEnd.Should().BeFalse();
+        result.CurrentPriceAmount.Should().Be(29.99m);
+        result.CurrentPriceCurrency.Should().Be("USD");
     }
 }

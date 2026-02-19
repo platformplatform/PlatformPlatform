@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
+import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { CheckIcon } from "lucide-react";
 import type { components } from "@/shared/lib/api/api.generated";
 import { SubscriptionPlan } from "@/shared/lib/api/client";
@@ -20,6 +21,10 @@ export function getFormattedPrice(plan: SubscriptionPlan, pricingPlans: PlanPric
   return "";
 }
 
+export function getCatalogUnitAmount(plan: SubscriptionPlan, pricingPlans: PlanPriceItem[] | undefined): number | null {
+  return pricingPlans?.find((p) => p.plan === plan)?.unitAmount ?? null;
+}
+
 type PlanCardProps = {
   plan: SubscriptionPlan;
   formattedPrice: string;
@@ -35,6 +40,9 @@ type PlanCardProps = {
   isPending: boolean;
   pendingPlan: SubscriptionPlan | null;
   isCancelDowngradePending: boolean;
+  currentPriceAmount?: number | null;
+  currentPriceCurrency?: string | null;
+  catalogUnitAmount?: number | null;
 };
 
 type PlanDetails = {
@@ -87,7 +95,10 @@ export function PlanCard({
   onCancelDowngrade,
   isPending,
   pendingPlan,
-  isCancelDowngradePending
+  isCancelDowngradePending,
+  currentPriceAmount,
+  currentPriceCurrency,
+  catalogUnitAmount
 }: Readonly<PlanCardProps>) {
   const details = getPlanDetails(plan);
   const isCurrent = plan === currentPlan;
@@ -189,7 +200,20 @@ export function PlanCard({
           </Badge>
         )}
       </div>
-      <div className="font-semibold text-2xl">{formattedPrice}</div>
+      <div className="font-semibold text-2xl">
+        {isCurrent &&
+        currentPriceAmount != null &&
+        currentPriceCurrency != null &&
+        catalogUnitAmount != null &&
+        currentPriceAmount !== catalogUnitAmount ? (
+          <div className="flex flex-wrap items-baseline gap-2">
+            <span>{t`${formatCurrency(currentPriceAmount, currentPriceCurrency)}/month`}</span>
+            <span className="text-base text-muted-foreground line-through">{formattedPrice}</span>
+          </div>
+        ) : (
+          formattedPrice
+        )}
+      </div>
       <Separator />
       <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
         {details.features.map((feature) => (
