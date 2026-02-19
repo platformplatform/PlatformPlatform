@@ -65,6 +65,10 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
+        group.MapPost("/process-pending-events", async Task<ApiResult> (IMediator mediator)
+            => await mediator.Send(new ProcessPendingEventsCommand())
+        );
+
         group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
             => await mediator.Send(command)
         );

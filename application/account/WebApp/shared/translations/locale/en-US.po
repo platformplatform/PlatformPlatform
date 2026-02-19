@@ -1491,6 +1491,9 @@ msgstr "Your cancellation will be reversed and your {planName} subscription will
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Your cancellation will be reversed and your subscription will be changed to {planName}."
 
+msgid "Your changes may take a moment to appear."
+msgstr "Your changes may take a moment to appear."
+
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Your data stays in the Azure region you select at signup"
 

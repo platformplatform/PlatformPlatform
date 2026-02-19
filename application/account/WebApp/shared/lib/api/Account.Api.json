@@ -1097,6 +1097,26 @@
         }
       }
     },
+    "/api/account/subscriptions/process-pending-events": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsProcessPendingEvents",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/billing-info": {
       "put": {
         "tags": [
