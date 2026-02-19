@@ -14,6 +14,7 @@ import {
 } from "@repo/ui/components/Dialog";
 import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { CheckoutProvider, PaymentElement, useCheckout } from "@stripe/react-stripe-js/checkout";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 import { LoaderCircleIcon } from "lucide-react";
@@ -193,13 +194,6 @@ function CheckoutSkeleton() {
       <Skeleton className="h-[2.75rem] w-full" />
     </div>
   );
-}
-
-function formatCurrency(amount: number, currency: string): string {
-  return new Intl.NumberFormat(undefined, {
-    style: "currency",
-    currency: currency.toUpperCase()
-  }).format(amount);
 }
 
 interface CheckoutFormProps {

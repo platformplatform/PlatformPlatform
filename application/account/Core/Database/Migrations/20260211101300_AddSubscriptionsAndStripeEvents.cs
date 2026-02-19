@@ -24,6 +24,8 @@ public sealed class AddSubscriptionsAndStripeEvents : Migration
                 ScheduledPlan = table.Column<string>("varchar(20)", nullable: true),
                 StripeCustomerId = table.Column<string>("varchar(32)", nullable: true),
                 StripeSubscriptionId = table.Column<string>("varchar(32)", nullable: true),
+                CurrentPriceAmount = table.Column<decimal>("decimal(18,2)", nullable: true),
+                CurrentPriceCurrency = table.Column<string>("varchar(3)", nullable: true),
                 CurrentPeriodEnd = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),
                 CancelAtPeriodEnd = table.Column<bool>("bit", nullable: false),
                 FirstPaymentFailedAt = table.Column<DateTimeOffset>("datetimeoffset", nullable: true),

@@ -2355,6 +2355,21 @@
               }
             ]
           },
+          "hasStripeCustomer": {
+            "type": "boolean"
+          },
+          "hasStripeSubscription": {
+            "type": "boolean"
+          },
+          "currentPriceAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "currentPriceCurrency": {
+            "type": "string",
+            "nullable": true
+          },
           "currentPeriodEnd": {
             "type": "string",
             "format": "date-time",
@@ -2363,10 +2378,7 @@
           "cancelAtPeriodEnd": {
             "type": "boolean"
           },
-          "hasStripeCustomer": {
-            "type": "boolean"
-          },
-          "hasStripeSubscription": {
+          "isPaymentFailed": {
             "type": "boolean"
           },
           "paymentMethod": {
@@ -2384,9 +2396,6 @@
                 "$ref": "#/components/schemas/BillingInfo"
               }
             ]
-          },
-          "isPaymentFailed": {
-            "type": "boolean"
           },
           "hasPendingStripeEvents": {
             "type": "boolean"

@@ -15,6 +15,7 @@ namespace PlatformPlatform.Account.Integrations.Stripe;
 public sealed class StripeClient(IConfiguration configuration, IMemoryCache memoryCache, ILogger<StripeClient> logger) : IStripeClient
 {
     private const string PriceCacheKey = "stripe_resolved_prices";
+    private const string ProductPlanCacheKey = "stripe_product_plan_map";
     private static readonly TimeSpan PriceCacheDuration = TimeSpan.FromMinutes(1);
     private static readonly string[] LookupKeys = ["standard_monthly", "premium_monthly"];
 
@@ -118,9 +119,13 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 return null;
             }
 
-            var plan = GetPlanFromPriceId(stripeSubscription.Items.Data.FirstOrDefault()?.Price.Id);
+            await EnsurePriceCachePopulatedAsync(cancellationToken);
+            var subscriptionItem = stripeSubscription.Items.Data.FirstOrDefault();
+            var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
             var scheduledPlan = GetScheduledPlan(stripeSubscription);
-            var currentPeriodEnd = stripeSubscription.Items.Data.FirstOrDefault()?.CurrentPeriodEnd;
+            var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
+            var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
+            var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
             var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
 
             var invoiceService = new InvoiceService();
@@ -139,7 +144,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var paymentTransactions = invoices.Data.Select(invoice => new PaymentTransaction(
                     PaymentTransactionId.NewId(),
                     invoice.AmountPaid / 100m,
-                    invoice.Currency,
+                    invoice.Currency.ToUpperInvariant(),
                     MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
                     invoice.Created,
                     invoice.Status == "uncollectible" ? "Payment failed." : null,
@@ -166,6 +171,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 plan,
                 scheduledPlan,
                 StripeSubscriptionId.NewId(stripeSubscription.Id),
+                currentPriceAmount,
+                currentPriceCurrency,
                 currentPeriodEnd,
                 cancelAtPeriodEnd,
                 paymentTransactions,
@@ -746,7 +753,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                             new InvoiceSubscriptionDetailsItemOptions { Id = itemId, Price = priceId }
                         ],
                         ProrationBehavior = "always_invoice"
-                    }
+                    },
+                    AutomaticTax = new InvoiceAutomaticTaxOptions { Enabled = true }
                 }, GetRequestOptions(), cancellationToken
             );
 
@@ -754,7 +762,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 .Select(line => new UpgradePreviewLineItem(
                         line.Description ?? "",
                         line.Amount / 100m,
-                        line.Currency,
+                        line.Currency.ToUpperInvariant(),
                         line.Parent?.InvoiceItemDetails?.Proration == true || line.Parent?.SubscriptionItemDetails?.Proration == true
                     )
                 )
@@ -763,10 +771,10 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var totalTax = (invoice.TotalTaxes ?? []).Sum(t => t.Amount);
             if (totalTax > 0)
             {
-                lineItems.Add(new UpgradePreviewLineItem("Tax", totalTax / 100m, invoice.Currency, false));
+                lineItems.Add(new UpgradePreviewLineItem("Tax", totalTax / 100m, invoice.Currency.ToUpperInvariant(), false));
             }
 
-            return new UpgradePreviewResult(invoice.AmountDue / 100m, invoice.Currency, lineItems.ToArray());
+            return new UpgradePreviewResult(invoice.AmountDue / 100m, invoice.Currency.ToUpperInvariant(), lineItems.ToArray());
         }
         catch (StripeException ex)
         {
@@ -806,7 +814,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var totalTax = (invoice.TotalTaxes ?? []).Sum(t => t.Amount);
 
             logger.LogInformation("Generated checkout preview for customer '{CustomerId}' plan '{Plan}'", stripeCustomerId, plan);
-            return new CheckoutPreviewResult(invoice.AmountDue / 100m, invoice.Currency, totalTax / 100m);
+            return new CheckoutPreviewResult(invoice.AmountDue / 100m, invoice.Currency.ToUpperInvariant(), totalTax / 100m);
         }
         catch (StripeException ex)
         {
@@ -883,8 +891,11 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var options = new PriceListOptions { LookupKeys = [.. LookupKeys] };
             var prices = await priceService.ListAsync(options, GetRequestOptions(), cancellationToken);
 
-            var result = prices.ToDictionary(p => p.LookupKey, p => p);
-            memoryCache.Set(PriceCacheKey, result, PriceCacheDuration);
+            var pricesByLookupKey = prices.ToDictionary(p => p.LookupKey, p => p);
+            memoryCache.Set(PriceCacheKey, pricesByLookupKey, PriceCacheDuration);
+
+            var productPlanMap = prices.ToDictionary(p => p.ProductId, p => ParseLookupKey(p.LookupKey));
+            memoryCache.Set(ProductPlanCacheKey, productPlanMap, PriceCacheDuration);
         }
         catch (StripeException ex)
         {
@@ -896,20 +907,16 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         }
     }
 
-    private SubscriptionPlan GetPlanFromPriceId(string? priceId)
+    private SubscriptionPlan GetPlanFromProductId(string? productId)
     {
-        if (priceId is null)
+        if (productId is null)
         {
             return SubscriptionPlan.Basis;
         }
 
-        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null)
+        if (memoryCache.TryGetValue(ProductPlanCacheKey, out Dictionary<string, SubscriptionPlan>? cached) && cached is not null && cached.TryGetValue(productId, out var plan))
         {
-            var matchingEntry = cached.FirstOrDefault(kvp => kvp.Value.Id == priceId);
-            if (matchingEntry.Key is not null)
-            {
-                return ParseLookupKey(matchingEntry.Key);
-            }
+            return plan;
         }
 
         return SubscriptionPlan.Basis;
@@ -922,11 +929,25 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         var futurePhase = subscription.Schedule.Phases.LastOrDefault();
         if (futurePhase is null) return null;
 
-        var futurePriceId = futurePhase.Items.FirstOrDefault()?.PriceId;
-        if (futurePriceId is null) return null;
+        var futureProductId = GetProductIdFromPriceId(futurePhase.Items.FirstOrDefault()?.PriceId);
+        if (futureProductId is null) return null;
 
-        var plan = GetPlanFromPriceId(futurePriceId);
-        return plan != GetPlanFromPriceId(subscription.Items.Data.FirstOrDefault()?.Price.Id) ? plan : null;
+        var currentProductId = subscription.Items.Data.FirstOrDefault()?.Price.ProductId;
+        var scheduledPlan = GetPlanFromProductId(futureProductId);
+        return scheduledPlan != GetPlanFromProductId(currentProductId) ? scheduledPlan : null;
+    }
+
+    private string? GetProductIdFromPriceId(string? priceId)
+    {
+        if (priceId is null) return null;
+
+        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null)
+        {
+            var matchingPrice = cached.Values.FirstOrDefault(p => p.Id == priceId);
+            if (matchingPrice is not null) return matchingPrice.ProductId;
+        }
+
+        return null;
     }
 
     private static SubscriptionPlan ParseLookupKey(string lookupKey)

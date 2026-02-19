@@ -59,6 +59,8 @@ public sealed record SubscriptionSyncResult(
     SubscriptionPlan Plan,
     SubscriptionPlan? ScheduledPlan,
     StripeSubscriptionId? StripeSubscriptionId,
+    decimal? CurrentPriceAmount,
+    string? CurrentPriceCurrency,
     DateTimeOffset? CurrentPeriodEnd,
     bool CancelAtPeriodEnd,
     PaymentTransaction[] PaymentTransactions,

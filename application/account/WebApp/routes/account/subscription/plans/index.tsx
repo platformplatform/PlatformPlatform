@@ -17,7 +17,7 @@ import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialo
 import { CheckoutDialog } from "../-components/CheckoutDialog";
 import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
 import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
-import { getFormattedPrice, PlanCard } from "../-components/PlanCard";
+import { getCatalogUnitAmount, getFormattedPrice, PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
@@ -303,6 +303,9 @@ function PlansPage() {
               isPending={isPending}
               pendingPlan={pendingPlan}
               isCancelDowngradePending={cancelDowngradeMutation.isPending}
+              currentPriceAmount={subscription?.currentPriceAmount}
+              currentPriceCurrency={subscription?.currentPriceCurrency}
+              catalogUnitAmount={getCatalogUnitAmount(plan, pricingCatalog?.plans)}
             />
           ))}
         </div>
