@@ -1500,6 +1500,9 @@ msgstr "Din opsigelse vil blive fortrudt, og dit {planName}-abonnement vil forbl
 msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
 msgstr "Din opsigelse vil blive fortrudt, og dit abonnement vil blive ændret til {planName}."
 
+msgid "Your changes may take a moment to appear."
+msgstr "Dine ændringer kan tage et øjeblik at blive vist."
+
 msgid "Your data stays in the Azure region you select at signup"
 msgstr "Dine data forbliver i den Azure region du vælger ved tilmelding"
 
