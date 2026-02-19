@@ -12,6 +12,7 @@ import {
 } from "@repo/ui/components/Dialog";
 import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
+import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import type { components } from "@/shared/lib/api/api.generated";
 import { api, type SubscriptionPlan } from "@/shared/lib/api/client";
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
@@ -46,13 +47,6 @@ export function UpgradeConfirmationDialog({
     { params: { query: { NewPlan: targetPlan } } },
     { enabled: isOpen && !isPending }
   );
-
-  function formatCurrency(amount: number, currency: string): string {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency.toUpperCase()
-    }).format(amount);
-  }
 
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
   const targetPlanDetails = getPlanDetails(targetPlan);

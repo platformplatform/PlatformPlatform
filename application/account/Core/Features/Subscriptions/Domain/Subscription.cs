@@ -44,6 +44,10 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
 
     public StripeSubscriptionId? StripeSubscriptionId { get; private set; }
 
+    public decimal? CurrentPriceAmount { get; private set; }
+
+    public string? CurrentPriceCurrency { get; private set; }
+
     public DateTimeOffset? CurrentPeriodEnd { get; private set; }
 
     public bool CancelAtPeriodEnd { get; private set; }
@@ -81,6 +85,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         SubscriptionPlan plan,
         SubscriptionPlan? scheduledPlan,
         StripeSubscriptionId? stripeSubscriptionId,
+        decimal? currentPriceAmount,
+        string? currentPriceCurrency,
         DateTimeOffset? currentPeriodEnd,
         bool cancelAtPeriodEnd,
         ImmutableArray<PaymentTransaction> paymentTransactions,
@@ -90,6 +96,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         Plan = plan;
         ScheduledPlan = scheduledPlan;
         StripeSubscriptionId = stripeSubscriptionId;
+        CurrentPriceAmount = currentPriceAmount;
+        CurrentPriceCurrency = currentPriceCurrency;
         CurrentPeriodEnd = currentPeriodEnd;
         CancelAtPeriodEnd = cancelAtPeriodEnd;
         PaymentTransactions = paymentTransactions;
@@ -111,6 +119,8 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         Plan = SubscriptionPlan.Basis;
         ScheduledPlan = null;
         StripeSubscriptionId = null;
+        CurrentPriceAmount = null;
+        CurrentPriceCurrency = null;
         CurrentPeriodEnd = null;
         CancelAtPeriodEnd = false;
         CancellationReason = null;

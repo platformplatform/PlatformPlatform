@@ -47,7 +47,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             new PaymentTransaction(
                 PaymentTransactionId.NewId(),
                 29.99m,
-                "usd",
+                "USD",
                 PaymentTransactionStatus.Succeeded,
                 now,
                 null,
@@ -60,6 +60,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             SubscriptionPlan.Standard,
             null,
             StripeSubscriptionId.NewId(MockSubscriptionId),
+            29.99m,
+            "USD",
             now.AddDays(30),
             false,
             transactions,
@@ -213,17 +215,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         var lineItems = new[]
         {
-            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "usd", true),
-            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "usd", true),
-            new UpgradePreviewLineItem("Tax", 1.55m, "usd", false)
+            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "USD", true),
+            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "USD", true),
+            new UpgradePreviewLineItem("Tax", 1.55m, "USD", false)
         };
-        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "usd", lineItems));
+        return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "USD", lineItems));
     }
 
     public Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "eur", 0m));
+        return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "EUR", 0m));
     }
 
     public static void ResetOverrides()
