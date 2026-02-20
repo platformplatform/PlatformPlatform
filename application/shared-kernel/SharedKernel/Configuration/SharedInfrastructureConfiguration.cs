@@ -231,11 +231,18 @@ public static class SharedInfrastructureConfiguration
                 RequestCollectionOptions = { TrackExceptions = false }
             };
 
-            return services
+            services
                 .AddApplicationInsightsTelemetry(applicationInsightsServiceOptions)
                 .AddApplicationInsightsTelemetryProcessor<EndpointTelemetryFilter>()
                 .AddScoped<OpenTelemetryEnricher>()
                 .AddSingleton<ITelemetryInitializer, ApplicationInsightsTelemetryInitializer>();
+
+            if (!IsRunningInAzure)
+            {
+                services.AddApplicationInsightsTelemetryProcessor<DevelopmentApplicationInsightsLogger>();
+            }
+
+            return services;
         }
     }
 }
