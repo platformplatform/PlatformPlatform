@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
+import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -28,7 +28,10 @@ import { useSubscriptionPolling } from "./-components/useSubscriptionPolling";
 
 export const Route = createFileRoute("/account/subscription/")({
   staticData: { trackingTitle: "Subscription" },
-  beforeLoad: () => requirePermission({ allowedRoles: ["Owner"] }),
+  beforeLoad: () => {
+    requireSubscriptionEnabled();
+    requirePermission({ allowedRoles: ["Owner"] });
+  },
   component: SubscriptionPage
 });
 

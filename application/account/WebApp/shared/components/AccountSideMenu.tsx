@@ -46,7 +46,7 @@ function AccountNavigationMenuItems() {
       <MenuButton icon={HomeIcon} label={t`Overview`} ariaLabel={t`Account overview`} href="/account" />
       <MenuButton icon={Building2Icon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/account/users" matchPrefix={true} />
-      {userInfo?.role === "Owner" && (
+      {userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true" && (
         <MenuButton icon={CreditCardIcon} label={t`Subscription`} href="/account/subscription" matchPrefix={true} />
       )}
     </>

@@ -41,6 +41,10 @@ export declare global {
      * Google OAuth enabled
      **/
     PUBLIC_GOOGLE_OAUTH_ENABLED: string;
+    /**
+     * Whether subscription/billing is enabled (Stripe configured)
+     **/
+    PUBLIC_SUBSCRIPTION_ENABLED: string;
   }
 
   export interface UserInfoEnv {

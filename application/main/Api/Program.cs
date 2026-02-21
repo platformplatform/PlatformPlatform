@@ -14,7 +14,12 @@ builder
 builder.Services
     .AddApiServices([Assembly.GetExecutingAssembly(), Configuration.Assembly])
     .AddMainServices()
-    .AddSinglePageAppFallback(new Dictionary<string, string> { ["PUBLIC_GOOGLE_OAUTH_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_GOOGLE_OAUTH_ENABLED") ?? "false" });
+    .AddSinglePageAppFallback(new Dictionary<string, string>
+        {
+            ["PUBLIC_GOOGLE_OAUTH_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_GOOGLE_OAUTH_ENABLED") ?? "false",
+            ["PUBLIC_SUBSCRIPTION_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_SUBSCRIPTION_ENABLED") ?? "false"
+        }
+    );
 
 var app = builder.Build();
 

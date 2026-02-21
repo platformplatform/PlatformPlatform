@@ -122,7 +122,7 @@ function MobileMenuContent({
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
 
   const hasMultipleTenants = sortTenants(tenants).length > 1;
-  const hasSubscription = userInfo?.role === "Owner";
+  const hasSubscription = userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
   const hasTenantActions = hasMultipleTenants || canAccessAccountSettings || hasSubscription;
   const currentTenant = tenants.find((tenant) => tenant.tenantId === currentTenantId);
   const currentTenantName = currentTenant?.tenantName || userInfo?.tenantName || "PlatformPlatform";

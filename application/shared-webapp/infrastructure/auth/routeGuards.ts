@@ -44,6 +44,17 @@ export function isNotFoundError(error: unknown): error is NotFoundError {
 }
 
 /**
+ * Require subscription/billing to be enabled (Stripe configured).
+ * Throws NotFoundError if subscription is not enabled.
+ * Use this in beforeLoad to hide subscription routes when Stripe is not configured.
+ */
+export function requireSubscriptionEnabled(): void {
+  if (import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED !== "true") {
+    throw new NotFoundError();
+  }
+}
+
+/**
  * Redirect to login if user is not authenticated.
  * Use this in beforeLoad to prevent unauthorized access before the route renders.
  *
