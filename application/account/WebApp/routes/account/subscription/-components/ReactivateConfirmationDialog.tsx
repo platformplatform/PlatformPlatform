@@ -10,7 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
-import { SubscriptionPlan } from "@/shared/lib/api/client";
+import type { SubscriptionPlan } from "@/shared/lib/api/client";
+import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
 
 type ReactivateConfirmationDialogProps = {
   isOpen: boolean;
@@ -18,7 +19,6 @@ type ReactivateConfirmationDialogProps = {
   onConfirm: () => void;
   isPending: boolean;
   currentPlan: SubscriptionPlan;
-  targetPlan: SubscriptionPlan;
 };
 
 export function ReactivateConfirmationDialog({
@@ -26,21 +26,9 @@ export function ReactivateConfirmationDialog({
   onOpenChange,
   onConfirm,
   isPending,
-  currentPlan,
-  targetPlan
+  currentPlan
 }: Readonly<ReactivateConfirmationDialogProps>) {
-  function getPlanLabel(plan: SubscriptionPlan): string {
-    switch (plan) {
-      case SubscriptionPlan.Basis:
-        return t`Basis`;
-      case SubscriptionPlan.Standard:
-        return t`Standard`;
-      case SubscriptionPlan.Premium:
-        return t`Premium`;
-    }
-  }
-
-  const planName = getPlanLabel(targetPlan);
+  const planName = getPlanLabel(currentPlan);
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Reactivate subscription">
@@ -48,11 +36,7 @@ export function ReactivateConfirmationDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>{t`Reactivate subscription`}</AlertDialogTitle>
           <AlertDialogDescription>
-            {targetPlan === currentPlan ? (
-              <Trans>Your cancellation will be reversed and your {planName} subscription will remain active.</Trans>
-            ) : (
-              <Trans>Your cancellation will be reversed and your subscription will be changed to {planName}.</Trans>
-            )}
+            <Trans>Your cancellation will be reversed and your {planName} subscription will remain active.</Trans>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

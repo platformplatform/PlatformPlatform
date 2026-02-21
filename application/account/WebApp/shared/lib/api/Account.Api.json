@@ -2820,9 +2820,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "plan": {
-            "$ref": "#/components/schemas/SubscriptionPlan"
-          },
           "returnUrl": {
             "type": "string",
             "nullable": true

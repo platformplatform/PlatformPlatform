@@ -35,7 +35,7 @@ type PlanCardProps = {
   onSubscribe: (plan: SubscriptionPlan) => void;
   onUpgrade: (plan: SubscriptionPlan) => void;
   onDowngrade: (plan: SubscriptionPlan) => void;
-  onReactivate: (plan: SubscriptionPlan) => void;
+  onReactivate: () => void;
   onCancelDowngrade: () => void;
   isPending: boolean;
   pendingPlan: SubscriptionPlan | null;
@@ -112,16 +112,11 @@ export function PlanCard({
 
   function renderAction() {
     if (cancelAtPeriodEnd) {
-      if (plan === SubscriptionPlan.Basis) {
+      if (!isCurrent) {
         return null;
       }
       return (
-        <Button
-          variant="default"
-          className="w-full"
-          onClick={() => onReactivate(plan)}
-          disabled={isPending || !isStripeConfigured}
-        >
+        <Button variant="default" className="w-full" onClick={onReactivate} disabled={isPending || !isStripeConfigured}>
           {isThisPlanPending ? <Trans>Processing...</Trans> : <Trans>Reactivate</Trans>}
         </Button>
       );

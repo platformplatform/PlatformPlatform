@@ -12,6 +12,7 @@ import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
+import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
 import { CheckoutDialog } from "../-components/CheckoutDialog";
@@ -42,7 +43,6 @@ function PlansPage() {
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
-  const [reactivatePlan, setReactivatePlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
@@ -125,19 +125,11 @@ function PlansPage() {
         setIsReactivateDialogOpen(false);
         setReactivateClientSecret(data.clientSecret);
         setReactivatePublishableKey(data.publishableKey);
-        setPendingCheckoutPlan(reactivatePlan);
+        setPendingCheckoutPlan(currentPlan);
         setIsEditBillingInfoOpen(true);
       } else {
         startPolling({
-          check: (subscription) => {
-            if (subscription.cancelAtPeriodEnd) {
-              return false;
-            }
-            if (reactivatePlan === currentPlan) {
-              return true;
-            }
-            return subscription.scheduledPlan === reactivatePlan || subscription.plan === reactivatePlan;
-          },
+          check: (subscription) => subscription.cancelAtPeriodEnd === false,
           successMessage: t`Your subscription has been reactivated.`,
           onComplete: () => setIsReactivateDialogOpen(false)
         });
@@ -154,17 +146,6 @@ function PlansPage() {
   const billingInfo = subscription?.billingInfo;
   const formattedPeriodEnd = formatLongDate(currentPeriodEnd);
 
-  function getPlanLabel(plan: SubscriptionPlan): string {
-    switch (plan) {
-      case SubscriptionPlan.Basis:
-        return t`Basis`;
-      case SubscriptionPlan.Standard:
-        return t`Standard`;
-      case SubscriptionPlan.Premium:
-        return t`Premium`;
-    }
-  }
-
   const isPending =
     upgradeMutation.isPending ||
     downgradeMutation.isPending ||
@@ -178,7 +159,7 @@ function PlansPage() {
     : downgradeMutation.isPending
       ? downgradeTarget
       : reactivateMutation.isPending
-        ? (reactivateMutation.variables?.body?.plan ?? null)
+        ? currentPlan
         : null;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
@@ -212,15 +193,13 @@ function PlansPage() {
     cancelDowngradeMutation.mutate({});
   };
 
-  const handleReactivate = (plan: SubscriptionPlan) => {
-    setReactivatePlan(plan);
+  const handleReactivate = () => {
     setIsReactivateDialogOpen(true);
   };
 
   const handleConfirmReactivate = () => {
     reactivateMutation.mutate({
       body: {
-        plan: reactivatePlan,
         returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
       }
     });
@@ -251,13 +230,9 @@ function PlansPage() {
             {formattedPeriodEnd ? (
               <Trans>
                 Your {getPlanLabel(currentPlan)} subscription has been cancelled and will end on {formattedPeriodEnd}.
-                Reactivate by selecting a plan below.
               </Trans>
             ) : (
-              <Trans>
-                Your subscription has been cancelled and will end at the end of the current billing period. Reactivate
-                by selecting a plan below.
-              </Trans>
+              <Trans>Your subscription has been cancelled and will end at the end of the current billing period.</Trans>
             )}
           </div>
         )}
@@ -386,7 +361,6 @@ function PlansPage() {
         onConfirm={handleConfirmReactivate}
         isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
-        targetPlan={reactivatePlan}
       />
 
       <EditBillingInfoDialog
