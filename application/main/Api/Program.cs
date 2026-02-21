@@ -14,7 +14,7 @@ builder
 builder.Services
     .AddApiServices([Assembly.GetExecutingAssembly(), Configuration.Assembly])
     .AddMainServices()
-    .AddSinglePageAppFallback();
+    .AddSinglePageAppFallback(("PUBLIC_STRIPE_SUBSCRIPTION_ENABLED", Environment.GetEnvironmentVariable("PUBLIC_STRIPE_SUBSCRIPTION_ENABLED") ?? "false"));
 
 var app = builder.Build();
 

@@ -37,6 +37,10 @@ export declare global {
      * Culture locale
      **/
     LOCALE: string;
+    /**
+     * Whether subscription/billing is enabled (Stripe configured)
+     **/
+    PUBLIC_STRIPE_SUBSCRIPTION_ENABLED: string;
   }
 
   export interface UserInfoEnv {

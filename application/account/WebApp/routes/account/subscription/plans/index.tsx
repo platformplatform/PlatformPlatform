@@ -1,7 +1,7 @@
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
+import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
@@ -24,7 +24,10 @@ import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDia
 import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
 export const Route = createFileRoute("/account/subscription/plans/")({
-  beforeLoad: () => requirePermission({ allowedRoles: ["Owner"] }),
+  beforeLoad: () => {
+    requireSubscriptionEnabled();
+    requirePermission({ allowedRoles: ["Owner"] });
+  },
   component: PlansPage
 });
 
