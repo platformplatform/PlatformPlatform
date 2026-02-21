@@ -81,27 +81,31 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         BillingInfo = billingInfo;
     }
 
-    public void SyncFromStripe(
-        SubscriptionPlan plan,
-        SubscriptionPlan? scheduledPlan,
-        StripeSubscriptionId? stripeSubscriptionId,
-        decimal? currentPriceAmount,
-        string? currentPriceCurrency,
-        DateTimeOffset? currentPeriodEnd,
-        bool cancelAtPeriodEnd,
-        ImmutableArray<PaymentTransaction> paymentTransactions,
-        PaymentMethod? paymentMethod
-    )
+    public void SetStripeSubscription(StripeSubscriptionId? stripeSubscriptionId, SubscriptionPlan plan, decimal? currentPriceAmount, string? currentPriceCurrency, DateTimeOffset? currentPeriodEnd, PaymentMethod? paymentMethod)
     {
-        Plan = plan;
-        ScheduledPlan = scheduledPlan;
         StripeSubscriptionId = stripeSubscriptionId;
+        Plan = plan;
         CurrentPriceAmount = currentPriceAmount;
         CurrentPriceCurrency = currentPriceCurrency;
         CurrentPeriodEnd = currentPeriodEnd;
-        CancelAtPeriodEnd = cancelAtPeriodEnd;
-        PaymentTransactions = paymentTransactions;
         PaymentMethod = paymentMethod;
+    }
+
+    public void SetCancellation(bool cancelAtPeriodEnd, CancellationReason? cancellationReason, string? cancellationFeedback)
+    {
+        CancelAtPeriodEnd = cancelAtPeriodEnd;
+        CancellationReason = cancellationReason;
+        CancellationFeedback = cancellationFeedback;
+    }
+
+    public void SetScheduledPlan(SubscriptionPlan? scheduledPlan)
+    {
+        ScheduledPlan = scheduledPlan;
+    }
+
+    public void SetPaymentTransactions(ImmutableArray<PaymentTransaction> paymentTransactions)
+    {
+        PaymentTransactions = paymentTransactions;
     }
 
     public void SetPaymentFailed(DateTimeOffset failedAt)
@@ -125,12 +129,6 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         CancelAtPeriodEnd = false;
         CancellationReason = null;
         CancellationFeedback = null;
-    }
-
-    public void SetCancellationFeedback(CancellationReason reason, string? feedback)
-    {
-        CancellationReason = reason;
-        CancellationFeedback = feedback;
     }
 
     public bool HasActiveStripeSubscription()

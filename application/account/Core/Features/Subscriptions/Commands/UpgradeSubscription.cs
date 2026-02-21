@@ -5,7 +5,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
@@ -19,7 +18,6 @@ public sealed class UpgradeSubscriptionHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<UpgradeSubscriptionHandler> logger
 ) : IRequestHandler<UpgradeSubscriptionCommand, Result<UpgradeSubscriptionResponse>>
 {
@@ -43,7 +41,6 @@ public sealed class UpgradeSubscriptionHandler(
             return Result<UpgradeSubscriptionResponse>.BadRequest($"Cannot upgrade from '{subscription.Plan}' to '{command.NewPlan}'. Target plan must be higher.");
         }
 
-        var fromPlan = subscription.Plan;
         var stripeClient = stripeClientFactory.GetClient();
         var upgradeResult = await stripeClient.UpgradeSubscriptionAsync(subscription.StripeSubscriptionId, command.NewPlan, cancellationToken);
         if (upgradeResult is null)
@@ -51,7 +48,7 @@ public sealed class UpgradeSubscriptionHandler(
             return Result<UpgradeSubscriptionResponse>.BadRequest("Failed to upgrade subscription in Stripe.");
         }
 
-        events.CollectEvent(new SubscriptionUpgraded(subscription.Id, fromPlan, command.NewPlan));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         var publishableKey = upgradeResult.ClientSecret is not null ? stripeClientFactory.GetPublishableKey() : null;
         return new UpgradeSubscriptionResponse(upgradeResult.ClientSecret, publishableKey);

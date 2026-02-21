@@ -45,9 +45,7 @@ public sealed class UpgradeSubscriptionTests : EndpointBaseTest<AccountDbContext
         result!.ClientSecret.Should().BeNull();
         result.PublishableKey.Should().BeNull();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionUpgraded");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]

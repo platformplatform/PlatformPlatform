@@ -1557,8 +1557,8 @@ msgstr "Your subscription is scheduled to downgrade from {currentPlanName} to {s
 msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
 msgstr "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
 
-msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
-msgstr "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
+msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will switch to the free plan."
+msgstr "Your subscription will be cancelled at the end of the current billing period. After that, your account will switch to the free plan."
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
 msgid "Your subscription will be downgraded to {0} at the end of the current billing period."
@@ -1572,8 +1572,8 @@ msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
 msgid "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
 msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
 
-msgid "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
-msgstr "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
+msgid "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."
+msgstr "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Your team needs to know who's inviting them. Add an account name to get started."

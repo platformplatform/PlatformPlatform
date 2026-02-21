@@ -44,9 +44,7 @@ public sealed class CancelSubscriptionTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.EnsureSuccessStatusCode();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionCancelled");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]

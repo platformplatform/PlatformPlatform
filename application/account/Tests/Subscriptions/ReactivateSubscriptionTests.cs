@@ -45,9 +45,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
         result!.ClientSecret.Should().BeNull();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -82,9 +80,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
         result!.ClientSecret.Should().BeNull();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -119,9 +115,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
         result!.ClientSecret.Should().BeNull();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]
@@ -160,9 +154,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         result!.ClientSecret.Should().NotBeNullOrEmpty();
         result.PublishableKey.Should().NotBeNullOrEmpty();
 
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionReactivated");
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
 
     [Fact]

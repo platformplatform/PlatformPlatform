@@ -1557,8 +1557,8 @@ msgstr "Dit abonnement er planlagt til at blive nedgraderet fra {currentPlanName
 msgid "Your subscription is scheduled to downgrade from {currentPlanName} to {scheduledPlanName}. If you cancel the downgrade, you will stay on the {currentPlanName} plan."
 msgstr "Dit abonnement er planlagt til at blive nedgraderet fra {currentPlanName} til {scheduledPlanName}. Hvis du afbryder nedgraderingen, forbliver du på {currentPlanName}-planen."
 
-msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will be suspended."
-msgstr "Dit abonnement er blevet opsagt, med effekt fra udgangen af den nuværende faktureringsperiode. Herefter vil din konto blive suspenderet."
+msgid "Your subscription will be cancelled at the end of the current billing period. After that, your account will switch to the free plan."
+msgstr "Dit abonnement vil blive opsagt ved udgangen af den nuværende faktureringsperiode. Herefter skifter din konto til den gratis plan."
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
 msgid "Your subscription will be downgraded to {0} at the end of the current billing period."
@@ -1572,8 +1572,8 @@ msgstr "Dit abonnement vil blive nedgraderet til {0} den {formattedPeriodEnd}."
 msgid "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
 msgstr "Dit abonnement vil blive nedgraderet til {0} den {formattedPeriodEndLong}."
 
-msgid "Your subscription will remain active until {formattedDate}. After that, your account will be suspended and you will lose access to paid features."
-msgstr "Dit abonnement forbliver aktivt indtil {formattedDate}. Herefter vil din konto blive suspenderet, og du vil miste adgang til betalte funktioner."
+msgid "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."
+msgstr "Dit abonnement forbliver aktivt indtil {formattedDate}. Herefter skifter din konto til den gratis plan."
 
 msgid "Your team needs to know who's inviting them. Add an account name to get started."
 msgstr "Dit team skal vide, hvem der inviterer dem. Tilføj et kontonavn for at komme i gang."

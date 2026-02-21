@@ -6,6 +6,7 @@ public static class SubscriptionPlanExtensions
 {
     extension(SubscriptionPlan target)
     {
+        // Relies on enum ordering: higher values = higher-tier plans
         public bool IsUpgradeFrom(SubscriptionPlan current)
         {
             return target > current;
