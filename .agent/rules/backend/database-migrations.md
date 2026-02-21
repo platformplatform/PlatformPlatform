@@ -26,6 +26,7 @@ Guidelines for creating database migrations.
    - Intelligently deduce varchar vs nvarchar based on property type, validators, enum values, etc.
    - Use `datetimeoffset` (default), `datetime2` (timezone agnostic), or `date`—never `datetime`
    - Default to `varchar(10)` or `varchar(20)` for enum values
+   - Use `decimal(18,2)` for decimal properties and always add `HasPrecision(18, 2)` in the EF Core configuration to avoid silent truncation warnings
 4. Create appropriate constraints and indexes:
    - Primary keys: `PK_TableName`
    - Foreign keys: `FK_ChildTable_ParentTable_ColumnName`
