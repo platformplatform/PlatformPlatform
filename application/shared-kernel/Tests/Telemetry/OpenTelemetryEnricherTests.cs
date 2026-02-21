@@ -29,6 +29,7 @@ public sealed class OpenTelemetryEnricherTests
             IsAuthenticated = true,
             Id = userId,
             TenantId = tenantId,
+            SubscriptionPlan = "Standard",
             SessionId = sessionId,
             Locale = "en-US",
             Role = "Admin",
@@ -59,6 +60,9 @@ public sealed class OpenTelemetryEnricherTests
             // Assert
             var sessionIdTag = activity.Tags.FirstOrDefault(t => t.Key == "user.session_id");
             sessionIdTag.Value.Should().Be(sessionId.Value);
+
+            var subscriptionPlanTag = activity.Tags.FirstOrDefault(t => t.Key == "tenant.subscription_plan");
+            subscriptionPlanTag.Value.Should().Be("Standard");
         }
     }
 
