@@ -16,12 +16,8 @@ SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-
 
 var (googleOAuthConfigured, googleOAuthClientId, googleOAuthClientSecret) = ConfigureGoogleOAuthParameters();
 
-var stripeApiKey = builder.AddParameter("stripe-api-key", true)
-    .WithDescription("Stripe API Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
-var stripeWebhookSecret = builder.AddParameter("stripe-webhook-secret", true)
-    .WithDescription("Stripe Webhook Secret from [Stripe Dashboard](https://dashboard.stripe.com/webhooks)", true);
-var stripePublishableKey = builder.AddParameter("stripe-publishable-key", true)
-    .WithDescription("Stripe Publishable Key from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)", true);
+var (stripeConfigured, stripePublishableKey, stripeApiKey, stripeWebhookSecret) = ConfigureStripeParameters();
+var stripeFullyConfigured = stripeConfigured && builder.Configuration["Parameters:stripe-webhook-secret"] is not null and not "not-configured";
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
@@ -53,15 +49,6 @@ builder
     .WithLifetime(ContainerLifetime.Persistent)
     .WithUrlForEndpoint("http", u => u.DisplayText = "Read mail here");
 
-if (builder.Configuration["Parameters:stripe-api-key"] is not null)
-{
-    builder
-        .AddContainer("stripe-cli", "stripe/stripe-cli:latest")
-        .WithArgs("listen", "--forward-to", "https://host.docker.internal:9000/api/account/subscriptions/stripe-webhook", "--skip-verify")
-        .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
-        .WithLifetime(ContainerLifetime.Persistent);
-}
-
 CreateBlobContainer("avatars");
 CreateBlobContainer("logos");
 
@@ -86,6 +73,7 @@ var accountApi = builder
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
+    .WithEnvironment("Stripe__SubscriptionEnabled", stripeFullyConfigured ? "true" : "false")
     .WithEnvironment("Stripe__ApiKey", stripeApiKey)
     .WithEnvironment("Stripe__WebhookSecret", stripeWebhookSecret)
     .WithEnvironment("Stripe__PublishableKey", stripePublishableKey)
@@ -123,6 +111,7 @@ var mainApi = builder
     .WithReference(mainDatabase)
     .WithReference(azureStorage)
     .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
+    .WithEnvironment("PUBLIC_SUBSCRIPTION_ENABLED", stripeFullyConfigured ? "true" : "false")
     .WaitFor(mainWorkers);
 
 var appGateway = builder
@@ -138,9 +127,23 @@ var appGateway = builder
 appGateway.WithUrl($"{appGateway.GetEndpoint("https")}/back-office", "Back Office");
 appGateway.WithUrl($"{appGateway.GetEndpoint("https")}/openapi", "Open API");
 
+AddStripeCliContainer();
+
 await builder.Build().RunAsync();
 
 return;
+
+void AddStripeCliContainer()
+{
+    if (stripeConfigured)
+    {
+        builder
+            .AddContainer("stripe-cli", "stripe/stripe-cli:latest")
+            .WithArgs("listen", "--forward-to", "https://host.docker.internal:9000/api/account/subscriptions/stripe-webhook", "--skip-verify")
+            .WithEnvironment("STRIPE_API_KEY", stripeApiKey)
+            .WithLifetime(ContainerLifetime.Persistent);
+    }
+}
 
 (bool Configured, IResourceBuilder<ParameterResource> ClientId, IResourceBuilder<ParameterResource> ClientSecret) ConfigureGoogleOAuthParameters()
 {
@@ -187,6 +190,59 @@ return;
         configured,
         builder.CreateResourceBuilder(new ParameterResource("google-oauth-client-id", _ => "not-configured", true)),
         builder.CreateResourceBuilder(new ParameterResource("google-oauth-client-secret", _ => "not-configured", true))
+    );
+}
+
+(bool Configured, IResourceBuilder<ParameterResource> PublishableKey, IResourceBuilder<ParameterResource> ApiKey, IResourceBuilder<ParameterResource> WebhookSecret) ConfigureStripeParameters()
+{
+    _ = builder.AddParameter("stripe-enabled")
+        .WithDescription("""
+                         **Stripe Integration** -- Enables embedded checkout, prorated plan upgrades, automatic tax management, localized invoices, billing history with refunds, and more.
+
+                         **Important**: Set up a [Stripe sandbox environment](https://dashboard.stripe.com) and configure it according to the guide in README.md **before** enabling this.
+
+                         - Enter `true` to enable Stripe, or `false` to skip. This can be changed later.
+                         - Setup requires **2 restarts** after enabling: first for API keys, then for the webhook secret from the stripe-cli container.
+
+                         See **README.md** for full setup instructions.
+                         """, true
+        );
+
+    var configured = builder.Configuration["Parameters:stripe-enabled"] == "true";
+
+    if (configured)
+    {
+        var publishableKey = builder.AddParameter("stripe-publishable-key", true)
+            .WithDescription("""
+                             Stripe Publishable Key from the [Stripe Dashboard](https://dashboard.stripe.com/apikeys). Starts with `pk_test_` or `pk_live_`.
+
+                             **After entering this and the Secret Key, restart Aspire.** The stripe-cli container will start and generate a webhook secret, which you will enter on the next restart.
+
+                             See **README.md** for full setup instructions.
+                             """, true);
+        var apiKey = builder.AddParameter("stripe-api-key", true)
+            .WithDescription("""
+                             Stripe Secret Key from the [Stripe Dashboard](https://dashboard.stripe.com/apikeys). Starts with `sk_test_` or `sk_live_`.
+
+                             **After entering this and the Publishable Key, restart Aspire.** The stripe-cli container will start and generate a webhook secret, which you will enter on the next restart.
+
+                             See **README.md** for full setup instructions.
+                             """, true);
+
+        var apiKeyConfigured = builder.Configuration["Parameters:stripe-api-key"] is not null;
+        var webhookSecret = apiKeyConfigured
+            ? builder.AddParameter("stripe-webhook-secret", true)
+                .WithDescription("Webhook signing secret. Find it in the [Stripe Dashboard Workbench](https://dashboard.stripe.com/test/workbench/webhooks) or in the stripe-cli container logs after the previous restart. Starts with `whsec_`.", true)
+            : builder.CreateResourceBuilder(new ParameterResource("stripe-webhook-secret", _ => "not-configured", true));
+
+        return (configured, publishableKey, apiKey, webhookSecret);
+    }
+
+    return (
+        configured,
+        builder.CreateResourceBuilder(new ParameterResource("stripe-publishable-key", _ => "not-configured", true)),
+        builder.CreateResourceBuilder(new ParameterResource("stripe-api-key", _ => "not-configured", true)),
+        builder.CreateResourceBuilder(new ParameterResource("stripe-webhook-secret", _ => "not-configured", true))
     );
 }
 
