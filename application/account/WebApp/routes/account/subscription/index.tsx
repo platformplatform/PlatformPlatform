@@ -367,14 +367,12 @@ function SubscriptionPage() {
         onConfirm={() =>
           reactivateMutation.mutate({
             body: {
-              plan: currentPlan,
               returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
             }
           })
         }
         isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
-        targetPlan={currentPlan}
       />
 
       <EditBillingInfoDialog

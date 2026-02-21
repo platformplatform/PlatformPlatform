@@ -172,9 +172,7 @@ public sealed class ProcessPendingStripeEvents(
             var daysSinceCancelled = (int)(now - (subscription.ModifiedAt ?? subscription.CreatedAt)).TotalDays;
             subscription.SetCancellation(stripeState!.CancelAtPeriodEnd, stripeState.CancellationReason, stripeState.CancellationFeedback);
             var daysUntilExpiry = subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
-            var reactivatedScheduledPlan = stripeState.ScheduledPlan;
-            var daysUntilDowngrade = reactivatedScheduledPlan is not null && subscription.CurrentPeriodEnd is not null ? (int)(subscription.CurrentPeriodEnd.Value - now).TotalDays : (int?)null;
-            events.CollectEvent(new SubscriptionReactivated(subscription.Id, subscription.Plan, daysUntilExpiry, daysSinceCancelled, reactivatedScheduledPlan, daysUntilDowngrade, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            events.CollectEvent(new SubscriptionReactivated(subscription.Id, subscription.Plan, daysUntilExpiry, daysSinceCancelled, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
         }
 
         if (subscriptionExpired)
