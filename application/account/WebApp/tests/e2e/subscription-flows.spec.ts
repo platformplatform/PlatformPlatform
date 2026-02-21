@@ -175,7 +175,7 @@ test.describe("@smoke", () => {
       await ownerPage.getByRole("button", { name: "Cancel subscription" }).click();
 
       await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
-      await expect(ownerPage.getByText("will be suspended")).toBeVisible();
+      await expect(ownerPage.getByText("will switch to the free plan")).toBeVisible();
     })();
 
     await step("Select cancellation reason & confirm & verify subscription cancelled toast")(async () => {

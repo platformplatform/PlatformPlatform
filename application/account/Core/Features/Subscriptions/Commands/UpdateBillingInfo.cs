@@ -5,7 +5,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 using PlatformPlatform.SharedKernel.Validation;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
@@ -41,8 +40,7 @@ public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBilling
 public sealed class UpdateBillingInfoHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
-    IExecutionContext executionContext,
-    ITelemetryEventsCollector events
+    IExecutionContext executionContext
 ) : IRequestHandler<UpdateBillingInfoCommand, Result>
 {
     public async Task<Result> Handle(UpdateBillingInfoCommand command, CancellationToken cancellationToken)
@@ -99,10 +97,7 @@ public sealed class UpdateBillingInfoHandler(
             }
         }
 
-        subscription.SetBillingInfo(billingInfo);
-        subscriptionRepository.Update(subscription);
-
-        events.CollectEvent(new BillingInfoUpdated(subscription.Id));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return Result.Success();
     }

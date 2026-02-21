@@ -127,6 +127,10 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
             var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
             var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
+            var cancellationReason = stripeSubscription.CancelAtPeriodEnd && stripeSubscription.CancellationDetails?.Feedback is null
+                ? CancellationReason.CancelledByAdmin
+                : MapStripeFeedbackToCancellationReason(stripeSubscription.CancellationDetails?.Feedback);
+            var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
 
             var invoiceService = new InvoiceService();
             var invoices = await invoiceService.ListAsync(
@@ -175,6 +179,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 currentPriceCurrency,
                 currentPeriodEnd,
                 cancelAtPeriodEnd,
+                cancellationReason,
+                cancellationFeedback,
                 paymentTransactions,
                 paymentMethod,
                 stripeSubscription.Status
@@ -837,6 +843,19 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             "NO" => "no_vat",
             "CH" => "ch_vat",
             _ => "eu_vat"
+        };
+    }
+
+    private static CancellationReason? MapStripeFeedbackToCancellationReason(string? feedback)
+    {
+        if (feedback is null) return null;
+
+        return feedback switch
+        {
+            "too_expensive" => CancellationReason.TooExpensive,
+            "switched_service" => CancellationReason.FoundAlternative,
+            "unused" => CancellationReason.NoLongerNeeded,
+            _ => CancellationReason.Other
         };
     }
 

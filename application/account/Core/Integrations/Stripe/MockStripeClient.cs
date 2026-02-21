@@ -64,6 +64,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
             "USD",
             now.AddDays(30),
             false,
+            null,
+            null,
             transactions,
             new PaymentMethod("visa", "4242", 12, 2026),
             OverrideSubscriptionStatus ?? StripeSubscriptionStatus.Active

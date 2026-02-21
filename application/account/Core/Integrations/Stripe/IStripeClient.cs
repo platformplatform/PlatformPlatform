@@ -63,6 +63,8 @@ public sealed record SubscriptionSyncResult(
     string? CurrentPriceCurrency,
     DateTimeOffset? CurrentPeriodEnd,
     bool CancelAtPeriodEnd,
+    CancellationReason? CancellationReason,
+    string? CancellationFeedback,
     PaymentTransaction[] PaymentTransactions,
     PaymentMethod? PaymentMethod,
     string? SubscriptionStatus

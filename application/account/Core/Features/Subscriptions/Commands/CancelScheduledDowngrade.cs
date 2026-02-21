@@ -4,7 +4,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
@@ -15,7 +14,6 @@ public sealed class CancelScheduledDowngradeHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<CancelScheduledDowngradeHandler> logger
 ) : IRequestHandler<CancelScheduledDowngradeCommand, Result>
 {
@@ -39,7 +37,6 @@ public sealed class CancelScheduledDowngradeHandler(
             return Result.BadRequest("No scheduled downgrade to cancel.");
         }
 
-        var scheduledPlan = subscription.ScheduledPlan.Value;
         var stripeClient = stripeClientFactory.GetClient();
         var success = await stripeClient.CancelScheduledDowngradeAsync(subscription.StripeSubscriptionId, cancellationToken);
         if (!success)
@@ -47,7 +44,7 @@ public sealed class CancelScheduledDowngradeHandler(
             return Result.BadRequest("Failed to cancel scheduled downgrade in Stripe.");
         }
 
-        events.CollectEvent(new SubscriptionDowngradeCancelled(subscription.Id, subscription.Plan, scheduledPlan));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return Result.Success();
     }

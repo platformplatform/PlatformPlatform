@@ -2,14 +2,13 @@ using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
 public sealed record ProcessPendingEventsCommand : ICommand, IRequest<Result>;
 
-public sealed class ProcessPendingEventsHandler(ISubscriptionRepository subscriptionRepository, ProcessPendingStripeEvents processPendingStripeEvents, ITelemetryEventsCollector events)
+public sealed class ProcessPendingEventsHandler(ISubscriptionRepository subscriptionRepository, ProcessPendingStripeEvents processPendingStripeEvents)
     : IRequestHandler<ProcessPendingEventsCommand, Result>
 {
     public async Task<Result> Handle(ProcessPendingEventsCommand command, CancellationToken cancellationToken)
@@ -22,8 +21,6 @@ public sealed class ProcessPendingEventsHandler(ISubscriptionRepository subscrip
         }
 
         await processPendingStripeEvents.ExecuteAsync(subscription.StripeCustomerId, cancellationToken);
-
-        events.CollectEvent(new PendingStripeEventsProcessed(subscription.Id));
 
         return Result.Success();
     }

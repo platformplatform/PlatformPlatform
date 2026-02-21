@@ -64,7 +64,6 @@ public static class Configuration
                 .AddScoped<CompleteEmailConfirmation>()
                 .AddScoped<AvatarUpdater>()
                 .AddScoped<UserInfoFactory>()
-                .AddScoped<SyncSubscriptionFromStripe>()
                 .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()
                 .AddScoped<ExternalAuthenticationHelper>();

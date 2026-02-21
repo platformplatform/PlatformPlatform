@@ -7,7 +7,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
@@ -31,7 +30,6 @@ public sealed class ReactivateSubscriptionHandler(
     ITenantRepository tenantRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<ReactivateSubscriptionHandler> logger
 ) : IRequestHandler<ReactivateSubscriptionCommand, Result<ReactivateSubscriptionResponse>>
 {
@@ -86,7 +84,7 @@ public sealed class ReactivateSubscriptionHandler(
             }
         }
 
-        events.CollectEvent(new SubscriptionReactivated(subscription.Id, command.Plan));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return new ReactivateSubscriptionResponse(null, null);
     }
@@ -115,8 +113,6 @@ public sealed class ReactivateSubscriptionHandler(
         {
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create checkout session for reactivation.");
         }
-
-        events.CollectEvent(new SubscriptionReactivated(subscription.Id, command.Plan));
 
         return new ReactivateSubscriptionResponse(result.ClientSecret, publishableKey);
     }

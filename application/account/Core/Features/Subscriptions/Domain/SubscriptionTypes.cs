@@ -29,9 +29,9 @@ public sealed record StripeSubscriptionId(string Value) : StronglyTypedString<St
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum SubscriptionPlan
 {
-    Basis,
-    Standard,
-    Premium
+    Basis = 0,
+    Standard = 1,
+    Premium = 2
 }
 
 [PublicAPI]
@@ -41,7 +41,8 @@ public enum CancellationReason
     FoundAlternative,
     TooExpensive,
     NoLongerNeeded,
-    Other
+    Other,
+    CancelledByAdmin
 }
 
 [PublicAPI]
