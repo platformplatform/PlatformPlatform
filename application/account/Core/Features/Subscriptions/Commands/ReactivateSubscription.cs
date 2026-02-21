@@ -1,7 +1,5 @@
-using FluentValidation;
 using JetBrains.Annotations;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
@@ -11,19 +9,11 @@ using PlatformPlatform.SharedKernel.ExecutionContext;
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record ReactivateSubscriptionCommand(SubscriptionPlan Plan, string? ReturnUrl)
+public sealed record ReactivateSubscriptionCommand(string? ReturnUrl)
     : ICommand, IRequest<Result<ReactivateSubscriptionResponse>>;
 
 [PublicAPI]
 public sealed record ReactivateSubscriptionResponse(string? ClientSecret, string? PublishableKey);
-
-public sealed class ReactivateSubscriptionValidator : AbstractValidator<ReactivateSubscriptionCommand>
-{
-    public ReactivateSubscriptionValidator()
-    {
-        RuleFor(x => x.Plan).NotEqual(SubscriptionPlan.Basis).WithMessage("Cannot reactivate to the Basis plan.");
-    }
-}
 
 public sealed class ReactivateSubscriptionHandler(
     ISubscriptionRepository subscriptionRepository,
@@ -67,23 +57,6 @@ public sealed class ReactivateSubscriptionHandler(
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to reactivate subscription in Stripe.");
         }
 
-        if (command.Plan.IsUpgradeFrom(subscription.Plan))
-        {
-            var upgradeResult = await stripeClient.UpgradeSubscriptionAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
-            if (upgradeResult is null)
-            {
-                return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to upgrade subscription during reactivation.");
-            }
-        }
-        else if (command.Plan.IsDowngradeFrom(subscription.Plan))
-        {
-            var downgradeSuccess = await stripeClient.ScheduleDowngradeAsync(subscription.StripeSubscriptionId, command.Plan, cancellationToken);
-            if (!downgradeSuccess)
-            {
-                return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to schedule downgrade during reactivation.");
-            }
-        }
-
         // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return new ReactivateSubscriptionResponse(null, null);
@@ -108,7 +81,7 @@ public sealed class ReactivateSubscriptionHandler(
             return Result<ReactivateSubscriptionResponse>.BadRequest("Billing information must be saved before checkout.");
         }
 
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, executionContext.UserInfo.Locale, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, subscription.Plan, command.ReturnUrl, executionContext.UserInfo.Locale, cancellationToken);
         if (result is null)
         {
             return Result<ReactivateSubscriptionResponse>.BadRequest("Failed to create checkout session for reactivation.");
