@@ -77,7 +77,7 @@ public sealed class ProcessPendingStripeEvents(
             tenant.Suspend(SuspensionReason.CustomerDeleted, timeProvider.GetUtcNow());
             tenantRepository.Update(tenant);
             subscriptionRepository.Update(subscription);
-            events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.CustomerDeleted, previousPriceAmount!.Value, -previousPriceAmount!.Value, previousPriceCurrency!));
+            events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.CustomerDeleted, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
             return;
         }
 
@@ -94,11 +94,11 @@ public sealed class ProcessPendingStripeEvents(
         var subscriptionDowngraded = subscription.ScheduledPlan is not null && stripeState?.ScheduledPlan is null && stripeState is not null && stripeState.Plan != subscription.Plan && subscription.Plan.IsUpgradeFrom(stripeState.Plan);
         var subscriptionCancelled = !subscription.CancelAtPeriodEnd && stripeState?.CancelAtPeriodEnd == true;
         var subscriptionReactivated = subscription.CancelAtPeriodEnd && stripeState?.CancelAtPeriodEnd == false;
-        var subscriptionExpired = subscription.StripeSubscriptionId is not null && stripeState is null && subscription.CancellationReason is not null && subscription.FirstPaymentFailedAt is null;
-        var subscriptionSuspended = subscription.StripeSubscriptionId is not null && stripeState is null && (subscription.CancellationReason is null || subscription.FirstPaymentFailedAt is not null);
+        var subscriptionExpired = subscription.StripeSubscriptionId is not null && stripeState is null && subscription is { CancelAtPeriodEnd: true, FirstPaymentFailedAt: null };
+        var subscriptionImmediatelyCancelled = subscription.StripeSubscriptionId is not null && stripeState is null && subscription is { CancelAtPeriodEnd: false, FirstPaymentFailedAt: null };
+        var subscriptionSuspended = subscription.StripeSubscriptionId is not null && stripeState is null && subscription.FirstPaymentFailedAt is not null;
         var paymentFailed = stripeState?.SubscriptionStatus == StripeSubscriptionStatus.PastDue && subscription.FirstPaymentFailedAt is null;
         var paymentRecovered = stripeState?.SubscriptionStatus == StripeSubscriptionStatus.Active && subscription.FirstPaymentFailedAt is not null;
-        var paymentRefunded = stripeState is not null && stripeState.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) > subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded);
         var previousRefundCount = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded);
         var now = timeProvider.GetUtcNow();
         var daysOnCurrentPlan = (int)(now - (subscription.ModifiedAt ?? subscription.CreatedAt)).TotalDays;
@@ -107,8 +107,16 @@ public sealed class ProcessPendingStripeEvents(
         if (stripeState is not null)
         {
             subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod);
-            subscription.SetPaymentTransactions([.. stripeState.PaymentTransactions]);
         }
+
+        // Always sync payment transactions from Stripe (via subscription when active, via invoices when cancelled)
+        var syncedTransactions = stripeState?.PaymentTransactions ?? await stripeClient.SyncPaymentTransactionsAsync(subscription.StripeCustomerId!, cancellationToken);
+        if (syncedTransactions is not null)
+        {
+            subscription.SetPaymentTransactions([.. syncedTransactions]);
+        }
+
+        var paymentRefunded = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) > previousRefundCount;
 
         if (billingInfoAdded)
         {
@@ -135,7 +143,7 @@ public sealed class ProcessPendingStripeEvents(
 
         if (subscriptionUpgraded)
         {
-            events.CollectEvent(new SubscriptionUpgraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            events.CollectEvent(new SubscriptionUpgraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
         }
 
         if (downgradeScheduled)
@@ -161,7 +169,7 @@ public sealed class ProcessPendingStripeEvents(
         if (subscriptionDowngraded)
         {
             subscription.SetScheduledPlan(stripeState!.ScheduledPlan);
-            events.CollectEvent(new SubscriptionDowngraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            events.CollectEvent(new SubscriptionDowngraded(subscription.Id, previousPlan, subscription.Plan, daysOnCurrentPlan, previousPriceAmount!.Value, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceAmount!.Value - previousPriceAmount.Value, subscription.CurrentPriceCurrency!));
         }
 
         if (subscriptionCancelled)
@@ -182,14 +190,20 @@ public sealed class ProcessPendingStripeEvents(
         if (subscriptionExpired)
         {
             subscription.ResetToFreePlan();
-            events.CollectEvent(new SubscriptionExpired(subscription.Id, previousPlan, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount!.Value, previousPriceCurrency!));
+            events.CollectEvent(new SubscriptionExpired(subscription.Id, previousPlan, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
+        }
+
+        if (subscriptionImmediatelyCancelled)
+        {
+            subscription.ResetToFreePlan();
+            events.CollectEvent(new SubscriptionCancelled(subscription.Id, previousPlan, CancellationReason.CancelledByAdmin, 0, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
         }
 
         if (subscriptionSuspended)
         {
             subscription.ResetToFreePlan();
             tenant.Suspend(SuspensionReason.PaymentFailed, timeProvider.GetUtcNow());
-            events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.PaymentFailed, previousPriceAmount!.Value, -previousPriceAmount!.Value, previousPriceCurrency!));
+            events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.PaymentFailed, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
         }
 
         if (paymentFailed)
@@ -207,8 +221,11 @@ public sealed class ProcessPendingStripeEvents(
 
         if (paymentRefunded)
         {
-            var refundCount = stripeState!.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) - previousRefundCount;
-            events.CollectEvent(new PaymentRefunded(subscription.Id, subscription.Plan, refundCount, subscription.CurrentPriceAmount!.Value, subscription.CurrentPriceCurrency!));
+            var refundCount = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) - previousRefundCount;
+            var plan = stripeState is not null ? subscription.Plan : previousPlan;
+            var priceAmount = stripeState is not null ? subscription.CurrentPriceAmount!.Value : previousPriceAmount!.Value;
+            var currency = stripeState is not null ? subscription.CurrentPriceCurrency! : previousPriceCurrency!;
+            events.CollectEvent(new PaymentRefunded(subscription.Id, plan, refundCount, priceAmount, currency));
         }
 
         // Persist all aggregate mutations and mark pending events as processed
