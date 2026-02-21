@@ -834,6 +834,47 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         }
     }
 
+    public async Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var invoiceService = new InvoiceService();
+            var invoices = await invoiceService.ListAsync(
+                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                GetRequestOptions(), cancellationToken
+            );
+
+            var creditNoteService = new CreditNoteService();
+            var creditNotes = await creditNoteService.ListAsync(
+                new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                GetRequestOptions(), cancellationToken
+            );
+            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+
+            return invoices.Data.Select(invoice => new PaymentTransaction(
+                    PaymentTransactionId.NewId(),
+                    invoice.AmountPaid / 100m,
+                    invoice.Currency.ToUpperInvariant(),
+                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
+                    invoice.Created,
+                    invoice.Status == "uncollectible" ? "Payment failed." : null,
+                    invoice.InvoicePdf,
+                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                )
+            ).ToArray();
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+    }
+
     private static string InferTaxIdType(string taxId)
     {
         var prefix = taxId[..2].ToUpperInvariant();
