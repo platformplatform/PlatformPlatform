@@ -2791,13 +2791,15 @@
           "FoundAlternative",
           "TooExpensive",
           "NoLongerNeeded",
-          "Other"
+          "Other",
+          "CancelledByAdmin"
         ],
         "enum": [
           "FoundAlternative",
           "TooExpensive",
           "NoLongerNeeded",
-          "Other"
+          "Other",
+          "CancelledByAdmin"
         ]
       },
       "ReactivateSubscriptionResponse": {

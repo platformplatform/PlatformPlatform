@@ -5,7 +5,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
@@ -32,7 +31,6 @@ public sealed class CancelSubscriptionHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<CancelSubscriptionHandler> logger
 ) : IRequestHandler<CancelSubscriptionCommand, Result>
 {
@@ -68,10 +66,7 @@ public sealed class CancelSubscriptionHandler(
             return Result.BadRequest("Failed to cancel subscription in Stripe.");
         }
 
-        subscription.SetCancellationFeedback(command.Reason, command.Feedback);
-        subscriptionRepository.Update(subscription);
-
-        events.CollectEvent(new SubscriptionCancelled(subscription.Id, subscription.Plan, command.Reason));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return Result.Success();
     }

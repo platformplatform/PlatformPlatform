@@ -59,13 +59,13 @@ export function CancelSubscriptionDialog({
           <AlertDialogDescription>
             {formattedDate ? (
               <Trans>
-                Your subscription will remain active until {formattedDate}. After that, your account will be suspended
-                and you will lose access to paid features.
+                Your subscription will remain active until {formattedDate}. After that, your account will switch to the
+                free plan.
               </Trans>
             ) : (
               <Trans>
                 Your subscription will be cancelled at the end of the current billing period. After that, your account
-                will be suspended.
+                will switch to the free plan.
               </Trans>
             )}
           </AlertDialogDescription>

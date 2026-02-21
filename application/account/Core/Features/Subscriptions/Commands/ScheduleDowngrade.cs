@@ -5,7 +5,6 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
@@ -16,7 +15,6 @@ public sealed class ScheduleDowngradeHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<ScheduleDowngradeHandler> logger
 ) : IRequestHandler<ScheduleDowngradeCommand, Result>
 {
@@ -45,7 +43,6 @@ public sealed class ScheduleDowngradeHandler(
             return Result.BadRequest("Cannot downgrade to the Basis plan.");
         }
 
-        var fromPlan = subscription.Plan;
         var stripeClient = stripeClientFactory.GetClient();
         var success = await stripeClient.ScheduleDowngradeAsync(subscription.StripeSubscriptionId, command.NewPlan, cancellationToken);
         if (!success)
@@ -53,7 +50,7 @@ public sealed class ScheduleDowngradeHandler(
             return Result.BadRequest("Failed to schedule downgrade in Stripe.");
         }
 
-        events.CollectEvent(new SubscriptionDowngradeScheduled(subscription.Id, fromPlan, command.NewPlan));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         return Result.Success();
     }
