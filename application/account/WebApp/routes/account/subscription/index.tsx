@@ -80,7 +80,7 @@ function SubscriptionPage() {
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
   const scheduledPlan = subscription?.scheduledPlan ?? null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
-  const hasStripeSubscription = subscription?.hasStripeSubscription ?? false;
+  const hasStripeCustomer = subscription?.hasStripeCustomer ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);
 
   const billingInfo = subscription?.billingInfo;
@@ -122,7 +122,7 @@ function SubscriptionPage() {
 
   return (
     <>
-      {hasStripeSubscription ? (
+      {hasStripeCustomer ? (
         <AppLayout
           variant="center"
           maxWidth="60rem"
