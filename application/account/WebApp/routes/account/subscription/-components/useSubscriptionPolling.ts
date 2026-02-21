@@ -34,13 +34,14 @@ export function useSubscriptionPolling() {
       isProcessingPendingEvents.current = false;
     }
   });
+  const { mutate: processPendingEvents } = processPendingEventsMutation;
 
   useEffect(() => {
     if (subscription?.hasPendingStripeEvents && !isProcessingPendingEvents.current) {
       isProcessingPendingEvents.current = true;
-      processPendingEventsMutation.mutate({});
+      processPendingEvents({});
     }
-  }, [subscription?.hasPendingStripeEvents, processPendingEventsMutation]);
+  }, [subscription?.hasPendingStripeEvents, processPendingEvents]);
 
   function startPolling(options: {
     check: (subscription: SubscriptionData) => boolean;

@@ -25,7 +25,6 @@ internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IS
         await subscriptionRepository.AddAsync(subscription, cancellationToken);
 
         events.CollectEvent(new TenantCreated(tenant.Id, tenant.State));
-        events.CollectEvent(new SubscriptionCreated(subscription.Id, subscription.Plan));
 
         var createUserResult = await mediator.Send(
             new CreateUserCommand(tenant.Id, command.OwnerEmail, UserRole.Owner, command.EmailConfirmed, command.Locale),
