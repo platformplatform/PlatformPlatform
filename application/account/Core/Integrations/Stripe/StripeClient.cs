@@ -105,97 +105,84 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
     public async Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        try
+        var subscriptionService = new SubscriptionService();
+        var subscriptions = await subscriptionService.ListAsync(
+            new SubscriptionListOptions { Customer = stripeCustomerId.Value, Limit = 1, Expand = ["data.schedule", "data.default_payment_method", "data.customer.invoice_settings.default_payment_method"] },
+            GetRequestOptions(), cancellationToken
+        );
+
+        var stripeSubscription = subscriptions.Data.FirstOrDefault();
+        if (stripeSubscription is null)
         {
-            var subscriptionService = new SubscriptionService();
-            var subscriptions = await subscriptionService.ListAsync(
-                new SubscriptionListOptions { Customer = stripeCustomerId.Value, Limit = 1, Expand = ["data.schedule", "data.default_payment_method", "data.customer.invoice_settings.default_payment_method"] },
-                GetRequestOptions(), cancellationToken
-            );
-
-            var stripeSubscription = subscriptions.Data.FirstOrDefault();
-            if (stripeSubscription is null)
-            {
-                return null;
-            }
-
-            await EnsurePriceCachePopulatedAsync(cancellationToken);
-            var subscriptionItem = stripeSubscription.Items.Data.FirstOrDefault();
-            var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
-            var scheduledPlan = GetScheduledPlan(stripeSubscription);
-            var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
-            var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
-            var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
-            var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
-            var cancellationReason = stripeSubscription.CancelAtPeriodEnd && stripeSubscription.CancellationDetails?.Feedback is null
-                ? CancellationReason.CancelledByAdmin
-                : MapStripeFeedbackToCancellationReason(stripeSubscription.CancellationDetails?.Feedback);
-            var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
-
-            var invoiceService = new InvoiceService();
-            var invoices = await invoiceService.ListAsync(
-                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-                GetRequestOptions(), cancellationToken
-            );
-
-            var creditNoteService = new CreditNoteService();
-            var creditNotes = await creditNoteService.ListAsync(
-                new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-                GetRequestOptions(), cancellationToken
-            );
-            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
-
-            var paymentTransactions = invoices.Data.Select(invoice => new PaymentTransaction(
-                    PaymentTransactionId.NewId(),
-                    invoice.AmountPaid / 100m,
-                    invoice.Currency.ToUpperInvariant(),
-                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
-                    invoice.Created,
-                    invoice.Status == "uncollectible" ? "Payment failed." : null,
-                    invoice.InvoicePdf,
-                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-                )
-            ).ToArray();
-
-            DomainPaymentMethod? paymentMethod = null;
-            var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
-            if (defaultPaymentMethod is not null)
-            {
-                if (defaultPaymentMethod.Card is not null)
-                {
-                    paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-                }
-                else if (defaultPaymentMethod.Link is not null)
-                {
-                    paymentMethod = new DomainPaymentMethod("link", defaultPaymentMethod.Link.Email?.Substring(defaultPaymentMethod.Link.Email.Length - 4) ?? "****", 0, 0);
-                }
-            }
-
-            return new SubscriptionSyncResult(
-                plan,
-                scheduledPlan,
-                StripeSubscriptionId.NewId(stripeSubscription.Id),
-                currentPriceAmount,
-                currentPriceCurrency,
-                currentPeriodEnd,
-                cancelAtPeriodEnd,
-                cancellationReason,
-                cancellationFeedback,
-                paymentTransactions,
-                paymentMethod,
-                stripeSubscription.Status
-            );
-        }
-        catch (StripeException ex)
-        {
-            logger.LogError(ex, "Stripe error syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
-        catch (TaskCanceledException ex)
+
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+        var subscriptionItem = stripeSubscription.Items.Data.FirstOrDefault();
+        var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
+        var scheduledPlan = GetScheduledPlan(stripeSubscription);
+        var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
+        var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
+        var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
+        var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
+        var cancellationReason = stripeSubscription.CancelAtPeriodEnd && stripeSubscription.CancellationDetails?.Feedback is null
+            ? CancellationReason.CancelledByAdmin
+            : MapStripeFeedbackToCancellationReason(stripeSubscription.CancellationDetails?.Feedback);
+        var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
+
+        var invoiceService = new InvoiceService();
+        var invoices = await invoiceService.ListAsync(
+            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
+
+        var creditNoteService = new CreditNoteService();
+        var creditNotes = await creditNoteService.ListAsync(
+            new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
+        var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+
+        var paymentTransactions = invoices.Data.Select(invoice => new PaymentTransaction(
+                PaymentTransactionId.NewId(),
+                invoice.AmountPaid / 100m,
+                invoice.Currency.ToUpperInvariant(),
+                MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
+                invoice.Created,
+                invoice.Status == "uncollectible" ? "Payment failed." : null,
+                invoice.InvoicePdf,
+                creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+            )
+        ).ToArray();
+
+        DomainPaymentMethod? paymentMethod = null;
+        var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
+        if (defaultPaymentMethod is not null)
         {
-            logger.LogError(ex, "Timeout syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
-            return null;
+            if (defaultPaymentMethod.Card is not null)
+            {
+                paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+            }
+            else if (defaultPaymentMethod.Link is not null)
+            {
+                paymentMethod = new DomainPaymentMethod("link", defaultPaymentMethod.Link.Email?.Substring(defaultPaymentMethod.Link.Email.Length - 4) ?? "****", 0, 0);
+            }
         }
+
+        return new SubscriptionSyncResult(
+            plan,
+            scheduledPlan,
+            StripeSubscriptionId.NewId(stripeSubscription.Id),
+            currentPriceAmount,
+            currentPriceCurrency,
+            currentPeriodEnd,
+            cancelAtPeriodEnd,
+            cancellationReason,
+            cancellationFeedback,
+            paymentTransactions,
+            paymentMethod,
+            stripeSubscription.Status
+        );
     }
 
     public async Task<StripeSubscriptionId?> GetCheckoutSessionSubscriptionIdAsync(string sessionId, CancellationToken cancellationToken)
@@ -836,43 +823,30 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
     public async Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        try
-        {
-            var invoiceService = new InvoiceService();
-            var invoices = await invoiceService.ListAsync(
-                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-                GetRequestOptions(), cancellationToken
-            );
+        var invoiceService = new InvoiceService();
+        var invoices = await invoiceService.ListAsync(
+            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
 
-            var creditNoteService = new CreditNoteService();
-            var creditNotes = await creditNoteService.ListAsync(
-                new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-                GetRequestOptions(), cancellationToken
-            );
-            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+        var creditNoteService = new CreditNoteService();
+        var creditNotes = await creditNoteService.ListAsync(
+            new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
+        var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
 
-            return invoices.Data.Select(invoice => new PaymentTransaction(
-                    PaymentTransactionId.NewId(),
-                    invoice.AmountPaid / 100m,
-                    invoice.Currency.ToUpperInvariant(),
-                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
-                    invoice.Created,
-                    invoice.Status == "uncollectible" ? "Payment failed." : null,
-                    invoice.InvoicePdf,
-                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-                )
-            ).ToArray();
-        }
-        catch (StripeException ex)
-        {
-            logger.LogError(ex, "Stripe error syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
-            return null;
-        }
-        catch (TaskCanceledException ex)
-        {
-            logger.LogError(ex, "Timeout syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
-            return null;
-        }
+        return invoices.Data.Select(invoice => new PaymentTransaction(
+                PaymentTransactionId.NewId(),
+                invoice.AmountPaid / 100m,
+                invoice.Currency.ToUpperInvariant(),
+                MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
+                invoice.Created,
+                invoice.Status == "uncollectible" ? "Payment failed." : null,
+                invoice.InvoicePdf,
+                creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+            )
+        ).ToArray();
     }
 
     private static string InferTaxIdType(string taxId)
