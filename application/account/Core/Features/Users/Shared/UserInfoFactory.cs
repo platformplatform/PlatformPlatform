@@ -1,3 +1,4 @@
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
@@ -10,7 +11,7 @@ namespace PlatformPlatform.Account.Features.Users.Shared;
 ///     Factory for creating UserInfo instances with tenant information.
 ///     Centralizes the logic for creating UserInfo to follow SRP and avoid duplication.
 /// </summary>
-public sealed class UserInfoFactory(ITenantRepository tenantRepository)
+public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository)
 {
     /// <summary>
     ///     Creates a UserInfo instance from a User entity, including tenant name.
@@ -20,6 +21,8 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
     {
         var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
         if (tenant is null) return Result<UserInfo>.BadRequest("Tenant has been deleted.");
+
+        var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(user.TenantId, cancellationToken);
 
         return new UserInfo
         {
@@ -35,6 +38,7 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
             AvatarUrl = user.Avatar.Url,
             TenantName = tenant.Name,
             TenantLogoUrl = tenant.Logo.Url,
+            SubscriptionPlan = subscription?.Plan.ToString(),
             Locale = user.Locale,
             IsInternalUser = user.IsInternalUser
         };

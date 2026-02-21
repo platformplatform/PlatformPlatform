@@ -25,6 +25,7 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
             IsAuthenticated = true,
             Id = userId,
             TenantId = tenantId,
+            SubscriptionPlan = "Standard",
             SessionId = sessionId,
             Locale = "en-US",
             ZoomLevel = "1.25",
@@ -49,6 +50,9 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
         // Assert
         telemetry.Context.GlobalProperties.Should().ContainKey("user.session_id");
         telemetry.Context.GlobalProperties["user.session_id"].Should().Be(sessionId.Value);
+
+        telemetry.Context.GlobalProperties.Should().ContainKey("tenant.subscription_plan");
+        telemetry.Context.GlobalProperties["tenant.subscription_plan"].Should().Be("Standard");
 
         telemetry.Context.GlobalProperties.Should().ContainKey("user.zoom_level");
         telemetry.Context.GlobalProperties["user.zoom_level"].Should().Be("1.25");
@@ -83,6 +87,7 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
 
         // Assert
         telemetry.Context.GlobalProperties.Should().NotContainKey("user.session_id");
+        telemetry.Context.GlobalProperties.Should().NotContainKey("tenant.subscription_plan");
         telemetry.Context.GlobalProperties.Should().NotContainKey("user.zoom_level");
         telemetry.Context.GlobalProperties.Should().NotContainKey("user.theme");
     }
