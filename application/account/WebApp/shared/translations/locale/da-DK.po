@@ -1466,8 +1466,8 @@ msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
-msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEnd}. Fortryd opsigelsen ved at vælge en plan nedenfor."
+msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
+msgstr ""
 
 #. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
@@ -1487,9 +1487,6 @@ msgstr "Din konto blev skiftet til <0>{newTenantName}</0> i en anden browsertab.
 
 msgid "Your cancellation will be reversed and your {planName} subscription will remain active."
 msgstr "Din opsigelse vil blive fortrudt, og dit {planName}-abonnement vil forblive aktivt."
-
-msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
-msgstr "Din opsigelse vil blive fortrudt, og dit abonnement vil blive ændret til {planName}."
 
 msgid "Your changes may take a moment to appear."
 msgstr "Dine ændringer kan tage et øjeblik at blive vist."
@@ -1532,9 +1529,6 @@ msgstr "Dit abonnement er blevet aktiveret."
 
 msgid "Your subscription has been cancelled and will end at the end of the current billing period."
 msgstr "Dit abonnement er blevet opsagt og udløber ved udgangen af den nuværende faktureringsperiode."
-
-msgid "Your subscription has been cancelled and will end at the end of the current billing period. Reactivate by selecting a plan below."
-msgstr "Dit abonnement er blevet opsagt og udløber ved udgangen af den nuværende faktureringsperiode. Fortryd opsigelsen ved at vælge en plan nedenfor."
 
 msgid "Your subscription has been cancelled."
 msgstr "Dit abonnement er blevet opsagt."

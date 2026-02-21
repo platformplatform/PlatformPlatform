@@ -1466,8 +1466,8 @@ msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
-msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}. Reactivate by selecting a plan below."
+msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
+msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
@@ -1487,9 +1487,6 @@ msgstr "Your account was switched to <0>{newTenantName}</0> in another browser t
 
 msgid "Your cancellation will be reversed and your {planName} subscription will remain active."
 msgstr "Your cancellation will be reversed and your {planName} subscription will remain active."
-
-msgid "Your cancellation will be reversed and your subscription will be changed to {planName}."
-msgstr "Your cancellation will be reversed and your subscription will be changed to {planName}."
 
 msgid "Your changes may take a moment to appear."
 msgstr "Your changes may take a moment to appear."
@@ -1532,9 +1529,6 @@ msgstr "Your subscription has been activated."
 
 msgid "Your subscription has been cancelled and will end at the end of the current billing period."
 msgstr "Your subscription has been cancelled and will end at the end of the current billing period."
-
-msgid "Your subscription has been cancelled and will end at the end of the current billing period. Reactivate by selecting a plan below."
-msgstr "Your subscription has been cancelled and will end at the end of the current billing period. Reactivate by selecting a plan below."
 
 msgid "Your subscription has been cancelled."
 msgstr "Your subscription has been cancelled."

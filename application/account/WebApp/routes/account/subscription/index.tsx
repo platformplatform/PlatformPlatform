@@ -13,6 +13,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangleIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
+import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
 import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
@@ -85,17 +86,6 @@ function SubscriptionPage() {
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);
 
   const billingInfo = subscription?.billingInfo;
-
-  function getPlanLabel(plan: SubscriptionPlan): string {
-    switch (plan) {
-      case SubscriptionPlan.Basis:
-        return t`Basis`;
-      case SubscriptionPlan.Standard:
-        return t`Standard`;
-      case SubscriptionPlan.Premium:
-        return t`Premium`;
-    }
-  }
 
   const handleBillingInfoSuccess = () => {
     if (pendingCheckoutPlan == null) {
@@ -368,14 +358,12 @@ function SubscriptionPage() {
         onConfirm={() =>
           reactivateMutation.mutate({
             body: {
-              plan: currentPlan,
               returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
             }
           })
         }
         isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
-        targetPlan={currentPlan}
       />
 
       <EditBillingInfoDialog
