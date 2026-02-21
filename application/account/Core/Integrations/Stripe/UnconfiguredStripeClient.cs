@@ -129,4 +129,10 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         logger.LogWarning("Stripe is not configured. Cannot get checkout preview for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<CheckoutPreviewResult?>(null);
     }
+
+    public Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot sync payment transactions for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult<PaymentTransaction[]?>(null);
+    }
 }
