@@ -132,9 +132,18 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
         var invoiceService = new InvoiceService();
         var invoices = await invoiceService.ListAsync(
-            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
             GetRequestOptions(), cancellationToken
         );
+
+        var chargeService = new ChargeService();
+        var charges = await chargeService.ListAsync(
+            new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
+        var refundedAmountByPaymentIntentId = charges.Data
+            .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
+            .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
 
         var creditNoteService = new CreditNoteService();
         var creditNotes = await creditNoteService.ListAsync(
@@ -143,16 +152,22 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         );
         var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
 
-        var paymentTransactions = invoices.Data.Select(invoice => new PaymentTransaction(
-                PaymentTransactionId.NewId(),
-                invoice.AmountPaid / 100m,
-                invoice.Currency.ToUpperInvariant(),
-                MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
-                invoice.Created,
-                invoice.Status == "uncollectible" ? "Payment failed." : null,
-                invoice.InvoicePdf,
-                creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-            )
+        var paymentTransactions = invoices.Data.Select(invoice =>
+            {
+                var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
+                var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
+
+                return new PaymentTransaction(
+                    PaymentTransactionId.NewId(),
+                    invoice.AmountPaid / 100m,
+                    invoice.Currency.ToUpperInvariant(),
+                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
+                    invoice.Created,
+                    invoice.Status == "uncollectible" ? "Payment failed." : null,
+                    invoice.InvoicePdf,
+                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                );
+            }
         ).ToArray();
 
         DomainPaymentMethod? paymentMethod = null;
@@ -825,9 +840,18 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         var invoiceService = new InvoiceService();
         var invoices = await invoiceService.ListAsync(
-            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
             GetRequestOptions(), cancellationToken
         );
+
+        var chargeService = new ChargeService();
+        var charges = await chargeService.ListAsync(
+            new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+            GetRequestOptions(), cancellationToken
+        );
+        var refundedAmountByPaymentIntentId = charges.Data
+            .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
+            .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
 
         var creditNoteService = new CreditNoteService();
         var creditNotes = await creditNoteService.ListAsync(
@@ -836,16 +860,22 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         );
         var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
 
-        return invoices.Data.Select(invoice => new PaymentTransaction(
-                PaymentTransactionId.NewId(),
-                invoice.AmountPaid / 100m,
-                invoice.Currency.ToUpperInvariant(),
-                MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount),
-                invoice.Created,
-                invoice.Status == "uncollectible" ? "Payment failed." : null,
-                invoice.InvoicePdf,
-                creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-            )
+        return invoices.Data.Select(invoice =>
+            {
+                var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
+                var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
+
+                return new PaymentTransaction(
+                    PaymentTransactionId.NewId(),
+                    invoice.AmountPaid / 100m,
+                    invoice.Currency.ToUpperInvariant(),
+                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
+                    invoice.Created,
+                    invoice.Status == "uncollectible" ? "Payment failed." : null,
+                    invoice.InvoicePdf,
+                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                );
+            }
         ).ToArray();
     }
 
@@ -994,9 +1024,9 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         };
     }
 
-    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount)
+    private static PaymentTransactionStatus MapInvoiceStatus(string? status, long amountPaid, long postPaymentCreditNotesAmount, long chargeAmountRefunded)
     {
-        if (status == "paid" && amountPaid > 0 && postPaymentCreditNotesAmount >= amountPaid)
+        if (status == "paid" && amountPaid > 0 && (postPaymentCreditNotesAmount >= amountPaid || chargeAmountRefunded >= amountPaid))
         {
             return PaymentTransactionStatus.Refunded;
         }
