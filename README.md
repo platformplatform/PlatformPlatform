@@ -194,11 +194,13 @@ dotnet run # First time downloading Docker containers will take several minutes
 
 Alternatively, open the [PlatformPlatform](./application/PlatformPlatform.slnx) solution in Rider or Visual Studio and run the [Aspire AppHost](./application/AppHost/AppHost.csproj) project.
 
+On first startup, Aspire will prompt for `stripe-enabled` -- enter `true` to configure Stripe integration (see the optional Stripe setup section below) or `false` to skip.
+
 Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new account (https://localhost:9000/signup). A one-time password (OTP) will be sent to the development mail server, but for local development, you can always use the code `UNLOCK` instead of checking the mail server. As shown here:
 
 <img src="https://platformplatformgithub.blob.core.windows.net/$root/local-development-exp.gif" alt="Getting Started" title="Developer Experience" width="800"/>
 
-### (Optional) Set up Google OAuth for "Sign in with Google"
+### 3.1 (Optional) Set up Google OAuth for "Sign in with Google" on localhost
 
 PlatformPlatform supports authentication via Google OAuth. This is optional for local development since email-based one-time passwords work without any configuration. When running locally without Google OAuth credentials configured, the Aspire dashboard prompts for parameters -- enter `not-configured` to skip and start Aspire without Google OAuth.
 
@@ -223,6 +225,45 @@ PlatformPlatform supports authentication via Google OAuth. This is optional for 
 </details>
 
 **Aspire parameter configuration**: Click **Parameters** in the Aspire dashboard and enter your Google OAuth Client ID and Client Secret. These values are stored securely in .NET user secrets and persist across restarts.
+
+### 3.2 (Optional) Set up Stripe sandbox for localhost
+
+PlatformPlatform includes a comprehensive Stripe integration for subscription management and payments: embedded Stripe checkout and payment elements, prorated plan upgrades and downgrades, tax management, localized UI and invoice text, refund overview in billing history, telemetry events for the subscription lifecycle, grandfather pricing for existing subscribers, dunning and failed payment recovery, and full sync between Stripe and the local database via webhooks. The Stripe Dashboard must be set up and configured according to the Stripe Dashboard setup guide below before enabling Stripe in Aspire.
+
+<details>
+
+<summary>Stripe Dashboard setup</summary>
+
+Each developer needs their own Stripe sandbox. The local database stays in sync with Stripe via webhook events -- when payments, subscriptions, or billing details change in Stripe, webhook events update the local database with matching customer and subscription IDs. If developers share a sandbox, webhook events from one developer's actions would corrupt another developer's local database.
+
+1. **Create a sandbox**: Go to [Stripe Dashboard](https://dashboard.stripe.com) and create an account. Click the **account picker** (top-left) > **Sandboxes** > **Create**. Name it `dev-yourname` and open it. All subsequent steps are performed inside your sandbox.
+2. **Create products**: Navigate to **Product catalog** > **+ Create product**. Create a `Standard` product with **Recurring** / **Monthly** pricing (e.g., 19 EUR), then a `Premium` product (e.g., 39 EUR). Important: Click **More pricing options** and add `standard_monthly` and `premium_monthly` respectively in the **Lookup key** field.
+3. **Disable non-card payment methods**: Go to **Settings** (gear icon) > **Payments** > **Payment methods**. Turn off every payment method except **Cards** (and **Cartes Bancaires** which cannot be disabled)
+4. **Limit to 1 subscription**: Go to **Settings** > **Payments** > **Checkout and Payment Links**, scroll to **Subscriptions**, and enable **Limit customers to 1 subscription**. Add link to `https://app.yourcompany.com/account/subscription` (`https://localhost:9000/account/subscription` is not valid)
+5. **Configure failed payment recovery**: Go to **Settings** > **Billing** > **Subscriptions and emails** > **Manage failed payments**, and configure desired retry behavior
+6. **Configure email notifications**: Go to **Settings** > **Billing** > **Subscriptions and emails** > **Email notifications and customer management**, and enable all settings as you see fit. Set "Use your own custom link" to `https://localhost:9000/account/subscription`
+7. **Enable 3D Secure**: Go to **Settings** > **Billing** > **Subscriptions and emails** > **Manage payments that require confirmation**, and check off **Enable 3D Secure**. The embedded Stripe components support showing e.g. Visa and Danish MitID multi-factor confirmation dialogs
+8. **Set up Tax**: Go to **More** > **Tax** > **Locations** > **+ Add test registration** and follow the guide. Below is an example for a Danish company (adapt based on your business):
+   - Fill out the "Add head office address" side pane with your company address. Click **Continue**
+   - In "Add Tax registration" select your country (e.g., **Denmark**) and **I'm already registered**. Click **Continue**
+   - Select **Domestic** (e.g., "registered in Denmark"). Click **Continue**
+   - Select **No** to "Do you want to collect VAT on cross-border sales...". Click **Continue**
+   - Select **Yes** to "Have your sales of goods or digital services... been less than EUR 10,000". Click **Continue**
+   - Select **Start collecting immediately** in "Schedule tax collection". Click **Continue**
+   - Select **Software as a service (SaaS) - business use** in "Confirm your tax rates" (should show 25% for Denmark). Click **Start collecting**
+9. **Set invoice prefix**: Go to **Settings** > **Billing** > **Invoices**. In the **Invoice numbering** section, change the **Invoice prefix** to something meaningful for your organization, and optionally reset the **Invoice sequence** if needed
+10. **Get API keys**: Navigate to **Developers** > **API keys**. Note the **Publishable key** (`pk_test_...`) and **Secret key** (`sk_test_...`). These will be needed for the Aspire configuration below.
+
+</details>
+
+**Aspire parameter configuration** (two restarts required):
+
+1. **First restart**: Aspire prompts for the **Publishable key** and **Secret key** (API key). Once entered, the Stripe CLI container starts and connects to Stripe. Find the generated webhook signing secret in either:
+   - The **Stripe Dashboard** under **Developers** > **Workbench** > **Webhooks** -- click the three-dot menu on the event destination to reveal the signing secret
+   - The **stripe-cli** container logs in the Aspire dashboard (look for "Your webhook signing secret is whsec_...")
+2. **Second restart**: Aspire prompts for the **Webhook secret**. Enter the `whsec_` value from the previous step.
+
+All values are stored securely in .NET user secrets and persist across restarts.
 
 ## 4. Set up CI/CD with passwordless deployments from GitHub to Azure
 

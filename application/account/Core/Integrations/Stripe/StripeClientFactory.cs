@@ -10,7 +10,7 @@ public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfi
     private readonly bool _allowMockProvider = configuration.GetValue<bool>("Stripe:AllowMockProvider");
     private readonly string? _publishableKey = configuration["Stripe:PublishableKey"];
 
-    public bool IsConfigured { get; } = configuration["Stripe:ApiKey"] is not null;
+    public bool IsStripeSubscriptionEnabled { get; } = configuration["Stripe:SubscriptionEnabled"] == "true";
 
     public string? GetPublishableKey()
     {
@@ -24,7 +24,7 @@ public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfi
             return serviceProvider.GetRequiredKeyedService<IStripeClient>("mock-stripe");
         }
 
-        if (IsConfigured)
+        if (IsStripeSubscriptionEnabled)
         {
             return serviceProvider.GetRequiredKeyedService<IStripeClient>("stripe");
         }
