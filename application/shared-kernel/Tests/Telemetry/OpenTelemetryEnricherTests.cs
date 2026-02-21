@@ -29,6 +29,7 @@ public sealed class OpenTelemetryEnricherTests
             IsAuthenticated = true,
             Id = userId,
             TenantId = tenantId,
+            SubscriptionPlan = "Standard",
             SessionId = sessionId,
             Locale = "en-US",
             ZoomLevel = "1.25",
@@ -61,6 +62,9 @@ public sealed class OpenTelemetryEnricherTests
             // Assert
             var sessionIdTag = activity.Tags.FirstOrDefault(t => t.Key == "user.session_id");
             sessionIdTag.Value.Should().Be(sessionId.Value);
+
+            var subscriptionPlanTag = activity.Tags.FirstOrDefault(t => t.Key == "tenant.subscription_plan");
+            subscriptionPlanTag.Value.Should().Be("Standard");
 
             var zoomLevelTag = activity.Tags.FirstOrDefault(t => t.Key == "user.zoom_level");
             zoomLevelTag.Value.Should().Be("1.25");

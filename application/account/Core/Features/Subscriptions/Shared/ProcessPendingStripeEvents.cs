@@ -5,8 +5,6 @@ using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
@@ -44,12 +42,11 @@ public sealed class ProcessPendingStripeEvents(
             return;
         }
 
+        var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
         if (pendingEvents.Length > 0)
         {
-            var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
-
             await SyncStateFromStripe(tenant, subscription, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
@@ -58,7 +55,7 @@ public sealed class ProcessPendingStripeEvents(
         await dbContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        SendTelemetryEvents(subscription.TenantId);
+        SendTelemetryEvents(tenant, subscription);
     }
 
     private async Task SyncStateFromStripe(Tenant tenant, Subscription subscription, CancellationToken cancellationToken)
@@ -246,9 +243,9 @@ public sealed class ProcessPendingStripeEvents(
         }
     }
 
-    private void SendTelemetryEvents(TenantId tenantId)
+    private void SendTelemetryEvents(Tenant tenant, Subscription subscription)
     {
-        SetApplicationInsightsExecutionContext(tenantId);
+        TenantScopedTelemetryContext.Set(tenant.Id, subscription.Plan.ToString());
 
         // Publish collected telemetry events after successful commit
         while (events.HasEvents)
@@ -257,12 +254,5 @@ public sealed class ProcessPendingStripeEvents(
             telemetryClient.TrackEvent(telemetryEvent.GetType().Name, telemetryEvent.Properties);
             logger.LogInformation("Telemetry: {EventName} {EventProperties}", telemetryEvent.GetType().Name, string.Join(", ", telemetryEvent.Properties.Select(p => $"{p.Key}={p.Value}")));
         }
-    }
-
-    private static void SetApplicationInsightsExecutionContext(TenantId tenantId)
-    {
-        // Enrich telemetry with tenant context for background worker tracing
-        Activity.Current?.SetTag("tenant.id", tenantId);
-        ApplicationInsightsTelemetryInitializer.SetContext(new BackgroundWorkerExecutionContext(tenantId));
     }
 }

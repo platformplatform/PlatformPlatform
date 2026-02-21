@@ -48,6 +48,8 @@ public class UserInfo
 
     public string? TenantLogoUrl { get; init; }
 
+    public string? SubscriptionPlan { get; init; }
+
     public bool IsInternalUser { get; init; }
 
     public string? ZoomLevel { get; init; }
@@ -88,6 +90,7 @@ public class UserInfo
             AvatarUrl = user.FindFirstValue("avatar_url"),
             TenantName = user.FindFirstValue("tenant_name"),
             TenantLogoUrl = user.FindFirstValue("tenant_logo_url"),
+            SubscriptionPlan = user.FindFirstValue("subscription_plan"),
             Locale = GetValidLocale(user.FindFirstValue("locale")),
             ZoomLevel = zoomLevel,
             Theme = theme,
