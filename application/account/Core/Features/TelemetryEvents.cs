@@ -153,7 +153,14 @@ public sealed class SubscriptionDowngradeScheduled(
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_until_downgrade", daysUntilDowngrade), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionExpired(SubscriptionId subscriptionId, SubscriptionPlan previousPlan, int daysOnCurrentPlan, decimal previousPriceAmount, decimal mrrImpact, string previousCurrency)
+public sealed class SubscriptionExpired(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan previousPlan,
+    int daysOnCurrentPlan,
+    decimal previousPriceAmount,
+    decimal mrrImpact,
+    string previousCurrency
+)
     : TelemetryEvent(("subscription_id", subscriptionId), ("previous_plan", previousPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("mrr_impact", mrrImpact), ("previous_currency", previousCurrency));
 
 public sealed class SubscriptionReactivated(
@@ -170,7 +177,14 @@ public sealed class SubscriptionReactivated(
 public sealed class SubscriptionRenewed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan, SuspensionReason suspensionReason, decimal priceAmount, decimal mrrImpact, string currency)
+public sealed class SubscriptionSuspended(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan plan,
+    SuspensionReason suspensionReason,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("suspension_reason", suspensionReason), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class SubscriptionUpgraded(

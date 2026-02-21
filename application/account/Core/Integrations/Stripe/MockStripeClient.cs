@@ -230,6 +230,17 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "EUR", 0m));
     }
 
+    public Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        var now = timeProvider.GetUtcNow();
+        return Task.FromResult<PaymentTransaction[]?>(
+            [
+                new PaymentTransaction(PaymentTransactionId.NewId(), 29.99m, "USD", PaymentTransactionStatus.Succeeded, now, null, MockInvoiceUrl, null)
+            ]
+        );
+    }
+
     public static void ResetOverrides()
     {
         OverrideSubscriptionStatus = null;
