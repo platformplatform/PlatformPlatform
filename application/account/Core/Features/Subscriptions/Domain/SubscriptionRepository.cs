@@ -16,6 +16,12 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
     Task<Subscription?> GetByStripeCustomerIdWithLockUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves a subscription by tenant ID without applying tenant query filters.
+    ///     This method is used when tenant context is not available (e.g., during signup token creation).
+    /// </summary>
+    Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken);
 }
 
 internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -43,5 +49,10 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
             .FromSqlInterpolated($"SELECT * FROM Subscriptions WITH (UPDLOCK, ROWLOCK) WHERE StripeCustomerId = {stripeCustomerId.Value}")
             .IgnoreQueryFilters()
             .SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
     }
 }
