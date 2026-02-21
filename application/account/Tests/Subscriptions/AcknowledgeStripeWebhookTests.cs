@@ -24,6 +24,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string? stripeSubscriptionId = MockStripeClient.MockSubscriptionId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, string? cancellationReason = null)
     {
         var subscriptionId = SubscriptionId.NewId().ToString();
+        var hasStripeSubscription = stripeSubscriptionId is not null;
         Connection.Insert("Subscriptions", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
                 ("Id", subscriptionId),
@@ -33,7 +34,9 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
                 ("ScheduledPlan", null),
                 ("StripeCustomerId", stripeCustomerId),
                 ("StripeSubscriptionId", stripeSubscriptionId),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
+                ("CurrentPriceAmount", hasStripeSubscription ? 29.99m : null),
+                ("CurrentPriceCurrency", hasStripeSubscription ? "USD" : null),
+                ("CurrentPeriodEnd", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
                 ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", firstPaymentFailedAt),
                 ("CancellationReason", cancellationReason),

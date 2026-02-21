@@ -110,12 +110,13 @@ public sealed class SubscriptionCancelled(
     int? daysUntilExpiry,
     int daysOnCurrentPlan,
     decimal priceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("days_until_expiry", daysUntilExpiry), ("days_on_current_plan", daysOnCurrentPlan), ("price_amount", priceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("days_until_expiry", daysUntilExpiry), ("days_on_current_plan", daysOnCurrentPlan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
+public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class SubscriptionDowngradeCancelled(
     SubscriptionId subscriptionId,
@@ -124,9 +125,10 @@ public sealed class SubscriptionDowngradeCancelled(
     int? daysUntilDowngrade,
     int daysSinceDowngradeScheduled,
     decimal priceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("scheduled_plan", scheduledPlan), ("days_until_downgrade", daysUntilDowngrade), ("days_since_downgrade_scheduled", daysSinceDowngradeScheduled), ("price_amount", priceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("scheduled_plan", scheduledPlan), ("days_until_downgrade", daysUntilDowngrade), ("days_since_downgrade_scheduled", daysSinceDowngradeScheduled), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class SubscriptionDowngraded(
     SubscriptionId subscriptionId,
@@ -135,9 +137,10 @@ public sealed class SubscriptionDowngraded(
     int daysOnCurrentPlan,
     decimal previousPriceAmount,
     decimal newPriceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class SubscriptionDowngradeScheduled(
     SubscriptionId subscriptionId,
@@ -145,12 +148,13 @@ public sealed class SubscriptionDowngradeScheduled(
     SubscriptionPlan toPlan,
     int? daysUntilDowngrade,
     decimal priceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_until_downgrade", daysUntilDowngrade), ("price_amount", priceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_until_downgrade", daysUntilDowngrade), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionExpired(SubscriptionId subscriptionId, SubscriptionPlan previousPlan, int daysOnCurrentPlan, decimal? previousPriceAmount, string? previousCurrency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("previous_plan", previousPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount as object ?? 0), ("previous_currency", previousCurrency as object ?? "unknown"));
+public sealed class SubscriptionExpired(SubscriptionId subscriptionId, SubscriptionPlan previousPlan, int daysOnCurrentPlan, decimal previousPriceAmount, decimal mrrImpact, string previousCurrency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("previous_plan", previousPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("mrr_impact", mrrImpact), ("previous_currency", previousCurrency));
 
 public sealed class SubscriptionReactivated(
     SubscriptionId subscriptionId,
@@ -158,15 +162,16 @@ public sealed class SubscriptionReactivated(
     int? daysUntilExpiry,
     int daysSinceCancelled,
     decimal priceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("days_until_expiry", daysUntilExpiry), ("days_since_cancelled", daysSinceCancelled), ("price_amount", priceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("days_until_expiry", daysUntilExpiry), ("days_since_cancelled", daysSinceCancelled), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionRenewed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
+public sealed class SubscriptionRenewed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
-public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan, SuspensionReason suspensionReason, decimal? priceAmount, string? currency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("suspension_reason", suspensionReason), ("price_amount", priceAmount as object ?? 0), ("currency", currency as object ?? "unknown"));
+public sealed class SubscriptionSuspended(SubscriptionId subscriptionId, SubscriptionPlan plan, SuspensionReason suspensionReason, decimal priceAmount, decimal mrrImpact, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("suspension_reason", suspensionReason), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class SubscriptionUpgraded(
     SubscriptionId subscriptionId,
@@ -175,9 +180,10 @@ public sealed class SubscriptionUpgraded(
     int daysOnCurrentPlan,
     decimal previousPriceAmount,
     decimal newPriceAmount,
+    decimal mrrImpact,
     string currency
 )
-    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("currency", currency));
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
