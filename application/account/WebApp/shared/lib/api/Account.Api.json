@@ -1082,18 +1082,6 @@
           "Subscriptions"
         ],
         "operationId": "PostApiAccountSubscriptionsReactivate",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReactivateSubscriptionCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "400": {
             "description": "",
@@ -2856,9 +2844,6 @@
         "properties": {
           "plan": {
             "$ref": "#/components/schemas/SubscriptionPlan"
-          },
-          "returnUrl": {
-            "type": "string"
           }
         }
       },
@@ -2974,16 +2959,6 @@
             "nullable": true
           },
           "publishableKey": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ReactivateSubscriptionCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "returnUrl": {
             "type": "string",
             "nullable": true
           }

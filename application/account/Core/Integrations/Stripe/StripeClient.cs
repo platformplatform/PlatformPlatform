@@ -53,7 +53,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
         }
     }
 
-    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string? locale, CancellationToken cancellationToken)
+    public async Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string? locale, CancellationToken cancellationToken)
     {
         try
         {
@@ -73,7 +73,6 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 BillingAddressCollection = "required",
                 AutomaticTax = new SessionAutomaticTaxOptions { Enabled = true },
                 CustomerUpdate = new SessionCustomerUpdateOptions { Address = "auto", Name = "auto" },
-                ReturnUrl = returnUrl,
                 LineItems =
                 [
                     new SessionLineItemOptions

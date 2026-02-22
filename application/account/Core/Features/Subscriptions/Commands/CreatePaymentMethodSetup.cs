@@ -51,7 +51,7 @@ public sealed class CreatePaymentMethodSetupHandler(
             return Result<CreatePaymentMethodSetupResponse>.BadRequest("Failed to create payment method setup.");
         }
 
-        events.CollectEvent(new PaymentMethodSetupCreated(subscription.Id));
+        events.CollectEvent(new PaymentMethodSetupInitiated(subscription.Id));
 
         return new CreatePaymentMethodSetupResponse(clientSecret, publishableKey);
     }

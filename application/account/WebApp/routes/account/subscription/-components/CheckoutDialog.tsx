@@ -101,10 +101,7 @@ export function CheckoutDialog({
         setClientSecret(null);
         setStripePromise(null);
         checkoutMutation.mutate({
-          body: {
-            plan,
-            returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
-          }
+          body: { plan }
         });
       }
     } else {
@@ -257,7 +254,8 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
       await checkoutResult.checkout.updateBillingAddress(billingContact);
 
       const result = await checkoutResult.checkout.confirm({
-        redirect: "if_required"
+        redirect: "if_required",
+        returnUrl: window.location.href
       });
 
       if (result.type === "error") {

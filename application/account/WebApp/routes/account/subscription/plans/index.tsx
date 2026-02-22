@@ -253,11 +253,7 @@ function PlansPage() {
   };
 
   const handleConfirmReactivate = () => {
-    reactivateMutation.mutate({
-      body: {
-        returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
-      }
-    });
+    reactivateMutation.mutate({});
   };
 
   const handleBillingInfoSuccess = () => {

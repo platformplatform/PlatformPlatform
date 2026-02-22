@@ -61,8 +61,8 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         );
 
-        group.MapPost("/reactivate", async Task<ApiResult<ReactivateSubscriptionResponse>> (ReactivateSubscriptionCommand command, IMediator mediator)
-            => await mediator.Send(command)
+        group.MapPost("/reactivate", async Task<ApiResult<ReactivateSubscriptionResponse>> (IMediator mediator)
+            => await mediator.Send(new ReactivateSubscriptionCommand())
         ).Produces<ReactivateSubscriptionResponse>();
 
         group.MapPost("/payment-method-setup", async Task<ApiResult<CreatePaymentMethodSetupResponse>> (IMediator mediator)

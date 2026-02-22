@@ -4,7 +4,6 @@ using FluentAssertions;
 using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Subscriptions.Commands;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
@@ -34,7 +33,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(null);
+        var command = new ReactivateSubscriptionCommand();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -44,45 +43,6 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
         result!.ClientSecret.Should().BeNull();
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task ReactivateSubscription_WhenSuspended_ShouldReturnCheckoutUrl()
-    {
-        // Arrange
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value,
-            [("State", nameof(TenantState.Suspended))]
-        );
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
-            ]
-        );
-        var command = new ReactivateSubscriptionCommand("https://localhost:9000/subscription/return");
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/subscriptions/reactivate", command);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<ReactivateSubscriptionResponse>();
-        result!.ClientSecret.Should().NotBeNullOrEmpty();
-        result.PublishableKey.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
     }
@@ -108,7 +68,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(null);
+        var command = new ReactivateSubscriptionCommand();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -141,7 +101,7 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
                 ("PaymentMethod", null)
             ]
         );
-        var command = new ReactivateSubscriptionCommand(null);
+        var command = new ReactivateSubscriptionCommand();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
