@@ -825,18 +825,18 @@
         }
       }
     },
-    "/api/account/subscriptions/checkout": {
+    "/api/account/subscriptions/start-checkout": {
       "post": {
         "tags": [
           "Subscriptions"
         ],
-        "operationId": "PostApiAccountSubscriptionsCheckout",
+        "operationId": "PostApiAccountSubscriptionsStartCheckout",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateCheckoutSessionCommand"
+                "$ref": "#/components/schemas/StartSubscriptionCheckoutCommand"
               }
             }
           },
@@ -859,7 +859,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateCheckoutSessionResponse"
+                  "$ref": "#/components/schemas/StartSubscriptionCheckoutResponse"
                 }
               }
             }
@@ -943,48 +943,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SubscribePreviewResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/subscribe": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsSubscribe",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SubscribeWithSavedPaymentMethodCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubscribeWithSavedPaymentMethodResponse"
                 }
               }
             }
@@ -1106,12 +1064,12 @@
         }
       }
     },
-    "/api/account/subscriptions/payment-method-setup": {
+    "/api/account/subscriptions/start-payment-method-setup": {
       "post": {
         "tags": [
           "Subscriptions"
         ],
-        "operationId": "PostApiAccountSubscriptionsPaymentMethodSetup",
+        "operationId": "PostApiAccountSubscriptionsStartPaymentMethodSetup",
         "responses": {
           "400": {
             "description": "",
@@ -1128,7 +1086,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatePaymentMethodSetupResponse"
+                  "$ref": "#/components/schemas/StartPaymentMethodSetupResponse"
                 }
               }
             }
@@ -2826,19 +2784,24 @@
           }
         }
       },
-      "CreateCheckoutSessionResponse": {
+      "StartSubscriptionCheckoutResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "clientSecret": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "publishableKey": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
+          },
+          "usedExistingPaymentMethod": {
+            "type": "boolean"
           }
         }
       },
-      "CreateCheckoutSessionCommand": {
+      "StartSubscriptionCheckoutCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2884,29 +2847,6 @@
           "taxAmount": {
             "type": "number",
             "format": "decimal"
-          }
-        }
-      },
-      "SubscribeWithSavedPaymentMethodResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "clientSecret": {
-            "type": "string",
-            "nullable": true
-          },
-          "publishableKey": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "SubscribeWithSavedPaymentMethodCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "plan": {
-            "$ref": "#/components/schemas/SubscriptionPlan"
           }
         }
       },
@@ -2964,7 +2904,7 @@
           }
         }
       },
-      "CreatePaymentMethodSetupResponse": {
+      "StartPaymentMethodSetupResponse": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

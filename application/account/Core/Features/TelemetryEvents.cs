@@ -70,7 +70,7 @@ public sealed class Logout
 public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
 
-public sealed class PaymentMethodSetupInitiated(SubscriptionId subscriptionId)
+public sealed class PaymentMethodSetupStarted(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
 public sealed class PaymentMethodUpdated(SubscriptionId subscriptionId)
@@ -111,6 +111,9 @@ public sealed class SubscriptionCancelled(
     string currency
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("days_until_expiry", daysUntilExpiry), ("days_on_current_plan", daysOnCurrentPlan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionCheckoutStarted(SubscriptionId subscriptionId, SubscriptionPlan plan, bool useExistingPaymentMethod)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("use_existing_payment_method", useExistingPaymentMethod));
 
 public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
@@ -159,9 +162,6 @@ public sealed class SubscriptionExpired(
     string previousCurrency
 )
     : TelemetryEvent(("subscription_id", subscriptionId), ("previous_plan", previousPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("mrr_impact", mrrImpact), ("previous_currency", previousCurrency));
-
-public sealed class SubscriptionInitiated(SubscriptionId subscriptionId, SubscriptionPlan plan, bool savedPaymentMethod)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("saved_payment_method", savedPaymentMethod));
 
 public sealed class SubscriptionReactivated(
     SubscriptionId subscriptionId,
