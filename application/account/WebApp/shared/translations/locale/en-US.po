@@ -21,6 +21,10 @@ msgstr "{0, plural, one {# hour ago} other {# hours ago}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minute ago} other {# minutes ago}}"
 
+#. placeholder {0}: targetPlanDetails.name
+msgid "{0} plan"
+msgstr "{0} plan"
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} users deleted successfully"
@@ -255,6 +259,9 @@ msgstr "Basis"
 
 msgid "Bill to"
 msgstr "Bill to"
+
+msgid "Billed monthly: {targetFormattedPrice}"
+msgstr "Billed monthly: {targetFormattedPrice}"
 
 msgid "Billing email"
 msgstr "Billing email"
@@ -873,6 +880,9 @@ msgstr "Page not found"
 msgid "Passwordless deployments"
 msgstr "Passwordless deployments"
 
+msgid "Pay"
+msgstr "Pay"
+
 msgid "Pay and subscribe"
 msgstr "Pay and subscribe"
 
@@ -881,6 +891,9 @@ msgstr "Pay and upgrade"
 
 msgid "Payment authentication failed."
 msgstr "Payment authentication failed."
+
+msgid "Payment could not be processed. Please try again later."
+msgstr "Payment could not be processed. Please try again later."
 
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Payment failed. Your subscription will be suspended soon."
@@ -893,6 +906,9 @@ msgstr "Payment method updated"
 
 msgid "Pending"
 msgstr "Pending"
+
+msgid "Pending payment completed"
+msgstr "Pending payment completed"
 
 #. placeholder {0}: selectedUsers.length
 msgid "Permanently delete {0} users"
@@ -1037,6 +1053,9 @@ msgstr "Restore user"
 msgid "Restoring..."
 msgstr "Restoring..."
 
+msgid "Retry pending payment"
+msgstr "Retry pending payment"
+
 msgid "Revoke"
 msgstr "Revoke"
 
@@ -1179,6 +1198,10 @@ msgstr "Stripe Link"
 
 msgid "Subscribe"
 msgstr "Subscribe"
+
+#. placeholder {0}: targetPlanDetails.name
+msgid "Subscribe to {0}"
+msgstr "Subscribe to {0}"
 
 msgid "Subscription"
 msgstr "Subscription"

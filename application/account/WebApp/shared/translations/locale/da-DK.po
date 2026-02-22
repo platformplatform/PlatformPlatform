@@ -21,6 +21,10 @@ msgstr "{0, plural, one {# time siden} other {# timer siden}}"
 msgid "{0, plural, one {# minute ago} other {# minutes ago}}"
 msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 
+#. placeholder {0}: targetPlanDetails.name
+msgid "{0} plan"
+msgstr "{0}-abonnement"
+
 #. placeholder {0}: users.length
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
@@ -255,6 +259,9 @@ msgstr "Basis"
 
 msgid "Bill to"
 msgstr "Faktureres til"
+
+msgid "Billed monthly: {targetFormattedPrice}"
+msgstr "Faktureres månedligt: {targetFormattedPrice}"
 
 msgid "Billing email"
 msgstr "Faktureringsmail"
@@ -873,6 +880,9 @@ msgstr "Siden blev ikke fundet"
 msgid "Passwordless deployments"
 msgstr "Adgangskodeløse implementeringer"
 
+msgid "Pay"
+msgstr "Betal"
+
 msgid "Pay and subscribe"
 msgstr "Betal og abonner"
 
@@ -881,6 +891,9 @@ msgstr "Betal og opgrader"
 
 msgid "Payment authentication failed."
 msgstr "Betalingsgodkendelse mislykkedes."
+
+msgid "Payment could not be processed. Please try again later."
+msgstr "Betalingen kunne ikke gennemføres. Prøv igen senere."
 
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Betaling mislykkedes. Dit abonnement vil blive suspenderet snart."
@@ -893,6 +906,9 @@ msgstr "Betalingsmetode opdateret"
 
 msgid "Pending"
 msgstr "Afventer"
+
+msgid "Pending payment completed"
+msgstr "Afventende betaling gennemført"
 
 #. placeholder {0}: selectedUsers.length
 msgid "Permanently delete {0} users"
@@ -1037,6 +1053,9 @@ msgstr "Gendan bruger"
 msgid "Restoring..."
 msgstr "Gendanner..."
 
+msgid "Retry pending payment"
+msgstr "Prøv afventende betaling igen"
+
 msgid "Revoke"
 msgstr "Tilbagekald"
 
@@ -1179,6 +1198,10 @@ msgstr "Stripe Link"
 
 msgid "Subscribe"
 msgstr "Abonner"
+
+#. placeholder {0}: targetPlanDetails.name
+msgid "Subscribe to {0}"
+msgstr "Abonner på {0}"
 
 msgid "Subscription"
 msgstr "Abonnement"
@@ -1467,7 +1490,7 @@ msgstr "Du blev logget ud fra en anden browsertab."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
-msgstr ""
+msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEnd}."
 
 #. placeholder {0}: getPlanLabel(currentPlan)
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."

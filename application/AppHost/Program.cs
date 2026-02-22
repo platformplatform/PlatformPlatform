@@ -219,7 +219,8 @@ void AddStripeCliContainer()
                              **After entering this and the Secret Key, restart Aspire.** The stripe-cli container will start and generate a webhook secret, which you will enter on the next restart.
 
                              See **README.md** for full setup instructions.
-                             """, true);
+                             """, true
+            );
         var apiKey = builder.AddParameter("stripe-api-key", true)
             .WithDescription("""
                              Stripe Secret Key from the [Stripe Dashboard](https://dashboard.stripe.com/apikeys). Starts with `sk_test_` or `sk_live_`.
@@ -227,7 +228,8 @@ void AddStripeCliContainer()
                              **After entering this and the Publishable Key, restart Aspire.** The stripe-cli container will start and generate a webhook secret, which you will enter on the next restart.
 
                              See **README.md** for full setup instructions.
-                             """, true);
+                             """, true
+            );
 
         var apiKeyConfigured = builder.Configuration["Parameters:stripe-api-key"] is not null;
         var webhookSecret = apiKeyConfigured

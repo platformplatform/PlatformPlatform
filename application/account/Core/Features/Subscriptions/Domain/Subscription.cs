@@ -108,6 +108,11 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         PaymentTransactions = paymentTransactions;
     }
 
+    public void SetPaymentMethod(PaymentMethod? paymentMethod)
+    {
+        PaymentMethod = paymentMethod;
+    }
+
     public void SetPaymentFailed(DateTimeOffset failedAt)
     {
         FirstPaymentFailedAt = failedAt;
@@ -127,6 +132,7 @@ public sealed class Subscription : AggregateRoot<SubscriptionId>, ITenantScopedE
         CurrentPriceCurrency = null;
         CurrentPeriodEnd = null;
         CancelAtPeriodEnd = false;
+        FirstPaymentFailedAt = null;
         CancellationReason = null;
         CancellationFeedback = null;
     }

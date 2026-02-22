@@ -22,7 +22,7 @@ import { getFormattedPrice, getPlanDetails } from "./PlanCard";
 type BillingInfo = components["schemas"]["BillingInfo"];
 type PaymentMethod = components["schemas"]["PaymentMethod"];
 
-type UpgradeConfirmationDialogProps = {
+type SubscribeConfirmationDialogProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onConfirm: () => void;
@@ -32,7 +32,7 @@ type UpgradeConfirmationDialogProps = {
   paymentMethod: PaymentMethod | null | undefined;
 };
 
-export function UpgradeConfirmationDialog({
+export function SubscribeConfirmationDialog({
   isOpen,
   onOpenChange,
   onConfirm,
@@ -40,28 +40,24 @@ export function UpgradeConfirmationDialog({
   targetPlan,
   billingInfo,
   paymentMethod
-}: Readonly<UpgradeConfirmationDialogProps>) {
+}: Readonly<SubscribeConfirmationDialogProps>) {
   const { data: preview, isLoading: isPreviewLoading } = api.useQuery(
     "get",
-    "/api/account/subscriptions/upgrade-preview",
-    { params: { query: { NewPlan: targetPlan } } },
+    "/api/account/subscriptions/subscribe-preview",
+    { params: { query: { Plan: targetPlan } } },
     { enabled: isOpen && !isPending }
   );
 
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
   const targetPlanDetails = getPlanDetails(targetPlan);
   const targetFormattedPrice = getFormattedPrice(targetPlan, pricingCatalog?.plans);
+  const subtotal = preview != null ? preview.totalAmount - preview.taxAmount : 0;
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={onOpenChange}
-      disablePointerDismissal={true}
-      trackingTitle="Upgrade subscription"
-    >
+    <Dialog open={isOpen} onOpenChange={onOpenChange} disablePointerDismissal={true} trackingTitle="Subscribe">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
-          <DialogTitle>{t`Upgrade to ${targetPlanDetails.name}`}</DialogTitle>
+          <DialogTitle>{t`Subscribe to ${targetPlanDetails.name}`}</DialogTitle>
         </DialogHeader>
         <DialogBody>
           <div className="flex flex-col gap-4">
@@ -102,14 +98,24 @@ export function UpgradeConfirmationDialog({
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {preview.lineItems.map((item, index) => (
-                    <div key={index} className="flex items-baseline justify-between gap-4 text-sm">
-                      <span className="min-w-0 text-muted-foreground">{item.description}</span>
+                  <div className="flex items-baseline justify-between gap-4 text-sm">
+                    <span className="min-w-0 text-muted-foreground">
+                      {t`${targetPlanDetails.name} plan`}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
+                      {formatCurrency(subtotal, preview.currency)}
+                    </span>
+                  </div>
+                  {preview.taxAmount > 0 && (
+                    <div className="flex items-baseline justify-between gap-4 text-sm">
+                      <span className="min-w-0 text-muted-foreground">
+                        <Trans>Tax</Trans>
+                      </span>
                       <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
-                        {formatCurrency(item.amount, item.currency)}
+                        {formatCurrency(preview.taxAmount, preview.currency)}
                       </span>
                     </div>
-                  ))}
+                  )}
                   <Separator />
                   <div className="flex items-baseline justify-between gap-4 font-medium">
                     <span>
@@ -120,7 +126,7 @@ export function UpgradeConfirmationDialog({
                     </span>
                   </div>
                   <p className="text-muted-foreground text-xs">
-                    <Trans>Estimated next bill: {targetFormattedPrice}</Trans>
+                    <Trans>Billed monthly: {targetFormattedPrice}</Trans>
                   </p>
                 </div>
               )}
@@ -132,7 +138,7 @@ export function UpgradeConfirmationDialog({
             <Trans>Cancel</Trans>
           </DialogClose>
           <Button onClick={onConfirm} disabled={isPending || isPreviewLoading}>
-            {isPending ? <Trans>Processing...</Trans> : <Trans>Pay and upgrade</Trans>}
+            {isPending ? <Trans>Processing...</Trans> : <Trans>Pay and subscribe</Trans>}
           </Button>
         </DialogFooter>
       </DialogContent>

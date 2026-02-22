@@ -4,26 +4,27 @@ using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
 
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record ConfirmPaymentMethodSetupCommand(string SetupIntentId) : ICommand, IRequest<Result>;
+public sealed record ConfirmPaymentMethodSetupCommand(string SetupIntentId) : ICommand, IRequest<Result<ConfirmPaymentMethodSetupResponse>>;
+
+[PublicAPI]
+public sealed record ConfirmPaymentMethodSetupResponse(bool HasOpenInvoice, decimal? OpenInvoiceAmount, string? OpenInvoiceCurrency);
 
 public sealed class ConfirmPaymentMethodSetupHandler(
     ISubscriptionRepository subscriptionRepository,
     StripeClientFactory stripeClientFactory,
     IExecutionContext executionContext,
-    ITelemetryEventsCollector events,
     ILogger<ConfirmPaymentMethodSetupHandler> logger
-) : IRequestHandler<ConfirmPaymentMethodSetupCommand, Result>
+) : IRequestHandler<ConfirmPaymentMethodSetupCommand, Result<ConfirmPaymentMethodSetupResponse>>
 {
-    public async Task<Result> Handle(ConfirmPaymentMethodSetupCommand command, CancellationToken cancellationToken)
+    public async Task<Result<ConfirmPaymentMethodSetupResponse>> Handle(ConfirmPaymentMethodSetupCommand command, CancellationToken cancellationToken)
     {
         if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
-            return Result.Forbidden("Only owners can manage subscriptions.");
+            return Result<ConfirmPaymentMethodSetupResponse>.Forbidden("Only owners can manage subscriptions.");
         }
 
         var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
@@ -31,36 +32,38 @@ public sealed class ConfirmPaymentMethodSetupHandler(
         if (subscription.StripeCustomerId is null)
         {
             logger.LogWarning("No Stripe customer found for subscription '{SubscriptionId}'", subscription.Id);
-            return Result.BadRequest("No Stripe customer found. A subscription must be created first.");
-        }
-
-        if (subscription.StripeSubscriptionId is null)
-        {
-            logger.LogWarning("No Stripe subscription found for subscription '{SubscriptionId}'", subscription.Id);
-            return Result.BadRequest("No active Stripe subscription found.");
+            return Result<ConfirmPaymentMethodSetupResponse>.BadRequest("No Stripe customer found. A subscription must be created first.");
         }
 
         var stripeClient = stripeClientFactory.GetClient();
         var paymentMethodId = await stripeClient.GetSetupIntentPaymentMethodAsync(command.SetupIntentId, cancellationToken);
         if (paymentMethodId is null)
         {
-            return Result.BadRequest("Failed to retrieve payment method from setup intent.");
+            return Result<ConfirmPaymentMethodSetupResponse>.BadRequest("Failed to retrieve payment method from setup intent.");
         }
 
-        var success = await stripeClient.SetSubscriptionDefaultPaymentMethodAsync(subscription.StripeSubscriptionId, paymentMethodId, cancellationToken);
-        if (!success)
+        OpenInvoiceResult? openInvoice = null;
+        if (subscription.StripeSubscriptionId is not null)
         {
-            return Result.BadRequest("Failed to update subscription payment method.");
-        }
+            var success = await stripeClient.SetSubscriptionDefaultPaymentMethodAsync(subscription.StripeSubscriptionId, paymentMethodId, cancellationToken);
+            if (!success)
+            {
+                return Result<ConfirmPaymentMethodSetupResponse>.BadRequest("Failed to update subscription payment method.");
+            }
 
-        var invoiceRetried = await stripeClient.RetryOpenInvoicePaymentAsync(subscription.StripeSubscriptionId, paymentMethodId, cancellationToken);
-        if (invoiceRetried == true)
+            openInvoice = await stripeClient.GetOpenInvoiceAsync(subscription.StripeSubscriptionId, cancellationToken);
+        }
+        else
         {
-            events.CollectEvent(new PendingInvoicePaymentRetried(subscription.Id));
+            var success = await stripeClient.SetCustomerDefaultPaymentMethodAsync(subscription.StripeCustomerId, paymentMethodId, cancellationToken);
+            if (!success)
+            {
+                return Result<ConfirmPaymentMethodSetupResponse>.BadRequest("Failed to update customer payment method.");
+            }
         }
 
-        events.CollectEvent(new PaymentMethodUpdated(subscription.Id));
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
-        return Result.Success();
+        return new ConfirmPaymentMethodSetupResponse(openInvoice is not null, openInvoice?.AmountDue, openInvoice?.Currency);
     }
 }
