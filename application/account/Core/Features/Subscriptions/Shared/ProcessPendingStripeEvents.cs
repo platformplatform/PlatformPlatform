@@ -68,7 +68,13 @@ public sealed class ProcessPendingStripeEvents(
         var previousPriceAmount = subscription.CurrentPriceAmount;
         var previousPriceCurrency = subscription.CurrentPriceCurrency;
 
-        if (customerResult!.IsCustomerDeleted)
+        if (customerResult is null)
+        {
+            logger.LogError("Failed to fetch billing info for Stripe customer '{StripeCustomerId}'", subscription.StripeCustomerId);
+            return;
+        }
+
+        if (customerResult.IsCustomerDeleted)
         {
             subscription.ResetToFreePlan();
             tenant.Suspend(SuspensionReason.CustomerDeleted, timeProvider.GetUtcNow());
@@ -83,6 +89,8 @@ public sealed class ProcessPendingStripeEvents(
         // Detect state transitions in lifecycle order (variables and if-blocks below follow the same order)
         var billingInfoAdded = subscription.BillingInfo is null && customerResult.BillingInfo is not null;
         var billingInfoUpdated = subscription.BillingInfo is not null && customerResult.BillingInfo is not null && customerResult.BillingInfo != subscription.BillingInfo;
+        var latestPaymentMethod = stripeState?.PaymentMethod ?? customerResult.PaymentMethod;
+        var paymentMethodUpdated = latestPaymentMethod != subscription.PaymentMethod;
         var subscriptionCreated = subscription.StripeSubscriptionId is null && stripeState?.StripeSubscriptionId is not null;
         var subscriptionRenewed = subscription.CurrentPeriodEnd is not null && stripeState?.CurrentPeriodEnd is not null && stripeState.CurrentPeriodEnd > subscription.CurrentPeriodEnd;
         var subscriptionUpgraded = !subscriptionCreated && stripeState is not null && stripeState.Plan != subscription.Plan && stripeState.Plan.IsUpgradeFrom(subscription.Plan);
@@ -94,7 +102,7 @@ public sealed class ProcessPendingStripeEvents(
         var subscriptionExpired = subscription.StripeSubscriptionId is not null && stripeState is null && subscription is { CancelAtPeriodEnd: true, FirstPaymentFailedAt: null };
         var subscriptionImmediatelyCancelled = subscription.StripeSubscriptionId is not null && stripeState is null && subscription is { CancelAtPeriodEnd: false, FirstPaymentFailedAt: null };
         var subscriptionSuspended = subscription.StripeSubscriptionId is not null && stripeState is null && subscription.FirstPaymentFailedAt is not null;
-        var paymentFailed = stripeState?.SubscriptionStatus == StripeSubscriptionStatus.PastDue && subscription.FirstPaymentFailedAt is null;
+        var paymentFailed = stripeState?.SubscriptionStatus is StripeSubscriptionStatus.PastDue or StripeSubscriptionStatus.Incomplete && subscription.FirstPaymentFailedAt is null;
         var paymentRecovered = stripeState?.SubscriptionStatus == StripeSubscriptionStatus.Active && subscription.FirstPaymentFailedAt is not null;
         var previousRefundCount = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded);
         var now = timeProvider.GetUtcNow();
@@ -125,6 +133,12 @@ public sealed class ProcessPendingStripeEvents(
         {
             subscription.SetBillingInfo(customerResult.BillingInfo);
             events.CollectEvent(new BillingInfoUpdated(subscription.Id, customerResult.BillingInfo?.Address?.Country, customerResult.BillingInfo?.Address?.PostalCode, customerResult.BillingInfo?.Address?.City));
+        }
+
+        if (paymentMethodUpdated)
+        {
+            subscription.SetPaymentMethod(latestPaymentMethod);
+            events.CollectEvent(new PaymentMethodUpdated(subscription.Id));
         }
 
         if (subscriptionCreated)
@@ -218,15 +232,19 @@ public sealed class ProcessPendingStripeEvents(
 
         if (paymentRefunded)
         {
-            var refundCount = subscription.PaymentTransactions.Count(t => t.Status == PaymentTransactionStatus.Refunded) - previousRefundCount;
+            var refundedTransactions = subscription.PaymentTransactions.Where(t => t.Status == PaymentTransactionStatus.Refunded).ToArray();
+            var refundCount = refundedTransactions.Length - previousRefundCount;
+            var latestRefund = refundedTransactions[^1];
             var plan = stripeState is not null ? subscription.Plan : previousPlan;
-            var priceAmount = stripeState is not null ? subscription.CurrentPriceAmount!.Value : previousPriceAmount!.Value;
-            var currency = stripeState is not null ? subscription.CurrentPriceCurrency! : previousPriceCurrency!;
-            events.CollectEvent(new PaymentRefunded(subscription.Id, plan, refundCount, priceAmount, currency));
+            events.CollectEvent(new PaymentRefunded(subscription.Id, plan, refundCount, latestRefund.Amount, latestRefund.Currency));
         }
 
         // Persist all aggregate mutations and mark pending events as processed
-        tenantRepository.Update(tenant);
+        if (subscriptionCreated || subscriptionSuspended)
+        {
+            tenantRepository.Update(tenant);
+        }
+
         subscriptionRepository.Update(subscription);
     }
 

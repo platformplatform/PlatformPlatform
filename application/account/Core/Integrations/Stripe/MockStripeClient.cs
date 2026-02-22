@@ -20,6 +20,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
 
     public static bool SimulateCustomerDeleted { get; set; }
 
+    public static bool SimulateOpenInvoice { get; set; }
+
     public Task<StripeCustomerId?> CreateCustomerAsync(string tenantName, string email, long tenantId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
@@ -167,7 +169,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         }
 
         var billingInfo = new BillingInfo("Test Organization", new BillingAddress("Vestergade 12", null, "1456", "K\u00f8benhavn K", null, "DK"), "billing@example.com", null);
-        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false));
+        var paymentMethod = new PaymentMethod("visa", "4242", 12, 2026);
+        return Task.FromResult<CustomerBillingResult?>(new CustomerBillingResult(billingInfo, false, paymentMethod));
     }
 
     public Task<bool> UpdateCustomerBillingInfoAsync(StripeCustomerId stripeCustomerId, BillingInfo billingInfo, string? locale, CancellationToken cancellationToken)
@@ -205,10 +208,32 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
-    public Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    public Task<bool> SetCustomerDefaultPaymentMethodAsync(StripeCustomerId stripeCustomerId, string paymentMethodId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
-        return Task.FromResult<bool?>(null);
+        return Task.FromResult(true);
+    }
+
+    public Task<OpenInvoiceResult?> GetOpenInvoiceAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        if (SimulateOpenInvoice)
+        {
+            return Task.FromResult<OpenInvoiceResult?>(new OpenInvoiceResult(29.99m, "USD"));
+        }
+
+        return Task.FromResult<OpenInvoiceResult?>(null);
+    }
+
+    public Task<InvoiceRetryResult?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string? paymentMethodId, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        if (SimulateOpenInvoice)
+        {
+            return Task.FromResult<InvoiceRetryResult?>(new InvoiceRetryResult(true, null));
+        }
+
+        return Task.FromResult<InvoiceRetryResult?>(null);
     }
 
     public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
@@ -230,6 +255,12 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<CheckoutPreviewResult?>(new CheckoutPreviewResult(19.00m, "EUR", 0m));
     }
 
+    public Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        EnsureEnabled();
+        return Task.FromResult<SubscribeResult?>(new SubscribeResult(null));
+    }
+
     public Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
         EnsureEnabled();
@@ -246,6 +277,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         OverrideSubscriptionStatus = null;
         SimulateSubscriptionDeleted = false;
         SimulateCustomerDeleted = false;
+        SimulateOpenInvoice = false;
     }
 
     private void EnsureEnabled()

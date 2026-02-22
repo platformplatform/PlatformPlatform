@@ -23,6 +23,7 @@ import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { getFormattedPrice, PlanCard } from "./-components/PlanCard";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
+import { RetryPaymentDialog } from "./-components/RetryPaymentDialog";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
 import { useSubscriptionPolling } from "./-components/useSubscriptionPolling";
 
@@ -43,6 +44,9 @@ function SubscriptionPage() {
   const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
   const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
   const [isUpdatePaymentMethodOpen, setIsUpdatePaymentMethodOpen] = useState(false);
+  const [isRetryPaymentOpen, setIsRetryPaymentOpen] = useState(false);
+  const [retryInvoiceAmount, setRetryInvoiceAmount] = useState(0);
+  const [retryInvoiceCurrency, setRetryInvoiceCurrency] = useState("");
   const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Basis);
   const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
@@ -379,7 +383,26 @@ function SubscriptionPage() {
         pendingLabel={pendingCheckoutPlan != null ? t`Saving...` : undefined}
       />
 
-      <UpdatePaymentMethodDialog isOpen={isUpdatePaymentMethodOpen} onOpenChange={setIsUpdatePaymentMethodOpen} />
+      <UpdatePaymentMethodDialog
+        isOpen={isUpdatePaymentMethodOpen}
+        onOpenChange={setIsUpdatePaymentMethodOpen}
+        onHasOpenInvoice={(invoice) => {
+          setRetryInvoiceAmount(invoice.amount);
+          setRetryInvoiceCurrency(invoice.currency);
+          setIsRetryPaymentOpen(true);
+        }}
+      />
+
+      {isRetryPaymentOpen && (
+        <RetryPaymentDialog
+          isOpen={isRetryPaymentOpen}
+          onOpenChange={setIsRetryPaymentOpen}
+          billingInfo={subscription?.billingInfo}
+          paymentMethod={subscription?.paymentMethod}
+          amount={retryInvoiceAmount}
+          currency={retryInvoiceCurrency}
+        />
+      )}
 
       <CheckoutDialog
         isOpen={isCheckoutDialogOpen}
