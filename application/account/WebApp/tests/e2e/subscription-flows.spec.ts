@@ -71,7 +71,7 @@ test.describe("@smoke", () => {
     await step("Click Subscribe on Standard plan & fill billing info & create Stripe customer")(async () => {
       await setMockProviderCookie(ownerPage);
 
-      await ownerPage.route("**/api/account/subscriptions/checkout", (route) => route.abort());
+      await ownerPage.route("**/api/account/subscriptions/start-checkout", (route) => route.abort());
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
       await standardCard.getByRole("button", { name: "Subscribe" }).click();
@@ -92,7 +92,7 @@ test.describe("@smoke", () => {
       await billingInfoResponse;
       await expectToastMessage(context, "Billing information updated");
 
-      await ownerPage.unroute("**/api/account/subscriptions/checkout");
+      await ownerPage.unroute("**/api/account/subscriptions/start-checkout");
     })();
 
     await step("Simulate checkout success & verify subscription activated with payment history")(async () => {
