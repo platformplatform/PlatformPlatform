@@ -35,7 +35,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
         );
-        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Standard, "https://localhost:9000/subscription/return");
+        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Standard);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -48,7 +48,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
         result.PublishableKey.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("CheckoutSessionCreated");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SubscriptionInitiated");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -73,7 +73,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("PaymentMethod", null)
             ]
         );
-        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Premium, "https://localhost:9000/subscription/return");
+        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Premium);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -106,7 +106,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
                 ("PaymentMethod", null)
             ]
         );
-        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Standard, "https://localhost:9000/subscription/return");
+        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Standard);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -122,7 +122,7 @@ public sealed class CreateCheckoutSessionTests : EndpointBaseTest<AccountDbConte
     public async Task CreateCheckoutSession_WhenBasisPlan_ShouldReturnValidationError()
     {
         // Arrange
-        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Basis, "https://localhost:9000/subscription/return");
+        var command = new CreateCheckoutSessionCommand(SubscriptionPlan.Basis);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/subscriptions/checkout", command);

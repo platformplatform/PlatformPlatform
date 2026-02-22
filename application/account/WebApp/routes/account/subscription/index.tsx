@@ -363,11 +363,7 @@ function SubscriptionPage() {
         isOpen={isReactivateDialogOpen}
         onOpenChange={setIsReactivateDialogOpen}
         onConfirm={() =>
-          reactivateMutation.mutate({
-            body: {
-              returnUrl: `${window.location.origin}/account/subscription/?session_id={CHECKOUT_SESSION_ID}`
-            }
-          })
+          reactivateMutation.mutate({})
         }
         isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
