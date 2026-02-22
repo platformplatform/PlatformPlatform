@@ -21,6 +21,7 @@ import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { getCatalogUnitAmount, getFormattedPrice, PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
+import { SubscribeConfirmationDialog } from "../-components/SubscribeConfirmationDialog";
 import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
 import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
@@ -49,6 +50,8 @@ function PlansPage() {
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
+  const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false);
+  const [subscribeTarget, setSubscribeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
 
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
@@ -140,6 +143,45 @@ function PlansPage() {
     }
   });
 
+  const subscribeMutation = api.useMutation("post", "/api/account/subscriptions/subscribe", {
+    onSuccess: async (data, variables) => {
+      const targetPlan = variables.body?.plan;
+      if (data.clientSecret && data.publishableKey) {
+        setIsConfirmingPayment(true);
+        const stripe = await loadStripe(data.publishableKey, { locale: i18n.locale as "auto" });
+        if (!stripe) {
+          setIsConfirmingPayment(false);
+          toast.error(t`Failed to load payment processor.`);
+          return;
+        }
+        const result = await stripe.confirmPayment({
+          clientSecret: data.clientSecret,
+          confirmParams: {
+            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
+            return_url: window.location.href
+          },
+          redirect: "if_required"
+        });
+        setIsConfirmingPayment(false);
+        if (result.error) {
+          toast.error(result.error.message ?? t`Payment authentication failed.`);
+          return;
+        }
+        startPolling({
+          check: (sub) => sub.plan === targetPlan,
+          successMessage: t`Your subscription has been activated.`,
+          onComplete: () => setIsSubscribeDialogOpen(false)
+        });
+      } else {
+        startPolling({
+          check: (sub) => sub.plan === targetPlan,
+          successMessage: t`Your subscription has been activated.`,
+          onComplete: () => setIsSubscribeDialogOpen(false)
+        });
+      }
+    }
+  });
+
   const formatLongDate = useFormatLongDate();
   const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
   const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
@@ -151,6 +193,7 @@ function PlansPage() {
 
   const isPending =
     upgradeMutation.isPending ||
+    subscribeMutation.isPending ||
     downgradeMutation.isPending ||
     cancelDowngradeMutation.isPending ||
     reactivateMutation.isPending ||
@@ -166,8 +209,13 @@ function PlansPage() {
         : null;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
-    setPendingCheckoutPlan(plan);
-    setIsEditBillingInfoOpen(true);
+    if (subscription?.billingInfo && subscription?.paymentMethod) {
+      setSubscribeTarget(plan);
+      setIsSubscribeDialogOpen(true);
+    } else {
+      setPendingCheckoutPlan(plan);
+      setIsEditBillingInfoOpen(true);
+    }
   };
 
   const handleUpgrade = (plan: SubscriptionPlan) => {
@@ -182,6 +230,10 @@ function PlansPage() {
 
   const handleConfirmUpgrade = () => {
     upgradeMutation.mutate({ body: { newPlan: upgradeTarget } });
+  };
+
+  const handleConfirmSubscribe = () => {
+    subscribeMutation.mutate({ body: { plan: subscribeTarget } });
   };
 
   const handleConfirmDowngrade = () => {
@@ -333,6 +385,16 @@ function PlansPage() {
         onConfirm={handleConfirmUpgrade}
         isPending={upgradeMutation.isPending || isConfirmingPayment || isPolling}
         targetPlan={upgradeTarget}
+        billingInfo={billingInfo}
+        paymentMethod={subscription?.paymentMethod}
+      />
+
+      <SubscribeConfirmationDialog
+        isOpen={isSubscribeDialogOpen}
+        onOpenChange={setIsSubscribeDialogOpen}
+        onConfirm={handleConfirmSubscribe}
+        isPending={subscribeMutation.isPending || isConfirmingPayment || isPolling}
+        targetPlan={subscribeTarget}
         billingInfo={billingInfo}
         paymentMethod={subscription?.paymentMethod}
       />

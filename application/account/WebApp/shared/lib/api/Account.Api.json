@@ -909,6 +909,89 @@
         }
       }
     },
+    "/api/account/subscriptions/subscribe-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsSubscribePreview",
+        "parameters": [
+          {
+            "name": "Plan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribePreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/subscribe": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsSubscribe",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeWithSavedPaymentMethodCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribeWithSavedPaymentMethodResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/schedule-downgrade": {
       "post": {
         "tags": [
@@ -1090,6 +1173,46 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmPaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/retry-pending-invoice": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsRetryPendingInvoice",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryPendingInvoicePaymentResponse"
                 }
               }
             }
@@ -2762,6 +2885,46 @@
           }
         }
       },
+      "SubscribePreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "SubscribeWithSavedPaymentMethodResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishableKey": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "SubscribeWithSavedPaymentMethodCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          }
+        }
+      },
       "ScheduleDowngradeCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2838,12 +3001,47 @@
           }
         }
       },
+      "ConfirmPaymentMethodSetupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "hasOpenInvoice": {
+            "type": "boolean"
+          },
+          "openInvoiceAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "openInvoiceCurrency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ConfirmPaymentMethodSetupCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "setupIntentId": {
             "type": "string"
+          }
+        }
+      },
+      "RetryPendingInvoicePaymentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "paid": {
+            "type": "boolean"
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishableKey": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

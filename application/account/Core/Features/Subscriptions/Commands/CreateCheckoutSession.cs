@@ -67,7 +67,7 @@ public sealed class CreateCheckoutSessionHandler(
             return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create checkout session.");
         }
 
-        events.CollectEvent(new CheckoutSessionCreated(subscription.Id, command.Plan));
+        events.CollectEvent(new CheckoutSessionCreated(subscription.Id, command.Plan, false));
 
         return new CreateCheckoutSessionResponse(result.ClientSecret, publishableKey);
     }

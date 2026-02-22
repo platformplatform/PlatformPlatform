@@ -40,11 +40,17 @@ public interface IStripeClient
 
     Task<bool> SetSubscriptionDefaultPaymentMethodAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken);
 
-    Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken);
+    Task<bool> SetCustomerDefaultPaymentMethodAsync(StripeCustomerId stripeCustomerId, string paymentMethodId, CancellationToken cancellationToken);
+
+    Task<OpenInvoiceResult?> GetOpenInvoiceAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken);
+
+    Task<InvoiceRetryResult?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string? paymentMethodId, CancellationToken cancellationToken);
 
     Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken);
 
     Task<CheckoutPreviewResult?> GetCheckoutPreviewAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken);
+
+    Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken);
 
     Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
@@ -72,9 +78,15 @@ public sealed record SubscriptionSyncResult(
     string? SubscriptionStatus
 );
 
-public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted);
+public sealed record CustomerBillingResult(BillingInfo? BillingInfo, bool IsCustomerDeleted, PaymentMethod? PaymentMethod = null);
 
-public sealed record UpgradeSubscriptionResult(string? ClientSecret);
+public sealed record OpenInvoiceResult(decimal AmountDue, string Currency);
+
+public sealed record InvoiceRetryResult(bool Paid, string? ClientSecret, string? ErrorMessage = null);
+
+public sealed record UpgradeSubscriptionResult(string? ClientSecret, string? ErrorMessage = null);
+
+public sealed record SubscribeResult(string? ClientSecret);
 
 public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, UpgradePreviewLineItem[] LineItems);
 
@@ -87,5 +99,6 @@ public sealed record PriceCatalogItem(SubscriptionPlan Plan, decimal UnitAmount,
 public static class StripeSubscriptionStatus
 {
     public const string Active = "active";
+    public const string Incomplete = "incomplete";
     public const string PastDue = "past_due";
 }

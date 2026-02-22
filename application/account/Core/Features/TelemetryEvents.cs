@@ -22,8 +22,8 @@ public sealed class BillingInfoAdded(SubscriptionId subscriptionId, string? coun
 public sealed class BillingInfoUpdated(SubscriptionId subscriptionId, string? country, string? postalCode, string? city)
     : TelemetryEvent(("subscription_id", subscriptionId), ("country", country as object ?? "unknown"), ("postal_code", postalCode as object ?? "unknown"), ("city", city as object ?? "unknown"));
 
-public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan));
+public sealed class CheckoutSessionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan, bool savedPaymentMethod)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("saved_payment_method", savedPaymentMethod));
 
 public sealed class EmailLoginCodeBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
     : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("retry_count", retryCount));
@@ -79,11 +79,11 @@ public sealed class PaymentMethodSetupCreated(SubscriptionId subscriptionId)
 public sealed class PaymentMethodUpdated(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));
 
-public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan, int refundCount, decimal priceAmount, string currency)
-    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("refund_count", refundCount), ("price_amount", priceAmount), ("currency", currency));
-
 public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan, int daysInPastDue, decimal priceAmount, string currency)
     : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("days_in_past_due", daysInPastDue), ("price_amount", priceAmount), ("currency", currency));
+
+public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan, int refundCount, decimal priceAmount, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("refund_count", refundCount), ("price_amount", priceAmount), ("currency", currency));
 
 public sealed class PendingInvoicePaymentRetried(SubscriptionId subscriptionId)
     : TelemetryEvent(("subscription_id", subscriptionId));

@@ -112,10 +112,22 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
-    public Task<bool?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string paymentMethodId, CancellationToken cancellationToken)
+    public Task<bool> SetCustomerDefaultPaymentMethodAsync(StripeCustomerId stripeCustomerId, string paymentMethodId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot update payment method for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult(false);
+    }
+
+    public Task<OpenInvoiceResult?> GetOpenInvoiceAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot check open invoices for subscription '{SubscriptionId}'", stripeSubscriptionId);
+        return Task.FromResult<OpenInvoiceResult?>(null);
+    }
+
+    public Task<InvoiceRetryResult?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string? paymentMethodId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot retry invoice payment for subscription '{SubscriptionId}'", stripeSubscriptionId);
-        return Task.FromResult<bool?>(false);
+        return Task.FromResult<InvoiceRetryResult?>(new InvoiceRetryResult(false, null));
     }
 
     public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
@@ -128,6 +140,12 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
     {
         logger.LogWarning("Stripe is not configured. Cannot get checkout preview for customer '{CustomerId}'", stripeCustomerId);
         return Task.FromResult<CheckoutPreviewResult?>(null);
+    }
+
+    public Task<SubscribeResult?> CreateSubscriptionWithSavedPaymentMethodAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        logger.LogWarning("Stripe is not configured. Cannot create subscription for customer '{CustomerId}'", stripeCustomerId);
+        return Task.FromResult<SubscribeResult?>(null);
     }
 
     public Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)

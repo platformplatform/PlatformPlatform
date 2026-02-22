@@ -41,6 +41,14 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(command)
         ).Produces<UpgradeSubscriptionResponse>();
 
+        group.MapGet("/subscribe-preview", async Task<ApiResult<SubscribePreviewResponse>> ([AsParameters] GetSubscribePreviewQuery query, IMediator mediator)
+            => await mediator.Send(query)
+        ).Produces<SubscribePreviewResponse>();
+
+        group.MapPost("/subscribe", async Task<ApiResult<SubscribeWithSavedPaymentMethodResponse>> (SubscribeWithSavedPaymentMethodCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        ).Produces<SubscribeWithSavedPaymentMethodResponse>();
+
         group.MapPost("/schedule-downgrade", async Task<ApiResult> (ScheduleDowngradeCommand command, IMediator mediator)
             => await mediator.Send(command)
         );
@@ -61,9 +69,13 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(new CreatePaymentMethodSetupCommand())
         ).Produces<CreatePaymentMethodSetupResponse>();
 
-        group.MapPost("/confirm-payment-method", async Task<ApiResult> (ConfirmPaymentMethodSetupCommand command, IMediator mediator)
+        group.MapPost("/confirm-payment-method", async Task<ApiResult<ConfirmPaymentMethodSetupResponse>> (ConfirmPaymentMethodSetupCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<ConfirmPaymentMethodSetupResponse>();
+
+        group.MapPost("/retry-pending-invoice", async Task<ApiResult<RetryPendingInvoicePaymentResponse>> (IMediator mediator)
+            => await mediator.Send(new RetryPendingInvoicePaymentCommand())
+        ).Produces<RetryPendingInvoicePaymentResponse>();
 
         group.MapPost("/process-pending-events", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new ProcessPendingEventsCommand())

@@ -48,6 +48,11 @@ public sealed class UpgradeSubscriptionHandler(
             return Result<UpgradeSubscriptionResponse>.BadRequest("Failed to upgrade subscription in Stripe.");
         }
 
+        if (upgradeResult.ErrorMessage is not null)
+        {
+            return Result<UpgradeSubscriptionResponse>.BadRequest(upgradeResult.ErrorMessage);
+        }
+
         // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
 
         var publishableKey = upgradeResult.ClientSecret is not null ? stripeClientFactory.GetPublishableKey() : null;
