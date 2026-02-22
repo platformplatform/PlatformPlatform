@@ -42,7 +42,7 @@ export function UpdatePaymentMethodDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [setupError, setSetupError] = useState<string | null>(null);
 
-  const setupMutation = api.useMutation("post", "/api/account/subscriptions/payment-method-setup", {
+  const setupMutation = api.useMutation("post", "/api/account/subscriptions/start-payment-method-setup", {
     onSuccess: (data) => {
       setClientSecret(data.clientSecret);
       setStripePromise(loadStripe(data.publishableKey, { locale: i18n.locale as "auto" }));

@@ -76,7 +76,7 @@ export function CheckoutDialog({
     return () => clearTimeout(timeout);
   }, [isWaitingForActivation, onOpenChange]);
 
-  const checkoutMutation = api.useMutation("post", "/api/account/subscriptions/checkout", {
+  const checkoutMutation = api.useMutation("post", "/api/account/subscriptions/start-checkout", {
     onSuccess: (data) => {
       setClientSecret(data.clientSecret ?? null);
       if (data.publishableKey) {

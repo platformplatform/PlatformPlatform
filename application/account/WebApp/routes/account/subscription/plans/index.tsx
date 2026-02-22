@@ -143,7 +143,7 @@ function PlansPage() {
     }
   });
 
-  const subscribeMutation = api.useMutation("post", "/api/account/subscriptions/subscribe", {
+  const subscribeMutation = api.useMutation("post", "/api/account/subscriptions/start-checkout", {
     onSuccess: async (data, variables) => {
       const targetPlan = variables.body?.plan;
       if (data.clientSecret && data.publishableKey) {
