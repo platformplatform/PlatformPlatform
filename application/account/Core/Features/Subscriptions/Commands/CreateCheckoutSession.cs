@@ -10,7 +10,7 @@ using PlatformPlatform.SharedKernel.Telemetry;
 namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
-public sealed record CreateCheckoutSessionCommand(SubscriptionPlan Plan, string ReturnUrl)
+public sealed record CreateCheckoutSessionCommand(SubscriptionPlan Plan)
     : ICommand, IRequest<Result<CreateCheckoutSessionResponse>>;
 
 [PublicAPI]
@@ -21,7 +21,6 @@ public sealed class CreateCheckoutSessionValidator : AbstractValidator<CreateChe
     public CreateCheckoutSessionValidator()
     {
         RuleFor(x => x.Plan).NotEqual(SubscriptionPlan.Basis).WithMessage("Cannot create a checkout session for the Basis plan.");
-        RuleFor(x => x.ReturnUrl).NotEmpty().WithMessage("Return URL is required.");
     }
 }
 
@@ -61,13 +60,13 @@ public sealed class CreateCheckoutSessionHandler(
             return Result<CreateCheckoutSessionResponse>.BadRequest("Billing information must be saved before checkout.");
         }
 
-        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, command.ReturnUrl, executionContext.UserInfo.Locale, cancellationToken);
+        var result = await stripeClient.CreateCheckoutSessionAsync(subscription.StripeCustomerId!, command.Plan, executionContext.UserInfo.Locale, cancellationToken);
         if (result is null)
         {
             return Result<CreateCheckoutSessionResponse>.BadRequest("Failed to create checkout session.");
         }
 
-        events.CollectEvent(new CheckoutSessionCreated(subscription.Id, command.Plan, false));
+        events.CollectEvent(new SubscriptionInitiated(subscription.Id, command.Plan, false));
 
         return new CreateCheckoutSessionResponse(result.ClientSecret, publishableKey);
     }

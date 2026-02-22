@@ -28,7 +28,7 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult<StripeCustomerId?>(StripeCustomerId.NewId(MockCustomerId));
     }
 
-    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string returnUrl, string? locale, CancellationToken cancellationToken)
+    public Task<CheckoutSessionResult?> CreateCheckoutSessionAsync(StripeCustomerId stripeCustomerId, SubscriptionPlan plan, string? locale, CancellationToken cancellationToken)
     {
         EnsureEnabled();
         return Task.FromResult<CheckoutSessionResult?>(new CheckoutSessionResult(MockSessionId, MockClientSecret));

@@ -66,7 +66,7 @@ public sealed class SubscribeWithSavedPaymentMethodHandler(
             return Result<SubscribeWithSavedPaymentMethodResponse>.BadRequest("Failed to create subscription in Stripe.");
         }
 
-        events.CollectEvent(new CheckoutSessionCreated(subscription.Id, command.Plan, true));
+        events.CollectEvent(new SubscriptionInitiated(subscription.Id, command.Plan, true));
 
         var publishableKey = subscribeResult.ClientSecret is not null ? stripeClientFactory.GetPublishableKey() : null;
         return new SubscribeWithSavedPaymentMethodResponse(subscribeResult.ClientSecret, publishableKey);
