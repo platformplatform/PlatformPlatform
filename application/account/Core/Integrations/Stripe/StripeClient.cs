@@ -243,7 +243,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                         new SubscriptionItemOptions { Id = itemId, Price = priceId }
                     ],
                     ProrationBehavior = "always_invoice",
-                    AutomaticTax = new SubscriptionAutomaticTaxOptions { Enabled = true }
+                    PaymentBehavior = "pending_if_incomplete"
                 }, GetRequestOptions(), cancellationToken
             );
 
