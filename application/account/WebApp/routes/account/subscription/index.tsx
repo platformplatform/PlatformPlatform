@@ -110,7 +110,7 @@ function SubscriptionPage() {
 
   if (isLoading) {
     return (
-      <AppLayout variant="center" maxWidth="60rem" title={t`Subscription`}>
+      <AppLayout variant="center" maxWidth="64rem" title={t`Subscription`}>
         <div className="flex flex-col gap-8">
           <Skeleton className="h-6 w-48" />
         </div>
@@ -123,7 +123,7 @@ function SubscriptionPage() {
       {hasStripeCustomer ? (
         <AppLayout
           variant="center"
-          maxWidth="60rem"
+          maxWidth="64rem"
           title={t`Subscription`}
           subtitle={t`Manage your subscription and billing.`}
         >
@@ -312,7 +312,7 @@ function SubscriptionPage() {
       ) : (
         <AppLayout
           variant="center"
-          maxWidth="60rem"
+          maxWidth="64rem"
           title={t`Subscription`}
           subtitle={t`Choose a plan to get started.`}
         >
