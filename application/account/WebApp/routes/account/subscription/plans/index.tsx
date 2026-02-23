@@ -20,8 +20,8 @@ import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmatio
 import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { getCatalogUnitAmount, getFormattedPrice, PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
-import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 import { SubscribeConfirmationDialog } from "../-components/SubscribeConfirmationDialog";
+import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
 import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
@@ -312,28 +312,33 @@ function PlansPage() {
         )}
 
         <div className="grid gap-4 lg:grid-cols-3">
-          {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
-            <PlanCard
-              key={plan}
-              plan={plan}
-              formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
-              currentPlan={currentPlan}
-              cancelAtPeriodEnd={cancelAtPeriodEnd}
-              scheduledPlan={scheduledPlan}
-              isStripeConfigured={isStripeConfigured}
-              onSubscribe={handleSubscribe}
-              onUpgrade={handleUpgrade}
-              onDowngrade={handleDowngrade}
-              onReactivate={handleReactivate}
-              onCancelDowngrade={handleCancelDowngrade}
-              isPending={isPending}
-              pendingPlan={pendingPlan}
-              isCancelDowngradePending={cancelDowngradeMutation.isPending}
-              currentPriceAmount={subscription?.currentPriceAmount}
-              currentPriceCurrency={subscription?.currentPriceCurrency}
-              catalogUnitAmount={getCatalogUnitAmount(plan, pricingCatalog?.plans)}
-            />
-          ))}
+          {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => {
+            const planItem = pricingCatalog?.plans?.find((p) => p.plan === plan);
+            const taxExclusive = planItem != null && !planItem.taxInclusive;
+            return (
+              <PlanCard
+                key={plan}
+                plan={plan}
+                formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
+                currentPlan={currentPlan}
+                cancelAtPeriodEnd={cancelAtPeriodEnd}
+                scheduledPlan={scheduledPlan}
+                isStripeConfigured={isStripeConfigured}
+                onSubscribe={handleSubscribe}
+                onUpgrade={handleUpgrade}
+                onDowngrade={handleDowngrade}
+                onReactivate={handleReactivate}
+                onCancelDowngrade={handleCancelDowngrade}
+                isPending={isPending}
+                pendingPlan={pendingPlan}
+                isCancelDowngradePending={cancelDowngradeMutation.isPending}
+                currentPriceAmount={subscription?.currentPriceAmount}
+                currentPriceCurrency={subscription?.currentPriceCurrency}
+                catalogUnitAmount={getCatalogUnitAmount(plan, pricingCatalog?.plans)}
+                taxExclusive={taxExclusive}
+              />
+            );
+          })}
         </div>
 
         {subscription?.hasStripeSubscription && !cancelAtPeriodEnd && (
