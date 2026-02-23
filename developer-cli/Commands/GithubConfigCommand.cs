@@ -22,6 +22,27 @@ public sealed class GithubConfigCommand : Command
             GithubType.Secret,
             "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxx",
             "Google OAuth"
+        ),
+        ["STRIPE_PUBLISHABLE_KEY"] = new GithubConfig(
+            "Stripe Publishable Key from the Stripe Dashboard API keys page",
+            GithubScope.Environment,
+            GithubType.Variable,
+            "pk_test_xxx or pk_live_xxx",
+            "Stripe"
+        ),
+        ["STRIPE_API_KEY"] = new GithubConfig(
+            "Stripe Secret Key from the Stripe Dashboard API keys page",
+            GithubScope.Environment,
+            GithubType.Secret,
+            "sk_test_xxx or sk_live_xxx",
+            "Stripe"
+        ),
+        ["STRIPE_WEBHOOK_SECRET"] = new GithubConfig(
+            "Stripe Webhook Signing Secret from the Stripe Dashboard Webhooks page",
+            GithubScope.Environment,
+            GithubType.Secret,
+            "whsec_your_secret_here",
+            "Stripe"
         )
     };
 
