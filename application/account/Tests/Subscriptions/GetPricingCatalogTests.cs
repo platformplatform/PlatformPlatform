@@ -25,7 +25,8 @@ public sealed class GetPricingCatalogTests : EndpointBaseTest<AccountDbContext>
             {
                 plan.UnitAmount.Should().BeGreaterThan(0);
                 plan.Currency.Should().NotBeNullOrEmpty();
-                plan.FormattedPrice.Should().NotBeNullOrEmpty();
+                plan.Interval.Should().NotBeNullOrEmpty();
+                plan.IntervalCount.Should().BeGreaterThan(0);
             }
         );
     }

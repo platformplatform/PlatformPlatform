@@ -104,7 +104,7 @@ export function UpgradeConfirmationDialog({
                 <div className="flex flex-col gap-2">
                   {preview.lineItems.map((item, index) => (
                     <div key={index} className="flex items-baseline justify-between gap-4 text-sm">
-                      <span className="min-w-0 text-muted-foreground">{item.description}</span>
+                      <span className="min-w-0 text-muted-foreground">{item.isTax ? t`Tax` : item.description}</span>
                       <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
                         {formatCurrency(item.amount, item.currency)}
                       </span>
