@@ -11,6 +11,7 @@ import {
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
 import { CameraIcon, Trash2Icon } from "lucide-react";
+import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import type { Schemas } from "@/shared/lib/api/client";
 
@@ -26,6 +27,8 @@ export interface AccountFieldsProps {
   tooltip?: string;
   description?: string;
   onChange?: () => void;
+  layout?: "stacked" | "horizontal";
+  infoFields?: ReactNode;
 }
 
 export function AccountFields({
@@ -36,7 +39,9 @@ export function AccountFields({
   isReadOnly,
   tooltip,
   description,
-  onChange
+  onChange,
+  layout = "stacked",
+  infoFields
 }: AccountFieldsProps) {
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
@@ -68,7 +73,7 @@ export function AccountFields({
     onLogoRemove?.();
   };
 
-  return (
+  const logoSection = (
     <>
       <input
         type="file"
@@ -81,61 +86,88 @@ export function AccountFields({
         className="hidden"
       />
 
-      <div className="flex justify-center pb-4">
-        <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
-          <DropdownMenuTrigger
-            disabled={isReadOnly}
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-16 rounded-md"
-                aria-label={t`Change logo`}
-                disabled={isReadOnly || isPending}
-              >
-                <TenantLogo
-                  key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
-                  logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
-                  tenantName={tenant?.name ?? ""}
-                  size="lg"
-                />
-              </Button>
-            }
-          />
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() => {
-                logoFileInputRef.current?.click();
-              }}
+      <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
+        <DropdownMenuTrigger
+          disabled={isReadOnly}
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`rounded-md ${layout === "horizontal" ? "size-[7rem]" : "size-16"}`}
+              aria-label={t`Change logo`}
+              disabled={isReadOnly || isPending}
             >
-              <CameraIcon className="size-4" />
-              <Trans>Upload logo</Trans>
-            </DropdownMenuItem>
-            {(tenant?.logoUrl || logoPreviewUrl) && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleRemove}>
-                  <Trash2Icon className="size-4" />
-                  <Trans>Remove logo</Trans>
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+              <TenantLogo
+                key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
+                logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
+                tenantName={tenant?.name ?? ""}
+                size="lg"
+                className={layout === "horizontal" ? "size-[7rem]" : undefined}
+              />
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              logoFileInputRef.current?.click();
+            }}
+          >
+            <CameraIcon className="size-4" />
+            <Trans>Upload logo</Trans>
+          </DropdownMenuItem>
+          {(tenant?.logoUrl || logoPreviewUrl) && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={handleRemove}>
+                <Trash2Icon className="size-4" />
+                <Trans>Remove logo</Trans>
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
 
-      <TextField
-        isRequired={true}
-        name="name"
-        defaultValue={tenant?.name ?? ""}
-        isDisabled={isPending}
-        isReadOnly={isReadOnly}
-        label={t`Account name`}
-        placeholder={t`E.g. Acme Corp`}
-        tooltip={tooltip}
-        description={description}
-        onChange={onChange}
-      />
+  const fieldsSection = (
+    <TextField
+      isRequired={true}
+      name="name"
+      defaultValue={tenant?.name ?? ""}
+      isDisabled={isPending}
+      isReadOnly={isReadOnly}
+      label={t`Account name`}
+      placeholder={t`E.g. Acme Corp`}
+      tooltip={tooltip}
+      description={description}
+      onChange={onChange}
+    />
+  );
+
+  if (layout === "horizontal") {
+    return (
+      <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:items-stretch md:gap-8">
+        <div className="flex flex-col md:items-stretch">
+          <span className="pb-2 font-medium text-sm">
+            <Trans>Account logo</Trans>
+          </span>
+          <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">
+            {logoSection}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          {fieldsSection}
+          {infoFields}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex justify-center pb-4">{logoSection}</div>
+      {fieldsSection}
     </>
   );
 }

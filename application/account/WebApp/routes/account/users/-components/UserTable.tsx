@@ -371,7 +371,7 @@ function UserTableContent({
             <TableRow>
               <TableHead
                 data-column={SortableUserProperties.Name}
-                className={`cursor-pointer select-none ${!isMobile ? "min-w-[16rem]" : ""}`}
+                className="cursor-pointer select-none"
                 onClick={() => handleSortChange(SortableUserProperties.Name)}
               >
                 <div className="flex items-center gap-1 font-bold text-xs">
@@ -385,7 +385,7 @@ function UserTableContent({
                 <>
                   <TableHead
                     data-column={SortableUserProperties.Email}
-                    className="min-w-[10rem] cursor-pointer select-none"
+                    className="cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.Email)}
                   >
                     <div className="flex items-center gap-1 font-bold text-xs">
@@ -480,7 +480,7 @@ function UserTableContent({
                   onClick={(event) => handleRowClick(user, event)}
                   index={index}
                 >
-                  <TableCell>
+                  <TableCell className="pr-8">
                     {isMobile ? (
                       <ContextMenu
                         onOpenChange={(isOpen) => {
@@ -521,7 +521,7 @@ function UserTableContent({
                   {!isMobile && (
                     <>
                       <TableCell>
-                        <span className="block h-full w-full justify-start p-0 text-left font-normal">
+                        <span className="block h-full w-full justify-start truncate p-0 text-left font-normal">
                           {user.email}
                         </span>
                       </TableCell>

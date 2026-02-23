@@ -78,7 +78,7 @@ function ProfilePage() {
 
   if (isLoadingUser) {
     return (
-      <AppLayout variant="center">
+      <AppLayout variant="center" maxWidth="64rem">
         <div className="flex flex-1 items-center justify-center">
           <Trans>Loading...</Trans>
         </div>
@@ -88,7 +88,7 @@ function ProfilePage() {
 
   if (!user) {
     return (
-      <AppLayout variant="center">
+      <AppLayout variant="center" maxWidth="64rem">
         <div className="flex flex-1 items-center justify-center">
           <Trans>Unable to load profile</Trans>
         </div>
@@ -100,6 +100,8 @@ function ProfilePage() {
     <>
       <AppLayout
         variant="center"
+        maxWidth="64rem"
+        balanceWidth="16rem"
         title={t`Profile`}
         subtitle={t`Update your profile picture and personal details here.`}
       >
@@ -111,16 +113,20 @@ function ProfilePage() {
           onChange={() => setIsFormDirty(true)}
         >
           <UserProfileFields
+            layout="horizontal"
             user={user}
             isPending={saveMutation.isPending}
             onAvatarFileSelect={handleAvatarFileSelect}
             onAvatarRemove={handleAvatarRemove}
           />
 
-          <div className="mt-4 flex justify-end">
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-            </Button>
+          <div className="mt-4 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
+            <div />
+            <div className="flex sm:justify-end">
+              <Button type="submit" className="w-full sm:w-auto" disabled={saveMutation.isPending}>
+                {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+              </Button>
+            </div>
           </div>
         </Form>
       </AppLayout>

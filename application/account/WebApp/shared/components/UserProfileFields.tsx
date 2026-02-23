@@ -21,9 +21,16 @@ export interface UserProfileFieldsProps {
   isPending: boolean;
   onAvatarFileSelect: (file: File | null) => void;
   onAvatarRemove?: () => void;
+  layout?: "stacked" | "horizontal";
 }
 
-export function UserProfileFields({ user, isPending, onAvatarFileSelect, onAvatarRemove }: UserProfileFieldsProps) {
+export function UserProfileFields({
+  user,
+  isPending,
+  onAvatarFileSelect,
+  onAvatarRemove,
+  layout = "stacked"
+}: UserProfileFieldsProps) {
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +61,7 @@ export function UserProfileFields({ user, isPending, onAvatarFileSelect, onAvata
     onAvatarRemove?.();
   };
 
-  return (
+  const avatarSection = (
     <>
       <input
         type="file"
@@ -67,53 +74,55 @@ export function UserProfileFields({ user, isPending, onAvatarFileSelect, onAvata
         className="hidden"
       />
 
-      <div className="flex justify-center pb-4">
-        <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-20 rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
-                aria-label={t`Change profile picture`}
-                disabled={isPending}
-              >
-                {user?.avatarUrl || avatarPreviewUrl ? (
-                  <img
-                    src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
-                    width={80}
-                    height={80}
-                    className="size-full rounded-full object-cover"
-                    alt={t`Profile avatar`}
-                  />
-                ) : (
-                  <CameraIcon className="size-8 text-secondary-foreground" aria-label={t`Add profile picture`} />
-                )}
-              </Button>
-            }
-          />
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={() => {
-                avatarFileInputRef.current?.click();
-              }}
+      <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-[7rem] rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
+              aria-label={t`Change profile picture`}
+              disabled={isPending}
             >
-              <CameraIcon className="size-4" />
-              <Trans>Upload profile picture</Trans>
-            </DropdownMenuItem>
-            {(user?.avatarUrl || avatarPreviewUrl) && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleRemove}>
-                  <Trash2Icon className="size-4" />
-                  <Trans>Remove profile picture</Trans>
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+              {user?.avatarUrl || avatarPreviewUrl ? (
+                <img
+                  src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
+                  width={80}
+                  height={80}
+                  className="size-full rounded-full object-cover"
+                  alt={t`Profile avatar`}
+                />
+              ) : (
+                <CameraIcon className="size-8 text-secondary-foreground" aria-label={t`Add profile picture`} />
+              )}
+            </Button>
+          }
+        />
+        <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              avatarFileInputRef.current?.click();
+            }}
+          >
+            <CameraIcon className="size-4" />
+            <Trans>Upload profile picture</Trans>
+          </DropdownMenuItem>
+          {(user?.avatarUrl || avatarPreviewUrl) && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={handleRemove}>
+                <Trash2Icon className="size-4" />
+                <Trans>Remove profile picture</Trans>
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
+  );
 
+  const fieldsSection = (
+    <>
       <div className="flex flex-col gap-4 sm:flex-row">
         <TextField
           isRequired={true}
@@ -148,6 +157,29 @@ export function UserProfileFields({ user, isPending, onAvatarFileSelect, onAvata
         defaultValue={user?.title}
         placeholder={t`E.g. Software engineer`}
       />
+    </>
+  );
+
+  if (layout === "horizontal") {
+    return (
+      <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
+        <div className="flex flex-col">
+          <span className="pb-2 font-medium text-sm">
+            <Trans>Profile photo</Trans>
+          </span>
+          <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">
+            {avatarSection}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">{fieldsSection}</div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex justify-center pb-4">{avatarSection}</div>
+      {fieldsSection}
     </>
   );
 }

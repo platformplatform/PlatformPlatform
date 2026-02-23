@@ -13,8 +13,13 @@ export default function Home() {
   const { data: usersSummary } = api.useQuery("get", "/api/account/users/summary");
 
   return (
-    <AppLayout title={t`Overview`}>
-      <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <AppLayout
+      variant="center"
+      maxWidth="64rem"
+      title={t`Overview`}
+      subtitle={t`A quick summary of your account activity.`}
+    >
+      <div className="grid w-full grid-cols-1 gap-4 pt-8 md:grid-cols-2 lg:grid-cols-3">
         <Link
           to="/account/users"
           className="flex flex-col justify-between rounded-xl bg-card p-6 outline-ring transition-[background-color] hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"

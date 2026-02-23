@@ -41,7 +41,12 @@ export default function DeletedUsersPage() {
 
   return (
     <>
-      <AppLayout title={t`Users`} subtitle={t`Manage your users and permissions here.`}>
+      <AppLayout
+        variant="center"
+        maxWidth="64rem"
+        title={t`Users`}
+        subtitle={t`Manage your users and permissions here.`}
+      >
         <UserTabNavigation activeTab="recycle-bin" />
         <div className="flex min-h-0 flex-1 flex-col">
           <DeletedUsersToolbar

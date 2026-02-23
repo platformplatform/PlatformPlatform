@@ -487,7 +487,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Company");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to users page & verify owner is listed")(async () => {

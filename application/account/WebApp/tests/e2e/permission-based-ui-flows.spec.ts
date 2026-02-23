@@ -39,7 +39,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to users page as Owner & verify invite button is visible")(async () => {
@@ -253,7 +253,7 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to users page & verify owner is listed")(async () => {

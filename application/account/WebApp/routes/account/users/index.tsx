@@ -132,7 +132,13 @@ export default function UsersPage() {
 
   return (
     <>
-      <AppLayout sidePane={getSidePane()} title={t`Users`} subtitle={t`Manage your users and permissions here.`}>
+      <AppLayout
+        variant="center"
+        sidePane={getSidePane()}
+        maxWidth="64rem"
+        title={t`Users`}
+        subtitle={t`Manage your users and permissions here.`}
+      >
         {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="max-sm:sticky max-sm:top-12">
