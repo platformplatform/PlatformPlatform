@@ -112,18 +112,6 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         return Task.FromResult(true);
     }
 
-    public Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
-    {
-        EnsureEnabled();
-        var priceId = plan switch
-        {
-            SubscriptionPlan.Standard => "price_mock_standard",
-            SubscriptionPlan.Premium => "price_mock_premium",
-            _ => null
-        };
-        return Task.FromResult(priceId);
-    }
-
     public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
     {
         EnsureEnabled();
