@@ -92,7 +92,14 @@ public sealed record UpgradePreviewLineItem(string Description, decimal Amount, 
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
 
-public sealed record PriceCatalogItem(SubscriptionPlan Plan, decimal UnitAmount, string Currency, string Interval, int IntervalCount);
+public sealed record PriceCatalogItem(
+    SubscriptionPlan Plan,
+    decimal UnitAmount,
+    string Currency,
+    string Interval,
+    int IntervalCount,
+    bool TaxInclusive
+);
 
 public static class StripeSubscriptionStatus
 {

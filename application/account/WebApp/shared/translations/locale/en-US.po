@@ -573,6 +573,9 @@ msgstr "Estimated next bill: {targetFormattedPrice}"
 msgid "Europe"
 msgstr "Europe"
 
+msgid "Excl. tax"
+msgstr "Excl. tax"
+
 msgid "expires"
 msgstr "expires"
 

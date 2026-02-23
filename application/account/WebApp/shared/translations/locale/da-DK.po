@@ -573,6 +573,9 @@ msgstr "Forventet næste regning: {targetFormattedPrice}"
 msgid "Europe"
 msgstr "Europa"
 
+msgid "Excl. tax"
+msgstr "Ekskl. moms"
+
 msgid "expires"
 msgstr "udløber"
 

@@ -424,8 +424,9 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var currency = price.Currency.ToUpperInvariant();
             var interval = price.Recurring?.Interval ?? "month";
             var intervalCount = (int)(price.Recurring?.IntervalCount ?? 1);
+            var taxInclusive = price.TaxBehavior == "inclusive";
 
-            items.Add(new PriceCatalogItem(plan, unitAmount, currency, interval, intervalCount));
+            items.Add(new PriceCatalogItem(plan, unitAmount, currency, interval, intervalCount, taxInclusive));
         }
 
         return [.. items];
