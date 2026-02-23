@@ -34,8 +34,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 Metadata = new Dictionary<string, string> { { "TenantId", tenantId.ToString() } }
             };
 
-            var service = new CustomerService();
-            var customer = await service.CreateAsync(options, GetRequestOptions(), cancellationToken);
+            var customerService = new CustomerService();
+            var customer = await customerService.CreateAsync(options, GetRequestOptions(), cancellationToken);
 
             logger.LogInformation("Created Stripe customer '{CustomerId}' for tenant '{TenantName}'", customer.Id, tenantName);
 
@@ -64,7 +64,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 return null;
             }
 
-            var options = new SessionCreateOptions
+            var sessionCreateOptions = new SessionCreateOptions
             {
                 Customer = stripeCustomerId.Value,
                 Mode = "subscription",
@@ -84,7 +84,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             };
 
             var service = new SessionService();
-            var session = await service.CreateAsync(options, GetRequestOptions(), cancellationToken);
+            var session = await service.CreateAsync(sessionCreateOptions, GetRequestOptions(), cancellationToken);
 
             logger.LogInformation("Created checkout session '{SessionId}' for customer '{CustomerId}'", session.Id, stripeCustomerId);
 
@@ -104,108 +104,81 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
     public async Task<SubscriptionSyncResult?> SyncSubscriptionStateAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        var subscriptionService = new SubscriptionService();
-        var subscriptions = await subscriptionService.ListAsync(
-            new SubscriptionListOptions { Customer = stripeCustomerId.Value, Limit = 1, Expand = ["data.schedule", "data.default_payment_method", "data.customer.invoice_settings.default_payment_method"] },
-            GetRequestOptions(), cancellationToken
-        );
-
-        var stripeSubscription = subscriptions.Data.FirstOrDefault();
-        if (stripeSubscription is null)
+        try
         {
+            var subscriptionService = new SubscriptionService();
+            var subscriptions = await subscriptionService.ListAsync(
+                new SubscriptionListOptions { Customer = stripeCustomerId.Value, Limit = 1, Expand = ["data.schedule", "data.default_payment_method", "data.customer.invoice_settings.default_payment_method"] },
+                GetRequestOptions(), cancellationToken
+            );
+
+            var stripeSubscription = subscriptions.Data.SingleOrDefault();
+            if (stripeSubscription is null)
+            {
+                return null;
+            }
+
+            await EnsurePriceCachePopulatedAsync(cancellationToken);
+            var subscriptionItem = stripeSubscription.Items.Data.SingleOrDefault();
+            var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
+            var scheduledPlan = GetScheduledPlan(stripeSubscription);
+            var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
+            var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
+            var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
+            var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
+            var cancellationReason = stripeSubscription.CancelAtPeriodEnd
+                ? MapStripeFeedbackToCancellationReason(stripeSubscription.CancellationDetails?.Feedback)
+                : null;
+            var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
+
+            DomainPaymentMethod? paymentMethod = null;
+            var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
+            if (defaultPaymentMethod is not null)
+            {
+                if (defaultPaymentMethod.Card is not null)
+                {
+                    paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+                }
+                else if (defaultPaymentMethod.Link is not null)
+                {
+                    var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } email ? email[^4..] : "****";
+                    paymentMethod = new DomainPaymentMethod("link", last4, 0, 0);
+                }
+            }
+
+            return new SubscriptionSyncResult(
+                plan,
+                scheduledPlan,
+                StripeSubscriptionId.NewId(stripeSubscription.Id),
+                currentPriceAmount,
+                currentPriceCurrency,
+                currentPeriodEnd,
+                cancelAtPeriodEnd,
+                cancellationReason,
+                cancellationFeedback,
+                null,
+                paymentMethod,
+                stripeSubscription.Status
+            );
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
             return null;
         }
-
-        await EnsurePriceCachePopulatedAsync(cancellationToken);
-        var subscriptionItem = stripeSubscription.Items.Data.FirstOrDefault();
-        var plan = GetPlanFromProductId(subscriptionItem?.Price.ProductId);
-        var scheduledPlan = GetScheduledPlan(stripeSubscription);
-        var currentPriceAmount = subscriptionItem?.Price.UnitAmount / 100m;
-        var currentPriceCurrency = subscriptionItem?.Price.Currency?.ToUpperInvariant();
-        var currentPeriodEnd = subscriptionItem?.CurrentPeriodEnd;
-        var cancelAtPeriodEnd = stripeSubscription.CancelAtPeriodEnd;
-        var cancellationReason = stripeSubscription.CancelAtPeriodEnd && stripeSubscription.CancellationDetails?.Feedback is null
-            ? CancellationReason.CancelledByAdmin
-            : MapStripeFeedbackToCancellationReason(stripeSubscription.CancellationDetails?.Feedback);
-        var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
-
-        var invoiceService = new InvoiceService();
-        var invoices = await invoiceService.ListAsync(
-            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
-            GetRequestOptions(), cancellationToken
-        );
-
-        var chargeService = new ChargeService();
-        var charges = await chargeService.ListAsync(
-            new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-            GetRequestOptions(), cancellationToken
-        );
-        var refundedAmountByPaymentIntentId = charges.Data
-            .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
-            .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
-
-        var creditNoteService = new CreditNoteService();
-        var creditNotes = await creditNoteService.ListAsync(
-            new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-            GetRequestOptions(), cancellationToken
-        );
-        var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
-
-        var paymentTransactions = invoices.Data.Select(invoice =>
-            {
-                var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
-                var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
-                var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
-
-                return new PaymentTransaction(
-                    PaymentTransactionId.NewId(),
-                    displayAmount,
-                    invoice.Currency.ToUpperInvariant(),
-                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
-                    invoice.Created,
-                    invoice.Status == "uncollectible" ? "Payment failed." : null,
-                    invoice.InvoicePdf,
-                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-                );
-            }
-        ).ToArray();
-
-        DomainPaymentMethod? paymentMethod = null;
-        var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
-        if (defaultPaymentMethod is not null)
+        catch (TaskCanceledException ex)
         {
-            if (defaultPaymentMethod.Card is not null)
-            {
-                paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
-            }
-            else if (defaultPaymentMethod.Link is not null)
-            {
-                paymentMethod = new DomainPaymentMethod("link", defaultPaymentMethod.Link.Email?.Substring(defaultPaymentMethod.Link.Email.Length - 4) ?? "****", 0, 0);
-            }
+            logger.LogError(ex, "Timeout syncing subscription state for customer '{CustomerId}'", stripeCustomerId);
+            return null;
         }
-
-        return new SubscriptionSyncResult(
-            plan,
-            scheduledPlan,
-            StripeSubscriptionId.NewId(stripeSubscription.Id),
-            currentPriceAmount,
-            currentPriceCurrency,
-            currentPeriodEnd,
-            cancelAtPeriodEnd,
-            cancellationReason,
-            cancellationFeedback,
-            paymentTransactions,
-            paymentMethod,
-            stripeSubscription.Status
-        );
     }
 
     public async Task<StripeSubscriptionId?> GetCheckoutSessionSubscriptionIdAsync(string sessionId, CancellationToken cancellationToken)
     {
         try
         {
-            var service = new SessionService();
-            var session = await service.GetAsync(sessionId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var sessionService = new SessionService();
+            var session = await sessionService.GetAsync(sessionId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             return session.SubscriptionId is not null ? StripeSubscriptionId.NewId(session.SubscriptionId) : null;
         }
         catch (StripeException ex)
@@ -231,12 +204,12 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 return null;
             }
 
-            var service = new SubscriptionService();
-            var subscription = await service.GetAsync(stripeSubscriptionId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var subscriptionService = new SubscriptionService();
+            var subscription = await subscriptionService.GetAsync(stripeSubscriptionId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             logger.LogInformation("Upgrading subscription '{SubscriptionId}' (status: '{Status}') to '{Plan}'", stripeSubscriptionId, subscription.Status, newPlan);
-            var itemId = subscription.Items.Data.First().Id;
+            var itemId = subscription.Items.Data.Single().Id;
 
-            var updatedSubscription = await service.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
+            var updatedSubscription = await subscriptionService.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
                 {
                     Items =
                     [
@@ -411,8 +384,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new SubscriptionService();
-            await service.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
+            var subscriptionService = new SubscriptionService();
+            await subscriptionService.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
                 {
                     CancelAtPeriodEnd = false
                 }, GetRequestOptions(), cancellationToken
@@ -431,30 +404,6 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             logger.LogError(ex, "Timeout reactivating subscription '{SubscriptionId}'", stripeSubscriptionId);
             return false;
         }
-    }
-
-    public async Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
-    {
-        var lookupKey = plan switch
-        {
-            SubscriptionPlan.Standard => "standard_monthly",
-            SubscriptionPlan.Premium => "premium_monthly",
-            _ => null
-        };
-
-        if (lookupKey is null)
-        {
-            return null;
-        }
-
-        await EnsurePriceCachePopulatedAsync(cancellationToken);
-
-        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null && cached.TryGetValue(lookupKey, out var price))
-        {
-            return price.Id;
-        }
-
-        return null;
     }
 
     public async Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
@@ -547,7 +496,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             }
             else if (defaultPaymentMethod?.Link is not null)
             {
-                paymentMethod = new DomainPaymentMethod("link", defaultPaymentMethod.Link.Email?.Substring(defaultPaymentMethod.Link.Email.Length - 4) ?? "****", 0, 0);
+                var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } linkEmail ? linkEmail[^4..] : "****";
+                paymentMethod = new DomainPaymentMethod("link", last4, 0, 0);
             }
 
             return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod);
@@ -568,8 +518,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new CustomerService();
-            await service.UpdateAsync(stripeCustomerId.Value, new CustomerUpdateOptions
+            var customerService = new CustomerService();
+            await customerService.UpdateAsync(stripeCustomerId.Value, new CustomerUpdateOptions
                 {
                     Name = billingInfo.Name,
                     BusinessName = billingInfo.Name,
@@ -606,17 +556,17 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new CustomerTaxIdService();
-            var existingTaxIds = await service.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var customerTaxIdService = new CustomerTaxIdService();
+            var existingTaxIds = await customerTaxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             foreach (var existing in existingTaxIds.Data)
             {
-                await service.DeleteAsync(stripeCustomerId.Value, existing.Id, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+                await customerTaxIdService.DeleteAsync(stripeCustomerId.Value, existing.Id, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             }
 
             if (!string.IsNullOrWhiteSpace(taxId))
             {
                 var taxIdType = InferTaxIdType(taxId);
-                await service.CreateAsync(stripeCustomerId.Value, new CustomerTaxIdCreateOptions
+                await customerTaxIdService.CreateAsync(stripeCustomerId.Value, new CustomerTaxIdCreateOptions
                     {
                         Type = taxIdType,
                         Value = taxId
@@ -643,8 +593,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new SetupIntentService();
-            var setupIntent = await service.CreateAsync(new SetupIntentCreateOptions
+            var setupIntentService = new SetupIntentService();
+            var setupIntent = await setupIntentService.CreateAsync(new SetupIntentCreateOptions
                 {
                     Customer = stripeCustomerId.Value,
                     AutomaticPaymentMethods = new SetupIntentAutomaticPaymentMethodsOptions { Enabled = true }
@@ -670,8 +620,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new SetupIntentService();
-            var setupIntent = await service.GetAsync(setupIntentId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
+            var setupIntentService = new SetupIntentService();
+            var setupIntent = await setupIntentService.GetAsync(setupIntentId, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             return setupIntent.PaymentMethodId;
         }
         catch (StripeException ex)
@@ -690,8 +640,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new SubscriptionService();
-            await service.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
+            var subscriptionService = new SubscriptionService();
+            await subscriptionService.UpdateAsync(stripeSubscriptionId.Value, new SubscriptionUpdateOptions
                 {
                     DefaultPaymentMethod = paymentMethodId
                 }, GetRequestOptions(), cancellationToken
@@ -716,8 +666,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
     {
         try
         {
-            var service = new CustomerService();
-            await service.UpdateAsync(stripeCustomerId.Value, new CustomerUpdateOptions
+            var customerService = new CustomerService();
+            await customerService.UpdateAsync(stripeCustomerId.Value, new CustomerUpdateOptions
                 {
                     InvoiceSettings = new CustomerInvoiceSettingsOptions { DefaultPaymentMethod = paymentMethodId }
                 }, GetRequestOptions(), cancellationToken
@@ -801,8 +751,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 return new InvoiceRetryResult(false, null);
             }
 
-            var payOptions = new InvoicePayOptions { PaymentMethod = paymentMethodId };
-            var paidInvoice = await invoiceService.PayAsync(invoiceId, payOptions, GetRequestOptions(), cancellationToken);
+            var invoicePayOptions = new InvoicePayOptions { PaymentMethod = paymentMethodId };
+            var paidInvoice = await invoiceService.PayAsync(invoiceId, invoicePayOptions, GetRequestOptions(), cancellationToken);
 
             if (paidInvoice.Status == "paid")
             {
@@ -1015,46 +965,83 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
     public async Task<PaymentTransaction[]?> SyncPaymentTransactionsAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        var invoiceService = new InvoiceService();
-        var invoices = await invoiceService.ListAsync(
-            new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
-            GetRequestOptions(), cancellationToken
-        );
+        try
+        {
+            var invoiceService = new InvoiceService();
+            var invoices = await invoiceService.ListAsync(
+                new InvoiceListOptions { Customer = stripeCustomerId.Value, Limit = 100, Expand = ["data.payments.data.payment"] },
+                GetRequestOptions(), cancellationToken
+            );
 
-        var chargeService = new ChargeService();
-        var charges = await chargeService.ListAsync(
-            new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-            GetRequestOptions(), cancellationToken
-        );
-        var refundedAmountByPaymentIntentId = charges.Data
-            .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
-            .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
+            var chargeService = new ChargeService();
+            var charges = await chargeService.ListAsync(
+                new ChargeListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                GetRequestOptions(), cancellationToken
+            );
+            var refundedAmountByPaymentIntentId = charges.Data
+                .Where(c => c.AmountRefunded > 0 && c.PaymentIntentId is not null)
+                .ToDictionary(c => c.PaymentIntentId!, c => c.AmountRefunded);
 
-        var creditNoteService = new CreditNoteService();
-        var creditNotes = await creditNoteService.ListAsync(
-            new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
-            GetRequestOptions(), cancellationToken
-        );
-        var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
+            var creditNoteService = new CreditNoteService();
+            var creditNotes = await creditNoteService.ListAsync(
+                new CreditNoteListOptions { Customer = stripeCustomerId.Value, Limit = 100 },
+                GetRequestOptions(), cancellationToken
+            );
+            var creditNotesByInvoiceId = creditNotes.Data.GroupBy(cn => cn.InvoiceId).ToDictionary(g => g.Key, g => g.First().Pdf);
 
-        return invoices.Data.Select(invoice =>
-            {
-                var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
-                var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
-                var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
+            return invoices.Data.Select(invoice =>
+                {
+                    var paymentIntentId = invoice.Payments?.Data?.FirstOrDefault()?.Payment?.PaymentIntentId;
+                    var chargeAmountRefunded = paymentIntentId is not null && refundedAmountByPaymentIntentId.TryGetValue(paymentIntentId, out var refunded) ? refunded : 0L;
+                    var displayAmount = (invoice.Status == "paid" ? invoice.AmountPaid : invoice.Total) / 100m;
 
-                return new PaymentTransaction(
-                    PaymentTransactionId.NewId(),
-                    displayAmount,
-                    invoice.Currency.ToUpperInvariant(),
-                    MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
-                    invoice.Created,
-                    invoice.Status == "uncollectible" ? "Payment failed." : null,
-                    invoice.InvoicePdf,
-                    creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
-                );
-            }
-        ).ToArray();
+                    return new PaymentTransaction(
+                        PaymentTransactionId.NewId(),
+                        displayAmount,
+                        invoice.Currency.ToUpperInvariant(),
+                        MapInvoiceStatus(invoice.Status, invoice.AmountPaid, invoice.PostPaymentCreditNotesAmount, chargeAmountRefunded),
+                        invoice.Created,
+                        invoice.Status == "uncollectible" ? "Payment failed." : null,
+                        invoice.InvoicePdf,
+                        creditNotesByInvoiceId.GetValueOrDefault(invoice.Id)
+                    );
+                }
+            ).ToArray();
+        }
+        catch (StripeException ex)
+        {
+            logger.LogError(ex, "Stripe error syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+        catch (TaskCanceledException ex)
+        {
+            logger.LogError(ex, "Timeout syncing payment transactions for customer '{CustomerId}'", stripeCustomerId);
+            return null;
+        }
+    }
+
+    private async Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
+    {
+        var lookupKey = plan switch
+        {
+            SubscriptionPlan.Standard => "standard_monthly",
+            SubscriptionPlan.Premium => "premium_monthly",
+            _ => null
+        };
+
+        if (lookupKey is null)
+        {
+            return null;
+        }
+
+        await EnsurePriceCachePopulatedAsync(cancellationToken);
+
+        if (memoryCache.TryGetValue(PriceCacheKey, out Dictionary<string, StripePrice>? cached) && cached is not null && cached.TryGetValue(lookupKey, out var price))
+        {
+            return price.Id;
+        }
+
+        return null;
     }
 
     private async Task<string?> ExtractClientSecretFromInvoiceAsync(InvoiceService invoiceService, string invoiceId, CancellationToken cancellationToken)
@@ -1080,7 +1067,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
 
     private static CancellationReason? MapStripeFeedbackToCancellationReason(string? feedback)
     {
-        if (feedback is null) return null;
+        if (feedback is null) return CancellationReason.CancelledByAdmin;
 
         return feedback switch
         {
