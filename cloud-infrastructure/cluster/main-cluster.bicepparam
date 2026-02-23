@@ -16,3 +16,6 @@ param applicationInsightsConnectionString = readEnvironmentVariable('APPLICATION
 param revisionSuffix = readEnvironmentVariable('REVISION_SUFFIX')
 param googleOAuthClientId = readEnvironmentVariable('GOOGLE_OAUTH_CLIENT_ID', '')
 param googleOAuthClientSecret = readEnvironmentVariable('GOOGLE_OAUTH_CLIENT_SECRET', '')
+param stripePublishableKey = readEnvironmentVariable('STRIPE_PUBLISHABLE_KEY', '')
+param stripeApiKey = readEnvironmentVariable('STRIPE_API_KEY', '')
+param stripeWebhookSecret = readEnvironmentVariable('STRIPE_WEBHOOK_SECRET', '')

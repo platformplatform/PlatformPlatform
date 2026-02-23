@@ -11,17 +11,33 @@ public sealed class GithubConfigCommand : Command
     {
         ["GOOGLE_OAUTH_CLIENT_ID"] = new GithubConfig(
             "Google OAuth Client ID from Google Cloud Console",
-            GithubScope.Environment,
             GithubType.Variable,
             "123456789012-abcdefghijklmnopqrstuvwxyz012345.apps.googleusercontent.com",
             "Google OAuth"
         ),
         ["GOOGLE_OAUTH_CLIENT_SECRET"] = new GithubConfig(
             "Google OAuth Client Secret from Google Cloud Console",
-            GithubScope.Environment,
             GithubType.Secret,
             "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxx",
             "Google OAuth"
+        ),
+        ["STRIPE_PUBLISHABLE_KEY"] = new GithubConfig(
+            "Stripe Publishable Key from the Stripe Dashboard API keys page",
+            GithubType.Variable,
+            "pk_test_xxx or pk_live_xxx",
+            "Stripe"
+        ),
+        ["STRIPE_API_KEY"] = new GithubConfig(
+            "Stripe Secret Key from the Stripe Dashboard API keys page",
+            GithubType.Secret,
+            "sk_test_xxx or sk_live_xxx",
+            "Stripe"
+        ),
+        ["STRIPE_WEBHOOK_SECRET"] = new GithubConfig(
+            "Stripe Webhook Signing Secret from the Stripe Dashboard Webhooks page",
+            GithubType.Secret,
+            "whsec_your_secret_here",
+            "Stripe"
         )
     };
 
@@ -71,42 +87,32 @@ public sealed class GithubConfigCommand : Command
         var configurationsInGroup = Configurations.Where(c => c.Value.Group == selectedGroup).ToList();
         var pendingChanges = new List<PendingChange>();
 
+        var scopeChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select scope:")
+                .AddChoices("Staging environment", "Production environment", "Repository level")
+        );
+
+        var environment = scopeChoice switch
+        {
+            "Staging environment" => "staging",
+            "Production environment" => "production",
+            _ => null
+        };
+
+        AnsiConsole.WriteLine();
+
         foreach (var (name, config) in configurationsInGroup)
         {
             AnsiConsole.MarkupLine($"[bold]{name}[/]");
-            AnsiConsole.MarkupLine($"[dim]Type:[/] {config.GithubType}");
-            AnsiConsole.MarkupLine($"[dim]Scope:[/] {config.GithubScope}");
             AnsiConsole.MarkupLine($"[dim]Description:[/] {config.Description}");
             AnsiConsole.MarkupLine($"[dim]Example:[/] [blue]{config.ExampleValue}[/]");
-            AnsiConsole.WriteLine();
-
-            if (!AnsiConsole.Confirm($"Configure {name}?"))
-            {
-                AnsiConsole.WriteLine();
-                continue;
-            }
-
-            string? environment = null;
-            if (config.GithubScope == GithubScope.Environment)
-            {
-                var scopeChoice = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Select scope:")
-                        .AddChoices("Staging environment", "Production environment", "Both environments", "Repository level")
-                );
-
-                environment = scopeChoice switch
-                {
-                    "Staging environment" => "staging",
-                    "Production environment" => "production",
-                    "Both environments" => "both",
-                    _ => null
-                };
-            }
 
             var valuePrompt = config.GithubType == GithubType.Secret
-                ? new TextPrompt<string>($"Enter value for {name}:").Secret()
-                : new TextPrompt<string>($"Enter value for {name}:");
+                ? new TextPrompt<string>("Enter value:").Secret()
+                : new TextPrompt<string>("Enter value:");
+
+            valuePrompt.AllowEmpty();
 
             var value = AnsiConsole.Prompt(valuePrompt);
 
@@ -125,6 +131,14 @@ public sealed class GithubConfigCommand : Command
         {
             AnsiConsole.MarkupLine("[dim]No changes to apply.[/]");
             return;
+        }
+
+        if (environment == "staging" && AnsiConsole.Confirm("Also set at repository level (used by pull request deployments)?", false))
+        {
+            foreach (var change in pendingChanges.ToList())
+            {
+                pendingChanges.Add(change with { Environment = null });
+            }
         }
 
         PrintPendingChanges(pendingChanges);
@@ -218,14 +232,9 @@ public sealed class GithubConfigCommand : Command
         AnsiConsole.MarkupLine($"[yellow]Tip:[/] View your configuration at [blue]{githubInfo.Url}/settings/secrets/actions[/]");
     }
 
-    private record GithubConfig(string Description, GithubScope GithubScope, GithubType GithubType, string ExampleValue, string Group);
+    private record GithubConfig(string Description, GithubType GithubType, string ExampleValue, string Group);
 
     private record PendingChange(string Name, GithubType Type, string? Environment, string Value);
-
-    private enum GithubScope
-    {
-        Environment
-    }
 
     private enum GithubType
     {
