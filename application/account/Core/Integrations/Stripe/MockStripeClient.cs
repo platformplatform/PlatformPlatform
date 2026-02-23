@@ -116,8 +116,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         return Task.FromResult<PriceCatalogItem[]>([
-                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1),
-                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1)
+                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1, false),
+                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1, false)
             ]
         );
     }

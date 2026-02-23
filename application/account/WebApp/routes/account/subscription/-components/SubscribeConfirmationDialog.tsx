@@ -99,9 +99,7 @@ export function SubscribeConfirmationDialog({
               ) : (
                 <div className="flex flex-col gap-2">
                   <div className="flex items-baseline justify-between gap-4 text-sm">
-                    <span className="min-w-0 text-muted-foreground">
-                      {t`${targetPlanDetails.name} plan`}
-                    </span>
+                    <span className="min-w-0 text-muted-foreground">{t`${targetPlanDetails.name} plan`}</span>
                     <span className="shrink-0 whitespace-nowrap text-muted-foreground tabular-nums">
                       {formatCurrency(subtotal, preview.currency)}
                     </span>

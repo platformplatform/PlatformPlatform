@@ -44,6 +44,7 @@ type PlanCardProps = {
   currentPriceAmount?: number | null;
   currentPriceCurrency?: string | null;
   catalogUnitAmount?: number | null;
+  taxExclusive?: boolean;
 };
 
 type PlanDetails = {
@@ -99,7 +100,8 @@ export function PlanCard({
   isCancelDowngradePending,
   currentPriceAmount,
   currentPriceCurrency,
-  catalogUnitAmount
+  catalogUnitAmount,
+  taxExclusive
 }: Readonly<PlanCardProps>) {
   const details = getPlanDetails(plan);
   const isCurrent = plan === currentPlan;
@@ -196,18 +198,25 @@ export function PlanCard({
           </Badge>
         )}
       </div>
-      <div className="font-semibold text-2xl">
-        {isCurrent &&
-        currentPriceAmount != null &&
-        currentPriceCurrency != null &&
-        catalogUnitAmount != null &&
-        currentPriceAmount !== catalogUnitAmount ? (
-          <div className="flex flex-wrap items-baseline gap-2">
-            <span>{t`${formatCurrency(currentPriceAmount, currentPriceCurrency)}/month`}</span>
-            <span className="text-base text-muted-foreground line-through">{formattedPrice}</span>
-          </div>
-        ) : (
-          formattedPrice
+      <div className="flex flex-col gap-1">
+        <div className="font-semibold text-2xl">
+          {isCurrent &&
+          currentPriceAmount != null &&
+          currentPriceCurrency != null &&
+          catalogUnitAmount != null &&
+          currentPriceAmount !== catalogUnitAmount ? (
+            <div className="flex flex-wrap items-baseline gap-2">
+              <span>{t`${formatCurrency(currentPriceAmount, currentPriceCurrency)}/month`}</span>
+              <span className="text-base text-muted-foreground line-through">{formattedPrice}</span>
+            </div>
+          ) : (
+            formattedPrice
+          )}
+        </div>
+        {taxExclusive && plan !== SubscriptionPlan.Basis && (
+          <span className="font-normal text-muted-foreground text-sm">
+            <Trans>Excl. tax</Trans>
+          </span>
         )}
       </div>
       <Separator />

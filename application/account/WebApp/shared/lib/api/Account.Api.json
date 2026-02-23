@@ -2458,6 +2458,9 @@
           "intervalCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "taxInclusive": {
+            "type": "boolean"
           }
         }
       },

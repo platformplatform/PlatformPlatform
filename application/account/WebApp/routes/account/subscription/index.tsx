@@ -22,8 +22,8 @@ import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
 import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { getFormattedPrice, PlanCard } from "./-components/PlanCard";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
-import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { RetryPaymentDialog } from "./-components/RetryPaymentDialog";
+import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
 import { useSubscriptionPolling } from "./-components/useSubscriptionPolling";
 
@@ -324,25 +324,29 @@ function SubscriptionPage() {
           )}
 
           <div className="grid gap-4 lg:grid-cols-3">
-            {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => (
-              <PlanCard
-                key={plan}
-                plan={plan}
-                formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
-                currentPlan={currentPlan}
-                cancelAtPeriodEnd={false}
-                scheduledPlan={null}
-                isStripeConfigured={isStripeConfigured}
-                onSubscribe={handleSubscribe}
-                onUpgrade={() => {}}
-                onDowngrade={() => {}}
-                onReactivate={() => {}}
-                onCancelDowngrade={() => {}}
-                isPending={false}
-                pendingPlan={null}
-                isCancelDowngradePending={false}
-              />
-            ))}
+            {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => {
+              const planItem = pricingCatalog?.plans?.find((p) => p.plan === plan);
+              const _taxExclusive = planItem != null && !planItem.taxInclusive;
+              return (
+                <PlanCard
+                  key={plan}
+                  plan={plan}
+                  formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
+                  currentPlan={currentPlan}
+                  cancelAtPeriodEnd={false}
+                  scheduledPlan={null}
+                  isStripeConfigured={isStripeConfigured}
+                  onSubscribe={handleSubscribe}
+                  onUpgrade={() => {}}
+                  onDowngrade={() => {}}
+                  onReactivate={() => {}}
+                  onCancelDowngrade={() => {}}
+                  isPending={false}
+                  pendingPlan={null}
+                  isCancelDowngradePending={false}
+                />
+              );
+            })}
           </div>
         </AppLayout>
       )}
@@ -362,9 +366,7 @@ function SubscriptionPage() {
       <ReactivateConfirmationDialog
         isOpen={isReactivateDialogOpen}
         onOpenChange={setIsReactivateDialogOpen}
-        onConfirm={() =>
-          reactivateMutation.mutate({})
-        }
+        onConfirm={() => reactivateMutation.mutate({})}
         isPending={reactivateMutation.isPending || isPolling}
         currentPlan={currentPlan}
       />
