@@ -269,7 +269,7 @@ function PlansPage() {
     <>
       <AppLayout
         variant="center"
-        maxWidth="60rem"
+        maxWidth="64rem"
         title={t`Subscription plans`}
         subtitle={t`Manage your subscription and billing.`}
       >
