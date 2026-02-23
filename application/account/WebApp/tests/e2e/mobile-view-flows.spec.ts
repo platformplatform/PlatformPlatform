@@ -33,7 +33,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Nav Test");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to admin dashboard & verify mobile layout")(async () => {
@@ -389,7 +389,7 @@ test.describe("@comprehensive", () => {
       await ownerPage.getByRole("textbox", { name: "Account name" }).clear();
       await ownerPage.getByRole("textbox", { name: "Account name" }).fill("Mobile Test Org");
       await ownerPage.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to users page & open invite user dialog")(async () => {
@@ -444,7 +444,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Selection Test");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     // === SETUP ===

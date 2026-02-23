@@ -49,6 +49,8 @@ function DashboardPage() {
     <>
       <MainSideMenu />
       <AppLayout
+        variant="center"
+        maxWidth="64rem"
         title={getTimeBasedGreeting(userInfo?.firstName)}
         subtitle={t`Here's your overview of what's happening.`}
       >

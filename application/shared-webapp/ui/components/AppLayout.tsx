@@ -9,6 +9,7 @@ type AppLayoutProps = {
   children: React.ReactNode;
   variant?: AppLayoutVariant;
   maxWidth?: string;
+  balanceWidth?: string;
   sidePane?: React.ReactNode;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
@@ -159,9 +160,26 @@ interface ScrollAwayContentProps {
   children: React.ReactNode;
   variant: AppLayoutVariant;
   maxWidth: string;
+  balanceWidth?: string;
 }
 
-function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxWidth }: ScrollAwayContentProps) {
+function ScrollAwayContent({
+  title,
+  subtitle,
+  headerRef,
+  children,
+  variant,
+  maxWidth,
+  balanceWidth
+}: ScrollAwayContentProps) {
+  const wrappedChildren = balanceWidth ? (
+    <div className="w-full" style={{ maxWidth: `calc(${maxWidth} - ${balanceWidth})` }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+
   const content = (
     <>
       {/* Header - scrolls naturally with content */}
@@ -170,14 +188,14 @@ function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxW
         {subtitle && <p className="mt-2 mb-0 text-muted-foreground">{subtitle}</p>}
       </div>
 
-      {children}
+      {wrappedChildren}
     </>
   );
 
   if (variant === "center") {
     return (
-      <div className="flex w-full flex-col items-center">
-        <div className="w-full" style={{ maxWidth }}>
+      <div className="flex min-h-0 w-full flex-1 flex-col items-center">
+        <div className="flex min-h-0 w-full flex-1 flex-col" style={{ maxWidth }}>
           {content}
         </div>
       </div>
@@ -190,6 +208,7 @@ function ScrollAwayContent({ title, subtitle, headerRef, children, variant, maxW
 interface StandardContentProps {
   variant: AppLayoutVariant;
   maxWidth: string;
+  balanceWidth?: string;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   headerRef: React.RefObject<HTMLDivElement | null>;
@@ -197,13 +216,30 @@ interface StandardContentProps {
   children: React.ReactNode;
 }
 
-function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isSticky, children }: StandardContentProps) {
+function StandardContent({
+  variant,
+  maxWidth,
+  balanceWidth,
+  title,
+  subtitle,
+  headerRef,
+  isSticky,
+  children
+}: StandardContentProps) {
+  const wrappedChildren = balanceWidth ? (
+    <div className="w-full" style={{ maxWidth: `calc(${maxWidth} - ${balanceWidth})` }}>
+      {children}
+    </div>
+  ) : (
+    children
+  );
+
   if (variant === "center") {
     return (
-      <div className="flex w-full flex-col items-center">
-        <div className="w-full" style={{ maxWidth }}>
+      <div className="flex min-h-0 w-full flex-1 flex-col items-center">
+        <div className="flex min-h-0 w-full flex-1 flex-col" style={{ maxWidth }}>
           {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
-          {children}
+          {wrappedChildren}
         </div>
       </div>
     );
@@ -212,7 +248,7 @@ function StandardContent({ variant, maxWidth, title, subtitle, headerRef, isStic
   return (
     <>
       {title && <HeaderContent ref={headerRef} title={title} subtitle={subtitle} isSticky={isSticky} />}
-      {children}
+      {wrappedChildren}
     </>
   );
 }
@@ -221,6 +257,7 @@ export function AppLayout({
   children,
   variant = "full",
   maxWidth = "40rem",
+  balanceWidth,
   sidePane,
   title,
   subtitle,
@@ -235,9 +272,9 @@ export function AppLayout({
   const { isFullyScrolled } = useScrollAwayHeader(scrollAwayHeader && !!title, contentRef);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-dvh flex-1 flex-col">
       <div
-        className={`${className} ${sidePane ? "grid grid-cols-[1fr_24rem] sm:grid" : "flex flex-col"} h-full min-h-0 overflow-hidden`}
+        className={`${className} ${sidePane ? "grid grid-cols-[1fr_24rem] sm:grid" : "flex flex-col"} min-h-0 overflow-hidden`}
         style={style}
       >
         {/* Mobile sticky header - appears when page header scrolls out of view */}
@@ -273,6 +310,7 @@ export function AppLayout({
               headerRef={headerRef}
               variant={variant}
               maxWidth={maxWidth}
+              balanceWidth={balanceWidth}
             >
               {children}
             </ScrollAwayContent>
@@ -280,6 +318,7 @@ export function AppLayout({
             <StandardContent
               variant={variant}
               maxWidth={maxWidth}
+              balanceWidth={balanceWidth}
               title={title}
               subtitle={subtitle}
               headerRef={headerRef}

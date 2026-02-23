@@ -51,6 +51,9 @@ msgstr "A different user logged in from another browser tab."
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
 
+msgid "A quick summary of your account activity."
+msgstr "A quick summary of your account activity."
+
 msgid "Accept invitation"
 msgstr "Accept invitation"
 
@@ -66,8 +69,11 @@ msgstr "Account"
 msgid "Account already exists"
 msgstr "Account already exists"
 
-msgid "Account information"
-msgstr "Account information"
+msgid "Account ID"
+msgstr "Account ID"
+
+msgid "Account logo"
+msgstr "Account logo"
 
 msgid "Account menu"
 msgstr "Account menu"
@@ -75,14 +81,14 @@ msgstr "Account menu"
 msgid "Account name"
 msgstr "Account name"
 
-msgid "Account name updated successfully"
-msgstr "Account name updated successfully"
-
 msgid "Account not found"
 msgstr "Account not found"
 
 msgid "Account settings"
 msgstr "Account settings"
+
+msgid "Account settings updated successfully"
+msgstr "Account settings updated successfully"
 
 msgid "Account switched"
 msgstr "Account switched"
@@ -520,12 +526,6 @@ msgstr "Login verification code"
 msgid "Logo"
 msgstr "Logo"
 
-msgid "Logo removed successfully"
-msgstr "Logo removed successfully"
-
-msgid "Logo uploaded successfully"
-msgstr "Logo uploaded successfully"
-
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
@@ -683,6 +683,9 @@ msgstr "Profile"
 msgid "Profile avatar"
 msgstr "Profile avatar"
 
+msgid "Profile photo"
+msgstr "Profile photo"
+
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
 
@@ -829,6 +832,9 @@ msgstr "Something went wrong"
 
 msgid "Standard user access"
 msgstr "Standard user access"
+
+msgid "Status"
+msgstr "Status"
 
 msgid "Stay"
 msgstr "Stay"

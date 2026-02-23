@@ -1,20 +1,22 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
+import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Separator } from "@repo/ui/components/Separator";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
+import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
-import { api, UserRole } from "@/shared/lib/api/client";
+import { api, type Schemas, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({
@@ -43,8 +45,41 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
   );
 }
 
+function AccountInfoFields({ tenant }: { tenant: Schemas["TenantResponse"] | undefined }) {
+  const formatDate = useFormatDate();
+
+  return (
+    <div className="grid grid-cols-1 gap-3 text-sm sm:flex sm:justify-between md:grid md:grid-cols-1 md:gap-3 lg:flex lg:justify-between">
+      <div className="flex justify-between sm:flex-col sm:gap-1 md:flex-row md:justify-between md:gap-0 lg:flex-col lg:gap-1">
+        <span className="text-muted-foreground">
+          <Trans>Account ID</Trans>
+        </span>
+        <span className="font-mono">{tenant?.id}</span>
+      </div>
+      <div className="flex justify-between sm:flex-col sm:gap-1 md:flex-row md:justify-between md:gap-0 lg:flex-col lg:gap-1">
+        <span className="text-muted-foreground">
+          <Trans>Created</Trans>
+        </span>
+        <span>{formatDate(tenant?.createdAt)}</span>
+      </div>
+      <div className="flex justify-between sm:flex-col sm:gap-1 md:flex-row md:justify-between md:gap-0 lg:flex-col lg:gap-1">
+        <span className="text-muted-foreground">
+          <Trans>Status</Trans>
+        </span>
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="bg-success text-success-foreground">
+            <Trans>Active</Trans>
+          </Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AccountSettings() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
+  const [removeLogoFlag, setRemoveLogoFlag] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const queryClient = useQueryClient();
 
@@ -54,50 +89,53 @@ export function AccountSettings() {
     refetch: refetchTenant
   } = api.useQuery("get", "/api/account/tenants/current");
   const { data: currentUser, isLoading: userLoading } = api.useQuery("get", "/api/account/users/me");
-  const updateCurrentTenantMutation = api.useMutation("put", "/api/account/tenants/current", {
-    onSuccess: () => {
-      setIsFormDirty(false);
-      toast.success(t`Account name updated successfully`);
-      refetchTenant();
-    }
-  });
+  const updateCurrentTenantMutation = api.useMutation("put", "/api/account/tenants/current");
   const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo");
   const removeTenantLogoMutation = api.useMutation("delete", "/api/account/tenants/current/remove-logo");
 
   const isOwner = currentUser?.role === UserRole.Owner;
 
-  const handleLogoFileSelect = async (file: File | null) => {
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      await (updateTenantLogoMutation as unknown as FileUploadMutation).mutateAsync({ body: formData });
+  const saveMutation = useMutation<
+    void,
+    Schemas["HttpValidationProblemDetails"],
+    { body: Schemas["UpdateCurrentTenantCommand"] }
+  >({
+    mutationFn: async (data) => {
+      if (selectedLogoFile) {
+        const formData = new FormData();
+        formData.append("file", selectedLogoFile);
+        await (updateTenantLogoMutation as unknown as FileUploadMutation).mutateAsync({ body: formData });
+      } else if (removeLogoFlag) {
+        await removeTenantLogoMutation.mutateAsync({});
+      }
+
+      await updateCurrentTenantMutation.mutateAsync(data);
       await queryClient.invalidateQueries();
-      refetchTenant();
-      toast.success(t`Logo uploaded successfully`);
+      await refetchTenant();
+      window.dispatchEvent(new CustomEvent("tenant-updated"));
+    },
+    onSuccess: () => {
+      setSelectedLogoFile(null);
+      setRemoveLogoFlag(false);
+      setIsFormDirty(false);
+      toast.success(t`Account settings updated successfully`);
     }
+  });
+
+  const handleLogoFileSelect = (file: File | null) => {
+    setSelectedLogoFile(file);
+    setRemoveLogoFlag(false);
+    setIsFormDirty(true);
   };
 
-  const handleLogoRemove = async () => {
-    await removeTenantLogoMutation.mutateAsync({});
-    await queryClient.invalidateQueries();
-    refetchTenant();
-    toast.success(t`Logo removed successfully`);
+  const handleLogoRemove = () => {
+    setRemoveLogoFlag(true);
+    setIsFormDirty(true);
   };
 
   const { isConfirmDialogOpen, confirmLeave, cancelLeave } = useUnsavedChangesGuard({
     hasUnsavedChanges: isFormDirty && isOwner
   });
-
-  // Dispatch event to notify components about tenant updates
-  useEffect(() => {
-    if (
-      updateCurrentTenantMutation.isSuccess ||
-      updateTenantLogoMutation.isSuccess ||
-      removeTenantLogoMutation.isSuccess
-    ) {
-      window.dispatchEvent(new CustomEvent("tenant-updated"));
-    }
-  }, [updateCurrentTenantMutation.isSuccess, updateTenantLogoMutation.isSuccess, removeTenantLogoMutation.isSuccess]);
 
   if (tenantLoading || userLoading) {
     return null;
@@ -105,34 +143,42 @@ export function AccountSettings() {
 
   return (
     <>
-      <AppLayout variant="center" title={t`Account settings`} subtitle={t`Manage your account here.`}>
+      <AppLayout
+        variant="center"
+        maxWidth="64rem"
+        balanceWidth="16rem"
+        title={t`Account settings`}
+        subtitle={t`Manage your account here.`}
+      >
         <Form
-          onSubmit={isOwner ? mutationSubmitter(updateCurrentTenantMutation) : undefined}
-          validationErrors={isOwner ? updateCurrentTenantMutation.error?.errors : undefined}
+          onSubmit={isOwner ? mutationSubmitter(saveMutation) : undefined}
+          validationErrors={isOwner ? saveMutation.error?.errors : undefined}
           validationBehavior="aria"
           className="flex flex-col gap-4"
           onChange={() => setIsFormDirty(true)}
         >
-          <h3>
-            <Trans>Account information</Trans>
-          </h3>
-          <Separator />
-
           <AccountFields
+            layout="horizontal"
             tenant={tenant}
-            isPending={updateCurrentTenantMutation.isPending}
+            isPending={saveMutation.isPending}
             onLogoFileSelect={handleLogoFileSelect}
             onLogoRemove={handleLogoRemove}
             isReadOnly={!isOwner}
             tooltip={isOwner ? t`The name of your account, shown to users and in email notifications` : undefined}
             description={!isOwner ? t`Only account owners can modify the account name` : undefined}
             onChange={() => setIsFormDirty(true)}
+            infoFields={<AccountInfoFields tenant={tenant} />}
           />
 
           {isOwner && (
-            <Button type="submit" className="mt-4 w-fit max-sm:w-full" disabled={updateCurrentTenantMutation.isPending}>
-              {updateCurrentTenantMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
-            </Button>
+            <div className="mt-4 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
+              <div />
+              <div className="flex sm:justify-end">
+                <Button type="submit" className="w-full sm:w-auto" disabled={saveMutation.isPending}>
+                  {saveMutation.isPending ? <Trans>Saving...</Trans> : <Trans>Save changes</Trans>}
+                </Button>
+              </div>
+            </div>
           )}
         </Form>
 

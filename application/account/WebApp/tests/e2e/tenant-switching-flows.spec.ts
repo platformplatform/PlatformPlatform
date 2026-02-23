@@ -55,7 +55,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(primaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account name updated successfully");
+      await expectToastMessage(testContext1, "Account settings updated successfully");
       await page1.goto("/dashboard");
 
       // Account menu shows tenant name
@@ -95,7 +95,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(secondaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account name updated successfully");
+      await expectToastMessage(testContext1, "Account settings updated successfully");
 
       // Invite first user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -127,7 +127,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(tertiaryTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account name updated successfully");
+      await expectToastMessage(testContext1, "Account settings updated successfully");
 
       // Invite first user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();
@@ -497,7 +497,7 @@ test.describe("@comprehensive", () => {
       await page1.getByRole("textbox", { name: "Account name" }).clear();
       await page1.getByRole("textbox", { name: "Account name" }).fill(fourthTenantName);
       await page1.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(testContext1, "Account name updated successfully");
+      await expectToastMessage(testContext1, "Account settings updated successfully");
 
       // Invite the original user
       await page1.getByLabel("Main navigation").getByRole("link", { name: "Users" }).click();

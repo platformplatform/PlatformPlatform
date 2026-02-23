@@ -51,6 +51,9 @@ msgstr "En anden bruger loggede ind fra en anden browsertab."
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
 
+msgid "A quick summary of your account activity."
+msgstr "Et hurtigt overblik over din kontoaktivitet."
+
 msgid "Accept invitation"
 msgstr "Accepter invitation"
 
@@ -66,8 +69,11 @@ msgstr "Konto"
 msgid "Account already exists"
 msgstr "Konto findes allerede"
 
-msgid "Account information"
-msgstr "Kontoinformation"
+msgid "Account ID"
+msgstr "Konto-ID"
+
+msgid "Account logo"
+msgstr "Kontologo"
 
 msgid "Account menu"
 msgstr "Kontomenu"
@@ -75,14 +81,14 @@ msgstr "Kontomenu"
 msgid "Account name"
 msgstr "Kontonavn"
 
-msgid "Account name updated successfully"
-msgstr "Kontonavn opdateret succesfuldt"
-
 msgid "Account not found"
 msgstr "Konto ikke fundet"
 
 msgid "Account settings"
 msgstr "Kontoindstillinger"
+
+msgid "Account settings updated successfully"
+msgstr "Kontoindstillinger opdateret"
 
 msgid "Account switched"
 msgstr "Konto skiftet"
@@ -520,12 +526,6 @@ msgstr "Login-bekræftelseskode"
 msgid "Logo"
 msgstr "Logo"
 
-msgid "Logo removed successfully"
-msgstr "Logo fjernet succesfuldt"
-
-msgid "Logo uploaded successfully"
-msgstr "Logo uploadet succesfuldt"
-
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
@@ -683,6 +683,9 @@ msgstr "Profil"
 msgid "Profile avatar"
 msgstr "Profilavatar"
 
+msgid "Profile photo"
+msgstr "Profilbillede"
+
 msgid "Profile updated successfully"
 msgstr "Profil opdateret succesfuldt"
 
@@ -829,6 +832,9 @@ msgstr "Noget gik galt"
 
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
+
+msgid "Status"
+msgstr "Status"
 
 msgid "Stay"
 msgstr "Bliv"

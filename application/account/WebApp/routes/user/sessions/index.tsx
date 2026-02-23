@@ -148,28 +148,28 @@ function SessionCard({
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-3 text-sm sm:flex sm:justify-between">
+        <div className="grid grid-cols-1 gap-3 text-sm md:flex md:justify-between">
           {showAccountName && (
-            <div className="flex justify-between sm:flex-col sm:gap-1">
+            <div className="flex justify-between md:flex-col md:gap-1">
               <span className="text-muted-foreground">
                 <Trans>Account</Trans>
               </span>
               <span>{session.tenantName}</span>
             </div>
           )}
-          <div className="flex justify-between sm:flex-col sm:gap-1">
+          <div className="flex justify-between md:flex-col md:gap-1">
             <span className="text-muted-foreground">
               <Trans>Login method</Trans>
             </span>
             <span>{getLoginMethodLabel(session.loginMethod)}</span>
           </div>
-          <div className="flex justify-between sm:flex-col sm:gap-1">
+          <div className="flex justify-between md:flex-col md:gap-1">
             <span className="text-muted-foreground">
               <Trans>IP address</Trans>
             </span>
             <span>{session.ipAddress}</span>
           </div>
-          <div className="flex justify-between sm:flex-col sm:gap-1">
+          <div className="flex justify-between md:flex-col md:gap-1">
             <span className="text-muted-foreground">
               <Trans>Last active</Trans>
             </span>
@@ -177,7 +177,7 @@ function SessionCard({
               <SmartDate date={session.lastActivityAt} />
             </span>
           </div>
-          <div className="flex justify-between sm:flex-col sm:gap-1">
+          <div className="flex justify-between md:flex-col md:gap-1">
             <span className="text-muted-foreground">
               <Trans>Created</Trans>
             </span>
@@ -281,7 +281,7 @@ function SessionsPage() {
 
   if (isLoading) {
     return (
-      <AppLayout variant="center" title={t`Sessions`}>
+      <AppLayout variant="center" maxWidth="64rem" title={t`Sessions`}>
         <div className="flex flex-1 items-center justify-center py-12">
           <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
         </div>
@@ -293,10 +293,12 @@ function SessionsPage() {
     <>
       <AppLayout
         variant="center"
+        maxWidth="64rem"
+        balanceWidth="16rem"
         title={t`Sessions`}
         subtitle={t`Devices that have logged into your account. Revoke any sessions you do not recognize.`}
       >
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 pt-8">
           {hasRevokedSession && (
             <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4">
               <InfoIcon className="size-4 shrink-0 text-info" />
