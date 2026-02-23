@@ -22,8 +22,6 @@ public interface IStripeClient
 
     Task<bool> ReactivateSubscriptionAsync(StripeSubscriptionId stripeSubscriptionId, CancellationToken cancellationToken);
 
-    Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken);
-
     Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken);
 
     StripeWebhookEventResult? VerifyWebhookSignature(string payload, string signatureHeader);
@@ -73,7 +71,7 @@ public sealed record SubscriptionSyncResult(
     bool CancelAtPeriodEnd,
     CancellationReason? CancellationReason,
     string? CancellationFeedback,
-    PaymentTransaction[] PaymentTransactions,
+    PaymentTransaction[]? PaymentTransactions,
     PaymentMethod? PaymentMethod,
     string? SubscriptionStatus
 );

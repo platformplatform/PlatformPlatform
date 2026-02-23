@@ -58,12 +58,6 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
         return Task.FromResult(false);
     }
 
-    public Task<string?> GetPriceIdAsync(SubscriptionPlan plan, CancellationToken cancellationToken)
-    {
-        logger.LogWarning("Stripe is not configured. Cannot resolve price for plan '{Plan}'", plan);
-        return Task.FromResult<string?>(null);
-    }
-
     public Task<PriceCatalogItem[]> GetPriceCatalogAsync(CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot get pricing catalog");
@@ -127,7 +121,7 @@ public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> l
     public Task<InvoiceRetryResult?> RetryOpenInvoicePaymentAsync(StripeSubscriptionId stripeSubscriptionId, string? paymentMethodId, CancellationToken cancellationToken)
     {
         logger.LogWarning("Stripe is not configured. Cannot retry invoice payment for subscription '{SubscriptionId}'", stripeSubscriptionId);
-        return Task.FromResult<InvoiceRetryResult?>(new InvoiceRetryResult(false, null));
+        return Task.FromResult<InvoiceRetryResult?>(null);
     }
 
     public Task<UpgradePreviewResult?> GetUpgradePreviewAsync(StripeSubscriptionId stripeSubscriptionId, SubscriptionPlan newPlan, CancellationToken cancellationToken)
