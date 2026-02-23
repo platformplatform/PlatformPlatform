@@ -173,7 +173,7 @@ export function CheckoutDialog({
         </DialogBody>
         {!isReady && !isWaitingForActivation && (
           <DialogFooter>
-            <DialogClose render={<Button variant="secondary" />}>
+            <DialogClose render={<Button type="reset" variant="secondary" />}>
               <Trans>Cancel</Trans>
             </DialogClose>
           </DialogFooter>
@@ -328,7 +328,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
       </div>
       {hasCheckoutError ? (
         <DialogFooter>
-          <DialogClose render={<Button variant="secondary" />}>
+          <DialogClose render={<Button type="reset" variant="secondary" />}>
             <Trans>Close</Trans>
           </DialogClose>
         </DialogFooter>

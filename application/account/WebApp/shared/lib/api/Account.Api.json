@@ -2452,8 +2452,12 @@
           "currency": {
             "type": "string"
           },
-          "formattedPrice": {
+          "interval": {
             "type": "string"
+          },
+          "intervalCount": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2707,6 +2711,9 @@
             "type": "string"
           },
           "isProration": {
+            "type": "boolean"
+          },
+          "isTax": {
             "type": "boolean"
           }
         }

@@ -13,7 +13,8 @@ type PlanPriceItem = components["schemas"]["PlanPriceItem"];
 export function getFormattedPrice(plan: SubscriptionPlan, pricingPlans: PlanPriceItem[] | undefined): string {
   const item = pricingPlans?.find((p) => p.plan === plan);
   if (item) {
-    return item.formattedPrice;
+    const price = formatCurrency(item.unitAmount, item.currency);
+    return t`${price}/month`;
   }
   if (plan === SubscriptionPlan.Basis) {
     return t`Free`;
