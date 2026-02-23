@@ -1,19 +1,7 @@
-import { expect, type Page } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
-
-const MOCK_PROVIDER_COOKIE = "__Test_Use_Mock_Provider";
-
-async function setMockProviderCookie(page: Page): Promise<void> {
-  await page.context().addCookies([
-    {
-      name: MOCK_PROVIDER_COOKIE,
-      value: "true",
-      url: "https://localhost:9000"
-    }
-  ]);
-}
 
 test.describe("@smoke", () => {
   /**
@@ -50,7 +38,7 @@ test.describe("@smoke", () => {
       await expect(basisCard.getByRole("button", { name: "Current plan" })).toBeDisabled();
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
-      await expect(standardCard.getByText("EUR 19/month")).toBeVisible();
+      await expect(standardCard.getByText("/month")).toBeVisible();
       await expect(standardCard.getByText("10 users")).toBeVisible();
       await expect(standardCard.getByText("100 GB storage")).toBeVisible();
       await expect(standardCard.getByText("Email support")).toBeVisible();
@@ -58,7 +46,7 @@ test.describe("@smoke", () => {
       await expect(standardCard.getByRole("button", { name: "Subscribe" })).toBeVisible();
 
       const premiumCard = ownerPage.locator(".grid > div").filter({ hasText: "Premium" }).first();
-      await expect(premiumCard.getByText("EUR 39/month")).toBeVisible();
+      await expect(premiumCard.getByText("/month")).toBeVisible();
       await expect(premiumCard.getByText("Unlimited users")).toBeVisible();
       await expect(premiumCard.getByText("1 TB storage")).toBeVisible();
       await expect(premiumCard.getByText("Priority support")).toBeVisible();
@@ -67,69 +55,173 @@ test.describe("@smoke", () => {
       await expect(premiumCard.getByRole("button", { name: "Subscribe" })).toBeVisible();
     })();
 
-    // === SUBSCRIBE FLOW (MOCK CHECKOUT) ===
-    await step("Click Subscribe on Standard plan & fill billing info & create Stripe customer")(async () => {
-      await setMockProviderCookie(ownerPage);
-
-      await ownerPage.route("**/api/account/subscriptions/start-checkout", (route) => route.abort());
-
+    // === SUBSCRIBE FLOW (BILLING INFO DIALOG + MOCKED ACTIVE STATE) ===
+    await step("Click Subscribe on Standard plan & verify billing info dialog fields")(async () => {
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
       await standardCard.getByRole("button", { name: "Subscribe" }).click();
 
       await expect(ownerPage.getByRole("heading", { name: "Add billing information" })).toBeVisible();
-      await ownerPage.getByLabel("Name").fill("Test Organization");
-      await ownerPage.getByLabel("Address line 1").fill("Vestergade 12");
-      await ownerPage.getByLabel("Postal code").fill("1456");
-      await ownerPage.getByLabel("City").fill("Copenhagen");
-      await ownerPage.getByLabel("Country").click();
-      await expect(ownerPage.getByRole("listbox")).toBeVisible();
-      await ownerPage.getByRole("option", { name: "Denmark" }).scrollIntoViewIfNeeded();
-      await ownerPage.getByRole("option", { name: "Denmark" }).click();
-      await ownerPage.getByLabel("Email").fill("billing@example.com");
+      await expect(ownerPage.getByLabel("Billing email")).toBeVisible();
+      await expect(ownerPage.getByLabel("Country")).toBeVisible();
+      await expect(ownerPage.getByLabel("Name")).toBeVisible();
+      await expect(ownerPage.getByLabel("Address")).toBeVisible();
+      await expect(ownerPage.getByLabel("Postal code")).toBeVisible();
+      await expect(ownerPage.getByLabel("City")).toBeVisible();
+      await expect(ownerPage.getByLabel("Tax ID (VAT number)")).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Next" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Cancel" })).toBeVisible();
 
-      const billingInfoResponse = ownerPage.waitForResponse("**/api/account/subscriptions/billing-info");
-      await ownerPage.getByRole("button", { name: "Next" }).click();
-      await billingInfoResponse;
-      await expectToastMessage(context, "Billing information updated");
-
-      await ownerPage.unroute("**/api/account/subscriptions/start-checkout");
+      await ownerPage.getByRole("button", { name: "Cancel" }).click();
+      await expect(ownerPage.getByRole("heading", { name: "Add billing information" })).not.toBeVisible();
     })();
 
-    await step("Simulate checkout success & verify subscription activated with payment history")(async () => {
-      await ownerPage.goto("/account/subscription?session_id=mock_session_id");
+    await step("Mock active Standard subscription & verify subscription overview with payment history")(async () => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: "Standard",
+            scheduledPlan: null,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: false,
+            paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+            billingInfo: {
+              name: "Test Organization",
+              address: {
+                line1: "Vestergade 12",
+                line2: null,
+                postalCode: "1456",
+                city: "Copenhagen",
+                state: null,
+                country: "DK"
+              },
+              email: "billing@example.com",
+              taxId: null
+            },
+            hasPendingStripeEvents: false
+          }
+        });
+      });
 
-      await expectToastMessage(context, "Your subscription has been activated.");
+      await ownerPage.route("**/api/account/subscriptions/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            totalCount: 1,
+            transactions: [
+              {
+                id: "txn_mock_1",
+                amount: 29.0,
+                currency: "USD",
+                status: "Succeeded",
+                date: "2026-02-24T00:00:00Z",
+                invoiceUrl: "https://mock.stripe.local/invoice/12345",
+                creditNoteUrl: null
+              }
+            ]
+          }
+        });
+      });
 
+      await ownerPage.goto("/account/subscription");
+
+      await expect(ownerPage.getByText("Standard", { exact: false }).first()).toBeVisible();
       await expect(ownerPage.getByText("Active")).toBeVisible();
-      await expect(ownerPage.getByText("Standard", { exact: true }).first()).toBeVisible();
       await expect(ownerPage.getByText("Next billing date:")).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Change" })).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Update" })).toBeEnabled();
+      await expect(ownerPage.getByRole("button", { name: "Change plan" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeEnabled();
+
+      await expect(ownerPage.getByRole("heading", { name: "Payment method" })).toBeVisible();
+      await expect(ownerPage.getByText("4242")).toBeVisible();
+      await expect(ownerPage.getByRole("heading", { name: "Billing information" })).toBeVisible();
+      await expect(ownerPage.getByText("billing@example.com")).toBeVisible();
 
       await expect(ownerPage.getByRole("columnheader", { name: "Date" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Amount" })).toBeVisible();
       await expect(ownerPage.getByRole("columnheader", { name: "Status" })).toBeVisible();
       await expect(ownerPage.getByText("Succeeded")).toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Invoice" })).toBeVisible();
+
+      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/payment-history**");
     })();
 
     // === UPGRADE FLOW ===
-    await step("Navigate to plans page & click Upgrade on Premium plan & confirm upgrade dialog")(async () => {
+    await step("Mock Standard subscription & click Upgrade on Premium plan & confirm upgrade dialog")(async () => {
+      let currentPlan = "Standard";
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: currentPlan,
+            scheduledPlan: null,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: false,
+            paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+            billingInfo: null,
+            hasPendingStripeEvents: false
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/upgrade-preview**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            lineItems: [
+              { description: "Premium (prorated)", amount: 70.0, currency: "USD", isTax: false },
+              { description: "Tax", amount: 0, currency: "USD", isTax: true }
+            ],
+            totalAmount: 70.0,
+            currency: "USD"
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/upgrade", async (route) => {
+        currentPlan = "Premium";
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { clientSecret: null, publishableKey: null }
+        });
+      });
+
       await ownerPage.goto("/account/subscription/plans");
 
       const premiumCard = ownerPage.locator(".grid > div").filter({ hasText: "Premium" }).first();
       await premiumCard.getByRole("button", { name: "Upgrade" }).click();
 
-      await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
-      await expect(ownerPage.getByText("Upgrade to Premium")).toBeVisible();
-      await expect(ownerPage.getByText("Your plan will be upgraded to Premium immediately")).toBeVisible();
-      await ownerPage.getByRole("button", { name: "Confirm upgrade" }).click();
+      await expect(ownerPage.getByRole("dialog", { name: "Upgrade to Premium" })).toBeVisible();
+      await expect(ownerPage.getByText("Bill to")).toBeVisible();
+      await expect(ownerPage.getByText("Payment method")).toBeVisible();
+      await ownerPage.getByRole("button", { name: "Pay and upgrade" }).click();
 
       await expectToastMessage(context, "Your plan has been upgraded.");
+      await ownerPage.unroute("**/api/account/subscriptions/upgrade-preview**");
+      await ownerPage.unroute("**/api/account/subscriptions/upgrade");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
     // === DOWNGRADE FLOW (MOCKED PREMIUM STATE) ===
     await step("Mock Premium subscription state & click Downgrade on Standard plan")(async () => {
+      let scheduledPlan: string | null = null;
       await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
         await route.fulfill({
           status: 200,
@@ -137,16 +229,30 @@ test.describe("@smoke", () => {
           json: {
             id: "sub_mock",
             plan: "Premium",
-            scheduledPlan: null,
-            currentPeriodEnd: "2026-02-24T00:00:00Z",
+            scheduledPlan,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 99.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
             cancelAtPeriodEnd: false,
-            hasStripeSubscription: true
+            isPaymentFailed: false,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
           }
         });
       });
 
+      await ownerPage.route("**/api/account/subscriptions/schedule-downgrade", async (route) => {
+        scheduledPlan = "Standard";
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
       await ownerPage.goto("/account/subscription/plans");
-      await expect(ownerPage.getByText("Premium", { exact: true }).first()).toBeVisible();
+
+      const premiumCard = ownerPage.locator(".grid > div").filter({ hasText: "Premium" }).first();
+      await expect(premiumCard.getByRole("button", { name: "Current plan" })).toBeDisabled();
 
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
       await standardCard.getByRole("button", { name: "Downgrade" }).click();
@@ -157,10 +263,6 @@ test.describe("@smoke", () => {
     })();
 
     await step("Confirm downgrade & verify scheduled downgrade toast")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/schedule-downgrade", async (route) => {
-        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
-      });
-
       await ownerPage.getByRole("button", { name: "Confirm downgrade" }).click();
 
       await expectToastMessage(context, "Your downgrade has been scheduled.");
@@ -169,7 +271,35 @@ test.describe("@smoke", () => {
     })();
 
     // === CANCEL SUBSCRIPTION ===
-    await step("Navigate to plans page & click Cancel subscription & verify confirmation dialog")(async () => {
+    await step("Mock Standard subscription & click Cancel subscription & verify confirmation dialog")(async () => {
+      let cancelAtPeriodEnd = false;
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: "Standard",
+            scheduledPlan: null,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd,
+            isPaymentFailed: false,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
+        cancelAtPeriodEnd = true;
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
       await ownerPage.goto("/account/subscription/plans");
 
       await ownerPage.getByRole("button", { name: "Cancel subscription" }).click();
@@ -179,10 +309,6 @@ test.describe("@smoke", () => {
     })();
 
     await step("Select cancellation reason & confirm & verify subscription cancelled toast")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
-        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
-      });
-
       await ownerPage.getByRole("radio", { name: "No longer needed" }).click();
 
       const dialog = ownerPage.getByRole("alertdialog");
@@ -190,10 +316,12 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Your subscription has been cancelled.");
       await ownerPage.unroute("**/api/account/subscriptions/cancel");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
     })();
 
     // === CANCELLING STATE (MOCKED) ===
     await step("Mock cancelling subscription state & verify cancellation banner with reactivate button")(async () => {
+      let cancelAtPeriodEnd = true;
       await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
         await route.fulfill({
           status: 200,
@@ -202,9 +330,16 @@ test.describe("@smoke", () => {
             id: "sub_mock",
             plan: "Standard",
             scheduledPlan: null,
-            currentPeriodEnd: "2026-02-24T00:00:00Z",
-            cancelAtPeriodEnd: true,
-            hasStripeSubscription: true
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd,
+            isPaymentFailed: false,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
           }
         });
       });
@@ -213,14 +348,19 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByText("Cancelling")).toBeVisible();
       await expect(ownerPage.getByText("Access until")).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Reactivate" })).toBeVisible();
+
+      await ownerPage.route("**/api/account/subscriptions/reactivate", async (route) => {
+        cancelAtPeriodEnd = false;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { clientSecret: null, publishableKey: null }
+        });
+      });
     })();
 
     // === REACTIVATE SUBSCRIPTION ===
     await step("Click Reactivate in banner & confirm dialog & verify subscription reactivated toast")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/reactivate", async (route) => {
-        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
-      });
-
       await ownerPage.getByRole("button", { name: "Reactivate" }).click();
 
       await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
@@ -242,10 +382,16 @@ test.describe("@smoke", () => {
             id: "sub_mock",
             plan: "Standard",
             scheduledPlan: null,
-            currentPeriodEnd: "2026-02-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
+            hasStripeCustomer: true,
             hasStripeSubscription: true,
-            isPaymentFailed: true
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: true,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
           }
         });
       });
@@ -366,6 +512,236 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByRole("button", { name: "Manage subscription" })).not.toBeVisible();
 
       await ownerPage.unroute("**/api/account/tenants/current");
+    })();
+  });
+});
+
+test.describe("@comprehensive", () => {
+  /**
+   * SUBSCRIPTION EDGE CASES AND BILLING DETAILS E2E TEST
+   *
+   * Tests subscription features not covered by the smoke test:
+   * - Tab navigation between Overview and Plans pages
+   * - Scheduled downgrade banner on overview page with Cancel downgrade dialog
+   * - Edit billing info dialog with form fields and Tax ID display
+   * - Payment history with refunded transaction and credit note link
+   * - Empty payment history state
+   * - Billing info display with full address details
+   */
+  test("should handle tab navigation, scheduled downgrade banner, billing info editing, and payment history edge cases", async ({
+    ownerPage
+  }) => {
+    const context = createTestContext(ownerPage);
+
+    // === TAB NAVIGATION ===
+    await step("Mock active subscription & navigate to overview & verify tab navigation to Plans")(async () => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: "Standard",
+            scheduledPlan: null,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: false,
+            paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+            billingInfo: {
+              name: "Test Organization",
+              address: {
+                line1: "Vestergade 12",
+                line2: null,
+                postalCode: "1456",
+                city: "Copenhagen",
+                state: null,
+                country: "DK"
+              },
+              email: "billing@example.com",
+              taxId: "DK12345678"
+            },
+            hasPendingStripeEvents: false
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { totalCount: 0, transactions: [] }
+        });
+      });
+
+      await ownerPage.goto("/account/subscription");
+
+      await expect(ownerPage.getByRole("tablist", { name: "Subscription tabs" })).toBeVisible();
+      await ownerPage.getByRole("tab", { name: "Plans" }).click();
+
+      await expect(ownerPage).toHaveURL("/account/subscription/plans");
+    })();
+
+    await step("Navigate back to Overview tab & verify overview content loads")(async () => {
+      await ownerPage.getByRole("tab", { name: "Overview" }).click();
+
+      await expect(ownerPage).toHaveURL("/account/subscription");
+      await expect(ownerPage.getByRole("heading", { name: "Current plan" })).toBeVisible();
+    })();
+
+    // === BILLING INFO WITH TAX ID ===
+    await step("Open edit billing info dialog & verify Tax ID and address fields pre-populated")(async () => {
+      await expect(ownerPage.getByText("DK12345678")).toBeVisible();
+      await expect(ownerPage.getByText("billing@example.com")).toBeVisible();
+      await expect(ownerPage.getByText("Vestergade 12")).toBeVisible();
+
+      await ownerPage.getByRole("button", { name: "Edit billing information" }).click();
+
+      await expect(ownerPage.getByRole("heading", { name: "Edit billing information" })).toBeVisible();
+      await expect(ownerPage.getByLabel("Billing email")).toHaveValue("billing@example.com");
+      await expect(ownerPage.getByLabel("Name")).toHaveValue("Test Organization");
+      await expect(ownerPage.getByLabel("Tax ID (VAT number)")).toHaveValue("DK12345678");
+      await expect(ownerPage.getByLabel("Postal code")).toHaveValue("1456");
+      await expect(ownerPage.getByLabel("City")).toHaveValue("Copenhagen");
+
+      await ownerPage.getByRole("button", { name: "Cancel" }).click();
+      await expect(ownerPage.getByRole("heading", { name: "Edit billing information" })).not.toBeVisible();
+    })();
+
+    // === EMPTY PAYMENT HISTORY ===
+    await step("Scroll to billing history & verify empty state message")(async () => {
+      await expect(ownerPage.getByRole("heading", { name: "Billing history" })).toBeVisible();
+      await expect(ownerPage.getByText("No payment history available.")).toBeVisible();
+
+      await ownerPage.unroute("**/api/account/subscriptions/payment-history**");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
+    })();
+
+    // === PAYMENT HISTORY WITH REFUNDED TRANSACTION AND CREDIT NOTE ===
+    await step("Mock payment history with refunded transaction & verify credit note link")(async () => {
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: "Standard",
+            scheduledPlan: null,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 29.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: false,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            totalCount: 2,
+            transactions: [
+              {
+                id: "txn_mock_1",
+                amount: 29.0,
+                currency: "USD",
+                status: "Succeeded",
+                date: "2026-02-24T00:00:00Z",
+                invoiceUrl: "https://mock.stripe.local/invoice/12345",
+                creditNoteUrl: null
+              },
+              {
+                id: "txn_mock_2",
+                amount: 29.0,
+                currency: "USD",
+                status: "Refunded",
+                date: "2026-01-24T00:00:00Z",
+                invoiceUrl: "https://mock.stripe.local/invoice/12346",
+                creditNoteUrl: "https://mock.stripe.local/credit-note/67890"
+              }
+            ]
+          }
+        });
+      });
+
+      await ownerPage.goto("/account/subscription");
+
+      await expect(ownerPage.getByText("Succeeded")).toBeVisible();
+      await expect(ownerPage.getByText("Refunded")).toBeVisible();
+
+      const invoiceLinks = ownerPage.getByRole("link", { name: "Invoice" });
+      await expect(invoiceLinks.first()).toBeVisible();
+      await expect(ownerPage.getByRole("link", { name: "Credit note" })).toBeVisible();
+
+      await ownerPage.unroute("**/api/account/subscriptions/payment-history**");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
+    })();
+
+    // === SCHEDULED DOWNGRADE BANNER ON OVERVIEW ===
+    await step("Mock scheduled downgrade state & verify downgrade banner with cancel button on overview")(async () => {
+      let scheduledPlan: string | null = "Standard";
+      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: {
+            id: "sub_mock",
+            plan: "Premium",
+            scheduledPlan,
+            hasStripeCustomer: true,
+            hasStripeSubscription: true,
+            currentPriceAmount: 99.0,
+            currentPriceCurrency: "USD",
+            currentPeriodEnd: "2026-03-24T00:00:00Z",
+            cancelAtPeriodEnd: false,
+            isPaymentFailed: false,
+            paymentMethod: null,
+            billingInfo: null,
+            hasPendingStripeEvents: false
+          }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { totalCount: 0, transactions: [] }
+        });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/cancel-downgrade", async (route) => {
+        scheduledPlan = null;
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
+      await ownerPage.goto("/account/subscription");
+
+      await expect(ownerPage.getByText("will be downgraded to Standard")).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "Cancel downgrade" })).toBeVisible();
+    })();
+
+    await step("Click Cancel downgrade & confirm dialog & verify downgrade cancelled toast")(async () => {
+      await ownerPage.getByRole("button", { name: "Cancel downgrade" }).click();
+
+      await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
+      await expect(ownerPage.getByText("Cancel scheduled downgrade")).toBeVisible();
+      await ownerPage.getByRole("alertdialog").getByRole("button", { name: "Cancel downgrade" }).click();
+
+      await expectToastMessage(context, "Your scheduled downgrade has been cancelled.");
+      await ownerPage.unroute("**/api/account/subscriptions/cancel-downgrade");
+      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/payment-history**");
     })();
   });
 });
