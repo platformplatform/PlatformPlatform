@@ -633,6 +633,36 @@
         }
       }
     },
+    "/api/account/subscriptions/pricing-catalog": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsPricingCatalog",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PricingCatalogResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/current": {
       "get": {
         "tags": [
@@ -656,6 +686,129 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SubscriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/checkout-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsCheckoutPreview",
+        "parameters": [
+          {
+            "name": "Plan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutPreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/subscribe-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsSubscribePreview",
+        "parameters": [
+          {
+            "name": "Plan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscribePreviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/upgrade-preview": {
+      "get": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "GetApiAccountSubscriptionsUpgradePreview",
+        "parameters": [
+          {
+            "name": "NewPlan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpgradePreviewResponse"
                 }
               }
             }
@@ -713,23 +866,24 @@
         }
       }
     },
-    "/api/account/subscriptions/upgrade-preview": {
-      "get": {
+    "/api/account/subscriptions/billing-info": {
+      "put": {
         "tags": [
           "Subscriptions"
         ],
-        "operationId": "GetApiAccountSubscriptionsUpgradePreview",
-        "parameters": [
-          {
-            "name": "NewPlan",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/SubscriptionPlan"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "PutApiAccountSubscriptionsBillingInfo",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillingInfoCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "400": {
             "description": "",
@@ -737,87 +891,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpgradePreviewResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/checkout-preview": {
-      "get": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "GetApiAccountSubscriptionsCheckoutPreview",
-        "parameters": [
-          {
-            "name": "Plan",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/SubscriptionPlan"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CheckoutPreviewResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/pricing-catalog": {
-      "get": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "GetApiAccountSubscriptionsPricingCatalog",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PricingCatalogResponse"
                 }
               }
             }
@@ -867,6 +940,78 @@
         }
       }
     },
+    "/api/account/subscriptions/start-payment-method-setup": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsStartPaymentMethodSetup",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartPaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/subscriptions/confirm-payment-method": {
+      "post": {
+        "tags": [
+          "Subscriptions"
+        ],
+        "operationId": "PostApiAccountSubscriptionsConfirmPaymentMethod",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentMethodSetupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmPaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/subscriptions/upgrade": {
       "post": {
         "tags": [
@@ -902,47 +1047,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UpgradeSubscriptionResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/subscribe-preview": {
-      "get": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "GetApiAccountSubscriptionsSubscribePreview",
-        "parameters": [
-          {
-            "name": "Plan",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/SubscriptionPlan"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubscribePreviewResponse"
                 }
               }
             }
@@ -1064,78 +1168,6 @@
         }
       }
     },
-    "/api/account/subscriptions/start-payment-method-setup": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsStartPaymentMethodSetup",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartPaymentMethodSetupResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/confirm-payment-method": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsConfirmPaymentMethod",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmPaymentMethodSetupCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfirmPaymentMethodSetupResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account/subscriptions/retry-pending-invoice": {
       "post": {
         "tags": [
@@ -1172,38 +1204,6 @@
           "Subscriptions"
         ],
         "operationId": "PostApiAccountSubscriptionsProcessPendingEvents",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/billing-info": {
-      "put": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PutApiAccountSubscriptionsBillingInfo",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillingInfoCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "400": {
             "description": "",
@@ -2426,6 +2426,51 @@
           "Google"
         ]
       },
+      "PricingCatalogResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanPriceItem"
+            }
+          }
+        }
+      },
+      "PlanPriceItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "unitAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "formattedPrice": {
+            "type": "string"
+          }
+        }
+      },
+      "SubscriptionPlan": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Basis",
+          "Standard",
+          "Premium"
+        ],
+        "enum": [
+          "Basis",
+          "Standard",
+          "Premium"
+        ]
+      },
       "SubscriptionResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2518,20 +2563,6 @@
           }
         }
       },
-      "SubscriptionPlan": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Basis",
-          "Standard",
-          "Premium"
-        ],
-        "enum": [
-          "Basis",
-          "Standard",
-          "Premium"
-        ]
-      },
       "PaymentMethod": {
         "type": "object",
         "additionalProperties": false,
@@ -2605,6 +2636,78 @@
           "country": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "CheckoutPreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "SubscribePreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "taxAmount": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "UpgradePreviewResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalAmount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpgradePreviewLineItemResponse"
+            }
+          }
+        }
+      },
+      "UpgradePreviewLineItemResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "isProration": {
+            "type": "boolean"
           }
         }
       },
@@ -2698,89 +2801,35 @@
           "Refunded"
         ]
       },
-      "UpgradePreviewResponse": {
+      "UpdateBillingInfoCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "totalAmount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
+          "name": {
             "type": "string"
           },
-          "lineItems": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpgradePreviewLineItemResponse"
-            }
-          }
-        }
-      },
-      "UpgradePreviewLineItemResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "description": {
+          "address": {
             "type": "string"
           },
-          "amount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
+          "postalCode": {
             "type": "string"
           },
-          "isProration": {
-            "type": "boolean"
-          }
-        }
-      },
-      "CheckoutPreviewResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalAmount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
+          "city": {
             "type": "string"
           },
-          "taxAmount": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
-      },
-      "PricingCatalogResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "plans": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PlanPriceItem"
-            }
-          }
-        }
-      },
-      "PlanPriceItem": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "plan": {
-            "$ref": "#/components/schemas/SubscriptionPlan"
+          "state": {
+            "type": "string",
+            "nullable": true
           },
-          "unitAmount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
+          "country": {
             "type": "string"
           },
-          "formattedPrice": {
+          "email": {
             "type": "string"
+          },
+          "taxId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2810,6 +2859,45 @@
           }
         }
       },
+      "StartPaymentMethodSetupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
+            "type": "string"
+          },
+          "publishableKey": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmPaymentMethodSetupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "hasOpenInvoice": {
+            "type": "boolean"
+          },
+          "openInvoiceAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "openInvoiceCurrency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ConfirmPaymentMethodSetupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "setupIntentId": {
+            "type": "string"
+          }
+        }
+      },
       "UpgradeSubscriptionResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2830,23 +2918,6 @@
         "properties": {
           "newPlan": {
             "$ref": "#/components/schemas/SubscriptionPlan"
-          }
-        }
-      },
-      "SubscribePreviewResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalAmount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "taxAmount": {
-            "type": "number",
-            "format": "decimal"
           }
         }
       },
@@ -2904,45 +2975,6 @@
           }
         }
       },
-      "StartPaymentMethodSetupResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "clientSecret": {
-            "type": "string"
-          },
-          "publishableKey": {
-            "type": "string"
-          }
-        }
-      },
-      "ConfirmPaymentMethodSetupResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "hasOpenInvoice": {
-            "type": "boolean"
-          },
-          "openInvoiceAmount": {
-            "type": "number",
-            "format": "decimal",
-            "nullable": true
-          },
-          "openInvoiceCurrency": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ConfirmPaymentMethodSetupCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "setupIntentId": {
-            "type": "string"
-          }
-        }
-      },
       "RetryPendingInvoicePaymentResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2955,38 +2987,6 @@
             "nullable": true
           },
           "publishableKey": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateBillingInfoCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string",
-            "nullable": true
-          },
-          "country": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "taxId": {
             "type": "string",
             "nullable": true
           }
