@@ -116,8 +116,8 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
     {
         EnsureEnabled();
         return Task.FromResult<PriceCatalogItem[]>([
-                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "USD 29.00/month"),
-                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "USD 99.00/month")
+                new PriceCatalogItem(SubscriptionPlan.Standard, 29.00m, "USD", "month", 1),
+                new PriceCatalogItem(SubscriptionPlan.Premium, 99.00m, "USD", "month", 1)
             ]
         );
     }
@@ -230,9 +230,9 @@ public sealed class MockStripeClient(IConfiguration configuration, TimeProvider 
         var now = timeProvider.GetUtcNow();
         var lineItems = new[]
         {
-            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "USD", true),
-            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "USD", true),
-            new UpgradePreviewLineItem("Tax", 1.55m, "USD", false)
+            new UpgradePreviewLineItem("Unused time on Standard after " + now.ToString("d MMM yyyy"), -14.50m, "USD", true, false),
+            new UpgradePreviewLineItem("Remaining time on Premium after " + now.ToString("d MMM yyyy"), 30.00m, "USD", true, false),
+            new UpgradePreviewLineItem("Tax", 1.55m, "USD", false, true)
         };
         return Task.FromResult<UpgradePreviewResult?>(new UpgradePreviewResult(17.05m, "USD", lineItems));
     }

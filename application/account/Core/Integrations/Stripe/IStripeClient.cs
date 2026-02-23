@@ -88,11 +88,11 @@ public sealed record SubscribeResult(string? ClientSecret);
 
 public sealed record UpgradePreviewResult(decimal TotalAmount, string Currency, UpgradePreviewLineItem[] LineItems);
 
-public sealed record UpgradePreviewLineItem(string Description, decimal Amount, string Currency, bool IsProration);
+public sealed record UpgradePreviewLineItem(string Description, decimal Amount, string Currency, bool IsProration, bool IsTax);
 
 public sealed record CheckoutPreviewResult(decimal TotalAmount, string Currency, decimal TaxAmount);
 
-public sealed record PriceCatalogItem(SubscriptionPlan Plan, decimal UnitAmount, string Currency, string FormattedPrice);
+public sealed record PriceCatalogItem(SubscriptionPlan Plan, decimal UnitAmount, string Currency, string Interval, int IntervalCount);
 
 public static class StripeSubscriptionStatus
 {

@@ -45,6 +45,9 @@ msgstr "{0}/måned"
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 
+msgid "{price}/month"
+msgstr "{price}/måned"
+
 msgid "© {currentYear} PlatformPlatform. All rights reserved."
 msgstr "© {currentYear} PlatformPlatform. Alle rettigheder forbeholdes."
 

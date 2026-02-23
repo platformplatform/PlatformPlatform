@@ -15,7 +15,7 @@ public sealed record GetUpgradePreviewQuery(SubscriptionPlan NewPlan) : IRequest
 public sealed record UpgradePreviewResponse(decimal TotalAmount, string Currency, UpgradePreviewLineItemResponse[] LineItems);
 
 [PublicAPI]
-public sealed record UpgradePreviewLineItemResponse(string Description, decimal Amount, string Currency, bool IsProration);
+public sealed record UpgradePreviewLineItemResponse(string Description, decimal Amount, string Currency, bool IsProration, bool IsTax);
 
 public sealed class GetUpgradePreviewHandler(ISubscriptionRepository subscriptionRepository, StripeClientFactory stripeClientFactory, IExecutionContext executionContext)
     : IRequestHandler<GetUpgradePreviewQuery, Result<UpgradePreviewResponse>>
@@ -47,7 +47,7 @@ public sealed class GetUpgradePreviewHandler(ISubscriptionRepository subscriptio
         }
 
         var lineItems = preview.LineItems
-            .Select(item => new UpgradePreviewLineItemResponse(item.Description, item.Amount, item.Currency, item.IsProration))
+            .Select(item => new UpgradePreviewLineItemResponse(item.Description, item.Amount, item.Currency, item.IsProration, item.IsTax))
             .ToArray();
 
         return new UpgradePreviewResponse(preview.TotalAmount, preview.Currency, lineItems);

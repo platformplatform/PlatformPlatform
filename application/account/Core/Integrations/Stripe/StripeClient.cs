@@ -422,9 +422,10 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var plan = ParseLookupKey(lookupKey);
             var unitAmount = price.UnitAmount.GetValueOrDefault() / 100m;
             var currency = price.Currency.ToUpperInvariant();
-            var formattedPrice = $"{currency} {unitAmount}/month";
+            var interval = price.Recurring?.Interval ?? "month";
+            var intervalCount = (int)(price.Recurring?.IntervalCount ?? 1);
 
-            items.Add(new PriceCatalogItem(plan, unitAmount, currency, formattedPrice));
+            items.Add(new PriceCatalogItem(plan, unitAmount, currency, interval, intervalCount));
         }
 
         return [.. items];
@@ -833,7 +834,8 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                         line.Description ?? "",
                         line.Amount / 100m,
                         line.Currency.ToUpperInvariant(),
-                        line.Parent?.InvoiceItemDetails?.Proration == true || line.Parent?.SubscriptionItemDetails?.Proration == true
+                        line.Parent?.InvoiceItemDetails?.Proration == true || line.Parent?.SubscriptionItemDetails?.Proration == true,
+                        false
                     )
                 )
                 .ToList();
@@ -841,7 +843,7 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var totalTax = (invoice.TotalTaxes ?? []).Sum(t => t.Amount);
             if (totalTax > 0)
             {
-                lineItems.Add(new UpgradePreviewLineItem("Tax", totalTax / 100m, invoice.Currency.ToUpperInvariant(), false));
+                lineItems.Add(new UpgradePreviewLineItem("Tax", totalTax / 100m, invoice.Currency.ToUpperInvariant(), false, true));
             }
 
             return new UpgradePreviewResult(invoice.AmountDue / 100m, invoice.Currency.ToUpperInvariant(), lineItems.ToArray());
