@@ -378,14 +378,6 @@ const _getInitialMenuWidthRem = (): number => {
   return SIDE_MENU_DEFAULT_WIDTH_REM;
 };
 
-// Helper function to get initial collapsed state
-const _getInitialCollapsedState = (forceCollapsed: boolean): boolean => {
-  if (forceCollapsed) {
-    return true;
-  }
-  return localStorage.getItem("side-menu-collapsed") === "true";
-};
-
 // Helper function to get user preference for collapsed state
 const _getUserPreference = (): boolean => {
   return localStorage.getItem("side-menu-collapsed") === "true";
@@ -584,9 +576,9 @@ function useResizeHandler({
 
     document.addEventListener("mousemove", handleMove);
     document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleEnd);
-    document.addEventListener("touchcancel", handleEnd);
+    document.addEventListener("touchmove", handleMove, { passive: true });
+    document.addEventListener("touchend", handleEnd, { passive: true });
+    document.addEventListener("touchcancel", handleEnd, { passive: true });
 
     return () => {
       document.removeEventListener("mousemove", handleMove);
@@ -879,13 +871,9 @@ const MenuNav = ({
 function useMenuState(forceCollapsed: boolean) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [menuWidthRem, setMenuWidthRem] = useState(_getInitialMenuWidthRem);
-  const [isCollapsed, setIsCollapsed] = useState(() => _getInitialCollapsedState(forceCollapsed));
   const [userPreference, setUserPreference] = useState(_getUserPreference);
 
-  // Update collapsed state when screen size changes
-  useEffect(() => {
-    setIsCollapsed(forceCollapsed || userPreference);
-  }, [forceCollapsed, userPreference]);
+  const isCollapsed = forceCollapsed || userPreference;
 
   return {
     isOverlayOpen,
@@ -893,7 +881,7 @@ function useMenuState(forceCollapsed: boolean) {
     menuWidth: menuWidthRem,
     setMenuWidth: setMenuWidthRem,
     isCollapsed,
-    setIsCollapsed,
+    setIsCollapsed: setUserPreference,
     userPreference,
     setUserPreference
   };

@@ -1,14 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import InvitationBanner from "./InvitationBanner";
 import "@repo/ui/tailwind.css";
 
 export default function Banners() {
-  const [target, setTarget] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setTarget(document.getElementById("banner-root"));
-  }, []);
+  const [target] = useState(() => document.getElementById("banner-root"));
 
   if (!target) {
     return null;
