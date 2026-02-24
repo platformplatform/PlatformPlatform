@@ -27,12 +27,26 @@ export function useUnsavedChangesGuard({
     return registerNavigationGuard(() => hasUnsavedChanges);
   }, [hasUnsavedChanges]);
 
-  // Handle browser back/forward navigation, in-app navigation, and tab/window close
+  // Handle browser back/forward navigation and in-app navigation using TanStack Router
   const { proceed, reset, status } = useBlocker({
     shouldBlockFn: () => hasUnsavedChangesRef.current,
     withResolver: true,
-    enableBeforeUnload: true
+    enableBeforeUnload: false
   });
+
+  // Handle browser tab/window close and external URL navigation
+  useEffect(() => {
+    if (!hasUnsavedChanges) {
+      return;
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   // Show our custom dialog when navigation is blocked
   useEffect(() => {
