@@ -44,6 +44,7 @@ export function AccountFields({
   infoFields
 }: AccountFieldsProps) {
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [isLogoRemoved, setIsLogoRemoved] = useState(false);
   const [logoMenuOpen, setLogoMenuOpen] = useState(false);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +63,7 @@ export function AccountFields({
       }
 
       setLogoPreviewUrl(URL.createObjectURL(file));
+      setIsLogoRemoved(false);
       onLogoFileSelect(file);
     }
   };
@@ -69,6 +71,7 @@ export function AccountFields({
   const handleRemove = () => {
     setLogoMenuOpen(false);
     setLogoPreviewUrl(null);
+    setIsLogoRemoved(true);
     onLogoFileSelect(null);
     onLogoRemove?.();
   };
@@ -98,8 +101,8 @@ export function AccountFields({
               disabled={isReadOnly || isPending}
             >
               <TenantLogo
-                key={logoPreviewUrl ?? tenant?.logoUrl ?? "no-logo"}
-                logoUrl={logoPreviewUrl ?? tenant?.logoUrl}
+                key={logoPreviewUrl ?? (isLogoRemoved ? "no-logo" : (tenant?.logoUrl ?? "no-logo"))}
+                logoUrl={logoPreviewUrl ?? (isLogoRemoved ? undefined : tenant?.logoUrl)}
                 tenantName={tenant?.name ?? ""}
                 size="lg"
                 className={layout === "horizontal" ? "size-[7rem]" : undefined}
@@ -116,7 +119,7 @@ export function AccountFields({
             <CameraIcon className="size-4" />
             <Trans>Upload logo</Trans>
           </DropdownMenuItem>
-          {(tenant?.logoUrl || logoPreviewUrl) && (
+          {(logoPreviewUrl || (!isLogoRemoved && tenant?.logoUrl)) && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onClick={handleRemove}>
@@ -149,7 +152,7 @@ export function AccountFields({
     return (
       <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:items-stretch md:gap-8">
         <div className="flex flex-col md:items-stretch">
-          <span className="pb-2 font-medium text-sm">
+          <span className="pb-2.75 font-medium text-sm">
             <Trans>Account logo</Trans>
           </span>
           <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">

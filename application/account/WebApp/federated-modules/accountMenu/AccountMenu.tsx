@@ -216,6 +216,21 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     }
   }, [isMenuOpen, userInfo?.isAuthenticated]);
 
+  useEffect(() => {
+    const handleTenantUpdated = () => {
+      if (userInfo?.isAuthenticated) {
+        fetchTenants()
+          .then((response) => {
+            setTenants(response.tenants || []);
+          })
+          .catch(() => {});
+      }
+    };
+
+    window.addEventListener("tenant-updated", handleTenantUpdated);
+    return () => window.removeEventListener("tenant-updated", handleTenantUpdated);
+  }, [userInfo?.isAuthenticated]);
+
   if (!userInfo?.isAuthenticated) {
     return null;
   }

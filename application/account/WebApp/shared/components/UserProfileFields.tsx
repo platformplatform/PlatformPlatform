@@ -32,6 +32,7 @@ export function UserProfileFields({
   layout = "stacked"
 }: UserProfileFieldsProps) {
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [isAvatarRemoved, setIsAvatarRemoved] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,6 +51,7 @@ export function UserProfileFields({
       }
 
       setAvatarPreviewUrl(URL.createObjectURL(file));
+      setIsAvatarRemoved(false);
       onAvatarFileSelect(file);
     }
   };
@@ -57,6 +59,7 @@ export function UserProfileFields({
   const handleRemove = () => {
     setAvatarMenuOpen(false);
     setAvatarPreviewUrl(null);
+    setIsAvatarRemoved(true);
     onAvatarFileSelect(null);
     onAvatarRemove?.();
   };
@@ -84,7 +87,7 @@ export function UserProfileFields({
               aria-label={t`Change profile picture`}
               disabled={isPending}
             >
-              {user?.avatarUrl || avatarPreviewUrl ? (
+              {avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl) ? (
                 <img
                   src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
                   width={80}
@@ -107,7 +110,7 @@ export function UserProfileFields({
             <CameraIcon className="size-4" />
             <Trans>Upload profile picture</Trans>
           </DropdownMenuItem>
-          {(user?.avatarUrl || avatarPreviewUrl) && (
+          {(avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl)) && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onClick={handleRemove}>
@@ -164,7 +167,7 @@ export function UserProfileFields({
     return (
       <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
         <div className="flex flex-col">
-          <span className="pb-2 font-medium text-sm">
+          <span className="pb-2.75 font-medium text-sm">
             <Trans>Profile photo</Trans>
           </span>
           <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">
