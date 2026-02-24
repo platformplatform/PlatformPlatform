@@ -1,25 +1,20 @@
 import { t } from "@lingui/core/macro";
 import { InfoIcon } from "lucide-react";
 import type * as React from "react";
-import { cn } from "../utils";
-import { Label } from "./Label";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
-export interface LabelWithTooltipProps extends React.ComponentProps<"label"> {
+export interface LabelWithTooltipProps {
   tooltip?: string;
+  children: React.ReactNode;
 }
 
-function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<LabelWithTooltipProps>) {
+function LabelWithTooltip({ tooltip, children }: Readonly<LabelWithTooltipProps>) {
   if (!tooltip) {
-    return (
-      <Label {...props} className={className}>
-        {children}
-      </Label>
-    );
+    return children;
   }
 
   return (
-    <Label {...props} className={cn("flex items-center gap-2", className)}>
+    <>
       {children}
       <Tooltip>
         <TooltipTrigger
@@ -30,7 +25,7 @@ function LabelWithTooltip({ tooltip, children, className, ...props }: Readonly<L
         </TooltipTrigger>
         <TooltipContent>{tooltip}</TooltipContent>
       </Tooltip>
-    </Label>
+    </>
   );
 }
 
