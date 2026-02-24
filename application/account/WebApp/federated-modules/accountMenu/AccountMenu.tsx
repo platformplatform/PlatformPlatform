@@ -27,7 +27,6 @@ import { getRootFontSize, getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH_REM
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  ArrowLeftRightIcon,
   Check,
   ChevronsUpDownIcon,
   GlobeIcon,
@@ -250,9 +249,9 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
   const getThemeIcon = () => {
     if (theme === ThemeMode.Dark || (theme === ThemeMode.System && resolvedTheme === ThemeMode.Dark)) {
-      return theme === ThemeMode.System ? <MoonStarIcon className="size-4" /> : <MoonIcon className="size-4" />;
+      return theme === ThemeMode.System ? <MoonStarIcon className="size-5" /> : <MoonIcon className="size-5" />;
     }
-    return theme === ThemeMode.System ? <SunMoonIcon className="size-4" /> : <SunIcon className="size-4" />;
+    return theme === ThemeMode.System ? <SunMoonIcon className="size-5" /> : <SunIcon className="size-5" />;
   };
 
   const getThemeLabel = () => {
@@ -318,10 +317,11 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   };
 
   const handleNavigateToAccountSettings = () => {
+    setIsMenuOpen(false);
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
     }
-    navigate({ to: "/account" });
+    navigate({ to: "/account/settings" });
   };
 
   const handleNavigateToProfile = () => {
@@ -357,7 +357,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
   return (
     <div className="relative w-full px-3">
-      <DropdownMenu onOpenChange={setIsMenuOpen}>
+      <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger disabled={isSwitching} className={triggerClassName} aria-label={t`Account menu`}>
           <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
@@ -377,75 +377,28 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
           className="w-auto bg-popover"
           style={{ minWidth: `${Math.max(SIDE_MENU_DEFAULT_WIDTH_REM, sidebarWidth / getRootFontSize()) - 1.5}rem` }}
         >
-          {canAccessAccountSettings && (
-            <DropdownMenuItem onClick={handleNavigateToAccountSettings}>
-              <SettingsIcon className="size-4" />
-              <Trans>Account settings</Trans>
-            </DropdownMenuItem>
-          )}
-
-          {sortedTenants.length > 1 && (
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <ArrowLeftRightIcon className="size-4" />
-                <Trans>Switch account</Trans>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="min-w-56">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>
-                    <Trans>Select account</Trans>
-                  </DropdownMenuLabel>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                {isLoadingTenants ? (
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel>
-                      <Trans>Loading...</Trans>
-                    </DropdownMenuLabel>
-                  </DropdownMenuGroup>
-                ) : (
-                  sortedTenants.map((tenant) => (
-                    <DropdownMenuItem key={tenant.tenantId} onClick={() => handleTenantSwitch(tenant)}>
-                      <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.tenantName || ""} />
-                      <div className="flex flex-1 items-center justify-between gap-2">
-                        <div className="flex flex-col overflow-hidden">
-                          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                            {tenant.tenantName || t`Unnamed account`}
-                          </span>
-                          <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
-                            {userInfo?.email}
-                          </span>
-                        </div>
-                        {tenant.tenantId === currentTenantId && <Check className="ml-2 size-4 shrink-0" />}
-                      </div>
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-          )}
-
-          {(canAccessAccountSettings || sortedTenants.length > 1) && <DropdownMenuSeparator />}
-
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={handleNavigateToProfile} className="py-3">
-              <Avatar size="lg">
-                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
-                <AvatarFallback>{userInfo.initials ?? ""}</AvatarFallback>
-              </Avatar>
-              <div className="my-1 flex flex-1 flex-col">
-                <span className="font-medium">{userInfo.fullName}</span>
-                <span className="text-muted-foreground text-sm">{userInfo.email}</span>
+          {isCollapsed && (
+            <>
+              <div className="px-3 py-2">
+                <span className="font-medium text-sm">{currentTenantName}</span>
               </div>
-              <span className="rounded-md bg-secondary px-2.5 py-1 text-secondary-foreground text-sm hover:bg-secondary/80 active:bg-secondary/60">
-                <Trans>Edit</Trans>
-              </span>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={handleNavigateToProfile} className="flex flex-col items-center gap-1 px-4 py-3">
+              <Avatar className="size-16">
+                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                <AvatarFallback className="text-xl">{userInfo.initials ?? ""}</AvatarFallback>
+              </Avatar>
+              <span className="font-medium">{userInfo.fullName}</span>
+              <span className="text-muted-foreground text-sm">{userInfo.email}</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <GlobeIcon className="size-4" />
+              <GlobeIcon className="size-5" />
               <span className="flex-1">
                 <Trans>Language</Trans>
               </span>
@@ -465,7 +418,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
-              <PaletteIcon className="size-4" />
+              <PaletteIcon className="size-5" />
               <span className="flex-1">
                 <Trans>Theme</Trans>
               </span>
@@ -478,9 +431,9 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
               <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
                 <div className="flex items-center gap-2">
                   {resolvedTheme === ThemeMode.Dark ? (
-                    <MoonStarIcon className="size-4" />
+                    <MoonStarIcon className="size-5" />
                   ) : (
-                    <SunMoonIcon className="size-4" />
+                    <SunMoonIcon className="size-5" />
                   )}
                   <Trans>System</Trans>
                   {theme === ThemeMode.System && <Check className="ml-auto size-4" />}
@@ -488,14 +441,14 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
                 <div className="flex items-center gap-2">
-                  <SunIcon className="size-4" />
+                  <SunIcon className="size-5" />
                   <Trans>Light</Trans>
                   {theme === ThemeMode.Light && <Check className="ml-auto size-4" />}
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
                 <div className="flex items-center gap-2">
-                  <MoonIcon className="size-4" />
+                  <MoonIcon className="size-5" />
                   <Trans>Dark</Trans>
                   {theme === ThemeMode.Dark && <Check className="ml-auto size-4" />}
                 </div>
@@ -504,14 +457,84 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
           </DropdownMenuSub>
 
           <DropdownMenuItem onClick={handleLogout}>
-            <LogOutIcon className="size-4" />
+            <LogOutIcon className="size-5" />
             <Trans>Log out</Trans>
           </DropdownMenuItem>
+
+          {(canAccessAccountSettings || sortedTenants.length > 1) && <DropdownMenuSeparator />}
+
+          {(canAccessAccountSettings || sortedTenants.length > 1) && (
+            <DropdownMenuGroup>
+              {sortedTenants.length > 1 ? (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="py-3">
+                    <TenantLogo
+                      logoUrl={currentTenantLogoUrl}
+                      tenantName={currentTenantNameForLogo}
+                      className="size-10"
+                    />
+                    <div className="flex flex-1 flex-col">
+                      <span className="font-medium text-sm">{currentTenantName}</span>
+                    </div>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="min-w-56">
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>
+                        <Trans>Select account</Trans>
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    {isLoadingTenants ? (
+                      <DropdownMenuGroup>
+                        <DropdownMenuLabel>
+                          <Trans>Loading...</Trans>
+                        </DropdownMenuLabel>
+                      </DropdownMenuGroup>
+                    ) : (
+                      sortedTenants.map((tenant) => (
+                        <DropdownMenuItem key={tenant.tenantId} onClick={() => handleTenantSwitch(tenant)}>
+                          <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.tenantName || ""} />
+                          <div className="flex flex-1 items-center justify-between gap-2">
+                            <div className="flex flex-col overflow-hidden">
+                              <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                                {tenant.tenantName || t`Unnamed account`}
+                              </span>
+                              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
+                                {userInfo?.email}
+                              </span>
+                            </div>
+                            {tenant.tenantId === currentTenantId && <Check className="ml-2 size-4 shrink-0" />}
+                          </div>
+                        </DropdownMenuItem>
+                      ))
+                    )}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              ) : (
+                <div className="flex items-center gap-2 px-2 py-3">
+                  <TenantLogo
+                    logoUrl={currentTenantLogoUrl}
+                    tenantName={currentTenantNameForLogo}
+                    className="size-10"
+                  />
+                  <div className="flex flex-1 flex-col">
+                    <span className="font-medium text-sm">{currentTenantName}</span>
+                  </div>
+                </div>
+              )}
+              {canAccessAccountSettings && (
+                <DropdownMenuItem onClick={handleNavigateToAccountSettings}>
+                  <SettingsIcon className="size-5" />
+                  <Trans>Account settings</Trans>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+          )}
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={handleShowSupport}>
-            <MailQuestion className="size-4" />
+            <MailQuestion className="size-5" />
             <Trans>Contact support</Trans>
           </DropdownMenuItem>
         </DropdownMenuContent>
