@@ -1,8 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
-import { ArrowLeftIcon, CircleUserIcon, HomeIcon, MonitorSmartphoneIcon, UserIcon, UsersIcon } from "lucide-react";
+import { CircleUserIcon, HomeIcon, MonitorSmartphoneIcon, UserIcon, UsersIcon } from "lucide-react";
 import { useContext } from "react";
 import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
@@ -13,19 +12,9 @@ function LogoContent() {
   return <AccountMenu isCollapsed={isCollapsed} />;
 }
 
-function AccountNavigationMenuItems({ onNavigate }: { onNavigate: (path: string) => void }) {
-  const _userInfo = useUserInfo();
-
+function AccountNavigationMenuItems() {
   return (
     <>
-      <MenuButton
-        icon={ArrowLeftIcon}
-        label={t`Back to app`}
-        href="/dashboard"
-        federatedNavigation={true}
-        onNavigate={onNavigate}
-      />
-
       <SideMenuSeparator>
         <Trans>User</Trans>
       </SideMenuSeparator>
@@ -51,15 +40,10 @@ export function AccountSideMenu() {
     <SideMenu
       sidebarToggleAriaLabel={t`Toggle sidebar`}
       mobileMenuAriaLabel={t`Open navigation menu`}
-      topMenuContent={
-        <MobileMenu
-          navigationContent={<AccountNavigationMenuItems onNavigate={navigateToMain} />}
-          onNavigate={navigateToMain}
-        />
-      }
+      topMenuContent={<MobileMenu navigationContent={<AccountNavigationMenuItems />} onNavigate={navigateToMain} />}
       logoContent={<LogoContent />}
     >
-      <AccountNavigationMenuItems onNavigate={navigateToMain} />
+      <AccountNavigationMenuItems />
     </SideMenu>
   );
 }
