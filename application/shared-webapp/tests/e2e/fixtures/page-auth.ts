@@ -39,6 +39,18 @@ export interface PageAuthFixtures {
 }
 
 /**
+ * Auto-accept beforeunload dialogs to prevent test hangs.
+ * Playwright does not auto-dismiss beforeunload dialogs (unlike alert/confirm/prompt).
+ */
+function autoAcceptBeforeUnloadDialogs(page: Page) {
+  page.on("dialog", async (dialog) => {
+    if (dialog.type() === "beforeunload") {
+      await dialog.accept();
+    }
+  });
+}
+
+/**
  * Perform fresh authentication by going through signup/login flow
  */
 async function performFreshAuthentication(
@@ -53,6 +65,7 @@ async function performFreshAuthentication(
 
   // Create a new page for authentication
   const page = await browserContext.newPage();
+  autoAcceptBeforeUnloadDialogs(page);
 
   // Get the user for this role
   const user = getUserForRole(tenant, role);
@@ -117,6 +130,7 @@ async function createAuthenticatedContextAndPage(
       storageState: authManager.getStateFilePath(role)
     });
     page = await context.newPage();
+    autoAcceptBeforeUnloadDialogs(page);
 
     // Validate that authentication is still working
     const isStillValid = await authManager.validateAuthState(page);
@@ -142,6 +156,11 @@ async function createAuthenticatedContextAndPage(
  * Extended test with role-specific authenticated page fixtures
  */
 export const test = base.extend<PageAuthFixtures>({
+  page: async ({ page }, use) => {
+    autoAcceptBeforeUnloadDialogs(page);
+    await use(page);
+  },
+
   ownerPage: async ({ browser }, use, testInfo) => {
     const workerIndex = testInfo.parallelIndex;
     const browserName = testInfo.project.name;
@@ -228,6 +247,7 @@ export const test = base.extend<PageAuthFixtures>({
     // Create a fresh, unauthenticated context and page
     const context = await browser.newContext();
     const page = await context.newPage();
+    autoAcceptBeforeUnloadDialogs(page);
 
     await use({ page, tenant });
 
