@@ -28,6 +28,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
+  ArrowRightLeftIcon,
   Check,
   ChevronsUpDownIcon,
   GlobeIcon,
@@ -488,17 +489,11 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
           {(canAccessAccountSettings || sortedTenants.length > 1) && (
             <DropdownMenuGroup>
-              {sortedTenants.length > 1 ? (
+              {sortedTenants.length > 1 && (
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger className="py-3">
-                    <TenantLogo
-                      logoUrl={currentTenantLogoUrl}
-                      tenantName={currentTenantNameForLogo}
-                      className="size-10"
-                    />
-                    <div className="flex flex-1 flex-col">
-                      <span className="font-medium text-sm">{currentTenantName}</span>
-                    </div>
+                  <DropdownMenuSubTrigger>
+                    <ArrowRightLeftIcon className="size-5" />
+                    <Trans>Switch account</Trans>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuSubContent className="min-w-56">
                     <DropdownMenuGroup>
@@ -533,17 +528,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                     )}
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
-              ) : (
-                <div className="flex items-center gap-2 px-2 py-3">
-                  <TenantLogo
-                    logoUrl={currentTenantLogoUrl}
-                    tenantName={currentTenantNameForLogo}
-                    className="size-10"
-                  />
-                  <div className="flex flex-1 flex-col">
-                    <span className="font-medium text-sm">{currentTenantName}</span>
-                  </div>
-                </div>
               )}
               {canAccessAccountSettings && (
                 <DropdownMenuItem onClick={handleNavigateToAccountSettings}>
