@@ -83,11 +83,7 @@ export function AccountSettings() {
   const [isFormDirty, setIsFormDirty] = useState(false);
   const queryClient = useQueryClient();
 
-  const {
-    data: tenant,
-    isLoading: tenantLoading,
-    refetch: refetchTenant
-  } = api.useQuery("get", "/api/account/tenants/current");
+  const { data: tenant, isLoading: tenantLoading } = api.useQuery("get", "/api/account/tenants/current");
   const { data: currentUser, isLoading: userLoading } = api.useQuery("get", "/api/account/users/me");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account/tenants/current");
   const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo");
@@ -111,7 +107,6 @@ export function AccountSettings() {
 
       await updateCurrentTenantMutation.mutateAsync(data);
       await queryClient.invalidateQueries();
-      await refetchTenant();
       window.dispatchEvent(new CustomEvent("tenant-updated"));
     },
     onSuccess: () => {

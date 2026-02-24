@@ -24,7 +24,7 @@ export default function DeletedUsersPage() {
   const [pageOffset, setPageOffset] = useState(0);
 
   const handlePageChange = (page: number) => {
-    setPageOffset(page - 1);
+    setPageOffset(() => page - 1);
     setSelectedDeletedUsers([]);
   };
 

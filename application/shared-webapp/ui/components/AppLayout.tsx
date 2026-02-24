@@ -114,7 +114,7 @@ function useScrollAwayHeader(enabled: boolean, contentRef: React.RefObject<HTMLD
     window.addEventListener("resize", updateTitleHeight);
 
     const scrollElement = contentRef.current;
-    scrollElement.addEventListener("scroll", handleScroll);
+    scrollElement.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
     return () => {
