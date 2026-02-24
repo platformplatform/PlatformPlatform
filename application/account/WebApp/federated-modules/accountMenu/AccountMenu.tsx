@@ -27,6 +27,7 @@ import { getRootFontSize, getSideMenuCollapsedWidth, SIDE_MENU_DEFAULT_WIDTH_REM
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  ArrowLeftIcon,
   Check,
   ChevronsUpDownIcon,
   GlobeIcon,
@@ -41,6 +42,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useContext, useEffect, useState } from "react";
+import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 
@@ -171,6 +173,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const isCollapsedContext = useContext(collapsedContext);
   const isCollapsed = isCollapsedProp ?? isCollapsedContext;
   const overlayCtx = useContext(overlayContext);
+  const navigateToMain = useContext(MainNavigationContext);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -242,6 +245,17 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
   const currentLocaleLabel = locales.find((l) => l.id === currentLocale)?.label || currentLocale;
+  const isAccountContext = navigateToMain !== null;
+
+  const handleNavigateBackToApp = () => {
+    setIsMenuOpen(false);
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+    if (navigateToMain) {
+      navigateToMain("/dashboard");
+    }
+  };
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
@@ -382,6 +396,15 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
               <div className="px-3 py-2">
                 <span className="font-medium text-sm">{currentTenantName}</span>
               </div>
+              <DropdownMenuSeparator />
+            </>
+          )}
+          {isAccountContext && (
+            <>
+              <DropdownMenuItem onClick={handleNavigateBackToApp}>
+                <ArrowLeftIcon className="size-5" />
+                <Trans>Back to app</Trans>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
             </>
           )}
