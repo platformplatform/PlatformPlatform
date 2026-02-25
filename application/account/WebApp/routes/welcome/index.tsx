@@ -114,7 +114,12 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
         </div>
       ) : (
         <>
-          <AccountFields tenant={tenant} isPending={isPending} onLogoFileSelect={setSelectedLogoFile} />
+          <AccountFields
+            autoFocus={true}
+            tenant={tenant}
+            isPending={isPending}
+            onLogoFileSelect={setSelectedLogoFile}
+          />
 
           <Button type="submit" disabled={isPending} className="mt-4 w-full">
             {isPending ? <Trans>Saving...</Trans> : <Trans>Continue</Trans>}
@@ -205,7 +210,12 @@ function ProfileSetupForm() {
       ) : (
         <>
           <div className="flex w-full flex-col gap-4">
-            <UserProfileFields user={user} isPending={isPending} onAvatarFileSelect={setSelectedAvatarFile} />
+            <UserProfileFields
+              autoFocus={true}
+              user={user}
+              isPending={isPending}
+              onAvatarFileSelect={setSelectedAvatarFile}
+            />
           </div>
 
           <Button type="submit" disabled={isPending} className="mt-4 w-full">
