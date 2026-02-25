@@ -10,7 +10,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
 import { TextField } from "@repo/ui/components/TextField";
-import { CameraIcon, Trash2Icon } from "lucide-react";
+import { CameraIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 import type { Schemas } from "@/shared/lib/api/client";
@@ -90,26 +90,36 @@ export function AccountFields({
       />
 
       <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
-        <DropdownMenuTrigger
-          disabled={isReadOnly}
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`rounded-md ${layout === "horizontal" ? "size-[7rem]" : "size-16"}`}
-              aria-label={t`Change logo`}
-              disabled={isReadOnly || isPending}
-            >
-              <TenantLogo
-                key={logoPreviewUrl ?? (isLogoRemoved ? "no-logo" : (tenant?.logoUrl ?? "no-logo"))}
-                logoUrl={logoPreviewUrl ?? (isLogoRemoved ? undefined : tenant?.logoUrl)}
-                tenantName={tenant?.name ?? ""}
-                size="lg"
-                className={layout === "horizontal" ? "size-[7rem]" : undefined}
+        <div className={`relative ${!isReadOnly ? "group" : ""}`}>
+          <DropdownMenuTrigger
+            disabled={isReadOnly}
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`rounded-md ${layout === "horizontal" ? "size-[7rem]" : "size-16"}`}
+                aria-label={t`Change logo`}
+                disabled={isReadOnly || isPending}
+              >
+                <TenantLogo
+                  key={logoPreviewUrl ?? (isLogoRemoved ? "no-logo" : (tenant?.logoUrl ?? "no-logo"))}
+                  logoUrl={logoPreviewUrl ?? (isLogoRemoved ? undefined : tenant?.logoUrl)}
+                  tenantName={tenant?.name ?? ""}
+                  size="lg"
+                  className={layout === "horizontal" ? "size-[7rem]" : undefined}
+                />
+              </Button>
+            }
+          />
+          {!isReadOnly && (
+            <div className="pointer-events-none absolute right-0 bottom-0 flex size-6 items-center justify-center rounded-full border border-border bg-popover opacity-0 group-hover:bg-primary group-hover:opacity-100">
+              <PencilIcon
+                className="size-3 text-muted-foreground group-hover:text-primary-foreground"
+                strokeWidth={3}
               />
-            </Button>
-          }
-        />
+            </div>
+          )}
+        </div>
         <DropdownMenuContent>
           <DropdownMenuItem
             onClick={() => {

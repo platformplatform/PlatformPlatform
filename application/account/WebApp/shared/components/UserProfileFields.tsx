@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger
 } from "@repo/ui/components/DropdownMenu";
 import { TextField } from "@repo/ui/components/TextField";
-import { CameraIcon, MailIcon, Trash2Icon } from "lucide-react";
+import { CameraIcon, MailIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
 import type { Schemas } from "@/shared/lib/api/client";
 
@@ -78,29 +78,34 @@ export function UserProfileFields({
       />
 
       <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="size-[7rem] rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
-              aria-label={t`Change profile picture`}
-              disabled={isPending}
-            >
-              {avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl) ? (
-                <img
-                  src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
-                  width={80}
-                  height={80}
-                  className="size-full rounded-full object-cover"
-                  alt={t`Profile avatar`}
-                />
-              ) : (
-                <CameraIcon className="size-8 text-secondary-foreground" aria-label={t`Add profile picture`} />
-              )}
-            </Button>
-          }
-        />
+        <div className="group relative">
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-[7rem] rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
+                aria-label={t`Change profile picture`}
+                disabled={isPending}
+              >
+                {avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl) ? (
+                  <img
+                    src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
+                    width={80}
+                    height={80}
+                    className="size-full rounded-full object-cover"
+                    alt={t`Profile avatar`}
+                  />
+                ) : (
+                  <CameraIcon className="size-8 text-secondary-foreground" aria-label={t`Add profile picture`} />
+                )}
+              </Button>
+            }
+          />
+          <div className="pointer-events-none absolute right-1 bottom-1 flex size-6 items-center justify-center rounded-full border border-border bg-popover opacity-0 group-hover:bg-primary group-hover:opacity-100">
+            <PencilIcon className="size-3 text-muted-foreground group-hover:text-primary-foreground" strokeWidth={3} />
+          </div>
+        </div>
         <DropdownMenuContent>
           <DropdownMenuItem
             onClick={() => {
