@@ -12,7 +12,9 @@ export type TranslationContext = {
 };
 
 export const translationContext = createContext<TranslationContext>({
-  setLocale: async () => {},
+  setLocale: async (locale) => {
+    document.dispatchEvent(new CustomEvent("locale-change-request", { detail: { locale } }));
+  },
   locales: [],
   getLocaleInfo: () => {
     throw new Error("Not initialized.");

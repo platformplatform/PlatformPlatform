@@ -3,7 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import localeMap from "@repo/infrastructure/translations/i18n.config.json";
-import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
+import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { Button } from "@repo/ui/components/Button";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { CheckIcon, GlobeIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 const PREFERRED_LOCALE_KEY = "preferred-locale";
 
@@ -45,6 +45,7 @@ export default function LocaleSwitcher({
 } = {}) {
   const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
   const isAuthenticated = useIsAuthenticated();
+  const { setLocale } = use(translationContext);
 
   useEffect(() => {
     // Get current locale from document or localStorage
@@ -71,8 +72,9 @@ export default function LocaleSwitcher({
         await updateLocaleOnBackend(locale);
       }
 
-      // Reload page to apply new locale
-      window.location.reload();
+      document.documentElement.lang = locale;
+      await setLocale(locale);
+      setCurrentLocale(locale);
     }
   };
 
