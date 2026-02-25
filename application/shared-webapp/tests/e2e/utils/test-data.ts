@@ -175,7 +175,7 @@ export async function completeSignupFlow(
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
     // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-    const triggerButton = page.getByRole("button", { name: "Account menu" });
+    const triggerButton = page.getByRole("button", { name: "User menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
 
     const accountMenu = page.getByRole("menu");

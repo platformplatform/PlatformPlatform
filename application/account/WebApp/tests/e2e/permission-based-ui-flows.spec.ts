@@ -124,9 +124,9 @@ test.describe("@smoke", () => {
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -156,7 +156,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify invite button is hidden")(async () => {
@@ -340,9 +340,9 @@ test.describe("@smoke", () => {
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -372,7 +372,7 @@ test.describe("@smoke", () => {
       await page.getByRole("button", { name: "Continue" }).click();
 
       await expect(page).toHaveURL("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
 
     await step("Navigate to users page as Member & verify no bulk operations available")(async () => {

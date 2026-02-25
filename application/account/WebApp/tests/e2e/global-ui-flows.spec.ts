@@ -63,7 +63,7 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 2560, height: 1440 });
 
       await ownerPage.goto("/account/users");
-      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "User menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
     })();
@@ -81,19 +81,19 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 768, height: 1024 });
 
       await ownerPage.goto("/account/users");
-      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "User menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
-    await step("Collapse sidebar at tablet size & verify Account menu remains accessible")(async () => {
+    await step("Collapse sidebar at tablet size & verify User menu remains accessible")(async () => {
       const toggleButton = ownerPage.getByRole("button", { name: "Toggle sidebar" });
       await expect(toggleButton).toBeVisible();
 
       await toggleButton.click();
 
       // Account menu should still be visible in collapsed sidebar
-      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "User menu" })).toBeVisible();
       await expect(ownerPage.locator("html")).toHaveClass("dark");
     })();
 
@@ -105,7 +105,7 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.locator("html")).toHaveClass("dark");
 
       // Account menu should not be visible on mobile
-      await expect(ownerPage.getByRole("button", { name: "Account menu" })).not.toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "User menu" })).not.toBeVisible();
     })();
 
     await step("Navigate to preferences on mobile & switch to light theme")(async () => {
@@ -121,7 +121,7 @@ test.describe("@comprehensive", () => {
       await ownerPage.setViewportSize({ width: 1920, height: 1080 });
 
       await ownerPage.goto("/account/users");
-      await expect(ownerPage.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(ownerPage.getByRole("button", { name: "User menu" })).toBeVisible();
       await expect(ownerPage.getByRole("heading", { name: "Users" })).toBeVisible();
       await expect(ownerPage.locator("html")).not.toHaveClass("dark");
       await expect(ownerPage.getByRole("button", { name: "Toggle sidebar" })).toBeVisible();
@@ -193,14 +193,14 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
     })();
 
-    await step("Log out via Account menu & verify dark theme persists on login page")(async () => {
+    await step("Log out via User menu & verify dark theme persists on login page")(async () => {
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
       context.monitoring.expectedStatusCodes.push(401);
 
-      const accountMenuButton = page.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page.getByRole("button", { name: "User menu" });
       await accountMenuButton.dispatchEvent("click");
 
-      const accountMenu = page.getByRole("menu", { name: "Account menu" });
+      const accountMenu = page.getByRole("menu", { name: "User menu" });
       await expect(accountMenu).toBeVisible();
 
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });

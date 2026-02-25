@@ -59,7 +59,7 @@ test.describe("@comprehensive", () => {
       await page1.goto("/dashboard");
 
       // Account menu shows tenant name
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
       await expect(accountMenuButton).toBeVisible();
       await expect(accountMenuButton).toContainText(primaryTenantName);
 
@@ -73,7 +73,7 @@ test.describe("@comprehensive", () => {
     // === MULTIPLE TENANT SETUP ===
     await step("Logout from primary tenant & verify redirect to login page")(async () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -106,7 +106,7 @@ test.describe("@comprehensive", () => {
 
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -138,7 +138,7 @@ test.describe("@comprehensive", () => {
 
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -163,7 +163,7 @@ test.describe("@comprehensive", () => {
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Account menu is visible with tenant name
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
       await expect(accountMenuButton).toBeVisible();
       await expect(accountMenuButton).toContainText(primaryTenantName);
 
@@ -206,7 +206,7 @@ test.describe("@comprehensive", () => {
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Account menu now shows the tertiary tenant name
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
       await expect(accountMenuButton).toContainText(tertiaryTenantName);
     })();
 
@@ -237,7 +237,7 @@ test.describe("@comprehensive", () => {
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
       testContext2.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -273,7 +273,7 @@ test.describe("@comprehensive", () => {
 
     // === TENANT CONTEXT ACROSS NAVIGATION ===
     await step("Navigate across pages & verify tenant context remains consistent")(async () => {
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
 
       // We're on tertiary tenant at this point
       await expect(accountMenuButton).toContainText(tertiaryTenantName);
@@ -332,7 +332,7 @@ test.describe("@comprehensive", () => {
       testContext1.monitoring.expectedStatusCodes.push(401);
 
       // Logout from page1
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -367,7 +367,7 @@ test.describe("@comprehensive", () => {
       testContext2.monitoring.expectedStatusCodes.push(401);
 
       // Logout
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -396,7 +396,7 @@ test.describe("@comprehensive", () => {
     // === TEST: COMPLEX FLOW - SWITCH + LOGOUT + LOGIN ===
     await step("Switch tenant, logout & login again")(async () => {
       // Switch to secondary tenant via Account menu > Switch account submenu
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
       await accountMenuButton.dispatchEvent("click");
       await expect(page1.getByRole("menu")).toBeVisible();
 
@@ -414,7 +414,7 @@ test.describe("@comprehensive", () => {
 
       // Logout from tab 1
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -447,7 +447,7 @@ test.describe("@comprehensive", () => {
     // === TEST: SWITCH BACK TO ORIGINAL TENANT ===
     await step("Switch back to primary tenant in tab 1 & verify synchronization")(async () => {
       // Switch back to primary tenant via Account menu > Switch account submenu
-      const accountMenuButton = page1.getByRole("button", { name: "Account menu" });
+      const accountMenuButton = page1.getByRole("button", { name: "User menu" });
       await accountMenuButton.dispatchEvent("click");
       await expect(page1.getByRole("menu")).toBeVisible();
 
@@ -477,7 +477,7 @@ test.describe("@comprehensive", () => {
     await step("Create new tenant with invitation & verify invite displays in tenant list")(async () => {
       // Logout first
       testContext1.monitoring.expectedStatusCodes.push(401);
-      await page1.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page1.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu1 = page1.getByRole("menu");
       await expect(userMenu1).toBeVisible();
 
@@ -515,7 +515,7 @@ test.describe("@comprehensive", () => {
 
       // Logout from page2
       testContext2.monitoring.expectedStatusCodes.push(401);
-      await page2.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page2.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu2 = page2.getByRole("menu");
       await expect(userMenu2).toBeVisible();
 
@@ -537,7 +537,7 @@ test.describe("@comprehensive", () => {
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
       // Verify user is on primary tenant after login
-      const accountMenuButton2 = page2.getByRole("button", { name: "Account menu" });
+      const accountMenuButton2 = page2.getByRole("button", { name: "User menu" });
       await expect(accountMenuButton2).toContainText(primaryTenantName);
 
       // Pending invitation banner is visible with Revoke-Test invitation
@@ -611,7 +611,7 @@ test.describe("@comprehensive", () => {
 
       // Page1 might be on the Revoke-Test tenant now due to auth sync
       // Logout from page2 which we know is on the Revoke-Test tenant
-      await page2.getByRole("button", { name: "Account menu" }).dispatchEvent("click");
+      await page2.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const userMenu2 = page2.getByRole("menu");
       await expect(userMenu2).toBeVisible();
 

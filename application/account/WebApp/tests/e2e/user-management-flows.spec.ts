@@ -253,7 +253,7 @@ test.describe("@smoke", () => {
     // === ACTIVATE DELETABLE USER TO ENABLE SOFT DELETE ===
     await step("Logout from owner to activate deletable user")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -284,7 +284,7 @@ test.describe("@smoke", () => {
 
     await step("Logout from deletable user & login as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -345,9 +345,9 @@ test.describe("@smoke", () => {
 
       // Navigate to dashboard first
       await page.goto("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
 
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const userMenu = page.getByRole("menu");
       await expect(userMenu).toBeVisible();
@@ -394,7 +394,7 @@ test.describe("@smoke", () => {
 
     await step("Logout from admin account & verify redirect to login")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const profileMenuButton = page.getByRole("button", { name: "Account menu" });
+      const profileMenuButton = page.getByRole("button", { name: "User menu" });
       await profileMenuButton.focus();
       await page.keyboard.press("Enter");
       await expect(page.getByRole("menu")).toBeVisible();
@@ -598,7 +598,7 @@ test.describe("@comprehensive", () => {
     // === ACTIVATE USERS TO ENABLE SOFT DELETE ===
     await step("Logout from owner & login as user1 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 
@@ -625,7 +625,7 @@ test.describe("@comprehensive", () => {
 
     await step("Logout from user1 & login as user2 to confirm email")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 
@@ -653,7 +653,7 @@ test.describe("@comprehensive", () => {
     await step("Logout from user2 & login back as owner")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
       await expect(page.getByRole("region", { name: /notification/ })).not.toBeVisible();
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       await expect(page.getByRole("menu")).toBeVisible();
 

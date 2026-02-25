@@ -75,9 +75,6 @@ msgstr "Account ID"
 msgid "Account logo"
 msgstr "Account logo"
 
-msgid "Account menu"
-msgstr "Account menu"
-
 msgid "Account name"
 msgstr "Account name"
 
@@ -994,6 +991,9 @@ msgstr "User deleted successfully: {userDisplayName}"
 
 msgid "User invited successfully"
 msgstr "User invited successfully"
+
+msgid "User menu"
+msgstr "User menu"
 
 msgid "User not in current view"
 msgstr "User not in current view"

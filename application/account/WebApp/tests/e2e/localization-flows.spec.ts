@@ -62,10 +62,10 @@ test.describe("@comprehensive", () => {
 
     await step("Click logout from Danish interface & verify language persists after logout")(async () => {
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "Kontomenu" });
+      const triggerButton = page.getByRole("button", { name: "Brugermenu" });
       await triggerButton.dispatchEvent("click");
 
-      const accountMenu = page.getByRole("menu", { name: "Kontomenu" });
+      const accountMenu = page.getByRole("menu", { name: "Brugermenu" });
       await expect(accountMenu).toBeVisible();
 
       // Click menu item with JavaScript evaluate to bypass stability check during animation

@@ -63,7 +63,7 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu");
