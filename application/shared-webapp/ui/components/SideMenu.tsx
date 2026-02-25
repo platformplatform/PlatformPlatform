@@ -53,7 +53,7 @@ const menuButtonStyles = cva(
   {
     variants: {
       isCollapsed: {
-        true: "mx-auto w-11 justify-center",
+        true: "ml-1.5 w-11 justify-center",
         false: "w-full pr-2 pl-4"
       },
       isActive: {
@@ -370,8 +370,8 @@ type SideMenuProps = {
 const _getInitialMenuWidthRem = (): number => {
   const stored = localStorage.getItem("side-menu-size");
   if (stored) {
-    const width = Number.parseFloat(stored);
-    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM) {
+    const width = Math.min(Number.parseFloat(stored), SIDE_MENU_MAX_WIDTH_REM);
+    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM) {
       return width;
     }
   }
