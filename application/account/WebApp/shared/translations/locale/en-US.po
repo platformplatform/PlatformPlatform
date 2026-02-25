@@ -364,6 +364,9 @@ msgstr "E.g. Taylor"
 msgid "Edit"
 msgstr "Edit"
 
+msgid "Edit profile"
+msgstr "Edit profile"
+
 msgid "Email"
 msgstr "Email"
 

@@ -37,6 +37,7 @@ import {
   MoonIcon,
   MoonStarIcon,
   PaletteIcon,
+  PencilIcon,
   SettingsIcon,
   SunIcon,
   SunMoonIcon
@@ -184,6 +185,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [isLoadingTenants, setIsLoadingTenants] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
+  const [isProfileCardHighlighted, setIsProfileCardHighlighted] = useState(false);
 
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
@@ -201,6 +203,9 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("tenant-menu-toggle", { detail: { isOpen: isMenuOpen } }));
+    if (!isMenuOpen) {
+      setIsProfileCardHighlighted(false);
+    }
   }, [isMenuOpen]);
 
   useEffect(() => {
@@ -392,14 +397,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
           className="w-auto bg-popover"
           style={{ minWidth: `${Math.max(SIDE_MENU_DEFAULT_WIDTH_REM, sidebarWidth / getRootFontSize()) - 1.5}rem` }}
         >
-          {isCollapsed && (
-            <>
-              <div className="px-3 py-2">
-                <span className="font-medium text-sm">{currentTenantName}</span>
-              </div>
-              <DropdownMenuSeparator />
-            </>
-          )}
           {isAccountContext && (
             <>
               <DropdownMenuItem onClick={handleNavigateBackToApp}>
@@ -410,13 +407,37 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
             </>
           )}
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={handleNavigateToProfile} className="flex flex-col items-center gap-1 px-4 py-3">
-              <Avatar className="size-16">
-                <AvatarImage src={userInfo.avatarUrl ?? undefined} />
-                <AvatarFallback className="text-xl">{userInfo.initials ?? ""}</AvatarFallback>
-              </Avatar>
+            <DropdownMenuItem
+              onClick={handleNavigateToProfile}
+              className="flex flex-col items-center gap-1 px-4 py-3"
+              aria-label={t`Edit profile`}
+              onMouseEnter={() => setIsProfileCardHighlighted(true)}
+              onMouseLeave={() => setIsProfileCardHighlighted(false)}
+            >
+              <div className="relative">
+                <Avatar className="size-16">
+                  <AvatarImage src={userInfo.avatarUrl ?? undefined} />
+                  <AvatarFallback className="text-xl">{userInfo.initials ?? ""}</AvatarFallback>
+                </Avatar>
+                <div
+                  className="[&_*]:!text-inherit pointer-events-none absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full border border-border"
+                  style={{
+                    backgroundColor: isProfileCardHighlighted ? "var(--color-primary)" : "var(--color-popover)",
+                    color: isProfileCardHighlighted
+                      ? "var(--color-primary-foreground)"
+                      : "var(--color-muted-foreground)"
+                  }}
+                >
+                  <PencilIcon className="size-2.5" strokeWidth={3} />
+                </div>
+              </div>
               <span className="font-medium">{userInfo.fullName}</span>
-              <span className="text-muted-foreground text-sm">{userInfo.email}</span>
+              <span className="text-muted-foreground text-sm group-focus/dropdown-menu-item:hidden">
+                {userInfo.email}
+              </span>
+              <span className="hidden text-sm group-focus/dropdown-menu-item:inline">
+                <Trans>Edit profile</Trans>
+              </span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
@@ -495,7 +516,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                     <ArrowRightLeftIcon className="size-5" />
                     <Trans>Switch account</Trans>
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent className="min-w-56">
+                  <DropdownMenuSubContent className="w-fit min-w-56">
                     <DropdownMenuGroup>
                       <DropdownMenuLabel>
                         <Trans>Select account</Trans>
@@ -513,15 +534,13 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                         <DropdownMenuItem key={tenant.tenantId} onClick={() => handleTenantSwitch(tenant)}>
                           <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.tenantName || ""} />
                           <div className="flex flex-1 items-center justify-between gap-2">
-                            <div className="flex flex-col overflow-hidden">
-                              <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                                {tenant.tenantName || t`Unnamed account`}
-                              </span>
-                              <span className="overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground text-xs">
-                                {userInfo?.email}
-                              </span>
+                            <div className="flex flex-col">
+                              <span className="whitespace-nowrap">{tenant.tenantName || t`Unnamed account`}</span>
+                              <span className="whitespace-nowrap text-muted-foreground text-xs">{userInfo?.email}</span>
                             </div>
-                            {tenant.tenantId === currentTenantId && <Check className="ml-2 size-4 shrink-0" />}
+                            <Check
+                              className={`ml-2 size-4 shrink-0 ${tenant.tenantId === currentTenantId ? "" : "invisible"}`}
+                            />
                           </div>
                         </DropdownMenuItem>
                       ))
