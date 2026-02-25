@@ -4,9 +4,9 @@ import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Link } from "@repo/ui/components/Link";
 import { Suspense } from "react";
-import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
+import UserMenu from "@/federated-modules/userMenu/UserMenu";
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -22,7 +22,7 @@ export default function PublicNavigation() {
 
       {isAuthenticated ? (
         <Suspense fallback={<div className="h-10" />}>
-          <AccountMenu />
+          <UserMenu />
         </Suspense>
       ) : (
         <div className="flex items-center gap-6">

@@ -52,7 +52,7 @@ interface TenantsResponse {
   tenants: TenantInfo[];
 }
 
-interface AccountMenuProps {
+interface UserMenuProps {
   isCollapsed?: boolean;
 }
 
@@ -136,7 +136,7 @@ async function logoutApi(): Promise<void> {
   });
 }
 
-export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<AccountMenuProps>) {
+export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<UserMenuProps>) {
   const userInfo = useUserInfo();
   const isCollapsedContext = useContext(collapsedContext);
   const isCollapsed = isCollapsedProp ?? isCollapsedContext;
@@ -307,7 +307,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   return (
     <div className="relative w-full px-3">
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-        <DropdownMenuTrigger disabled={isSwitching} className={triggerClassName} aria-label={t`Account menu`}>
+        <DropdownMenuTrigger disabled={isSwitching} className={triggerClassName} aria-label={t`User menu`}>
           <div className="flex size-8 shrink-0 items-center justify-center">
             <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
           </div>

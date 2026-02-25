@@ -285,7 +285,7 @@ test.describe("@comprehensive", () => {
 
       await secondPage.goto("/dashboard");
       await expect(secondPage).toHaveURL("/dashboard");
-      await expect(secondPage.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(secondPage.getByRole("button", { name: "User menu" })).toBeVisible();
 
       await deleteAccessTokenCookie(secondPage);
       await secondPage.goto("/account/users");

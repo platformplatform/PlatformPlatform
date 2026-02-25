@@ -152,10 +152,10 @@ test.describe("@smoke", () => {
     await step("Open account menu & verify profile information")(async () => {
       // Navigate to dashboard first and ensure the account menu is visible
       await page.goto("/dashboard");
-      await expect(page.getByRole("button", { name: "Account menu" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
 
       // Open account menu and verify user info - use evaluate for reliable opening on Firefox
-      const avatarButton = page.getByRole("button", { name: "Account menu" });
+      const avatarButton = page.getByRole("button", { name: "User menu" });
       await avatarButton.dispatchEvent("click");
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();

@@ -54,18 +54,18 @@ export default defineConfig({
     DevelopmentServerPlugin({ port: 9101 }),
     ModuleFederationPlugin({
       exposes: {
-        "./AccountApp": "./federated-modules/AccountApp.tsx",
-        "./AccountMenu": "./federated-modules/accountMenu/AccountMenu.tsx",
-        "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
-        "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
         "./AccessDeniedPage": "./federated-modules/errorPages/AccessDeniedPage.tsx",
+        "./AccountApp": "./federated-modules/AccountApp.tsx",
+        "./AuthSyncModal": "./federated-modules/common/AuthSyncModal.tsx",
+        "./Banners": "./federated-modules/banners/Banners.tsx",
         "./ErrorPage": "./federated-modules/errorPages/ErrorPage.tsx",
+        "./MobileMenu": "./federated-modules/sideMenu/MobileMenu.tsx",
         "./NotFoundPage": "./federated-modules/errorPages/NotFoundPage.tsx",
         "./PublicFooter": "./federated-modules/public/PublicFooter.tsx",
         "./PublicNavigation": "./federated-modules/public/PublicNavigation.tsx",
-        "./Banners": "./federated-modules/banners/Banners.tsx",
-        "./translations/en-US": "./shared/translations/locale/en-US.ts",
-        "./translations/da-DK": "./shared/translations/locale/da-DK.ts"
+        "./UserMenu": "./federated-modules/userMenu/UserMenu.tsx",
+        "./translations/da-DK": "./shared/translations/locale/da-DK.ts",
+        "./translations/en-US": "./shared/translations/locale/en-US.ts"
       }
     })
   ]

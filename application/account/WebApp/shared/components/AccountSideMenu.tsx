@@ -10,13 +10,13 @@ import {
   UsersIcon
 } from "lucide-react";
 import { useContext } from "react";
-import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
+import UserMenu from "@/federated-modules/userMenu/UserMenu";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 
 function LogoContent() {
   const isCollapsed = useContext(collapsedContext);
-  return <AccountMenu isCollapsed={isCollapsed} />;
+  return <UserMenu isCollapsed={isCollapsed} />;
 }
 
 function AccountNavigationMenuItems() {

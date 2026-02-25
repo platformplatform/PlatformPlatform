@@ -147,7 +147,7 @@ test.describe("@smoke", () => {
     await step("Log out from owner & verify redirect to login")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
 
-      const triggerButton = page.getByRole("button", { name: "Account menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();
