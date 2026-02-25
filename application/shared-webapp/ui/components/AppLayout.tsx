@@ -332,7 +332,7 @@ export function AppLayout({
         {/* Side pane area - fullscreen mode uses portal, side-by-side uses this wrapper */}
         {sidePane && (
           <aside
-            className="fixed top-[var(--banner-offset,0rem)] right-0 bottom-0 left-0 z-40 bg-card md:left-auto md:w-96"
+            className="fixed top-[var(--banner-offset,0rem)] right-0 bottom-0 left-0 z-40 bg-card md:left-auto md:z-10 md:w-96"
             aria-label="Side panel"
           >
             {sidePane}
