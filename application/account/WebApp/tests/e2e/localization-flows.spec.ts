@@ -113,26 +113,14 @@ test.describe("@comprehensive", () => {
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("da-DK");
     })();
 
-    await step("Click Account menu and change language to English & verify language change works")(async () => {
-      // Click Account menu trigger
-      const accountMenuButton = page.getByRole("button", { name: "Kontomenu" });
-      await accountMenuButton.dispatchEvent("click");
+    await step("Navigate to preferences & change language to English")(async () => {
+      await page.goto("/user/preferences");
+      await expect(page.getByRole("heading", { name: "Præferencer" })).toBeVisible();
 
-      const accountMenu = page.getByRole("menu", { name: "Kontomenu" });
-      await expect(accountMenu).toBeVisible();
+      await page.getByRole("button", { name: "English" }).click();
 
-      // Click on Language submenu trigger (Danish: "Sprog")
-      const languageSubmenuTrigger = page.getByRole("menuitem", { name: "Sprog" });
-      await expect(languageSubmenuTrigger).toBeVisible();
-      await languageSubmenuTrigger.dispatchEvent("click");
-
-      // Select English from submenu
-      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
-      await expect(englishMenuItem).toBeVisible();
-      await englishMenuItem.click();
-
-      // Language change triggers page reload - wait for heading to be visible
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      // Language change triggers page reload
+      await expect(page.getByRole("heading", { name: "Preferences" })).toBeVisible();
 
       await expect(page.evaluate(() => localStorage.getItem("preferred-locale"))).resolves.toBe("en-US");
     })();

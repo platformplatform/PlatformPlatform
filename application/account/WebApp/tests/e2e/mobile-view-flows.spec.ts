@@ -8,12 +8,10 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 test.describe("@comprehensive", () => {
   /**
    * Tests mobile-specific functionality including navigation, user profile editing,
-   * language switching, theme switching, and keyboard navigation on the users table.
+   * and keyboard navigation on the users table.
    * Covers:
    * - Mobile menu navigation with hidden top menu and side menu
    * - User profile editing through mobile menu
-   * - Language switching functionality
-   * - Theme switching functionality
    * - Keyboard navigation on users table without auto-opening side pane
    * - Navigation between multiple users and manual side pane opening
    */
@@ -73,8 +71,6 @@ test.describe("@comprehensive", () => {
 
       // Verify all menu options are present
       await expect(mobileDialog.getByRole("button", { name: "Log out" })).toBeVisible();
-      await expect(mobileDialog.getByRole("button", { name: "Theme" })).toBeVisible();
-      await expect(mobileDialog.getByRole("button", { name: "Language" })).toBeVisible();
       await expect(mobileDialog.getByRole("button", { name: "Contact support" })).toBeVisible();
 
       // Verify navigation links
@@ -120,77 +116,6 @@ test.describe("@comprehensive", () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Close menu" }).click();
       await expect(mobileDialog).not.toBeVisible();
-    })();
-
-    // === LANGUAGE SWITCHING ===
-    await step("Change language to Danish through mobile menu & verify UI updates")(async () => {
-      await page.getByRole("button", { name: "Open navigation menu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const languageButton = mobileDialog.getByRole("button", { name: "Language" });
-      await languageButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const danskMenuItem = page.getByRole("menuitem", { name: "Dansk" });
-      await expect(danskMenuItem).toBeVisible();
-      await danskMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify language changed - check heading
-      await expect(page.getByRole("heading", { name: "Overblik" })).toBeVisible();
-    })();
-
-    await step("Change language back to English & verify language updates")(async () => {
-      await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const languageButton = mobileDialog.getByRole("button", { name: "Sprog" });
-      await languageButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
-      await expect(englishMenuItem).toBeVisible();
-      await englishMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify language changed back - check heading
-      await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
-    })();
-
-    // === THEME SWITCHING ===
-    await step("Change theme through mobile menu & verify theme applies")(async () => {
-      await page.getByRole("button", { name: "Open navigation menu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const themeButton = mobileDialog.getByRole("button", { name: "Theme" });
-      await themeButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
-      await expect(darkMenuItem).toBeVisible();
-      await darkMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify dark theme is applied
-      await expect(page.locator("html")).toHaveClass("dark");
     })();
 
     // === NAVIGATION TO USERS PAGE ===

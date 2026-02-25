@@ -91,7 +91,7 @@ test.describe("@smoke", () => {
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
 
-      await expect(page.getByText(mockUserEmail)).toBeVisible();
+      await expect(menu).toContainText(mockUserEmail.toLowerCase());
     })();
 
     await step("Log out via menu & verify redirect to login page")(async () => {

@@ -160,7 +160,7 @@ test.describe("@smoke", () => {
       const accountMenu = page.getByRole("menu");
       await expect(accountMenu).toBeVisible();
       await expect(accountMenu.getByText(`${user.firstName} ${user.lastName}`)).toBeVisible();
-      await expect(accountMenu.getByText(user.email)).toBeVisible();
+      await expect(accountMenu).toContainText(user.email);
 
       // Close menu by pressing Escape
       await page.keyboard.press("Escape");
