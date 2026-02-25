@@ -234,6 +234,9 @@ msgstr "Change user role for {0}"
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 
+msgid "Choose how the application looks to you."
+msgstr "Choose how the application looks to you."
+
 msgid "Clear"
 msgstr "Clear"
 
@@ -269,6 +272,9 @@ msgstr "Create your account"
 
 msgid "Created"
 msgstr "Created"
+
+msgid "Customize your theme and language settings."
+msgstr "Customize your theme and language settings."
 
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -674,6 +680,9 @@ msgstr "Please try again or return to the home page."
 msgid "Powered by"
 msgstr "Powered by"
 
+msgid "Preferences"
+msgstr "Preferences"
+
 msgid "Previous"
 msgstr "Previous"
 
@@ -784,6 +793,9 @@ msgstr "Select all users"
 
 msgid "Select dates"
 msgstr "Select dates"
+
+msgid "Select your preferred language."
+msgstr "Select your preferred language."
 
 msgid "Send invite"
 msgstr "Send invite"

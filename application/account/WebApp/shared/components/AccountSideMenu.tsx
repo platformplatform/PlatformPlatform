@@ -1,7 +1,14 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
-import { CircleUserIcon, HomeIcon, MonitorSmartphoneIcon, UserIcon, UsersIcon } from "lucide-react";
+import {
+  CircleUserIcon,
+  HomeIcon,
+  MonitorSmartphoneIcon,
+  SlidersHorizontalIcon,
+  UserIcon,
+  UsersIcon
+} from "lucide-react";
 import { useContext } from "react";
 import AccountMenu from "@/federated-modules/accountMenu/AccountMenu";
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
@@ -20,6 +27,7 @@ function AccountNavigationMenuItems() {
       </SideMenuSeparator>
 
       <MenuButton icon={UserIcon} label={t`Profile`} href="/user/profile" />
+      <MenuButton icon={SlidersHorizontalIcon} label={t`Preferences`} href="/user/preferences" />
       <MenuButton icon={MonitorSmartphoneIcon} label={t`Sessions`} href="/user/sessions" />
 
       <SideMenuSeparator>

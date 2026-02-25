@@ -6,8 +6,6 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
-import localeMap from "@repo/infrastructure/translations/i18n.config.json";
-import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import {
   DropdownMenu,
@@ -31,29 +29,16 @@ import {
   ArrowRightLeftIcon,
   Check,
   ChevronsUpDownIcon,
-  GlobeIcon,
   LogOutIcon,
   MailQuestion,
-  MoonIcon,
-  MoonStarIcon,
-  PaletteIcon,
   PencilIcon,
   SettingsIcon,
-  SunIcon,
-  SunMoonIcon
+  SlidersHorizontalIcon
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useContext, useEffect, useState } from "react";
 import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
-
-const PREFERRED_LOCALE_KEY = "preferred-locale";
-
-const locales = Object.entries(localeMap).map(([id, info]) => ({
-  id: id as Locale,
-  label: info.label
-}));
 
 interface TenantInfo {
   tenantId: string;
@@ -132,19 +117,6 @@ function useSidebarWidth(isCollapsed: boolean) {
   return sidebarWidth;
 }
 
-async function updateLocaleOnBackend(locale: Locale) {
-  try {
-    const response = await enhancedFetch("/api/account/users/me/change-locale", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Locale: locale })
-    });
-    return response.ok || response.status === 401;
-  } catch {
-    return true;
-  }
-}
-
 async function fetchTenants(): Promise<TenantsResponse> {
   const response = await enhancedFetch("/api/account/tenants");
   return response.json();
@@ -157,12 +129,6 @@ async function switchTenantApi(tenantId: string): Promise<void> {
     body: JSON.stringify({ tenantId })
   });
 }
-
-const ThemeMode = {
-  System: "system",
-  Light: "light",
-  Dark: "dark"
-} as const;
 
 async function logoutApi(): Promise<void> {
   await enhancedFetch("/api/account/authentication/logout", {
@@ -178,28 +144,15 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const navigateToMain = useContext(MainNavigationContext);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { theme, setTheme, resolvedTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
   const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [isLoadingTenants, setIsLoadingTenants] = useState(false);
-  const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
   const [isProfileCardHighlighted, setIsProfileCardHighlighted] = useState(false);
 
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
-
-  useEffect(() => {
-    const htmlLang = document.documentElement.lang as Locale;
-    const savedLocale = localStorage.getItem(PREFERRED_LOCALE_KEY) as Locale;
-
-    if (savedLocale && locales.some((l) => l.id === savedLocale)) {
-      setCurrentLocale(savedLocale);
-    } else if (htmlLang && locales.some((l) => l.id === htmlLang)) {
-      setCurrentLocale(htmlLang);
-    }
-  }, []);
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("tenant-menu-toggle", { detail: { isOpen: isMenuOpen } }));
@@ -250,7 +203,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
   const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
   const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
   const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
-  const currentLocaleLabel = locales.find((l) => l.id === currentLocale)?.label || currentLocale;
   const isAccountContext = navigateToMain !== null;
 
   const handleNavigateBackToApp = () => {
@@ -261,27 +213,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     if (navigateToMain) {
       navigateToMain("/dashboard");
     }
-  };
-
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-  };
-
-  const getThemeIcon = () => {
-    if (theme === ThemeMode.Dark || (theme === ThemeMode.System && resolvedTheme === ThemeMode.Dark)) {
-      return theme === ThemeMode.System ? <MoonStarIcon className="size-5" /> : <MoonIcon className="size-5" />;
-    }
-    return theme === ThemeMode.System ? <SunMoonIcon className="size-5" /> : <SunIcon className="size-5" />;
-  };
-
-  const getThemeLabel = () => {
-    if (theme === ThemeMode.System) {
-      return t`System`;
-    }
-    if (theme === ThemeMode.Light) {
-      return t`Light`;
-    }
-    return t`Dark`;
   };
 
   const handleTenantSwitch = async (tenant: TenantInfo) => {
@@ -316,16 +247,6 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
     }
   };
 
-  const handleLocaleChange = async (locale: Locale) => {
-    if (locale === currentLocale) {
-      return;
-    }
-
-    localStorage.setItem(PREFERRED_LOCALE_KEY, locale);
-    await updateLocaleOnBackend(locale);
-    window.location.reload();
-  };
-
   const handleShowSupport = () => {
     setIsMenuOpen(false);
     if (overlayCtx?.isOpen) {
@@ -342,6 +263,14 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
       overlayCtx.close();
     }
     navigate({ to: "/account/settings" });
+  };
+
+  const handleNavigateToPreferences = () => {
+    setIsMenuOpen(false);
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+    navigate({ to: "/user/preferences" });
   };
 
   const handleNavigateToProfile = () => {
@@ -441,65 +370,10 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <GlobeIcon className="size-5" />
-              <span className="flex-1">
-                <Trans>Language</Trans>
-              </span>
-              <span className="text-muted-foreground text-sm">{currentLocaleLabel}</span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              {locales.map((locale) => (
-                <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
-                  <div className="flex items-center gap-2">
-                    <span>{locale.label}</span>
-                    {locale.id === currentLocale && <Check className="ml-auto size-4" />}
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <PaletteIcon className="size-5" />
-              <span className="flex-1">
-                <Trans>Theme</Trans>
-              </span>
-              <span className="flex items-center gap-1 text-muted-foreground text-sm">
-                {getThemeIcon()}
-                {getThemeLabel()}
-              </span>
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
-                <div className="flex items-center gap-2">
-                  {resolvedTheme === ThemeMode.Dark ? (
-                    <MoonStarIcon className="size-5" />
-                  ) : (
-                    <SunMoonIcon className="size-5" />
-                  )}
-                  <Trans>System</Trans>
-                  {theme === ThemeMode.System && <Check className="ml-auto size-4" />}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
-                <div className="flex items-center gap-2">
-                  <SunIcon className="size-5" />
-                  <Trans>Light</Trans>
-                  {theme === ThemeMode.Light && <Check className="ml-auto size-4" />}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
-                <div className="flex items-center gap-2">
-                  <MoonIcon className="size-5" />
-                  <Trans>Dark</Trans>
-                  {theme === ThemeMode.Dark && <Check className="ml-auto size-4" />}
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+          <DropdownMenuItem onClick={handleNavigateToPreferences}>
+            <SlidersHorizontalIcon className="size-5" />
+            <Trans>Preferences</Trans>
+          </DropdownMenuItem>
 
           <DropdownMenuItem onClick={handleLogout}>
             <LogOutIcon className="size-5" />

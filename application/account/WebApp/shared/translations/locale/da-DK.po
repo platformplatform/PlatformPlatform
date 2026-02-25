@@ -234,6 +234,9 @@ msgstr "Skift brugerrolle for {0}"
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
 
+msgid "Choose how the application looks to you."
+msgstr "Vælg hvordan applikationen ser ud for dig."
+
 msgid "Clear"
 msgstr "Ryd"
 
@@ -269,6 +272,9 @@ msgstr "Opret din konto"
 
 msgid "Created"
 msgstr "Oprettet"
+
+msgid "Customize your theme and language settings."
+msgstr "Tilpas dit tema og dine sprogindstillinger."
 
 msgid "Danger zone"
 msgstr "Farezone"
@@ -674,6 +680,9 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 msgid "Powered by"
 msgstr "Powered by"
 
+msgid "Preferences"
+msgstr "Præferencer"
+
 msgid "Previous"
 msgstr "Forrige"
 
@@ -784,6 +793,9 @@ msgstr "Vælg alle brugere"
 
 msgid "Select dates"
 msgstr "Vælg datoer"
+
+msgid "Select your preferred language."
+msgstr "Vælg dit foretrukne sprog."
 
 msgid "Send invite"
 msgstr "Send invitation"

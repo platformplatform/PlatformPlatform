@@ -6,8 +6,6 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
-import localeMap from "@repo/infrastructure/translations/i18n.config.json";
-import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -24,30 +22,17 @@ import { useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftRightIcon,
   Check,
-  GlobeIcon,
   LayoutDashboardIcon,
   LogOutIcon,
   MailQuestion,
-  MoonIcon,
-  MoonStarIcon,
-  PaletteIcon,
   SettingsIcon,
-  SunIcon,
-  SunMoonIcon,
+  SlidersHorizontalIcon,
   UserIcon
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import type React from "react";
 import { useContext, useEffect, useState } from "react";
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
-
-const PREFERRED_LOCALE_KEY = "preferred-locale";
-
-const locales = Object.entries(localeMap).map(([id, info]) => ({
-  id: id as Locale,
-  label: info.label
-}));
 
 interface TenantInfo {
   tenantId: string;
@@ -55,12 +40,6 @@ interface TenantInfo {
   logoUrl: string | null;
   isNew: boolean;
 }
-
-const ThemeMode = {
-  System: "system",
-  Light: "light",
-  Dark: "dark"
-} as const;
 
 function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
   return [...tenants].sort((a, b) => {
@@ -74,19 +53,6 @@ function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
     const nameB = b.tenantName || "";
     return nameA.localeCompare(nameB);
   });
-}
-
-async function updateLocaleOnBackend(locale: Locale) {
-  try {
-    const response = await enhancedFetch("/api/account/users/me/change-locale", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ Locale: locale })
-    });
-    return response.ok || response.status === 401;
-  } catch {
-    return true;
-  }
 }
 
 async function fetchTenants(): Promise<{ tenants: TenantInfo[] }> {
@@ -113,26 +79,13 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
   const overlayCtx = useContext(overlayContext);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const { theme, setTheme, resolvedTheme } = useTheme();
 
   const [isSwitching, setIsSwitching] = useState(false);
   const [isSupportDialogOpen, setIsSupportDialogOpen] = useState(false);
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
-  const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
 
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
   const currentTenantId = userInfo?.tenantId;
-
-  useEffect(() => {
-    const htmlLang = document.documentElement.lang as Locale;
-    const savedLocale = localStorage.getItem(PREFERRED_LOCALE_KEY) as Locale;
-
-    if (savedLocale && locales.some((l) => l.id === savedLocale)) {
-      setCurrentLocale(savedLocale);
-    } else if (htmlLang && locales.some((l) => l.id === htmlLang)) {
-      setCurrentLocale(htmlLang);
-    }
-  }, []);
 
   useEffect(() => {
     if (userInfo?.isAuthenticated) {
@@ -143,7 +96,6 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
   }, [userInfo?.isAuthenticated]);
 
   const sortedTenants = sortTenants(tenants);
-  const currentLocaleLabel = locales.find((l) => l.id === currentLocale)?.label || currentLocale;
 
   const handleTenantSwitch = async (tenant: TenantInfo) => {
     if (tenant.tenantId === currentTenantId || tenant.isNew) {
@@ -181,27 +133,6 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
     }
   };
 
-  const handleLocaleChange = async (locale: Locale) => {
-    if (locale === currentLocale) {
-      return;
-    }
-
-    if (overlayCtx?.isOpen) {
-      overlayCtx.close();
-    }
-
-    localStorage.setItem(PREFERRED_LOCALE_KEY, locale);
-    await updateLocaleOnBackend(locale);
-    window.location.reload();
-  };
-
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    if (overlayCtx?.isOpen) {
-      overlayCtx.close();
-    }
-  };
-
   const handleLogout = async () => {
     if (overlayCtx?.isOpen) {
       overlayCtx.close();
@@ -224,6 +155,19 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
     } catch {
       window.location.href = createLoginUrlWithReturnPath(loginPath);
     }
+  };
+
+  const handleNavigateToPreferences = () => {
+    if (overlayCtx?.isOpen) {
+      overlayCtx.close();
+    }
+    setTimeout(() => {
+      if (onNavigate) {
+        onNavigate("/user/preferences");
+      } else {
+        navigate({ to: "/user/preferences" });
+      }
+    }, 10);
   };
 
   const handleNavigateToAccountSettings = () => {
@@ -254,31 +198,6 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
 
   const handleShowSupport = () => {
     setIsSupportDialogOpen(true);
-  };
-
-  const getThemeIcon = () => {
-    if (theme === ThemeMode.Dark || (theme === ThemeMode.System && resolvedTheme === ThemeMode.Dark)) {
-      return theme === ThemeMode.System ? (
-        <MoonStarIcon className="size-5 stroke-current" />
-      ) : (
-        <MoonIcon className="size-5 stroke-current" />
-      );
-    }
-    return theme === ThemeMode.System ? (
-      <SunMoonIcon className="size-5 stroke-current" />
-    ) : (
-      <SunIcon className="size-5 stroke-current" />
-    );
-  };
-
-  const getThemeLabel = () => {
-    if (theme === ThemeMode.System) {
-      return t`System`;
-    }
-    if (theme === ThemeMode.Light) {
-      return t`Light`;
-    }
-    return t`Dark`;
   };
 
   return (
@@ -376,86 +295,6 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
             </DropdownMenu>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-muted-foreground text-sm hover:bg-hover-background hover:text-foreground"
-                  style={{ pointerEvents: "auto" }}
-                >
-                  <div className="flex size-6 shrink-0 items-center justify-center">
-                    <GlobeIcon className="size-5 stroke-current" />
-                  </div>
-                  <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-                    <Trans>Language</Trans>
-                  </div>
-                  <div className="shrink-0 text-muted-foreground text-sm">{currentLocaleLabel}</div>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              {locales.map((locale) => (
-                <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
-                  <div className="flex items-center gap-2">
-                    <span>{locale.label}</span>
-                    {locale.id === currentLocale && <Check className="ml-auto size-4" />}
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="ghost"
-                  className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-muted-foreground text-sm hover:bg-hover-background hover:text-foreground"
-                  style={{ pointerEvents: "auto" }}
-                >
-                  <div className="flex size-6 shrink-0 items-center justify-center">
-                    <PaletteIcon className="size-5 stroke-current" />
-                  </div>
-                  <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
-                    <Trans>Theme</Trans>
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1 text-muted-foreground text-sm">
-                    {getThemeIcon()}
-                    {getThemeLabel()}
-                  </div>
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
-                <div className="flex items-center gap-2">
-                  {resolvedTheme === ThemeMode.Dark ? (
-                    <MoonStarIcon className="size-5" />
-                  ) : (
-                    <SunMoonIcon className="size-5" />
-                  )}
-                  <Trans>System</Trans>
-                  {theme === ThemeMode.System && <Check className="ml-auto size-5" />}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
-                <div className="flex items-center gap-2">
-                  <SunIcon className="size-5" />
-                  <Trans>Light</Trans>
-                  {theme === ThemeMode.Light && <Check className="ml-auto size-5" />}
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
-                <div className="flex items-center gap-2">
-                  <MoonIcon className="size-5" />
-                  <Trans>Dark</Trans>
-                  {theme === ThemeMode.Dark && <Check className="ml-auto size-5" />}
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
@@ -468,6 +307,22 @@ function MobileMenuHeader({ onNavigate }: { onNavigate?: (path: string) => void 
               </div>
               <div className="overflow-hidden whitespace-nowrap text-start">
                 <Trans>Contact support</Trans>
+              </div>
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              onClick={handleNavigateToPreferences}
+              className="flex h-11 w-full items-center justify-start gap-4 py-2 pr-2 pl-3 font-normal text-muted-foreground text-sm hover:bg-hover-background hover:text-foreground"
+              style={{ pointerEvents: "auto", touchAction: "none" }}
+            >
+              <div className="flex size-6 shrink-0 items-center justify-center">
+                <SlidersHorizontalIcon className="size-5 stroke-current" />
+              </div>
+              <div className="overflow-hidden whitespace-nowrap text-start">
+                <Trans>Preferences</Trans>
               </div>
             </Button>
           </div>
