@@ -2,14 +2,14 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import localeMap from "@repo/infrastructure/translations/i18n.config.json";
-import type { Locale } from "@repo/infrastructure/translations/TranslationContext";
+import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { api } from "@/shared/lib/api/client";
 
 const localeFlagMap: Record<string, string> = {
@@ -63,12 +63,9 @@ function OptionCard({
 function PreferencesPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
+  const { setLocale } = use(translationContext);
 
-  const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale", {
-    onSuccess: () => {
-      window.location.reload();
-    }
-  });
+  const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale");
 
   useEffect(() => {
     const htmlLang = document.documentElement.lang as Locale;
@@ -87,7 +84,16 @@ function PreferencesPage() {
     }
 
     localStorage.setItem(preferredLocaleKey, locale);
-    changeLocaleMutation.mutate({ body: { locale } });
+    changeLocaleMutation.mutate(
+      { body: { locale } },
+      {
+        onSuccess: async () => {
+          document.documentElement.lang = locale;
+          await setLocale(locale);
+          setCurrentLocale(locale);
+        }
+      }
+    );
   };
 
   const getSystemThemeIcon = () => {
