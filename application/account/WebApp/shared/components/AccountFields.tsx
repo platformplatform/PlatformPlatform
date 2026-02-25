@@ -26,6 +26,7 @@ export interface AccountFieldsProps {
   isReadOnly?: boolean;
   tooltip?: string;
   description?: string;
+  autoFocus?: boolean;
   onChange?: () => void;
   layout?: "stacked" | "horizontal";
   infoFields?: ReactNode;
@@ -37,6 +38,7 @@ export function AccountFields({
   onLogoFileSelect,
   onLogoRemove,
   isReadOnly,
+  autoFocus,
   tooltip,
   description,
   onChange,
@@ -145,6 +147,7 @@ export function AccountFields({
 
   const fieldsSection = (
     <TextField
+      autoFocus={autoFocus}
       isRequired={true}
       name="name"
       defaultValue={tenant?.name ?? ""}

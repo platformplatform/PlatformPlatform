@@ -21,6 +21,7 @@ export interface UserProfileFieldsProps {
   isPending: boolean;
   onAvatarFileSelect: (file: File | null) => void;
   onAvatarRemove?: () => void;
+  autoFocus?: boolean;
   layout?: "stacked" | "horizontal";
 }
 
@@ -29,6 +30,7 @@ export function UserProfileFields({
   isPending,
   onAvatarFileSelect,
   onAvatarRemove,
+  autoFocus,
   layout = "stacked"
 }: UserProfileFieldsProps) {
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
@@ -133,6 +135,7 @@ export function UserProfileFields({
     <>
       <div className="flex flex-col gap-4 sm:flex-row">
         <TextField
+          autoFocus={autoFocus}
           isRequired={true}
           name="firstName"
           label={t`First name`}
