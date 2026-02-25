@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
-import { Dialog, DialogBody, DialogContent, DialogFooter, DialogTitle } from "@repo/ui/components/Dialog";
+import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
 
 export type AuthSyncModalType = "tenant-switch" | "logged-in" | "logged-out";
 
@@ -84,7 +84,9 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
   return (
     <Dialog open={isOpen}>
       <DialogContent showCloseButton={false} className="sm:w-dialog-md">
-        <DialogTitle>{content.title}</DialogTitle>
+        <DialogHeader>
+          <DialogTitle>{content.title}</DialogTitle>
+        </DialogHeader>
         <DialogBody className="text-muted-foreground text-sm">{content.description}</DialogBody>
         <DialogFooter>
           <Button variant="default" onClick={onPrimaryAction}>

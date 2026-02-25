@@ -191,7 +191,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane remains closed when using keyboard navigation
-      await expect(page.locator('[aria-label="User profile"]')).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
     })();
 
     await step("Navigate to third user & manually open side pane with Enter key")(async () => {
@@ -205,7 +205,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
-      const sidePane = page.locator('[aria-label="User profile"]');
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane animation to complete and close button to be visible
@@ -214,7 +214,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Close side pane with Escape & verify it closes")(async () => {
-      const sidePane = page.locator('[aria-label="User profile"]');
+      const sidePane = page.getByRole("region", { name: "User profile" });
 
       // Ensure side pane is fully open
       await expect(sidePane).toBeVisible();

@@ -228,7 +228,7 @@ test.describe("@smoke", () => {
 
     await step("Filter users by role & verify role-based filtering works correctly")(async () => {
       const userTable = page.locator("tbody").first().first();
-      await page.getByRole("button", { name: "Show filters" }).click();
+      await page.getByRole("button", { name: "Show search filters" }).click();
 
       await expect(page.getByLabel("User role").first()).toBeVisible();
 

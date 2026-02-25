@@ -98,6 +98,7 @@ const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
 type MenuButtonProps = {
   icon: LucideIcon;
   label: string;
+  ariaLabel?: string;
   isDisabled?: boolean;
   matchPrefix?: boolean;
 } & (
@@ -165,6 +166,7 @@ function ActiveIndicator({ isActive }: { isActive: boolean }) {
 export function MenuButton({
   icon: Icon,
   label,
+  ariaLabel,
   href: to,
   isDisabled = false,
   matchPrefix = false,
@@ -263,6 +265,7 @@ export function MenuButton({
                 variant="ghost"
                 underline={false}
                 disabled={isDisabled}
+                aria-label={ariaLabel ?? label}
                 aria-current={isActive ? "page" : undefined}
                 onClick={handlePress}
               >
@@ -271,7 +274,7 @@ export function MenuButton({
             }
           />
           <TooltipContent side="right" sideOffset={4}>
-            {label}
+            {ariaLabel ?? label}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -290,6 +293,7 @@ export function MenuButton({
           variant="ghost"
           underline={false}
           disabled={isDisabled}
+          aria-label={ariaLabel}
           aria-current={isActive ? "page" : undefined}
           onClick={handlePress}
         >
@@ -308,6 +312,7 @@ export function MenuButton({
         className={linkClassName}
         onClick={handleClick}
         disabled={isDisabled}
+        aria-label={ariaLabel}
         aria-current={isActive ? "page" : undefined}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />

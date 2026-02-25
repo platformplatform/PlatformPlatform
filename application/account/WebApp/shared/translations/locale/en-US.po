@@ -84,6 +84,9 @@ msgstr "Account name"
 msgid "Account not found"
 msgstr "Account not found"
 
+msgid "Account overview"
+msgstr "Account overview"
+
 msgid "Account settings"
 msgstr "Account settings"
 
@@ -221,6 +224,9 @@ msgstr "Change role"
 msgid "Change theme"
 msgstr "Change theme"
 
+msgid "Change user preferences"
+msgstr "Change user preferences"
+
 msgid "Change user role"
 msgstr "Change user role"
 
@@ -260,6 +266,9 @@ msgstr "Contact your administrator if you believe this is a mistake."
 
 msgid "Continue"
 msgstr "Continue"
+
+msgid "Create new account"
+msgstr "Create new account"
 
 msgid "Create your account"
 msgstr "Create your account"
@@ -366,6 +375,9 @@ msgstr "Edit"
 
 msgid "Edit profile"
 msgstr "Edit profile"
+
+msgid "Edit user profile"
+msgstr "Edit user profile"
 
 msgid "Email"
 msgstr "Email"
@@ -818,8 +830,8 @@ msgstr "Settings"
 msgid "Show details"
 msgstr "Show details"
 
-msgid "Show filters"
-msgstr "Show filters"
+msgid "Show search filters"
+msgstr "Show search filters"
 
 msgid "Sign up"
 msgstr "Sign up"
@@ -989,6 +1001,9 @@ msgstr "User not in current view"
 msgid "User permanently deleted: {userDisplayName}"
 msgstr "User permanently deleted: {userDisplayName}"
 
+msgid "User preferences"
+msgstr "User preferences"
+
 msgid "User profile"
 msgstr "User profile"
 
@@ -1000,6 +1015,9 @@ msgstr "User role"
 
 msgid "User role updated successfully for {userDisplayName}"
 msgstr "User role updated successfully for {userDisplayName}"
+
+msgid "User sessions"
+msgstr "User sessions"
 
 msgid "User status"
 msgstr "User status"

@@ -267,7 +267,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               variant="secondary"
               size="icon"
               className={showAllFilters ? "relative mt-auto" : "relative mt-8"}
-              aria-label={showAllFilters ? t`Clear filters` : t`Show filters`}
+              aria-label={showAllFilters ? t`Clear filters` : t`Show search filters`}
               data-testid="filter-button"
               onClick={() => {
                 if (showAllFilters) {
@@ -286,7 +286,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               {showAllFilters ? (
                 <FilterX size={16} aria-label={t`Clear filters`} />
               ) : (
-                <Filter size={16} aria-label={t`Show filters`} />
+                <Filter size={16} aria-label={t`Show search filters`} />
               )}
               {activeFilterCount > 0 && !showAllFilters && (
                 <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
@@ -296,7 +296,9 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
             </Button>
           }
         />
-        <TooltipContent>{showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show filters</Trans>}</TooltipContent>
+        <TooltipContent>
+          {showAllFilters ? <Trans>Clear filters</Trans> : <Trans>Show search filters</Trans>}
+        </TooltipContent>
       </Tooltip>
 
       <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen}>

@@ -115,7 +115,7 @@ test.describe("@comprehensive", () => {
 
     await step("Navigate to preferences & change language to English")(async () => {
       await page.goto("/user/preferences");
-      await expect(page.getByRole("heading", { name: "Præferencer" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Brugerindstillinger" })).toBeVisible();
 
       await page.getByRole("button", { name: "English" }).click();
 

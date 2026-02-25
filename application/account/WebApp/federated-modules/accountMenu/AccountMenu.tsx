@@ -328,7 +328,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
         >
           {isAccountContext && (
             <>
-              <DropdownMenuItem onClick={handleNavigateBackToApp}>
+              <DropdownMenuItem onClick={handleNavigateBackToApp} aria-label={t`Back to app`}>
                 <ArrowLeftIcon className="size-5" />
                 <Trans>Back to app</Trans>
               </DropdownMenuItem>
@@ -339,7 +339,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
             <DropdownMenuItem
               onClick={handleNavigateToProfile}
               className="flex flex-col items-center gap-1 px-4 py-3"
-              aria-label={t`Edit profile`}
+              aria-label={t`Edit user profile`}
               onMouseEnter={() => setIsProfileCardHighlighted(true)}
               onMouseLeave={() => setIsProfileCardHighlighted(false)}
             >
@@ -370,12 +370,12 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
             </DropdownMenuItem>
           </DropdownMenuGroup>
 
-          <DropdownMenuItem onClick={handleNavigateToPreferences}>
+          <DropdownMenuItem onClick={handleNavigateToPreferences} aria-label={t`Change user preferences`}>
             <SlidersHorizontalIcon className="size-5" />
             <Trans>Preferences</Trans>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleLogout}>
+          <DropdownMenuItem onClick={handleLogout} aria-label={t`Log out`}>
             <LogOutIcon className="size-5" />
             <Trans>Log out</Trans>
           </DropdownMenuItem>
@@ -386,7 +386,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
             <DropdownMenuGroup>
               {sortedTenants.length > 1 && (
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
+                  <DropdownMenuSubTrigger aria-label={t`Switch account`}>
                     <ArrowRightLeftIcon className="size-5" />
                     <Trans>Switch account</Trans>
                   </DropdownMenuSubTrigger>
@@ -423,7 +423,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
                 </DropdownMenuSub>
               )}
               {canAccessAccountSettings && (
-                <DropdownMenuItem onClick={handleNavigateToAccountSettings}>
+                <DropdownMenuItem onClick={handleNavigateToAccountSettings} aria-label={t`Account settings`}>
                   <SettingsIcon className="size-5" />
                   <Trans>Account settings</Trans>
                 </DropdownMenuItem>
@@ -433,7 +433,7 @@ export default function AccountMenu({ isCollapsed: isCollapsedProp }: Readonly<A
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem onClick={handleShowSupport}>
+          <DropdownMenuItem onClick={handleShowSupport} aria-label={t`Contact support`}>
             <MailQuestion className="size-5" />
             <Trans>Contact support</Trans>
           </DropdownMenuItem>

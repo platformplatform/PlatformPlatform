@@ -16,7 +16,7 @@ export default function Home() {
     <AppLayout
       variant="center"
       maxWidth="64rem"
-      title={t`Overview`}
+      title={t`Account overview`}
       subtitle={t`A quick summary of your account activity.`}
     >
       <div className="grid w-full grid-cols-1 gap-4 pt-8 md:grid-cols-2 lg:grid-cols-3">

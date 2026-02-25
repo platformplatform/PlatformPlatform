@@ -108,7 +108,7 @@ function PreferencesPage() {
       variant="center"
       maxWidth="64rem"
       balanceWidth="16rem"
-      title={t`Preferences`}
+      title={t`User preferences`}
       subtitle={t`Customize your theme and language settings.`}
     >
       <div className="flex flex-col gap-8 pt-8">

@@ -81,14 +81,14 @@ test.describe("@smoke", () => {
 
     // === PROFILE AND SESSIONS (ALL USERS) ===
     await step("Navigate to profile page & verify profile page renders")(async () => {
-      await page.getByRole("link", { name: "Profile", exact: true }).click();
+      await page.getByRole("link", { name: "User profile", exact: true }).click();
 
       await expect(page).toHaveURL("/user/profile");
-      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "User profile" })).toBeVisible();
     })();
 
     await step("Navigate to sessions page & verify sessions page renders")(async () => {
-      await page.getByRole("link", { name: "Sessions", exact: true }).click();
+      await page.getByRole("link", { name: "User sessions", exact: true }).click();
 
       await expect(page).toHaveURL("/user/sessions");
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
@@ -184,7 +184,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Navigate to sessions as member & verify sessions page renders")(async () => {
-      await page.getByRole("link", { name: "Sessions", exact: true }).click();
+      await page.getByRole("link", { name: "User sessions", exact: true }).click();
 
       await expect(page).toHaveURL("/user/sessions");
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();

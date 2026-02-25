@@ -1,6 +1,8 @@
 import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Button } from "@repo/ui/components/Button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { LogOutIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
@@ -25,11 +27,20 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
 
   return (
     <main className="relative flex min-h-screen flex-col">
-      <div className="absolute top-4 right-4 hidden gap-4 rounded-md bg-white p-2 shadow-md lg:flex dark:bg-sidebar">
+      <div className="absolute top-4 right-4 hidden gap-4 rounded-md bg-card p-2 shadow-md lg:flex">
         {isAuthenticated && (
-          <Button variant="ghost" size="icon" onClick={handleLogout} aria-label={t`Log out`}>
-            <LogOutIcon className="size-5" />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button variant="ghost" size="icon" onClick={handleLogout} aria-label={t`Log out`}>
+                  <LogOutIcon className="size-5" />
+                </Button>
+              }
+            />
+            <TooltipContent>
+              <Trans>Log out</Trans>
+            </TooltipContent>
+          </Tooltip>
         )}
         <ThemeModeSelector />
         <SupportButton aria-label={t`Contact support`} />
@@ -40,11 +51,20 @@ export function HorizontalHeroLayout({ children }: Readonly<HorizontalHeroLayout
           <div style={{ flex: 1 }} className="flex flex-col items-center justify-center gap-6">
             {children}
             {/* Mobile-only icon controls at bottom of form */}
-            <div className="flex gap-4 rounded-md bg-white p-2 shadow-md lg:hidden dark:bg-sidebar">
+            <div className="flex gap-4 rounded-md bg-card p-2 shadow-md lg:hidden">
               {isAuthenticated && (
-                <Button variant="ghost" size="icon" onClick={handleLogout} aria-label={t`Log out`}>
-                  <LogOutIcon className="size-5" />
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button variant="ghost" size="icon" onClick={handleLogout} aria-label={t`Log out`}>
+                        <LogOutIcon className="size-5" />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>
+                    <Trans>Log out</Trans>
+                  </TooltipContent>
+                </Tooltip>
               )}
               <ThemeModeSelector />
               <SupportButton aria-label={t`Contact support`} />

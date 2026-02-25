@@ -26,16 +26,21 @@ function AccountNavigationMenuItems() {
         <Trans>User</Trans>
       </SideMenuSeparator>
 
-      <MenuButton icon={UserIcon} label={t`Profile`} href="/user/profile" />
-      <MenuButton icon={SlidersHorizontalIcon} label={t`Preferences`} href="/user/preferences" />
-      <MenuButton icon={MonitorSmartphoneIcon} label={t`Sessions`} href="/user/sessions" />
+      <MenuButton icon={UserIcon} label={t`Profile`} ariaLabel={t`User profile`} href="/user/profile" />
+      <MenuButton
+        icon={SlidersHorizontalIcon}
+        label={t`Preferences`}
+        ariaLabel={t`User preferences`}
+        href="/user/preferences"
+      />
+      <MenuButton icon={MonitorSmartphoneIcon} label={t`Sessions`} ariaLabel={t`User sessions`} href="/user/sessions" />
 
       <SideMenuSeparator>
         <Trans>Account</Trans>
       </SideMenuSeparator>
 
-      <MenuButton icon={HomeIcon} label={t`Overview`} href="/account" />
-      <MenuButton icon={CircleUserIcon} label={t`Settings`} href="/account/settings" />
+      <MenuButton icon={HomeIcon} label={t`Overview`} ariaLabel={t`Account overview`} href="/account" />
+      <MenuButton icon={CircleUserIcon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/account/users" matchPrefix={true} />
     </>
   );

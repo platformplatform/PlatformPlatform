@@ -281,7 +281,7 @@ function SessionsPage() {
 
   if (isLoading) {
     return (
-      <AppLayout variant="center" maxWidth="64rem" title={t`Sessions`}>
+      <AppLayout variant="center" maxWidth="64rem" title={t`User sessions`}>
         <div className="flex flex-1 items-center justify-center py-12">
           <LoaderIcon className="size-8 animate-spin text-muted-foreground" />
         </div>
@@ -295,7 +295,7 @@ function SessionsPage() {
         variant="center"
         maxWidth="64rem"
         balanceWidth="16rem"
-        title={t`Sessions`}
+        title={t`User sessions`}
         subtitle={t`Devices that have logged into your account. Revoke any sessions you do not recognize.`}
       >
         <div className="flex flex-col gap-6 pt-8">
