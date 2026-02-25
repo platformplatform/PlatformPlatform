@@ -358,6 +358,9 @@ msgstr "F.eks. Jensen"
 msgid "Edit"
 msgstr "Rediger"
 
+msgid "Edit profile"
+msgstr "Rediger profil"
+
 msgid "Email"
 msgstr "E-mail"
 
