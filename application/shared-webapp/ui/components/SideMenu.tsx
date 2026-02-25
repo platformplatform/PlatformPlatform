@@ -467,9 +467,9 @@ function useOverlayHandlers({
 // Helper to handle resize movement
 function createResizeHandler(params: {
   isCollapsed: boolean;
-  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
-  hasDraggedRef: React.MutableRefObject<boolean>;
-  initialMenuWidth: React.MutableRefObject<number>;
+  dragStartPos: React.RefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.RefObject<boolean>;
+  initialMenuWidth: React.RefObject<number>;
   toggleMenu: () => void;
   setIsResizing: (value: boolean) => void;
   setMenuWidth: (value: number) => void;
@@ -549,9 +549,9 @@ function useResizeHandler({
   setMenuWidthRem: (value: number) => void;
   isCollapsed: boolean;
   toggleMenu: () => void;
-  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
-  hasDraggedRef: React.MutableRefObject<boolean>;
-  initialMenuWidth: React.MutableRefObject<number>;
+  dragStartPos: React.RefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.RefObject<boolean>;
+  initialMenuWidth: React.RefObject<number>;
 }) {
   useEffect(() => {
     if (!isResizing) {
@@ -703,7 +703,7 @@ const ResizableToggleButton = ({
 }: {
   toggleButtonRef: React.RefObject<HTMLButtonElement>;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
-  hasDraggedRef: React.MutableRefObject<boolean>;
+  hasDraggedRef: React.RefObject<boolean>;
   toggleMenu: () => void;
   menuWidthRem: number;
   setMenuWidthRem: (width: number) => void;
