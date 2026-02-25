@@ -192,7 +192,7 @@ export function CompleteSignupForm() {
           <h2 className="mb-3 text-center">
             <Trans>Enter your verification code</Trans>
           </h2>
-          <div className="text-center text-gray-500 text-sm">
+          <div className="text-center text-muted-foreground text-sm">
             <Trans>
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
             </Trans>
@@ -228,9 +228,9 @@ export function CompleteSignupForm() {
               <InputOtpSlot index={5} className="size-14" />
             </InputOtpGroup>
           </InputOtp>
-          <div aria-live="polite">
+          <div aria-live={isExpired ? "polite" : "off"}>
             {!isExpired ? (
-              <p className="text-center text-neutral-500 text-sm">
+              <p className="text-center text-muted-foreground text-sm">
                 <Trans>Your verification code is valid for {expiresInString}</Trans>
               </p>
             ) : (
@@ -255,7 +255,7 @@ export function CompleteSignupForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-2 text-neutral-500 text-sm">
+      <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
         <div className="text-center text-sm">
           <Trans>Can&apos;t find your code?</Trans>{" "}
           {/* Show either the spam folder message or the request link message based on conditions */}

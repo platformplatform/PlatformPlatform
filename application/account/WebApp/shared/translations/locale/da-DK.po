@@ -87,6 +87,9 @@ msgstr "Kontonavn"
 msgid "Account not found"
 msgstr "Konto ikke fundet"
 
+msgid "Account overview"
+msgstr "Kontooversigt"
+
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
@@ -224,6 +227,9 @@ msgstr "Skift rolle"
 msgid "Change theme"
 msgstr "Skift tema"
 
+msgid "Change user preferences"
+msgstr "Skift bruger præferencer"
+
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
@@ -266,6 +272,9 @@ msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
 msgid "Continue"
 msgstr "Fortsæt"
+
+msgid "Create new account"
+msgstr "Opret ny konto"
 
 msgid "Create your account"
 msgstr "Opret din konto"
@@ -372,6 +381,9 @@ msgstr "Rediger"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
+
+msgid "Edit user profile"
+msgstr "Rediger brugerprofil"
 
 msgid "Email"
 msgstr "E-mail"
@@ -824,8 +836,8 @@ msgstr "Indstillinger"
 msgid "Show details"
 msgstr "Vis detaljer"
 
-msgid "Show filters"
-msgstr "Vis filtre"
+msgid "Show search filters"
+msgstr "Vis søgefiltre"
 
 msgid "Sign up"
 msgstr "Tilmeld dig"
@@ -995,6 +1007,9 @@ msgstr "Bruger ikke i nuværende visning"
 msgid "User permanently deleted: {userDisplayName}"
 msgstr "Bruger slettet permanent: {userDisplayName}"
 
+msgid "User preferences"
+msgstr "Bruger præferencer"
+
 msgid "User profile"
 msgstr "Brugerprofil"
 
@@ -1006,6 +1021,9 @@ msgstr "Brugerrolle"
 
 msgid "User role updated successfully for {userDisplayName}"
 msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
+
+msgid "User sessions"
+msgstr "Bruger sessioner"
 
 msgid "User status"
 msgstr "Brugerstatus"

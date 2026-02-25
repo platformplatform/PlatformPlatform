@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { components } from "@/shared/lib/api/client";
@@ -100,23 +101,58 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
         onFiltersExpandedChange={setAreFiltersExpanded}
       />
       <div className="mt-auto flex items-center gap-2">
-        {selectedUsers.length < 2 && isOwner && (
-          <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
-            <PlusIcon className="size-5" />
-            {showButtonText && <Trans>Invite user</Trans>}
-          </Button>
-        )}
-        {selectedUsers.length > 1 && isOwner && (
-          <Button
-            variant="destructive"
-            onClick={() => setIsDeleteModalOpen(true)}
-            disabled={hasSelectedSelf}
-            aria-label={t`Delete ${selectedUsers.length} users`}
-          >
-            <Trash2Icon className="size-5" />
-            {showButtonText && <Trans>Delete {selectedUsers.length} users</Trans>}
-          </Button>
-        )}
+        {selectedUsers.length < 2 &&
+          isOwner &&
+          (showButtonText ? (
+            <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
+              <PlusIcon className="size-5" />
+              <Trans>Invite user</Trans>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button variant="default" onClick={handleInviteClick} aria-label={t`Invite user`}>
+                    <PlusIcon className="size-5" />
+                  </Button>
+                }
+              />
+              <TooltipContent>
+                <Trans>Invite user</Trans>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+        {selectedUsers.length > 1 &&
+          isOwner &&
+          (showButtonText ? (
+            <Button
+              variant="destructive"
+              onClick={() => setIsDeleteModalOpen(true)}
+              disabled={hasSelectedSelf}
+              aria-label={t`Delete ${selectedUsers.length} users`}
+            >
+              <Trash2Icon className="size-5" />
+              <Trans>Delete {selectedUsers.length} users</Trans>
+            </Button>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="destructive"
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    disabled={hasSelectedSelf}
+                    aria-label={t`Delete ${selectedUsers.length} users`}
+                  >
+                    <Trash2Icon className="size-5" />
+                  </Button>
+                }
+              />
+              <TooltipContent>
+                <Trans>Delete users</Trans>
+              </TooltipContent>
+            </Tooltip>
+          ))}
       </div>
       {isOwner && <InviteUserDialog isOpen={isInviteModalOpen} onOpenChange={setIsInviteModalOpen} />}
       <TenantNameRequiredDialog isOpen={showTenantNameRequiredDialog} onOpenChange={setShowTenantNameRequiredDialog} />

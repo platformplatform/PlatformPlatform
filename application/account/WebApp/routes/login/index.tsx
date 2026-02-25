@@ -147,7 +147,10 @@ export function LoginForm() {
       )}
       <p className="text-muted-foreground text-sm">
         <Trans>
-          Don't have an account? <Link href={signUpPath}>Create one</Link>
+          Don't have an account?{" "}
+          <Link href={signUpPath} aria-label={t`Create new account`}>
+            Create one
+          </Link>
         </Trans>
       </p>
       {/*

@@ -102,7 +102,7 @@ function ProfilePage() {
         variant="center"
         maxWidth="64rem"
         balanceWidth="16rem"
-        title={t`Profile`}
+        title={t`User profile`}
         subtitle={t`Update your profile picture and personal details here.`}
       >
         <Form

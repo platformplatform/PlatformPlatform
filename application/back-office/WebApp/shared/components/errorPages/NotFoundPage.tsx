@@ -5,6 +5,7 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated, useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { FileQuestion, Home, LogOut } from "lucide-react";
 import { useContext, useState } from "react";
 import logoMark from "@/shared/images/logo-mark.svg";
@@ -53,12 +54,21 @@ function NotFoundNavigation() {
 
       <div className="flex items-center gap-6">
         {isAuthenticated && userInfo && (
-          <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
-            <LogOut size={16} />
-            <span className="hidden sm:inline">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button variant="outline" onClick={handleLogout} disabled={isLoggingOut} aria-label={t`Log out`}>
+                  <LogOut size={16} />
+                  <span className="hidden sm:inline">
+                    <Trans>Log out</Trans>
+                  </span>
+                </Button>
+              }
+            />
+            <TooltipContent className="sm:hidden">
               <Trans>Log out</Trans>
-            </span>
-          </Button>
+            </TooltipContent>
+          </Tooltip>
         )}
       </div>
     </nav>
