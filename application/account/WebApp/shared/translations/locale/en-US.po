@@ -1010,6 +1010,9 @@ msgstr "User preferences"
 msgid "User profile"
 msgstr "User profile"
 
+msgid "User recycle bin"
+msgstr "User recycle bin"
+
 msgid "User restored successfully: {userName}"
 msgstr "User restored successfully: {userName}"
 

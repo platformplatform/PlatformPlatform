@@ -44,7 +44,7 @@ export default function DeletedUsersPage() {
       <AppLayout
         variant="center"
         maxWidth="64rem"
-        title={t`Users`}
+        title={t`User recycle bin`}
         subtitle={t`Manage your users and permissions here.`}
       >
         <UserTabNavigation activeTab="recycle-bin" />
