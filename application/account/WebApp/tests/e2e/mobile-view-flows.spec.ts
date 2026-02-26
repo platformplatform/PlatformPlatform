@@ -66,23 +66,28 @@ test.describe("@comprehensive", () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await expect(mobileDialog).toBeVisible();
 
-      // Verify user profile section is visible
-      await expect(mobileDialog.getByRole("button", { name: "Edit" })).toBeVisible();
+      // Verify user accordion is visible (collapsed by default on /account)
+      const userAccordion = mobileDialog.getByRole("button").filter({ hasText: owner.email });
+      await expect(userAccordion).toBeVisible();
 
-      // Verify all menu options are present
+      // Expand user accordion to verify user menu items
+      await userAccordion.click();
       await expect(mobileDialog.getByRole("button", { name: "Log out" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "User profile" })).toBeVisible();
+
+      // Verify contact support button
       await expect(mobileDialog.getByRole("button", { name: "Contact support" })).toBeVisible();
 
-      // Verify navigation links
-      await expect(mobileDialog.getByRole("link", { name: "Overview" })).toBeVisible();
-      await expect(mobileDialog.getByRole("link", { name: "Settings" })).toBeVisible();
-      await expect(mobileDialog.getByRole("link", { name: "Users" })).toBeVisible();
+      // Verify account navigation buttons (tenant accordion is auto-expanded on /account)
+      await expect(mobileDialog.getByRole("button", { name: "Account overview" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "Account settings" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "Users" })).toBeVisible();
     })();
 
     // === USER PROFILE EDITING ===
-    await step("Navigate to profile page via mobile menu link & verify profile form")(async () => {
+    await step("Navigate to profile page via mobile menu button & verify profile form")(async () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("link", { name: "Profile" }).click();
+      await mobileDialog.getByRole("button", { name: "User profile" }).click();
 
       // Wait for mobile menu to close and profile page to load
       await expect(mobileDialog).not.toBeVisible();
@@ -107,13 +112,17 @@ test.describe("@comprehensive", () => {
       // Wait for success toast
       await expectToastMessage(context, "Profile updated successfully");
 
-      // Navigate back to home and verify changes are reflected in mobile menu
+      // Navigate back to home and verify mobile menu still works
       await page.goto("/account");
       await page.getByRole("button", { name: "Open navigation menu" }).click();
-      await expect(page.getByText(newTitle)).toBeVisible();
+
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
+      await expect(mobileDialog).toBeVisible();
+
+      // Verify user name is shown in user accordion
+      await expect(mobileDialog.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
 
       // Close mobile menu by clicking the X button
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Close menu" }).click();
       await expect(mobileDialog).not.toBeVisible();
     })();
@@ -123,7 +132,8 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("link", { name: "Users" }).click();
+      // Tenant accordion auto-expands on /account path
+      await mobileDialog.getByRole("button", { name: "Users" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();

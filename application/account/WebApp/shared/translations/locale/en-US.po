@@ -367,9 +367,6 @@ msgstr "E.g. Software engineer"
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
 
-msgid "Edit"
-msgstr "Edit"
-
 msgid "Edit profile"
 msgstr "Edit profile"
 

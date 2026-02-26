@@ -53,7 +53,7 @@ export function AccountSideMenu() {
     <SideMenu
       sidebarToggleAriaLabel={t`Toggle sidebar`}
       mobileMenuAriaLabel={t`Open navigation menu`}
-      topMenuContent={<MobileMenu navigationContent={<AccountNavigationMenuItems />} onNavigate={navigateToMain} />}
+      topMenuContent={<MobileMenu onNavigate={navigateToMain} />}
       logoContent={<LogoContent />}
     >
       <AccountNavigationMenuItems />
