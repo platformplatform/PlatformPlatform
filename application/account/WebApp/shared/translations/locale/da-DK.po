@@ -1004,6 +1004,9 @@ msgstr "Bruger præferencer"
 msgid "User profile"
 msgstr "Brugerprofil"
 
+msgid "User recycle bin"
+msgstr "Papirkurv for brugere"
+
 msgid "User restored successfully: {userName}"
 msgstr "Bruger genoprettet succesfuldt: {userName}"
 
