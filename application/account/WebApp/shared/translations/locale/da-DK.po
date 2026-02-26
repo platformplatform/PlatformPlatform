@@ -117,6 +117,9 @@ msgstr "Tilføj dit kontonavn"
 msgid "Add your account name and logo."
 msgstr "Tilføj dit kontonavn og logo."
 
+msgid "Adjust the interface size on this device to your preference."
+msgstr "Juster grænsefladens størrelse på denne enhed efter dine præferencer."
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -234,8 +237,8 @@ msgstr "Skift brugerrolle for {0}"
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
 
-msgid "Choose how the application looks to you."
-msgstr "Vælg hvordan applikationen ser ud for dig."
+msgid "Choose how the application looks to you on this device."
+msgstr "Vælg hvordan applikationen ser ud for dig på denne enhed."
 
 msgid "Clear"
 msgstr "Ryd"
@@ -273,8 +276,8 @@ msgstr "Opret din konto"
 msgid "Created"
 msgstr "Oprettet"
 
-msgid "Customize your theme and language settings."
-msgstr "Tilpas dit tema og dine sprogindstillinger."
+msgid "Customize your theme, language, and zoom settings."
+msgstr "Tilpas dit tema, sprog og zoomindstillinger."
 
 msgid "Danger zone"
 msgstr "Farezone"
@@ -302,6 +305,9 @@ msgstr "Afslå"
 
 msgid "Declining..."
 msgstr "Afslår..."
+
+msgid "Default"
+msgstr "Standard"
 
 msgid "Delete"
 msgstr "Slet"
@@ -486,6 +492,12 @@ msgstr "Lige nu"
 
 msgid "Language"
 msgstr "Sprog"
+
+msgid "Large"
+msgstr "Stor"
+
+msgid "Larger"
+msgstr "Større"
 
 msgid "Last active"
 msgstr "Sidst aktiv"
@@ -794,8 +806,8 @@ msgstr "Vælg alle brugere"
 msgid "Select dates"
 msgstr "Vælg datoer"
 
-msgid "Select your preferred language."
-msgstr "Vælg dit foretrukne sprog."
+msgid "Select your preferred language. Saved to your profile."
+msgstr "Vælg dit foretrukne sprog. Gemt på din profil."
 
 msgid "Send invite"
 msgstr "Send invitation"
@@ -841,6 +853,9 @@ msgstr "Tilmeld dig med Google"
 
 msgid "Signup verification code"
 msgstr "Tilmeldingsbekræftelseskode"
+
+msgid "Small"
+msgstr "Lille"
 
 msgid "SOC and ISO Reports"
 msgstr "SOC og ISO rapporter"
@@ -1128,3 +1143,9 @@ msgstr "ditnavn@eksempel.com"
 
 msgid "YouTube"
 msgstr "YouTube"
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "Zoom level"
+msgstr "Zoomniveau"

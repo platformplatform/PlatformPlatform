@@ -286,7 +286,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-[var(--banner-offset,0rem)] right-0 left-0 z-30 border-border border-b bg-background px-4 py-3",
+              "fixed top-[var(--banner-offset,0rem)] right-0 left-0 z-30 border-border border-b bg-background px-[16px] py-3",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               (scrollAwayHeader ? isFullyScrolled : isSticky)
@@ -302,7 +302,7 @@ export function AppLayout({
         {/* Main content area */}
         <main
           ref={contentRef}
-          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-8"
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-[16px] pt-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-[32px] sm:pt-8"
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}

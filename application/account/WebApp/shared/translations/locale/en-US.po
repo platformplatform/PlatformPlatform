@@ -117,6 +117,9 @@ msgstr "Add your account name"
 msgid "Add your account name and logo."
 msgstr "Add your account name and logo."
 
+msgid "Adjust the interface size on this device to your preference."
+msgstr "Adjust the interface size on this device to your preference."
+
 msgid "Admin"
 msgstr "Admin"
 
@@ -234,8 +237,8 @@ msgstr "Change user role for {0}"
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
 
-msgid "Choose how the application looks to you."
-msgstr "Choose how the application looks to you."
+msgid "Choose how the application looks to you on this device."
+msgstr "Choose how the application looks to you on this device."
 
 msgid "Clear"
 msgstr "Clear"
@@ -273,8 +276,8 @@ msgstr "Create your account"
 msgid "Created"
 msgstr "Created"
 
-msgid "Customize your theme and language settings."
-msgstr "Customize your theme and language settings."
+msgid "Customize your theme, language, and zoom settings."
+msgstr "Customize your theme, language, and zoom settings."
 
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -302,6 +305,9 @@ msgstr "Decline"
 
 msgid "Declining..."
 msgstr "Declining..."
+
+msgid "Default"
+msgstr "Default"
 
 msgid "Delete"
 msgstr "Delete"
@@ -486,6 +492,12 @@ msgstr "Just now"
 
 msgid "Language"
 msgstr "Language"
+
+msgid "Large"
+msgstr "Large"
+
+msgid "Larger"
+msgstr "Larger"
 
 msgid "Last active"
 msgstr "Last active"
@@ -794,8 +806,8 @@ msgstr "Select all users"
 msgid "Select dates"
 msgstr "Select dates"
 
-msgid "Select your preferred language."
-msgstr "Select your preferred language."
+msgid "Select your preferred language. Saved to your profile."
+msgstr "Select your preferred language. Saved to your profile."
 
 msgid "Send invite"
 msgstr "Send invite"
@@ -841,6 +853,9 @@ msgstr "Sign up with Google"
 
 msgid "Signup verification code"
 msgstr "Signup verification code"
+
+msgid "Small"
+msgstr "Small"
 
 msgid "SOC and ISO Reports"
 msgstr "SOC and ISO Reports"
@@ -1128,3 +1143,9 @@ msgstr "yourname@example.com"
 
 msgid "YouTube"
 msgstr "YouTube"
+
+msgid "Zoom"
+msgstr "Zoom"
+
+msgid "Zoom level"
+msgstr "Zoom level"

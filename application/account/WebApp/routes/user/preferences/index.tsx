@@ -5,12 +5,16 @@ import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
-import { Separator } from "@repo/ui/components/Separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/Select";
 import { createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { use, useEffect, useState } from "react";
 import { api } from "@/shared/lib/api/client";
+
+const zoomLevelStorageKey = "zoom-level";
+
+const defaultZoomValue = "1";
 
 const localeFlagMap: Record<string, string> = {
   "en-US": "\u{1F1FA}\u{1F1F8}",
@@ -63,7 +67,15 @@ function OptionCard({
 function PreferencesPage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [currentLocale, setCurrentLocale] = useState<Locale>("en-US");
+  const [currentZoomLevel, setCurrentZoomLevel] = useState(defaultZoomValue);
   const { setLocale } = use(translationContext);
+
+  const zoomLevelOptions = [
+    { value: "0.875", label: t`Small`, fontSize: "14px" },
+    { value: "1", label: t`Default`, fontSize: "16px" },
+    { value: "1.125", label: t`Large`, fontSize: "18px" },
+    { value: "1.25", label: t`Larger`, fontSize: "20px" }
+  ];
 
   const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale");
 
@@ -75,6 +87,11 @@ function PreferencesPage() {
       setCurrentLocale(savedLocale);
     } else if (htmlLang && locales.some((l) => l.id === htmlLang)) {
       setCurrentLocale(htmlLang);
+    }
+
+    const savedZoomLevel = localStorage.getItem(zoomLevelStorageKey);
+    if (savedZoomLevel && zoomLevelOptions.some((z) => z.value === savedZoomLevel)) {
+      setCurrentZoomLevel(savedZoomLevel);
     }
   }, []);
 
@@ -96,6 +113,20 @@ function PreferencesPage() {
     );
   };
 
+  const handleZoomLevelChange = (value: string | null) => {
+    if (!value || value === currentZoomLevel) {
+      return;
+    }
+
+    if (value === "1") {
+      localStorage.removeItem(zoomLevelStorageKey);
+    } else {
+      localStorage.setItem(zoomLevelStorageKey, value);
+    }
+    document.documentElement.style.setProperty("--zoom-level", value);
+    setCurrentZoomLevel(value);
+  };
+
   const getSystemThemeIcon = () => {
     if (resolvedTheme === ThemeMode.Dark) {
       return <MoonStarIcon className="size-5" />;
@@ -109,7 +140,7 @@ function PreferencesPage() {
       maxWidth="64rem"
       balanceWidth="16rem"
       title={t`User preferences`}
-      subtitle={t`Customize your theme and language settings.`}
+      subtitle={t`Customize your theme, language, and zoom settings.`}
     >
       <div className="flex flex-col gap-8 pt-8">
         <section>
@@ -117,7 +148,7 @@ function PreferencesPage() {
             <Trans>Theme</Trans>
           </h3>
           <p className="mb-4 text-muted-foreground text-sm">
-            <Trans>Choose how the application looks to you.</Trans>
+            <Trans>Choose how the application looks to you on this device.</Trans>
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
             <OptionCard
@@ -141,14 +172,12 @@ function PreferencesPage() {
           </div>
         </section>
 
-        <Separator />
-
         <section>
           <h3 className="mb-1">
             <Trans>Language</Trans>
           </h3>
           <p className="mb-4 text-muted-foreground text-sm">
-            <Trans>Select your preferred language.</Trans>
+            <Trans>Select your preferred language. Saved to your profile.</Trans>
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             {locales.map((locale) => (
@@ -161,6 +190,30 @@ function PreferencesPage() {
               />
             ))}
           </div>
+        </section>
+
+        <section>
+          <h3 className="mb-1">
+            <Trans>Zoom</Trans>
+          </h3>
+          <p className="mb-4 text-muted-foreground text-sm">
+            <Trans>Adjust the interface size on this device to your preference.</Trans>
+          </p>
+          <Select value={currentZoomLevel} onValueChange={handleZoomLevelChange}>
+            <SelectTrigger className="w-full" aria-label={t`Zoom level`}>
+              <SelectValue>{() => zoomLevelOptions.find((z) => z.value === currentZoomLevel)?.label}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {zoomLevelOptions.map((zoom) => (
+                <SelectItem key={zoom.value} value={zoom.value}>
+                  <span className="flex items-center gap-2">
+                    <span style={{ fontSize: zoom.fontSize, lineHeight: 1 }}>Aa</span>
+                    {zoom.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </section>
       </div>
     </AppLayout>
