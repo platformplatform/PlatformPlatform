@@ -165,6 +165,12 @@ html {
   h5 {
     @apply mb-0 font-semibold text-base text-foreground;
   }
+  @media (max-width: 640px) {
+    h1 { @apply text-2xl; }
+    h2 { @apply text-xl; }
+    h3 { @apply text-lg; }
+    h4 { @apply text-base; }
+  }
   /* Marketing headings for landing/legal pages */
   h1.marketing {
     @apply mb-3 font-bold text-4xl md:text-5xl lg:text-6xl;
