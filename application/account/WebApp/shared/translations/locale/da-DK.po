@@ -373,9 +373,6 @@ msgstr "F.eks. Softwareingeniør"
 msgid "E.g. Taylor"
 msgstr "F.eks. Jensen"
 
-msgid "Edit"
-msgstr "Rediger"
-
 msgid "Edit profile"
 msgstr "Rediger profil"
 

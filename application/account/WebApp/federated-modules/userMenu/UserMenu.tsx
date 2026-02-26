@@ -5,7 +5,6 @@ import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
-import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import {
   DropdownMenu,
@@ -39,35 +38,11 @@ import { useContext, useEffect, useState } from "react";
 import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
-
-interface TenantInfo {
-  tenantId: string;
-  tenantName: string | null;
-  logoUrl: string | null;
-  isNew: boolean;
-  userId: string;
-}
-
-interface TenantsResponse {
-  tenants: TenantInfo[];
-}
+import { fetchTenants, logoutApi, sortTenants, switchTenantApi, type TenantInfo } from "../common/tenantUtils";
+import { MobileMenuDialogs } from "../sideMenu/MobileMenu";
 
 interface UserMenuProps {
   isCollapsed?: boolean;
-}
-
-function sortTenants(tenants: TenantInfo[]): TenantInfo[] {
-  return [...tenants].sort((a, b) => {
-    if (!a.tenantName && b.tenantName) {
-      return 1;
-    }
-    if (a.tenantName && !b.tenantName) {
-      return -1;
-    }
-    const nameA = a.tenantName || "";
-    const nameB = b.tenantName || "";
-    return nameA.localeCompare(nameB);
-  });
 }
 
 function useSidebarWidth(isCollapsed: boolean) {
@@ -115,25 +90,6 @@ function useSidebarWidth(isCollapsed: boolean) {
   }, [isCollapsed]);
 
   return sidebarWidth;
-}
-
-async function fetchTenants(): Promise<TenantsResponse> {
-  const response = await enhancedFetch("/api/account/tenants");
-  return response.json();
-}
-
-async function switchTenantApi(tenantId: string): Promise<void> {
-  await enhancedFetch("/api/account/authentication/switch-tenant", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tenantId })
-  });
-}
-
-async function logoutApi(): Promise<void> {
-  await enhancedFetch("/api/account/authentication/logout", {
-    method: "POST"
-  });
 }
 
 export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<UserMenuProps>) {
@@ -442,6 +398,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
 
       <SupportDialog isOpen={isSupportDialogOpen} onOpenChange={setIsSupportDialogOpen} />
       {isSwitching && <SwitchingAccountLoader />}
+      <MobileMenuDialogs />
     </div>
   );
 }
