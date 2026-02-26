@@ -253,6 +253,10 @@ function StandardContent({
   );
 }
 
+function ScrollEndSpacer() {
+  return <div className="h-4 shrink-0 max-sm:h-18" aria-hidden="true" />;
+}
+
 export function AppLayout({
   children,
   variant = "full",
@@ -298,7 +302,7 @@ export function AppLayout({
         {/* Main content area */}
         <main
           ref={contentRef}
-          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 pb-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-8"
+          className="flex min-h-0 w-full flex-1 flex-col overflow-y-auto bg-background px-4 pt-4 transition-all duration-100 ease-in-out [-webkit-overflow-scrolling:touch] focus:outline-none sm:px-8 sm:pt-8"
           id="main-content"
           aria-label="Main content"
           tabIndex={-1}
@@ -313,6 +317,7 @@ export function AppLayout({
               balanceWidth={balanceWidth}
             >
               {children}
+              <ScrollEndSpacer />
             </ScrollAwayContent>
           ) : (
             <StandardContent
@@ -325,6 +330,7 @@ export function AppLayout({
               isSticky={isSticky}
             >
               {children}
+              <ScrollEndSpacer />
             </StandardContent>
           )}
         </main>
