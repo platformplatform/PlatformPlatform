@@ -2,7 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import {
-  CircleUserIcon,
+  Building2Icon,
   HomeIcon,
   MonitorSmartphoneIcon,
   SlidersHorizontalIcon,
@@ -40,7 +40,7 @@ function AccountNavigationMenuItems() {
       </SideMenuSeparator>
 
       <MenuButton icon={HomeIcon} label={t`Overview`} ariaLabel={t`Account overview`} href="/account" />
-      <MenuButton icon={CircleUserIcon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
+      <MenuButton icon={Building2Icon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/account/users" matchPrefix={true} />
     </>
   );
