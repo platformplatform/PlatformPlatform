@@ -21,6 +21,16 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
         Activity.Current.SetTag("user.id", executionContext.UserInfo.Id);
         Activity.Current.SetTag("user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
         Activity.Current.SetTag("user.locale", executionContext.UserInfo.Locale);
+        if (executionContext.UserInfo.ZoomLevel is not null)
+        {
+            Activity.Current.SetTag("user.zoom_level", executionContext.UserInfo.ZoomLevel);
+        }
+
+        if (executionContext.UserInfo.Theme is not null)
+        {
+            Activity.Current.SetTag("user.theme", executionContext.UserInfo.Theme);
+        }
+
         Activity.Current.SetTag("user.role", executionContext.UserInfo.Role);
         Activity.Current.SetTag("user.session_id", executionContext.UserInfo.SessionId?.Value);
     }

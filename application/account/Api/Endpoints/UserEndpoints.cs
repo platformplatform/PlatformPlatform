@@ -86,5 +86,13 @@ public sealed class UserEndpoints : IEndpoints
         group.MapPut("/me/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );
+
+        group.MapPut("/me/change-zoom-level", async Task<ApiResult> (ChangeZoomLevelCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
+        group.MapPut("/me/change-theme", async Task<ApiResult> (ChangeThemeCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
     }
 }
