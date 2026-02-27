@@ -12,6 +12,7 @@ import { PermanentlyDeleteUserDialog } from "./-components/PermanentlyDeleteUser
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
 
 export const Route = createFileRoute("/account/users/recycle-bin/")({
+  staticData: { trackingTitle: "User recycle bin" },
   beforeLoad: () => requirePermission({ allowedRoles: ["Owner", "Admin"] }),
   component: DeletedUsersPage
 });

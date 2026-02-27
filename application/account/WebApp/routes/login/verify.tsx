@@ -27,6 +27,7 @@ import {
 } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/verify")({
+  staticData: { trackingTitle: "Verify login" },
   validateSearch: (search) => {
     const returnPath = search.returnPath as string | undefined;
     return {

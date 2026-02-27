@@ -48,7 +48,7 @@ export function AcceptInvitationDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Accept invitation">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>

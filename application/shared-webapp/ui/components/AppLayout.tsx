@@ -3,6 +3,8 @@ import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
 import { cn } from "../utils";
 import { getSideMenuCollapsedWidth } from "../utils/responsive";
 
+const appName = document.title;
+
 type AppLayoutVariant = "full" | "center";
 
 type AppLayoutProps = {
@@ -11,6 +13,7 @@ type AppLayoutProps = {
   maxWidth?: string;
   balanceWidth?: string;
   sidePane?: React.ReactNode;
+  browserTitle?: string;
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   scrollAwayHeader?: boolean;
@@ -264,6 +267,7 @@ export function AppLayout({
   balanceWidth,
   sidePane,
   title,
+  browserTitle,
   subtitle,
   scrollAwayHeader = true
 }: Readonly<AppLayoutProps>) {
@@ -274,6 +278,13 @@ export function AppLayout({
   useBodyScrollLock(isOverlayOpen);
   const isSticky = useStickyHeader(!!title && !scrollAwayHeader, headerRef);
   const { isFullyScrolled } = useScrollAwayHeader(scrollAwayHeader && !!title, contentRef);
+
+  useEffect(() => {
+    const effectiveTitle = browserTitle ?? (typeof title === "string" ? title : undefined);
+    if (effectiveTitle) {
+      document.title = `${effectiveTitle} | ${appName}`;
+    }
+  }, [browserTitle, title]);
 
   return (
     <div className="flex min-h-dvh flex-1 flex-col">
