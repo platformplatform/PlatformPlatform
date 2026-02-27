@@ -73,7 +73,7 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
   };
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Delete user">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10">

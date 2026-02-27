@@ -20,7 +20,7 @@ type DeleteAccountConfirmationProps = {
 
 export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Readonly<DeleteAccountConfirmationProps>) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Delete account">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>{t`Delete account`}</DialogTitle>

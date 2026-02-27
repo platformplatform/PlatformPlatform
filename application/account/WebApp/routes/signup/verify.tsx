@@ -26,6 +26,7 @@ import {
 } from "./-shared/signupState";
 
 export const Route = createFileRoute("/signup/verify")({
+  staticData: { trackingTitle: "Verify sign up" },
   component: function SignupVerifyRoute() {
     const { isAuthenticated } = import.meta.user_info_env;
     const navigate = useNavigate();

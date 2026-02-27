@@ -22,7 +22,7 @@ interface TenantNameRequiredDialogProps {
 
 export function TenantNameRequiredDialog({ isOpen, onOpenChange }: Readonly<TenantNameRequiredDialogProps>) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Add account name">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>

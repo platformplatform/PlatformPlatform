@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { Button } from "@repo/ui/components/Button";
 import { DateRangePicker, parseDateString } from "@repo/ui/components/DateRangePicker";
 import {
@@ -152,6 +153,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
   }, [showAllFilters, onFiltersExpandedChange]);
 
   const clearAllFilters = () => {
+    trackInteraction("User filters", "interaction", "clear");
     setSearch("");
 
     updateFilter({
@@ -278,6 +280,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
                 const toolbar = containerRef.current?.closest(".flex.items-center.justify-between") as HTMLElement;
                 if (!isOverlayOpen && !isMobileMenuOpen && toolbar && hasSpaceForInlineFilters(toolbar.offsetWidth)) {
                   setShowAllFilters(true);
+                  trackInteraction("User filters", "interaction", "expand");
                 } else {
                   setIsFilterPanelOpen(true);
                 }
@@ -301,7 +304,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
         </TooltipContent>
       </Tooltip>
 
-      <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen}>
+      <Dialog open={isFilterPanelOpen} onOpenChange={setIsFilterPanelOpen} trackingTitle="User filters">
         <DialogContent className="sm:w-dialog-sm">
           <DialogHeader>
             <DialogTitle>

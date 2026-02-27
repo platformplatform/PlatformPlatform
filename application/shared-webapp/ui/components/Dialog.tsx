@@ -1,15 +1,95 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
-import { cloneElement, isValidElement, type ReactNode, useContext } from "react";
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef
+} from "react";
 import { cn } from "../utils";
 import { Button } from "./Button";
 import { DirtyDialogContext } from "./DirtyDialog";
 
-export type DialogProps = DialogPrimitive.Root.Props;
+type WindowWithTracking = {
+  __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
+};
 
-function Dialog({ ...props }: DialogProps) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+type DialogTrackingContextValue = {
+  markCancelClose: () => void;
+};
+const DialogTrackingContext = createContext<DialogTrackingContextValue | null>(null);
+
+function mapCloseReason(reason: string, event?: Event): string {
+  switch (reason) {
+    case "escape-key":
+      return "escape";
+    case "outside-press":
+      return "outside-click";
+    case "close-press": {
+      const target = event?.target as HTMLElement | undefined;
+      if (target?.closest('[data-slot="dialog-footer"]')) {
+        return "cancel-button";
+      }
+      return "close-button";
+    }
+    default:
+      return reason;
+  }
+}
+
+export type DialogProps = DialogPrimitive.Root.Props & { trackingTitle?: string };
+
+function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
+  const dirtyContext = useContext(DirtyDialogContext);
+  const prevOpen = useRef(false);
+  const closeTracked = useRef(false);
+
+  useEffect(() => {
+    if (open && !prevOpen.current && trackingTitle) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
+    }
+    if (!open && prevOpen.current && trackingTitle && !closeTracked.current) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "submit");
+    }
+    closeTracked.current = false;
+    prevOpen.current = !!open;
+  }, [open, trackingTitle]);
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean, eventDetails: DialogPrimitive.Root.ChangeEventDetails) => {
+      if (!nextOpen && trackingTitle && eventDetails.reason) {
+        closeTracked.current = true;
+        const dismissAction = dirtyContext?.hasUnsavedChanges ? "cancel" : "close";
+        const method = mapCloseReason(eventDetails.reason, eventDetails.event);
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", dismissAction, {
+          method
+        });
+      }
+      onOpenChange?.(nextOpen, eventDetails);
+    },
+    [onOpenChange, trackingTitle, dirtyContext]
+  );
+
+  const markCancelClose = useCallback(() => {
+    if (trackingTitle) {
+      closeTracked.current = true;
+      const dismissAction = dirtyContext?.hasUnsavedChanges ? "cancel" : "close";
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", dismissAction, {
+        method: "cancel-button"
+      });
+    }
+  }, [trackingTitle, dirtyContext]);
+
+  return (
+    <DialogTrackingContext.Provider value={{ markCancelClose }}>
+      <DialogPrimitive.Root data-slot="dialog" open={open} onOpenChange={handleOpenChange} {...props} />
+    </DialogTrackingContext.Provider>
+  );
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
@@ -25,11 +105,15 @@ function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
 // the cancel button bypasses the unsaved changes warning.
 function DialogClose({ render, children, ...props }: DialogPrimitive.Close.Props) {
   const dirtyDialogContext = useContext(DirtyDialogContext);
+  const trackingContext = useContext(DialogTrackingContext);
   if (dirtyDialogContext && render && isValidElement(render)) {
     const renderProps = render.props as { type?: string };
     if (renderProps.type === "reset") {
       return cloneElement(render as React.ReactElement<{ onClick?: () => void; children?: ReactNode }>, {
-        onClick: dirtyDialogContext.cancel,
+        onClick: () => {
+          trackingContext?.markCancelClose();
+          dirtyDialogContext.cancel();
+        },
         children
       });
     }

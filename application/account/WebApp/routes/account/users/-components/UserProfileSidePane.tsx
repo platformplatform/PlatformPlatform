@@ -164,7 +164,13 @@ export function UserProfileSidePane({
 
   return (
     <>
-      <SidePane isOpen={isOpen} onOpenChange={(open) => !open && onClose()} aria-label={t`User profile`}>
+      <SidePane
+        isOpen={isOpen}
+        onOpenChange={(open) => !open && onClose()}
+        trackingTitle="User profile"
+        trackingKey={user?.id}
+        aria-label={t`User profile`}
+      >
         <SidePaneHeader closeButtonLabel={t`Close user profile`}>
           <Trans>User profile</Trans>
         </SidePaneHeader>

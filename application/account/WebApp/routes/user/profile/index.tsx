@@ -16,6 +16,7 @@ import { UserProfileFields } from "@/shared/components/UserProfileFields";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/user/profile/")({
+  staticData: { trackingTitle: "User profile" },
   component: ProfilePage
 });
 

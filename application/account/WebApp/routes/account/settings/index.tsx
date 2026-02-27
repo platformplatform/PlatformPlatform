@@ -20,6 +20,7 @@ import { api, type Schemas, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({
+  staticData: { trackingTitle: "Account settings" },
   component: AccountSettings
 });
 
