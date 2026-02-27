@@ -24,6 +24,7 @@ import azureSecurity from "@/shared/images/icons/azure-security.svg";
 import platformLogo from "@/shared/images/logo-mark.svg";
 
 export const Route = createFileRoute("/legal/")({
+  staticData: { trackingTitle: "Legal and compliance" },
   component: LegalIndex
 });
 

@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction, useTrackOpen } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { authSyncService, type TenantSwitchedMessage } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -341,6 +342,7 @@ export function MobileMenuDialogs() {
       return;
     }
 
+    trackInteraction("Switch account", "interaction");
     setIsSwitching(true);
     setIsTenantSwitcherOpen(false);
 
@@ -394,6 +396,8 @@ export default function MobileMenu({ onNavigate }: Readonly<MobileMenuProps>) {
   const overlayCtx = useContext(overlayContext);
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
 
+  useTrackOpen("Mobile menu", "menu");
+
   useEffect(() => {
     if (userInfo?.isAuthenticated) {
       fetchTenants()
@@ -412,6 +416,7 @@ export default function MobileMenu({ onNavigate }: Readonly<MobileMenuProps>) {
   };
 
   const handleOpenTenantSwitcher = () => {
+    trackInteraction("Switch account", "menu", "open");
     window.dispatchEvent(new CustomEvent("open-tenant-switcher", { detail: { tenants } }));
     setTimeout(() => {
       if (overlayCtx?.isOpen) {

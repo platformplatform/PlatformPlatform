@@ -1,6 +1,6 @@
 import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import { useUserInfo } from "../auth/hooks";
 
 const reactPlugin = new ReactPlugin();
@@ -60,6 +60,63 @@ const applicationInsights = new ApplicationInsights({
 
 // Load the Application Insights script
 applicationInsights.loadAppInsights();
+
+export type TrackingType = "page" | "menu" | "dialog" | "sidepane" | "interaction";
+export type TrackingAction = "open" | "close" | "submit" | "cancel" | "confirm";
+
+export function trackInteraction(
+  name: string,
+  type: "page" | "interaction",
+  action?: string,
+  extraProperties?: Record<string, string>
+): void;
+export function trackInteraction(
+  name: string,
+  type: "menu" | "dialog" | "sidepane",
+  action: TrackingAction,
+  extraProperties?: Record<string, string>
+): void;
+export function trackInteraction(
+  name: string,
+  type: TrackingType,
+  action?: string,
+  extraProperties?: Record<string, string>
+) {
+  applicationInsights.trackPageView({
+    name: action ? `${name} - ${action}${type === "interaction" ? "" : ` ${type}`}` : name,
+    uri: window.location.href,
+    properties: { type, ...extraProperties }
+  });
+}
+
+// Register on window for cross-module-federation access.
+// Components in @repo/ui cannot import from @repo/infrastructure due to rootDir boundaries,
+// so they call this via the window global instead.
+(window as unknown as { __trackInteraction: typeof trackInteraction }).__trackInteraction = trackInteraction;
+
+export function useTrackOpen(name: string, type: "menu" | "dialog" | "sidepane", isOpen = true, key?: string) {
+  const prevOpen = useRef(false);
+  const prevKey = useRef(key);
+  useEffect(() => {
+    const opened = isOpen && !prevOpen.current;
+    const contentChanged = isOpen && prevOpen.current && key !== undefined && key !== prevKey.current;
+    if (opened || contentChanged) {
+      trackInteraction(name, type, "open");
+    }
+    prevOpen.current = isOpen;
+    prevKey.current = key;
+  }, [isOpen, name, type, key]);
+}
+
+export function useTrackClose(name: string, type: "menu" | "dialog" | "sidepane", isOpen = true) {
+  const prevOpen = useRef(false);
+  useEffect(() => {
+    if (!isOpen && prevOpen.current) {
+      trackInteraction(name, type, "close");
+    }
+    prevOpen.current = isOpen;
+  }, [isOpen, name, type]);
+}
 
 // Export for error tracking
 export { applicationInsights };

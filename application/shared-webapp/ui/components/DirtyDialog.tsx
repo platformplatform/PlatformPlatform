@@ -5,6 +5,7 @@ import { UnsavedChangesAlertDialog } from "./UnsavedChangesAlertDialog";
 
 type DirtyDialogContextValue = {
   cancel: () => void;
+  hasUnsavedChanges: boolean;
 };
 
 export const DirtyDialogContext = createContext<DirtyDialogContextValue | null>(null);
@@ -60,7 +61,7 @@ export function DirtyDialog({
 
   return (
     <>
-      <DirtyDialogContext.Provider value={{ cancel: closeDialog }}>
+      <DirtyDialogContext.Provider value={{ cancel: closeDialog, hasUnsavedChanges }}>
         <Dialog open={open} onOpenChange={handleDialogOpenChange} {...dialogProps}>
           {children}
         </Dialog>

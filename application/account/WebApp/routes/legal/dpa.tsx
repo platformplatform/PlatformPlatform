@@ -4,6 +4,7 @@ import PublicFooter from "@/federated-modules/public/PublicFooter";
 import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 
 export const Route = createFileRoute("/legal/dpa")({
+  staticData: { trackingTitle: "Data processing agreement" },
   component: DataProcessingAgreement
 });
 
