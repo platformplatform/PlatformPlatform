@@ -31,6 +31,8 @@ public sealed class OpenTelemetryEnricherTests
             TenantId = tenantId,
             SessionId = sessionId,
             Locale = "en-US",
+            ZoomLevel = "1.25",
+            Theme = "dark",
             Role = "Admin",
             IsInternalUser = false
         };
@@ -59,6 +61,12 @@ public sealed class OpenTelemetryEnricherTests
             // Assert
             var sessionIdTag = activity.Tags.FirstOrDefault(t => t.Key == "user.session_id");
             sessionIdTag.Value.Should().Be(sessionId.Value);
+
+            var zoomLevelTag = activity.Tags.FirstOrDefault(t => t.Key == "user.zoom_level");
+            zoomLevelTag.Value.Should().Be("1.25");
+
+            var themeTag = activity.Tags.FirstOrDefault(t => t.Key == "user.theme");
+            themeTag.Value.Should().Be("dark");
         }
     }
 
@@ -103,6 +111,9 @@ public sealed class OpenTelemetryEnricherTests
             // Assert
             var sessionIdTag = activity.Tags.FirstOrDefault(t => t.Key == "user.session_id");
             sessionIdTag.Value.Should().BeNull();
+
+            activity.Tags.Should().NotContain(t => t.Key == "user.zoom_level");
+            activity.Tags.Should().NotContain(t => t.Key == "user.theme");
         }
     }
 

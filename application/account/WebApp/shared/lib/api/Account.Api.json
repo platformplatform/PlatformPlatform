@@ -1443,6 +1443,70 @@
           }
         }
       }
+    },
+    "/api/account/users/me/change-zoom-level": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountUsersMeChangeZoomLevel",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeZoomLevelCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/users/me/change-theme": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PutApiAccountUsersMeChangeTheme",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangeThemeCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2199,6 +2263,34 @@
         "properties": {
           "locale": {
             "type": "string"
+          }
+        }
+      },
+      "ChangeZoomLevelCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fromZoomLevel": {
+            "type": "string"
+          },
+          "zoomLevel": {
+            "type": "string"
+          }
+        }
+      },
+      "ChangeThemeCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fromTheme": {
+            "type": "string"
+          },
+          "theme": {
+            "type": "string"
+          },
+          "resolvedTheme": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

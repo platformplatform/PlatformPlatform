@@ -78,6 +78,12 @@ function PreferencesPage() {
   ];
 
   const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale");
+  const changeZoomLevelMutation = api.useMutation("put", "/api/account/users/me/change-zoom-level", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const changeThemeMutation = api.useMutation("put", "/api/account/users/me/change-theme", {
+    meta: { skipQueryInvalidation: true }
+  });
 
   useEffect(() => {
     const htmlLang = document.documentElement.lang as Locale;
@@ -118,6 +124,8 @@ function PreferencesPage() {
       return;
     }
 
+    changeZoomLevelMutation.mutate({ body: { fromZoomLevel: currentZoomLevel, zoomLevel: value } });
+
     if (value === "1") {
       localStorage.removeItem(zoomLevelStorageKey);
     } else {
@@ -125,6 +133,17 @@ function PreferencesPage() {
     }
     document.documentElement.style.setProperty("--zoom-level", value);
     setCurrentZoomLevel(value);
+  };
+
+  const handleThemeChange = (newTheme: string) => {
+    changeThemeMutation.mutate({
+      body: {
+        fromTheme: theme ?? "system",
+        theme: newTheme,
+        resolvedTheme: newTheme === "system" ? (resolvedTheme ?? null) : null
+      }
+    });
+    setTheme(newTheme);
   };
 
   const getSystemThemeIcon = () => {
@@ -155,19 +174,19 @@ function PreferencesPage() {
               icon={getSystemThemeIcon()}
               label={t`System`}
               isSelected={theme === ThemeMode.System}
-              onClick={() => setTheme(ThemeMode.System)}
+              onClick={() => handleThemeChange(ThemeMode.System)}
             />
             <OptionCard
               icon={<SunIcon className="size-5" />}
               label={t`Light`}
               isSelected={theme === ThemeMode.Light}
-              onClick={() => setTheme(ThemeMode.Light)}
+              onClick={() => handleThemeChange(ThemeMode.Light)}
             />
             <OptionCard
               icon={<MoonIcon className="size-5" />}
               label={t`Dark`}
               isSelected={theme === ThemeMode.Dark}
-              onClick={() => setTheme(ThemeMode.Dark)}
+              onClick={() => handleThemeChange(ThemeMode.Dark)}
             />
           </div>
         </section>

@@ -126,8 +126,14 @@ public sealed class UserRestored(UserId userId)
 public sealed class UserRoleChanged(UserId userId, UserRole fromRole, UserRole toRole)
     : TelemetryEvent(("user_id", userId), ("from_role", fromRole), ("to_role", toRole));
 
+public sealed class UserThemeChanged(string fromTheme, string toTheme, string? resolvedTheme)
+    : TelemetryEvent(("from_theme", fromTheme), ("to_theme", toTheme), ("resolved_theme", resolvedTheme as object ?? "none"));
+
 public sealed class UserUpdated
     : TelemetryEvent;
+
+public sealed class UserZoomLevelChanged(string fromZoomLevel, string toZoomLevel)
+    : TelemetryEvent(("from_zoom_level", fromZoomLevel), ("to_zoom_level", toZoomLevel));
 
 public sealed class UsersBulkDeleted(int count)
     : TelemetryEvent(("count", count));

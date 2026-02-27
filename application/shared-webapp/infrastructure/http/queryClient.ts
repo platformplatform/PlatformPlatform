@@ -40,6 +40,11 @@ function createHttpMiddleware() {
         request.headers.set("x-xsrf-token", import.meta.antiforgeryToken);
       }
 
+      // Send zoom level and theme for telemetry enrichment
+      request.headers.set("x-zoom-level", localStorage.getItem("zoom-level") ?? "1");
+
+      request.headers.set("x-theme", document.documentElement.classList.contains("dark") ? "Dark" : "Light");
+
       // Handle request timeout with AbortController
       const abortController = new AbortController();
       setTimeout(() => {

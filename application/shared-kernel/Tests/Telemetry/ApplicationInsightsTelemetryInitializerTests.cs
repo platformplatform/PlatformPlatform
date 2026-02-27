@@ -27,6 +27,8 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
             TenantId = tenantId,
             SessionId = sessionId,
             Locale = "en-US",
+            ZoomLevel = "1.25",
+            Theme = "dark",
             Role = "Admin",
             IsInternalUser = false
         };
@@ -47,6 +49,12 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
         // Assert
         telemetry.Context.GlobalProperties.Should().ContainKey("user.session_id");
         telemetry.Context.GlobalProperties["user.session_id"].Should().Be(sessionId.Value);
+
+        telemetry.Context.GlobalProperties.Should().ContainKey("user.zoom_level");
+        telemetry.Context.GlobalProperties["user.zoom_level"].Should().Be("1.25");
+
+        telemetry.Context.GlobalProperties.Should().ContainKey("user.theme");
+        telemetry.Context.GlobalProperties["user.theme"].Should().Be("dark");
     }
 
     [Fact]
@@ -75,6 +83,8 @@ public sealed class ApplicationInsightsTelemetryInitializerTests
 
         // Assert
         telemetry.Context.GlobalProperties.Should().NotContainKey("user.session_id");
+        telemetry.Context.GlobalProperties.Should().NotContainKey("user.zoom_level");
+        telemetry.Context.GlobalProperties.Should().NotContainKey("user.theme");
     }
 
     [Fact]

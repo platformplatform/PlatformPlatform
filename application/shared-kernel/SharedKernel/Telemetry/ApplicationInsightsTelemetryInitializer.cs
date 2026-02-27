@@ -40,6 +40,8 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.id", executionContext.UserInfo.Id);
         AddCustomProperty(telemetry, "user.is_authenticated", executionContext.UserInfo.IsAuthenticated);
         AddCustomProperty(telemetry, "user.locale", executionContext.UserInfo.Locale);
+        AddCustomProperty(telemetry, "user.zoom_level", executionContext.UserInfo.ZoomLevel);
+        AddCustomProperty(telemetry, "user.theme", executionContext.UserInfo.Theme);
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
     }
