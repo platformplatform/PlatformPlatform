@@ -183,7 +183,12 @@ export function AccountSettings() {
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
 
-      <UnsavedChangesDialog isOpen={isConfirmDialogOpen} onConfirmLeave={confirmLeave} onCancel={cancelLeave} />
+      <UnsavedChangesDialog
+        isOpen={isConfirmDialogOpen}
+        onConfirmLeave={confirmLeave}
+        onCancel={cancelLeave}
+        parentTrackingTitle="Account settings"
+      />
     </>
   );
 }

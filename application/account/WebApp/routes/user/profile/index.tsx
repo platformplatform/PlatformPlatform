@@ -132,7 +132,12 @@ function ProfilePage() {
         </Form>
       </AppLayout>
 
-      <UnsavedChangesDialog isOpen={isConfirmDialogOpen} onConfirmLeave={confirmLeave} onCancel={cancelLeave} />
+      <UnsavedChangesDialog
+        isOpen={isConfirmDialogOpen}
+        onConfirmLeave={confirmLeave}
+        onCancel={cancelLeave}
+        parentTrackingTitle="User profile"
+      />
     </>
   );
 }

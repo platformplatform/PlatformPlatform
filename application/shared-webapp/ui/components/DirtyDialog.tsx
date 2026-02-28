@@ -74,6 +74,7 @@ export function DirtyDialog({
         title={unsavedChangesTitle}
         actionLabel={leaveLabel}
         cancelLabel={stayLabel}
+        parentTrackingTitle={dialogProps.trackingTitle}
       >
         {unsavedChangesMessage}
       </UnsavedChangesAlertDialog>

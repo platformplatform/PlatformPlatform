@@ -42,7 +42,7 @@ function mapCloseReason(reason: string, event?: Event): string {
   }
 }
 
-export type DialogProps = DialogPrimitive.Root.Props & { trackingTitle?: string };
+export type DialogProps = DialogPrimitive.Root.Props & { trackingTitle: string };
 
 function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
   const dirtyContext = useContext(DirtyDialogContext);
@@ -50,23 +50,23 @@ function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
   const closeTracked = useRef(false);
 
   useEffect(() => {
-    if (open && !prevOpen.current && trackingTitle) {
+    if (open && !prevOpen.current) {
       (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
     }
-    if (!open && prevOpen.current && trackingTitle && !closeTracked.current) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "submit");
+    if (!open && prevOpen.current && !closeTracked.current) {
+      const action = dirtyContext?.hasUnsavedChanges ? "close" : "submit";
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", action);
     }
     closeTracked.current = false;
     prevOpen.current = !!open;
-  }, [open, trackingTitle]);
+  }, [open, trackingTitle, dirtyContext]);
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean, eventDetails: DialogPrimitive.Root.ChangeEventDetails) => {
-      if (!nextOpen && trackingTitle && eventDetails.reason) {
+      if (!nextOpen && eventDetails.reason && !dirtyContext?.hasUnsavedChanges) {
         closeTracked.current = true;
-        const dismissAction = dirtyContext?.hasUnsavedChanges ? "cancel" : "close";
         const method = mapCloseReason(eventDetails.reason, eventDetails.event);
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", dismissAction, {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "close", {
           method
         });
       }
@@ -76,14 +76,11 @@ function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
   );
 
   const markCancelClose = useCallback(() => {
-    if (trackingTitle) {
-      closeTracked.current = true;
-      const dismissAction = dirtyContext?.hasUnsavedChanges ? "cancel" : "close";
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", dismissAction, {
-        method: "cancel-button"
-      });
-    }
-  }, [trackingTitle, dirtyContext]);
+    closeTracked.current = true;
+    (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "cancel", {
+      method: "cancel-button"
+    });
+  }, [trackingTitle]);
 
   return (
     <DialogTrackingContext.Provider value={{ markCancelClose }}>
