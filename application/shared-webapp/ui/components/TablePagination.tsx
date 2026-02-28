@@ -3,6 +3,10 @@ import type { ReactNode } from "react";
 import { Button } from "./Button";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink } from "./Pagination";
 
+type WindowWithTracking = {
+  __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
+};
+
 type TablePaginationProps = {
   paginationSize?: number;
   currentPage: number;
@@ -10,6 +14,7 @@ type TablePaginationProps = {
   previousLabel?: ReactNode;
   nextLabel?: ReactNode;
   onPageChange: (page: number) => void;
+  trackingTitle?: string;
   className?: string;
 };
 
@@ -20,6 +25,7 @@ export function TablePagination({
   onPageChange,
   previousLabel,
   nextLabel,
+  trackingTitle,
   className
 }: Readonly<TablePaginationProps>) {
   if (paginationSize % 2 === 0 || paginationSize < 5) {
@@ -28,6 +34,13 @@ export function TablePagination({
 
   const pageNumbers = getPageNumbers(currentPage, totalPages, paginationSize);
 
+  const handlePageChange = (page: number, action: string) => {
+    if (trackingTitle) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "interaction", action);
+    }
+    onPageChange(page);
+  };
+
   return (
     <Pagination className={className}>
       <PaginationContent>
@@ -35,7 +48,7 @@ export function TablePagination({
           <Button
             variant="ghost"
             size="default"
-            onClick={() => onPageChange(currentPage - 1)}
+            onClick={() => handlePageChange(currentPage - 1, "Previous page")}
             disabled={currentPage === 1}
             aria-label={previousLabel ? String(previousLabel) : "Previous page"}
             className="gap-1 pl-2.5"
@@ -56,7 +69,7 @@ export function TablePagination({
                 href="#"
                 onClick={(e) => {
                   e.preventDefault();
-                  onPageChange(page);
+                  handlePageChange(page, `Page ${page}`);
                 }}
                 isActive={page === currentPage}
                 className="tabular-nums"
@@ -71,7 +84,7 @@ export function TablePagination({
           <Button
             variant="ghost"
             size="default"
-            onClick={() => onPageChange(currentPage + 1)}
+            onClick={() => handlePageChange(currentPage + 1, "Next page")}
             disabled={currentPage === totalPages}
             aria-label={nextLabel ? String(nextLabel) : "Next page"}
             className="gap-1 pr-2.5"

@@ -598,6 +598,7 @@ function UserTableContent({
             onPageChange={handlePageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}
+            trackingTitle="Users"
             className="w-full"
           />
         </div>
