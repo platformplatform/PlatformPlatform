@@ -428,6 +428,9 @@ msgstr "Current"
 msgid "Current plan"
 msgstr "Current plan"
 
+msgid "Customer deleted"
+msgstr "Customer deleted"
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Customize your theme, language, and zoom settings."
 
@@ -907,6 +910,9 @@ msgstr "Payment authentication failed."
 msgid "Payment could not be processed. Please try again later."
 msgstr "Payment could not be processed. Please try again later."
 
+msgid "Payment failed"
+msgstr "Payment failed"
+
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Payment failed. Your subscription will be suspended soon."
 
@@ -1226,6 +1232,9 @@ msgstr "Subscription tabs"
 
 msgid "Succeeded"
 msgstr "Succeeded"
+
+msgid "Suspended"
+msgstr "Suspended"
 
 msgid "Switch account"
 msgstr "Switch account"
