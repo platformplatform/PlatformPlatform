@@ -14,7 +14,7 @@ type TablePaginationProps = {
   previousLabel?: ReactNode;
   nextLabel?: ReactNode;
   onPageChange: (page: number) => void;
-  trackingTitle?: string;
+  trackingTitle: string;
   className?: string;
 };
 
@@ -35,9 +35,7 @@ export function TablePagination({
   const pageNumbers = getPageNumbers(currentPage, totalPages, paginationSize);
 
   const handlePageChange = (page: number, action: string) => {
-    if (trackingTitle) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "interaction", action);
-    }
+    (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "interaction", action);
     onPageChange(page);
   };
 

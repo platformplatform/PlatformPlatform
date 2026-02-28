@@ -19,6 +19,7 @@ type UnsavedChangesAlertDialogProps = {
   actionLabel: string;
   cancelLabel: string;
   children: ReactNode;
+  parentTrackingTitle: string;
 };
 
 export function UnsavedChangesAlertDialog({
@@ -28,10 +29,15 @@ export function UnsavedChangesAlertDialog({
   title,
   actionLabel,
   cancelLabel,
-  children
+  children,
+  parentTrackingTitle
 }: Readonly<UnsavedChangesAlertDialogProps>) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+    <AlertDialog
+      open={isOpen}
+      onOpenChange={(open) => !open && onCancel()}
+      trackingTitle={`${parentTrackingTitle} unsaved changes`}
+    >
       <AlertDialogContent>
         <div className="absolute top-6 right-6 size-6 stroke-2 text-destructive">
           <AlertCircleIcon aria-hidden={true} />
