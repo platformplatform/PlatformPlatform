@@ -131,24 +131,28 @@ export function StartSignupForm() {
           <Trans>Sign up with email</Trans>
         )}
       </Button>
-      <div className="flex w-full items-center gap-4">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-muted-foreground text-sm">
-          <Trans>or</Trans>
-        </span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleSignup}
-        disabled={isPending}
-        aria-busy={isGoogleSignupPending}
-      >
-        <img src={googleIconUrl} alt="" aria-hidden="true" className="size-5" />
-        {isGoogleSignupPending ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
-      </Button>
+      {import.meta.runtime_env.PUBLIC_GOOGLE_OAUTH_ENABLED === "true" && (
+        <>
+          <div className="flex w-full items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-muted-foreground text-sm">
+              <Trans>or</Trans>
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignup}
+            disabled={isPending}
+            aria-busy={isGoogleSignupPending}
+          >
+            <img src={googleIconUrl} alt="" aria-hidden="true" className="size-5" />
+            {isGoogleSignupPending ? <Trans>Redirecting...</Trans> : <Trans>Sign up with Google</Trans>}
+          </Button>
+        </>
+      )}
       <p className="text-muted-foreground text-sm">
         <Trans>Do you already have an account?</Trans>{" "}
         <Link href={loginPath}>

@@ -6,6 +6,13 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const MOCK_PROVIDER_COOKIE = "__Test_Use_Mock_Provider";
 
+test.beforeEach(async ({ page }) => {
+  await page.goto("/signup");
+  await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
+  const googleButtonCount = await page.getByRole("button", { name: "Sign up with Google" }).count();
+  test.skip(googleButtonCount === 0, "Google OAuth is not enabled");
+});
+
 async function setMockProviderCookie(page: Page, value: string): Promise<void> {
   await page.context().addCookies([
     {

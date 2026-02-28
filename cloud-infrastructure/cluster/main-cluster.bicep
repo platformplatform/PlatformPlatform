@@ -240,6 +240,10 @@ var accountManagementEnvironmentVariables = [
     name: 'SENDER_EMAIL_ADDRESS'
     value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
   }
+  {
+    name: 'PUBLIC_GOOGLE_OAUTH_ENABLED'
+    value: !empty(googleOAuthClientId) && !empty(googleOAuthClientSecret) ? 'true' : 'false'
+  }
 ]
 
 module accountManagementWorkers '../modules/container-app.bicep' = {

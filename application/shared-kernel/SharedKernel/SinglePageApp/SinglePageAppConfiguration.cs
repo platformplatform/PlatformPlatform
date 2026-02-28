@@ -30,7 +30,7 @@ public class SinglePageAppConfiguration
     private string? _htmlTemplate;
     private string? _remoteEntryJsContent;
 
-    public SinglePageAppConfiguration(bool isDevelopment, (string Key, string Value)[] environmentVariables)
+    public SinglePageAppConfiguration(bool isDevelopment, Dictionary<string, string>? environmentVariables)
     {
         // Environment variables are empty when generating EF Core migrations
         PublicUrl = Environment.GetEnvironmentVariable(PublicUrlKey) ?? string.Empty;
@@ -44,9 +44,12 @@ public class SinglePageAppConfiguration
             { ApplicationVersionKey, applicationVersion }
         };
 
-        foreach (var environmentVariable in environmentVariables)
+        if (environmentVariables is not null)
         {
-            StaticRuntimeEnvironment.Add(environmentVariable.Key, environmentVariable.Value);
+            foreach (var environmentVariable in environmentVariables)
+            {
+                StaticRuntimeEnvironment.Add(environmentVariable.Key, environmentVariable.Value);
+            }
         }
 
         var staticRuntimeEnvironmentEncoded = JsonSerializer.Serialize(StaticRuntimeEnvironment, JsonHtmlEncodingOptions);
