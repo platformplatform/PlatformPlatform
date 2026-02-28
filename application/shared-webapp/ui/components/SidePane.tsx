@@ -151,7 +151,7 @@ interface SidePaneProps {
   children: React.ReactNode;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  trackingTitle?: string;
+  trackingTitle: string;
   trackingKey?: string;
   className?: string;
   "aria-label"?: string;
@@ -174,15 +174,13 @@ function SidePane({
   isOpenRef.current = isOpen;
 
   useEffect(() => {
-    if (trackingTitle) {
-      const opened = isOpen && !prevOpen.current;
-      const contentChanged = isOpen && prevOpen.current && trackingKey !== undefined && trackingKey !== prevKey.current;
-      if (opened || contentChanged) {
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "open");
-      }
-      if (!isOpen && prevOpen.current) {
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "close");
-      }
+    const opened = isOpen && !prevOpen.current;
+    const contentChanged = isOpen && prevOpen.current && trackingKey !== undefined && trackingKey !== prevKey.current;
+    if (opened || contentChanged) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "open");
+    }
+    if (!isOpen && prevOpen.current) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "close");
     }
     prevOpen.current = isOpen;
     prevKey.current = trackingKey;
@@ -192,7 +190,7 @@ function SidePane({
     clearTimeout(pendingCloseTimer);
     pendingCloseTimer = undefined;
     return () => {
-      if (isOpenRef.current && trackingTitle) {
+      if (isOpenRef.current) {
         const title = trackingTitle;
         pendingCloseTimer = setTimeout(() => {
           (window as unknown as WindowWithTracking).__trackInteraction?.(title, "sidepane", "close");

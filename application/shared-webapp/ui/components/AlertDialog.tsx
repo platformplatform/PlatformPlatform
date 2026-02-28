@@ -14,15 +14,15 @@ function AlertDialog({
   onOpenChange,
   open,
   ...props
-}: AlertDialogPrimitive.Root.Props & { trackingTitle?: string }) {
+}: AlertDialogPrimitive.Root.Props & { trackingTitle: string }) {
   const prevOpen = useRef(false);
   const closeTracked = useRef(false);
 
   useEffect(() => {
-    if (open && !prevOpen.current && trackingTitle) {
+    if (open && !prevOpen.current) {
       (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
     }
-    if (!open && prevOpen.current && trackingTitle && !closeTracked.current) {
+    if (!open && prevOpen.current && !closeTracked.current) {
       (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "confirm");
     }
     closeTracked.current = false;
@@ -31,9 +31,9 @@ function AlertDialog({
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean, eventDetails: AlertDialogPrimitive.Root.ChangeEventDetails) => {
-      if (!nextOpen && trackingTitle && eventDetails.reason) {
+      if (!nextOpen && eventDetails.reason) {
         closeTracked.current = true;
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "close", {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "cancel", {
           method: "cancel-button"
         });
       }

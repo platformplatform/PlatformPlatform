@@ -58,7 +58,7 @@ function TenantSwitcherDrawer({
   const sortedTenants = sortTenants(tenants);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange} modal={false}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} modal={false} trackingTitle="Switch account">
       <DialogContent
         className="top-auto bottom-0 h-auto max-h-[70dvh] translate-y-0 rounded-t-2xl sm:top-auto sm:bottom-0 sm:max-h-[70dvh] sm:-translate-y-0 sm:rounded-t-2xl sm:rounded-b-none"
         showCloseButton={false}

@@ -82,7 +82,7 @@ export default function AuthSyncModal({ isOpen, type, newTenantName, onPrimaryAc
   const content = getModalContent();
 
   return (
-    <Dialog open={isOpen}>
+    <Dialog open={isOpen} trackingTitle="Account sync">
       <DialogContent showCloseButton={false} className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>{content.title}</DialogTitle>
