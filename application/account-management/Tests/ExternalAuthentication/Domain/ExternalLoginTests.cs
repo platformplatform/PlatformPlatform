@@ -14,8 +14,8 @@ public sealed class ExternalLoginTests
     {
         // Act
         var externalLogin = ExternalLogin.Create(
-            ExternalProviderType.Google,
             ExternalLoginType.Login,
+            ExternalProviderType.Google,
             "code-verifier-123",
             "nonce-abc",
             "browser-fingerprint-abc"
@@ -23,8 +23,9 @@ public sealed class ExternalLoginTests
 
         // Assert
         externalLogin.Id.Should().NotBeNull();
-        externalLogin.ProviderType.Should().Be(ExternalProviderType.Google);
         externalLogin.Type.Should().Be(ExternalLoginType.Login);
+        externalLogin.ProviderType.Should().Be(ExternalProviderType.Google);
+        externalLogin.Email.Should().BeNull();
         externalLogin.CodeVerifier.Should().Be("code-verifier-123");
         externalLogin.Nonce.Should().Be("nonce-abc");
         externalLogin.BrowserFingerprint.Should().Be("browser-fingerprint-abc");
@@ -33,15 +34,16 @@ public sealed class ExternalLoginTests
     }
 
     [Fact]
-    public void MarkCompleted_WhenNotYetConsumed_ShouldSetLoginResultToSuccess()
+    public void MarkCompleted_WhenNotYetConsumed_ShouldSetLoginResultToSuccessAndEmail()
     {
         // Arrange
         var externalLogin = CreateExternalLogin();
 
         // Act
-        externalLogin.MarkCompleted();
+        externalLogin.MarkCompleted("user@example.com");
 
         // Assert
+        externalLogin.Email.Should().Be("user@example.com");
         externalLogin.LoginResult.Should().Be(ExternalLoginResult.Success);
         externalLogin.IsConsumed.Should().BeTrue();
     }
@@ -51,10 +53,10 @@ public sealed class ExternalLoginTests
     {
         // Arrange
         var externalLogin = CreateExternalLogin();
-        externalLogin.MarkCompleted();
+        externalLogin.MarkCompleted("user@example.com");
 
         // Act
-        var act = () => externalLogin.MarkCompleted();
+        var act = () => externalLogin.MarkCompleted("user@example.com");
 
         // Assert
         act.Should().Throw<UnreachableException>()
@@ -69,7 +71,7 @@ public sealed class ExternalLoginTests
         externalLogin.MarkFailed(ExternalLoginResult.CodeExchangeFailed);
 
         // Act
-        var act = () => externalLogin.MarkCompleted();
+        var act = () => externalLogin.MarkCompleted("user@example.com");
 
         // Assert
         act.Should().Throw<UnreachableException>()
@@ -109,7 +111,7 @@ public sealed class ExternalLoginTests
     {
         // Arrange
         var externalLogin = CreateExternalLogin();
-        externalLogin.MarkCompleted();
+        externalLogin.MarkCompleted("user@example.com");
 
         // Act
         var act = () => externalLogin.MarkFailed(ExternalLoginResult.LoginExpired);
@@ -253,8 +255,8 @@ public sealed class ExternalLoginTests
     private static ExternalLogin CreateExternalLogin()
     {
         return ExternalLogin.Create(
-            ExternalProviderType.Google,
             ExternalLoginType.Login,
+            ExternalProviderType.Google,
             "code-verifier",
             "nonce-value",
             "browser-fingerprint"

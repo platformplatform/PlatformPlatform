@@ -95,7 +95,7 @@ public sealed class CompleteExternalSignupHandler(
 
             userRepository.Update(user);
 
-            externalLogin.MarkCompleted();
+            externalLogin.MarkCompleted(userProfile.Email);
             externalLoginRepository.Update(externalLogin);
 
             var httpContext = httpContextAccessor.HttpContext!;
