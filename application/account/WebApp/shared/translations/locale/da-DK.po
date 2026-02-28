@@ -428,6 +428,9 @@ msgstr "Nuværende"
 msgid "Current plan"
 msgstr "Nuværende plan"
 
+msgid "Customer deleted"
+msgstr "Kunde slettet"
+
 msgid "Customize your theme, language, and zoom settings."
 msgstr "Tilpas dit tema, sprog og zoomindstillinger."
 
@@ -907,6 +910,9 @@ msgstr "Betalingsgodkendelse mislykkedes."
 msgid "Payment could not be processed. Please try again later."
 msgstr "Betalingen kunne ikke gennemføres. Prøv igen senere."
 
+msgid "Payment failed"
+msgstr "Betaling mislykkedes"
+
 msgid "Payment failed. Your subscription will be suspended soon."
 msgstr "Betaling mislykkedes. Dit abonnement vil blive suspenderet snart."
 
@@ -1226,6 +1232,9 @@ msgstr "Abonnementsfaner"
 
 msgid "Succeeded"
 msgstr "Gennemført"
+
+msgid "Suspended"
+msgstr "Suspenderet"
 
 msgid "Switch account"
 msgstr "Skift konto"
