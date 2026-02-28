@@ -10,13 +10,14 @@ import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
-import { api, type Schemas, UserRole } from "@/shared/lib/api/client";
+import { api, type Schemas, SuspensionReason, TenantState, UserRole } from "@/shared/lib/api/client";
+import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({
@@ -46,8 +47,29 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
   );
 }
 
+const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+
 function AccountInfoFields({ tenant }: { tenant: Schemas["TenantResponse"] | undefined }) {
   const formatDate = useFormatDate();
+  const { data: subscription } = api.useQuery(
+    "get",
+    "/api/account/subscriptions/current",
+    {},
+    { enabled: isSubscriptionEnabled }
+  );
+
+  const isSuspended = tenant?.state === TenantState.Suspended;
+
+  function getSuspensionReasonLabel(reason: string | null | undefined): string {
+    switch (reason) {
+      case SuspensionReason.PaymentFailed:
+        return t`Payment failed`;
+      case SuspensionReason.CustomerDeleted:
+        return t`Customer deleted`;
+      default:
+        return "";
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 gap-3 text-sm sm:flex sm:justify-between md:grid md:grid-cols-1 md:gap-3 lg:flex lg:justify-between">
@@ -68,11 +90,32 @@ function AccountInfoFields({ tenant }: { tenant: Schemas["TenantResponse"] | und
           <Trans>Status</Trans>
         </span>
         <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="bg-success text-success-foreground">
-            <Trans>Active</Trans>
-          </Badge>
+          {isSuspended ? (
+            <>
+              <Badge variant="destructive">
+                <Trans>Suspended</Trans>
+              </Badge>
+              {tenant?.suspensionReason && (
+                <span className="text-muted-foreground">{getSuspensionReasonLabel(tenant.suspensionReason)}</span>
+              )}
+            </>
+          ) : (
+            <Badge variant="secondary" className="bg-success text-success-foreground">
+              <Trans>Active</Trans>
+            </Badge>
+          )}
         </div>
       </div>
+      {isSubscriptionEnabled && (
+        <div className="flex justify-between sm:flex-col sm:gap-1 md:flex-row md:justify-between md:gap-0 lg:flex-col lg:gap-1">
+          <span className="text-muted-foreground">
+            <Trans>Current plan</Trans>
+          </span>
+          <Link to="/account/subscription" className="text-primary hover:underline">
+            {getPlanLabelWithFree(subscription?.plan)}
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
