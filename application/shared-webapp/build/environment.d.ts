@@ -37,6 +37,10 @@ export declare global {
      * Culture locale
      **/
     LOCALE: string;
+    /**
+     * Google OAuth enabled
+     **/
+    PUBLIC_GOOGLE_OAUTH_ENABLED: string;
   }
 
   export interface UserInfoEnv {

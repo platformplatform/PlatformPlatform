@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
@@ -105,6 +106,18 @@ public class AuthenticationCookieMiddleware(
             context.Items[UnauthorizedReasonItemKey] = nameof(UnauthorizedReason.SessionNotFound);
             logger.LogWarning(ex, "Validating or refreshing the authentication token cookies failed. {Message}", ex.Message);
         }
+        catch (HttpRequestException ex)
+        {
+            // Backend temporarily unreachable (e.g., cold start, deployment). Preserve cookies so the
+            // session recovers on the next request once the backend is available.
+            logger.LogWarning(ex, "Backend unavailable during token refresh. Path: {Path}", context.Request.Path);
+        }
+        catch (TaskCanceledException ex) when (!context.RequestAborted.IsCancellationRequested)
+        {
+            // HTTP timeout waiting for backend (not a client disconnect). Preserve cookies so the
+            // session recovers on the next request once the backend is available.
+            logger.LogWarning(ex, "Backend timed out during token refresh. Path: {Path}", context.Request.Path);
+        }
         catch (Exception ex)
         {
             DeleteCookiesForApiRequestsOnly(context);
@@ -129,6 +142,11 @@ public class AuthenticationCookieMiddleware(
             if (unauthorizedReason is not null)
             {
                 throw new SessionRevokedException(unauthorizedReason);
+            }
+
+            if (response.StatusCode is HttpStatusCode.BadGateway or HttpStatusCode.ServiceUnavailable or HttpStatusCode.GatewayTimeout)
+            {
+                throw new HttpRequestException($"Backend temporarily unavailable. Status: {response.StatusCode}.", null, response.StatusCode);
             }
 
             throw new SecurityTokenException($"Failed to refresh security tokens. Response status code: {response.StatusCode}.");

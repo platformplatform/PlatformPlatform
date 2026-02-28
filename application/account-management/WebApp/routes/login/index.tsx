@@ -116,24 +116,28 @@ export function LoginForm() {
       <Button type="submit" disabled={isPending} className="mt-4 w-full text-center">
         {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Log in with email</Trans>}
       </Button>
-      <div className="flex w-full items-center gap-4">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-muted-foreground text-sm">
-          <Trans>or</Trans>
-        </span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleLogin}
-        disabled={isPending}
-        aria-busy={isGoogleLoginPending}
-      >
-        <img src={googleIconUrl} alt="" aria-hidden="true" className="size-5" />
-        {isGoogleLoginPending ? <Trans>Redirecting...</Trans> : <Trans>Log in with Google</Trans>}
-      </Button>
+      {import.meta.runtime_env.PUBLIC_GOOGLE_OAUTH_ENABLED === "true" && (
+        <>
+          <div className="flex w-full items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-muted-foreground text-sm">
+              <Trans>or</Trans>
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleLogin}
+            disabled={isPending}
+            aria-busy={isGoogleLoginPending}
+          >
+            <img src={googleIconUrl} alt="" aria-hidden="true" className="size-5" />
+            {isGoogleLoginPending ? <Trans>Redirecting...</Trans> : <Trans>Log in with Google</Trans>}
+          </Button>
+        </>
+      )}
       <p className="text-muted-foreground text-sm">
         <Trans>
           Don't have an account? <Link href={signUpPath}>Create one</Link>

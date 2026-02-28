@@ -92,7 +92,7 @@ public static class SinglePageAppFallbackExtensions
 
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddSinglePageAppFallback(params (string Key, string Value)[] environmentVariables)
+        public IServiceCollection AddSinglePageAppFallback(Dictionary<string, string>? environmentVariables = null)
         {
             return services.AddSingleton<SinglePageAppConfiguration>(serviceProvider =>
                 {

@@ -10,24 +10,26 @@ public sealed class ExternalLogin : AggregateRoot<ExternalLoginId>
     public const int ValidForSeconds = 300;
 
     private ExternalLogin(
-        ExternalProviderType providerType,
         ExternalLoginType type,
+        ExternalProviderType providerType,
         string codeVerifier,
         string nonce,
         string browserFingerprint
     )
         : base(ExternalLoginId.NewId())
     {
-        ProviderType = providerType;
         Type = type;
+        ProviderType = providerType;
         CodeVerifier = codeVerifier;
         Nonce = nonce;
         BrowserFingerprint = browserFingerprint;
     }
 
+    public ExternalLoginType Type { get; private init; }
+
     public ExternalProviderType ProviderType { get; private init; }
 
-    public ExternalLoginType Type { get; private init; }
+    public string? Email { get; private set; }
 
     public string CodeVerifier { get; private init; }
 
@@ -51,23 +53,24 @@ public sealed class ExternalLogin : AggregateRoot<ExternalLoginId>
     }
 
     public static ExternalLogin Create(
-        ExternalProviderType providerType,
         ExternalLoginType type,
+        ExternalProviderType providerType,
         string codeVerifier,
         string nonce,
         string browserFingerprint
     )
     {
-        return new ExternalLogin(providerType, type, codeVerifier, nonce, browserFingerprint);
+        return new ExternalLogin(type, providerType, codeVerifier, nonce, browserFingerprint);
     }
 
-    public void MarkCompleted()
+    public void MarkCompleted(string email)
     {
         if (LoginResult is not null)
         {
             throw new UnreachableException("The external login has already been completed.");
         }
 
+        Email = email;
         LoginResult = ExternalLoginResult.Success;
     }
 

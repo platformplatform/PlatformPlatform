@@ -14,10 +14,7 @@ var certificatePassword = await builder.CreateSslCertificateIfNotExists();
 
 SecretManagerHelper.GenerateAuthenticationTokenSigningKey("authentication-token-signing-key");
 
-var googleOAuthClientId = builder.AddParameter("google-oauth-client-id", true)
-    .WithDescription("Google OAuth Client ID from [Google Cloud Console](https://console.cloud.google.com/apis/credentials). See README.md for setup instructions. Enter `not-configured` to skip Google OAuth.", true);
-var googleOAuthClientSecret = builder.AddParameter("google-oauth-client-secret", true)
-    .WithDescription("Google OAuth Client Secret from [Google Cloud Console](https://console.cloud.google.com/apis/credentials). See README.md for setup instructions. Enter `not-configured` to skip Google OAuth.", true);
+var (googleOAuthConfigured, googleOAuthClientId, googleOAuthClientSecret) = ConfigureGoogleOAuthParameters();
 
 var sqlPassword = builder.CreateStablePassword("sql-server-password");
 var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
@@ -73,6 +70,7 @@ var accountManagementApi = builder
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
+    .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
     .WaitFor(accountManagementWorkers);
 
 var backOfficeDatabase = sqlServer
@@ -106,6 +104,54 @@ appGateway.WithUrl($"{appGateway.GetEndpoint("https")}/openapi", "Open API");
 await builder.Build().RunAsync();
 
 return;
+
+(bool Configured, IResourceBuilder<ParameterResource> ClientId, IResourceBuilder<ParameterResource> ClientSecret) ConfigureGoogleOAuthParameters()
+{
+    _ = builder.AddParameter("google-oauth-enabled")
+        .WithDescription("""
+                         **Google OAuth** -- Enables "Sign in with Google" for login and signup using OpenID Connect with PKCE.
+
+                         **Important**: Set up OAuth credentials in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials) and configure them according to the guide in README.md **before** enabling this.
+
+                         - Enter `true` to enable Google OAuth, or `false` to skip. This can be changed later.
+                         - After enabling, **restart Aspire** to be prompted for the Client ID and Client Secret.
+
+                         See **README.md** for full setup instructions.
+                         """, true
+        );
+
+    var configured = builder.Configuration["Parameters:google-oauth-enabled"] == "true";
+
+    if (configured)
+    {
+        var clientId = builder.AddParameter("google-oauth-client-id", true)
+            .WithDescription("""
+                             Google OAuth Client ID from the [Google Cloud Console](https://console.cloud.google.com/apis/credentials). The format is `<id>.apps.googleusercontent.com`.
+
+                             **After entering this and the Client Secret, restart Aspire** to apply the configuration.
+
+                             See **README.md** for full setup instructions.
+                             """, true
+            );
+        var clientSecret = builder.AddParameter("google-oauth-client-secret", true)
+            .WithDescription("""
+                             Google OAuth Client Secret from the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+
+                             **After entering this and the Client ID, restart Aspire** to apply the configuration.
+
+                             See **README.md** for full setup instructions.
+                             """, true
+            );
+
+        return (configured, clientId, clientSecret);
+    }
+
+    return (
+        configured,
+        builder.CreateResourceBuilder(new ParameterResource("google-oauth-client-id", _ => "not-configured", true)),
+        builder.CreateResourceBuilder(new ParameterResource("google-oauth-client-secret", _ => "not-configured", true))
+    );
+}
 
 void CreateBlobContainer(string containerName)
 {

@@ -86,7 +86,7 @@ internal static class StartExternalAuthenticationHelper
 
         var browserFingerprint = externalAuthenticationService.GenerateBrowserFingerprintHash();
 
-        var externalLogin = ExternalLogin.Create(providerType, loginType, codeVerifier, nonce, browserFingerprint);
+        var externalLogin = ExternalLogin.Create(loginType, providerType, codeVerifier, nonce, browserFingerprint);
         await externalLoginRepository.AddAsync(externalLogin, cancellationToken);
 
         var stateToken = externalAuthenticationService.ProtectState(externalLogin.Id);

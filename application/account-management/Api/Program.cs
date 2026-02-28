@@ -14,7 +14,7 @@ builder
 builder.Services
     .AddApiServices([Assembly.GetExecutingAssembly(), Configuration.Assembly])
     .AddAccountManagementServices()
-    .AddSinglePageAppFallback();
+    .AddSinglePageAppFallback(new Dictionary<string, string> { ["PUBLIC_GOOGLE_OAUTH_ENABLED"] = Environment.GetEnvironmentVariable("PUBLIC_GOOGLE_OAUTH_ENABLED") ?? "false" });
 
 var app = builder.Build();
 
