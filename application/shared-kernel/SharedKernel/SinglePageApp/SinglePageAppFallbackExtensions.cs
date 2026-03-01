@@ -105,6 +105,14 @@ public static class SinglePageAppFallbackExtensions
 
     extension(WebApplication app)
     {
+        public IApplicationBuilder UseFederatedModuleStaticFiles()
+        {
+            Directory.CreateDirectory(SinglePageAppConfiguration.BuildRootPath);
+
+            return app
+                .UseStaticFiles(new StaticFileOptions { FileProvider = new PhysicalFileProvider(SinglePageAppConfiguration.BuildRootPath) });
+        }
+
         public IApplicationBuilder UseSinglePageAppFallback()
         {
             app.Map("/remoteEntry.js", (HttpContext context, SinglePageAppConfiguration singlePageAppConfiguration) =>

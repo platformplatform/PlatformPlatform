@@ -1,5 +1,6 @@
 using PlatformPlatform.Account;
 using PlatformPlatform.SharedKernel.Configuration;
+using PlatformPlatform.SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,8 @@ builder.Services
 
 var app = builder.Build();
 
-app.UseApiServices(); // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
+app
+    .UseApiServices() // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
+    .UseFederatedModuleStaticFiles(); // Serve federated module files (remoteEntry.js, JS/CSS bundles)
 
 await app.RunAsync();
