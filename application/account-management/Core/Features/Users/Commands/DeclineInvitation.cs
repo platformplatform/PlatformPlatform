@@ -37,10 +37,10 @@ public sealed class DeclineInvitationHandler(
         // Calculate how long the invitation existed
         var inviteExistedTimeInMinutes = (int)(timeProvider.GetUtcNow() - user.CreatedAt).TotalMinutes;
 
-        userRepository.PermanentlyRemove(user);
+        userRepository.Remove(user);
 
         events.CollectEvent(new UserInviteDeclined(user.Id, inviteExistedTimeInMinutes));
-        events.CollectEvent(new UserPurged(user.Id, UserPurgeReason.NeverActivated));
+        events.CollectEvent(new UserDeleted(user.Id));
 
         return Result.Success();
     }

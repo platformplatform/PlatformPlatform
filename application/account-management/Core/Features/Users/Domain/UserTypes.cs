@@ -34,6 +34,5 @@ public enum UserPurgeReason
 {
     SingleUserPurge,
     BulkUserPurge,
-    RecycleBinPurge,
-    NeverActivated
+    RecycleBinPurge
 }

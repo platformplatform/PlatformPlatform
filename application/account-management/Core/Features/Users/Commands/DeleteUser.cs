@@ -25,16 +25,8 @@ public sealed class DeleteUserHandler(IUserRepository userRepository, IExecution
         var user = await userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user is null) return Result.NotFound($"User with id '{command.Id}' not found.");
 
-        if (user.EmailConfirmed)
-        {
-            userRepository.Remove(user);
-            events.CollectEvent(new UserDeleted(user.Id));
-        }
-        else
-        {
-            userRepository.PermanentlyRemove(user);
-            events.CollectEvent(new UserPurged(user.Id, UserPurgeReason.NeverActivated));
-        }
+        userRepository.Remove(user);
+        events.CollectEvent(new UserDeleted(user.Id));
 
         return Result.Success();
     }
