@@ -120,4 +120,4 @@ Follow these steps when implementing changes:
    - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
 
-When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `account`, `back-office`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate.
+When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `main`, `account`, `back-office`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate.
