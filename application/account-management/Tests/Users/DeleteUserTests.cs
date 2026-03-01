@@ -122,7 +122,7 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
     }
 
     [Fact]
-    public async Task DeleteUser_WhenUserNeverConfirmedEmail_ShouldPermanentlyDeleteUser()
+    public async Task DeleteUser_WhenUserNeverConfirmedEmail_ShouldSoftDeleteUser()
     {
         // Arrange
         var userId = UserId.NewId();
@@ -149,10 +149,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountManagementDbContex
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
-
-        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserPurged");
-        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.reason"].Should().Be(nameof(UserPurgeReason.NeverActivated));
+        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
     }
 }

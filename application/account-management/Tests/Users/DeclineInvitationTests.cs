@@ -58,12 +58,13 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeFalse();
+        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserInviteDeclined");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserPurged");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].Properties["event.reason"].Should().Be(nameof(UserPurgeReason.NeverActivated));
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserDeleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
@@ -157,12 +158,14 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountManagementD
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId2.ToString()).Should().BeFalse();
+        Connection.RowExists("Users", userId2.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId2.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
         Connection.RowExists("Users", userId3.ToString()).Should().BeTrue();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserInviteDeclined");
-        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserPurged");
+        TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("UserDeleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 

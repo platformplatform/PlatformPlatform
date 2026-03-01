@@ -129,7 +129,7 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
     }
 
     [Fact]
-    public async Task BulkDeleteUsers_WhenMixedConfirmedAndUnconfirmed_ShouldSoftDeleteConfirmedAndHardDeleteUnconfirmed()
+    public async Task BulkDeleteUsers_WhenMixedConfirmedAndUnconfirmed_ShouldSoftDeleteAll()
     {
         // Arrange
         var confirmedUserId = UserId.NewId();
@@ -180,14 +180,15 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountManagementDbC
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         Connection.RowExists("Users", confirmedUserId.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = confirmedUserId.ToString() }]);
-        deletedAt.Should().NotBeNullOrEmpty();
+        var confirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = confirmedUserId.ToString() }]);
+        confirmedDeletedAt.Should().NotBeNullOrEmpty();
 
-        Connection.RowExists("Users", unconfirmedUserId.ToString()).Should().BeFalse();
+        Connection.RowExists("Users", unconfirmedUserId.ToString()).Should().BeTrue();
+        var unconfirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = unconfirmedUserId.ToString() }]);
+        unconfirmedDeletedAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.GetType().Name == "UserDeleted").Should().Be(1);
-        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.GetType().Name == "UserPurged").Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.GetType().Name == "UserDeleted").Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents.Count(e => e.GetType().Name == "UsersBulkDeleted").Should().Be(1);
     }
 }
