@@ -12,7 +12,7 @@ public class TestCommand : Command
     public TestCommand() : base("test", "Runs tests from a solution")
     {
         var backendOption = new Option<bool>("--backend", "-b") { Description = "This command is always only backend. The option is only here for consistency." };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to test (e.g., account, back-office)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to test (e.g., main, account, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running tests" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
         var filterOption = new Option<string?>("--filter") { Description = "Filter tests by name (dotnet test --filter)" };

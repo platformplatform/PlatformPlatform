@@ -15,7 +15,7 @@ public class FormatCommand : Command
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Format backend code" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Format frontend code" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Format developer-cli code" };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., account, back-office)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to format (e.g., main, account, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring before formatting" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
