@@ -49,10 +49,10 @@ There are a couple of exceptions:
 Examples of cluster-specific resources:
 - Resource Group: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
 - SQL Server: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
-- SQL Server database: `account`, `back-office`
+- SQL Server database: `main`, `account`, `back-office`
 - Azure Container App Environment: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
-- Azure Container Apps: `account-api`, `back-office-worker`
-- Managed Identity: `ppdemo-stage-weu-account`, `ppdemo-prod-eus2-back-office`
+- Azure Container Apps: `main-api`, `account-api`, `back-office-worker`
+- Managed Identity: `ppdemo-stage-weu-main`, `ppdemo-stage-weu-account`, `ppdemo-prod-eus2-back-office`
 - Key Vault: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
 - Virtual Network: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
 - Communication Service: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
