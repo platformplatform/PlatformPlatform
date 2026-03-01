@@ -20,8 +20,15 @@ public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IE
             }
 
             var browserLocale = httpContextAccessor.HttpContext?.Features.Get<IRequestCultureFeature>()?.RequestCulture.Culture.Name;
+            var zoomLevel = httpContextAccessor.HttpContext?.Request.Headers["x-zoom-level"].ToString();
+            var theme = httpContextAccessor.HttpContext?.Request.Headers["x-theme"].ToString();
 
-            return field = UserInfo.Create(httpContextAccessor.HttpContext?.User, browserLocale);
+            return field = UserInfo.Create(
+                httpContextAccessor.HttpContext?.User,
+                browserLocale,
+                string.IsNullOrEmpty(zoomLevel) ? null : zoomLevel,
+                string.IsNullOrEmpty(theme) ? null : theme
+            );
         }
     }
 

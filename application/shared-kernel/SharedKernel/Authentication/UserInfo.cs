@@ -50,9 +50,13 @@ public class UserInfo
 
     public bool IsInternalUser { get; init; }
 
+    public string? ZoomLevel { get; init; }
+
+    public string? Theme { get; init; }
+
     public SessionId? SessionId { get; init; }
 
-    public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale)
+    public static UserInfo Create(ClaimsPrincipal? user, string? browserLocale, string? zoomLevel = null, string? theme = null)
     {
         if (user?.Identity?.IsAuthenticated != true)
         {
@@ -60,6 +64,8 @@ public class UserInfo
             {
                 IsAuthenticated = user?.Identity?.IsAuthenticated ?? false,
                 Locale = GetValidLocale(browserLocale),
+                ZoomLevel = zoomLevel,
+                Theme = theme,
                 IsInternalUser = false
             };
         }
@@ -83,6 +89,8 @@ public class UserInfo
             TenantName = user.FindFirstValue("tenant_name"),
             TenantLogoUrl = user.FindFirstValue("tenant_logo_url"),
             Locale = GetValidLocale(user.FindFirstValue("locale")),
+            ZoomLevel = zoomLevel,
+            Theme = theme,
             IsInternalUser = IsInternalUserEmail(email)
         };
     }
