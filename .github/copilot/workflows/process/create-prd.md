@@ -42,7 +42,7 @@ Users will typically use the custom text option to describe their [feature].
 Conduct deep research for a feasible solution that takes the existing codebase and [features] into consideration:
 - Understand the user's requirements and business context
 - Investigate the current state and implementation in the codebase:
-  - Specify which self-contained system (e.g., `account-management`, `back-office`) the [feature] belongs to
+  - Specify which self-contained system (e.g., `account`, `back-office`) the [feature] belongs to
   - Respect the multi-tenant nature: design [features] to work for one tenant by default, unless otherwise specified
 - Use MCP tools (like context7 for library docs), Perplexity for online research, or web research for best practices and technologies
 - Read relevant code files and rule files to understand patterns and conventions
@@ -66,7 +66,7 @@ Question 2 - Self-contained system (put the most likely SCS first based on resea
 - header: "SCS"
 - multiSelect: false
 - options:
-  - label: "account-management", description: "Tenant and user management system"
+  - label: "account", description: "Tenant and user management system"
   - label: "back-office", description: "Support and system admin tools"
   - label: "[Suggested SCS based on research]", description: "Based on my analysis"
 

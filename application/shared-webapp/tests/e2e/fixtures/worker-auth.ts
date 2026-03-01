@@ -47,7 +47,7 @@ export async function getWorkerTenant(
 
 /**
  * Extract the self-contained system prefix from the current working directory or test context
- * @returns The self-contained system prefix (e.g., "account-management" or "back-office")
+ * @returns The self-contained system prefix (e.g., "account" or "back-office")
  */
 export function getSelfContainedSystemPrefix(): string | undefined {
   // Try to extract from current working directory

@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
-import FederatedSideMenu from "account-management/FederatedSideMenu";
+import FederatedSideMenu from "account/FederatedSideMenu";
 import { TopMenu } from "@/shared/components/topMenu";
 
 export const Route = createFileRoute("/back-office/")({

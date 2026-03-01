@@ -8,7 +8,7 @@ export declare global {
    */
   interface BuildEnv extends CustomBuildEnv {
     /**
-     * Application ID e.g. "account-management/webapp"
+     * Application ID e.g. "account/webapp"
      **/
     applicationId: string;
     /**

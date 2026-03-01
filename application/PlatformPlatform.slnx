@@ -1,10 +1,10 @@
-﻿<Solution>
-    <Folder Name="/account-management/">
-        <Project Path="account-management\Api\AccountManagement.Api.csproj"/>
-        <Project Path="account-management\Core\AccountManagement.csproj"/>
-        <Project Path="account-management\Tests\AccountManagement.Tests.csproj"/>
-        <Project Path="account-management\WebApp\AccountManagement.WebApp.esproj"/>
-        <Project Path="account-management\Workers\AccountManagement.Workers.csproj"/>
+<Solution>
+    <Folder Name="/account/">
+        <Project Path="account\Api\Account.Api.csproj"/>
+        <Project Path="account\Core\Account.csproj"/>
+        <Project Path="account\Tests\Account.Tests.csproj"/>
+        <Project Path="account\WebApp\Account.WebApp.esproj"/>
+        <Project Path="account\Workers\Account.Workers.csproj"/>
     </Folder>
     <Folder Name="/back-office/">
         <Project Path="back-office\Api\BackOffice.Api.csproj"/>

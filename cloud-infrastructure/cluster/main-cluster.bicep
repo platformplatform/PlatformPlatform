@@ -8,7 +8,7 @@ param containerRegistryName string
 param domainName string
 param sqlAdminObjectId string
 param appGatewayVersion string
-param accountManagementVersion string
+param accountVersion string
 param backOfficeVersion string
 param applicationInsightsConnectionString string
 param communicationServicesDataLocation string = 'europe'
@@ -154,14 +154,14 @@ var publicUrl = isCustomDomainSet
   : 'https://${appGatewayContainerAppName}.${containerAppsEnvironment.outputs.defaultDomainName}'
 var cdnUrl = publicUrl
 
-// Account Management
+// Account
 
-var accountManagementIdentityName = '${clusterResourceGroupName}-account-management'
-module accountManagementIdentity '../modules/user-assigned-managed-identity.bicep' = {
-  name: '${clusterResourceGroupName}-account-management-managed-identity'
+var accountIdentityName = '${clusterResourceGroupName}-account'
+module accountIdentity '../modules/user-assigned-managed-identity.bicep' = {
+  name: '${clusterResourceGroupName}-account-managed-identity'
   scope: clusterResourceGroup
   params: {
-    name: accountManagementIdentityName
+    name: accountIdentityName
     location: location
     tags: tags
     containerRegistryName: containerRegistryName
@@ -171,28 +171,28 @@ module accountManagementIdentity '../modules/user-assigned-managed-identity.bice
   }
 }
 
-module accountManagementDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${clusterResourceGroupName}-account-management-sql-database'
+module accountDatabase '../modules/microsoft-sql-database.bicep' = {
+  name: '${clusterResourceGroupName}-account-sql-database'
   scope: clusterResourceGroup
   params: {
     sqlServerName: clusterResourceGroupName
-    databaseName: 'account-management'
+    databaseName: 'account'
     location: location
     tags: tags
   }
   dependsOn: [microsoftSqlServer]
 }
 
-var accountManagementStorageAccountName = '${storageAccountUniquePrefix}acctmgmt'
-module accountManagementStorageAccount '../modules/storage-account.bicep' = {
+var accountStorageAccountName = '${storageAccountUniquePrefix}account'
+module accountStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
-  name: '${clusterResourceGroupName}-account-management-storage-account'
+  name: '${clusterResourceGroupName}-account-storage-account'
   params: {
     location: location
-    name: accountManagementStorageAccountName
+    name: accountStorageAccountName
     tags: tags
     sku: 'Standard_GRS'
-    userAssignedIdentityName: accountManagementIdentityName
+    userAssignedIdentityName: accountIdentityName
     containers: [
       {
         name: 'avatars'
@@ -204,13 +204,13 @@ module accountManagementStorageAccount '../modules/storage-account.bicep' = {
       }
     ]
   }
-  dependsOn: [accountManagementIdentity]
+  dependsOn: [accountIdentity]
 }
 
-var accountManagementEnvironmentVariables = [
+var accountEnvironmentVariables = [
   {
     name: 'AZURE_CLIENT_ID'
-    value: '${accountManagementIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
+    value: '${accountIdentity.outputs.clientId} ' // Hack, without this trailing space, Bicep --what-if will ignore all changes to Container App
   }
   {
     name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
@@ -218,7 +218,7 @@ var accountManagementEnvironmentVariables = [
   }
   {
     name: 'DATABASE_CONNECTION_STRING'
-    value: '${accountManagementDatabase.outputs.connectionString};User Id=${accountManagementIdentity.outputs.clientId};'
+    value: '${accountDatabase.outputs.connectionString};User Id=${accountIdentity.outputs.clientId};'
   }
   {
     name: 'KEYVAULT_URL'
@@ -226,7 +226,7 @@ var accountManagementEnvironmentVariables = [
   }
   {
     name: 'BLOB_STORAGE_URL'
-    value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
+    value: 'https://${accountStorageAccountName}.blob.${az.environment().suffixes.storage}'
   }
   {
     name: 'PUBLIC_URL'
@@ -234,7 +234,7 @@ var accountManagementEnvironmentVariables = [
   }
   {
     name: 'CDN_URL'
-    value: '${cdnUrl}/account-management'
+    value: '${cdnUrl}/account'
   }
   {
     name: 'SENDER_EMAIL_ADDRESS'
@@ -246,55 +246,55 @@ var accountManagementEnvironmentVariables = [
   }
 ]
 
-module accountManagementWorkers '../modules/container-app.bicep' = {
-  name: '${clusterResourceGroupName}-account-management-workers-container-app'
+module accountWorkers '../modules/container-app.bicep' = {
+  name: '${clusterResourceGroupName}-account-workers-container-app'
   scope: clusterResourceGroup
   params: {
-    name: 'account-management-workers'
+    name: 'account-workers'
     location: location
     tags: tags
     clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
-    containerImageName: 'account-management-workers'
-    containerImageTag: accountManagementVersion
+    containerImageName: 'account-workers'
+    containerImageTag: accountVersion
     cpu: '0.25'
     memory: '0.5Gi'
     minReplicas: 0
     maxReplicas: 3
-    userAssignedIdentityName: accountManagementIdentityName
+    userAssignedIdentityName: accountIdentityName
     ingress: true
     hasProbesEndpoint: false
     revisionSuffix: revisionSuffix
-    environmentVariables: accountManagementEnvironmentVariables
+    environmentVariables: accountEnvironmentVariables
   }
 }
 
-module accountManagementApi '../modules/container-app.bicep' = {
-  name: '${clusterResourceGroupName}-account-management-api-container-app'
+module accountApi '../modules/container-app.bicep' = {
+  name: '${clusterResourceGroupName}-account-api-container-app'
   scope: clusterResourceGroup
   params: {
-    name: 'account-management-api'
+    name: 'account-api'
     location: location
     tags: tags
     clusterResourceGroupName: clusterResourceGroupName
     containerAppsEnvironmentId: containerAppsEnvironment.outputs.environmentId
     containerAppsEnvironmentName: containerAppsEnvironment.outputs.name
     containerRegistryName: containerRegistryName
-    containerImageName: 'account-management-api'
-    containerImageTag: accountManagementVersion
+    containerImageName: 'account-api'
+    containerImageTag: accountVersion
     cpu: '0.25'
     memory: '0.5Gi'
     minReplicas: 0
     maxReplicas: 3
-    userAssignedIdentityName: accountManagementIdentityName
+    userAssignedIdentityName: accountIdentityName
     ingress: true
     hasProbesEndpoint: true
     revisionSuffix: revisionSuffix
-    environmentVariables: accountManagementEnvironmentVariables
+    environmentVariables: accountEnvironmentVariables
   }
-  dependsOn: [accountManagementWorkers]
+  dependsOn: [accountWorkers]
 }
 
 // Back Office
@@ -479,12 +479,12 @@ module appGateway '../modules/container-app.bicep' = {
         value: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}'
       }
       {
-        name: 'ACCOUNT_MANAGEMENT_STORAGE_URL'
-        value: 'https://${accountManagementStorageAccountName}.blob.${az.environment().suffixes.storage}'
+        name: 'ACCOUNT_STORAGE_URL'
+        value: 'https://${accountStorageAccountName}.blob.${az.environment().suffixes.storage}'
       }
       {
-        name: 'ACCOUNT_MANAGEMENT_API_URL'
-        value: 'https://account-management-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
+        name: 'ACCOUNT_API_URL'
+        value: 'https://account-api.internal.${containerAppsEnvironment.outputs.defaultDomainName}'
       }
       {
         name: 'BACK_OFFICE_API_URL'
@@ -494,15 +494,15 @@ module appGateway '../modules/container-app.bicep' = {
   }
 }
 
-module appGatewayAccountManagementStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
+module appGatewayAccountStorageBlobDataReaderRoleAssignment '../modules/role-assignments-storage-blob-data-reader.bicep' = {
   scope: clusterResourceGroup
-  name: '${clusterResourceGroupName}-app-gateway-account-management-blob-reader'
+  name: '${clusterResourceGroupName}-app-gateway-account-blob-reader'
   params: {
-    storageAccountName: accountManagementStorageAccountName
+    storageAccountName: accountStorageAccountName
     userAssignedIdentityName: appGatewayIdentityName
   }
-  dependsOn: [appGateway, accountManagementStorageAccount]
+  dependsOn: [appGateway, accountStorageAccount]
 }
 
-output accountManagementIdentityClientId string = accountManagementIdentity.outputs.clientId
+output accountIdentityClientId string = accountIdentity.outputs.clientId
 output backOfficeIdentityClientId string = backOfficeIdentity.outputs.clientId

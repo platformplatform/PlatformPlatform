@@ -10,9 +10,9 @@ import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { lazy } from "react";
 import { queryClient } from "@/shared/lib/api/client";
 
-const FederatedAuthSyncModal = lazy(() => import("account-management/AuthSyncModal"));
-const FederatedErrorPage = lazy(() => import("account-management/FederatedErrorPage"));
-const FederatedNotFoundPage = lazy(() => import("account-management/FederatedNotFoundPage"));
+const FederatedAuthSyncModal = lazy(() => import("account/AuthSyncModal"));
+const FederatedErrorPage = lazy(() => import("account/FederatedErrorPage"));
+const FederatedNotFoundPage = lazy(() => import("account/FederatedNotFoundPage"));
 
 export const Route = createRootRoute({
   component: Root,

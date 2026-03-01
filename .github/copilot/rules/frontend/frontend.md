@@ -144,10 +144,10 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
 // ✅ DO: Correct patterns
 export function UserPicker({ isOpen, onOpenChange }: UserPickerProps) {
   const [isFormDirty, setIsFormDirty] = useState(false);
-  const { data } = api.useQuery("get", "/api/account-management/users", { enabled: isOpen });
+  const { data } = api.useQuery("get", "/api/account/users", { enabled: isOpen });
   const activeUsers = (data?.users ?? []).filter((u) => u.isActive); // ✅ Compute derived values inline
 
-  const inviteMutation = api.useMutation("post", "/api/account-management/users/invite", {
+  const inviteMutation = api.useMutation("post", "/api/account/users/invite", {
     onSuccess: () => { // ✅ Show toast in onSuccess (not useEffect)
       setIsFormDirty(false);
       toast.success(t`Success`, { description: t`User invited` });

@@ -99,12 +99,12 @@ This is a mono repository with multiple self-contained systems (SCS), each being
 
 - [.github](/.github): GitHub workflows and other GitHub artifacts.
 - [application](/application): Contains application code:
-  - [account-management](/application/account-management): An SCS for tenant and user management:
-    - [WebApp](/application/account-management/WebApp): A React, TypeScript SPA.
-    - [Api](/application/account-management/Api): .NET 10 minimal API.
-    - [Core](/application/account-management/Core): .NET 10 Vertical Sliced Architecture.
-    - [Workers](/application/account-management/Workers): A .NET Console job.
-    - [Tests](/application/account-management/Tests): xUnit tests for backend.
+  - [account](/application/account): An SCS for tenant and user management:
+    - [WebApp](/application/account/WebApp): A React, TypeScript SPA.
+    - [Api](/application/account/Api): .NET 10 minimal API.
+    - [Core](/application/account/Core): .NET 10 Vertical Sliced Architecture.
+    - [Workers](/application/account/Workers): A .NET Console job.
+    - [Tests](/application/account/Tests): xUnit tests for backend.
   - [back-office](/application/back-office): An empty SCS that will be used to create tools for Support and System Admins:
     - [WebApp](/application/back-office/WebApp): A React, TypeScript SPA.
     - [Api](/application/back-office/Api): .NET 10 minimal API.

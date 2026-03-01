@@ -3,7 +3,7 @@
 <h4 align="center">
 
 [![App Gateway](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml?query=branch%3Amain)
-[![Account Management](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account-management.yml?query=branch%3Amain)
+[![Account](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml?query=branch%3Amain)
 [![Back Office](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml?query=branch%3Amain)
 [![Cloud Infrastructure](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml?query=branch%3Amain)
 
@@ -216,8 +216,8 @@ PlatformPlatform supports authentication via Google OAuth. This is optional for 
    - Application type: "Web application"
    - Name: "YourProduct Localhost"
 6. Add Authorized redirect URIs:
-   - `https://localhost:9000/api/account-management/authentication/Google/login/callback`
-   - `https://localhost:9000/api/account-management/authentication/Google/signup/callback`
+   - `https://localhost:9000/api/account/authentication/Google/login/callback`
+   - `https://localhost:9000/api/account/authentication/Google/signup/callback`
 7. Note the Client ID and Client Secret
 
 </details>
@@ -254,10 +254,10 @@ pp github-config
 ```
 
 Remember to add redirect URIs for each environment in your Google Cloud Console configuration, e.g.:
-- `https://staging.yourproduct.com/api/account-management/authentication/Google/login/callback`
-- `https://staging.yourproduct.com/api/account-management/authentication/Google/signup/callback`
-- `https://app.yourproduct.com/api/account-management/authentication/Google/login/callback`
-- `https://app.yourproduct.com/api/account-management/authentication/Google/signup/callback`
+- `https://staging.yourproduct.com/api/account/authentication/Google/login/callback`
+- `https://staging.yourproduct.com/api/account/authentication/Google/signup/callback`
+- `https://app.yourproduct.com/api/account/authentication/Google/login/callback`
+- `https://app.yourproduct.com/api/account/authentication/Google/signup/callback`
 
 # Experimental: Agentic Workflow with Claude Code
 
@@ -348,18 +348,18 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 .
 ├─ .agent                # Google Antigravity AI rules and workflows (synchronized from .claude)
 ├─ .claude               # Claude Code AI rules, commands, and samples (base for all AI editors)
-│  ├─ agents            # Claude Code agent definitions for Task tool subagents
-│  ├─ agentic-workflow  # Agentic workflow with system prompts and MCP configs (Claude Code only)
-│  ├─ commands          # Slash commands and workflows
-│  ├─ hooks             # Claude Code hooks to enforce MCP tool usage and prevent dangerous git operations
-│  └─ rules             # AI rules for code generation patterns
+│  ├─ agents             # Claude Code agent definitions for Task tool subagents
+│  ├─ agentic-workflow   # Agentic workflow with system prompts and MCP configs (Claude Code only)
+│  ├─ commands           # Slash commands and workflows
+│  ├─ hooks              # Claude Code hooks to enforce MCP tool usage and prevent dangerous git operations
+│  └─ rules              # AI rules for code generation patterns
 ├─ .cursor               # Cursor AI rules and workflows (synchronized from .claude)
 ├─ .github               # GitHub configuration, CI/CD, and GitHub Copilot AI rules and workflows
 ├─ .windsurf             # Windsurf AI rules and workflows (synchronized from .claude)
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
-│  ├─ account-management # Self-contained system with account sign-up, user management, etc.
+│  ├─ account            # Self-contained system with account sign-up, user management, etc.
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure

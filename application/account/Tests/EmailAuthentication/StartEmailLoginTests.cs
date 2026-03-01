@@ -1,0 +1,200 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using FluentAssertions;
+using Microsoft.AspNetCore.Identity;
+using NSubstitute;
+using PlatformPlatform.Account.Database;
+using PlatformPlatform.Account.Features.EmailAuthentication.Commands;
+using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
+using PlatformPlatform.Account.Features.Users.Domain;
+using PlatformPlatform.SharedKernel.Authentication;
+using PlatformPlatform.SharedKernel.Domain;
+using PlatformPlatform.SharedKernel.Tests;
+using PlatformPlatform.SharedKernel.Tests.Persistence;
+using PlatformPlatform.SharedKernel.Validation;
+using Xunit;
+
+namespace PlatformPlatform.Account.Tests.EmailAuthentication;
+
+public sealed class StartEmailLoginTests : EndpointBaseTest<AccountDbContext>
+{
+    [Fact]
+    public async Task StartEmailLogin_WhenValidEmailAndUserExists_ShouldReturnSuccess()
+    {
+        // Arrange
+        var email = DatabaseSeeder.Tenant1Owner.Email;
+        var command = new StartEmailLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
+        responseBody.Should().NotBeNull();
+        responseBody.ValidForSeconds.Should().Be(300);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("EmailLoginStarted");
+        TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.user_id"].Should().Be(DatabaseSeeder.Tenant1Owner.Id);
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+
+        await EmailClient.Received(1).SendAsync(
+            email.ToLower(),
+            "PlatformPlatform login verification code",
+            Arg.Is<string>(s => s.Contains("Your confirmation code is below")),
+            Arg.Any<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task StartEmailLoginCommand_WhenEmailIsEmpty_ShouldFail()
+    {
+        // Arrange
+        var command = new StartEmailLoginCommand("");
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
+        };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Theory]
+    [InlineData("Invalid Email Format", "invalid-email")]
+    [InlineData("Email Too Long", "abcdefghijklmnopqrstuvwyz0123456789-abcdefghijklmnopqrstuvwyz0123456789-abcdefghijklmnopqrstuvwyz0123456789@example.com")]
+    [InlineData("Double Dots In Domain", "neo@gmail..com")]
+    [InlineData("Comma Instead Of Dot", "q@q,com")]
+    [InlineData("Space In Domain", "tje@mentum .dk")]
+    public async Task StartEmailLoginCommand_WhenEmailInvalid_ShouldFail(string scenario, string invalidEmail)
+    {
+        // Arrange
+        var command = new StartEmailLoginCommand(invalidEmail);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        var expectedErrors = new[]
+        {
+            new ErrorDetail("email", "Email must be in a valid format and no longer than 100 characters.")
+        };
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse(scenario);
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task StartEmailLoginCommand_WhenUserDoesNotExist_ShouldReturnFakeEmailLoginId()
+    {
+        // Arrange
+        var email = Faker.Internet.UniqueEmail();
+        var command = new StartEmailLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
+        responseBody.Should().NotBeNull();
+        responseBody.ValidForSeconds.Should().Be(300);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+
+        await EmailClient.Received(1).SendAsync(
+            email.ToLower(),
+            "Unknown user tried to login to PlatformPlatform",
+            Arg.Is<string>(s => s.Contains("You or someone else tried to login to PlatformPlatform")),
+            Arg.Any<CancellationToken>()
+        );
+    }
+
+    [Fact]
+    public async Task StartEmailLogin_WhenTooManyAttempts_ShouldReturnTooManyRequests()
+    {
+        // Arrange
+        var email = DatabaseSeeder.Tenant1Owner.Email;
+
+        for (var i = 1; i <= 4; i++)
+        {
+            var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
+            Connection.Insert("EmailLogins", [
+                    ("Id", EmailLoginId.NewId().ToString()),
+                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                    ("ModifiedAt", null),
+                    ("Email", email.ToLower()),
+                    ("Type", nameof(EmailLoginType.Login)),
+                    ("OneTimePasswordHash", oneTimePasswordHash),
+                    ("RetryCount", 0),
+                    ("ResendCount", 0),
+                    ("Completed", false)
+                ]
+            );
+        }
+
+        var command = new StartEmailLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.TooManyRequests, "Too many attempts to confirm this email address. Please try again later.");
+
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
+        await EmailClient.DidNotReceive().SendAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(), CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task StartEmailLogin_WhenUserIsSoftDeleted_ShouldReturnFakeEmailLoginIdAndSendUnknownUserEmail()
+    {
+        // Arrange
+        var email = Faker.Internet.UniqueEmail();
+        Connection.Insert("Users", [
+                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("Id", UserId.NewId().ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-30)),
+                ("ModifiedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("DeletedAt", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("Email", email.ToLower()),
+                ("FirstName", Faker.Person.FirstName),
+                ("LastName", Faker.Person.LastName),
+                ("Title", "Former Employee"),
+                ("Role", nameof(UserRole.Member)),
+                ("EmailConfirmed", true),
+                ("Avatar", JsonSerializer.Serialize(new Avatar())),
+                ("Locale", "en-US"),
+                ("ExternalIdentities", "[]")
+            ]
+        );
+
+        var command = new StartEmailLoginCommand(email);
+
+        // Act
+        var response = await AnonymousHttpClient.PostAsJsonAsync("/api/account/authentication/email/login/start", command);
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        var responseBody = await response.DeserializeResponse<StartEmailLoginResponse>();
+        responseBody.Should().NotBeNull();
+        responseBody.ValidForSeconds.Should().Be(300);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+
+        await EmailClient.Received(1).SendAsync(
+            email.ToLower(),
+            "Unknown user tried to login to PlatformPlatform",
+            Arg.Is<string>(s => s.Contains("You or someone else tried to login to PlatformPlatform")),
+            Arg.Any<CancellationToken>()
+        );
+    }
+}

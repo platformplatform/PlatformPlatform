@@ -59,7 +59,7 @@ public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
     TelemetryEventsCollectorSpy.Reset(); // ✅ DO: Reset telemetry if API was called in Arrange
 
     // Act
-    var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account-management/authentication/login/{loginId}/complete", command);
+    var response = await AnonymousHttpClient.PostAsJsonAsync($"/api/account/authentication/login/{loginId}/complete", command);
 
     // Assert
     await response.ShouldBeSuccessfulPostRequest(hasLocation: false); // ✅ DO: Use custom assertion helpers
@@ -73,7 +73,7 @@ public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
 [Fact]
 public async Task BadTest()
 {
-    var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account-management/users?search=willgate"); // ❌ Unclear test name, no Arrange/Act/Assert
+    var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account/users?search=willgate"); // ❌ Unclear test name, no Arrange/Act/Assert
     Assert.Equal(HttpStatusCode.OK, response.StatusCode); // ❌ DON'T: Use basic assertions instead of FluentAssertions
     // ❌ DON'T: Skip verifying DB or telemetry side effects
 }

@@ -26,7 +26,7 @@
       "properties": {
         "testFile": {
           "type": "string",
-          "description": "Test file path including self-contained system (e.g., account-management/WebApp/tests/e2e/user-management-flows.spec.ts)"
+          "description": "Test file path including self-contained system (e.g., account/WebApp/tests/e2e/user-management-flows.spec.ts)"
         },
         "testName": {
           "type": "string",
