@@ -31,21 +31,21 @@ Use this workflow to create pull request titles and descriptions.
    - **Checklist**: Do not change the checklist from .github/PULL_REQUEST_TEMPLATE.md, and do not [x] the list—this should be a manual task
 
 5. Only for pull requests to the "PlatformPlatform Upstream repository" add a `### Downstream projects` section if needed:
-   - Downstream projects integrate all pull requests from the PlatformPlatform Upstream repository into their own downstream repository, which typically has one extra self-contained system
-   - If the file [application/PlatformPlatform.slnx](mdc:application/PlatformPlatform.slnx) exists, this is the "PlatformPlatform Upstream repository"—in downstream projects, the Visual Studio solution file has been renamed
-   - Include this section only when changes require modifications in downstream projects
+   - Downstream projects integrate all pull requests from the PlatformPlatform Upstream repository into their own downstream repository, where the product is built in the [Main](mdc:application/main) self-contained system
+   - If the file [application/PlatformPlatform.slnx](mdc:application/PlatformPlatform.slnx) exists, this is the "PlatformPlatform Upstream repository". In downstream projects, the Visual Studio solution file has been renamed
+   - **Important**: Since downstream projects build in [Main](mdc:application/main), all changes already made to `main/` files in the upstream PR arrive automatically when downstream merges. Never tell downstream to redo, verify, or re-apply changes that are already in the upstream `main/` code. The downstream section should only describe genuinely new work that downstream must do in their own custom code
+   - Include this section only when changes require modifications in downstream custom code beyond what the upstream merge provides
    - A sign that this is needed is when:
-     - Similar changes have been made across self-contained systems [Main](mdc:application/main), [Account](mdc:application/account), and [Back Office](mdc:application/back-office)
-     - Similar changes have been made to workflow files [main.yml](mdc:.github/workflows/main.yml), [account.yml](mdc:.github/workflows/account.yml), and [back-office.yml](mdc:.github/workflows/back-office.yml)
-     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that might require changes in downstream projects
-     - Updates to NuGet or npm packages required changes to [Main](mdc:application/main), [Account](mdc:application/account), and [Back Office](mdc:application/back-office) that also needed to be applied to other self-contained systems
-   - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:"
-   - Avoid phrases like "Downstream projects should" or "Downstream projects must"—use more direct phrasing
+     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that introduce new required props, renamed APIs, or removed features that downstream custom code may use
+     - New conventions or patterns are introduced (e.g., a required prop on a shared component) that downstream must apply to their own custom usages
+     - Changes to workflow files [main.yml](mdc:.github/workflows/main.yml), [account.yml](mdc:.github/workflows/account.yml), and [back-office.yml](mdc:.github/workflows/back-office.yml) that need equivalent changes in downstream workflow files
+   - Use direct, specific language when addressing what needs to be done, e.g., "Add `trackingTitle` to all `Dialog` usages in custom code:"
+   - Avoid phrases like "Downstream projects should" or "Downstream projects must". Use more direct phrasing
    - Use a numbered list for multiple changes, make it clear if multiple changes are required
    - Be very specific about the changes needed:
-     - Often any changes to [Back Office](mdc:application/back-office) are 1:1 with the changes that need to be applied to downstream self-contained systems
+     - Reference `main/` paths when describing where downstream should make changes
+     - Only describe changes that downstream must make themselves, never include steps for changes already in the upstream merge
    - Include exact filenames, code snippets, and Git diffs as needed
-   - Use the placeholder term `your-self-contained-system` for downstream implementations
 
 6. Build, test, format and inspect the codebase using the `execute_command` MCP tool:
 
@@ -100,7 +100,7 @@ Add data protection key sharing between self-contained systems to fix antiforger
 
 ### Downstream projects
 
-1. Update `your-self-contained-system/Api/Program.cs` to use the shared data protection keys. # ✅ DO: use `your-self-contained-system` to reference downstream system
+1. Update `main/Api/Program.cs` to use the shared data protection keys. # ✅ DO: use `main/` paths since downstream projects build in main
 
 # ✅ DO: Use Git diff syntax to show what should be changed
    '''diff
