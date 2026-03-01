@@ -31,13 +31,16 @@ public sealed class SoftDeleteInterceptor : SaveChangesInterceptor
             ? timeProviderSource.TimeProvider
             : TimeProvider.System;
 
+        var purgeTracker = dbContext as IPurgeTracker;
+
         var deletedEntities = dbContext.ChangeTracker.Entries<ISoftDeletable>()
-            .Where(e => e.State is EntityState.Deleted && !e.Entity.ForcePurge);
+            .Where(e => e.State is EntityState.Deleted)
+            .Where(e => purgeTracker?.IsMarkedForPurge(e.Entity) != true);
 
         foreach (var entityEntry in deletedEntities)
         {
             entityEntry.State = EntityState.Modified;
-            entityEntry.Entity.MarkAsDeleted(timeProvider.GetUtcNow());
+            entityEntry.Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = timeProvider.GetUtcNow();
         }
     }
 }

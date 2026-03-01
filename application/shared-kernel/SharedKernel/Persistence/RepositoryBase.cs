@@ -18,6 +18,7 @@ namespace PlatformPlatform.SharedKernel.Persistence;
 public abstract class RepositoryBase<T, TId>(DbContext context)
     where T : AggregateRoot<TId> where TId : IComparable<TId>
 {
+    protected readonly DbContext Context = context;
     protected readonly DbSet<T> DbSet = context.Set<T>();
 
     public async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken)
@@ -41,7 +42,7 @@ public abstract class RepositoryBase<T, TId>(DbContext context)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
 
-        var existingEntity = context.ChangeTracker.Entries<T>().SingleOrDefault(e => e.Entity.Id.Equals(aggregate.Id));
+        var existingEntity = Context.ChangeTracker.Entries<T>().SingleOrDefault(e => e.Entity.Id.Equals(aggregate.Id));
         if (existingEntity is not null)
         {
             existingEntity.CurrentValues.SetValues(aggregate);

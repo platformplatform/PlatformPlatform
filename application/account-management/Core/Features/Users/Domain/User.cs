@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations.Schema;
 using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Platform;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Domain;
 
-public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDeletable
+public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEntity
 {
     private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
         : base(UserId.NewId())
@@ -45,26 +44,6 @@ public sealed class User : AggregateRoot<UserId>, ITenantScopedEntity, ISoftDele
     public DateTimeOffset? LastSeenAt { get; private set; }
 
     public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
-
-    public DateTimeOffset? DeletedAt { get; private set; }
-
-    [NotMapped]
-    public bool ForcePurge { get; private set; }
-
-    public void MarkAsDeleted(DateTimeOffset deletedAt)
-    {
-        DeletedAt = deletedAt;
-    }
-
-    public void Restore()
-    {
-        DeletedAt = null;
-    }
-
-    public void MarkForPurge()
-    {
-        ForcePurge = true;
-    }
 
     public TenantId TenantId { get; }
 

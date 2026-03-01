@@ -12,9 +12,21 @@ namespace PlatformPlatform.SharedKernel.EntityFramework;
 ///     database, like creation, querying, and updating of <see cref="IAggregateRoot" /> entities.
 /// </summary>
 public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext> options, IExecutionContext executionContext, TimeProvider timeProvider)
-    : DbContext(options), ITimeProviderSource where TContext : DbContext
+    : DbContext(options), ITimeProviderSource, IPurgeTracker where TContext : DbContext
 {
+    private readonly HashSet<object> _entitiesMarkedForPurge = [];
+
     protected TenantId? TenantId => executionContext.TenantId;
+
+    void IPurgeTracker.MarkForPurge(object entity)
+    {
+        _entitiesMarkedForPurge.Add(entity);
+    }
+
+    bool IPurgeTracker.IsMarkedForPurge(object entity)
+    {
+        return _entitiesMarkedForPurge.Contains(entity);
+    }
 
     public TimeProvider TimeProvider => timeProvider;
 

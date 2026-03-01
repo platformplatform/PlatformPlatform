@@ -44,7 +44,7 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     public void Restore(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
-        aggregate.Restore();
+        Context.Entry(aggregate).Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = null;
         Update(aggregate);
     }
 
@@ -54,7 +54,7 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     public void PermanentlyRemove(T aggregate)
     {
         ArgumentNullException.ThrowIfNull(aggregate);
-        aggregate.MarkForPurge();
+        if (Context is IPurgeTracker purgeTracker) purgeTracker.MarkForPurge(aggregate);
         Remove(aggregate);
     }
 
@@ -65,7 +65,7 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     {
         foreach (var aggregate in aggregates)
         {
-            aggregate.Restore();
+            Context.Entry(aggregate).Property(nameof(ISoftDeletable.DeletedAt)).CurrentValue = null;
         }
 
         UpdateRange(aggregates);
@@ -76,9 +76,12 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
     /// </summary>
     public void PermanentlyRemoveRange(T[] aggregates)
     {
-        foreach (var aggregate in aggregates)
+        if (Context is IPurgeTracker purgeTracker)
         {
-            aggregate.MarkForPurge();
+            foreach (var aggregate in aggregates)
+            {
+                purgeTracker.MarkForPurge(aggregate);
+            }
         }
 
         RemoveRange(aggregates);
