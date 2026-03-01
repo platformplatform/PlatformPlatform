@@ -161,8 +161,18 @@ public sealed class RefreshAuthenticationTokensHandler(
             tokenVersion = session.RefreshTokenVersion;
         }
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
-        authenticationTokenService.GenerateAuthenticationTokens(userInfo, session.Id, tokenJti, tokenVersion, refreshTokenExpires);
+        var userInfoResult = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
+        if (!userInfoResult.IsSuccess)
+        {
+            logger.LogWarning("Failed to create user info for user '{UserId}': tenant has been deleted", userId);
+            var unauthorizedHeaders = new Dictionary<string, string>
+            {
+                { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
+            };
+            return Result.Unauthorized("Tenant has been deleted.", responseHeaders: unauthorizedHeaders);
+        }
+
+        authenticationTokenService.GenerateAuthenticationTokens(userInfoResult.Value!, session.Id, tokenJti, tokenVersion, refreshTokenExpires);
 
         return Result.Success();
     }

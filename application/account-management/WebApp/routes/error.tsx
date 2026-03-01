@@ -8,7 +8,7 @@ import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
+import { AlertCircle, Building2, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
 import { type ReactNode, useContext, useState } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
@@ -146,6 +146,21 @@ function getErrorDisplay(error: string): {
         iconBackground: "bg-muted",
         title: <Trans>Access denied</Trans>,
         message: <Trans>Authentication was cancelled or denied. Please try again if you want to continue.</Trans>,
+        action: "login"
+      };
+
+    case ErrorCode.TenantDeleted:
+      return {
+        icon: <Building2 className="size-10 text-destructive" />,
+        iconBackground: "bg-destructive/10",
+        title: <Trans>Account deleted</Trans>,
+        message: (
+          <>
+            <Trans>Your account has been deleted.</Trans>
+            <br />
+            <Trans>Contact the account owner immediately if you believe this is incorrect.</Trans>
+          </>
+        ),
         action: "login"
       };
 

@@ -2,6 +2,7 @@ using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+using PlatformPlatform.SharedKernel.Cqrs;
 
 namespace PlatformPlatform.AccountManagement.Features.Users.Shared;
 
@@ -13,14 +14,12 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
 {
     /// <summary>
     ///     Creates a UserInfo instance from a User entity, including tenant name.
+    ///     Returns a failure result if the tenant has been soft-deleted.
     /// </summary>
-    /// <param name="user">The user entity</param>
-    /// <param name="sessionId">Optional session ID to include in the UserInfo</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>UserInfo with all required properties including tenant name</returns>
-    public async Task<UserInfo> CreateUserInfoAsync(User user, SessionId? sessionId, CancellationToken cancellationToken)
+    public async Task<Result<UserInfo>> CreateUserInfoAsync(User user, SessionId? sessionId, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetByIdAsync(user.TenantId, cancellationToken);
+        if (tenant is null) return Result<UserInfo>.BadRequest("Tenant has been deleted.");
 
         return new UserInfo
         {
@@ -34,8 +33,8 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository)
             LastName = user.LastName,
             Title = user.Title,
             AvatarUrl = user.Avatar.Url,
-            TenantName = tenant?.Name,
-            TenantLogoUrl = tenant?.Logo.Url,
+            TenantName = tenant.Name,
+            TenantLogoUrl = tenant.Logo.Url,
             Locale = user.Locale,
             IsInternalUser = user.IsInternalUser
         };

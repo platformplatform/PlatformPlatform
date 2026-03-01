@@ -72,6 +72,9 @@ msgstr "Konto"
 msgid "Account already exists"
 msgstr "Konto findes allerede"
 
+msgid "Account deleted"
+msgstr "Konto slettet"
+
 msgid "Account information"
 msgstr "Kontoinformation"
 
@@ -248,6 +251,9 @@ msgstr "Overholdelse"
 
 msgid "Contact support"
 msgstr "Kontakt support"
+
+msgid "Contact the account owner immediately if you believe this is incorrect."
+msgstr "Kontakt kontoejeren omgående, hvis du mener, dette er forkert."
 
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
@@ -1071,6 +1077,9 @@ msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."
+
+msgid "Your account has been deleted."
+msgstr "Din konto er blevet slettet."
 
 msgid "Your account was switched in another browser tab."
 msgstr "Din konto blev skiftet i en anden browsertab."

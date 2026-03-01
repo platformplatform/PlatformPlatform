@@ -12,5 +12,6 @@ public enum UnauthorizedReason
 {
     Revoked,
     ReplayAttackDetected,
-    SessionNotFound
+    SessionNotFound,
+    TenantDeleted
 }

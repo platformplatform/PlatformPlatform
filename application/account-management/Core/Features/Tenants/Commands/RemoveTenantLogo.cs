@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
@@ -25,6 +26,14 @@ public sealed class RemoveTenantLogoHandler(
         }
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+        if (tenant is null)
+        {
+            return Result.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
+                {
+                    { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
+                }
+            );
+        }
 
         tenant.RemoveLogo();
         tenantRepository.Update(tenant);

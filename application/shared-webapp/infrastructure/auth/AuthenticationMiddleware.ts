@@ -10,7 +10,8 @@ type AuthenticationMiddlewareOptions = {
 const UnauthorizedReason = {
   Revoked: "Revoked",
   ReplayAttackDetected: "ReplayAttackDetected",
-  SessionNotFound: "SessionNotFound"
+  SessionNotFound: "SessionNotFound",
+  TenantDeleted: "TenantDeleted"
 } as const;
 
 // Error codes used in /error page query parameter
@@ -24,7 +25,8 @@ export const ErrorCode = {
   AuthenticationFailed: "authentication_failed",
   InvalidRequest: "invalid_request",
   AccessDenied: "access_denied",
-  AccountAlreadyExists: "account_already_exists"
+  AccountAlreadyExists: "account_already_exists",
+  TenantDeleted: "tenant_deleted"
 } as const;
 
 const unauthorizedReasonHeaderKey = "x-unauthorized-reason";
@@ -37,6 +39,8 @@ function getErrorCodeFromUnauthorizedReason(reason: string | null): string | nul
       return ErrorCode.SessionRevoked;
     case UnauthorizedReason.SessionNotFound:
       return ErrorCode.SessionNotFound;
+    case UnauthorizedReason.TenantDeleted:
+      return ErrorCode.TenantDeleted;
     default:
       return null;
   }

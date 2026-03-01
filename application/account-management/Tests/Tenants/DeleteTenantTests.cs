@@ -1,12 +1,9 @@
 using System.Net;
-using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.AccountManagement.Database;
-using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
 namespace PlatformPlatform.AccountManagement.Tests.Tenants;
@@ -29,46 +26,9 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
     }
 
     [Fact]
-    public async Task DeleteTenant_WhenTenantHasUsers_ShouldReturnBadRequest()
+    public async Task DeleteTenant_WhenValid_ShouldSoftDeleteTenant()
     {
         // Arrange
-        var existingTenantId = DatabaseSeeder.Tenant1.Id;
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Philanthropist & Innovator"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
-            ]
-        );
-
-        // Act
-        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account-management/tenants/{existingTenantId}");
-        TelemetryEventsCollectorSpy.Reset();
-
-        // Assert
-        var expectedErrors = new[]
-        {
-            new ErrorDetail("Id", "All users must be deleted before the tenant can be deleted.")
-        };
-        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
-
-        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
-    }
-
-    [Fact]
-    public async Task DeleteTenant_WhenTenantHasNoUsers_ShouldDeleteTenant()
-    {
-        // Arrange
-        Connection.Delete("Users", DatabaseSeeder.Tenant1Member.Id);
         var existingTenantId = DatabaseSeeder.Tenant1.Id;
 
         // Act
@@ -76,7 +36,14 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountManagementDbCont
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Tenants", existingTenantId).Should().BeFalse();
+        Connection.RowExists("Tenants", existingTenantId).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Tenants WHERE Id = @id", [new { id = existingTenantId.ToString() }]);
+        deletedAt.Should().NotBeNullOrEmpty();
+
+        var ownerDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]);
+        ownerDeletedAt.Should().BeNull();
+        var memberDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]);
+        memberDeletedAt.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantDeleted");

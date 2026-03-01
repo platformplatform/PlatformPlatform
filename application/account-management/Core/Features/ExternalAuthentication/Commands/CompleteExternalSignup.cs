@@ -108,8 +108,10 @@ public sealed class CompleteExternalSignupHandler(
             user.UpdateLastSeen(timeProvider.GetUtcNow());
             userRepository.Update(user);
 
-            var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
-            authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+            var userInfoResult = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
+            if (!userInfoResult.IsSuccess) return Result<string>.From(userInfoResult);
+
+            authenticationTokenService.CreateAndSetAuthenticationTokens(userInfoResult.Value!, session.Id, session.RefreshTokenJti);
 
             events.CollectEvent(new SessionCreated(session.Id));
             var signupTimeInSeconds = (int)(timeProvider.GetUtcNow() - externalLogin.CreatedAt).TotalSeconds;
