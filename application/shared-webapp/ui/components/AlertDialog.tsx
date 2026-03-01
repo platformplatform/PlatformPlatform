@@ -43,7 +43,7 @@ function AlertDialogContent({
         data-slot="alert-dialog-content"
         data-size={size}
         className={cn(
-          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-background p-6 outline-none ring-1 ring-foreground/10 duration-100 data-[size=default]:max-w-xs data-[size=sm]:max-w-xs data-closed:animate-out data-open:animate-in data-[size=default]:sm:max-w-lg",
+          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 group/alert-dialog-content fixed top-1/2 left-1/2 z-50 grid w-full -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-background p-6 outline-none ring-1 ring-foreground/10 duration-100 data-[size=default]:max-w-[calc(100vw-2rem)] data-[size=sm]:max-w-xs data-closed:animate-out data-open:animate-in data-[size=default]:sm:max-w-lg",
           className
         )}
         {...props}
@@ -60,6 +60,16 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">)
         "grid grid-rows-[auto_1fr] place-items-center gap-1.5 text-center has-data-[slot=alert-dialog-media]:grid-rows-[auto_auto_1fr] has-data-[slot=alert-dialog-media]:gap-x-6 sm:group-data-[size=default]/alert-dialog-content:place-items-start sm:group-data-[size=default]/alert-dialog-content:text-left sm:group-data-[size=default]/alert-dialog-content:has-data-[slot=alert-dialog-media]:grid-rows-[auto_1fr]",
         className
       )}
+      {...props}
+    />
+  );
+}
+
+function AlertDialogBody({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="alert-dialog-body"
+      className={cn("-m-1 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-1", className)}
       {...props}
     />
   );
@@ -143,6 +153,7 @@ function AlertDialogCancel({
 export {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogBody,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,

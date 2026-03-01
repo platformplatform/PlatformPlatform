@@ -13,11 +13,7 @@ export function FileSystemRouterPlugin(): RsbuildPlugin {
         const extraConfig: RsbuildConfig = {
           tools: {
             rspack: {
-              plugins: [
-                TanStackRouterRspack({
-                  autoCodeSplitting: true
-                })
-              ]
+              plugins: [TanStackRouterRspack()]
             }
           }
         };

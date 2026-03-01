@@ -33,9 +33,6 @@ msgstr "{0} brugere slettet permanent"
 msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
-msgid "{browser} on {os}"
-msgstr "{browser} på {os}"
-
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} brugere slettet permanent"
 
@@ -51,11 +48,11 @@ msgstr "100% sikkerhedsscore"
 msgid "A different user logged in from another browser tab."
 msgstr "En anden bruger loggede ind fra en anden browsertab."
 
-msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
-msgstr "En liste over enheder, der har logget ind på din konto. Tilbagekald sessioner, du ikke genkender."
-
 msgid "A new verification code has been sent to your email."
 msgstr "En ny bekræftelseskode er blevet sendt til din e-mail."
+
+msgid "A quick summary of your account activity."
+msgstr "Et hurtigt overblik over din kontoaktivitet."
 
 msgid "Accept invitation"
 msgstr "Accepter invitation"
@@ -75,26 +72,29 @@ msgstr "Konto findes allerede"
 msgid "Account deleted"
 msgstr "Konto slettet"
 
-msgid "Account information"
-msgstr "Kontoinformation"
+msgid "Account ID"
+msgstr "Konto-ID"
+
+msgid "Account logo"
+msgstr "Kontologo"
 
 msgid "Account name"
 msgstr "Kontonavn"
 
-msgid "Account name updated successfully"
-msgstr "Kontonavn opdateret succesfuldt"
-
 msgid "Account not found"
 msgstr "Konto ikke fundet"
+
+msgid "Account overview"
+msgstr "Kontooversigt"
 
 msgid "Account settings"
 msgstr "Kontoindstillinger"
 
+msgid "Account settings updated successfully"
+msgstr "Kontoindstillinger opdateret"
+
 msgid "Account switched"
 msgstr "Konto skiftet"
-
-msgid "Account:"
-msgstr "Konto:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Opnået i Microsoft Defender for Cloud ved at følge Azures bedste praksis"
@@ -116,6 +116,9 @@ msgstr "Tilføj profilbillede"
 
 msgid "Add your account name"
 msgstr "Tilføj dit kontonavn"
+
+msgid "Add your account name and logo."
+msgstr "Tilføj dit kontonavn og logo."
 
 msgid "Admin"
 msgstr "Admin"
@@ -158,7 +161,7 @@ msgstr "Er du sikker på, at du vil slette <0>{0} brugere</0> permanent?"
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Er du sikker på, at du vil slette <0>{userDisplayName}</0> permanent?"
 
-msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgid "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 msgstr "Er du sikker på, at du vil tilbagekalde denne session? Enheden vil blive logget ud og skal logge ind igen."
 
 msgid "Audit reports and assessments"
@@ -182,8 +185,8 @@ msgstr "Azure Overholdelse"
 msgid "Azure Compliance (opens in new window)"
 msgstr "Azure Overholdelse (åbner i nyt vindue)"
 
-msgid "Back Office"
-msgstr "Back Office"
+msgid "Back to app"
+msgstr "Tilbage til appen"
 
 msgid "Back to login"
 msgstr "Tilbage til login"
@@ -221,6 +224,9 @@ msgstr "Skift rolle"
 msgid "Change theme"
 msgstr "Skift tema"
 
+msgid "Change user preferences"
+msgstr "Skift bruger præferencer"
+
 msgid "Change user role"
 msgstr "Skift brugerrolle"
 
@@ -230,6 +236,9 @@ msgstr "Skift brugerrolle for {0}"
 
 msgid "Check your spam folder."
 msgstr "Tjek din spammappe."
+
+msgid "Choose how the application looks to you."
+msgstr "Vælg hvordan applikationen ser ud for dig."
 
 msgid "Clear"
 msgstr "Ryd"
@@ -258,17 +267,20 @@ msgstr "Kontakt kontoejeren omgående, hvis du mener, dette er forkert."
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Kontakt din administrator, hvis du mener, dette er en fejl."
 
+msgid "Continue"
+msgstr "Fortsæt"
+
+msgid "Create new account"
+msgstr "Opret ny konto"
+
 msgid "Create your account"
 msgstr "Opret din konto"
 
 msgid "Created"
 msgstr "Oprettet"
 
-msgid "Created:"
-msgstr "Oprettet:"
-
-msgid "Current session"
-msgstr "Nuværende session"
+msgid "Customize your theme and language settings."
+msgstr "Tilpas dit tema og dine sprogindstillinger."
 
 msgid "Danger zone"
 msgstr "Farezone"
@@ -334,6 +346,9 @@ msgstr "Slettede brugere vil blive vist her til gendannelse"
 msgid "Desktop"
 msgstr "Stationær"
 
+msgid "Devices that have logged into your account. Revoke any sessions you do not recognize."
+msgstr "Enheder, der har logget ind på din konto. Tilbagekald alle sessioner, du ikke genkender."
+
 msgid "Different user logged in"
 msgstr "En anden bruger loggede ind"
 
@@ -346,20 +361,23 @@ msgstr "Har du ikke en konto? <0>Opret en</0>"
 msgid "DPA"
 msgstr "DBA"
 
+msgid "E.g. Acme Corp"
+msgstr "F.eks. Hansen & Co"
+
 msgid "E.g. Alex"
-msgstr "F.eks. Alex"
+msgstr "F.eks. Anders"
 
 msgid "E.g. Software engineer"
 msgstr "F.eks. Softwareingeniør"
 
 msgid "E.g. Taylor"
-msgstr "F.eks. Taylor"
-
-msgid "Edit"
-msgstr "Rediger"
+msgstr "F.eks. Jensen"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
+
+msgid "Edit user profile"
+msgstr "Rediger brugerprofil"
 
 msgid "Email"
 msgstr "E-mail"
@@ -384,9 +402,6 @@ msgstr "Europa"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Du er velkommen til at kontakte os med eventuelle spørgsmål eller problemer, du måtte have."
-
-msgid "Fetching data..."
-msgstr "Henter data..."
 
 msgid "Filters"
 msgstr "Filtre"
@@ -421,9 +436,6 @@ msgstr "GDPR-kompatibel"
 msgid "GDPR Compliant"
 msgstr "GDPR-kompatibel"
 
-msgid "Get started"
-msgstr "Kom i gang"
-
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -432,9 +444,6 @@ msgstr "GitHub deployer direkte til Azure uden adgangskoder eller API-nøgler"
 
 msgid "Go to account settings"
 msgstr "Gå til kontoindstillinger"
-
-msgid "Go to app"
-msgstr "Gå til app"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -445,17 +454,11 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Hjælp dit team med at genkende dine invitationer"
 
-msgid "Here's your overview of what's happening."
-msgstr "Her er din oversigt over, hvad der sker."
-
 msgid "Hi! Welcome back"
 msgstr "Hej! Velkommen tilbage"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
-
-msgid "Home"
-msgstr "Hjem"
 
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overensstemmelse med GDPR."
@@ -478,8 +481,11 @@ msgstr "Inviter bruger"
 msgid "Invited users"
 msgstr "Inviterede brugere"
 
-msgid "IP:"
-msgstr "IP:"
+msgid "IP address"
+msgstr "IP-adresse"
+
+msgid "It may take up to 5 minutes before the device is logged out."
+msgstr "Det kan tage op til 5 minutter, før enheden er logget ud."
 
 msgid "Just now"
 msgstr "Lige nu"
@@ -487,8 +493,8 @@ msgstr "Lige nu"
 msgid "Language"
 msgstr "Sprog"
 
-msgid "Last active:"
-msgstr "Sidst aktiv:"
+msgid "Last active"
+msgstr "Sidst aktiv"
 
 msgid "Last name"
 msgstr "Efternavn"
@@ -502,11 +508,20 @@ msgstr "Forlad"
 msgid "Legal and Compliance"
 msgstr "Juridisk og overholdelse"
 
+msgid "Let's set up your account"
+msgstr "Lad os opsætte din konto"
+
+msgid "Let's set up your profile"
+msgstr "Lad os opsætte din profil"
+
 msgid "Light"
 msgstr "Lys"
 
 msgid "LinkedIn"
 msgstr "LinkedIn"
+
+msgid "Loading..."
+msgstr "Indlæser..."
 
 msgid "Log in"
 msgstr "Log ind"
@@ -523,20 +538,14 @@ msgstr "Log ud"
 msgid "Logged out"
 msgstr "Logget ud"
 
-msgid "Login method:"
-msgstr "Login-metode:"
+msgid "Login method"
+msgstr "Login-metode"
 
 msgid "Login verification code"
 msgstr "Login-bekræftelseskode"
 
 msgid "Logo"
 msgstr "Logo"
-
-msgid "Logo removed successfully"
-msgstr "Logo fjernet succesfuldt"
-
-msgid "Logo uploaded successfully"
-msgstr "Logo uploadet succesfuldt"
 
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
@@ -592,7 +601,7 @@ msgstr "Næste"
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "Ingen konto fundet for denne e-mailadresse. Tilmeld dig venligst for at oprette en konto."
 
-msgid "No active sessions"
+msgid "No active sessions found."
 msgstr "Ingen aktive sessioner"
 
 msgid "No users found"
@@ -619,11 +628,11 @@ msgstr "Åbn navigationsmenu"
 msgid "or"
 msgstr "eller"
 
-msgid "Organization"
-msgstr "Organisation"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Vores supportteam hjælper dig med at slette din konto og sikrer, at alle dine data bliver fjernet."
+
+msgid "Overview"
+msgstr "Overblik"
 
 msgid "Owner"
 msgstr "Ejer"
@@ -665,9 +674,6 @@ msgstr "Tjek din e-mail for en bekræftelseskode sendt til <0>{email}</0>"
 msgid "Please log in again to continue."
 msgstr "Log venligst ind igen for at fortsætte."
 
-msgid "Please note that it may take up to 5 minutes before the device is signed out."
-msgstr "Bemærk at det kan tage op til 5 minutter, før enheden er logget ud."
-
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Vælg et JPEG-, PNG-, GIF- eller WebP-billede."
 
@@ -680,8 +686,8 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 msgid "Powered by"
 msgstr "Powered by"
 
-msgid "Preview avatar"
-msgstr "Forhåndsvisning af avatar"
+msgid "Preferences"
+msgstr "Præferencer"
 
 msgid "Previous"
 msgstr "Forrige"
@@ -695,7 +701,13 @@ msgstr "Fortrolighedspolitikker"
 msgid "Privacy Policy"
 msgstr "Privatlivspolitik"
 
-msgid "Profile picture"
+msgid "Profile"
+msgstr "Profil"
+
+msgid "Profile avatar"
+msgstr "Profilavatar"
+
+msgid "Profile photo"
 msgstr "Profilbillede"
 
 msgid "Profile updated successfully"
@@ -727,9 +739,6 @@ msgstr "Fjern logo"
 
 msgid "Remove profile picture"
 msgstr "Fjern profilbillede"
-
-msgid "Replace this sample page with your own product information and branding."
-msgstr "Erstat denne eksempelsside med dine egne produktoplysninger og branding."
 
 msgid "Request a new code"
 msgstr "Anmod om en ny kode"
@@ -791,6 +800,9 @@ msgstr "Vælg alle brugere"
 msgid "Select dates"
 msgstr "Vælg datoer"
 
+msgid "Select your preferred language."
+msgstr "Vælg dit foretrukne sprog."
+
 msgid "Send invite"
 msgstr "Send invitation"
 
@@ -812,11 +824,14 @@ msgstr "Session tilbagekaldt succesfuldt"
 msgid "Sessions"
 msgstr "Sessioner"
 
+msgid "Settings"
+msgstr "Indstillinger"
+
 msgid "Show details"
 msgstr "Vis detaljer"
 
-msgid "Show filters"
-msgstr "Vis filtre"
+msgid "Show search filters"
+msgstr "Vis søgefiltre"
 
 msgid "Sign up"
 msgstr "Tilmeld dig"
@@ -845,11 +860,17 @@ msgstr "Noget gik galt"
 msgid "Standard user access"
 msgstr "Standard brugeradgang"
 
+msgid "Status"
+msgstr "Status"
+
 msgid "Stay"
 msgstr "Bliv"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Streng adskillelse forhindrer produktionsdata i at lække til andre miljøer"
+
+msgid "Switch account"
+msgstr "Skift konto"
 
 msgid "Switching account..."
 msgstr "Skifter konto..."
@@ -859,6 +880,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tell us a bit about yourself to get started."
+msgstr "Fortæl os lidt om dig selv for at komme i gang."
 
 msgid "Terms"
 msgstr "Vilkår"
@@ -892,6 +916,9 @@ msgstr "Denne handling kan ikke fortrydes."
 
 msgid "This can happen when email ownership has changed. Contact your account administrator."
 msgstr "Dette kan ske, når e-mailejerskabet er ændret. Kontakt din kontoadministrator."
+
+msgid "This device"
+msgstr "Denne enhed"
 
 msgid "This is the region where your data is stored"
 msgstr "Dette er den region, hvor dine data er lagret"
@@ -929,14 +956,11 @@ msgstr "Prøv at justere din søgning eller filtre"
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Unable to load profile"
+msgstr "Kunne ikke indlæse profil"
+
 msgid "Unknown"
 msgstr "Ukendt"
-
-msgid "Unknown browser"
-msgstr "Ukendt browser"
-
-msgid "Unknown OS"
-msgstr "Ukendt OS"
 
 msgid "Unknown state"
 msgstr "Ukendt tilstand"
@@ -956,6 +980,9 @@ msgstr "Upload logo"
 msgid "Upload profile picture"
 msgstr "Upload profilbillede"
 
+msgid "User"
+msgstr "Bruger"
+
 msgid "User actions"
 msgstr "Brugerhandlinger"
 
@@ -968,17 +995,23 @@ msgstr "Bruger slettet succesfuldt: {userDisplayName}"
 msgid "User invited successfully"
 msgstr "Bruger inviteret succesfuldt"
 
+msgid "User menu"
+msgstr "Brugermenu"
+
 msgid "User not in current view"
 msgstr "Bruger ikke i nuværende visning"
 
 msgid "User permanently deleted: {userDisplayName}"
 msgstr "Bruger slettet permanent: {userDisplayName}"
 
+msgid "User preferences"
+msgstr "Bruger præferencer"
+
 msgid "User profile"
 msgstr "Brugerprofil"
 
-msgid "User profile menu"
-msgstr "Brugerprofilmenu"
+msgid "User recycle bin"
+msgstr "Papirkurv for brugere"
 
 msgid "User restored successfully: {userName}"
 msgstr "Bruger genoprettet succesfuldt: {userName}"
@@ -988,6 +1021,9 @@ msgstr "Brugerrolle"
 
 msgid "User role updated successfully for {userDisplayName}"
 msgstr "Brugerrolle opdateret succesfuldt for {userDisplayName}"
+
+msgid "User sessions"
+msgstr "Bruger sessioner"
 
 msgid "User status"
 msgstr "Brugerstatus"
@@ -1022,6 +1058,9 @@ msgstr "Bekræfter..."
 msgid "View active users"
 msgstr "Se aktive brugere"
 
+msgid "View invitation"
+msgstr "Se invitation"
+
 msgid "View invited users"
 msgstr "Se inviterede brugere"
 
@@ -1037,16 +1076,6 @@ msgstr "Vi opdagede et sikkerhedsproblem med dit loginforsøg. Prøv venligst ig
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "Vi opdagede mistænkelig aktivitet på din konto. Nogen kan have forsøgt at overtage din session."
 
-msgid "Welcome home"
-msgstr "Velkommen hjem"
-
-#. placeholder {0}: userInfo.firstName
-msgid "Welcome home, {0}"
-msgstr "Velkommen hjem, {0}"
-
-msgid "Welcome to PlatformPlatform"
-msgstr "Velkommen til PlatformPlatform"
-
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "Når du accepterer denne invitation, vil dine profiloplysninger (navn, titel og avatar) fra din nuværende konto blive kopieret til den nye konto."
 
@@ -1059,21 +1088,16 @@ msgstr "Du kan ikke slette dig selv"
 msgid "You do not have permission to access this page."
 msgstr "Du har ikke tilladelse til at tilgå denne side."
 
+msgid "You have {invitationCount} pending invitations."
+msgstr "Du har {invitationCount} afventende invitationer."
+
+#. placeholder {0}: firstInvitation.tenantName
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "Du er blevet inviteret til at deltage i <0>{0}</0>."
 
-msgid "You have no other active sessions"
-msgstr "Du har ingen andre aktive sessioner"
-
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "Du har ugemte ændringer. Hvis du forlader nu, vil dine ændringer gå tabt."
-
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "Du har succesfuldt udrullet PlatformPlatform! 🎉"
-
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "Du har succesfuldt installeret PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "Du blev logget ud fra en anden browsertab."

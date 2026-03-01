@@ -121,6 +121,7 @@
       }
     }
   },
+  "plugins": ["./no-misplaced-tanstack-query-options.grit"],
   "files": {
     "includes": [
       "**",

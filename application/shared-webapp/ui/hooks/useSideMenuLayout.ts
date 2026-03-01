@@ -45,8 +45,8 @@ export function useSideMenuLayout(): {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [customMenuWidthRem, setCustomMenuWidthRem] = useState(() => {
     const stored = localStorage.getItem("side-menu-size");
-    const width = stored ? Number.parseFloat(stored) : Number.NaN;
-    return width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM ? width : SIDE_MENU_DEFAULT_WIDTH_REM;
+    const width = stored ? Math.min(Number.parseFloat(stored), SIDE_MENU_MAX_WIDTH_REM) : Number.NaN;
+    return width >= SIDE_MENU_MIN_WIDTH_REM ? width : SIDE_MENU_DEFAULT_WIDTH_REM;
   });
 
   // Listen for screen size changes and menu events

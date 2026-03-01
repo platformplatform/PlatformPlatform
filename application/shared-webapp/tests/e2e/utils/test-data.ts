@@ -1,17 +1,20 @@
-import { faker } from "@faker-js/faker";
-import type { Page } from "@playwright/test";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { faker } from "@faker-js/faker";
+import type { Page } from "@playwright/test";
 import { isLocalhost } from "./constants";
 import type { TestContext } from "./test-assertions";
-import { expectToastMessage, typeOneTimeCode } from "./test-assertions";
+import { typeOneTimeCode } from "./test-assertions";
 
 /**
  * Read platform settings from the shared-kernel JSONC file.
  * This ensures tests use the same configuration as the application.
  */
 function readPlatformSettings(): { identity: { internalEmailDomain: string } } {
-  const settingsPath = path.resolve(__dirname, "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc");
+  const settingsPath = path.resolve(
+    __dirname,
+    "../../../../shared-kernel/SharedKernel/Platform/platform-settings.jsonc"
+  );
   const content = fs.readFileSync(settingsPath, "utf-8");
   const jsonWithoutComments = content.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
   return JSON.parse(jsonWithoutComments);
@@ -152,33 +155,38 @@ export async function completeSignupFlow(
 
   // Step 3: Enter verification code (auto-submits after 6 characters)
   await typeOneTimeCode(page, getVerificationCode());
-  await expect(page).toHaveURL("/account");
-  await expect(page.getByRole("dialog", { name: "User profile" })).toBeVisible();
+  await expect(page).toHaveURL(/\/welcome/);
 
-  // Step 4: Complete profile setup and verify successful save
+  // Step 4: Complete welcome flow - account setup (Owner only)
+  await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
+  await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  // Step 5: Complete welcome flow - profile setup
+  await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
   await page.getByRole("textbox", { name: "First name" }).fill(user.firstName);
   await page.getByRole("textbox", { name: "Last name" }).fill(user.lastName);
-  await page.getByRole("button", { name: "Save changes" }).click();
-  await expectToastMessage(context, "Profile updated successfully");
+  await page.getByRole("button", { name: "Continue" }).click();
 
-  // Step 5: Wait for successful completion
-  await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+  // Step 6: Verify redirect to dashboard after welcome flow
+  await expect(page).toHaveURL("/dashboard");
+    await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
     // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-    const triggerButton = page.getByRole("button", { name: "User profile menu" });
+    const triggerButton = page.getByRole("button", { name: "User menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
 
-    const userMenu = page.getByRole("menu");
-    await expect(userMenu).toBeVisible();
+    const accountMenu = page.getByRole("menu");
+    await expect(accountMenu).toBeVisible();
 
     // Click menu item with JavaScript evaluate to bypass stability check during animation
     const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
     await expect(logoutMenuItem).toBeVisible();
     await logoutMenuItem.evaluate((el: HTMLElement) => el.click());
 
-    await expect(userMenu).not.toBeVisible();
-    await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+    await expect(accountMenu).not.toBeVisible();
+    await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
   }
 }

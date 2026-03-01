@@ -49,6 +49,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Import from `@repo/ui/components/`, never from BaseUI directly
    - Only create custom components when no ShadCN equivalent exists (edge cases)
    - **Cursor pointer**: Replace `cursor-default` with `cursor-pointer` on clickable elements
+   - **Icon-only buttons**: Must have a `Tooltip` wrapper. Use descriptive labels -- e.g., "Account settings" not "Settings", "Log out" not "Logout"
    - **Active state feedback**: Add press feedback to interactive elements using `active:` pseudo-class with background color changes. Buttons/triggers: `active:bg-primary/70` (or variant-specific active backgrounds). Menu/list items: `active:bg-accent`. Small controls (checkbox, radio): `active:border-primary`
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
 
@@ -111,13 +112,13 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
 5. Z-index layering (don't invent new values):
    - `z-0` to `z-10`: **Content** -- sticky table headers, sticky toolbars, inline badges, calendar layers
    - `z-20`: **App bars** -- desktop top bar, mobile floating menu button
-   - `z-30`: **Navigation + mobile header** -- side menu, mobile sticky header (stacks above content)
+   - `z-30`: **Navigation + mobile header** -- side menu, mobile sticky header (animates below banners)
    - `z-[35]`: **Backdrops** -- dimmed overlays behind panels and overlay-mode navigation
-   - `z-40`: **Panels** -- side panes, mobile full-screen menus, banners, side menu in overlay mode
+   - `z-40`: **Banners + panels** -- banner container (above mobile header), side panes, mobile full-screen menus, side menu in overlay mode
    - `z-50`: **Popups** -- dialogs, dropdowns, popovers, tooltips (ShadCN default)
-   - `z-100`: **Select popup** -- Select dropdown renders above dialogs (ShadCN default)
    - `z-[60]`: **Toasts** -- always visible, even above dialogs
    - `z-[99]`: **Critical** -- full-screen loaders, system overlays (e.g., account switching)
+   - `z-100`: **Select popup** -- Select dropdown renders above dialogs (ShadCN default)
 
 6. Dialog structure and DirtyDialog patterns:
    - **Always use DialogBody** for content between DialogHeader and DialogFooter - it provides proper scrolling for tall content

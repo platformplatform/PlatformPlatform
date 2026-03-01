@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { loggedInPath, signUpPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
+import { signUpPath } from "@repo/infrastructure/auth/constants";
 import { isValidReturnPath } from "@repo/infrastructure/auth/util";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -9,8 +8,9 @@ import { Link } from "@repo/ui/components/Link";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
-import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import { useEffect, useState } from "react";
+import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
+import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -27,10 +27,17 @@ export const Route = createFileRoute("/login/")({
     };
   },
   component: function LoginRoute() {
-    const isAuthenticated = useIsAuthenticated();
+    const { isAuthenticated } = import.meta.user_info_env;
+    const { navigateToHome } = useMainNavigation();
+
+    useEffect(() => {
+      if (isAuthenticated) {
+        navigateToHome();
+      }
+    }, [isAuthenticated, navigateToHome]);
 
     if (isAuthenticated) {
-      return <Navigate to={loggedInPath} />;
+      return null;
     }
 
     return (
@@ -39,7 +46,7 @@ export const Route = createFileRoute("/login/")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: FederatedErrorPage
+  errorComponent: ErrorPage
 });
 
 export function LoginForm() {
@@ -140,7 +147,10 @@ export function LoginForm() {
       )}
       <p className="text-muted-foreground text-sm">
         <Trans>
-          Don't have an account? <Link href={signUpPath}>Create one</Link>
+          Don't have an account?{" "}
+          <Link href={signUpPath} aria-label={t`Create new account`}>
+            Create one
+          </Link>
         </Trans>
       </p>
       {/*

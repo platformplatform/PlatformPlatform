@@ -39,6 +39,18 @@ export interface PageAuthFixtures {
 }
 
 /**
+ * Auto-accept beforeunload dialogs to prevent test hangs.
+ * Playwright does not auto-dismiss beforeunload dialogs (unlike alert/confirm/prompt).
+ */
+function autoAcceptBeforeUnloadDialogs(page: Page) {
+  page.on("dialog", async (dialog) => {
+    if (dialog.type() === "beforeunload") {
+      await dialog.accept();
+    }
+  });
+}
+
+/**
  * Perform fresh authentication by going through signup/login flow
  */
 async function performFreshAuthentication(
@@ -53,6 +65,7 @@ async function performFreshAuthentication(
 
   // Create a new page for authentication
   const page = await browserContext.newPage();
+  autoAcceptBeforeUnloadDialogs(page);
 
   // Get the user for this role
   const user = getUserForRole(tenant, role);
@@ -61,16 +74,7 @@ async function performFreshAuthentication(
   const testContext = createTestContext(page);
   await completeSignupFlow(page, expect, user, testContext);
 
-  // Set account name for Owner role to allow user invitations
-  if (role === "Owner") {
-    await page.goto("/account/settings");
-    await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
-    await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
-    await page.getByRole("button", { name: "Save changes" }).click();
-
-    const { expectToastMessage } = await import("../utils/test-assertions.js");
-    await expectToastMessage(testContext, "Account name updated successfully");
-  }
+  // Account name is now set during the welcome flow in completeSignupFlow
 
   // Ensure any modal dialogs are closed by waiting for them to disappear
   try {
@@ -126,6 +130,7 @@ async function createAuthenticatedContextAndPage(
       storageState: authManager.getStateFilePath(role)
     });
     page = await context.newPage();
+    autoAcceptBeforeUnloadDialogs(page);
 
     // Validate that authentication is still working
     const isStillValid = await authManager.validateAuthState(page);
@@ -151,6 +156,11 @@ async function createAuthenticatedContextAndPage(
  * Extended test with role-specific authenticated page fixtures
  */
 export const test = base.extend<PageAuthFixtures>({
+  page: async ({ page }, use) => {
+    autoAcceptBeforeUnloadDialogs(page);
+    await use(page);
+  },
+
   ownerPage: async ({ browser }, use, testInfo) => {
     const workerIndex = testInfo.parallelIndex;
     const browserName = testInfo.project.name;
@@ -237,6 +247,7 @@ export const test = base.extend<PageAuthFixtures>({
     // Create a fresh, unauthenticated context and page
     const context = await browser.newContext();
     const page = await context.newPage();
+    autoAcceptBeforeUnloadDialogs(page);
 
     await use({ page, tenant });
 

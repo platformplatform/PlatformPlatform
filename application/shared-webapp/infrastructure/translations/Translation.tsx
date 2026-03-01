@@ -1,7 +1,7 @@
 import { i18n, type Messages } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
 import type React from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import localeMap from "./i18n.config.json";
 import { type TranslationContext, translationContext } from "./TranslationContext";
 
@@ -137,6 +137,15 @@ function TranslationProvider({ children, translation }: Readonly<TranslationProv
     }),
     [translation]
   );
+
+  useEffect(() => {
+    const handleLocaleChangeRequest = async (event: Event) => {
+      const locale = (event as CustomEvent).detail.locale;
+      await value.setLocale(locale);
+    };
+    document.addEventListener("locale-change-request", handleLocaleChangeRequest);
+    return () => document.removeEventListener("locale-change-request", handleLocaleChangeRequest);
+  }, [value]);
 
   return (
     <TranslationContextProvider value={value}>

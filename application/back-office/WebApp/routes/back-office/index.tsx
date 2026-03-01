@@ -1,8 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
-import FederatedSideMenu from "account/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 
 export const Route = createFileRoute("/back-office/")({
   component: Home
@@ -10,15 +8,11 @@ export const Route = createFileRoute("/back-office/")({
 
 export default function Home() {
   return (
-    <>
-      <FederatedSideMenu currentSystem="back-office" />
-      <AppLayout
-        topMenu={<TopMenu />}
-        title={t`Welcome to the Back Office`}
-        subtitle={t`Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams.`}
-      >
-        <div />
-      </AppLayout>
-    </>
+    <AppLayout
+      title={t`Welcome to the Back Office`}
+      subtitle={t`Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams.`}
+    >
+      <div />
+    </AppLayout>
   );
 }

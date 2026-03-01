@@ -1,7 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -12,7 +11,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import FederatedErrorPage from "@/federated-modules/errorPages/FederatedErrorPage";
+import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
@@ -28,16 +27,13 @@ import {
 
 export const Route = createFileRoute("/signup/verify")({
   component: function SignupVerifyRoute() {
+    const { isAuthenticated } = import.meta.user_info_env;
     const navigate = useNavigate();
-    const isAuthenticated = useIsAuthenticated();
 
     useEffect(() => {
       if (isAuthenticated) {
-        navigate({ to: loggedInPath });
-        return;
-      }
-
-      if (!hasSignupState()) {
+        window.location.href = loggedInPath;
+      } else if (!hasSignupState()) {
         navigate({ to: "/signup", replace: true });
       }
     }, [isAuthenticated, navigate]);
@@ -52,7 +48,7 @@ export const Route = createFileRoute("/signup/verify")({
       </HorizontalHeroLayout>
     );
   },
-  errorComponent: FederatedErrorPage
+  errorComponent: ErrorPage
 });
 
 function useCountdown(expireAt: Date) {
@@ -196,7 +192,7 @@ export function CompleteSignupForm() {
           <h2 className="mb-3 text-center">
             <Trans>Enter your verification code</Trans>
           </h2>
-          <div className="text-center text-gray-500 text-sm">
+          <div className="text-center text-muted-foreground text-sm">
             <Trans>
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
             </Trans>
@@ -232,9 +228,9 @@ export function CompleteSignupForm() {
               <InputOtpSlot index={5} className="size-14" />
             </InputOtpGroup>
           </InputOtp>
-          <div aria-live="polite">
+          <div aria-live={isExpired ? "polite" : "off"}>
             {!isExpired ? (
-              <p className="text-center text-neutral-500 text-sm">
+              <p className="text-center text-muted-foreground text-sm">
                 <Trans>Your verification code is valid for {expiresInString}</Trans>
               </p>
             ) : (
@@ -259,7 +255,7 @@ export function CompleteSignupForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-2 text-neutral-500 text-sm">
+      <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
         <div className="text-center text-sm">
           <Trans>Can&apos;t find your code?</Trans>{" "}
           {/* Show either the spam folder message or the request link message based on conditions */}

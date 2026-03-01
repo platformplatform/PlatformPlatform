@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace PlatformPlatform.SharedKernel.Telemetry;
 
 public interface ITelemetryEventsCollector
@@ -26,7 +28,14 @@ public class TelemetryEventsCollector : ITelemetryEventsCollector
     }
 }
 
-public abstract class TelemetryEvent(params (string Key, object Value)[] properties)
+public abstract class TelemetryEvent(params (string Key, object? Value)[] properties)
 {
-    public Dictionary<string, string> Properties { get; } = properties.ToDictionary(p => $"event.{p.Key}", p => p.Value.ToString() ?? "");
+    public Dictionary<string, string> Properties { get; } = properties.ToDictionary(p => $"event.{p.Key}", p => FormatValue(p.Value));
+
+    private static string FormatValue(object? value)
+    {
+        return value is decimal d
+            ? d.ToString("G29", CultureInfo.InvariantCulture)
+            : string.Format(CultureInfo.InvariantCulture, "{0}", value);
+    }
 }

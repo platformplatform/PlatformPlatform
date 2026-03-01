@@ -33,9 +33,6 @@ msgstr "{0} users permanently deleted"
 msgid "{0} users restored successfully"
 msgstr "{0} users restored successfully"
 
-msgid "{browser} on {os}"
-msgstr "{browser} on {os}"
-
 msgid "{deletedCount} users permanently deleted"
 msgstr "{deletedCount} users permanently deleted"
 
@@ -51,11 +48,11 @@ msgstr "100% Security Score"
 msgid "A different user logged in from another browser tab."
 msgstr "A different user logged in from another browser tab."
 
-msgid "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
-msgstr "A list of devices that have logged into your account. Revoke any sessions you don't recognize."
-
 msgid "A new verification code has been sent to your email."
 msgstr "A new verification code has been sent to your email."
+
+msgid "A quick summary of your account activity."
+msgstr "A quick summary of your account activity."
 
 msgid "Accept invitation"
 msgstr "Accept invitation"
@@ -75,26 +72,29 @@ msgstr "Account already exists"
 msgid "Account deleted"
 msgstr "Account deleted"
 
-msgid "Account information"
-msgstr "Account information"
+msgid "Account ID"
+msgstr "Account ID"
+
+msgid "Account logo"
+msgstr "Account logo"
 
 msgid "Account name"
 msgstr "Account name"
 
-msgid "Account name updated successfully"
-msgstr "Account name updated successfully"
-
 msgid "Account not found"
 msgstr "Account not found"
+
+msgid "Account overview"
+msgstr "Account overview"
 
 msgid "Account settings"
 msgstr "Account settings"
 
+msgid "Account settings updated successfully"
+msgstr "Account settings updated successfully"
+
 msgid "Account switched"
 msgstr "Account switched"
-
-msgid "Account:"
-msgstr "Account:"
 
 msgid "Achieved in Microsoft Defender for Cloud following Azure best practices"
 msgstr "Achieved in Microsoft Defender for Cloud following Azure best practices"
@@ -116,6 +116,9 @@ msgstr "Add profile picture"
 
 msgid "Add your account name"
 msgstr "Add your account name"
+
+msgid "Add your account name and logo."
+msgstr "Add your account name and logo."
 
 msgid "Admin"
 msgstr "Admin"
@@ -158,8 +161,8 @@ msgstr "Are you sure you want to permanently delete <0>{0} users</0>?"
 msgid "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 msgstr "Are you sure you want to permanently delete <0>{userDisplayName}</0>?"
 
-msgid "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
-msgstr "Are you sure you want to revoke this session? The device will be signed out and will need to log in again."
+msgid "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
+msgstr "Are you sure you want to revoke this session? The device will be logged out and will need to log in again."
 
 msgid "Audit reports and assessments"
 msgstr "Audit reports and assessments"
@@ -182,8 +185,8 @@ msgstr "Azure Compliance"
 msgid "Azure Compliance (opens in new window)"
 msgstr "Azure Compliance (opens in new window)"
 
-msgid "Back Office"
-msgstr "Back Office"
+msgid "Back to app"
+msgstr "Back to app"
 
 msgid "Back to login"
 msgstr "Back to login"
@@ -221,6 +224,9 @@ msgstr "Change role"
 msgid "Change theme"
 msgstr "Change theme"
 
+msgid "Change user preferences"
+msgstr "Change user preferences"
+
 msgid "Change user role"
 msgstr "Change user role"
 
@@ -230,6 +236,9 @@ msgstr "Change user role for {0}"
 
 msgid "Check your spam folder."
 msgstr "Check your spam folder."
+
+msgid "Choose how the application looks to you."
+msgstr "Choose how the application looks to you."
 
 msgid "Clear"
 msgstr "Clear"
@@ -258,17 +267,20 @@ msgstr "Contact the account owner immediately if you believe this is incorrect."
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
 
+msgid "Continue"
+msgstr "Continue"
+
+msgid "Create new account"
+msgstr "Create new account"
+
 msgid "Create your account"
 msgstr "Create your account"
 
 msgid "Created"
 msgstr "Created"
 
-msgid "Created:"
-msgstr "Created:"
-
-msgid "Current session"
-msgstr "Current session"
+msgid "Customize your theme and language settings."
+msgstr "Customize your theme and language settings."
 
 msgid "Danger zone"
 msgstr "Danger zone"
@@ -334,6 +346,9 @@ msgstr "Deleted users will appear here for recovery"
 msgid "Desktop"
 msgstr "Desktop"
 
+msgid "Devices that have logged into your account. Revoke any sessions you do not recognize."
+msgstr "Devices that have logged into your account. Revoke any sessions you do not recognize."
+
 msgid "Different user logged in"
 msgstr "Different user logged in"
 
@@ -346,6 +361,9 @@ msgstr "Don't have an account? <0>Create one</0>"
 msgid "DPA"
 msgstr "DPA"
 
+msgid "E.g. Acme Corp"
+msgstr "E.g. Acme Corp"
+
 msgid "E.g. Alex"
 msgstr "E.g. Alex"
 
@@ -355,11 +373,11 @@ msgstr "E.g. Software engineer"
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
 
-msgid "Edit"
-msgstr "Edit"
-
 msgid "Edit profile"
 msgstr "Edit profile"
+
+msgid "Edit user profile"
+msgstr "Edit user profile"
 
 msgid "Email"
 msgstr "Email"
@@ -384,9 +402,6 @@ msgstr "Europe"
 
 msgid "Feel free to reach out with any questions or issues you may have."
 msgstr "Feel free to reach out with any questions or issues you may have."
-
-msgid "Fetching data..."
-msgstr "Fetching data..."
 
 msgid "Filters"
 msgstr "Filters"
@@ -421,9 +436,6 @@ msgstr "GDPR compliant"
 msgid "GDPR Compliant"
 msgstr "GDPR Compliant"
 
-msgid "Get started"
-msgstr "Get started"
-
 msgid "GitHub"
 msgstr "GitHub"
 
@@ -432,9 +444,6 @@ msgstr "GitHub deploys directly to Azure without passwords or API keys"
 
 msgid "Go to account settings"
 msgstr "Go to account settings"
-
-msgid "Go to app"
-msgstr "Go to app"
 
 msgid "Go to home"
 msgstr "Go to home"
@@ -445,17 +454,11 @@ msgstr "Google"
 msgid "Help your team recognize your invites"
 msgstr "Help your team recognize your invites"
 
-msgid "Here's your overview of what's happening."
-msgstr "Here's your overview of what's happening."
-
 msgid "Hi! Welcome back"
 msgstr "Hi! Welcome back"
 
 msgid "Hide details"
 msgstr "Hide details"
-
-msgid "Home"
-msgstr "Home"
 
 msgid "How we collect, use, and protect your personal data in compliance with GDPR."
 msgstr "How we collect, use, and protect your personal data in compliance with GDPR."
@@ -478,8 +481,11 @@ msgstr "Invite user"
 msgid "Invited users"
 msgstr "Invited users"
 
-msgid "IP:"
-msgstr "IP:"
+msgid "IP address"
+msgstr "IP address"
+
+msgid "It may take up to 5 minutes before the device is logged out."
+msgstr "It may take up to 5 minutes before the device is logged out."
 
 msgid "Just now"
 msgstr "Just now"
@@ -487,8 +493,8 @@ msgstr "Just now"
 msgid "Language"
 msgstr "Language"
 
-msgid "Last active:"
-msgstr "Last active:"
+msgid "Last active"
+msgstr "Last active"
 
 msgid "Last name"
 msgstr "Last name"
@@ -502,11 +508,20 @@ msgstr "Leave"
 msgid "Legal and Compliance"
 msgstr "Legal and Compliance"
 
+msgid "Let's set up your account"
+msgstr "Let's set up your account"
+
+msgid "Let's set up your profile"
+msgstr "Let's set up your profile"
+
 msgid "Light"
 msgstr "Light"
 
 msgid "LinkedIn"
 msgstr "LinkedIn"
+
+msgid "Loading..."
+msgstr "Loading..."
 
 msgid "Log in"
 msgstr "Log in"
@@ -523,20 +538,14 @@ msgstr "Log out"
 msgid "Logged out"
 msgstr "Logged out"
 
-msgid "Login method:"
-msgstr "Login method:"
+msgid "Login method"
+msgstr "Login method"
 
 msgid "Login verification code"
 msgstr "Login verification code"
 
 msgid "Logo"
 msgstr "Logo"
-
-msgid "Logo removed successfully"
-msgstr "Logo removed successfully"
-
-msgid "Logo uploaded successfully"
-msgstr "Logo uploaded successfully"
 
 msgid "Manage your account here."
 msgstr "Manage your account here."
@@ -592,8 +601,8 @@ msgstr "Next"
 msgid "No account found for this email address. Please sign up to create an account."
 msgstr "No account found for this email address. Please sign up to create an account."
 
-msgid "No active sessions"
-msgstr "No active sessions"
+msgid "No active sessions found."
+msgstr "No active sessions found."
 
 msgid "No users found"
 msgstr "No users found"
@@ -619,11 +628,11 @@ msgstr "Open navigation menu"
 msgid "or"
 msgstr "or"
 
-msgid "Organization"
-msgstr "Organization"
-
 msgid "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
 msgstr "Our support team will assist you with the account deletion process and ensure all your data is properly removed."
+
+msgid "Overview"
+msgstr "Overview"
 
 msgid "Owner"
 msgstr "Owner"
@@ -665,9 +674,6 @@ msgstr "Please check your email for a verification code sent to <0>{email}</0>"
 msgid "Please log in again to continue."
 msgstr "Please log in again to continue."
 
-msgid "Please note that it may take up to 5 minutes before the device is signed out."
-msgstr "Please note that it may take up to 5 minutes before the device is signed out."
-
 msgid "Please select a JPEG, PNG, GIF, or WebP image."
 msgstr "Please select a JPEG, PNG, GIF, or WebP image."
 
@@ -680,8 +686,8 @@ msgstr "Please try again or return to the home page."
 msgid "Powered by"
 msgstr "Powered by"
 
-msgid "Preview avatar"
-msgstr "Preview avatar"
+msgid "Preferences"
+msgstr "Preferences"
 
 msgid "Previous"
 msgstr "Previous"
@@ -695,8 +701,14 @@ msgstr "Privacy policies"
 msgid "Privacy Policy"
 msgstr "Privacy Policy"
 
-msgid "Profile picture"
-msgstr "Profile picture"
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Profile avatar"
+msgstr "Profile avatar"
+
+msgid "Profile photo"
+msgstr "Profile photo"
 
 msgid "Profile updated successfully"
 msgstr "Profile updated successfully"
@@ -727,9 +739,6 @@ msgstr "Remove logo"
 
 msgid "Remove profile picture"
 msgstr "Remove profile picture"
-
-msgid "Replace this sample page with your own product information and branding."
-msgstr "Replace this sample page with your own product information and branding."
 
 msgid "Request a new code"
 msgstr "Request a new code"
@@ -791,6 +800,9 @@ msgstr "Select all users"
 msgid "Select dates"
 msgstr "Select dates"
 
+msgid "Select your preferred language."
+msgstr "Select your preferred language."
+
 msgid "Send invite"
 msgstr "Send invite"
 
@@ -812,11 +824,14 @@ msgstr "Session revoked successfully"
 msgid "Sessions"
 msgstr "Sessions"
 
+msgid "Settings"
+msgstr "Settings"
+
 msgid "Show details"
 msgstr "Show details"
 
-msgid "Show filters"
-msgstr "Show filters"
+msgid "Show search filters"
+msgstr "Show search filters"
 
 msgid "Sign up"
 msgstr "Sign up"
@@ -845,11 +860,17 @@ msgstr "Something went wrong"
 msgid "Standard user access"
 msgstr "Standard user access"
 
+msgid "Status"
+msgstr "Status"
+
 msgid "Stay"
 msgstr "Stay"
 
 msgid "Strict separation prevents production data from leaking to other environments"
 msgstr "Strict separation prevents production data from leaking to other environments"
+
+msgid "Switch account"
+msgstr "Switch account"
 
 msgid "Switching account..."
 msgstr "Switching account..."
@@ -859,6 +880,9 @@ msgstr "System"
 
 msgid "Tablet"
 msgstr "Tablet"
+
+msgid "Tell us a bit about yourself to get started."
+msgstr "Tell us a bit about yourself to get started."
 
 msgid "Terms"
 msgstr "Terms"
@@ -892,6 +916,9 @@ msgstr "This action cannot be undone."
 
 msgid "This can happen when email ownership has changed. Contact your account administrator."
 msgstr "This can happen when email ownership has changed. Contact your account administrator."
+
+msgid "This device"
+msgstr "This device"
 
 msgid "This is the region where your data is stored"
 msgstr "This is the region where your data is stored"
@@ -929,14 +956,11 @@ msgstr "Try adjusting your search or filters"
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Unable to load profile"
+msgstr "Unable to load profile"
+
 msgid "Unknown"
 msgstr "Unknown"
-
-msgid "Unknown browser"
-msgstr "Unknown browser"
-
-msgid "Unknown OS"
-msgstr "Unknown OS"
 
 msgid "Unknown state"
 msgstr "Unknown state"
@@ -956,6 +980,9 @@ msgstr "Upload logo"
 msgid "Upload profile picture"
 msgstr "Upload profile picture"
 
+msgid "User"
+msgstr "User"
+
 msgid "User actions"
 msgstr "User actions"
 
@@ -968,17 +995,23 @@ msgstr "User deleted successfully: {userDisplayName}"
 msgid "User invited successfully"
 msgstr "User invited successfully"
 
+msgid "User menu"
+msgstr "User menu"
+
 msgid "User not in current view"
 msgstr "User not in current view"
 
 msgid "User permanently deleted: {userDisplayName}"
 msgstr "User permanently deleted: {userDisplayName}"
 
+msgid "User preferences"
+msgstr "User preferences"
+
 msgid "User profile"
 msgstr "User profile"
 
-msgid "User profile menu"
-msgstr "User profile menu"
+msgid "User recycle bin"
+msgstr "User recycle bin"
 
 msgid "User restored successfully: {userName}"
 msgstr "User restored successfully: {userName}"
@@ -988,6 +1021,9 @@ msgstr "User role"
 
 msgid "User role updated successfully for {userDisplayName}"
 msgstr "User role updated successfully for {userDisplayName}"
+
+msgid "User sessions"
+msgstr "User sessions"
 
 msgid "User status"
 msgstr "User status"
@@ -1022,6 +1058,9 @@ msgstr "Verifying..."
 msgid "View active users"
 msgstr "View active users"
 
+msgid "View invitation"
+msgstr "View invitation"
+
 msgid "View invited users"
 msgstr "View invited users"
 
@@ -1037,16 +1076,6 @@ msgstr "We detected a security issue with your login attempt. Please try again."
 msgid "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 msgstr "We detected suspicious activity on your account. Someone may have attempted to take over your session."
 
-msgid "Welcome home"
-msgstr "Welcome home"
-
-#. placeholder {0}: userInfo.firstName
-msgid "Welcome home, {0}"
-msgstr "Welcome home, {0}"
-
-msgid "Welcome to PlatformPlatform"
-msgstr "Welcome to PlatformPlatform"
-
 msgid "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 msgstr "When you accept this invitation, your profile information (name, title, and avatar) from your current account will be copied to the new account."
 
@@ -1059,21 +1088,16 @@ msgstr "You cannot delete yourself"
 msgid "You do not have permission to access this page."
 msgstr "You do not have permission to access this page."
 
+msgid "You have {invitationCount} pending invitations."
+msgstr "You have {invitationCount} pending invitations."
+
+#. placeholder {0}: firstInvitation.tenantName
 #. placeholder {0}: tenant.tenantName
 msgid "You have been invited to join <0>{0}</0>."
 msgstr "You have been invited to join <0>{0}</0>."
 
-msgid "You have no other active sessions"
-msgstr "You have no other active sessions"
-
 msgid "You have unsaved changes. If you leave now, your changes will be lost."
 msgstr "You have unsaved changes. If you leave now, your changes will be lost."
-
-msgid "You successfully deployed PlatformPlatform! 🎉"
-msgstr "You successfully deployed PlatformPlatform! 🎉"
-
-msgid "You successfully installed PlatformPlatform! 🎉"
-msgstr "You successfully installed PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."

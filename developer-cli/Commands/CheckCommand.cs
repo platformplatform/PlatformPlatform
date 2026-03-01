@@ -13,7 +13,7 @@ public class CheckCommand : Command
         var backendOption = new Option<bool>("--backend", "-b") { Description = "Run backend checks" };
         var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run frontend checks" };
         var cliOption = new Option<bool>("--cli", "-c") { Description = "Run developer-cli checks" };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to check (e.g., account, back-office)" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to check (e.g., main, account, back-office)" };
         var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring before running checks" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 

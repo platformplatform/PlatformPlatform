@@ -43,20 +43,30 @@ test.describe("@smoke", () => {
 
     // === SIGNUP: Create mock user via Google OAuth ===
 
-    await step("Navigate to signup page & sign up with Google OAuth")(async () => {
+    await step("Navigate to signup page & sign up with Google OAuth & complete welcome flow")(async () => {
       await page.goto("/signup");
 
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Sign up with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill("Test");
+      await page.getByRole("textbox", { name: "Last name" }).fill("User");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
 
-    await step("Open user profile menu & log out")(async () => {
+    await step("Open account menu & log out")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
@@ -72,16 +82,16 @@ test.describe("@smoke", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Log in with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
 
-    await step("Open user profile menu & verify mock user email displays")(async () => {
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+    await step("Open account menu & verify mock user email displays")(async () => {
+      await page.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
 
-      await expect(page.getByText(mockUserEmail)).toBeVisible();
+      await expect(menu).toContainText(mockUserEmail.toLowerCase());
     })();
 
     await step("Log out via menu & verify redirect to login page")(async () => {
@@ -116,8 +126,8 @@ test.describe("@smoke", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Log in with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
   });
 });
@@ -139,15 +149,25 @@ test.describe("@comprehensive", () => {
 
     // === PREFERRED TENANT: Verify PreferredTenantId is passed during Google login ===
 
-    await step("Sign up with Google OAuth & create tenant")(async () => {
+    await step("Sign up with Google OAuth & complete welcome flow")(async () => {
       await page.goto("/signup");
 
       await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Sign up with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL(/\/welcome/);
+      await expect(page.getByRole("heading", { name: "Let's set up your account" })).toBeVisible();
+      await page.getByRole("textbox", { name: "Account name" }).fill("Test Organization");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page.getByRole("heading", { name: "Let's set up your profile" })).toBeVisible();
+      await page.getByRole("textbox", { name: "First name" }).fill("Test");
+      await page.getByRole("textbox", { name: "Last name" }).fill("User");
+      await page.getByRole("button", { name: "Continue" }).click();
+
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
     })();
 
     let tenantId: string;
@@ -164,7 +184,7 @@ test.describe("@comprehensive", () => {
       expect(tenantId).toBeTruthy();
 
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });
@@ -188,15 +208,15 @@ test.describe("@comprehensive", () => {
       await setMockProviderCookie(page, emailPrefix);
       await page.getByRole("button", { name: "Log in with Google" }).click();
 
-      await expect(page).toHaveURL("/");
-      await expect(page.getByRole("button", { name: "User profile menu" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("button", { name: "User menu" })).toBeVisible();
 
       expect(capturedUrl).toContain(`PreferredTenantId=${tenantId}`);
     })();
 
     await step("Log out to prepare for error path tests")(async () => {
       context.monitoring.expectedStatusCodes.push(401);
-      await page.getByRole("button", { name: "User profile menu" }).dispatchEvent("click");
+      await page.getByRole("button", { name: "User menu" }).dispatchEvent("click");
       const menu = page.getByRole("menu");
       await expect(menu).toBeVisible();
       const logoutMenuItem = page.getByRole("menuitem", { name: "Log out" });

@@ -116,7 +116,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
             >
               <FieldLabel>
                 <Field orientation="horizontal">
-                  <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} />
+                  <RadioGroupItem value={UserRole.Owner} id="role-owner" aria-label={t`Owner`} autoFocus={true} />
                   <FieldContent>
                     <FieldTitle>
                       <Trans>Owner</Trans>

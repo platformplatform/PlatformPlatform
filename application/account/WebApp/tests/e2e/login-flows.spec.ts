@@ -48,13 +48,13 @@ test.describe("@smoke", () => {
       await expect(page.locator('input[autocomplete="one-time-code"]').first()).toBeFocused();
     })();
 
-    await step("Complete successful login & verify navigation to admin")(async () => {
+    await step("Complete successful login & verify navigation to dashboard")(async () => {
       await typeOneTimeCode(page, getVerificationCode());
       await page.getByRole("button", { name: "Verify" }).click(); // Auto-submit only happens when entering the first OTP
 
       // Verify successful login
-      await expect(page).toHaveURL("/account");
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
+      await expect(page).toHaveURL("/dashboard");
+      await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
     })();
 
     // === AUTHENTICATION PROTECTION ===
@@ -63,7 +63,7 @@ test.describe("@smoke", () => {
       context.monitoring.expectedStatusCodes.push(401);
 
       // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const triggerButton = page.getByRole("button", { name: "User profile menu" });
+      const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");
 
       const userMenu = page.getByRole("menu");
@@ -74,7 +74,7 @@ test.describe("@smoke", () => {
       await expect(logoutMenuItem).toBeVisible();
       await logoutMenuItem.dispatchEvent("click");
 
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
     })();
 
     await step("Access protected routes while unauthenticated & verify redirect to login")(async () => {
@@ -84,8 +84,8 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL(/\/login\?returnPath=%2Faccount%2Fusers/);
 
       // Try accessing admin dashboard
-      await page.goto("/account");
-      await expect(page).toHaveURL("/login?returnPath=%2Faccount");
+      await page.goto("/dashboard");
+      await expect(page).toHaveURL("/login?returnPath=%2Fdashboard");
     })();
 
     // === SECURITY EDGE CASES ===
@@ -103,7 +103,7 @@ test.describe("@smoke", () => {
       await expect(page).toHaveURL("/login/verify");
       await typeOneTimeCode(page, getVerificationCode());
 
-      await expect(page).toHaveURL("/account");
+      await expect(page).toHaveURL("/dashboard");
     })();
   });
 });

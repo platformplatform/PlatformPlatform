@@ -13,8 +13,26 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-msgid "Home"
-msgstr "Home"
+msgid "Access denied"
+msgstr "Access denied"
+
+msgid "An unexpected error occurred while processing your request."
+msgstr "An unexpected error occurred while processing your request."
+
+msgid "Contact your administrator if you believe this is a mistake."
+msgstr "Contact your administrator if you believe this is a mistake."
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Go to home"
+msgstr "Go to home"
+
+msgid "Hide details"
+msgstr "Hide details"
+
+msgid "Log out"
+msgstr "Log out"
 
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
@@ -22,5 +40,41 @@ msgstr "Manage tenants, view system data, see exceptions, and perform various ta
 msgid "More information"
 msgstr "More information"
 
+msgid "Navigation"
+msgstr "Navigation"
+
+msgid "Open navigation menu"
+msgstr "Open navigation menu"
+
+msgid "Page not found"
+msgstr "Page not found"
+
+msgid "PlatformPlatform logo"
+msgstr "PlatformPlatform logo"
+
+msgid "Please check the URL or return to the home page."
+msgstr "Please check the URL or return to the home page."
+
+msgid "Please try again or return to the home page."
+msgstr "Please try again or return to the home page."
+
+msgid "Show details"
+msgstr "Show details"
+
+msgid "Something went wrong"
+msgstr "Something went wrong"
+
+msgid "The page you are looking for does not exist or was moved."
+msgstr "The page you are looking for does not exist or was moved."
+
+msgid "Toggle sidebar"
+msgstr "Toggle sidebar"
+
+msgid "Try again"
+msgstr "Try again"
+
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"
+
+msgid "You do not have permission to access this page."
+msgstr "You do not have permission to access this page."

@@ -49,11 +49,11 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 // NOTE: Menu items have active:bg-hover-background for press feedback on interactive menu buttons.
 const menuButtonStyles = cva(
-  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-base outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
   {
     variants: {
       isCollapsed: {
-        true: "mx-auto w-11 justify-center",
+        true: "ml-1.5 w-11 justify-center",
         false: "w-full pr-2 pl-4"
       },
       isActive: {
@@ -98,19 +98,18 @@ const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
 type MenuButtonProps = {
   icon: LucideIcon;
   label: string;
+  ariaLabel?: string;
   isDisabled?: boolean;
+  matchPrefix?: boolean;
 } & (
   | {
-      forceReload?: false;
       href: string;
-    }
-  | {
-      forceReload: true;
-      href: string;
+      federatedNavigation?: false;
     }
   | {
       federatedNavigation: true;
       href: string;
+      onNavigate?: (path: string) => void;
     }
 );
 
@@ -164,20 +163,29 @@ function ActiveIndicator({ isActive }: { isActive: boolean }) {
   return <div className="absolute top-1/2 -left-3 h-8 w-1 -translate-y-1/2 bg-primary" />;
 }
 
-export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ...props }: Readonly<MenuButtonProps>) {
-  const forceReload = "forceReload" in props ? props.forceReload : false;
+export function MenuButton({
+  icon: Icon,
+  label,
+  ariaLabel,
+  href: to,
+  isDisabled = false,
+  matchPrefix = false,
+  ...props
+}: Readonly<MenuButtonProps>) {
   const federatedNavigation = "federatedNavigation" in props ? props.federatedNavigation : false;
+  const onNavigate = "onNavigate" in props ? props.onNavigate : undefined;
   const isCollapsed = useContext(collapsedContext);
   const overlayCtx = useContext(overlayContext);
   const router = useRouter();
 
   // Check if this menu item is active
-  const currentPath = router.state.location.pathname;
-  const targetPath = getTargetPath(to, router);
-  const isActive = normalizePath(currentPath) === normalizePath(targetPath);
+  const currentPath = normalizePath(router.state.location.pathname);
+  const targetPath = normalizePath(getTargetPath(to, router));
+  const isActive = matchPrefix ? currentPath.startsWith(targetPath) : currentPath === targetPath;
 
   // Check if we're in the mobile menu context
-  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
+  const isMobileViewport = !window.matchMedia(MEDIA_QUERIES.sm).matches;
+  const isMobileMenu = isMobileViewport && !!overlayCtx?.isOpen;
 
   const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
 
@@ -192,10 +200,9 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
       overlayCtx.close();
     }
 
-    // Handle force reload
-    if (forceReload) {
-      e.preventDefault();
-      window.location.href = to;
+    // Dispatch event to close mobile menu (always on mobile viewport as fallback for module federation)
+    if (isMobileViewport) {
+      window.dispatchEvent(new CustomEvent("close-mobile-menu"));
     }
   };
 
@@ -205,8 +212,19 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
       overlayCtx.close();
     }
 
+    // Dispatch event to close mobile menu (always on mobile viewport as fallback for module federation)
+    if (isMobileViewport) {
+      window.dispatchEvent(new CustomEvent("close-mobile-menu"));
+    }
+
     // Smart navigation for federated modules
     if (federatedNavigation) {
+      // Use onNavigate callback if provided (preferred for SPA navigation)
+      if (onNavigate) {
+        onNavigate(to);
+        return;
+      }
+
       // Check if the target route exists in the current router
       try {
         const matchResult = router.matchRoute({ to });
@@ -219,14 +237,10 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         // Route doesn't exist in current system
       }
 
-      // Route doesn't exist in current system - force reload
+      // Route doesn't exist in current system - force reload (fallback)
       window.location.href = to;
     }
-    // Legacy forceReload behavior
-    else if (forceReload) {
-      window.location.href = to;
-    }
-  }, [overlayCtx, federatedNavigation, forceReload, router, to]);
+  }, [overlayCtx, federatedNavigation, onNavigate, router, to, isMobileViewport]);
 
   const handlePress = () => {
     if (isDisabled) {
@@ -246,11 +260,12 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           <TooltipTrigger
             render={
               <Link
-                href={forceReload || federatedNavigation ? undefined : (to as string)}
+                href={federatedNavigation ? undefined : (to as string)}
                 className={linkClassName}
                 variant="ghost"
                 underline={false}
                 disabled={isDisabled}
+                aria-label={ariaLabel ?? label}
                 aria-current={isActive ? "page" : undefined}
                 onClick={handlePress}
               >
@@ -259,7 +274,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
             }
           />
           <TooltipContent side="right" sideOffset={4}>
-            {label}
+            {ariaLabel ?? label}
           </TooltipContent>
         </Tooltip>
       </div>
@@ -278,6 +293,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
           variant="ghost"
           underline={false}
           disabled={isDisabled}
+          aria-label={ariaLabel}
           aria-current={isActive ? "page" : undefined}
           onClick={handlePress}
         >
@@ -296,6 +312,7 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
         className={linkClassName}
         onClick={handleClick}
         disabled={isDisabled}
+        aria-label={ariaLabel}
         aria-current={isActive ? "page" : undefined}
       >
         <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
@@ -304,112 +321,8 @@ export function MenuButton({ icon: Icon, label, href: to, isDisabled = false, ..
   );
 }
 
-// Federated menu button for module federation
-type FederatedMenuButtonProps = {
-  icon: LucideIcon;
-  label: string;
-  href: string;
-  isCurrentSystem: boolean;
-  isDisabled?: boolean;
-};
-
-export function FederatedMenuButton({
-  icon: Icon,
-  label,
-  href: to,
-  isCurrentSystem,
-  isDisabled = false
-}: Readonly<FederatedMenuButtonProps>) {
-  const isCollapsed = useContext(collapsedContext);
-  const overlayCtx = useContext(overlayContext);
-  const router = useRouter();
-
-  // Check if this menu item is active
-  // Use prefix matching for section paths (e.g., /admin/users matches /admin/users/recycle-bin)
-  // Use exact matching for root paths (e.g., /admin only matches /admin)
-  const currentPath = normalizePath(router.state.location.pathname);
-  const targetPath = normalizePath(to);
-  const targetSegments = targetPath.split("/").filter(Boolean);
-  const isRootPath = targetSegments.length <= 1;
-  const isActive = isRootPath ? currentPath === targetPath : currentPath.startsWith(targetPath);
-
-  // Check if we're in the mobile menu context
-  const isMobileMenu = !window.matchMedia(MEDIA_QUERIES.sm).matches && !!overlayCtx?.isOpen;
-
-  const linkClassName = menuButtonStyles({ isCollapsed, isActive, isDisabled, isMobileMenu });
-
-  const handleNavigation = useCallback(() => {
-    if (isDisabled) {
-      return;
-    }
-
-    // Small delay to ensure touch events are fully processed
-    setTimeout(() => {
-      // Auto-close overlay after navigation
-      if (overlayCtx?.isOpen) {
-        overlayCtx.close();
-      }
-
-      if (isCurrentSystem) {
-        // Same system - use TanStack Router navigation to respect blockers
-        router.navigate({ to });
-      } else {
-        // Different system - force reload
-        window.location.href = to;
-      }
-    }, 10);
-  }, [isDisabled, overlayCtx, isCurrentSystem, router, to]);
-
-  // For collapsed menu, wrap in Tooltip
-  if (isCollapsed) {
-    return (
-      <div className="relative">
-        <ActiveIndicator isActive={isActive} />
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <Link
-                href={undefined}
-                className={linkClassName}
-                variant="ghost"
-                underline={false}
-                disabled={isDisabled}
-                aria-current={isActive ? "page" : undefined}
-                onClick={handleNavigation}
-              >
-                <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-              </Link>
-            }
-          />
-          <TooltipContent side="right" sideOffset={4}>
-            {label}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-    );
-  }
-
-  // For expanded menu, use Link for consistent touch handling
-  return (
-    <div className="relative">
-      <ActiveIndicator isActive={isActive} />
-      <Link
-        href={undefined}
-        className={linkClassName}
-        variant="ghost"
-        underline={false}
-        disabled={isDisabled}
-        aria-current={isActive ? "page" : undefined}
-        onClick={handleNavigation}
-      >
-        <MenuLinkContent icon={Icon} label={label} isActive={isActive} isCollapsed={isCollapsed} />
-      </Link>
-    </div>
-  );
-}
-
 const sideMenuStyles = cva(
-  "group fixed top-0 left-0 z-30 flex h-screen flex-col bg-sidebar shadow-[1px_0_0_0_var(--border)] transition-[width] duration-100",
+  "group fixed top-[var(--banner-offset,0rem)] left-0 z-30 flex h-[calc(100vh-var(--banner-offset,0rem))] flex-col bg-sidebar transition-[width,top] duration-100",
   {
     variants: {
       isCollapsed: {
@@ -462,20 +375,12 @@ type SideMenuProps = {
 const _getInitialMenuWidthRem = (): number => {
   const stored = localStorage.getItem("side-menu-size");
   if (stored) {
-    const width = Number.parseFloat(stored);
-    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM && width <= SIDE_MENU_MAX_WIDTH_REM) {
+    const width = Math.min(Number.parseFloat(stored), SIDE_MENU_MAX_WIDTH_REM);
+    if (!Number.isNaN(width) && width >= SIDE_MENU_MIN_WIDTH_REM) {
       return width;
     }
   }
   return SIDE_MENU_DEFAULT_WIDTH_REM;
-};
-
-// Helper function to get initial collapsed state
-const _getInitialCollapsedState = (forceCollapsed: boolean): boolean => {
-  if (forceCollapsed) {
-    return true;
-  }
-  return localStorage.getItem("side-menu-collapsed") === "true";
 };
 
 // Helper function to get user preference for collapsed state
@@ -562,9 +467,9 @@ function useOverlayHandlers({
 // Helper to handle resize movement
 function createResizeHandler(params: {
   isCollapsed: boolean;
-  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
-  hasDraggedRef: React.MutableRefObject<boolean>;
-  initialMenuWidth: React.MutableRefObject<number>;
+  dragStartPos: React.RefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.RefObject<boolean>;
+  initialMenuWidth: React.RefObject<number>;
   toggleMenu: () => void;
   setIsResizing: (value: boolean) => void;
   setMenuWidth: (value: number) => void;
@@ -644,9 +549,9 @@ function useResizeHandler({
   setMenuWidthRem: (value: number) => void;
   isCollapsed: boolean;
   toggleMenu: () => void;
-  dragStartPos: React.MutableRefObject<{ x: number; y: number } | null>;
-  hasDraggedRef: React.MutableRefObject<boolean>;
-  initialMenuWidth: React.MutableRefObject<number>;
+  dragStartPos: React.RefObject<{ x: number; y: number } | null>;
+  hasDraggedRef: React.RefObject<boolean>;
+  initialMenuWidth: React.RefObject<number>;
 }) {
   useEffect(() => {
     if (!isResizing) {
@@ -676,9 +581,9 @@ function useResizeHandler({
 
     document.addEventListener("mousemove", handleMove);
     document.addEventListener("mouseup", handleEnd);
-    document.addEventListener("touchmove", handleMove);
-    document.addEventListener("touchend", handleEnd);
-    document.addEventListener("touchcancel", handleEnd);
+    document.addEventListener("touchmove", handleMove, { passive: true });
+    document.addEventListener("touchend", handleEnd, { passive: true });
+    document.addEventListener("touchcancel", handleEnd, { passive: true });
 
     return () => {
       document.removeEventListener("mousemove", handleMove);
@@ -798,7 +703,7 @@ const ResizableToggleButton = ({
 }: {
   toggleButtonRef: React.RefObject<HTMLButtonElement>;
   handleResizeStart: (e: React.MouseEvent | React.TouchEvent) => void;
-  hasDraggedRef: React.MutableRefObject<boolean>;
+  hasDraggedRef: React.RefObject<boolean>;
   toggleMenu: () => void;
   menuWidthRem: number;
   setMenuWidthRem: (width: number) => void;
@@ -971,13 +876,9 @@ const MenuNav = ({
 function useMenuState(forceCollapsed: boolean) {
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [menuWidthRem, setMenuWidthRem] = useState(_getInitialMenuWidthRem);
-  const [isCollapsed, setIsCollapsed] = useState(() => _getInitialCollapsedState(forceCollapsed));
   const [userPreference, setUserPreference] = useState(_getUserPreference);
 
-  // Update collapsed state when screen size changes
-  useEffect(() => {
-    setIsCollapsed(forceCollapsed || userPreference);
-  }, [forceCollapsed, userPreference]);
+  const isCollapsed = forceCollapsed || userPreference;
 
   return {
     isOverlayOpen,
@@ -985,7 +886,7 @@ function useMenuState(forceCollapsed: boolean) {
     menuWidth: menuWidthRem,
     setMenuWidth: setMenuWidthRem,
     isCollapsed,
-    setIsCollapsed,
+    setIsCollapsed: setUserPreference,
     userPreference,
     setUserPreference
   };
@@ -1291,7 +1192,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
       {isOpen && (
         <overlayContext.Provider value={{ isOpen, close: () => setIsOpen(false) }}>
           <dialog
-            className="fixed inset-0 z-40 h-full w-full bg-sidebar"
+            className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-40 h-auto w-full bg-sidebar"
             style={{ margin: 0, padding: 0, border: "none", display: "flex" }}
             aria-label="Mobile navigation menu"
             open={true}

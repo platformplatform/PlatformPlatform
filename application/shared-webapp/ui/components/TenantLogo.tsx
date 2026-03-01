@@ -28,22 +28,15 @@ const sizeMap = {
   lg: "size-16"
 };
 
-export function TenantLogo({ logoUrl, tenantName, size = "md", className, ...props }: Readonly<TenantLogoProps>) {
-  const initial = tenantName?.charAt(0).toUpperCase() || "";
-  const hasName = tenantName && tenantName.trim().length > 0;
-
-  // Fallback strategy (following Slack/Linear pattern):
-  // - If has name: show initial letter
-  // - If no name: show generic building icon
+export function TenantLogo({ logoUrl, tenantName: _, size = "md", className, ...props }: Readonly<TenantLogoProps>) {
   const iconSize = size === "lg" ? "size-12" : size === "md" ? "size-7" : "size-5";
   const iconPadding = "p-0.5";
-  const imagePadding = size === "lg" ? "p-1" : "";
 
   return (
     <Avatar className={cn(sizeMap[size], "shrink-0 rounded-lg after:hidden", className)} {...props}>
-      <AvatarImage src={logoUrl ?? undefined} className={cn("rounded-lg object-contain", imagePadding)} />
-      <AvatarFallback className={cn("rounded-lg bg-transparent", hasName ? "p-0.5" : iconPadding)}>
-        {hasName ? initial : <Building2Icon className={`${iconSize} text-muted-foreground`} />}
+      <AvatarImage src={logoUrl ?? undefined} className="rounded-lg object-contain" />
+      <AvatarFallback className={cn("rounded-lg bg-transparent", iconPadding)}>
+        <Building2Icon className={`${iconSize} text-muted-foreground`} />
       </AvatarFallback>
     </Avatar>
   );

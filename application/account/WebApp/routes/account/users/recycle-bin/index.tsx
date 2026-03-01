@@ -1,14 +1,8 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
+import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { BreadcrumbItem, BreadcrumbLink, BreadcrumbPage } from "@repo/ui/components/Breadcrumb";
-import { Link } from "@repo/ui/components/Link";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import FederatedAccessDeniedPage from "@/federated-modules/errorPages/FederatedAccessDeniedPage";
-import FederatedSideMenu from "@/federated-modules/sideMenu/FederatedSideMenu";
-import { TopMenu } from "@/shared/components/topMenu";
 import type { components } from "@/shared/lib/api/client";
 import { UserTabNavigation } from "../-components/UserTabNavigation";
 import { DeletedUsersTable } from "./-components/DeletedUsersTable";
@@ -18,6 +12,7 @@ import { PermanentlyDeleteUserDialog } from "./-components/PermanentlyDeleteUser
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
 
 export const Route = createFileRoute("/account/users/recycle-bin/")({
+  beforeLoad: () => requirePermission({ allowedRoles: ["Owner", "Admin"] }),
   component: DeletedUsersPage
 });
 
@@ -28,12 +23,8 @@ export default function DeletedUsersPage() {
   const [totalDeletedUsersCount, setTotalDeletedUsersCount] = useState(0);
   const [pageOffset, setPageOffset] = useState(0);
 
-  if (!hasPermission({ allowedRoles: ["Owner", "Admin"] })) {
-    return <FederatedAccessDeniedPage />;
-  }
-
   const handlePageChange = (page: number) => {
-    setPageOffset(page - 1);
+    setPageOffset(() => page - 1);
     setSelectedDeletedUsers([]);
   };
 
@@ -50,25 +41,14 @@ export default function DeletedUsersPage() {
 
   return (
     <>
-      <FederatedSideMenu currentSystem="account" />
       <AppLayout
-        topMenu={
-          <TopMenu>
-            <BreadcrumbItem>
-              <BreadcrumbLink render={<Link href="/account/users" variant="secondary" underline={false} />}>
-                <Trans>Users</Trans>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbPage>
-              <Trans>Recycle bin</Trans>
-            </BreadcrumbPage>
-          </TopMenu>
-        }
-        title={t`Users`}
+        variant="center"
+        maxWidth="64rem"
+        title={t`User recycle bin`}
         subtitle={t`Manage your users and permissions here.`}
       >
+        <UserTabNavigation activeTab="recycle-bin" />
         <div className="flex min-h-0 flex-1 flex-col">
-          <UserTabNavigation activeTab="recycle-bin" />
           <DeletedUsersToolbar
             selectedUsers={selectedDeletedUsers}
             onSelectedUsersChange={setSelectedDeletedUsers}

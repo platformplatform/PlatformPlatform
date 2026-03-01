@@ -58,6 +58,7 @@ interface LinkBaseProps extends LinkVariantProps {
   className?: string;
   disabled?: boolean;
   "aria-current"?: "page" | "step" | "location" | "date" | "time" | "true" | "false";
+  "aria-label"?: string;
 }
 
 interface InternalLinkProps extends LinkBaseProps {
@@ -128,7 +129,7 @@ export function Link({
   }
 
   if (isExternalLink(href)) {
-    const { target, rel, "aria-current": ariaCurrent } = props as ExternalLinkProps;
+    const { target, rel, "aria-current": ariaCurrent, "aria-label": ariaLabel } = props as ExternalLinkProps;
     return (
       <a
         href={href}
@@ -137,6 +138,7 @@ export function Link({
         rel={rel ?? "noopener noreferrer"}
         onClick={onClick as (event: MouseEvent<HTMLAnchorElement>) => void}
         aria-current={ariaCurrent}
+        aria-label={ariaLabel}
       >
         {children}
       </a>

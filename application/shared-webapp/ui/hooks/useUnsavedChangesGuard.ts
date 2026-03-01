@@ -1,5 +1,6 @@
 import { useBlocker } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { registerNavigationGuard } from "./federatedNavigationGuard";
 
 type UseUnsavedChangesGuardOptions = {
   hasUnsavedChanges: boolean;
@@ -18,21 +19,20 @@ export function useUnsavedChangesGuard({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [pendingCloseHandler, setPendingCloseHandler] = useState<(() => void) | null>(null);
 
-  const shouldBlockNavigation = useCallback(() => hasUnsavedChanges, [hasUnsavedChanges]);
+  // Use a ref so the shouldBlockFn always reads the latest value without stale closures
+  const hasUnsavedChangesRef = useRef(hasUnsavedChanges);
+  hasUnsavedChangesRef.current = hasUnsavedChanges;
+
+  useEffect(() => {
+    return registerNavigationGuard(() => hasUnsavedChanges);
+  }, [hasUnsavedChanges]);
 
   // Handle browser back/forward navigation and in-app navigation using TanStack Router
   const { proceed, reset, status } = useBlocker({
-    shouldBlockFn: shouldBlockNavigation,
+    shouldBlockFn: () => hasUnsavedChangesRef.current,
     withResolver: true,
     enableBeforeUnload: false
   });
-
-  // Show our custom dialog when navigation is blocked
-  useEffect(() => {
-    if (status === "blocked") {
-      setIsConfirmDialogOpen(true);
-    }
-  }, [status]);
 
   // Handle browser tab/window close and external URL navigation
   useEffect(() => {
@@ -47,6 +47,13 @@ export function useUnsavedChangesGuard({
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
+
+  // Show our custom dialog when navigation is blocked
+  useEffect(() => {
+    if (status === "blocked") {
+      setIsConfirmDialogOpen(true);
+    }
+  }, [status]);
 
   const confirmLeave = useCallback(() => {
     setIsConfirmDialogOpen(false);

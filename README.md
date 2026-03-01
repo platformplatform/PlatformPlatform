@@ -4,6 +4,7 @@
 
 [![App Gateway](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/app-gateway.yml?query=branch%3Amain)
 [![Account](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/account.yml?query=branch%3Amain)
+[![Main](https://github.com/platformplatform/PlatformPlatform/actions/workflows/main.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/main.yml?query=branch%3Amain)
 [![Back Office](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/back-office.yml?query=branch%3Amain)
 [![Cloud Infrastructure](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml/badge.svg)](https://github.com/platformplatform/PlatformPlatform/actions/workflows/cloud-infrastructure.yml?query=branch%3Amain)
 
@@ -200,7 +201,7 @@ Once the Aspire dashboard fully loads, click to the WebApp and sign up for a new
 
 ### (Optional) Set up Google OAuth for "Sign in with Google"
 
-PlatformPlatform supports authentication via Google OAuth. This is optional for local development since email-based one-time passwords work without any configuration. When running locally without Google OAuth credentials configured, the Aspire dashboard prompts for parameters -- enter `not-configured` to skip and start Aspire without Google OAuth.
+PlatformPlatform supports authentication via Google OAuth using OpenID Connect with PKCE. This is optional for local development since email-based one-time passwords work without any configuration. The Aspire dashboard prompts whether to enable Google OAuth on first startup.
 
 <details>
 
@@ -222,7 +223,12 @@ PlatformPlatform supports authentication via Google OAuth. This is optional for 
 
 </details>
 
-**Aspire parameter configuration**: Click **Parameters** in the Aspire dashboard and enter your Google OAuth Client ID and Client Secret. These values are stored securely in .NET user secrets and persist across restarts.
+**Aspire parameter configuration** (two restarts required):
+
+1. **First restart**: Aspire prompts whether to enable Google OAuth. Enter `true` to enable or `false` to skip. Once entered, restart Aspire.
+2. **Second restart**: Aspire prompts for the **Client ID** and **Client Secret**. Enter the values from the Google Cloud Console, then restart Aspire to apply the configuration.
+
+All values are stored securely in .NET user secrets and persist across restarts.
 
 ## 4. Set up CI/CD with passwordless deployments from GitHub to Azure
 
@@ -358,30 +364,35 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ .windsurf             # Windsurf AI rules and workflows (synchronized from .claude)
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
-│  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy 
-│  ├─ account            # Self-contained system with account sign-up, user management, etc.
+│  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy
+│  ├─ main               # Primary SCS and shell app -- build your product here
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
-│  ├─ back-office        # A self-contained system for operations and support (empty for now)
+│  ├─ account            # Federated module for authentication, user and account management
+│  │   ├─ WebApp         # React SPA loaded into main via Module Federation
+│  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
+│  │   ├─ Core           # Core business logic, application use cases, and infrastructure
+│  │   ├─ Workers        # Background workers for long-running tasks and event processing
+│  │   └─ Tests          # Tests for the Api, Core, and Workers
+│  ├─ back-office        # Standalone SCS for operations and support (separate login)
 │  │   ├─ WebApp         # React SPA frontend using TypeScript and ShadCN 2.0 with Base UI
 │  │   ├─ Api            # Presentation layer exposing the API to WebApp or other clients
 │  │   ├─ Core           # Core business logic, application use cases, and infrastructure
 │  │   ├─ Workers        # Background workers for long-running tasks and event processing
 │  │   └─ Tests          # Tests for the Api, Core, and Workers
 │  ├─ shared-kernel      # Reusable components and default configuration for all systems
-│  ├─ shared-webapp      # Reusable ShadCN 2.0 components with Base UI that affect all systems
-│  └─ [your-scs]         # [Your SCS] Create your SaaS product as a self-contained system
+│  └─ shared-webapp      # Reusable ShadCN 2.0 components with Base UI that affect all systems
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
 │  ├─ environment        # Shared resources like App Insights, Container Registry, etc.
 │  └─ modules            # Reusable Bicep modules like Container App, SQL Server, etc.
-└─ development-cli       # A .NET CLI tool for automating common developer tasks
+└─ developer-cli         # A .NET CLI tool for automating common developer tasks
 ```
 
-** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation.
+** A [Self-Contained System](https://scs-architecture.org/) is a large microservice (or a small monolith) that contains the full stack, including frontend, background jobs, etc. The `main` SCS is the shell application with catch-all routing where you build your product. The `account` SCS is loaded into main via Module Federation, enabling seamless navigation between product pages and account pages without full page reloads. The `back-office` SCS runs as a fully standalone application with its own login.
 
 # Technologies
 

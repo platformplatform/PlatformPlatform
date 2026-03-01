@@ -8,12 +8,10 @@ import { step } from "@shared/e2e/utils/test-step-wrapper";
 test.describe("@comprehensive", () => {
   /**
    * Tests mobile-specific functionality including navigation, user profile editing,
-   * language switching, theme switching, and keyboard navigation on the users table.
+   * and keyboard navigation on the users table.
    * Covers:
    * - Mobile menu navigation with hidden top menu and side menu
    * - User profile editing through mobile menu
-   * - Language switching functionality
-   * - Theme switching functionality
    * - Keyboard navigation on users table without auto-opening side pane
    * - Navigation between multiple users and manual side pane opening
    */
@@ -33,7 +31,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Nav Test");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to admin dashboard & verify mobile layout")(async () => {
@@ -68,132 +66,65 @@ test.describe("@comprehensive", () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await expect(mobileDialog).toBeVisible();
 
-      // Verify user profile section is visible
-      await expect(mobileDialog.getByRole("button", { name: "Edit" })).toBeVisible();
+      // Verify user accordion is visible (collapsed by default on /account)
+      const userAccordion = mobileDialog.getByRole("button").filter({ hasText: owner.email });
+      await expect(userAccordion).toBeVisible();
 
-      // Verify all menu options are present
+      // Expand user accordion to verify user menu items
+      await userAccordion.click();
       await expect(mobileDialog.getByRole("button", { name: "Log out" })).toBeVisible();
-      await expect(mobileDialog.getByRole("button", { name: "Theme" })).toBeVisible();
-      await expect(mobileDialog.getByRole("button", { name: "Language" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "User profile" })).toBeVisible();
+
+      // Verify contact support button
       await expect(mobileDialog.getByRole("button", { name: "Contact support" })).toBeVisible();
 
-      // Verify navigation links
-      await expect(mobileDialog.getByRole("link", { name: "Home" })).toBeVisible();
-      await expect(mobileDialog.getByRole("link", { name: "Account" })).toBeVisible();
-      await expect(mobileDialog.getByRole("link", { name: "Users" })).toBeVisible();
+      // Verify account navigation buttons (tenant accordion is auto-expanded on /account)
+      await expect(mobileDialog.getByRole("button", { name: "Account overview" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "Account settings" })).toBeVisible();
+      await expect(mobileDialog.getByRole("button", { name: "Users" })).toBeVisible();
     })();
 
     // === USER PROFILE EDITING ===
-    await step("Edit user profile through mobile menu & verify profile modal opens")(async () => {
+    await step("Navigate to profile page via mobile menu button & verify profile form")(async () => {
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("button", { name: "Edit" }).click();
+      await mobileDialog.getByRole("button", { name: "User profile" }).click();
 
-      // Wait for mobile menu to close and profile modal to open
+      // Wait for mobile menu to close and profile page to load
       await expect(mobileDialog).not.toBeVisible();
-
-      // Profile modal should open - wait for it to be visible
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
-      await expect(profileModal).toBeVisible();
+      await expect(page).toHaveURL("/user/profile");
+      await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
 
       // Verify form fields are present
-      await expect(profileModal.getByLabel("First name")).toBeVisible();
-      await expect(profileModal.getByLabel("Last name")).toBeVisible();
-      await expect(profileModal.getByLabel("Email")).toBeVisible();
-      await expect(profileModal.getByRole("textbox", { name: "Title" })).toBeVisible();
+      await expect(page.getByLabel("First name")).toBeVisible();
+      await expect(page.getByLabel("Last name")).toBeVisible();
+      await expect(page.getByLabel("Email")).toBeVisible();
+      await expect(page.getByRole("textbox", { name: "Title" })).toBeVisible();
     })();
 
     await step("Update profile information & verify changes are saved")(async () => {
-      const profileModal = page.getByRole("dialog", { name: "User profile" });
       const newTitle = faker.person.jobTitle();
 
       // Fill in the title field
-      await profileModal.getByRole("textbox", { name: "Title" }).fill(newTitle);
+      await page.getByRole("textbox", { name: "Title" }).fill(newTitle);
       // Click save button
-      await profileModal.getByRole("button", { name: "Save" }).click();
+      await page.getByRole("button", { name: "Save changes" }).click();
 
       // Wait for success toast
       await expectToastMessage(context, "Profile updated successfully");
-      await expect(profileModal).not.toBeVisible();
 
-      // Verify changes are reflected in mobile menu
+      // Navigate back to home and verify mobile menu still works
+      await page.goto("/account");
       await page.getByRole("button", { name: "Open navigation menu" }).click();
-      await expect(page.getByText(newTitle)).toBeVisible();
+
+      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
+      await expect(mobileDialog).toBeVisible();
+
+      // Verify user name is shown in user accordion
+      await expect(mobileDialog.getByText(`${owner.firstName} ${owner.lastName}`)).toBeVisible();
 
       // Close mobile menu by clicking the X button
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
       await mobileDialog.getByRole("button", { name: "Close menu" }).click();
       await expect(mobileDialog).not.toBeVisible();
-    })();
-
-    // === LANGUAGE SWITCHING ===
-    await step("Change language to Danish through mobile menu & verify UI updates")(async () => {
-      await page.getByRole("button", { name: "Open navigation menu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const languageButton = mobileDialog.getByRole("button", { name: "Language" });
-      await languageButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const danskMenuItem = page.getByRole("menuitem", { name: "Dansk" });
-      await expect(danskMenuItem).toBeVisible();
-      await danskMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify language changed - check heading
-      await expect(page.getByRole("heading", { name: "Velkommen hjem" })).toBeVisible();
-    })();
-
-    await step("Change language back to English & verify language updates")(async () => {
-      await page.getByRole("button", { name: "Åbn navigationsmenu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const languageButton = mobileDialog.getByRole("button", { name: "Sprog" });
-      await languageButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const englishMenuItem = page.getByRole("menuitem", { name: "English" });
-      await expect(englishMenuItem).toBeVisible();
-      await englishMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify language changed back - check heading
-      await expect(page.getByRole("heading", { name: "Welcome home" })).toBeVisible();
-    })();
-
-    // === THEME SWITCHING ===
-    await step("Change theme through mobile menu & verify theme applies")(async () => {
-      await page.getByRole("button", { name: "Open navigation menu" }).click();
-
-      const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-
-      // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
-      const themeButton = mobileDialog.getByRole("button", { name: "Theme" });
-      await themeButton.dispatchEvent("click");
-
-      await expect(page.getByRole("menu")).toBeVisible();
-
-      // Click menu item with JavaScript evaluate to bypass stability check during animation
-      const darkMenuItem = page.getByRole("menuitem", { name: "Dark" });
-      await expect(darkMenuItem).toBeVisible();
-      await darkMenuItem.dispatchEvent("click");
-
-      // Mobile menu should close
-      await expect(mobileDialog).not.toBeVisible();
-
-      // Verify dark theme is applied
-      await expect(page.locator("html")).toHaveClass("dark");
     })();
 
     // === NAVIGATION TO USERS PAGE ===
@@ -201,7 +132,8 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Open navigation menu" }).click();
 
       const mobileDialog = page.getByRole("dialog", { name: "Mobile navigation menu" });
-      await mobileDialog.getByRole("link", { name: "Users" }).click();
+      // Tenant accordion auto-expands on /account path
+      await mobileDialog.getByRole("button", { name: "Users" }).click();
 
       // Mobile menu should close
       await expect(mobileDialog).not.toBeVisible();
@@ -269,7 +201,7 @@ test.describe("@comprehensive", () => {
       await expect(secondRow).toHaveAttribute("data-state", "selected");
 
       // Verify side pane remains closed when using keyboard navigation
-      await expect(page.locator('[aria-label="User profile"]')).not.toBeVisible();
+      await expect(page.getByRole("region", { name: "User profile" })).not.toBeVisible();
     })();
 
     await step("Navigate to third user & manually open side pane with Enter key")(async () => {
@@ -283,7 +215,7 @@ test.describe("@comprehensive", () => {
       await page.keyboard.press("Enter");
 
       // Verify side pane opens
-      const sidePane = page.locator('[aria-label="User profile"]');
+      const sidePane = page.getByRole("region", { name: "User profile" });
       await expect(sidePane).toBeVisible();
 
       // Wait for side pane animation to complete and close button to be visible
@@ -292,7 +224,7 @@ test.describe("@comprehensive", () => {
     })();
 
     await step("Close side pane with Escape & verify it closes")(async () => {
-      const sidePane = page.locator('[aria-label="User profile"]');
+      const sidePane = page.getByRole("region", { name: "User profile" });
 
       // Ensure side pane is fully open
       await expect(sidePane).toBeVisible();
@@ -392,7 +324,7 @@ test.describe("@comprehensive", () => {
       await ownerPage.getByRole("textbox", { name: "Account name" }).clear();
       await ownerPage.getByRole("textbox", { name: "Account name" }).fill("Mobile Test Org");
       await ownerPage.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     await step("Navigate to users page & open invite user dialog")(async () => {
@@ -447,7 +379,7 @@ test.describe("@comprehensive", () => {
       await expect(page.getByRole("heading", { name: "Account settings" })).toBeVisible();
       await page.getByRole("textbox", { name: "Account name" }).fill("Mobile Selection Test");
       await page.getByRole("button", { name: "Save changes" }).click();
-      await expectToastMessage(context, "Account name updated successfully");
+      await expectToastMessage(context, "Account settings updated successfully");
     })();
 
     // === SETUP ===

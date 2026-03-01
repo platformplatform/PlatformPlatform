@@ -34,10 +34,10 @@ Use this workflow to create pull request titles and descriptions.
    - If the file [application/PlatformPlatform.slnx](/application/PlatformPlatform.slnx) exists, this is the "PlatformPlatform Upstream repository"—in downstream projects, the Visual Studio solution file has been renamed
    - Include this section only when changes require modifications in downstream projects
    - A sign that this is needed is when:
-     - Similar changes have been made across the two self-contained systems [Account](/application/account) and [Back Office](/application/back-office)
-     - Similar changes have been made to workflow files [account.yml](/.github/workflows/account.yml) and [back-office.yml](/.github/workflows/back-office.yml)
+     - Similar changes have been made across self-contained systems [Main](/application/main), [Account](/application/account), and [Back Office](/application/back-office)
+     - Similar changes have been made to workflow files [main.yml](/.github/workflows/main.yml), [account.yml](/.github/workflows/account.yml), and [back-office.yml](/.github/workflows/back-office.yml)
      - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that might require changes in downstream projects
-     - Updates to NuGet or npm packages required changes to [Account](/application/account) and [Back Office](/application/back-office) that also needed to be applied to other self-contained systems
+     - Updates to NuGet or npm packages required changes to [Main](/application/main), [Account](/application/account), and [Back Office](/application/back-office) that also needed to be applied to other self-contained systems
    - Use direct, specific language when addressing what needs to be done, e.g., "Please update your custom configuration to match these changes:"
    - Avoid phrases like "Downstream projects should" or "Downstream projects must"—use more direct phrasing
    - Use a numbered list for multiple changes, make it clear if multiple changes are required

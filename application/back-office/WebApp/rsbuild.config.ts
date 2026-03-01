@@ -1,7 +1,6 @@
 import { DevelopmentServerPlugin } from "@repo/build/plugin/DevelopmentServerPlugin";
 import { FileSystemRouterPlugin } from "@repo/build/plugin/FileSystemRouterPlugin";
 import { LinguiPlugin } from "@repo/build/plugin/LinguiPlugin";
-import { ModuleFederationPlugin } from "@repo/build/plugin/ModuleFederationPlugin";
 import { RunTimeEnvironmentPlugin } from "@repo/build/plugin/RunTimeEnvironmentPlugin";
 import { TailwindPlugin } from "@repo/build/plugin/TailwindPlugin";
 import { defineConfig } from "@rsbuild/core";
@@ -44,11 +43,6 @@ export default defineConfig({
     FileSystemRouterPlugin(),
     RunTimeEnvironmentPlugin(customBuildEnv),
     LinguiPlugin(),
-    DevelopmentServerPlugin({ port: 9201 }),
-    ModuleFederationPlugin({
-      remotes: {
-        account: { port: 9101 }
-      }
-    })
+    DevelopmentServerPlugin({ port: 9201 })
   ]
 });

@@ -166,14 +166,21 @@ function SidePane({ children, isOpen, onOpenChange, className, "aria-label": ari
   const content = (
     <>
       {/* Backdrop for fullscreen mode */}
-      {needsFullscreen && <div className="fixed inset-0 z-[35] bg-black/50" aria-hidden="true" onClick={onClose} />}
+      {needsFullscreen && (
+        <div
+          className="fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-[35] bg-black/50"
+          aria-hidden="true"
+          onClick={onClose}
+        />
+      )}
 
       {/* Side pane */}
       <section
         ref={sidePaneRef}
         className={cn(
-          "relative flex h-full w-full flex-col border-border border-l bg-card",
-          needsFullscreen && "fixed inset-0 z-[45]",
+          "relative flex h-full w-full flex-col bg-card",
+          needsFullscreen &&
+            "fixed top-[calc(var(--past-due-banner-height,0rem)+var(--invitation-banner-height,0rem))] right-0 bottom-0 left-0 z-[45] h-auto",
           className
         )}
         aria-label={ariaLabel}
@@ -207,7 +214,7 @@ function SidePaneHeader({
   const { onClose } = useSidePaneContext();
 
   return (
-    <div className={cn("relative flex h-16 shrink-0 items-center border-border border-b px-4", className)}>
+    <div className={cn("relative flex h-16 shrink-0 items-center px-4", className)}>
       <h4 className="flex h-full items-center">{children}</h4>
       {showCloseButton && (
         <Button
@@ -241,11 +248,7 @@ interface SidePaneFooterProps {
 }
 
 function SidePaneFooter({ children, className }: Readonly<SidePaneFooterProps>) {
-  return (
-    <div className={cn("mt-auto border-border border-t p-4 pb-[max(1rem,env(safe-area-inset-bottom))]", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("mt-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))]", className)}>{children}</div>;
 }
 
 // Close button that can be used anywhere
