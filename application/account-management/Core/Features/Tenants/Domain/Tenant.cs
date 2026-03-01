@@ -2,7 +2,7 @@ using PlatformPlatform.SharedKernel.Domain;
 
 namespace PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 
-public sealed class Tenant : AggregateRoot<TenantId>
+public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 {
     private Tenant() : base(TenantId.NewId())
     {

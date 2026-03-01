@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.EmailAuthentication.Shared;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.Gravatar;
@@ -23,6 +24,7 @@ public sealed record CompleteEmailLoginCommand(string OneTimePassword, TenantId?
 
 public sealed class CompleteEmailLoginHandler(
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
@@ -44,23 +46,20 @@ public sealed class CompleteEmailLoginHandler(
 
         if (!completeEmailConfirmationResult.IsSuccess) return Result.From(completeEmailConfirmationResult);
 
-        var user = await userRepository.GetUserByEmailUnfilteredAsync(completeEmailConfirmationResult.Value!.Email, cancellationToken);
-        if (user is null)
+        var allUsers = await userRepository.GetUsersByEmailUnfilteredAsync(completeEmailConfirmationResult.Value!.Email, cancellationToken);
+        var activeTenantIds = (await tenantRepository.GetByIdsAsync(allUsers.Select(u => u.TenantId).Distinct().ToArray(), cancellationToken))
+            .Select(t => t.Id).ToHashSet();
+        var activeUsers = allUsers.Where(u => activeTenantIds.Contains(u.TenantId)).ToArray();
+
+        if (activeUsers.Length == 0)
         {
-            logger.LogWarning("User not found for email after completing email login '{EmailLoginId}'", command.Id);
+            logger.LogWarning("No active users found for email after completing email login '{EmailLoginId}'", command.Id);
             return Result.BadRequest("The code is wrong or no longer valid.");
         }
 
-        if (command.PreferredTenantId is not null)
-        {
-            var usersWithSameEmail = await userRepository.GetUsersByEmailUnfilteredAsync(user.Email, cancellationToken);
-            var preferredTenantUser = usersWithSameEmail.SingleOrDefault(u => u.TenantId == command.PreferredTenantId);
-
-            if (preferredTenantUser is not null)
-            {
-                user = preferredTenantUser;
-            }
-        }
+        var user = command.PreferredTenantId is not null
+            ? activeUsers.SingleOrDefault(u => u.TenantId == command.PreferredTenantId) ?? activeUsers[0]
+            : activeUsers[0];
 
         if (!user.EmailConfirmed)
         {
@@ -88,8 +87,10 @@ public sealed class CompleteEmailLoginHandler(
         user.UpdateLastSeen(timeProvider.GetUtcNow());
         userRepository.Update(user);
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
-        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+        var userInfoResult = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
+        if (!userInfoResult.IsSuccess) return Result.From(userInfoResult);
+
+        authenticationTokenService.CreateAndSetAuthenticationTokens(userInfoResult.Value!, session.Id, session.RefreshTokenJti);
 
         events.CollectEvent(new SessionCreated(session.Id));
         events.CollectEvent(new EmailLoginCompleted(user.Id, completeEmailConfirmationResult.Value!.ConfirmationTimeInSeconds));

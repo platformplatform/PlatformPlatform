@@ -72,6 +72,9 @@ msgstr "Account"
 msgid "Account already exists"
 msgstr "Account already exists"
 
+msgid "Account deleted"
+msgstr "Account deleted"
+
 msgid "Account information"
 msgstr "Account information"
 
@@ -248,6 +251,9 @@ msgstr "Compliance"
 
 msgid "Contact support"
 msgstr "Contact support"
+
+msgid "Contact the account owner immediately if you believe this is incorrect."
+msgstr "Contact the account owner immediately if you believe this is incorrect."
 
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
@@ -1071,6 +1077,9 @@ msgstr "You successfully installed PlatformPlatform! 🎉"
 
 msgid "You were logged out from another browser tab."
 msgstr "You were logged out from another browser tab."
+
+msgid "Your account has been deleted."
+msgstr "Your account has been deleted."
 
 msgid "Your account was switched in another browser tab."
 msgstr "Your account was switched in another browser tab."

@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -18,6 +19,7 @@ public sealed record SwitchTenantCommand(TenantId TenantId) : ICommand, IRequest
 
 public sealed class SwitchTenantHandler(
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
@@ -39,6 +41,11 @@ public sealed class SwitchTenantHandler(
         {
             logger.LogWarning("UserId '{UserId}' does not have access to TenantId '{TenantId}'", executionContext.UserInfo.Id, command.TenantId);
             return Result.Forbidden($"User does not have access to tenant '{command.TenantId}'.");
+        }
+
+        if (!await tenantRepository.ExistsAsync(command.TenantId, cancellationToken))
+        {
+            return Result.Forbidden("Tenant is no longer available.");
         }
 
         // If the user's email is not confirmed, confirm it and copy profile data from current user
@@ -75,8 +82,10 @@ public sealed class SwitchTenantHandler(
         targetUser.UpdateLastSeen(timeProvider.GetUtcNow());
         userRepository.Update(targetUser);
 
-        var userInfo = await userInfoFactory.CreateUserInfoAsync(targetUser, session.Id, cancellationToken);
-        authenticationTokenService.SwitchTenantAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti, currentSession.ExpiresAt);
+        var userInfoResult = await userInfoFactory.CreateUserInfoAsync(targetUser, session.Id, cancellationToken);
+        if (!userInfoResult.IsSuccess) return Result.From(userInfoResult);
+
+        authenticationTokenService.SwitchTenantAndSetAuthenticationTokens(userInfoResult.Value!, session.Id, session.RefreshTokenJti, currentSession.ExpiresAt);
 
         events.CollectEvent(new SessionCreated(session.Id));
         events.CollectEvent(new TenantSwitched(executionContext.TenantId!, command.TenantId, targetUser.Id));

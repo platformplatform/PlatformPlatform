@@ -78,8 +78,8 @@ public sealed class SignupStarted
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));
 
-public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState, int usersDeleted)
-    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState), ("users_deleted", usersDeleted));
+public sealed class TenantDeleted(TenantId tenantId, TenantState tenantState)
+    : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", tenantState));
 
 public sealed class TenantLogoRemoved
     : TelemetryEvent;

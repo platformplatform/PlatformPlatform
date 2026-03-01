@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using PlatformPlatform.AccountManagement.Features.Authentication.Domain;
 using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Domain;
 using PlatformPlatform.AccountManagement.Features.ExternalAuthentication.Shared;
+using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Domain;
 using PlatformPlatform.AccountManagement.Features.Users.Shared;
 using PlatformPlatform.AccountManagement.Integrations.OAuth;
@@ -25,6 +26,7 @@ public sealed record CompleteExternalLoginCommand(string? Code, string? State, s
 public sealed class CompleteExternalLoginHandler(
     IExternalLoginRepository externalLoginRepository,
     IUserRepository userRepository,
+    ITenantRepository tenantRepository,
     ISessionRepository sessionRepository,
     UserInfoFactory userInfoFactory,
     AuthenticationTokenService authenticationTokenService,
@@ -53,16 +55,20 @@ public sealed class CompleteExternalLoginHandler(
             var externalLoginCookie = validationResult.Cookie;
             var userProfile = validationResult.UserProfile!;
 
-            var usersWithEmail = await userRepository.GetUsersByEmailUnfilteredAsync(userProfile.Email, cancellationToken);
-            if (usersWithEmail.Length == 0)
+            var allUsersWithEmail = await userRepository.GetUsersByEmailUnfilteredAsync(userProfile.Email, cancellationToken);
+            var activeTenantIds = (await tenantRepository.GetByIdsAsync(allUsersWithEmail.Select(u => u.TenantId).Distinct().ToArray(), cancellationToken))
+                .Select(t => t.Id).ToHashSet();
+            var activeUsers = allUsersWithEmail.Where(u => activeTenantIds.Contains(u.TenantId)).ToArray();
+
+            if (activeUsers.Length == 0)
             {
-                logger.LogWarning("User not found for external login '{ExternalLoginId}'", externalLogin.Id);
+                logger.LogWarning("No active users found for external login '{ExternalLoginId}'", externalLogin.Id);
                 return LoginFailedRedirect(externalLogin, ExternalLoginResult.UserNotFound);
             }
 
             var user = externalLoginCookie.PreferredTenantId is not null
-                ? usersWithEmail.SingleOrDefault(u => u.TenantId == externalLoginCookie.PreferredTenantId) ?? usersWithEmail[0]
-                : usersWithEmail[0];
+                ? activeUsers.SingleOrDefault(u => u.TenantId == externalLoginCookie.PreferredTenantId) ?? activeUsers[0]
+                : activeUsers[0];
 
             var existingIdentity = user.GetExternalIdentity(externalLogin.ProviderType);
             if (existingIdentity is not null && existingIdentity.ProviderUserId != userProfile.ProviderUserId)
@@ -111,8 +117,10 @@ public sealed class CompleteExternalLoginHandler(
             user.UpdateLastSeen(timeProvider.GetUtcNow());
             userRepository.Update(user);
 
-            var userInfo = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
-            authenticationTokenService.CreateAndSetAuthenticationTokens(userInfo, session.Id, session.RefreshTokenJti);
+            var userInfoResult = await userInfoFactory.CreateUserInfoAsync(user, session.Id, cancellationToken);
+            if (!userInfoResult.IsSuccess) return Result<string>.From(userInfoResult);
+
+            authenticationTokenService.CreateAndSetAuthenticationTokens(userInfoResult.Value!, session.Id, session.RefreshTokenJti);
 
             events.CollectEvent(new SessionCreated(session.Id));
             var loginTimeInSeconds = (int)(timeProvider.GetUtcNow() - externalLogin.CreatedAt).TotalSeconds;

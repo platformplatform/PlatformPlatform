@@ -86,4 +86,17 @@ public abstract class SoftDeletableRepositoryBase<T, TId>(DbContext context)
 
         RemoveRange(aggregates);
     }
+
+    /// <summary>
+    ///     Overrides the base GetByIdAsync to respect the soft-delete query filter.
+    ///     The base uses FindAsync which bypasses all query filters.
+    ///     Checks the local change tracker first for uncommitted entities (e.g., during signup flows).
+    /// </summary>
+    public new async Task<T?> GetByIdAsync(TId id, CancellationToken cancellationToken)
+    {
+        var local = DbSet.Local.SingleOrDefault(e => e.Id.Equals(id));
+        if (local is not null) return local.DeletedAt is null ? local : null;
+
+        return await DbSet.SingleOrDefaultAsync(e => e.Id.Equals(id), cancellationToken);
+    }
 }

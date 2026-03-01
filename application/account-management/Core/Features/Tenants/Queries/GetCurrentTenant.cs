@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using Mapster;
 using PlatformPlatform.AccountManagement.Features.Tenants.Domain;
+using PlatformPlatform.SharedKernel.Authentication;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.Domain;
 
@@ -25,6 +26,15 @@ public sealed class GetTenantHandler(ITenantRepository tenantRepository)
     public async Task<Result<TenantResponse>> Handle(GetCurrentTenantQuery query, CancellationToken cancellationToken)
     {
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
+        if (tenant is null)
+        {
+            return Result<TenantResponse>.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
+                {
+                    { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
+                }
+            );
+        }
+
         return tenant.Adapt<TenantResponse>();
     }
 }
