@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import localeMap from "@repo/infrastructure/translations/i18n.config.json";
 import { type Locale, translationContext } from "@repo/infrastructure/translations/TranslationContext";
@@ -107,6 +108,8 @@ function PreferencesPage() {
       return;
     }
 
+    const localeLabel = locales.find((l) => l.id === locale)?.label ?? locale;
+    trackInteraction("User preferences", "interaction", `Change language to ${localeLabel}`);
     localStorage.setItem(preferredLocaleKey, locale);
     changeLocaleMutation.mutate(
       { body: { locale } },
@@ -125,6 +128,8 @@ function PreferencesPage() {
       return;
     }
 
+    const zoomLabel = zoomLevelOptions.find((z) => z.value === value)?.label ?? value;
+    trackInteraction("User preferences", "interaction", `Change zoom to ${zoomLabel}`);
     changeZoomLevelMutation.mutate({ body: { fromZoomLevel: currentZoomLevel, zoomLevel: value } });
 
     if (value === "1") {
@@ -137,6 +142,14 @@ function PreferencesPage() {
   };
 
   const handleThemeChange = (newTheme: string) => {
+    let themeLabel = "Light";
+    if (newTheme === "system") {
+      const systemIsDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      themeLabel = `System (${systemIsDark ? "Dark" : "Light"})`;
+    } else if (newTheme === "dark") {
+      themeLabel = "Dark";
+    }
+    trackInteraction("User preferences", "interaction", `Change theme to ${themeLabel}`);
     changeThemeMutation.mutate({
       body: {
         fromTheme: theme ?? "system",

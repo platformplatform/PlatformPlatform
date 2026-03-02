@@ -1,10 +1,43 @@
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
 import type * as React from "react";
+import { createContext, useCallback, useContext } from "react";
 import { cn } from "../utils";
 
-function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
+type WindowWithTracking = {
+  __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
+};
+
+const MenuTrackingContext = createContext<string | null>(null);
+
+function DropdownMenu({
+  trackingTitle,
+  onOpenChange,
+  ...props
+}: MenuPrimitive.Root.Props & { trackingTitle?: string }) {
+  const handleOpenChange = useCallback(
+    (open: boolean, eventDetails: MenuPrimitive.Root.ChangeEventDetails) => {
+      if (trackingTitle) {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "menu", open ? "open" : "close");
+      }
+      onOpenChange?.(open, eventDetails);
+    },
+    [onOpenChange, trackingTitle]
+  );
+
+  const root = (
+    <MenuPrimitive.Root
+      data-slot="dropdown-menu"
+      onOpenChange={trackingTitle ? handleOpenChange : onOpenChange}
+      {...props}
+    />
+  );
+
+  return trackingTitle ? (
+    <MenuTrackingContext.Provider value={trackingTitle}>{root}</MenuTrackingContext.Provider>
+  ) : (
+    root
+  );
 }
 
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
@@ -72,11 +105,30 @@ function DropdownMenuItem({
   className,
   inset,
   variant = "default",
+  trackingLabel,
+  onClick,
   ...props
 }: MenuPrimitive.Item.Props & {
   inset?: boolean;
   variant?: "default" | "destructive";
+  trackingLabel?: string;
 }) {
+  const menuTrackingTitle = useContext(MenuTrackingContext);
+
+  const handleClick: typeof onClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (menuTrackingTitle) {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(
+          menuTrackingTitle,
+          "interaction",
+          trackingLabel ?? ""
+        );
+      }
+      onClick?.(event);
+    },
+    [menuTrackingTitle, trackingLabel, onClick]
+  );
+
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
@@ -86,6 +138,7 @@ function DropdownMenuItem({
         "group/dropdown-menu-item relative flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-3 text-sm outline-hidden focus:bg-accent focus:text-accent-foreground active:bg-accent data-disabled:pointer-events-none data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-disabled:opacity-50 data-[variant=destructive]:active:bg-destructive/10 data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:active:bg-destructive/20 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:[&>svg]:text-destructive not-data-[variant=destructive]:focus:[&_*]:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:shrink-0",
         className
       )}
+      onClick={menuTrackingTitle && trackingLabel ? handleClick : onClick}
       {...props}
     />
   );

@@ -91,7 +91,7 @@ export function AccountFields({
         className="hidden"
       />
 
-      <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen}>
+      <DropdownMenu open={logoMenuOpen} onOpenChange={setLogoMenuOpen} trackingTitle="Account logo menu">
         <div className={`relative ${!isReadOnly ? "group" : ""}`}>
           <DropdownMenuTrigger
             disabled={isReadOnly}
@@ -124,6 +124,7 @@ export function AccountFields({
         </div>
         <DropdownMenuContent>
           <DropdownMenuItem
+            trackingLabel="Upload logo"
             onClick={() => {
               logoFileInputRef.current?.click();
             }}
@@ -134,7 +135,7 @@ export function AccountFields({
           {(logoPreviewUrl || (!isLogoRemoved && tenant?.logoUrl)) && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={handleRemove}>
+              <DropdownMenuItem variant="destructive" trackingLabel="Remove logo" onClick={handleRemove}>
                 <Trash2Icon className="size-4" />
                 <Trans>Remove logo</Trans>
               </DropdownMenuItem>

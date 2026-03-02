@@ -82,7 +82,7 @@ export default function LocaleSwitcher({
 
   if (variant === "mobile-menu") {
     return (
-      <DropdownMenu>
+      <DropdownMenu trackingTitle="Language menu">
         <DropdownMenuTrigger
           render={
             <Button
@@ -102,7 +102,11 @@ export default function LocaleSwitcher({
         />
         <DropdownMenuContent align="end">
           {locales.map((locale) => (
-            <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
+            <DropdownMenuItem
+              key={locale.id}
+              trackingLabel={locale.label}
+              onClick={() => handleLocaleChange(locale.id)}
+            >
               <div className="flex items-center gap-2">
                 <span>{locale.label}</span>
                 {locale.id === currentLocale && <CheckIcon className="ml-auto size-4" />}
@@ -116,7 +120,7 @@ export default function LocaleSwitcher({
 
   // Icon variant
   return (
-    <DropdownMenu>
+    <DropdownMenu trackingTitle="Language menu">
       <Tooltip>
         <TooltipTrigger
           render={
@@ -133,7 +137,7 @@ export default function LocaleSwitcher({
       </Tooltip>
       <DropdownMenuContent>
         {locales.map((locale) => (
-          <DropdownMenuItem key={locale.id} onClick={() => handleLocaleChange(locale.id)}>
+          <DropdownMenuItem key={locale.id} trackingLabel={locale.label} onClick={() => handleLocaleChange(locale.id)}>
             <div className="flex items-center gap-2">
               <span>{locale.label}</span>
               {locale.id === currentLocale && <CheckIcon className="ml-auto size-4" />}

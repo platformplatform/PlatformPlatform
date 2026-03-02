@@ -79,7 +79,7 @@ export function UserProfileFields({
         className="hidden"
       />
 
-      <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen}>
+      <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen} trackingTitle="Profile picture menu">
         <div className="group relative">
           <DropdownMenuTrigger
             render={
@@ -110,6 +110,7 @@ export function UserProfileFields({
         </div>
         <DropdownMenuContent>
           <DropdownMenuItem
+            trackingLabel="Upload profile picture"
             onClick={() => {
               avatarFileInputRef.current?.click();
             }}
@@ -120,7 +121,7 @@ export function UserProfileFields({
           {(avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl)) && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={handleRemove}>
+              <DropdownMenuItem variant="destructive" trackingLabel="Remove profile picture" onClick={handleRemove}>
                 <Trash2Icon className="size-4" />
                 <Trans>Remove profile picture</Trans>
               </DropdownMenuItem>

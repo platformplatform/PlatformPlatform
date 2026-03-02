@@ -199,6 +199,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
           <DateRangePicker
             value={dateRange}
             onChange={(range) => {
+              trackInteraction("User filters", "interaction", "Date filter");
               updateFilter({
                 startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
                 endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
@@ -213,6 +214,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
             <Select
               value={searchParams.userRole ?? ""}
               onValueChange={(userRole) => {
+                trackInteraction("User filters", "interaction", "Role filter");
                 updateFilter({ userRole: (userRole as UserRole) || undefined });
               }}
             >
@@ -239,6 +241,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
             <Select
               value={searchParams.userStatus ?? ""}
               onValueChange={(userStatus) => {
+                trackInteraction("User filters", "interaction", "Status filter");
                 updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
               }}
             >
@@ -340,6 +343,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
             <DateRangePicker
               value={dateRange}
               onChange={(range) => {
+                trackInteraction("User filters", "interaction", "Date filter");
                 updateFilter({
                   startDate: range ? format(range.start, "yyyy-MM-dd") : undefined,
                   endDate: range ? format(range.end, "yyyy-MM-dd") : undefined
@@ -355,6 +359,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               <Select
                 value={searchParams.userRole ?? ""}
                 onValueChange={(userRole) => {
+                  trackInteraction("User filters", "interaction", "Role filter");
                   updateFilter({ userRole: (userRole as UserRole) || undefined });
                 }}
               >
@@ -381,6 +386,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
               <Select
                 value={searchParams.userStatus ?? ""}
                 onValueChange={(userStatus) => {
+                  trackInteraction("User filters", "interaction", "Status filter");
                   updateFilter({ userStatus: (userStatus as UserStatus) || undefined });
                 }}
               >
