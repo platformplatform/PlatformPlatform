@@ -22,12 +22,8 @@ public class CoverageCommand : Command
 
         ProcessHelper.StartProcess("dotnet build", solutionFile.Directory!.FullName);
 
-        var solutionFileWithoutExtension = solutionFile.Name.Replace(solutionFile.Extension, "");
-
-        var solutionRootNamespace = solutionFileWithoutExtension; // Or adjust as needed
-
         ProcessHelper.StartProcess(
-            $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:{solutionRootNamespace}.*;+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*\"",
+            $"dotnet dotcover test {solutionFile.Name} --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters=\"+:*;-:*.Tests;-:type=*.AppHost.*\"",
             Configuration.ApplicationFolder
         );
 

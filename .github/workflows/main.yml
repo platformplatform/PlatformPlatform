@@ -113,7 +113,7 @@ jobs:
           else
             dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORGANIZATION }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths="coverage/dotCover.html" &&
             dotnet build main/Main.slnf --no-restore /p:Version=${{ steps.generate_version.outputs.version }} &&
-            dotnet dotcover test main/Main.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:PlatformPlatform.*;-:*.Tests;-:type=*.AppHost.*" &&
+            dotnet dotcover test main/Main.slnf --no-build --dcOutput=coverage/dotCover.html --dcReportType=HTML --dcFilters="+:Main*;+:SharedKernel;-:*.Tests;-:type=*.AppHost.*" &&
             dotnet sonarscanner end
           fi
 
