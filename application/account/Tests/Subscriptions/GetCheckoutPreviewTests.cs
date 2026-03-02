@@ -2,7 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Subscriptions.Queries;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -17,21 +16,8 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetCheckoutPreview_WhenStandardPlan_ShouldReturnPreview()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
+                ("StripeCustomerId", "cus_test_123")
             ]
         );
 
@@ -61,21 +47,8 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetCheckoutPreview_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
+                ("StripeCustomerId", "cus_test_123")
             ]
         );
 
@@ -89,25 +62,6 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
     [Fact]
     public async Task GetCheckoutPreview_WhenNoStripeCustomer_ShouldReturnBadRequest()
     {
-        // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
-            ]
-        );
-
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/subscriptions/checkout-preview?Plan=Standard");
 

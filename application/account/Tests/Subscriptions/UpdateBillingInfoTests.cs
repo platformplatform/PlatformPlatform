@@ -17,21 +17,11 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenValid_ShouldSucceed()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
@@ -47,21 +37,11 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenMultiLineAddress_ShouldSplitIntoLine1AndLine2()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12\nFloor 3", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
@@ -77,23 +57,6 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenNoStripeCustomer_ShouldCreateCustomerAndSucceed()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
-            ]
-        );
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
 
         // Act
@@ -107,21 +70,11 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
@@ -138,21 +91,11 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
     public async Task UpdateBillingInfo_WhenInvalidTaxId_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", "INVALID");

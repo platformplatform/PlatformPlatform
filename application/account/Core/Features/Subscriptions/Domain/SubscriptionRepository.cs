@@ -53,6 +53,7 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
 
     public async Task<Subscription?> GetByTenantIdUnfilteredAsync(TenantId tenantId, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+        return DbSet.Local.SingleOrDefault(s => s.TenantId == tenantId)
+               ?? await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
     }
 }

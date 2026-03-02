@@ -17,21 +17,8 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenNoSavedPaymentMethod_ShouldReturnCheckoutSession()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null),
                 ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
         );
@@ -57,20 +44,8 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenSavedPaymentMethod_ShouldSubscribeDirectly()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
                 ("PaymentMethod", """{"Brand":"visa","Last4":"4242","ExpMonth":12,"ExpYear":2026}"""),
                 ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
@@ -95,21 +70,11 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenActiveSubscriptionExists_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new StartSubscriptionCheckoutCommand(SubscriptionPlan.Premium);
@@ -128,23 +93,6 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
-            ]
-        );
         var command = new StartSubscriptionCheckoutCommand(SubscriptionPlan.Standard);
         TelemetryEventsCollectorSpy.Reset();
 

@@ -1,6 +1,7 @@
 using System.Net;
 using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Authentication.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 
@@ -13,6 +14,7 @@ public sealed class DatabaseSeeder
     public readonly Session Tenant1MemberSession;
     public readonly User Tenant1Owner;
     public readonly Session Tenant1OwnerSession;
+    public readonly Subscription Tenant1Subscription;
 
     public DatabaseSeeder(AccountDbContext accountDbContext)
     {
@@ -30,6 +32,9 @@ public sealed class DatabaseSeeder
 
         Tenant1MemberSession = Session.Create(Tenant1.Id, Tenant1Member.Id, LoginMethod.OneTimePassword, "TestUserAgent", IPAddress.Loopback);
         accountDbContext.Set<Session>().AddRange(Tenant1MemberSession);
+
+        Tenant1Subscription = Subscription.Create(Tenant1.Id);
+        accountDbContext.Set<Subscription>().Add(Tenant1Subscription);
 
         accountDbContext.SaveChanges();
     }

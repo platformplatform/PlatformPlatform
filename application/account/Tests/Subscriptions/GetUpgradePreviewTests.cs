@@ -16,21 +16,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenStandardToPremium_ShouldReturnPreview()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -59,21 +49,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenPlanNotHigher_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -88,21 +68,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -117,21 +87,9 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenNoStripeSubscription_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("StripeCustomerId", "cus_test_123")
             ]
         );
 

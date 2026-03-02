@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.EmailAuthentication.Commands;
 using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Commands;
 using PlatformPlatform.Account.Features.Users.Domain;
@@ -218,6 +219,28 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        Connection.Insert("Subscriptions", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", SubscriptionId.NewId().ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("ScheduledPlan", null),
+                ("StripeCustomerId", null),
+                ("StripeSubscriptionId", null),
+                ("CurrentPriceAmount", null),
+                ("CurrentPriceCurrency", null),
+                ("CurrentPeriodEnd", null),
+                ("CancelAtPeriodEnd", false),
+                ("FirstPaymentFailedAt", null),
+                ("CancellationReason", null),
+                ("CancellationFeedback", null),
+                ("PaymentTransactions", "[]"),
+                ("PaymentMethod", null),
+                ("BillingInfo", null)
             ]
         );
 

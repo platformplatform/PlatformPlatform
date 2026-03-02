@@ -16,21 +16,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenPremiumToStandard_ShouldSucceed()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Standard);
@@ -49,21 +39,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenPlanNotLower_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Premium);
@@ -82,21 +62,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenTargetIsBasis_ShouldReturnBadRequest()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Basis);
@@ -115,21 +85,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Standard);

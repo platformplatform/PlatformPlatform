@@ -21,38 +21,27 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         base.Dispose(disposing);
     }
 
-    private string InsertSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string? stripeSubscriptionId = MockStripeClient.MockSubscriptionId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, string? cancellationReason = null)
+    private void SetupSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string? stripeSubscriptionId = MockStripeClient.MockSubscriptionId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, string? cancellationReason = null)
     {
-        var subscriptionId = SubscriptionId.NewId().ToString();
         var hasStripeSubscription = stripeSubscriptionId is not null;
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", plan),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", stripeCustomerId),
                 ("StripeSubscriptionId", stripeSubscriptionId),
                 ("CurrentPriceAmount", hasStripeSubscription ? 29.99m : null),
                 ("CurrentPriceCurrency", hasStripeSubscription ? "USD" : null),
                 ("CurrentPeriodEnd", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
-                ("CancelAtPeriodEnd", false),
                 ("FirstPaymentFailedAt", firstPaymentFailedAt),
-                ("CancellationReason", cancellationReason),
-                ("CancellationFeedback", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null)
+                ("CancellationReason", cancellationReason)
             ]
         );
-        return subscriptionId;
     }
 
     [Fact]
     public async Task AcknowledgeStripeWebhook_WhenInvalidSignature_ShouldReturnBadRequest()
     {
         // Arrange
-        InsertSubscription();
+        SetupSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -72,7 +61,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenDuplicateEvent_ShouldReturnSuccess()
     {
         // Arrange
-        InsertSubscription();
+        SetupSubscription();
         var eventId = $"{MockStripeClient.MockWebhookEventId}_duplicate";
         Connection.Insert("StripeEvents", [
                 ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
@@ -107,7 +96,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldSyncSubscription()
     {
         // Arrange
-        InsertSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
+        SetupSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -127,7 +116,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         var now = TimeProvider.GetUtcNow();
-        var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
+        SetupSubscription(firstPaymentFailedAt: now.AddHours(-48));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -141,7 +130,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().BeNullOrEmpty();
     }
 
@@ -150,7 +139,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
-        InsertSubscription();
+        SetupSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -164,7 +153,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE Id = @id", [new { id = Connection.ExecuteScalar<string>("SELECT Id FROM Subscriptions WHERE StripeCustomerId = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]) }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().NotBeNullOrEmpty();
 
         var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
@@ -177,7 +166,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         MockStripeClient.OverrideSubscriptionStatus = StripeSubscriptionStatus.PastDue;
         var now = TimeProvider.GetUtcNow();
-        var subscriptionId = InsertSubscription(firstPaymentFailedAt: now.AddHours(-48));
+        SetupSubscription(firstPaymentFailedAt: now.AddHours(-48));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -191,7 +180,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE Id = @id", [new { id = subscriptionId }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().NotBeNullOrEmpty();
     }
 
@@ -201,7 +190,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         MockStripeClient.SimulateSubscriptionDeleted = true;
         var now = TimeProvider.GetUtcNow();
-        InsertSubscription(firstPaymentFailedAt: now.AddDays(-5));
+        SetupSubscription(firstPaymentFailedAt: now.AddDays(-5));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -227,7 +216,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         MockStripeClient.SimulateSubscriptionDeleted = true;
-        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -249,7 +238,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCheckoutSessionCompleted_ShouldActivateSuspendedTenant()
     {
         // Arrange
-        InsertSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
+        SetupSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
         Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.PaymentFailed))]);
         TelemetryEventsCollectorSpy.Reset();
 
@@ -276,7 +265,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         MockStripeClient.SimulateCustomerDeleted = true;
-        InsertSubscription();
+        SetupSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -302,7 +291,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange - tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
         MockStripeClient.SimulateSubscriptionDeleted = true;
-        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.CustomerDeleted))]);
         TelemetryEventsCollectorSpy.Reset();
 
@@ -329,7 +318,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange - pre-insert a pending customer.deleted event so both events process in the same batch
         MockStripeClient.SimulateCustomerDeleted = true;
-        InsertSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
+        SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
         Connection.Insert("StripeEvents", [
                 ("TenantId", null),
                 ("Id", $"{MockStripeClient.MockWebhookEventId}_customer_deleted"),
@@ -389,7 +378,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     public async Task AcknowledgeStripeWebhook_WhenCustomerSubscriptionUpdated_ShouldSyncState()
     {
         // Arrange
-        InsertSubscription();
+        SetupSubscription();
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
