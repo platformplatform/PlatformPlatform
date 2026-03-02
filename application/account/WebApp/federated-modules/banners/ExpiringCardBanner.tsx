@@ -1,4 +1,5 @@
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
@@ -47,6 +48,7 @@ export default function ExpiringCardBanner() {
       <Button
         size="sm"
         onClick={() => {
+          trackInteraction("Expiring card banner", "interaction", "Update payment method");
           window.location.href = "/account/billing";
         }}
       >

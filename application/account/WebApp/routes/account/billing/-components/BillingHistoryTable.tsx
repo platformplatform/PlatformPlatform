@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { Badge } from "@repo/ui/components/Badge";
 import { buttonVariants } from "@repo/ui/components/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
@@ -98,6 +99,7 @@ export function BillingHistoryTable() {
                           rel="noreferrer"
                           className={buttonVariants({ variant: "ghost", size: "sm" })}
                           aria-label={t`Invoice`}
+                          onClick={() => trackInteraction("Billing history", "interaction", "Download invoice")}
                         />
                       }
                     >
@@ -122,6 +124,7 @@ export function BillingHistoryTable() {
                           rel="noreferrer"
                           className={buttonVariants({ variant: "ghost", size: "sm" })}
                           aria-label={t`Credit note`}
+                          onClick={() => trackInteraction("Billing history", "interaction", "Download credit note")}
                         />
                       }
                     >

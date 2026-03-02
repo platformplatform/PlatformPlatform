@@ -1,4 +1,5 @@
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
@@ -30,6 +31,7 @@ export default function PaymentFailedBanner() {
         <Button
           size="sm"
           onClick={() => {
+            trackInteraction("Payment failed banner", "interaction", "Update payment method");
             globalThis.location.href = "/account/billing";
           }}
         >
