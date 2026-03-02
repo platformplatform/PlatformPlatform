@@ -1,5 +1,6 @@
 <Project>
     <PropertyGroup>
         <UseArtifactsOutput>true</UseArtifactsOutput>
+        <EnableSourceLink>false</EnableSourceLink>
     </PropertyGroup>
 </Project>
