@@ -7,7 +7,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Validation;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace PlatformPlatform.Account.Features.Billing.Commands;
 
 [PublicAPI]
 public sealed record UpdateBillingInfoCommand(

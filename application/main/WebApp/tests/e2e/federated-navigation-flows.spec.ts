@@ -79,11 +79,11 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Users" })).toBeVisible();
     })();
 
-    await step("Navigate to subscription page & verify subscription page renders")(async () => {
-      await page.getByRole("link", { name: "Subscription", exact: true }).click();
+    await step("Navigate to billing page & verify billing page renders")(async () => {
+      await page.getByRole("link", { name: "Billing", exact: true }).click();
 
-      await expect(page).toHaveURL("/account/subscription");
-      await expect(page.getByRole("heading", { name: "Subscription" })).toBeVisible();
+      await expect(page).toHaveURL("/account/billing");
+      await expect(page.getByRole("heading", { name: "Billing" })).toBeVisible();
     })();
 
     // === PROFILE AND SESSIONS (ALL USERS) ===
@@ -197,10 +197,10 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Sessions" })).toBeVisible();
     })();
 
-    await step("Navigate to subscription as member & verify access denied")(async () => {
-      await page.goto("/account/subscription");
+    await step("Navigate to billing as member & verify access denied")(async () => {
+      await page.goto("/account/billing");
 
-      await expect(page).toHaveURL("/account/subscription");
+      await expect(page).toHaveURL("/account/billing");
       await expect(page.getByRole("heading", { name: "Access denied" })).toBeVisible();
     })();
 

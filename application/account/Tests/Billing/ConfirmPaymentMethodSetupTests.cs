@@ -2,13 +2,13 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Commands;
+using PlatformPlatform.Account.Features.Billing.Commands;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace PlatformPlatform.Account.Tests.Billing;
 
 public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbContext>
 {
@@ -26,7 +26,7 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/subscriptions/confirm-payment-method", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/billing/confirm-payment-method", command);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -43,7 +43,7 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.PostAsJsonAsync("/api/account/subscriptions/confirm-payment-method", command);
+        var response = await AuthenticatedMemberHttpClient.PostAsJsonAsync("/api/account/billing/confirm-payment-method", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners can manage subscriptions.");
@@ -56,7 +56,7 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/subscriptions/confirm-payment-method", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/billing/confirm-payment-method", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "No Stripe customer found. A subscription must be created first.");
@@ -73,7 +73,7 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/subscriptions/confirm-payment-method", command);
+        var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/billing/confirm-payment-method", command);
 
         // Assert
         response.EnsureSuccessStatusCode();

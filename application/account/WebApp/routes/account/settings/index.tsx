@@ -111,7 +111,7 @@ function AccountInfoFields({ tenant }: { tenant: Schemas["TenantResponse"] | und
           <span className="text-muted-foreground">
             <Trans>Current plan</Trans>
           </span>
-          <Link to="/account/subscription" className="text-primary hover:underline">
+          <Link to="/account/billing/subscription" className="text-primary hover:underline">
             {getPlanLabelWithFree(subscription?.plan)}
           </Link>
         </div>

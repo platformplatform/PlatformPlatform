@@ -150,6 +150,190 @@
         }
       }
     },
+    "/api/account/billing/payment-history": {
+      "get": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "GetApiAccountBillingPaymentHistory",
+        "parameters": [
+          {
+            "name": "PageOffset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentHistoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/billing/billing-info": {
+      "put": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "PutApiAccountBillingBillingInfo",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBillingInfoCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/billing/start-payment-method-setup": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "PostApiAccountBillingStartPaymentMethodSetup",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartPaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/billing/confirm-payment-method": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "PostApiAccountBillingConfirmPaymentMethod",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentMethodSetupCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmPaymentMethodSetupResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/billing/retry-pending-invoice": {
+      "post": {
+        "tags": [
+          "Billing"
+        ],
+        "operationId": "PostApiAccountBillingRetryPendingInvoice",
+        "responses": {
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryPendingInvoicePaymentResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/account/authentication/email/login/start": {
       "post": {
         "tags": [
@@ -816,88 +1000,6 @@
         }
       }
     },
-    "/api/account/subscriptions/payment-history": {
-      "get": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "GetApiAccountSubscriptionsPaymentHistory",
-        "parameters": [
-          {
-            "name": "PageOffset",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaymentHistoryResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/billing-info": {
-      "put": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PutApiAccountSubscriptionsBillingInfo",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBillingInfoCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/account/subscriptions/start-checkout": {
       "post": {
         "tags": [
@@ -933,78 +1035,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/StartSubscriptionCheckoutResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/start-payment-method-setup": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsStartPaymentMethodSetup",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StartPaymentMethodSetupResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/confirm-payment-method": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsConfirmPaymentMethod",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConfirmPaymentMethodSetupCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConfirmPaymentMethodSetupResponse"
                 }
               }
             }
@@ -1161,36 +1191,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ReactivateSubscriptionResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/account/subscriptions/retry-pending-invoice": {
-      "post": {
-        "tags": [
-          "Subscriptions"
-        ],
-        "operationId": "PostApiAccountSubscriptionsRetryPendingInvoice",
-        "responses": {
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RetryPendingInvoicePaymentResponse"
                 }
               }
             }
@@ -2306,6 +2306,184 @@
           "Tablet"
         ]
       },
+      "PaymentHistoryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentTransactionResponse"
+            }
+          }
+        }
+      },
+      "PaymentTransactionResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/PaymentTransactionId"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/PaymentTransactionStatus"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "invoiceUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "creditNoteUrl": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionId": {
+        "type": "string",
+        "format": "pymnt_{string}"
+      },
+      "StronglyTypedUlidOfPaymentTransactionId": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndPaymentTransactionId"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false
+          }
+        ]
+      },
+      "StronglyTypedIdOfStringAndPaymentTransactionId": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentTransactionStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ],
+        "enum": [
+          "Succeeded",
+          "Failed",
+          "Pending",
+          "Refunded"
+        ]
+      },
+      "UpdateBillingInfoCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "taxId": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StartPaymentMethodSetupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
+            "type": "string"
+          },
+          "publishableKey": {
+            "type": "string"
+          }
+        }
+      },
+      "ConfirmPaymentMethodSetupResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "hasOpenInvoice": {
+            "type": "boolean"
+          },
+          "openInvoiceAmount": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          },
+          "openInvoiceCurrency": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ConfirmPaymentMethodSetupCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "setupIntentId": {
+            "type": "string"
+          }
+        }
+      },
+      "RetryPendingInvoicePaymentResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "paid": {
+            "type": "boolean"
+          },
+          "clientSecret": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishableKey": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "StartEmailLoginResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2721,128 +2899,6 @@
           }
         }
       },
-      "PaymentHistoryResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "transactions": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PaymentTransactionResponse"
-            }
-          }
-        }
-      },
-      "PaymentTransactionResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "$ref": "#/components/schemas/PaymentTransactionId"
-          },
-          "amount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "currency": {
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/PaymentTransactionStatus"
-          },
-          "date": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "invoiceUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "creditNoteUrl": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "PaymentTransactionId": {
-        "type": "string",
-        "format": "pymnt_{string}"
-      },
-      "StronglyTypedUlidOfPaymentTransactionId": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/StronglyTypedIdOfStringAndPaymentTransactionId"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false
-          }
-        ]
-      },
-      "StronglyTypedIdOfStringAndPaymentTransactionId": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "value": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "PaymentTransactionStatus": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Succeeded",
-          "Failed",
-          "Pending",
-          "Refunded"
-        ],
-        "enum": [
-          "Succeeded",
-          "Failed",
-          "Pending",
-          "Refunded"
-        ]
-      },
-      "UpdateBillingInfoCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "postalCode": {
-            "type": "string"
-          },
-          "city": {
-            "type": "string"
-          },
-          "state": {
-            "type": "string",
-            "nullable": true
-          },
-          "country": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "taxId": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
       "StartSubscriptionCheckoutResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -2866,45 +2922,6 @@
         "properties": {
           "plan": {
             "$ref": "#/components/schemas/SubscriptionPlan"
-          }
-        }
-      },
-      "StartPaymentMethodSetupResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "clientSecret": {
-            "type": "string"
-          },
-          "publishableKey": {
-            "type": "string"
-          }
-        }
-      },
-      "ConfirmPaymentMethodSetupResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "hasOpenInvoice": {
-            "type": "boolean"
-          },
-          "openInvoiceAmount": {
-            "type": "number",
-            "format": "decimal",
-            "nullable": true
-          },
-          "openInvoiceCurrency": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "ConfirmPaymentMethodSetupCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "setupIntentId": {
-            "type": "string"
           }
         }
       },
@@ -2975,23 +2992,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "clientSecret": {
-            "type": "string",
-            "nullable": true
-          },
-          "publishableKey": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "RetryPendingInvoicePaymentResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "paid": {
-            "type": "boolean"
-          },
           "clientSecret": {
             "type": "string",
             "nullable": true

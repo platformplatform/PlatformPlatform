@@ -2,14 +2,14 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Commands;
+using PlatformPlatform.Account.Features.Billing.Commands;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace PlatformPlatform.Account.Tests.Billing;
 
 public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDbContext>
 {
@@ -33,7 +33,7 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
         MockStripeClient.SimulateOpenInvoice = true;
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/subscriptions/retry-pending-invoice", null);
+        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/billing/retry-pending-invoice", null);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -58,7 +58,7 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/subscriptions/retry-pending-invoice", null);
+        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/billing/retry-pending-invoice", null);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "No pending invoice found for this subscription.");
@@ -68,7 +68,7 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
     public async Task RetryPendingInvoicePayment_WhenNonOwner_ShouldReturnForbidden()
     {
         // Act
-        var response = await AuthenticatedMemberHttpClient.PostAsync("/api/account/subscriptions/retry-pending-invoice", null);
+        var response = await AuthenticatedMemberHttpClient.PostAsync("/api/account/billing/retry-pending-invoice", null);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners can manage subscriptions.");
@@ -84,7 +84,7 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/subscriptions/retry-pending-invoice", null);
+        var response = await AuthenticatedOwnerHttpClient.PostAsync("/api/account/billing/retry-pending-invoice", null);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "No active Stripe subscription found.");

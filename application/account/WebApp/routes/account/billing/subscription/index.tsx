@@ -13,6 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
+import { BillingTabNavigation } from "../-components/BillingTabNavigation";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
 import { CheckoutDialog } from "../-components/CheckoutDialog";
@@ -21,12 +22,11 @@ import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
 import { getCatalogUnitAmount, getFormattedPrice, PlanCard } from "../-components/PlanCard";
 import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
 import { SubscribeConfirmationDialog } from "../-components/SubscribeConfirmationDialog";
-import { SubscriptionTabNavigation } from "../-components/SubscriptionTabNavigation";
 import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
 import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
 
-export const Route = createFileRoute("/account/subscription/plans/")({
-  staticData: { trackingTitle: "Subscription plans" },
+export const Route = createFileRoute("/account/billing/subscription/")({
+  staticData: { trackingTitle: "Subscription" },
   beforeLoad: () => {
     requireSubscriptionEnabled();
     requirePermission({ allowedRoles: ["Owner"] });
@@ -267,13 +267,8 @@ function PlansPage() {
 
   return (
     <>
-      <AppLayout
-        variant="center"
-        maxWidth="64rem"
-        title={t`Subscription plans`}
-        subtitle={t`Manage your subscription and billing.`}
-      >
-        <SubscriptionTabNavigation activeTab="plans" />
+      <AppLayout variant="center" maxWidth="64rem" title={t`Subscription`} subtitle={t`Manage your subscription plan.`}>
+        <BillingTabNavigation activeTab="subscription" />
 
         {cancelAtPeriodEnd && (
           <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">

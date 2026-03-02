@@ -38,7 +38,7 @@ function getStatusLabel(status: PaymentTransactionStatus): string {
 
 export function BillingHistoryTable() {
   const formatDate = useFormatDate();
-  const { data, isLoading } = api.useQuery("get", "/api/account/subscriptions/payment-history", {
+  const { data, isLoading } = api.useQuery("get", "/api/account/billing/payment-history", {
     params: { query: { PageOffset: 0, PageSize: PAGE_SIZE } }
   });
 

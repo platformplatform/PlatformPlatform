@@ -12,9 +12,9 @@ export const Route = createFileRoute("/account")({
 function AccountLayout() {
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
   const location = useLocation();
-  const isSubscriptionPage = location.pathname.startsWith("/account/subscription");
+  const isBillingPage = location.pathname.startsWith("/account/billing");
 
-  if (tenant?.state === TenantState.Suspended && !isSubscriptionPage) {
+  if (tenant?.state === TenantState.Suspended && !isBillingPage) {
     return <SuspendedPage />;
   }
 

@@ -2,14 +2,14 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Commands;
+using PlatformPlatform.Account.Features.Billing.Commands;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using PlatformPlatform.SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace PlatformPlatform.Account.Tests.Billing;
 
 public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
 {
@@ -27,7 +27,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -47,7 +47,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12\nFloor 3", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -60,7 +60,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         var command = new UpdateBillingInfoCommand("Test Organization", "Vestergade 12", "1456", "Copenhagen", null, "DK", "billing@example.com", null);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
@@ -81,7 +81,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
-        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Only owners can manage billing information.");
@@ -102,7 +102,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         var expectedErrors = new[] { new ErrorDetail("TaxId", "The provided Tax ID is not valid.") };
@@ -117,7 +117,7 @@ public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
         var command = new UpdateBillingInfoCommand("", "", "", "", null, "", "", null);
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/subscriptions/billing-info", command);
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/billing/billing-info", command);
 
         // Assert
         var expectedErrors = new[]

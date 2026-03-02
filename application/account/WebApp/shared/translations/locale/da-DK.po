@@ -269,6 +269,9 @@ msgstr "Faktureres til"
 msgid "Billed monthly: {targetFormattedPrice}"
 msgstr "Faktureres månedligt: {targetFormattedPrice}"
 
+msgid "Billing"
+msgstr "Fakturering"
+
 msgid "Billing email"
 msgstr "Faktureringsmail"
 
@@ -283,6 +286,9 @@ msgstr "Faktureringsoplysninger opdateret"
 
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Betaling er ikke konfigureret. Kontakt support for at aktivere betalingsbehandling."
+
+msgid "Billing tabs"
+msgstr "Faktureringsfaner"
 
 msgid "billing@company.com"
 msgstr "fakturering@firma.dk"
@@ -778,8 +784,11 @@ msgstr "Administrer abonnement"
 msgid "Manage your account here."
 msgstr "Administrer din konto her."
 
-msgid "Manage your subscription and billing."
-msgstr "Administrer dit abonnement og betaling."
+msgid "Manage your payment methods and billing information."
+msgstr "Administrer dine betalingsmetoder og faktureringsoplysninger."
+
+msgid "Manage your subscription plan."
+msgstr "Administrer dit abonnement."
 
 msgid "Manage your users and permissions here."
 msgstr "Administrer dine brugere og tilladelser her."
@@ -937,9 +946,6 @@ msgstr "Slet bruger permanent"
 
 msgid "Permanently delete users"
 msgstr "Slet brugere permanent"
-
-msgid "Plans"
-msgstr "Planer"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -1223,12 +1229,6 @@ msgstr "Abonner på {0}"
 
 msgid "Subscription"
 msgstr "Abonnement"
-
-msgid "Subscription plans"
-msgstr "Abonnementsplaner"
-
-msgid "Subscription tabs"
-msgstr "Abonnementsfaner"
 
 msgid "Succeeded"
 msgstr "Gennemført"

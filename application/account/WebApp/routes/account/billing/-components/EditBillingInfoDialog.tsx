@@ -360,7 +360,7 @@ export function EditBillingInfoDialog({
   const { i18n } = useLingui();
   const countries = useCountryOptions(i18n.locale);
 
-  const mutation = api.useMutation("put", "/api/account/subscriptions/billing-info", {
+  const mutation = api.useMutation("put", "/api/account/billing/billing-info", {
     onSuccess: async () => {
       setIsFormDirty(false);
       await queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });

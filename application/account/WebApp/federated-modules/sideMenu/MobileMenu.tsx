@@ -310,14 +310,14 @@ function MobileMenuContent({
               {hasSubscription && (
                 <Button
                   variant="ghost"
-                  onClick={() => navigateTo("/account/subscription")}
-                  className={menuItemClassName(pathname, "/account/subscription", true)}
-                  aria-label={t`Subscription`}
+                  onClick={() => navigateTo("/account/billing")}
+                  className={menuItemClassName(pathname, "/account/billing", true)}
+                  aria-label={t`Billing`}
                 >
                   <div className="flex size-6 shrink-0 items-center justify-center">
                     <CreditCardIcon className="size-5 stroke-current" />
                   </div>
-                  <Trans>Subscription</Trans>
+                  <Trans>Billing</Trans>
                 </Button>
               )}
             </div>

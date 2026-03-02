@@ -10,9 +10,9 @@ interface TenantStateGuardProps {
 export default function TenantStateGuard({ children, pathname }: Readonly<TenantStateGuardProps>) {
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
 
-  const isSubscriptionPage = pathname.startsWith("/account/subscription");
+  const isBillingPage = pathname.startsWith("/account/billing");
 
-  if (tenant?.state === TenantState.Suspended && !isSubscriptionPage) {
+  if (tenant?.state === TenantState.Suspended && !isBillingPage) {
     return <SuspendedPage />;
   }
 

@@ -30,7 +30,7 @@ export default function PaymentFailedBanner() {
         <Button
           size="sm"
           onClick={() => {
-            globalThis.location.href = "/account/subscription";
+            globalThis.location.href = "/account/billing";
           }}
         >
           <Trans>Update payment method</Trans>

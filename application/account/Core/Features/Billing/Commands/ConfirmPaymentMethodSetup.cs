@@ -5,7 +5,7 @@ using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace PlatformPlatform.Account.Features.Billing.Commands;
 
 [PublicAPI]
 public sealed record ConfirmPaymentMethodSetupCommand(string SetupIntentId) : ICommand, IRequest<Result<ConfirmPaymentMethodSetupResponse>>;

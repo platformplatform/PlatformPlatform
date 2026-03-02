@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
+using PlatformPlatform.Account.Features.Billing.Queries;
 using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Queries;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace PlatformPlatform.Account.Tests.Billing;
 
 public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
 {
@@ -27,7 +27,7 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/subscriptions/payment-history");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/billing/payment-history");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();

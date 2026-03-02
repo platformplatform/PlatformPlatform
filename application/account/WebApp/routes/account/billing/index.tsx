@@ -16,6 +16,7 @@ import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
+import { BillingTabNavigation } from "./-components/BillingTabNavigation";
 import { CancelDowngradeDialog } from "./-components/CancelDowngradeDialog";
 import { CheckoutDialog } from "./-components/CheckoutDialog";
 import { EditBillingInfoDialog } from "./-components/EditBillingInfoDialog";
@@ -23,20 +24,19 @@ import { PaymentMethodDisplay } from "./-components/PaymentMethodDisplay";
 import { getFormattedPrice, PlanCard } from "./-components/PlanCard";
 import { ReactivateConfirmationDialog } from "./-components/ReactivateConfirmationDialog";
 import { RetryPaymentDialog } from "./-components/RetryPaymentDialog";
-import { SubscriptionTabNavigation } from "./-components/SubscriptionTabNavigation";
 import { UpdatePaymentMethodDialog } from "./-components/UpdatePaymentMethodDialog";
 import { useSubscriptionPolling } from "./-components/useSubscriptionPolling";
 
-export const Route = createFileRoute("/account/subscription/")({
-  staticData: { trackingTitle: "Subscription" },
+export const Route = createFileRoute("/account/billing/")({
+  staticData: { trackingTitle: "Billing" },
   beforeLoad: () => {
     requireSubscriptionEnabled();
     requirePermission({ allowedRoles: ["Owner"] });
   },
-  component: SubscriptionPage
+  component: BillingPage
 });
 
-function SubscriptionPage() {
+function BillingPage() {
   const navigate = useNavigate();
   const formatLongDate = useFormatLongDate();
   const { isPolling, isLoading, startPolling, subscription } = useSubscriptionPolling();
@@ -110,7 +110,7 @@ function SubscriptionPage() {
 
   if (isLoading) {
     return (
-      <AppLayout variant="center" maxWidth="64rem" title={t`Subscription`}>
+      <AppLayout variant="center" maxWidth="64rem" title={t`Billing`}>
         <div className="flex flex-col gap-8">
           <Skeleton className="h-6 w-48" />
         </div>
@@ -124,10 +124,10 @@ function SubscriptionPage() {
         <AppLayout
           variant="center"
           maxWidth="64rem"
-          title={t`Subscription`}
-          subtitle={t`Manage your subscription and billing.`}
+          title={t`Billing`}
+          subtitle={t`Manage your payment methods and billing information.`}
         >
-          <SubscriptionTabNavigation activeTab="overview" />
+          <BillingTabNavigation activeTab="billing" />
 
           {cancelAtPeriodEnd && (
             <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
@@ -221,7 +221,7 @@ function SubscriptionPage() {
                       size="sm"
                       className="shrink-0 gap-1.5"
                       aria-label={t`Change plan`}
-                      onClick={() => navigate({ to: "/account/subscription/plans" })}
+                      onClick={() => navigate({ to: "/account/billing/subscription" })}
                     >
                       <PencilIcon className="size-4" />
                       <span className="hidden sm:inline" aria-hidden="true">
@@ -310,12 +310,7 @@ function SubscriptionPage() {
           </div>
         </AppLayout>
       ) : (
-        <AppLayout
-          variant="center"
-          maxWidth="64rem"
-          title={t`Subscription`}
-          subtitle={t`Choose a plan to get started.`}
-        >
+        <AppLayout variant="center" maxWidth="64rem" title={t`Billing`} subtitle={t`Choose a plan to get started.`}>
           {!isStripeConfigured && (
             <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
               <AlertTriangleIcon className="size-4 shrink-0" />
@@ -325,8 +320,6 @@ function SubscriptionPage() {
 
           <div className="grid gap-4 lg:grid-cols-3">
             {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => {
-              const planItem = pricingCatalog?.plans?.find((p) => p.plan === plan);
-              const _taxExclusive = planItem != null && !planItem.taxInclusive;
               return (
                 <PlanCard
                   key={plan}

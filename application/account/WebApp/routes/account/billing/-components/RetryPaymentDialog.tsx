@@ -45,7 +45,7 @@ export function RetryPaymentDialog({
   const queryClient = useQueryClient();
   const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
 
-  const retryMutation = api.useMutation("post", "/api/account/subscriptions/retry-pending-invoice", {
+  const retryMutation = api.useMutation("post", "/api/account/billing/retry-pending-invoice", {
     onSuccess: async (data) => {
       if (data.clientSecret && data.publishableKey) {
         setIsConfirmingPayment(true);

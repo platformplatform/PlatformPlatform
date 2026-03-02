@@ -33,25 +33,9 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<UpgradePreviewResponse>();
 
-        group.MapGet("/payment-history", async Task<ApiResult<PaymentHistoryResponse>> ([AsParameters] GetPaymentHistoryQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<PaymentHistoryResponse>();
-
-        group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        );
-
         group.MapPost("/start-checkout", async Task<ApiResult<StartSubscriptionCheckoutResponse>> (StartSubscriptionCheckoutCommand command, IMediator mediator)
             => await mediator.Send(command)
         ).Produces<StartSubscriptionCheckoutResponse>();
-
-        group.MapPost("/start-payment-method-setup", async Task<ApiResult<StartPaymentMethodSetupResponse>> (IMediator mediator)
-            => await mediator.Send(new StartPaymentMethodSetupCommand())
-        ).Produces<StartPaymentMethodSetupResponse>();
-
-        group.MapPost("/confirm-payment-method", async Task<ApiResult<ConfirmPaymentMethodSetupResponse>> (ConfirmPaymentMethodSetupCommand command, IMediator mediator)
-            => await mediator.Send(command)
-        ).Produces<ConfirmPaymentMethodSetupResponse>();
 
         group.MapPost("/upgrade", async Task<ApiResult<UpgradeSubscriptionResponse>> (UpgradeSubscriptionCommand command, IMediator mediator)
             => await mediator.Send(command)
@@ -72,10 +56,6 @@ public sealed class SubscriptionEndpoints : IEndpoints
         group.MapPost("/reactivate", async Task<ApiResult<ReactivateSubscriptionResponse>> (IMediator mediator)
             => await mediator.Send(new ReactivateSubscriptionCommand())
         ).Produces<ReactivateSubscriptionResponse>();
-
-        group.MapPost("/retry-pending-invoice", async Task<ApiResult<RetryPendingInvoicePaymentResponse>> (IMediator mediator)
-            => await mediator.Send(new RetryPendingInvoicePaymentCommand())
-        ).Produces<RetryPendingInvoicePaymentResponse>();
 
         group.MapPost("/process-pending-events", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new ProcessPendingEventsCommand())

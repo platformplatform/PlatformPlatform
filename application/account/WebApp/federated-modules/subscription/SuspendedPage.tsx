@@ -108,7 +108,7 @@ export default function SuspendedPage() {
             <div className="flex justify-center gap-3 pt-2">
               <Button
                 onClick={() => {
-                  globalThis.location.href = "/account/subscription";
+                  globalThis.location.href = "/account/billing/subscription";
                 }}
               >
                 <Trans>Manage subscription</Trans>

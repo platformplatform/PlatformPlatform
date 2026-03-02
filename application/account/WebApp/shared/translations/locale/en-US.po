@@ -269,6 +269,9 @@ msgstr "Bill to"
 msgid "Billed monthly: {targetFormattedPrice}"
 msgstr "Billed monthly: {targetFormattedPrice}"
 
+msgid "Billing"
+msgstr "Billing"
+
 msgid "Billing email"
 msgstr "Billing email"
 
@@ -283,6 +286,9 @@ msgstr "Billing information updated"
 
 msgid "Billing is not configured. Please contact support to enable payment processing."
 msgstr "Billing is not configured. Please contact support to enable payment processing."
+
+msgid "Billing tabs"
+msgstr "Billing tabs"
 
 msgid "billing@company.com"
 msgstr "billing@company.com"
@@ -778,8 +784,11 @@ msgstr "Manage subscription"
 msgid "Manage your account here."
 msgstr "Manage your account here."
 
-msgid "Manage your subscription and billing."
-msgstr "Manage your subscription and billing."
+msgid "Manage your payment methods and billing information."
+msgstr "Manage your payment methods and billing information."
+
+msgid "Manage your subscription plan."
+msgstr "Manage your subscription plan."
 
 msgid "Manage your users and permissions here."
 msgstr "Manage your users and permissions here."
@@ -937,9 +946,6 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
-
-msgid "Plans"
-msgstr "Plans"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -1223,12 +1229,6 @@ msgstr "Subscribe to {0}"
 
 msgid "Subscription"
 msgstr "Subscription"
-
-msgid "Subscription plans"
-msgstr "Subscription plans"
-
-msgid "Subscription tabs"
-msgstr "Subscription tabs"
 
 msgid "Succeeded"
 msgstr "Succeeded"

@@ -6,7 +6,7 @@ using PlatformPlatform.SharedKernel.Cqrs;
 using PlatformPlatform.SharedKernel.ExecutionContext;
 using PlatformPlatform.SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace PlatformPlatform.Account.Features.Billing.Commands;
 
 [PublicAPI]
 public sealed record RetryPendingInvoicePaymentCommand : ICommand, IRequest<Result<RetryPendingInvoicePaymentResponse>>;
