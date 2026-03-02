@@ -12,7 +12,7 @@ test.describe("@smoke", () => {
    * - Subscribe flow with billing info gate and mock checkout session callback
    * - Upgrade from Standard to Premium (subscription page)
    * - Schedule downgrade from Premium to Standard (subscription page with mocked state)
-   * - Cancel subscription with reason selection (subscription page)
+   * - Downgrade to Basis (free plan) with cancellation reason selection (subscription page)
    * - Cancelling state with reactivation banner and confirmation dialog
    * - Payment history table with invoice links
    * - Payment failed warning banner display
@@ -271,42 +271,45 @@ test.describe("@smoke", () => {
     })();
 
     // === CANCEL SUBSCRIPTION ===
-    await step("Mock Standard subscription & click Cancel subscription & verify confirmation dialog")(async () => {
-      let cancelAtPeriodEnd = false;
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Standard",
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd,
-            isPaymentFailed: false,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
+    await step("Mock Standard subscription & click Downgrade on Basis card & verify cancel confirmation dialog")(
+      async () => {
+        let cancelAtPeriodEnd = false;
+        await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            json: {
+              id: "sub_mock",
+              plan: "Standard",
+              scheduledPlan: null,
+              hasStripeCustomer: true,
+              hasStripeSubscription: true,
+              currentPriceAmount: 29.0,
+              currentPriceCurrency: "USD",
+              currentPeriodEnd: "2026-03-24T00:00:00Z",
+              cancelAtPeriodEnd,
+              isPaymentFailed: false,
+              paymentMethod: null,
+              billingInfo: null,
+              hasPendingStripeEvents: false
+            }
+          });
         });
-      });
 
-      await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
-        cancelAtPeriodEnd = true;
-        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
-      });
+        await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
+          cancelAtPeriodEnd = true;
+          await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+        });
 
-      await ownerPage.goto("/account/billing/subscription");
+        await ownerPage.goto("/account/billing/subscription");
 
-      await ownerPage.getByRole("button", { name: "Cancel subscription" }).click();
+        const basisCard = ownerPage.locator(".grid > div").filter({ hasText: "Basis" }).first();
+        await basisCard.getByRole("button", { name: "Downgrade" }).click();
 
-      await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
-      await expect(ownerPage.getByText("will switch to the free plan")).toBeVisible();
-    })();
+        await expect(ownerPage.getByRole("alertdialog")).toBeVisible();
+        await expect(ownerPage.getByText("will switch to the free plan")).toBeVisible();
+      }
+    )();
 
     await step("Select cancellation reason & confirm & verify subscription cancelled toast")(async () => {
       await ownerPage.getByRole("radio", { name: "No longer needed" }).click();
