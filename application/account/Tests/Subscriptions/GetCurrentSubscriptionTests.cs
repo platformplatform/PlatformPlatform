@@ -15,26 +15,13 @@ public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbCont
     public async Task GetCurrentSubscription_WhenExists_ShouldReturnSubscription()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
                 ("CurrentPriceAmount", 29.99),
                 ("CurrentPriceCurrency", "USD"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("CancellationReason", null),
-                ("CancellationFeedback", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null),
-                ("BillingInfo", null)
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 

@@ -15,21 +15,13 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
     public async Task GetPaymentHistory_WhenTransactionsExist_ShouldReturnPaginatedHistory()
     {
         // Arrange
-        var subscriptionId = SubscriptionId.NewId().ToString();
         var transactionId = PaymentTransactionId.NewId().ToString();
         var transactionsJson = $$"""[{"Id":"{{transactionId}}","Amount":29.99,"Currency":"usd","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test"}]""";
-        Connection.Insert("Subscriptions", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", subscriptionId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
                 ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("ScheduledPlan", null),
                 ("StripeCustomerId", "cus_test_123"),
                 ("StripeSubscriptionId", "sub_test_123"),
                 ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
                 ("PaymentTransactions", transactionsJson)
             ]
         );
