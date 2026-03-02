@@ -14,7 +14,8 @@ import {
 } from "@repo/ui/components/Dialog";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { loadStripe, type Stripe } from "@stripe/stripe-js";
+import type { Stripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";

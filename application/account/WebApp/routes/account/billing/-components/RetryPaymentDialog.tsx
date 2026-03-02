@@ -13,7 +13,7 @@ import {
 } from "@repo/ui/components/Dialog";
 import { Separator } from "@repo/ui/components/Separator";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";

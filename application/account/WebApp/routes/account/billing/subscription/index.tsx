@@ -4,7 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js/pure";
 import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
