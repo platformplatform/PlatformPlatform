@@ -416,7 +416,7 @@ export default function MobileMenu({ onNavigate }: Readonly<MobileMenuProps>) {
   };
 
   const handleOpenTenantSwitcher = () => {
-    trackInteraction("Switch account", "menu", "open");
+    trackInteraction("Switch account", "menu", "Open");
     window.dispatchEvent(new CustomEvent("open-tenant-switcher", { detail: { tenants } }));
     setTimeout(() => {
       if (overlayCtx?.isOpen) {

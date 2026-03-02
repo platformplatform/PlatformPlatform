@@ -62,7 +62,7 @@ const applicationInsights = new ApplicationInsights({
 applicationInsights.loadAppInsights();
 
 export type TrackingType = "page" | "menu" | "dialog" | "sidepane" | "interaction";
-export type TrackingAction = "open" | "close" | "submit" | "cancel" | "confirm";
+export type TrackingAction = "Open" | "Close" | "Submit" | "Cancel" | "Confirm";
 
 export function trackInteraction(
   name: string,
@@ -103,7 +103,7 @@ export function useTrackOpen(name: string, type: "menu" | "dialog" | "sidepane",
     const opened = isOpen && !prevOpen.current;
     const contentChanged = isOpen && prevOpen.current && key !== undefined && key !== prevKey.current;
     if (opened || contentChanged) {
-      trackInteraction(name, type, "open");
+      trackInteraction(name, type, "Open");
     }
     prevOpen.current = isOpen;
     prevKey.current = key;
@@ -114,7 +114,7 @@ export function useTrackClose(name: string, type: "menu" | "dialog" | "sidepane"
   const prevOpen = useRef(false);
   useEffect(() => {
     if (!isOpen && prevOpen.current) {
-      trackInteraction(name, type, "close");
+      trackInteraction(name, type, "Close");
     }
     prevOpen.current = isOpen;
   }, [isOpen, name, type]);

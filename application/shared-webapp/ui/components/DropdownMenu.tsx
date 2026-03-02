@@ -18,7 +18,7 @@ function DropdownMenu({
   const handleOpenChange = useCallback(
     (open: boolean, eventDetails: MenuPrimitive.Root.ChangeEventDetails) => {
       if (trackingTitle) {
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "menu", open ? "open" : "close");
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "menu", open ? "Open" : "Close");
       }
       onOpenChange?.(open, eventDetails);
     },

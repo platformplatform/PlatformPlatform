@@ -20,10 +20,10 @@ function AlertDialog({
 
   useEffect(() => {
     if (open && !prevOpen.current) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Open");
     }
     if (!open && prevOpen.current && !closeTracked.current) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "confirm");
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Confirm");
     }
     closeTracked.current = false;
     prevOpen.current = !!open;
@@ -33,7 +33,7 @@ function AlertDialog({
     (nextOpen: boolean, eventDetails: AlertDialogPrimitive.Root.ChangeEventDetails) => {
       if (!nextOpen && eventDetails.reason) {
         closeTracked.current = true;
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "cancel", {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Cancel", {
           method: "cancel-button"
         });
       }

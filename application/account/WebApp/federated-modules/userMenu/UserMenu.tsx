@@ -348,7 +348,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                 <DropdownMenuSub
                   onOpenChange={(open) => {
                     if (open) {
-                      trackInteraction("Switch account", "menu", "open");
+                      trackInteraction("Switch account", "menu", "Open");
                     }
                   }}
                 >

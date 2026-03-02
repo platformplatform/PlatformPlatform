@@ -109,7 +109,7 @@ function PreferencesPage() {
     }
 
     const localeLabel = locales.find((l) => l.id === locale)?.label ?? locale;
-    trackInteraction("User preferences", "interaction", `Change language to ${localeLabel}`);
+    trackInteraction("User preferences", "interaction", `Change language to "${localeLabel}"`);
     localStorage.setItem(preferredLocaleKey, locale);
     changeLocaleMutation.mutate(
       { body: { locale } },
@@ -128,8 +128,14 @@ function PreferencesPage() {
       return;
     }
 
-    const zoomLabel = zoomLevelOptions.find((z) => z.value === value)?.label ?? value;
-    trackInteraction("User preferences", "interaction", `Change zoom to ${zoomLabel}`);
+    const zoomLabelMap: Record<string, string> = {
+      "0.875": "Small",
+      "1": "Default",
+      "1.125": "Large",
+      "1.25": "Larger"
+    };
+    const zoomLabel = zoomLabelMap[value] ?? value;
+    trackInteraction("User preferences", "interaction", `Change zoom to "${zoomLabel}"`);
     changeZoomLevelMutation.mutate({ body: { fromZoomLevel: currentZoomLevel, zoomLevel: value } });
 
     if (value === "1") {
@@ -149,7 +155,7 @@ function PreferencesPage() {
     } else if (newTheme === "dark") {
       themeLabel = "Dark";
     }
-    trackInteraction("User preferences", "interaction", `Change theme to ${themeLabel}`);
+    trackInteraction("User preferences", "interaction", `Change theme to "${themeLabel}"`);
     changeThemeMutation.mutate({
       body: {
         fromTheme: theme ?? "system",

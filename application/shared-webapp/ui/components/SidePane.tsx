@@ -177,10 +177,10 @@ function SidePane({
     const opened = isOpen && !prevOpen.current;
     const contentChanged = isOpen && prevOpen.current && trackingKey !== undefined && trackingKey !== prevKey.current;
     if (opened || contentChanged) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "open");
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "Open");
     }
     if (!isOpen && prevOpen.current) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "close");
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "Close");
     }
     prevOpen.current = isOpen;
     prevKey.current = trackingKey;
@@ -193,7 +193,7 @@ function SidePane({
       if (isOpenRef.current) {
         const title = trackingTitle;
         pendingCloseTimer = setTimeout(() => {
-          (window as unknown as WindowWithTracking).__trackInteraction?.(title, "sidepane", "close");
+          (window as unknown as WindowWithTracking).__trackInteraction?.(title, "sidepane", "Close");
           pendingCloseTimer = undefined;
         }, 100);
       }

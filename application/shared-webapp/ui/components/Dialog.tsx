@@ -51,10 +51,10 @@ function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
 
   useEffect(() => {
     if (open && !prevOpen.current) {
-      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Open");
     }
     if (!open && prevOpen.current && !closeTracked.current) {
-      const action = dirtyContext?.hasUnsavedChanges ? "close" : "submit";
+      const action = dirtyContext?.hasUnsavedChanges ? "Close" : "Submit";
       (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", action);
     }
     closeTracked.current = false;
@@ -66,7 +66,7 @@ function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
       if (!nextOpen && eventDetails.reason && !dirtyContext?.hasUnsavedChanges) {
         closeTracked.current = true;
         const method = mapCloseReason(eventDetails.reason, eventDetails.event);
-        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "close", {
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Close", {
           method
         });
       }
@@ -77,7 +77,7 @@ function Dialog({ trackingTitle, onOpenChange, open, ...props }: DialogProps) {
 
   const markCancelClose = useCallback(() => {
     closeTracked.current = true;
-    (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "cancel", {
+    (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "Cancel", {
       method: "cancel-button"
     });
   }, [trackingTitle]);

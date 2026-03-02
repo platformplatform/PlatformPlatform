@@ -487,7 +487,7 @@ function UserTableContent({
                         onOpenChange={(isOpen) => {
                           if (isOpen) {
                             onSelectedUsersChange([user]);
-                            trackInteraction("User actions", "menu", "open");
+                            trackInteraction("User actions", "menu", "Open");
                           }
                         }}
                       >
@@ -540,7 +540,7 @@ function UserTableContent({
                             onOpenChange={(isOpen) => {
                               if (isOpen) {
                                 onSelectedUsersChange([user]);
-                                trackInteraction("User actions", "menu", "open");
+                                trackInteraction("User actions", "menu", "Open");
                               }
                             }}
                           >

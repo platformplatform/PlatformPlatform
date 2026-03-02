@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { ErrorCode } from "@repo/infrastructure/auth/AuthenticationMiddleware";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
@@ -9,7 +10,7 @@ import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Building2, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
-import { type ReactNode, useContext, useState } from "react";
+import { type ReactNode, useContext, useRef, useState } from "react";
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
@@ -17,7 +18,7 @@ import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
 export const Route = createFileRoute("/error")({
-  staticData: { trackingTitle: "Error" },
+  staticData: {},
   validateSearch: (search) => {
     const params = search as { error?: string; returnPath?: string; id?: string };
     return {
@@ -271,9 +272,30 @@ function ActionButton({ action, variant, onLogIn, onSignUp }: ActionButtonProps)
   }
 }
 
+const errorLabelMap: Record<string, string> = {
+  [ErrorCode.ReplayAttack]: "Security alert",
+  [ErrorCode.SessionRevoked]: "Session ended",
+  [ErrorCode.SessionNotFound]: "Session expired",
+  [ErrorCode.SessionExpired]: "Session expired",
+  [ErrorCode.UserNotFound]: "Account not found",
+  [ErrorCode.AccountAlreadyExists]: "Account already exists",
+  [ErrorCode.IdentityMismatch]: "Identity mismatch",
+  [ErrorCode.AuthenticationFailed]: "Authentication failed",
+  [ErrorCode.InvalidRequest]: "Invalid request",
+  [ErrorCode.AccessDenied]: "Access denied",
+  [ErrorCode.TenantDeleted]: "Account deleted"
+};
+
 function ErrorPage() {
   const { error, returnPath, id } = Route.useSearch();
   const navigate = useNavigate();
+  const trackedError = useRef<string | null>(null);
+
+  if (error && trackedError.current !== error) {
+    trackedError.current = error;
+    const label = errorLabelMap[error] ?? "Unknown error";
+    trackInteraction("Error", "interaction", label);
+  }
 
   if (!error) {
     return <Navigate to="/login" search={{ returnPath }} />;
