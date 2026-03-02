@@ -1,13 +1,13 @@
 using System.Net;
+using Account.Database;
+using Account.Features.Authentication.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Authentication;
+namespace Account.Tests.Authentication;
 
 public sealed class RevokeSessionTests : EndpointBaseTest<AccountDbContext>
 {

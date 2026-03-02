@@ -1,10 +1,10 @@
-using PlatformPlatform.Account.Features.Subscriptions.Commands;
-using PlatformPlatform.Account.Features.Subscriptions.Shared;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Endpoints;
-using Result = PlatformPlatform.SharedKernel.Cqrs.Result;
+using Account.Features.Subscriptions.Commands;
+using Account.Features.Subscriptions.Shared;
+using SharedKernel.ApiResults;
+using SharedKernel.Endpoints;
+using Result = SharedKernel.Cqrs.Result;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class StripeWebhookEndpoints : IEndpoints
 {

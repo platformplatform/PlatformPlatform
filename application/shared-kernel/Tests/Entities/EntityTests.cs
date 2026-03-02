@@ -1,9 +1,9 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.Domain;
+using SharedKernel.StronglyTypedIds;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Entities;
+namespace SharedKernel.Tests.Entities;
 
 public static class EntityTests
 {

@@ -1,11 +1,11 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
-using PlatformPlatform.SharedKernel.Tests.TestEntities;
+using SharedKernel.ExecutionContext;
+using SharedKernel.StronglyTypedIds;
+using SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Persistence;
+namespace SharedKernel.Tests.Persistence;
 
 public sealed class RepositoryTests : IDisposable
 {

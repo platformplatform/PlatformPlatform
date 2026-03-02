@@ -9,10 +9,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Primitives;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Authentication;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.SinglePageApp;
+namespace SharedKernel.SinglePageApp;
 
 public static class SinglePageAppFallbackExtensions
 {

@@ -1,19 +1,19 @@
+using Account.Features.Authentication.Domain;
+using Account.Features.EmailAuthentication.Domain;
+using Account.Features.EmailAuthentication.Shared;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
+using Account.Integrations.Gravatar;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.Account.Features.EmailAuthentication.Shared;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.Account.Integrations.Gravatar;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Commands;
+namespace Account.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record CompleteEmailLoginCommand(string OneTimePassword, TenantId? PreferredTenantId = null) : ICommand, IRequest<Result>

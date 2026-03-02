@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Billing.Queries;
+using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Billing.Queries;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Billing;
+namespace Account.Tests.Billing;
 
 public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
 {

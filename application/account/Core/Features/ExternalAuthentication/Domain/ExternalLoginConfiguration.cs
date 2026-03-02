@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+namespace Account.Features.ExternalAuthentication.Domain;
 
 public sealed class ExternalLoginConfiguration : IEntityTypeConfiguration<ExternalLogin>
 {

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 internal class DockerServer(string imageName, string instanceName, int? port, string? volume)
 {

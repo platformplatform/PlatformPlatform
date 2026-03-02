@@ -1,14 +1,14 @@
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Telemetry;
+using Account.Features.Authentication.Domain;
+using Account.Features.EmailAuthentication.Domain;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features;
+namespace Account.Features;
 
 /// This file contains all the telemetry events that are collected by the application. Telemetry events are important
 /// to understand how the application is being used and collect valuable information for the business. Quality is

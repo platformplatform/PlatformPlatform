@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Tests.TestEntities;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Tests.Persistence;
+using SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.EntityFramework;
+namespace SharedKernel.Tests.EntityFramework;
 
 public sealed class UseStringForEnumsTests : IDisposable
 {

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace PlatformPlatform.SharedKernel.Platform;
+namespace SharedKernel.Platform;
 
 public sealed class Settings
 {
@@ -15,7 +15,7 @@ public sealed class Settings
     private static Settings LoadFromEmbeddedResource()
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "PlatformPlatform.SharedKernel.Platform.platform-settings.jsonc";
+        var resourceName = "SharedKernel.Platform.platform-settings.jsonc";
 
         using var stream = assembly.GetManifestResourceStream(resourceName)
                            ?? throw new InvalidOperationException($"Could not find embedded resource: {resourceName}");

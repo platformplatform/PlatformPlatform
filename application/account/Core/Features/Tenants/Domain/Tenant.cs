@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Account.Features.Tenants.Domain;
+namespace Account.Features.Tenants.Domain;
 
 public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 {

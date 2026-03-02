@@ -1,9 +1,9 @@
 using System.Security;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.Domain;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Domain;
+namespace Account.Features.EmailAuthentication.Domain;
 
 public sealed class EmailLogin : AggregateRoot<EmailLoginId>
 {

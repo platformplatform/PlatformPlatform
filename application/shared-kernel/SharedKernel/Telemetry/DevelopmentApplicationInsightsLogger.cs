@@ -3,7 +3,7 @@ using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public sealed class DevelopmentApplicationInsightsLogger(ITelemetryProcessor next, IServiceProvider serviceProvider) : ITelemetryProcessor
 {

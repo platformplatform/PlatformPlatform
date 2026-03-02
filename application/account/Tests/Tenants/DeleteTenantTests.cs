@@ -1,13 +1,13 @@
 using System.Net;
+using Account.Database;
+using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Tenants;
+namespace Account.Tests.Tenants;
 
 public sealed class DeleteTenantTests : EndpointBaseTest<AccountDbContext>
 {

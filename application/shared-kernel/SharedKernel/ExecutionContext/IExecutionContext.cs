@@ -1,8 +1,8 @@
 using System.Net;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.SharedKernel.ExecutionContext;
+namespace SharedKernel.ExecutionContext;
 
 /// <summary>
 ///     Represents the execution context of the current operation, providing information

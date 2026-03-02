@@ -1,12 +1,12 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
+namespace Account.Features.Subscriptions.Queries;
 
 [PublicAPI]
 public sealed record GetSubscribePreviewQuery(SubscriptionPlan Plan) : IRequest<Result<SubscribePreviewResponse>>;

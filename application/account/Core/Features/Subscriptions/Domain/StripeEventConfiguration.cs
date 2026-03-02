@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
+namespace Account.Features.Subscriptions.Domain;
 
 public sealed class StripeEventConfiguration : IEntityTypeConfiguration<StripeEvent>
 {

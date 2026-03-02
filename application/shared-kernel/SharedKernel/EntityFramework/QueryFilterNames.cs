@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.EntityFramework;
+namespace SharedKernel.EntityFramework;
 
 /// <summary>
 ///     Contains the names of EF Core named query filters used throughout the application.

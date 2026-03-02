@@ -5,4 +5,4 @@ COPY ./AppGateway/publish .
 
 USER app
 
-ENTRYPOINT ["dotnet", "PlatformPlatform.AppGateway.dll"]
+ENTRYPOINT ["dotnet", "AppGateway.dll"]

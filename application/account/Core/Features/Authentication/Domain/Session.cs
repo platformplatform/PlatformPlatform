@@ -1,9 +1,9 @@
 using System.Net;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Account.Features.Authentication.Domain;
+namespace Account.Features.Authentication.Domain;
 
 public sealed class Session : AggregateRoot<SessionId>, ITenantScopedEntity
 {

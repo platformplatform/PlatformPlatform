@@ -1,6 +1,6 @@
 using Yarp.ReverseProxy.Transforms;
 
-namespace PlatformPlatform.AppGateway.Transformations;
+namespace AppGateway.Transformations;
 
 public class BlockInternalApiTransform : RequestTransform
 {

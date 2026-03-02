@@ -1,9 +1,9 @@
 using System.Security.Cryptography;
+using Account.Features.Users.Domain;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
+using SharedKernel.Integrations.BlobStorage;
 
-namespace PlatformPlatform.Account.Features.Users.Shared;
+namespace Account.Features.Users.Shared;
 
 public sealed class AvatarUpdater(IUserRepository userRepository, [FromKeyedServices("account-storage")] IBlobStorageClient blobStorageClient)
 {

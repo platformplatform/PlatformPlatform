@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Users.Commands;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Validation;
+using Account.Database;
+using Account.Features.Users.Commands;
+using SharedKernel.Tests;
+using SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Users;
+namespace Account.Tests.Users;
 
 public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountDbContext>
 {

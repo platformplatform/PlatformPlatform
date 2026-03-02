@@ -10,17 +10,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
-using PlatformPlatform.SharedKernel.DomainEvents;
-using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.Persistence;
-using PlatformPlatform.SharedKernel.PipelineBehaviors;
-using PlatformPlatform.SharedKernel.Platform;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Authentication.TokenSigning;
+using SharedKernel.DomainEvents;
+using SharedKernel.Integrations.Email;
+using SharedKernel.Persistence;
+using SharedKernel.PipelineBehaviors;
+using SharedKernel.Platform;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel.Configuration;
+namespace SharedKernel.Configuration;
 
 public static class SharedDependencyConfiguration
 {

@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.SharedKernel.DomainEvents;
+namespace SharedKernel.DomainEvents;
 
 public interface IDomainEventCollector
 {

@@ -1,9 +1,9 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ArchitectureTests;
+namespace Account.Tests.ArchitectureTests;
 
 public sealed class PublicClassesTests
 {

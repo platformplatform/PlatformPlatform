@@ -5,4 +5,4 @@ COPY ./Workers/publish .
 
 USER app
 
-ENTRYPOINT ["dotnet", "PlatformPlatform.BackOffice.Workers.dll"]
+ENTRYPOINT ["dotnet", "BackOffice.Workers.dll"]

@@ -1,11 +1,11 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Billing.Commands;
+namespace Account.Features.Billing.Commands;
 
 [PublicAPI]
 public sealed record ConfirmPaymentMethodSetupCommand(string SetupIntentId) : ICommand, IRequest<Result<ConfirmPaymentMethodSetupResponse>>;

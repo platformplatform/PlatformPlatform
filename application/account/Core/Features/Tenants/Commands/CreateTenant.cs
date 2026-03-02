@@ -1,12 +1,12 @@
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Commands;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Telemetry;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Commands;
+using Account.Features.Users.Domain;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Tenants.Commands;
+namespace Account.Features.Tenants.Commands;
 
 internal sealed record CreateTenantCommand(string OwnerEmail, bool EmailConfirmed, string? Locale)
     : ICommand, IRequest<Result<CreateTenantResponse>>;

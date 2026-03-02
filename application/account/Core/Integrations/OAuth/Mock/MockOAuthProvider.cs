@@ -1,8 +1,8 @@
+using Account.Features.ExternalAuthentication.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
 
-namespace PlatformPlatform.Account.Integrations.OAuth.Mock;
+namespace Account.Integrations.OAuth.Mock;
 
 public sealed class MockOAuthProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : IOAuthProvider
 {

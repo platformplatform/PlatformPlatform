@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NJsonSchema.Generation;
-using PlatformPlatform.SharedKernel.Antiforgery;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Endpoints;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Middleware;
-using PlatformPlatform.SharedKernel.OpenApi;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Antiforgery;
+using SharedKernel.Authentication;
+using SharedKernel.Endpoints;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Middleware;
+using SharedKernel.OpenApi;
+using SharedKernel.SinglePageApp;
+using SharedKernel.StronglyTypedIds;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.SharedKernel.Configuration;
+namespace SharedKernel.Configuration;
 
 public static class ApiDependencyConfiguration
 {

@@ -1,7 +1,7 @@
 using System.CommandLine;
 using System.Reflection;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
 var isDebugBuild = new FileInfo(Environment.ProcessPath!).FullName.Contains("debug");

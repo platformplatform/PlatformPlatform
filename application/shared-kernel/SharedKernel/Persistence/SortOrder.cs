@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Persistence;
+namespace SharedKernel.Persistence;
 
 [PublicAPI]
 public enum SortOrder

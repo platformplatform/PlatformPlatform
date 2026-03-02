@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.Domain;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
+namespace Account.Features.Subscriptions.Domain;
 
 [PublicAPI]
 [IdPrefix("sub")]

@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.BackOffice</AssemblyName>
-        <RootNamespace>PlatformPlatform.BackOffice</RootNamespace>
+        <AssemblyName>BackOffice</AssemblyName>
+        <RootNamespace>BackOffice</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

@@ -1,13 +1,13 @@
 using System.Collections.Immutable;
 using System.Text.Json;
+using Account.Features.Tenants.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.Users.Domain;
+namespace Account.Features.Users.Domain;
 
 public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {

@@ -1,9 +1,9 @@
+using Account.Integrations.OAuth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Integrations.OAuth;
 
-namespace PlatformPlatform.Account.Integrations.Stripe;
+namespace Account.Integrations.Stripe;
 
 public sealed class StripeClientFactory(IServiceProvider serviceProvider, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
 {

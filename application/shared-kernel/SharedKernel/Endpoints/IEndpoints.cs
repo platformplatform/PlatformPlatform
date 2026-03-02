@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Routing;
 
-namespace PlatformPlatform.SharedKernel.Endpoints;
+namespace SharedKernel.Endpoints;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public interface IEndpoints

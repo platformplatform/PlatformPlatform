@@ -5,4 +5,4 @@ COPY ./Workers/publish .
 
 USER app
 
-ENTRYPOINT ["dotnet", "PlatformPlatform.Main.Workers.dll"]
+ENTRYPOINT ["dotnet", "Main.Workers.dll"]

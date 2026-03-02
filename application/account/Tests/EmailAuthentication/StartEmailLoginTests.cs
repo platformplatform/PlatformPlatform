@@ -1,21 +1,21 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Account.Database;
+using Account.Features.EmailAuthentication.Commands;
+using Account.Features.EmailAuthentication.Domain;
+using Account.Features.Users.Domain;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using NSubstitute;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.EmailAuthentication.Commands;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
+using SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.EmailAuthentication;
+namespace Account.Tests.EmailAuthentication;
 
 public sealed class StartEmailLoginTests : EndpointBaseTest<AccountDbContext>
 {

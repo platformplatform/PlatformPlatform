@@ -1,8 +1,8 @@
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Users.Queries;
+namespace Account.Features.Users.Queries;
 
 [PublicAPI]
 public sealed record GetUserSummaryQuery : IRequest<Result<UserSummaryResponse>>;

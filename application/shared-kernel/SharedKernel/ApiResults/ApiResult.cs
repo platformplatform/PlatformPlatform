@@ -3,9 +3,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Mapster;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.ApiResults;
+namespace SharedKernel.ApiResults;
 
 public class ApiResult(ResultBase result, string? routePrefix = null, IDictionary<string, string>? httpHeaders = null)
     : IResult

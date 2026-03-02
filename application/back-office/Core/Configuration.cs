@@ -1,9 +1,9 @@
+using BackOffice.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.BackOffice.Database;
-using PlatformPlatform.SharedKernel.Configuration;
+using SharedKernel.Configuration;
 
-namespace PlatformPlatform.BackOffice;
+namespace BackOffice;
 
 public static class Configuration
 {

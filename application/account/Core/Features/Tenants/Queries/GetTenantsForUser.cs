@@ -1,10 +1,10 @@
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Tenants.Queries;
+namespace Account.Features.Tenants.Queries;
 
 public sealed record GetTenantsForUserQuery : IRequest<Result<GetTenantsForUserResponse>>;
 

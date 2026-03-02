@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
+namespace Account.Features.Subscriptions.Domain;
 
 [PublicAPI]
 [IdPrefix("cus")]

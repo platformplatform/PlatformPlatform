@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Persistence;
-using PlatformPlatform.SharedKernel.PipelineBehaviors;
-using PlatformPlatform.SharedKernel.Tests.TestEntities;
+using SharedKernel.Cqrs;
+using SharedKernel.Persistence;
+using SharedKernel.PipelineBehaviors;
+using SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Behaviors;
+namespace SharedKernel.Tests.Behaviors;
 
 public sealed class UnitOfWorkPipelineBehaviorTests
 {

@@ -1,4 +1,4 @@
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class TimeSpanExtensions
 {

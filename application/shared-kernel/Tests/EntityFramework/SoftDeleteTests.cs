@@ -1,10 +1,10 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Tests.TestEntities;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.EntityFramework;
+namespace SharedKernel.Tests.EntityFramework;
 
 public sealed class SoftDeleteTests : IDisposable
 {

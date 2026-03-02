@@ -1,15 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Billing.Commands;
+using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Billing.Commands;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
+using SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Billing;
+namespace Account.Tests.Billing;
 
 public sealed class UpdateBillingInfoTests : EndpointBaseTest<AccountDbContext>
 {

@@ -1,7 +1,7 @@
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Persistence;
+using SharedKernel.Cqrs;
+using SharedKernel.Persistence;
 
-namespace PlatformPlatform.SharedKernel.PipelineBehaviors;
+namespace SharedKernel.PipelineBehaviors;
 
 /// <summary>
 ///     The UnitOfWorkPipelineBehavior class is a MediatR pipeline behavior that encapsulates the unit of work pattern.

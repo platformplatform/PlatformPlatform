@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PlatformPlatform.SharedKernel.Database;
+namespace SharedKernel.Database;
 
 public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServiceProvider serviceProvider, ILogger<DataMigrationRunner<TContext>> logger)
     where TContext : DbContext

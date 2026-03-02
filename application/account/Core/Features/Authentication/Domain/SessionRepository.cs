@@ -1,11 +1,11 @@
 using System.Data.Common;
+using Account.Database;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Persistence;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
+using SharedKernel.Persistence;
 
-namespace PlatformPlatform.Account.Features.Authentication.Domain;
+namespace Account.Features.Authentication.Domain;
 
 public interface ISessionRepository : ICrudRepository<Session, SessionId>
 {

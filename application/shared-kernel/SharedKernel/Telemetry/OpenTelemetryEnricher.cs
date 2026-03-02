@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public class OpenTelemetryEnricher(IExecutionContext executionContext)
 {

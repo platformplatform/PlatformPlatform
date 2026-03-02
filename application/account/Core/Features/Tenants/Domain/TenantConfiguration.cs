@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.Tenants.Domain;
+namespace Account.Features.Tenants.Domain;
 
 public sealed class TenantConfiguration : IEntityTypeConfiguration<Tenant>
 {

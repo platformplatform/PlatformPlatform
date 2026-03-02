@@ -1,7 +1,7 @@
 using Microsoft.OpenApi;
 using Yarp.ReverseProxy.Configuration;
 
-namespace PlatformPlatform.AppGateway.ApiAggregation;
+namespace AppGateway.ApiAggregation;
 
 public class ApiAggregationService(
     ILogger<ApiAggregationService> logger,

@@ -5,4 +5,4 @@ COPY ./Api/publish .
 
 USER app
 
-ENTRYPOINT ["dotnet", "PlatformPlatform.Account.Api.dll"]
+ENTRYPOINT ["dotnet", "Account.Api.dll"]

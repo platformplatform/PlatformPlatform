@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Routing;
 
-namespace PlatformPlatform.SharedKernel.Endpoints;
+namespace SharedKernel.Endpoints;
 
 public class HealthEndpoints : IEndpoints
 {

@@ -1,20 +1,20 @@
+using Account.Database;
+using Account.Features.EmailAuthentication.Shared;
+using Account.Features.ExternalAuthentication;
+using Account.Features.ExternalAuthentication.Shared;
+using Account.Features.Subscriptions.Shared;
+using Account.Features.Users.Shared;
+using Account.Integrations.Gravatar;
+using Account.Integrations.OAuth;
+using Account.Integrations.OAuth.Google;
+using Account.Integrations.OAuth.Mock;
+using Account.Integrations.Stripe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.EmailAuthentication.Shared;
-using PlatformPlatform.Account.Features.ExternalAuthentication;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Shared;
-using PlatformPlatform.Account.Features.Subscriptions.Shared;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.Account.Integrations.Gravatar;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.Account.Integrations.OAuth.Google;
-using PlatformPlatform.Account.Integrations.OAuth.Mock;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
+using SharedKernel.Configuration;
+using SharedKernel.OpenIdConnect;
 
-namespace PlatformPlatform.Account;
+namespace Account;
 
 public static class Configuration
 {

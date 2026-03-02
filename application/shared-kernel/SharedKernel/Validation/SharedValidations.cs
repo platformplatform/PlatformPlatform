@@ -1,7 +1,7 @@
 using System.Net.Mail;
 using FluentValidation;
 
-namespace PlatformPlatform.SharedKernel.Validation;
+namespace SharedKernel.Validation;
 
 public static class SharedValidations
 {

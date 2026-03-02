@@ -1,6 +1,6 @@
 using Microsoft.IdentityModel.Tokens;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+namespace SharedKernel.Authentication.TokenSigning;
 
 public interface ITokenSigningClient
 {

@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace SharedKernel.Authentication;
 
 public class OneTimePasswordHelper(IPasswordHasher<object> passwordHasher)
 {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.EntityFramework;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.EntityFramework;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public sealed class TestDbContext(DbContextOptions<TestDbContext> options, IExecutionContext executionContext, TimeProvider timeProvider)
     : SharedKernelDbContext<TestDbContext>(options, executionContext, timeProvider)

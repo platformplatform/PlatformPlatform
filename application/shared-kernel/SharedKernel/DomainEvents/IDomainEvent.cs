@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.DomainEvents;
+namespace SharedKernel.DomainEvents;
 
 /// <summary>
 ///     The DomainEvent interface represents a domain event that occurred in the domain. The DomainEvent implements the

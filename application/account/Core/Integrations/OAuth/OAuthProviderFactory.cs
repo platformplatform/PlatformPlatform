@@ -1,10 +1,10 @@
+using Account.Features.ExternalAuthentication.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Configuration;
+using SharedKernel.Configuration;
 
-namespace PlatformPlatform.Account.Integrations.OAuth;
+namespace Account.Integrations.OAuth;
 
 public sealed class OAuthProviderFactory(IServiceProvider serviceProvider, IConfiguration configuration)
 {

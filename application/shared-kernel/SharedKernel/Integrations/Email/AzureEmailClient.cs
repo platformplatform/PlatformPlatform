@@ -2,7 +2,7 @@ using Azure;
 using Azure.Communication.Email;
 using Azure.Security.KeyVault.Secrets;
 
-namespace PlatformPlatform.SharedKernel.Integrations.Email;
+namespace SharedKernel.Integrations.Email;
 
 public sealed class AzureEmailClient(SecretClient secretClient) : IEmailClient
 {

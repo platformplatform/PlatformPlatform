@@ -1,11 +1,11 @@
+using Account.Features.Tenants.Domain;
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Account.Features.Tenants.Queries;
+namespace Account.Features.Tenants.Queries;
 
 [PublicAPI]
 public sealed record GetCurrentTenantQuery : IRequest<Result<TenantResponse>>;

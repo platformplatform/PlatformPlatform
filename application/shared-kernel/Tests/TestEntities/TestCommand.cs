@@ -1,5 +1,5 @@
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public record TestCommand : ICommand, IRequest<Result<TestAggregate>>;

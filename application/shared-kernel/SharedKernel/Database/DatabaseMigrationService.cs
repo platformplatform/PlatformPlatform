@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace PlatformPlatform.SharedKernel.Database;
+namespace SharedKernel.Database;
 
 public class DatabaseMigrationService<TContext>(TContext dbContext, ILogger<DatabaseMigrationService<TContext>> logger)
     where TContext : DbContext

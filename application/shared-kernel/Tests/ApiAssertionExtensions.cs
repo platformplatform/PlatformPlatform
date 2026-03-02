@@ -2,11 +2,11 @@ using System.Net;
 using System.Text.Json;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.ApiResults;
+using SharedKernel.Configuration;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.SharedKernel.Tests;
+namespace SharedKernel.Tests;
 
 public static class ApiAssertionExtensions
 {

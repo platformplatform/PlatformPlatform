@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
+using Account.Integrations.OAuth.Google;
 using FluentAssertions;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.Account.Integrations.OAuth.Google;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class GoogleOAuthAtHashTests
 {

@@ -1,7 +1,7 @@
 using System.Net;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.SharedKernel.Cqrs;
+namespace SharedKernel.Cqrs;
 
 public abstract class ResultBase
 {

@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.EntityFramework;
+namespace SharedKernel.EntityFramework;
 
 /// <summary>
 ///     Tracks entities that should be permanently deleted, bypassing the soft delete interceptor.

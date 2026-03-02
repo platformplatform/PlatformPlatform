@@ -1,6 +1,6 @@
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Domain;
 
-namespace PlatformPlatform.Account.Integrations.Stripe;
+namespace Account.Integrations.Stripe;
 
 public sealed class UnconfiguredStripeClient(ILogger<UnconfiguredStripeClient> logger) : IStripeClient
 {

@@ -1,11 +1,11 @@
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record UpdateAvatarCommand(Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;

@@ -1,6 +1,6 @@
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Domain;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
+namespace Account.Features.Subscriptions.Shared;
 
 public static class SubscriptionPlanExtensions
 {

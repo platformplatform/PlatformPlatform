@@ -1,10 +1,10 @@
 using System.Net;
+using Account.Features.ExternalAuthentication.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class StartExternalSignupTests : ExternalAuthenticationTestBase
 {

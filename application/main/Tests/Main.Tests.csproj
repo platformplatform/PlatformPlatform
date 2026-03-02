@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Main.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.Main.Tests</RootNamespace>
+        <AssemblyName>Main.Tests</AssemblyName>
+        <RootNamespace>Main.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 

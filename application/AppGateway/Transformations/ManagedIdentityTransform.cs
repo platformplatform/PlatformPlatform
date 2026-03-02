@@ -1,7 +1,7 @@
 using Azure.Core;
 using Yarp.ReverseProxy.Transforms;
 
-namespace PlatformPlatform.AppGateway.Transformations;
+namespace AppGateway.Transformations;
 
 public class ManagedIdentityTransform(TokenCredential credential)
     : RequestHeaderTransform("Authorization", false)

@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Platform;
+using Account.Features.ExternalAuthentication.Domain;
+using SharedKernel.Domain;
+using SharedKernel.Platform;
 
-namespace PlatformPlatform.Account.Features.Users.Domain;
+namespace Account.Features.Users.Domain;
 
 public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEntity
 {

@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Entities;
+namespace SharedKernel.Tests.Entities;
 
 public sealed class EntityEqualityComparerTests
 {

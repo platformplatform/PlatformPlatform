@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+namespace Account.Features.ExternalAuthentication.Domain;
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]

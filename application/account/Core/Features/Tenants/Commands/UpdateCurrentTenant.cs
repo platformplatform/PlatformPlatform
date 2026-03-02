@@ -1,13 +1,13 @@
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Tenants.Commands;
+namespace Account.Features.Tenants.Commands;
 
 [PublicAPI]
 public sealed record UpdateCurrentTenantCommand : ICommand, IRequest<Result>

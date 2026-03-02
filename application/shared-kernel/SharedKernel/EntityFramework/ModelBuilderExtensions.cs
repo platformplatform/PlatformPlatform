@@ -2,9 +2,9 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.EntityFramework;
+namespace SharedKernel.EntityFramework;
 
 public static class ModelBuilderExtensions
 {

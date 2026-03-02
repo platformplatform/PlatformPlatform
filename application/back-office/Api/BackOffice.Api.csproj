@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.BackOffice.Api</AssemblyName>
-        <RootNamespace>PlatformPlatform.BackOffice.Api</RootNamespace>
+        <AssemblyName>BackOffice.Api</AssemblyName>
+        <RootNamespace>BackOffice.Api</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\WebApp\shared\lib\api\</OpenApiDocumentsDirectory>
@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.BackOffice.Tests"/>
+        <InternalsVisibleTo Include="BackOffice.Tests"/>
     </ItemGroup>
 
     <ItemGroup>

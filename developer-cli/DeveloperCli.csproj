@@ -5,7 +5,7 @@
         <TargetFramework>net10.0</TargetFramework>
         <AssemblyName>pp</AssemblyName>
         <PublishSingleFile>true</PublishSingleFile>
-        <RootNamespace>PlatformPlatform.DeveloperCli</RootNamespace>
+        <RootNamespace>DeveloperCli</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <UserSecretsId>platformplatform-f817f2a1-ac57-4756-aef2-a57ca864bbd3</UserSecretsId>

@@ -1,11 +1,11 @@
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Users.Shared;
+namespace Account.Features.Users.Shared;
 
 /// <summary>
 ///     Factory for creating UserInfo instances with tenant information.

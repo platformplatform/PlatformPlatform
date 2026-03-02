@@ -1,12 +1,12 @@
 using System.Net;
+using Account.Database;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Tests;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.SharedKernel;
+namespace Account.Tests.SharedKernel;
 
 public sealed class CustomExceptionHandlingTests : EndpointBaseTest<AccountDbContext>
 {

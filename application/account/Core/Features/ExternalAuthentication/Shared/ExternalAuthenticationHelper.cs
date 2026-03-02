@@ -1,10 +1,10 @@
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Integrations.OAuth;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Shared;
+namespace Account.Features.ExternalAuthentication.Shared;
 
 internal sealed record CallbackValidationResult(
     bool IsSuccess,

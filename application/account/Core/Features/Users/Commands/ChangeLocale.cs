@@ -1,11 +1,11 @@
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.SinglePageApp;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record ChangeLocaleCommand(string Locale) : ICommand, IRequest<Result>;

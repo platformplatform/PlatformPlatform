@@ -1,10 +1,10 @@
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Account.Features.Users.Queries;
+namespace Account.Features.Users.Queries;
 
 [PublicAPI]
 public sealed record GetUserByIdQuery(UserId Id) : IRequest<Result<UserDetails>>;

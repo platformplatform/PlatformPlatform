@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace PlatformPlatform.SharedKernel.OpenIdConnect;
+namespace SharedKernel.OpenIdConnect;
 
 public static class ReturnPathHelper
 {

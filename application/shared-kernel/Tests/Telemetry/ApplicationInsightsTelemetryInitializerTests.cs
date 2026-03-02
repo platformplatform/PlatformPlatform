@@ -2,14 +2,14 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.ApplicationInsights.DataContracts;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Telemetry;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Telemetry;
+namespace SharedKernel.Tests.Telemetry;
 
 public sealed class ApplicationInsightsTelemetryInitializerTests
 {

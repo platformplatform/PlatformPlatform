@@ -1,10 +1,10 @@
-using PlatformPlatform.Account.Features.Users.Commands;
-using PlatformPlatform.Account.Features.Users.Queries;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.Users.Commands;
+using Account.Features.Users.Queries;
+using SharedKernel.ApiResults;
+using SharedKernel.Domain;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class UserEndpoints : IEndpoints
 {

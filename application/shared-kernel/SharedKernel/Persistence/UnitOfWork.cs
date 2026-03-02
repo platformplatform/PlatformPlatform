@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.PipelineBehaviors;
+using SharedKernel.Domain;
+using SharedKernel.PipelineBehaviors;
 
-namespace PlatformPlatform.SharedKernel.Persistence;
+namespace SharedKernel.Persistence;
 
 /// <summary>
 ///     UnitOfWork is an implementation of the IUnitOfWork interface from the Domain layer. It is responsible for

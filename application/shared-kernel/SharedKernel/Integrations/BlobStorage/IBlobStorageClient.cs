@@ -1,6 +1,6 @@
 using Azure.Storage.Blobs.Models;
 
-namespace PlatformPlatform.SharedKernel.Integrations.BlobStorage;
+namespace SharedKernel.Integrations.BlobStorage;
 
 public interface IBlobStorageClient
 {

@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Tests;
+using Account.Database;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Tenants;
+namespace Account.Tests.Tenants;
 
 public sealed class UpdateTenantLogoTests : EndpointBaseTest<AccountDbContext>
 {

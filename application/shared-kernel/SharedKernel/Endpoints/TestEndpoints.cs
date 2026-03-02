@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 
-namespace PlatformPlatform.SharedKernel.Endpoints;
+namespace SharedKernel.Endpoints;
 
 public class TestEndpoints : IEndpoints
 {

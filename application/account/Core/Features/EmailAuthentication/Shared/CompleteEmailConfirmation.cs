@@ -1,9 +1,9 @@
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
+using Account.Features.EmailAuthentication.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Shared;
+namespace Account.Features.EmailAuthentication.Shared;
 
 public sealed record CompleteEmailConfirmationResponse(string Email, int ConfirmationTimeInSeconds);
 

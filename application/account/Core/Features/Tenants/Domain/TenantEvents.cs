@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.DomainEvents;
+using SharedKernel.Domain;
+using SharedKernel.DomainEvents;
 
-namespace PlatformPlatform.Account.Features.Tenants.Domain;
+namespace Account.Features.Tenants.Domain;
 
 public sealed record TenantCreatedEvent(TenantId TenantId, string Email) : IDomainEvent;

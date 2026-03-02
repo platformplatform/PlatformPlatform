@@ -1,10 +1,10 @@
+using Account.Features.ExternalAuthentication.Commands;
+using Account.Features.ExternalAuthentication.Domain;
 using Microsoft.AspNetCore.Mvc;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Commands;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Endpoints;
+using SharedKernel.ApiResults;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class ExternalAuthenticationEndpoints : IEndpoints
 {

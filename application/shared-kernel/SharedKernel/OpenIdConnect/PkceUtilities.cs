@@ -2,7 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace PlatformPlatform.SharedKernel.OpenIdConnect;
+namespace SharedKernel.OpenIdConnect;
 
 public static class PkceUtilities
 {

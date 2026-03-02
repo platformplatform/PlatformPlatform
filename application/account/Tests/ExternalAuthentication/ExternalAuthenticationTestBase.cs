@@ -1,6 +1,11 @@
 using System.Net;
 using System.Text.Json;
 using System.Web;
+using Account.Database;
+using Account.Features.ExternalAuthentication;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.Users.Domain;
+using Account.Integrations.OAuth;
 using Bogus;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -16,20 +21,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.ExternalAuthentication;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Tests.Telemetry;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Integrations.Email;
+using SharedKernel.SinglePageApp;
+using SharedKernel.Telemetry;
+using SharedKernel.Tests.Persistence;
+using SharedKernel.Tests.Telemetry;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public abstract class ExternalAuthenticationTestBase : IDisposable
 {

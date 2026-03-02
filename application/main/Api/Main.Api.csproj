@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Main.Api</AssemblyName>
-        <RootNamespace>PlatformPlatform.Main.Api</RootNamespace>
+        <AssemblyName>Main.Api</AssemblyName>
+        <RootNamespace>Main.Api</RootNamespace>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\WebApp\shared\lib\api\</OpenApiDocumentsDirectory>
@@ -13,7 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <InternalsVisibleTo Include="PlatformPlatform.Main.Tests"/>
+        <InternalsVisibleTo Include="Main.Tests"/>
     </ItemGroup>
 
     <ItemGroup>

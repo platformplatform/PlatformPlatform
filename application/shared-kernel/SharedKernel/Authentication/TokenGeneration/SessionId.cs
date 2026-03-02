@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace SharedKernel.Authentication.TokenGeneration;
 
 [PublicAPI]
 [IdPrefix("sess")]

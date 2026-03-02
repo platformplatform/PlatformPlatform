@@ -1,6 +1,6 @@
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Domain;
+namespace SharedKernel.Domain;
 
 [PublicAPI]
 [JsonConverter(typeof(StronglyTypedIdJsonConverter<long, TenantId>))]

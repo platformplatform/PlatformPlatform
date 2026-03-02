@@ -1,9 +1,9 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
+using SharedKernel.OpenIdConnect;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.OpenIdConnect;
+namespace SharedKernel.Tests.OpenIdConnect;
 
 public sealed class ReturnPathHelperTests
 {

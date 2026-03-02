@@ -1,11 +1,11 @@
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record RestoreUserCommand(UserId Id) : ICommand, IRequest<Result>;

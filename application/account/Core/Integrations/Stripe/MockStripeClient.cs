@@ -1,7 +1,7 @@
+using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Configuration;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
 
-namespace PlatformPlatform.Account.Integrations.Stripe;
+namespace Account.Integrations.Stripe;
 
 public sealed class MockStripeClient(IConfiguration configuration, TimeProvider timeProvider) : IStripeClient
 {

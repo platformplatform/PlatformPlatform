@@ -1,11 +1,11 @@
+using Account.Features.Users.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.Authentication.Domain;
+namespace Account.Features.Authentication.Domain;
 
 public sealed class SessionConfiguration : IEntityTypeConfiguration<Session>
 {

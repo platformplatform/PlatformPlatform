@@ -1,7 +1,7 @@
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.SharedKernel.ApiResults;
+namespace SharedKernel.ApiResults;
 
 public static class ApiResultExtensions
 {

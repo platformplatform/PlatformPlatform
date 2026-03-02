@@ -3,10 +3,10 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Domain;
+namespace Account.Features.Subscriptions.Domain;
 
 public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
 {

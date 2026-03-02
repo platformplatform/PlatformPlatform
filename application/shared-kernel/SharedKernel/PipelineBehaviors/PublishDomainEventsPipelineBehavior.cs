@@ -1,7 +1,7 @@
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.DomainEvents;
+using SharedKernel.Cqrs;
+using SharedKernel.DomainEvents;
 
-namespace PlatformPlatform.SharedKernel.PipelineBehaviors;
+namespace SharedKernel.PipelineBehaviors;
 
 /// <summary>
 ///     This method publishes any domain events were generated during the execution of a command (and added to aggregates).

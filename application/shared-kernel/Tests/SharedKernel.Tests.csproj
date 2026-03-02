@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.SharedKernel.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.SharedKernel.Tests</RootNamespace>
+        <AssemblyName>SharedKernel.Tests</AssemblyName>
+        <RootNamespace>SharedKernel.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 

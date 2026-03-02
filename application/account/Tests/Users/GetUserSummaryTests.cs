@@ -1,14 +1,14 @@
 using System.Text.Json;
+using Account.Database;
+using Account.Features.Users.Domain;
+using Account.Features.Users.Queries;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Queries;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Users;
+namespace Account.Tests.Users;
 
 public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
 {

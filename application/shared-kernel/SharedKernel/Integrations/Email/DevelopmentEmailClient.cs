@@ -1,6 +1,6 @@
 using System.Net.Mail;
 
-namespace PlatformPlatform.SharedKernel.Integrations.Email;
+namespace SharedKernel.Integrations.Email;
 
 public sealed class DevelopmentEmailClient : IEmailClient
 {

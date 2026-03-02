@@ -1,9 +1,9 @@
 using System.CommandLine;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 /// <summary>
 ///     Command to manage Aspire AppHost lifecycle - start, stop, and monitor the application host.

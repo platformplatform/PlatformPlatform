@@ -2,10 +2,10 @@ using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenSigning;
 
-namespace PlatformPlatform.AppGateway.Middleware;
+namespace AppGateway.Middleware;
 
 public class AuthenticationCookieMiddleware(
     ITokenSigningClient tokenSigningClient,

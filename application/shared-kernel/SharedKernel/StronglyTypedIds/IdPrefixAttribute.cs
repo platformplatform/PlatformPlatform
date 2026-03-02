@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
+namespace SharedKernel.StronglyTypedIds;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class IdPrefixAttribute(string prefix) : Attribute

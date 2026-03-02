@@ -1,12 +1,12 @@
+using Account.Features.EmailAuthentication.Domain;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.Integrations.Email;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Commands;
+namespace Account.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record ResendEmailLoginCodeCommand : ICommand, IRequest<Result<ResendEmailLoginCodeResponse>>

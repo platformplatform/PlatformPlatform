@@ -1,5 +1,5 @@
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public interface ISoftDeletableTestAggregateRepository : ICrudRepository<SoftDeletableTestAggregate, long>, ISoftDeletableRepository<SoftDeletableTestAggregate, long>;

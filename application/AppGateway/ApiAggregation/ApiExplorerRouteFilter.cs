@@ -1,6 +1,6 @@
 using Yarp.ReverseProxy.Configuration;
 
-namespace PlatformPlatform.AppGateway.ApiAggregation;
+namespace AppGateway.ApiAggregation;
 
 public class ApiExplorerRouteFilter : IProxyConfigFilter
 {
