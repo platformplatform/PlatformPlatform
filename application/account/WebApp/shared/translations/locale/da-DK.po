@@ -672,13 +672,6 @@ msgstr "Hvordan vi indsamler, bruger og beskytter dine personlige data i overens
 msgid "Identity mismatch"
 msgstr "Identitetsuoverensstemmelse"
 
-#. placeholder {0}: getPlanLabel(currentPlan)
-msgid "If you cancel, you will keep access to your {0} plan until {formattedPeriodEnd}. After that, your account will be downgraded."
-msgstr "Hvis du annullerer, beholder du adgang til din {0}-plan indtil {formattedPeriodEnd}. Derefter vil din konto blive nedgraderet."
-
-msgid "If you cancel, you will keep access to your current plan until the end of your billing period. After that, your account will be downgraded."
-msgstr "Hvis du annullerer, beholder du adgang til din nuværende plan indtil slutningen af din faktureringsperiode. Derefter vil din konto blive nedgraderet."
-
 msgid "Image must be smaller than 1 MB."
 msgstr "Billedet skal være mindre end 1 MB."
 

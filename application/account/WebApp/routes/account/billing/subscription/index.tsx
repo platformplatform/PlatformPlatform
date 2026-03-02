@@ -3,8 +3,6 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
-import { Button } from "@repo/ui/components/Button";
-import { Separator } from "@repo/ui/components/Separator";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { loadStripe } from "@stripe/stripe-js";
 import { createFileRoute } from "@tanstack/react-router";
@@ -204,9 +202,11 @@ function PlansPage() {
     ? (upgradeMutation.variables?.body?.newPlan ?? null)
     : downgradeMutation.isPending
       ? downgradeTarget
-      : reactivateMutation.isPending
-        ? currentPlan
-        : null;
+      : cancelMutation.isPending
+        ? SubscriptionPlan.Basis
+        : reactivateMutation.isPending
+          ? currentPlan
+          : null;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
     if (subscription?.billingInfo && subscription?.paymentMethod) {
@@ -224,8 +224,12 @@ function PlansPage() {
   };
 
   const handleDowngrade = (plan: SubscriptionPlan) => {
-    setDowngradeTarget(plan);
-    setIsDowngradeDialogOpen(true);
+    if (plan === SubscriptionPlan.Basis) {
+      setIsCancelDialogOpen(true);
+    } else {
+      setDowngradeTarget(plan);
+      setIsDowngradeDialogOpen(true);
+    }
   };
 
   const handleConfirmUpgrade = () => {
@@ -335,36 +339,6 @@ function PlansPage() {
             );
           })}
         </div>
-
-        {subscription?.hasStripeSubscription && !cancelAtPeriodEnd && (
-          <div className="mt-8 flex flex-col gap-4">
-            <h3>
-              <Trans>Cancel subscription</Trans>
-            </h3>
-            <Separator />
-            <p className="text-muted-foreground text-sm">
-              {formattedPeriodEnd ? (
-                <Trans>
-                  If you cancel, you will keep access to your {getPlanLabel(currentPlan)} plan until{" "}
-                  {formattedPeriodEnd}. After that, your account will be downgraded.
-                </Trans>
-              ) : (
-                <Trans>
-                  If you cancel, you will keep access to your current plan until the end of your billing period. After
-                  that, your account will be downgraded.
-                </Trans>
-              )}
-            </p>
-            <Button
-              variant="destructive"
-              className="mt-2 w-fit max-sm:w-full"
-              onClick={() => setIsCancelDialogOpen(true)}
-              disabled={isPending}
-            >
-              <Trans>Cancel subscription</Trans>
-            </Button>
-          </div>
-        )}
       </AppLayout>
 
       <CancelSubscriptionDialog

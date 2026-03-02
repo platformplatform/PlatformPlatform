@@ -159,7 +159,7 @@ export function PlanCard({
       );
     }
 
-    if (isDowngrade && plan !== SubscriptionPlan.Basis) {
+    if (isDowngrade) {
       if (isScheduled) {
         return (
           <Button

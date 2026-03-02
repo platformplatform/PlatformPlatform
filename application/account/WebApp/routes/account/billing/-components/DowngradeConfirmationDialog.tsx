@@ -11,7 +11,8 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
-import { SubscriptionPlan } from "@/shared/lib/api/client";
+import type { SubscriptionPlan } from "@/shared/lib/api/client";
+import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
 
 type DowngradeConfirmationDialogProps = {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export function DowngradeConfirmationDialog({
   const formatLongDate = useFormatLongDate();
   const formattedDate = formatLongDate(currentPeriodEnd);
 
-  const planName = targetPlan === SubscriptionPlan.Standard ? t`Standard` : t`Premium`;
+  const planName = getPlanLabel(targetPlan);
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Downgrade subscription">
