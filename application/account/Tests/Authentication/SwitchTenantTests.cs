@@ -4,6 +4,7 @@ using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.Authentication.Commands;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Domain;
@@ -32,6 +33,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
+
+        InsertSubscription(tenant2Id);
 
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
@@ -171,6 +174,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
             ]
         );
 
+        InsertSubscription(tenant2Id);
+
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
@@ -238,6 +243,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Logo", """{"Url":null,"Version":0}""")
             ]
         );
+
+        InsertSubscription(tenant2Id);
 
         // New user has no profile data and unconfirmed email
         Connection.Insert("Users", [
@@ -315,6 +322,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
             ]
         );
 
+        InsertSubscription(tenant2Id);
+
         Connection.Insert("Users", [
                 ("TenantId", tenant2Id.Value),
                 ("Id", user2Id.ToString()),
@@ -347,5 +356,30 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         // Assert
         await response2.ShouldHaveErrorStatusCode(HttpStatusCode.Unauthorized, "Session has been revoked.");
         TelemetryEventsCollectorSpy.CollectedEvents.Should().BeEmpty();
+    }
+
+    private void InsertSubscription(TenantId tenantId)
+    {
+        Connection.Insert("Subscriptions", [
+                ("TenantId", tenantId.Value),
+                ("Id", SubscriptionId.NewId().ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("ScheduledPlan", null),
+                ("StripeCustomerId", null),
+                ("StripeSubscriptionId", null),
+                ("CurrentPriceAmount", null),
+                ("CurrentPriceCurrency", null),
+                ("CurrentPeriodEnd", null),
+                ("CancelAtPeriodEnd", false),
+                ("FirstPaymentFailedAt", null),
+                ("CancellationReason", null),
+                ("CancellationFeedback", null),
+                ("PaymentTransactions", "[]"),
+                ("PaymentMethod", null),
+                ("BillingInfo", null)
+            ]
+        );
     }
 }

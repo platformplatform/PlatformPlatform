@@ -1,6 +1,7 @@
 using PlatformPlatform.Account.Features.Authentication.Domain;
 using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
 using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
@@ -15,6 +16,12 @@ namespace PlatformPlatform.Account.Features;
 /// This particular includes the naming of the telemetry events (which should be in past tense) and the properties that
 /// are collected with each telemetry event. Since missing or bad data cannot be fixed, it is important to have a good
 /// data quality from the start.
+public sealed class BillingInfoAdded(SubscriptionId subscriptionId, string? country, string? postalCode, string? city)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("country", country as object ?? "unknown"), ("postal_code", postalCode as object ?? "unknown"), ("city", city as object ?? "unknown"));
+
+public sealed class BillingInfoUpdated(SubscriptionId subscriptionId, string? country, string? postalCode, string? city)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("country", country as object ?? "unknown"), ("postal_code", postalCode as object ?? "unknown"), ("city", city as object ?? "unknown"));
+
 public sealed class EmailLoginCodeBlocked(EmailLoginId emailLoginId, EmailLoginType emailLoginType, int retryCount)
     : TelemetryEvent(("email_login_id", emailLoginId), ("email_login_type", emailLoginType), ("retry_count", retryCount));
 
@@ -60,6 +67,24 @@ public sealed class GravatarUpdated(long size)
 public sealed class Logout
     : TelemetryEvent;
 
+public sealed class PaymentFailed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("currency", currency));
+
+public sealed class PaymentMethodSetupStarted(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
+public sealed class PaymentMethodUpdated(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
+public sealed class PaymentRecovered(SubscriptionId subscriptionId, SubscriptionPlan plan, int daysInPastDue, decimal priceAmount, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("days_in_past_due", daysInPastDue), ("price_amount", priceAmount), ("currency", currency));
+
+public sealed class PaymentRefunded(SubscriptionId subscriptionId, SubscriptionPlan plan, int refundCount, decimal priceAmount, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("refund_count", refundCount), ("price_amount", priceAmount), ("currency", currency));
+
+public sealed class PendingInvoicePaymentRetried(SubscriptionId subscriptionId)
+    : TelemetryEvent(("subscription_id", subscriptionId));
+
 public sealed class SessionCreated(SessionId sessionId)
     : TelemetryEvent(("session_id", sessionId));
 
@@ -74,6 +99,105 @@ public sealed class SignupCompleted(TenantId tenantId, int signupTimeInSeconds)
 
 public sealed class SignupStarted
     : TelemetryEvent;
+
+public sealed class SubscriptionCancelled(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan plan,
+    CancellationReason reason,
+    int? daysUntilExpiry,
+    int daysOnCurrentPlan,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("reason", reason), ("days_until_expiry", daysUntilExpiry), ("days_on_current_plan", daysOnCurrentPlan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionCheckoutStarted(SubscriptionId subscriptionId, SubscriptionPlan plan, bool useExistingPaymentMethod)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("use_existing_payment_method", useExistingPaymentMethod));
+
+public sealed class SubscriptionCreated(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionDowngradeCancelled(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan plan,
+    SubscriptionPlan scheduledPlan,
+    int? daysUntilDowngrade,
+    int daysSinceDowngradeScheduled,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("scheduled_plan", scheduledPlan), ("days_until_downgrade", daysUntilDowngrade), ("days_since_downgrade_scheduled", daysSinceDowngradeScheduled), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionDowngraded(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan fromPlan,
+    SubscriptionPlan toPlan,
+    int daysOnCurrentPlan,
+    decimal previousPriceAmount,
+    decimal newPriceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionDowngradeScheduled(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan fromPlan,
+    SubscriptionPlan toPlan,
+    int? daysUntilDowngrade,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_until_downgrade", daysUntilDowngrade), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionExpired(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan previousPlan,
+    int daysOnCurrentPlan,
+    decimal previousPriceAmount,
+    decimal mrrImpact,
+    string previousCurrency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("previous_plan", previousPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("mrr_impact", mrrImpact), ("previous_currency", previousCurrency));
+
+public sealed class SubscriptionReactivated(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan plan,
+    int? daysUntilExpiry,
+    int daysSinceCancelled,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("days_until_expiry", daysUntilExpiry), ("days_since_cancelled", daysSinceCancelled), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionRenewed(SubscriptionId subscriptionId, SubscriptionPlan plan, decimal priceAmount, decimal mrrImpact, string currency)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionSuspended(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan plan,
+    SuspensionReason suspensionReason,
+    decimal priceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("plan", plan), ("suspension_reason", suspensionReason), ("price_amount", priceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
+
+public sealed class SubscriptionUpgraded(
+    SubscriptionId subscriptionId,
+    SubscriptionPlan fromPlan,
+    SubscriptionPlan toPlan,
+    int daysOnCurrentPlan,
+    decimal previousPriceAmount,
+    decimal newPriceAmount,
+    decimal mrrImpact,
+    string currency
+)
+    : TelemetryEvent(("subscription_id", subscriptionId), ("from_plan", fromPlan), ("to_plan", toPlan), ("days_on_current_plan", daysOnCurrentPlan), ("previous_price_amount", previousPriceAmount), ("new_price_amount", newPriceAmount), ("mrr_impact", mrrImpact), ("currency", currency));
 
 public sealed class TenantCreated(TenantId tenantId, TenantState state)
     : TelemetryEvent(("tenant_id", tenantId), ("tenant_state", state));

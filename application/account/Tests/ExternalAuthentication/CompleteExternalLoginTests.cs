@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using FluentAssertions;
 using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.Account.Features.Tenants.Domain;
 using PlatformPlatform.Account.Features.Users.Domain;
 using PlatformPlatform.Account.Integrations.OAuth.Mock;
@@ -407,6 +408,28 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}""")
+            ]
+        );
+
+        Connection.Insert("Subscriptions", [
+                ("TenantId", tenant2Id.Value),
+                ("Id", SubscriptionId.NewId().ToString()),
+                ("CreatedAt", TimeProvider.GetUtcNow()),
+                ("ModifiedAt", null),
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("ScheduledPlan", null),
+                ("StripeCustomerId", null),
+                ("StripeSubscriptionId", null),
+                ("CurrentPriceAmount", null),
+                ("CurrentPriceCurrency", null),
+                ("CurrentPeriodEnd", null),
+                ("CancelAtPeriodEnd", false),
+                ("FirstPaymentFailedAt", null),
+                ("CancellationReason", null),
+                ("CancellationFeedback", null),
+                ("PaymentTransactions", "[]"),
+                ("PaymentMethod", null),
+                ("BillingInfo", null)
             ]
         );
 

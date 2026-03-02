@@ -4,11 +4,13 @@ using PlatformPlatform.Account.Database;
 using PlatformPlatform.Account.Features.EmailAuthentication.Shared;
 using PlatformPlatform.Account.Features.ExternalAuthentication;
 using PlatformPlatform.Account.Features.ExternalAuthentication.Shared;
+using PlatformPlatform.Account.Features.Subscriptions.Shared;
 using PlatformPlatform.Account.Features.Users.Shared;
 using PlatformPlatform.Account.Integrations.Gravatar;
 using PlatformPlatform.Account.Integrations.OAuth;
 using PlatformPlatform.Account.Integrations.OAuth.Google;
 using PlatformPlatform.Account.Integrations.OAuth.Mock;
+using PlatformPlatform.Account.Integrations.Stripe;
 using PlatformPlatform.SharedKernel.Configuration;
 using PlatformPlatform.SharedKernel.OpenIdConnect;
 
@@ -50,12 +52,19 @@ public static class Configuration
             services.AddKeyedScoped<IOAuthProvider, MockOAuthProvider>("mock-google");
             services.AddScoped<OAuthProviderFactory>();
 
+            services.AddMemoryCache();
+            services.AddKeyedScoped<IStripeClient, StripeClient>("stripe");
+            services.AddKeyedScoped<IStripeClient, MockStripeClient>("mock-stripe");
+            services.AddKeyedScoped<IStripeClient, UnconfiguredStripeClient>("unconfigured-stripe");
+            services.AddScoped<StripeClientFactory>();
+
             return services
                 .AddSharedServices<AccountDbContext>([Assembly])
                 .AddScoped<StartEmailConfirmation>()
                 .AddScoped<CompleteEmailConfirmation>()
                 .AddScoped<AvatarUpdater>()
                 .AddScoped<UserInfoFactory>()
+                .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()
                 .AddScoped<ExternalAuthenticationHelper>();
         }

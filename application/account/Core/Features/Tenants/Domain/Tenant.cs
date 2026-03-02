@@ -6,13 +6,17 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 {
     private Tenant() : base(TenantId.NewId())
     {
-        State = TenantState.Trial;
+        State = TenantState.Active;
         Logo = new Logo();
     }
 
     public string Name { get; private set; } = string.Empty;
 
     public TenantState State { get; private set; }
+
+    public SuspensionReason? SuspensionReason { get; private set; }
+
+    public DateTimeOffset? SuspendedAt { get; private set; }
 
     public Logo Logo { get; private set; }
 
@@ -21,6 +25,20 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
         var tenant = new Tenant();
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
+    }
+
+    public void Suspend(SuspensionReason reason, DateTimeOffset suspendedAt)
+    {
+        State = TenantState.Suspended;
+        SuspensionReason = reason;
+        SuspendedAt = suspendedAt;
+    }
+
+    public void Activate()
+    {
+        State = TenantState.Active;
+        SuspensionReason = null;
+        SuspendedAt = null;
     }
 
     public void Update(string tenantName)

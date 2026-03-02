@@ -9,11 +9,11 @@ export interface SmartDateResult {
   formatted: string;
 }
 
-function formatDate(input: string, locale: string, includeTime = false): string {
+function formatDate(input: string, locale: string, includeTime = false, longMonth = false): string {
   const date = new Date(input);
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
-    month: "short",
+    month: longMonth ? "long" : "short",
     day: "numeric",
     ...(includeTime && {
       hour: "2-digit",
@@ -74,9 +74,14 @@ export function useSmartDate(date: string | undefined | null): SmartDateResult |
  * Returns a locale-aware date formatting function based on the app's current locale.
  * Uses the browser's built-in Intl.DateTimeFormat API, so any locale is automatically supported.
  *
- * Formats:
+ * Short format (default):
  * - English (en-US): "Jan 31, 2026" or "Jan 31, 2026, 2:30 PM"
  * - Danish (da-DK): "31. jan. 2026" or "31. jan. 2026 14.30"
+ *
+ * Long format:
+ * - English (en-US): "January 31, 2026"
+ * - Danish (da-DK): "31. januar 2026"
+ *
  * - Any other locale: Automatically formatted according to browser's locale data
  */
 export function useFormatDate() {
@@ -89,6 +94,29 @@ export function useFormatDate() {
         return "";
       }
       return formatDate(input, locale, includeTime);
+    },
+    [locale]
+  );
+}
+
+/**
+ * Returns a locale-aware date formatting function that uses the full month name.
+ * Use this in prose/banner text where space is not constrained.
+ *
+ * Formats:
+ * - English (en-US): "January 31, 2026"
+ * - Danish (da-DK): "31. januar 2026"
+ */
+export function useFormatLongDate() {
+  const { i18n } = useLingui();
+  const locale = i18n.locale;
+
+  return useCallback(
+    (input: string | undefined | null): string => {
+      if (!input) {
+        return "";
+      }
+      return formatDate(input, locale, false, true);
     },
     [locale]
   );

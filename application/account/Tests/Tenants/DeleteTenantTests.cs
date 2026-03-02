@@ -1,6 +1,7 @@
 using System.Net;
 using FluentAssertions;
 using PlatformPlatform.Account.Database;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using PlatformPlatform.SharedKernel.Domain;
 using PlatformPlatform.SharedKernel.Tests;
 using PlatformPlatform.SharedKernel.Tests.Persistence;
@@ -48,5 +49,25 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantDeleted");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task DeleteTenant_WhenActiveSubscription_ShouldReturnBadRequest()
+    {
+        // Arrange
+        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
+                ("Plan", nameof(SubscriptionPlan.Standard)),
+                ("StripeCustomerId", "cus_test_123"),
+                ("StripeSubscriptionId", "sub_test_123"),
+                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/tenants/{DatabaseSeeder.Tenant1.Id}");
+
+        // Assert
+        await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "Cannot delete a tenant with an active subscription.");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 }

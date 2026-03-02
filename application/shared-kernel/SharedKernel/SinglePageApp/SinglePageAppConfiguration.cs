@@ -155,11 +155,12 @@ public class SinglePageAppConfiguration
         var contentSecurityPolicies = new[]
         {
             $"script-src {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}' 'strict-dynamic' https:",
-            $"script-src-elem {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
+            $"script-src-elem {trustedHosts} https://js.stripe.com 'nonce-{{NONCE_PLACEHOLDER}}'",
             $"style-src {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
             $"style-src-elem {trustedHosts} 'nonce-{{NONCE_PLACEHOLDER}}'",
             $"default-src {trustedHosts}",
-            $"connect-src {trustedHosts} data:",
+            $"connect-src {trustedHosts} https://js.stripe.com https://api.stripe.com data:",
+            $"frame-src {trustedHosts} https://js.stripe.com",
             $"img-src {trustedHosts} data: blob:",
             "object-src 'none'",
             "base-uri 'none'"

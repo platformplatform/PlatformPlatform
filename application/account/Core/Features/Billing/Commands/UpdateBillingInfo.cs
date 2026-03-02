@@ -1,0 +1,104 @@
+using FluentValidation;
+using JetBrains.Annotations;
+using PlatformPlatform.Account.Features.Subscriptions.Domain;
+using PlatformPlatform.Account.Features.Users.Domain;
+using PlatformPlatform.Account.Integrations.Stripe;
+using PlatformPlatform.SharedKernel.Cqrs;
+using PlatformPlatform.SharedKernel.ExecutionContext;
+using PlatformPlatform.SharedKernel.Validation;
+
+namespace PlatformPlatform.Account.Features.Billing.Commands;
+
+[PublicAPI]
+public sealed record UpdateBillingInfoCommand(
+    string Name,
+    string Address,
+    string PostalCode,
+    string City,
+    string? State,
+    string Country,
+    string Email,
+    string? TaxId
+)
+    : ICommand, IRequest<Result>;
+
+public sealed class UpdateBillingInfoValidator : AbstractValidator<UpdateBillingInfoCommand>
+{
+    public UpdateBillingInfoValidator()
+    {
+        RuleFor(x => x.Name).Length(1, 100).WithMessage("Name must be between 1 and 100 characters.");
+        RuleFor(x => x.Address).Length(1, 200).WithMessage("Address must be between 1 and 200 characters.");
+        RuleFor(x => x.PostalCode).Length(1, 10).WithMessage("Postal code must be between 1 and 10 characters.");
+        RuleFor(x => x.City).Length(1, 50).WithMessage("City must be between 1 and 50 characters.");
+        RuleFor(x => x.State).MaximumLength(50).WithMessage("State must be no longer than 50 characters.");
+        RuleFor(x => x.Country).Length(2).WithMessage("Country is required.");
+        RuleFor(x => x.Email).SetValidator(new SharedValidations.Email());
+        RuleFor(x => x.TaxId).MaximumLength(20).WithMessage("Tax ID must be no longer than 20 characters.");
+    }
+}
+
+public sealed class UpdateBillingInfoHandler(
+    ISubscriptionRepository subscriptionRepository,
+    StripeClientFactory stripeClientFactory,
+    IExecutionContext executionContext
+) : IRequestHandler<UpdateBillingInfoCommand, Result>
+{
+    public async Task<Result> Handle(UpdateBillingInfoCommand command, CancellationToken cancellationToken)
+    {
+        if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
+        {
+            return Result.Forbidden("Only owners can manage billing information.");
+        }
+
+        var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
+
+        var stripeClient = stripeClientFactory.GetClient();
+
+        if (subscription.StripeCustomerId is null)
+        {
+            if (executionContext.UserInfo.Email is null)
+            {
+                return Result.BadRequest("User email is required to create a Stripe customer.");
+            }
+
+            var customerId = await stripeClient.CreateCustomerAsync(command.Name, executionContext.UserInfo.Email, subscription.TenantId.Value, cancellationToken);
+            if (customerId is null)
+            {
+                return Result.BadRequest("Failed to create Stripe customer.");
+            }
+
+            subscription.SetStripeCustomerId(customerId);
+            subscriptionRepository.Update(subscription);
+        }
+
+        var addressLines = command.Address.Split('\n', 2, StringSplitOptions.TrimEntries);
+        var line1 = addressLines[0];
+        var line2 = addressLines.Length > 1 ? addressLines[1] : null;
+
+        var billingInfo = new BillingInfo(
+            command.Name,
+            new BillingAddress(line1, line2, command.PostalCode, command.City, command.State, command.Country),
+            command.Email,
+            command.TaxId
+        );
+
+        var success = await stripeClient.UpdateCustomerBillingInfoAsync(subscription.StripeCustomerId!, billingInfo, executionContext.UserInfo.Locale, cancellationToken);
+        if (!success)
+        {
+            return Result.BadRequest("Failed to update billing information in Stripe.");
+        }
+
+        if (command.TaxId != subscription.BillingInfo?.TaxId)
+        {
+            var taxIdSynced = await stripeClient.SyncCustomerTaxIdAsync(subscription.StripeCustomerId!, command.TaxId, cancellationToken);
+            if (!taxIdSynced)
+            {
+                return Result.BadRequest("TaxId", "The provided Tax ID is not valid.");
+            }
+        }
+
+        // Subscription is updated and telemetry is collected in ProcessPendingStripeEvents when Stripe confirms the state change via webhook
+
+        return Result.Success();
+    }
+}

@@ -21,6 +21,13 @@ param googleOAuthClientId string
 @secure()
 param googleOAuthClientSecret string
 
+@secure()
+param stripePublishableKey string
+@secure()
+param stripeApiKey string
+@secure()
+param stripeWebhookSecret string
+
 var storageAccountUniquePrefix = replace(clusterResourceGroupName, '-', '')
 var tags = { environment: environment, 'managed-by': 'bicep' }
 
@@ -107,6 +114,19 @@ module googleOAuthSecrets '../modules/key-vault-secrets.bicep' = if (!empty(goog
     secrets: {
       'OAuth--Google--ClientId': googleOAuthClientId
       'OAuth--Google--ClientSecret': googleOAuthClientSecret
+    }
+  }
+}
+
+module stripeSecrets '../modules/key-vault-secrets.bicep' = if (!empty(stripeApiKey) && !empty(stripeWebhookSecret) && !empty(stripePublishableKey)) {
+  scope: clusterResourceGroup
+  name: '${clusterResourceGroupName}-stripe-secrets'
+  params: {
+    keyVaultName: keyVault.outputs.name
+    secrets: {
+      'Stripe--ApiKey': stripeApiKey
+      'Stripe--WebhookSecret': stripeWebhookSecret
+      'Stripe--PublishableKey': stripePublishableKey
     }
   }
 }
@@ -240,6 +260,14 @@ var accountEnvironmentVariables = [
   {
     name: 'SENDER_EMAIL_ADDRESS'
     value: 'no-reply@${communicationService.outputs.fromSenderDomain}'
+  }
+  {
+    name: 'Stripe__SubscriptionEnabled'
+    value: !empty(stripeApiKey) && !empty(stripeWebhookSecret) && !empty(stripePublishableKey) ? 'true' : 'false'
+  }
+  {
+    name: 'Stripe__AllowMockProvider'
+    value: 'false'
   }
 ]
 
@@ -500,6 +528,10 @@ var mainEnvironmentVariables = [
   {
     name: 'PUBLIC_GOOGLE_OAUTH_ENABLED'
     value: !empty(googleOAuthClientId) && !empty(googleOAuthClientSecret) ? 'true' : 'false'
+  }
+  {
+    name: 'PUBLIC_SUBSCRIPTION_ENABLED'
+    value: !empty(stripeApiKey) && !empty(stripeWebhookSecret) && !empty(stripePublishableKey) ? 'true' : 'false'
   }
 ]
 
