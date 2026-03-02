@@ -3,14 +3,14 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public class McpCommand : Command
 {

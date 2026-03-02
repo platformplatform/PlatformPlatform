@@ -1,10 +1,10 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Commands;
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Commands;
+using DeveloperCli.Installation;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class ClaudeAgentLifecycle
 {

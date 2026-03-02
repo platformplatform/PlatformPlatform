@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.UserSecrets;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class SecretHelper
 {

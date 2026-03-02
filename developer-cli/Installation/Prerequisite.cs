@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Installation;
+namespace DeveloperCli.Installation;
 
 public abstract record Prerequisite
 {

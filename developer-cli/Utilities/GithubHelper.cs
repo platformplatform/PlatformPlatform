@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Installation;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class GithubHelper
 {

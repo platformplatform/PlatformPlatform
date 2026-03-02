@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text;
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Installation;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class ProcessHelper
 {

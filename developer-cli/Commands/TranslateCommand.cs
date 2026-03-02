@@ -2,15 +2,15 @@ using System.ClientModel;
 using System.CommandLine;
 using System.Text;
 using Azure.AI.OpenAI;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Karambolo.PO;
 using Microsoft.Extensions.AI;
 using OpenAI.Chat;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
 using Spectre.Console;
 using ChatMessage = Microsoft.Extensions.AI.ChatMessage;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public class TranslateCommand : Command
 {

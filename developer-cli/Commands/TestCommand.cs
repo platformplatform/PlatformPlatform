@@ -1,11 +1,11 @@
 using System.CommandLine;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public class TestCommand : Command
 {

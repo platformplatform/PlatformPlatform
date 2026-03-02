@@ -1,6 +1,6 @@
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Installation;
 
-namespace PlatformPlatform.DeveloperCli.Utilities;
+namespace DeveloperCli.Utilities;
 
 public static class Logger
 {

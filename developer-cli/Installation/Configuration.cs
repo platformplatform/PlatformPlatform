@@ -4,7 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Installation;
+namespace DeveloperCli.Installation;
 
 public static class Configuration
 {
@@ -63,7 +63,7 @@ public static class Configuration
         }
         else
         {
-            AnsiConsole.MarkupLine("[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder of PlatformPlatform.[/]");
+            AnsiConsole.MarkupLine("[red]Invalid configuration. Please run `dotnet run` from the `/developer-cli` folder[/]");
         }
 
         Environment.Exit(1);

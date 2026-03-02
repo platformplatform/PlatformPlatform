@@ -1,8 +1,8 @@
 using System.CommandLine;
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Installation;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public class UninstallCommand : Command
 {

@@ -4,11 +4,11 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Installation;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public class DeployCommand : Command
 {

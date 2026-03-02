@@ -1,8 +1,8 @@
 using System.Security.Cryptography;
-using PlatformPlatform.DeveloperCli.Utilities;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Installation;
+namespace DeveloperCli.Installation;
 
 public static class ChangeDetection
 {

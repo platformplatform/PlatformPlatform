@@ -2,10 +2,10 @@ using System.CommandLine;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using PlatformPlatform.DeveloperCli.Installation;
+using DeveloperCli.Installation;
 using Spectre.Console;
 
-namespace PlatformPlatform.DeveloperCli.Commands;
+namespace DeveloperCli.Commands;
 
 public sealed class SyncAiRulesAndWorkflowsCommand : Command
 {
