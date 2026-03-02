@@ -120,24 +120,26 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **Cancel button**: Use `<DialogClose render={<Button type="reset" .../>}>` - the `type="reset"` bypasses the warning
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
 
-7. **Empty states**: Use the `Empty` component with icon, title, and description when there is no content to display
+7. **Telemetry tracking** (all tracked as `trackPageView`, not custom events): `Dialog`, `AlertDialog`, `SidePane`, and `TablePagination` require a `trackingTitle` prop (e.g., `trackingTitle="Invite user"`). For menus, use the `useTrackOpen` hook at the call site. For custom interactions, use `trackInteraction(name, type, action)` from `ApplicationInsightsProvider` -- this also emits a page view, not a custom event. Route-level page tracking uses `staticData: { trackingTitle: "Page name" }` in route definitions
 
-8. **Loading states**: Use the `Skeleton` component to show placeholder UI while content is loading instead of spinners
+8. **Empty states**: Use the `Empty` component with icon, title, and description when there is no content to display
 
-9. Always follow these steps when implementing changes:
-   - Consult relevant rule files and list which ones guided your implementation
-   - Search the codebase for similar code before implementing new code
-   - Reference existing implementations to maintain consistency
+9. **Loading states**: Use the `Skeleton` component to show placeholder UI while content is loading instead of spinners
 
-10. Build and format your changes:
+10. Always follow these steps when implementing changes:
+    - Consult relevant rule files and list which ones guided your implementation
+    - Search the codebase for similar code before implementing new code
+    - Reference existing implementations to maintain consistency
+
+11. Build and format your changes:
     - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend
     - This ensures consistent code style across the codebase
 
-11. Verify your changes:
-   - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
-   - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
-   - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
-   - Fix any compiler warnings or test failures before proceeding
+12. Verify your changes:
+    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
+    - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
+    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
+    - Fix any compiler warnings or test failures before proceeding
 
 ## Examples
 

@@ -23,6 +23,7 @@ import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType, LoginMethod } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/user/sessions/")({
+  staticData: { trackingTitle: "User sessions" },
   component: SessionsPage
 });
 
@@ -199,7 +200,7 @@ function RevokeSessionDialog({
   onRevoke: () => void;
 }>) {
   return (
-    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Revoke session">
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia className="bg-destructive/10">

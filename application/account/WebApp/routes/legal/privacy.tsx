@@ -4,6 +4,7 @@ import PublicFooter from "@/federated-modules/public/PublicFooter";
 import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 
 export const Route = createFileRoute("/legal/privacy")({
+  staticData: { trackingTitle: "Privacy policy" },
   component: PrivacyPolicy
 });
 

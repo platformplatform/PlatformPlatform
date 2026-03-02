@@ -17,6 +17,7 @@ import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
 export const Route = createFileRoute("/error")({
+  staticData: { trackingTitle: "Error" },
   validateSearch: (search) => {
     const params = search as { error?: string; returnPath?: string; id?: string };
     return {

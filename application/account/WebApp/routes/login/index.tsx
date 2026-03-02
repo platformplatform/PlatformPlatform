@@ -20,6 +20,7 @@ import { getSignupState } from "../signup/-shared/signupState";
 import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
 export const Route = createFileRoute("/login/")({
+  staticData: { trackingTitle: "Log in" },
   validateSearch: (search) => {
     const returnPath = search.returnPath as string | undefined;
     return {

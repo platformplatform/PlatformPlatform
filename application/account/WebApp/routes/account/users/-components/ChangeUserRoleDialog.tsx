@@ -79,6 +79,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
       leaveLabel={t`Leave`}
       stayLabel={t`Stay`}
       onCloseComplete={handleCloseComplete}
+      trackingTitle="Change user role"
     >
       <DialogContent className="sm:w-dialog-lg">
         <DialogHeader>

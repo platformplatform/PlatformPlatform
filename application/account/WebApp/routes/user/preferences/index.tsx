@@ -34,6 +34,7 @@ const ThemeMode = {
 } as const;
 
 export const Route = createFileRoute("/user/preferences/")({
+  staticData: { trackingTitle: "User preferences" },
   component: PreferencesPage
 });
 

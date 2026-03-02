@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
@@ -486,6 +487,7 @@ function UserTableContent({
                         onOpenChange={(isOpen) => {
                           if (isOpen) {
                             onSelectedUsersChange([user]);
+                            trackInteraction("User actions", "menu", "open");
                           }
                         }}
                       >
@@ -538,6 +540,7 @@ function UserTableContent({
                             onOpenChange={(isOpen) => {
                               if (isOpen) {
                                 onSelectedUsersChange([user]);
+                                trackInteraction("User actions", "menu", "open");
                               }
                             }}
                           >
@@ -595,6 +598,7 @@ function UserTableContent({
             onPageChange={handlePageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}
+            trackingTitle="Users"
             className="w-full"
           />
         </div>

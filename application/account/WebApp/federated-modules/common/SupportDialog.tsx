@@ -20,7 +20,7 @@ interface SupportDialogProps {
 
 export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogProps>) {
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Contact support">
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>
           <DialogTitle>{t`Contact support`}</DialogTitle>

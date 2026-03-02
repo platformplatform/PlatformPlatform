@@ -20,6 +20,7 @@ import { api, type Schemas, UserRole } from "@/shared/lib/api/client";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({
+  staticData: { trackingTitle: "Account settings" },
   component: AccountSettings
 });
 
@@ -182,7 +183,12 @@ export function AccountSettings() {
 
       <DeleteAccountConfirmation isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen} />
 
-      <UnsavedChangesDialog isOpen={isConfirmDialogOpen} onConfirmLeave={confirmLeave} onCancel={cancelLeave} />
+      <UnsavedChangesDialog
+        isOpen={isConfirmDialogOpen}
+        onConfirmLeave={confirmLeave}
+        onCancel={cancelLeave}
+        parentTrackingTitle="Account settings"
+      />
     </>
   );
 }

@@ -1,11 +1,48 @@
 import { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
 import type * as React from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { cn } from "../utils";
 import { Button } from "./Button";
 
-function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
-  return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
+type WindowWithTracking = {
+  __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
+};
+
+function AlertDialog({
+  trackingTitle,
+  onOpenChange,
+  open,
+  ...props
+}: AlertDialogPrimitive.Root.Props & { trackingTitle: string }) {
+  const prevOpen = useRef(false);
+  const closeTracked = useRef(false);
+
+  useEffect(() => {
+    if (open && !prevOpen.current) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "open");
+    }
+    if (!open && prevOpen.current && !closeTracked.current) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "confirm");
+    }
+    closeTracked.current = false;
+    prevOpen.current = !!open;
+  }, [open, trackingTitle]);
+
+  const handleOpenChange = useCallback(
+    (nextOpen: boolean, eventDetails: AlertDialogPrimitive.Root.ChangeEventDetails) => {
+      if (!nextOpen && eventDetails.reason) {
+        closeTracked.current = true;
+        (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "dialog", "cancel", {
+          method: "cancel-button"
+        });
+      }
+      onOpenChange?.(nextOpen, eventDetails);
+    },
+    [onOpenChange, trackingTitle]
+  );
+
+  return <AlertDialogPrimitive.Root data-slot="alert-dialog" open={open} onOpenChange={handleOpenChange} {...props} />;
 }
 
 function AlertDialogTrigger({ ...props }: AlertDialogPrimitive.Trigger.Props) {

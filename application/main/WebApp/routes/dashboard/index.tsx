@@ -7,6 +7,7 @@ import { LayoutDashboardIcon } from "lucide-react";
 import { MainSideMenu } from "@/shared/components/MainSideMenu";
 
 export const Route = createFileRoute("/dashboard/")({
+  staticData: { trackingTitle: "Dashboard" },
   component: DashboardPage
 });
 
@@ -51,6 +52,7 @@ function DashboardPage() {
       <AppLayout
         variant="center"
         maxWidth="64rem"
+        browserTitle={t`Dashboard`}
         title={getTimeBasedGreeting(userInfo?.firstName)}
         subtitle={t`Here's your overview of what's happening.`}
       >

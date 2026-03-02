@@ -27,6 +27,7 @@ const userPageSearchSchema = z.object({
 });
 
 export const Route = createFileRoute("/account/users/")({
+  staticData: { trackingTitle: "Users" },
   component: UsersPage,
   validateSearch: userPageSearchSchema
 });

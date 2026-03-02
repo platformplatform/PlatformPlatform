@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction, useTrackOpen } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { authSyncService, type TenantSwitchedMessage } from "@repo/infrastructure/auth/AuthSyncService";
 import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
@@ -110,6 +111,8 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
 
+  useTrackOpen("User menu", "menu", isMenuOpen);
+
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("tenant-menu-toggle", { detail: { isOpen: isMenuOpen } }));
     if (!isMenuOpen) {
@@ -176,6 +179,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
       return;
     }
 
+    trackInteraction("Switch account", "interaction");
     setIsSwitching(true);
     try {
       localStorage.setItem("preferred-tenant", tenant.tenantId);
@@ -341,7 +345,13 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
           {(canAccessAccountSettings || sortedTenants.length > 1) && (
             <DropdownMenuGroup>
               {sortedTenants.length > 1 && (
-                <DropdownMenuSub>
+                <DropdownMenuSub
+                  onOpenChange={(open) => {
+                    if (open) {
+                      trackInteraction("Switch account", "menu", "open");
+                    }
+                  }}
+                >
                   <DropdownMenuSubTrigger aria-label={t`Switch account`}>
                     <ArrowRightLeftIcon className="size-5" />
                     <Trans>Switch account</Trans>
