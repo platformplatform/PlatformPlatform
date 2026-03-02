@@ -153,7 +153,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
   }, [showAllFilters, onFiltersExpandedChange]);
 
   const clearAllFilters = () => {
-    trackInteraction("User filters", "interaction", "clear");
+    trackInteraction("User filters", "interaction", "Clear");
     setSearch("");
 
     updateFilter({
@@ -283,7 +283,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
                 const toolbar = containerRef.current?.closest(".flex.items-center.justify-between") as HTMLElement;
                 if (!isOverlayOpen && !isMobileMenuOpen && toolbar && hasSpaceForInlineFilters(toolbar.offsetWidth)) {
                   setShowAllFilters(true);
-                  trackInteraction("User filters", "interaction", "expand");
+                  trackInteraction("User filters", "interaction", "Expand");
                 } else {
                   setIsFilterPanelOpen(true);
                 }
