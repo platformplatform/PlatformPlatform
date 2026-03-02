@@ -292,6 +292,7 @@ export function DeletedUsersTable({
             onPageChange={onPageChange}
             previousLabel={t`Previous`}
             nextLabel={t`Next`}
+            trackingTitle="Deleted users"
             className="w-full"
           />
         </div>

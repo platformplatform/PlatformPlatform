@@ -35,7 +35,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
   const currentLocale = i18n.locale as Locale;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu trackingTitle="Language menu">
       <DropdownMenuTrigger
         render={
           <Button variant="ghost" size="icon-lg" aria-label={ariaLabel}>
@@ -45,7 +45,7 @@ export function LocaleSwitcher({ "aria-label": ariaLabel }: Readonly<{ "aria-lab
       />
       <DropdownMenuContent>
         {items.map((item) => (
-          <DropdownMenuItem key={item.id} onClick={() => handleLocaleChange(item.id)}>
+          <DropdownMenuItem key={item.id} trackingLabel={item.label} onClick={() => handleLocaleChange(item.id)}>
             <div className="flex items-center gap-2">
               <span>{item.label}</span>
               {item.id === currentLocale && <CheckIcon className="ml-auto size-4" />}

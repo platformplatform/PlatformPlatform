@@ -19,6 +19,7 @@ import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/welcome/")({
+  staticData: { trackingTitle: "Welcome" },
   component: WelcomePage,
   errorComponent: ErrorPage
 });

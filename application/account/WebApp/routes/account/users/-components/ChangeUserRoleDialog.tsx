@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import {
@@ -79,6 +80,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
       leaveLabel={t`Leave`}
       stayLabel={t`Stay`}
       onCloseComplete={handleCloseComplete}
+      trackingTitle="Change user role"
     >
       <DialogContent className="sm:w-dialog-lg">
         <DialogHeader>
@@ -111,7 +113,10 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
             <RadioGroup
               aria-label={t`Role`}
               value={currentRole}
-              onValueChange={(value) => setSelectedRole(value as UserRole)}
+              onValueChange={(value) => {
+                trackInteraction("Change user role", "interaction", "Select role");
+                setSelectedRole(value as UserRole);
+              }}
               className="mt-3"
             >
               <FieldLabel>

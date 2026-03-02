@@ -47,6 +47,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
       leaveLabel={t`Leave`}
       stayLabel={t`Stay`}
       onCloseComplete={handleCloseComplete}
+      trackingTitle="Invite user"
     >
       <DialogContent className="sm:w-dialog-md">
         <DialogHeader>

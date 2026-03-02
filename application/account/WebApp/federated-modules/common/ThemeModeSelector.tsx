@@ -50,7 +50,7 @@ export default function ThemeModeSelector({
 
   if (variant === "mobile-menu") {
     return (
-      <DropdownMenu>
+      <DropdownMenu trackingTitle="Theme menu">
         <DropdownMenuTrigger
           render={
             <Button
@@ -67,7 +67,7 @@ export default function ThemeModeSelector({
           }
         />
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
+          <DropdownMenuItem trackingLabel="System" onClick={() => handleThemeChange(ThemeMode.System)}>
             <div className="flex items-center gap-2">
               {resolvedTheme === ThemeMode.Dark ? (
                 <MoonStarIcon className="size-5" />
@@ -78,14 +78,14 @@ export default function ThemeModeSelector({
               {theme === ThemeMode.System && <CheckIcon className="ml-auto size-5" />}
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
+          <DropdownMenuItem trackingLabel="Light" onClick={() => handleThemeChange(ThemeMode.Light)}>
             <div className="flex items-center gap-2">
               <SunIcon className="size-5" />
               <Trans>Light</Trans>
               {theme === ThemeMode.Light && <CheckIcon className="ml-auto size-5" />}
             </div>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
+          <DropdownMenuItem trackingLabel="Dark" onClick={() => handleThemeChange(ThemeMode.Dark)}>
             <div className="flex items-center gap-2">
               <MoonIcon className="size-5" />
               <Trans>Dark</Trans>
@@ -98,7 +98,7 @@ export default function ThemeModeSelector({
   }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu trackingTitle="Theme menu">
       <Tooltip>
         <TooltipTrigger
           render={
@@ -114,7 +114,7 @@ export default function ThemeModeSelector({
         <TooltipContent>{t`Change theme`}</TooltipContent>
       </Tooltip>
       <DropdownMenuContent align="start">
-        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.System)}>
+        <DropdownMenuItem trackingLabel="System" onClick={() => handleThemeChange(ThemeMode.System)}>
           <div className="flex items-center gap-2">
             {resolvedTheme === ThemeMode.Dark ? (
               <MoonStarIcon className="size-5" />
@@ -125,14 +125,14 @@ export default function ThemeModeSelector({
             {theme === ThemeMode.System && <CheckIcon className="ml-auto size-5" />}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Light)}>
+        <DropdownMenuItem trackingLabel="Light" onClick={() => handleThemeChange(ThemeMode.Light)}>
           <div className="flex items-center gap-2">
             <SunIcon className="size-5" />
             <Trans>Light</Trans>
             {theme === ThemeMode.Light && <CheckIcon className="ml-auto size-5" />}
           </div>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleThemeChange(ThemeMode.Dark)}>
+        <DropdownMenuItem trackingLabel="Dark" onClick={() => handleThemeChange(ThemeMode.Dark)}>
           <div className="flex items-center gap-2">
             <MoonIcon className="size-5" />
             <Trans>Dark</Trans>

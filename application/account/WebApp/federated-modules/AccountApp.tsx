@@ -82,6 +82,7 @@ export default function AccountApp({ initialPath, onNavigateToMain }: Readonly<A
           setPendingNavigation(null);
         }}
         onCancel={() => setPendingNavigation(null)}
+        parentTrackingTitle="Navigation"
       />
     </div>
   );

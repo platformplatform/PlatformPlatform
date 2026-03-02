@@ -6,6 +6,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { api, UserStatus } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account/")({
+  staticData: { trackingTitle: "Account overview" },
   component: Home
 });
 

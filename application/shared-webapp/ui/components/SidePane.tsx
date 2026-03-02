@@ -140,18 +140,65 @@ function useNeedsFullscreen() {
   return needsFullscreen;
 }
 
+type WindowWithTracking = {
+  __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
+};
+
+let pendingCloseTimer: ReturnType<typeof setTimeout> | undefined;
+
 // Main SidePane component
 interface SidePaneProps {
   children: React.ReactNode;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
+  trackingTitle: string;
+  trackingKey?: string;
   className?: string;
   "aria-label"?: string;
 }
 
-function SidePane({ children, isOpen, onOpenChange, className, "aria-label": ariaLabel }: Readonly<SidePaneProps>) {
+function SidePane({
+  children,
+  isOpen,
+  onOpenChange,
+  trackingTitle,
+  trackingKey,
+  className,
+  "aria-label": ariaLabel
+}: Readonly<SidePaneProps>) {
   const sidePaneRef = useRef<HTMLElement>(null);
   const needsFullscreen = useNeedsFullscreen();
+  const prevOpen = useRef(false);
+  const prevKey = useRef(trackingKey);
+  const isOpenRef = useRef(isOpen);
+  isOpenRef.current = isOpen;
+
+  useEffect(() => {
+    const opened = isOpen && !prevOpen.current;
+    const contentChanged = isOpen && prevOpen.current && trackingKey !== undefined && trackingKey !== prevKey.current;
+    if (opened || contentChanged) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "open");
+    }
+    if (!isOpen && prevOpen.current) {
+      (window as unknown as WindowWithTracking).__trackInteraction?.(trackingTitle, "sidepane", "close");
+    }
+    prevOpen.current = isOpen;
+    prevKey.current = trackingKey;
+  }, [isOpen, trackingTitle, trackingKey]);
+
+  useEffect(() => {
+    clearTimeout(pendingCloseTimer);
+    pendingCloseTimer = undefined;
+    return () => {
+      if (isOpenRef.current) {
+        const title = trackingTitle;
+        pendingCloseTimer = setTimeout(() => {
+          (window as unknown as WindowWithTracking).__trackInteraction?.(title, "sidepane", "close");
+          pendingCloseTimer = undefined;
+        }, 100);
+      }
+    };
+  }, [trackingTitle]);
 
   const onClose = useCallback(() => {
     onOpenChange(false);
