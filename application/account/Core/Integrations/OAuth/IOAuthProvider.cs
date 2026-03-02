@@ -1,6 +1,6 @@
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+using Account.Features.ExternalAuthentication.Domain;
 
-namespace PlatformPlatform.Account.Integrations.OAuth;
+namespace Account.Integrations.OAuth;
 
 public interface IOAuthProvider
 {

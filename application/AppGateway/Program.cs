@@ -1,10 +1,10 @@
+using AppGateway.ApiAggregation;
+using AppGateway.Filters;
+using AppGateway.Middleware;
+using AppGateway.Transformations;
 using Azure.Core;
-using PlatformPlatform.AppGateway.ApiAggregation;
-using PlatformPlatform.AppGateway.Filters;
-using PlatformPlatform.AppGateway.Middleware;
-using PlatformPlatform.AppGateway.Transformations;
-using PlatformPlatform.SharedKernel.Configuration;
 using Scalar.AspNetCore;
+using SharedKernel.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

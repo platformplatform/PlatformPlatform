@@ -1,7 +1,7 @@
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
-namespace PlatformPlatform.SharedKernel.OpenIdConnect;
+namespace SharedKernel.OpenIdConnect;
 
 public sealed class OpenIdConnectConfigurationManagerFactory(HttpClient httpClient)
 {

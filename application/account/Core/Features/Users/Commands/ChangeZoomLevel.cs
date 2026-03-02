@@ -1,8 +1,8 @@
 using JetBrains.Annotations;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record ChangeZoomLevelCommand(string FromZoomLevel, string ZoomLevel) : ICommand, IRequest<Result>;

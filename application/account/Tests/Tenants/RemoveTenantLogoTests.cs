@@ -1,11 +1,11 @@
 using System.Net;
+using Account.Database;
+using Account.Features;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features;
-using PlatformPlatform.SharedKernel.Tests;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Tenants;
+namespace Account.Tests.Tenants;
 
 public sealed class RemoveTenantLogoTests : EndpointBaseTest<AccountDbContext>
 {

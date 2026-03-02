@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 
-namespace PlatformPlatform.Account.Features.Tenants.Domain;
+namespace Account.Features.Tenants.Domain;
 
 [PublicAPI]
 [JsonConverter(typeof(JsonStringEnumConverter))]

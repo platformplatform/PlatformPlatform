@@ -1,12 +1,12 @@
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.DomainEvents;
-using PlatformPlatform.SharedKernel.PipelineBehaviors;
-using PlatformPlatform.SharedKernel.Tests.TestEntities;
+using SharedKernel.Cqrs;
+using SharedKernel.DomainEvents;
+using SharedKernel.PipelineBehaviors;
+using SharedKernel.Tests.TestEntities;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Behaviors;
+namespace SharedKernel.Tests.Behaviors;
 
 public sealed class PublishDomainEventsPipelineBehaviorTests
 {

@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Tenants.Commands;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Tenants.Commands;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Tests;
+using SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Tenants;
+namespace Account.Tests.Tenants;
 
 public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountDbContext>
 {

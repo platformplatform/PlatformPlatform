@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Integrations.Email;
+namespace SharedKernel.Integrations.Email;
 
 public interface IEmailClient
 {

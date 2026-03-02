@@ -1,9 +1,9 @@
 using System.Security.Claims;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.SharedKernel.Authentication.TokenSigning;
+using SharedKernel.Authentication.TokenSigning;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace SharedKernel.Authentication.TokenGeneration;
 
 public sealed class AccessTokenGenerator(ITokenSigningClient tokenSigningClient, TimeProvider timeProvider)
 {

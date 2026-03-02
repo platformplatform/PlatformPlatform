@@ -1,13 +1,13 @@
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Integrations.OAuth;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.OpenIdConnect;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Commands;
+namespace Account.Features.ExternalAuthentication.Commands;
 
 [PublicAPI]
 public sealed record StartExternalLoginCommand(TenantId? PreferredTenantId = null) : ICommand, IRequest<Result<string>>

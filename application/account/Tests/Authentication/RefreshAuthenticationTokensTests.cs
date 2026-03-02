@@ -1,16 +1,16 @@
 using System.Net;
 using System.Net.Http.Headers;
+using Account.Database;
+using Account.Features.Authentication.Domain;
 using FluentAssertions;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Authentication;
+namespace Account.Tests.Authentication;
 
 public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountDbContext>
 {

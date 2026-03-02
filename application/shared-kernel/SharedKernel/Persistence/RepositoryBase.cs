@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.SharedKernel.Persistence;
+namespace SharedKernel.Persistence;
 
 /// <summary>
 ///     RepositoryBase contains implementations for generic repository features. Repositories are a DDD concept, and are

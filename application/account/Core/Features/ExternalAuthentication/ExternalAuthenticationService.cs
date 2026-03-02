@@ -1,14 +1,14 @@
 using System.Security.Cryptography;
 using System.Text;
+using Account.Features.Authentication.Domain;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Integrations.OAuth;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.SinglePageApp;
+using SharedKernel.Domain;
+using SharedKernel.SinglePageApp;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication;
+namespace Account.Features.ExternalAuthentication;
 
 public sealed record ExternalLoginCookie(ExternalLoginId ExternalLoginId, string FingerprintHash, TenantId? PreferredTenantId);
 

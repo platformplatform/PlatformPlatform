@@ -1,8 +1,8 @@
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public static class TenantScopedTelemetryContext
 {

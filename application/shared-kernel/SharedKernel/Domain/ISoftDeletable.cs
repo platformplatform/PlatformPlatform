@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Domain;
+namespace SharedKernel.Domain;
 
 /// <summary>
 ///     Marker interface for entities that support soft delete functionality.

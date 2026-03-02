@@ -1,13 +1,13 @@
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Queries;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Queries;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace Account.Tests.Subscriptions;
 
 public sealed class GetCurrentSubscriptionTests : EndpointBaseTest<AccountDbContext>
 {

@@ -1,10 +1,10 @@
-using PlatformPlatform.Account.Features.Tenants.Commands;
-using PlatformPlatform.Account.Features.Tenants.Queries;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.Tenants.Commands;
+using Account.Features.Tenants.Queries;
+using SharedKernel.ApiResults;
+using SharedKernel.Domain;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class TenantEndpoints : IEndpoints
 {

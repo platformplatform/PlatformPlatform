@@ -1,8 +1,8 @@
+using Account.Features.Subscriptions.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
+namespace Account.Features.Subscriptions.Queries;
 
 [PublicAPI]
 public sealed record GetCurrentSubscriptionQuery : IRequest<Result<SubscriptionResponse>>;

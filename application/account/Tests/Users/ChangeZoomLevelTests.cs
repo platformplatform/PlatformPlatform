@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Users.Commands;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Users.Commands;
-using PlatformPlatform.SharedKernel.Tests;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Users;
+namespace Account.Tests.Users;
 
 public sealed class ChangeZoomLevelTests : EndpointBaseTest<AccountDbContext>
 {

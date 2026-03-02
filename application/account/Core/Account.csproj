@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Account</AssemblyName>
-        <RootNamespace>PlatformPlatform.Account</RootNamespace>
+        <AssemblyName>Account</AssemblyName>
+        <RootNamespace>Account</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

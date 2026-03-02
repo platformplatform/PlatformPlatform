@@ -1,7 +1,7 @@
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.Domain;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public sealed class SoftDeletableTestAggregate(string name) : SoftDeletableAggregateRoot<long>(IdGenerator.NewId())
 {

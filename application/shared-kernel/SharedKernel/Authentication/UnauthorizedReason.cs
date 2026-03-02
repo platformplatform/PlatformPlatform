@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace SharedKernel.Authentication;
 
 /// <summary>
 ///     Represents why a request was rejected with 401 Unauthorized.

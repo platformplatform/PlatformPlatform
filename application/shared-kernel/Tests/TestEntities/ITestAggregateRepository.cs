@@ -1,3 +1,3 @@
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public interface ITestAggregateRepository;

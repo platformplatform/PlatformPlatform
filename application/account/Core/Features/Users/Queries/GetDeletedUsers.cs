@@ -1,12 +1,12 @@
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using Mapster;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Users.Queries;
+namespace Account.Features.Users.Queries;
 
 [PublicAPI]
 public sealed record GetDeletedUsersQuery(int? PageOffset = null, int PageSize = 25) : IRequest<Result<DeletedUsersResponse>>;

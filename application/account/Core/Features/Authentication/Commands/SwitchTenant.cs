@@ -1,18 +1,18 @@
+using Account.Features.Authentication.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Integrations.BlobStorage;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Integrations.BlobStorage;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Authentication.Commands;
+namespace Account.Features.Authentication.Commands;
 
 [PublicAPI]
 public sealed record SwitchTenantCommand(TenantId TenantId) : ICommand, IRequest<Result>;

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using FluentAssertions;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Persistence;
+namespace SharedKernel.Tests.Persistence;
 
 public sealed class SoftDeletableRepositoryInheritanceTests
 {

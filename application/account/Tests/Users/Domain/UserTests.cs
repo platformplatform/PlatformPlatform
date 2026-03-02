@@ -1,10 +1,10 @@
+using Account.Features.Users.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Platform;
+using SharedKernel.Domain;
+using SharedKernel.Platform;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Users.Domain;
+namespace Account.Tests.Users.Domain;
 
 public sealed class UserTests
 {

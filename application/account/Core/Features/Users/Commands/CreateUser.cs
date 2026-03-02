@@ -1,15 +1,15 @@
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
+using Account.Integrations.Gravatar;
 using FluentValidation;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.Account.Integrations.Gravatar;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.SinglePageApp;
+using SharedKernel.Telemetry;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 internal sealed record CreateUserCommand(TenantId TenantId, string Email, UserRole UserRole, bool EmailConfirmed, string? PreferredLocale)
     : ICommand, IRequest<Result<UserId>>

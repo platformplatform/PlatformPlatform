@@ -1,10 +1,10 @@
 using FluentAssertions;
 using Microsoft.ApplicationInsights.DataContracts;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Domain;
+using SharedKernel.Telemetry;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.Telemetry;
+namespace SharedKernel.Tests.Telemetry;
 
 public sealed class TenantScopedTelemetryContextTests
 {

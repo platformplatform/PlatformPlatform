@@ -1,14 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Subscriptions.Queries;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Queries;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
+using SharedKernel.Validation;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace Account.Tests.Subscriptions;
 
 public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
 {

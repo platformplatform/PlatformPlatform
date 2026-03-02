@@ -1,17 +1,17 @@
 using System.Security.Claims;
+using Account.Features.Authentication.Domain;
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.JsonWebTokens;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.Domain;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Authentication.Commands;
+namespace Account.Features.Authentication.Commands;
 
 [PublicAPI]
 public sealed record RefreshAuthenticationTokensCommand : ICommand, IRequest<Result>;

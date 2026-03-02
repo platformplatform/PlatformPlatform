@@ -1,10 +1,10 @@
 using System.Security.Claims;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Platform;
-using PlatformPlatform.SharedKernel.SinglePageApp;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Domain;
+using SharedKernel.Platform;
+using SharedKernel.SinglePageApp;
 
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace SharedKernel.Authentication;
 
 /// <summary>
 ///     Provides details about the authenticated user making the current request, including user identity, role,

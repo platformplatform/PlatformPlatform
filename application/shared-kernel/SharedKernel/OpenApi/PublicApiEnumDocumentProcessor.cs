@@ -2,7 +2,7 @@ using NJsonSchema;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
-namespace PlatformPlatform.SharedKernel.OpenApi;
+namespace SharedKernel.OpenApi;
 
 public sealed class PublicApiEnumDocumentProcessor(Assembly[] assemblies) : IDocumentProcessor
 {

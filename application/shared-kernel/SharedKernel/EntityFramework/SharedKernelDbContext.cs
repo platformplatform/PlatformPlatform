@@ -2,10 +2,10 @@ using System.Linq.Expressions;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.EntityFramework;
+namespace SharedKernel.EntityFramework;
 
 /// <summary>
 ///     The SharedKernelDbContext class represents the Entity Framework Core DbContext for managing data access to the

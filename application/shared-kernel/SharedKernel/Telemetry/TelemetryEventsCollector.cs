@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public interface ITelemetryEventsCollector
 {

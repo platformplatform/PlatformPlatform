@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Main.Workers</AssemblyName>
-        <RootNamespace>PlatformPlatform.Main.Workers</RootNamespace>
+        <AssemblyName>Main.Workers</AssemblyName>
+        <RootNamespace>Main.Workers</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;Dockerfile</DefaultItemExcludes>

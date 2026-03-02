@@ -1,9 +1,9 @@
+using Main.Database;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using PlatformPlatform.Main.Database;
-using PlatformPlatform.SharedKernel.Configuration;
+using SharedKernel.Configuration;
 
-namespace PlatformPlatform.Main;
+namespace Main;
 
 public static class Configuration
 {

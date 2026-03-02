@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 
-namespace PlatformPlatform.SharedKernel.Antiforgery;
+namespace SharedKernel.Antiforgery;
 
 public sealed class AntiforgeryMiddleware(IAntiforgery antiforgery, ILogger<AntiforgeryMiddleware> logger) : IMiddleware
 {

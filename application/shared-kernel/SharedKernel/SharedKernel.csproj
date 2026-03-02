@@ -6,8 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAspireSharedProject>true</IsAspireSharedProject>
-        <AssemblyName>PlatformPlatform.SharedKernel</AssemblyName>
-        <RootNamespace>PlatformPlatform.SharedKernel</RootNamespace>
+        <AssemblyName>SharedKernel</AssemblyName>
+        <RootNamespace>SharedKernel</RootNamespace>
         <UserSecretsId>platformplatform-f817f2a1-ac57-4756-aef2-a57ca864bbd3</UserSecretsId>
     </PropertyGroup>
 

@@ -1,8 +1,8 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Tests.TestEntities;
+namespace SharedKernel.Tests.TestEntities;
 
 public sealed class SqliteInMemoryDbContextFactory<T> : IDisposable where T : DbContext
 {

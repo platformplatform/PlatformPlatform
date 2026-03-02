@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public sealed class TelemetryContextMiddleware(IExecutionContext executionContext, OpenTelemetryEnricher openTelemetryEnricher)
     : IMiddleware

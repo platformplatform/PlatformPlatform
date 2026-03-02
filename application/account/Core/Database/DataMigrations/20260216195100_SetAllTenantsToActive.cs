@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Database;
+using SharedKernel.Database;
 
-namespace PlatformPlatform.Account.Database.DataMigrations;
+namespace Account.Database.DataMigrations;
 
 public sealed class SetAllTenantsToActive(AccountDbContext dbContext) : IDataMigration
 {

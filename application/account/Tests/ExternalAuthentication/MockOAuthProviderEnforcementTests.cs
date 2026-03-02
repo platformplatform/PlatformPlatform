@@ -1,12 +1,12 @@
+using Account.Integrations.OAuth;
+using Account.Integrations.OAuth.Mock;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.Account.Integrations.OAuth.Mock;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class MockOAuthProviderEnforcementTests
 {

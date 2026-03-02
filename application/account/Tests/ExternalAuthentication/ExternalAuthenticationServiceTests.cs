@@ -1,5 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
+using Account.Features.ExternalAuthentication;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Integrations.OAuth;
 using FluentAssertions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -7,12 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
-using PlatformPlatform.Account.Features.ExternalAuthentication;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Integrations.OAuth;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class ExternalAuthenticationServiceTests
 {

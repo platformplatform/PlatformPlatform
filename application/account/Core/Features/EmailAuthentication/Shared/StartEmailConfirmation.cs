@@ -1,10 +1,10 @@
+using Account.Features.EmailAuthentication.Domain;
 using Microsoft.AspNetCore.Identity;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Integrations.Email;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.Integrations.Email;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Shared;
+namespace Account.Features.EmailAuthentication.Shared;
 
 public sealed class StartEmailConfirmation(
     IEmailLoginRepository emailLoginRepository,

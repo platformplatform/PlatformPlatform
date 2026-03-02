@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Database;
+namespace SharedKernel.Database;
 
 /// <summary>Data migration that runs after schema migrations. Tracked in __DataMigrationsHistory table.</summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]

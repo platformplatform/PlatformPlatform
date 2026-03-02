@@ -1,16 +1,16 @@
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Authentication;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Integrations.Email;
+using SharedKernel.SinglePageApp;
+using SharedKernel.Telemetry;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.Account.Features.Users.Commands;
+namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result>

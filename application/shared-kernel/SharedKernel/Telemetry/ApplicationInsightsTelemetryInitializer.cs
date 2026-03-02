@@ -1,8 +1,8 @@
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.SharedKernel.Telemetry;
+namespace SharedKernel.Telemetry;
 
 public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
 {

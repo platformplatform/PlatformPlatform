@@ -1,3 +1,3 @@
-namespace PlatformPlatform.SharedKernel.Validation;
+namespace SharedKernel.Validation;
 
 public sealed record ErrorMessage(string Message);

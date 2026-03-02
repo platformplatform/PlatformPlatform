@@ -1,7 +1,7 @@
-using PlatformPlatform.BackOffice;
-using PlatformPlatform.BackOffice.Database;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.Database;
+using BackOffice;
+using BackOffice.Database;
+using SharedKernel.Configuration;
+using SharedKernel.Database;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);

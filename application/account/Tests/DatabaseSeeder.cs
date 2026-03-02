@@ -1,11 +1,11 @@
 using System.Net;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
+using Account.Database;
+using Account.Features.Authentication.Domain;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 
-namespace PlatformPlatform.Account.Tests;
+namespace Account.Tests;
 
 public sealed class DatabaseSeeder
 {

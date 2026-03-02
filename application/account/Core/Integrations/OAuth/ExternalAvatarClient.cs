@@ -1,4 +1,4 @@
-namespace PlatformPlatform.Account.Integrations.OAuth;
+namespace Account.Integrations.OAuth;
 
 public sealed record ExternalAvatar(Stream Stream, string ContentType);
 

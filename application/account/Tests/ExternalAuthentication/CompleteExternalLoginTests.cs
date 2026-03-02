@@ -1,16 +1,16 @@
 using System.Net;
 using System.Text.Json;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
+using Account.Integrations.OAuth.Mock;
 using FluentAssertions;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.OAuth.Mock;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
 {

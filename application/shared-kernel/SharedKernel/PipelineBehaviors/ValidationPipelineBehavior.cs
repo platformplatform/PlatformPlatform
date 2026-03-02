@@ -1,9 +1,9 @@
 using System.Net;
 using FluentValidation;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Cqrs;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.SharedKernel.PipelineBehaviors;
+namespace SharedKernel.PipelineBehaviors;
 
 /// <summary>
 ///     The ValidationPipelineBehavior class is a MediatR pipeline behavior that validates the request using

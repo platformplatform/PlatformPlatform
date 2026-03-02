@@ -1,9 +1,9 @@
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Account.Integrations.Gravatar;
+namespace Account.Integrations.Gravatar;
 
 public sealed record Gravatar(Stream Stream, string ContentType);
 

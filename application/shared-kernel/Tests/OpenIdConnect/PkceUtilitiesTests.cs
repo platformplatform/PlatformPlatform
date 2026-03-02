@@ -1,9 +1,9 @@
 using System.Text.RegularExpressions;
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
+using SharedKernel.OpenIdConnect;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.OpenIdConnect;
+namespace SharedKernel.Tests.OpenIdConnect;
 
 public sealed partial class PkceUtilitiesTests
 {

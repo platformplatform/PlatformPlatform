@@ -1,9 +1,9 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Queries;
+namespace Account.Features.Subscriptions.Queries;
 
 [PublicAPI]
 public sealed record GetPricingCatalogQuery : IRequest<Result<PricingCatalogResponse>>;

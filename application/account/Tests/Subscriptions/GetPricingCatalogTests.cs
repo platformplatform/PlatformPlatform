@@ -1,12 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Subscriptions.Queries;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Queries;
-using PlatformPlatform.SharedKernel.Tests;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Subscriptions;
+namespace Account.Tests.Subscriptions;
 
 public sealed class GetPricingCatalogTests : EndpointBaseTest<AccountDbContext>
 {

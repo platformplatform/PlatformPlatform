@@ -1,12 +1,12 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
+using Account.Features.Users.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Shared;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
 public sealed record ScheduleDowngradeCommand(SubscriptionPlan NewPlan) : ICommand, IRequest<Result>;

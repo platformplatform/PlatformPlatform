@@ -1,10 +1,10 @@
 using System.Net;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.SharedKernel.ExecutionContext;
+namespace SharedKernel.ExecutionContext;
 
 public class HttpExecutionContext(IHttpContextAccessor httpContextAccessor) : IExecutionContext
 {

@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http.Headers;
+using Account.Integrations.OAuth;
 using FluentAssertions;
 using NSubstitute;
-using PlatformPlatform.Account.Integrations.OAuth;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication;
+namespace Account.Tests.ExternalAuthentication;
 
 public sealed class ExternalAvatarClientTests
 {

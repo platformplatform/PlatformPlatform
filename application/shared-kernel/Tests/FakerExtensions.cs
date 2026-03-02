@@ -1,8 +1,8 @@
 using Bogus;
 using Bogus.DataSets;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 
-namespace PlatformPlatform.SharedKernel.Tests;
+namespace SharedKernel.Tests;
 
 public static class FakerExtensions
 {

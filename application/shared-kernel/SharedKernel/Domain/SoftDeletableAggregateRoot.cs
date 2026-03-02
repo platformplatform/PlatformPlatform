@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Domain;
+namespace SharedKernel.Domain;
 
 public abstract class SoftDeletableAggregateRoot<T>(T id) : AggregateRoot<T>(id), ISoftDeletable where T : IComparable<T>
 {

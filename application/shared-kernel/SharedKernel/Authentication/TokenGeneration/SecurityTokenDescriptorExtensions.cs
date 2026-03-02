@@ -1,7 +1,7 @@
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
-namespace PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
+namespace SharedKernel.Authentication.TokenGeneration;
 
 internal static class SecurityTokenDescriptorExtensions
 {

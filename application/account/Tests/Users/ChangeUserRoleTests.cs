@@ -1,15 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Users.Commands;
+using Account.Features.Users.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Users.Commands;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Users;
+namespace Account.Tests.Users;
 
 public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
 {

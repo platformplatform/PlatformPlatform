@@ -2,13 +2,13 @@ using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Account.Features.ExternalAuthentication.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
+using SharedKernel.OpenIdConnect;
 
-namespace PlatformPlatform.Account.Integrations.OAuth.Google;
+namespace Account.Integrations.OAuth.Google;
 
 internal sealed record GoogleOAuthConfiguration(string ClientId, string ClientSecret);
 

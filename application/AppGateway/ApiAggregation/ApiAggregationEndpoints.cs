@@ -1,4 +1,4 @@
-namespace PlatformPlatform.AppGateway.ApiAggregation;
+namespace AppGateway.ApiAggregation;
 
 public static class Endpoints
 {

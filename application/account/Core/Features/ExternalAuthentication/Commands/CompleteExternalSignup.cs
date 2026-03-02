@@ -1,19 +1,19 @@
+using Account.Features.Authentication.Domain;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.ExternalAuthentication.Shared;
+using Account.Features.Tenants.Commands;
+using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
+using Account.Integrations.OAuth;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Shared;
-using PlatformPlatform.Account.Features.Tenants.Commands;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.Account.Features.Users.Shared;
-using PlatformPlatform.Account.Integrations.OAuth;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.OpenIdConnect;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
+using SharedKernel.OpenIdConnect;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Commands;
+namespace Account.Features.ExternalAuthentication.Commands;
 
 [PublicAPI]
 public sealed record CompleteExternalSignupCommand(string? Code, string? State, string? Error, string? ErrorDescription)

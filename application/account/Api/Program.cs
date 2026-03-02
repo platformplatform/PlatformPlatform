@@ -1,6 +1,6 @@
-using PlatformPlatform.Account;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.SinglePageApp;
+using Account;
+using SharedKernel.Configuration;
+using SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,12 +1,12 @@
+using Account.Features.Authentication.Domain;
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Authentication.Commands;
+namespace Account.Features.Authentication.Commands;
 
 [PublicAPI]
 public sealed record RevokeSessionCommand : ICommand, IRequest<Result>

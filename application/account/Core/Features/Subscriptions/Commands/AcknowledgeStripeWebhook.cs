@@ -1,9 +1,9 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Integrations.Stripe;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace Account.Features.Subscriptions.Commands;
 
 /// <summary>
 ///     Phase 1 of two-phase webhook processing. Validates the Stripe signature, stores the event

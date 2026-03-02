@@ -1,16 +1,16 @@
 using System.Text.Json;
+using Account.Features.Subscriptions.Domain;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
 using Stripe;
 using Stripe.Checkout;
-using DomainPaymentMethod = PlatformPlatform.Account.Features.Subscriptions.Domain.PaymentMethod;
+using PaymentMethod = Account.Features.Subscriptions.Domain.PaymentMethod;
 using SessionCreateOptions = Stripe.Checkout.SessionCreateOptions;
 using SessionService = Stripe.Checkout.SessionService;
 using StripePrice = Stripe.Price;
 using StripeSubscription = Stripe.Subscription;
 
-namespace PlatformPlatform.Account.Integrations.Stripe;
+namespace Account.Integrations.Stripe;
 
 public sealed class StripeClient(IConfiguration configuration, IMemoryCache memoryCache, ILogger<StripeClient> logger) : IStripeClient
 {
@@ -131,18 +131,18 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
                 : null;
             var cancellationFeedback = stripeSubscription.CancellationDetails?.Comment;
 
-            DomainPaymentMethod? paymentMethod = null;
+            PaymentMethod? paymentMethod = null;
             var defaultPaymentMethod = stripeSubscription.DefaultPaymentMethod ?? stripeSubscription.Customer?.InvoiceSettings?.DefaultPaymentMethod;
             if (defaultPaymentMethod is not null)
             {
                 if (defaultPaymentMethod.Card is not null)
                 {
-                    paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+                    paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
                 }
                 else if (defaultPaymentMethod.Link is not null)
                 {
                     var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } email ? email[^4..] : "****";
-                    paymentMethod = new DomainPaymentMethod("link", last4, 0, 0);
+                    paymentMethod = new PaymentMethod("link", last4, 0, 0);
                 }
             }
 
@@ -490,16 +490,16 @@ public sealed class StripeClient(IConfiguration configuration, IMemoryCache memo
             var taxIds = await taxIdService.ListAsync(stripeCustomerId.Value, requestOptions: GetRequestOptions(), cancellationToken: cancellationToken);
             var taxId = taxIds.Data.FirstOrDefault()?.Value;
 
-            DomainPaymentMethod? paymentMethod = null;
+            PaymentMethod? paymentMethod = null;
             var defaultPaymentMethod = customer.InvoiceSettings?.DefaultPaymentMethod;
             if (defaultPaymentMethod?.Card is not null)
             {
-                paymentMethod = new DomainPaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
+                paymentMethod = new PaymentMethod(defaultPaymentMethod.Card.Brand, defaultPaymentMethod.Card.Last4, (int)defaultPaymentMethod.Card.ExpMonth, (int)defaultPaymentMethod.Card.ExpYear);
             }
             else if (defaultPaymentMethod?.Link is not null)
             {
                 var last4 = defaultPaymentMethod.Link.Email is { Length: >= 4 } linkEmail ? linkEmail[^4..] : "****";
-                paymentMethod = new DomainPaymentMethod("link", last4, 0, 0);
+                paymentMethod = new PaymentMethod("link", last4, 0, 0);
             }
 
             return new CustomerBillingResult(new BillingInfo(customer.Name, address, email, taxId), false, paymentMethod);

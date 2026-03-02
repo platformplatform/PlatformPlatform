@@ -1,12 +1,12 @@
+using Account.Database;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Persistence;
 
-namespace PlatformPlatform.Account.Features.Users.Domain;
+namespace Account.Features.Users.Domain;
 
 public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRepository<User>, ISoftDeletableRepository<User, UserId>
 {

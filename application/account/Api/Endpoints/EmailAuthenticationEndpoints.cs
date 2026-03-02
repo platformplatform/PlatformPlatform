@@ -1,9 +1,9 @@
-using PlatformPlatform.Account.Features.EmailAuthentication.Commands;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.EmailAuthentication.Commands;
+using Account.Features.EmailAuthentication.Domain;
+using SharedKernel.ApiResults;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class EmailAuthenticationEndpoints : IEndpoints
 {

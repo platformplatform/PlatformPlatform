@@ -1,13 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
+using Account.Database;
+using Account.Features.Authentication.Commands;
 using FluentAssertions;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Authentication.Commands;
-using PlatformPlatform.SharedKernel.Tests;
-using PlatformPlatform.SharedKernel.Tests.Persistence;
+using SharedKernel.Tests;
+using SharedKernel.Tests.Persistence;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Authentication;
+namespace Account.Tests.Authentication;
 
 public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
 {

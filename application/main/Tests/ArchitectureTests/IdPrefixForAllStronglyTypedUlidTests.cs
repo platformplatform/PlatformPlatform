@@ -1,9 +1,9 @@
 using FluentAssertions;
 using NetArchTest.Rules;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 using Xunit;
 
-namespace PlatformPlatform.Main.Tests.ArchitectureTests;
+namespace Main.Tests.ArchitectureTests;
 
 public class IdPrefixForAllStronglyTypedUlidTests
 {

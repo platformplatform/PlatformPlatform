@@ -1,9 +1,9 @@
-using PlatformPlatform.Account.Features.Billing.Commands;
-using PlatformPlatform.Account.Features.Billing.Queries;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.Billing.Commands;
+using Account.Features.Billing.Queries;
+using SharedKernel.ApiResults;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class BillingEndpoints : IEndpoints
 {

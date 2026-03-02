@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.BackOffice.Workers</AssemblyName>
-        <RootNamespace>PlatformPlatform.BackOffice.Workers</RootNamespace>
+        <AssemblyName>BackOffice.Workers</AssemblyName>
+        <RootNamespace>BackOffice.Workers</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <DefaultItemExcludes>$(DefaultItemExcludes);publish\**;Dockerfile</DefaultItemExcludes>

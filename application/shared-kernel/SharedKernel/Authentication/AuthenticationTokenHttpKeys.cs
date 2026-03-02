@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Authentication;
+namespace SharedKernel.Authentication;
 
 public static class AuthenticationTokenHttpKeys
 {

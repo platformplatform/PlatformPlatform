@@ -1,11 +1,11 @@
 using System.Security;
+using Account.Features.ExternalAuthentication.Domain;
+using Account.Features.Users.Domain;
 using FluentAssertions;
-using PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Domain;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.ExternalAuthentication.Domain;
+namespace Account.Tests.ExternalAuthentication.Domain;
 
 public sealed class ExternalLoginTests
 {

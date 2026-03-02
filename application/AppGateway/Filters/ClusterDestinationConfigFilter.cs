@@ -1,6 +1,6 @@
 using Yarp.ReverseProxy.Configuration;
 
-namespace PlatformPlatform.AppGateway.Filters;
+namespace AppGateway.Filters;
 
 public class ClusterDestinationConfigFilter : IProxyConfigFilter
 {

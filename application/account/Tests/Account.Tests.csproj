@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <AssemblyName>PlatformPlatform.Account.Tests</AssemblyName>
-        <RootNamespace>PlatformPlatform.Account.Tests</RootNamespace>
+        <AssemblyName>Account.Tests</AssemblyName>
+        <RootNamespace>Account.Tests</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 

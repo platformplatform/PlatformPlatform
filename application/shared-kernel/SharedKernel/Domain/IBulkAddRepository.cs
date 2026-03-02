@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Domain;
+namespace SharedKernel.Domain;
 
 public interface IBulkAddRepository<in T> where T : IAggregateRoot
 {

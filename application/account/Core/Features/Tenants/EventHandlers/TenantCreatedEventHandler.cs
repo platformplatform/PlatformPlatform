@@ -1,6 +1,6 @@
-using PlatformPlatform.Account.Features.Tenants.Domain;
+using Account.Features.Tenants.Domain;
 
-namespace PlatformPlatform.Account.Features.Tenants.EventHandlers;
+namespace Account.Features.Tenants.EventHandlers;
 
 public sealed class TenantCreatedEventHandler(ILogger<TenantCreatedEventHandler> logger)
     : INotificationHandler<TenantCreatedEvent>

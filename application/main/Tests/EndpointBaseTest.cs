@@ -13,15 +13,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Integrations.Email;
-using PlatformPlatform.SharedKernel.SinglePageApp;
-using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Tests.Telemetry;
+using SharedKernel.Authentication;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Integrations.Email;
+using SharedKernel.SinglePageApp;
+using SharedKernel.Telemetry;
+using SharedKernel.Tests.Telemetry;
 
-namespace PlatformPlatform.Main.Tests;
+namespace Main.Tests;
 
 public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : DbContext
 {

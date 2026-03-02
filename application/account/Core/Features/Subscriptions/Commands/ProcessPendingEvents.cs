@@ -1,9 +1,9 @@
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Subscriptions.Shared;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Subscriptions.Shared;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Commands;
+namespace Account.Features.Subscriptions.Commands;
 
 [PublicAPI]
 public sealed record ProcessPendingEventsCommand : ICommand, IRequest<Result>;

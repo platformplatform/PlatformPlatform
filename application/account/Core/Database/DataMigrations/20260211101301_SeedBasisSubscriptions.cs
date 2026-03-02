@@ -1,8 +1,8 @@
+using Account.Features.Subscriptions.Domain;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Database;
+using SharedKernel.Database;
 
-namespace PlatformPlatform.Account.Database.DataMigrations;
+namespace Account.Database.DataMigrations;
 
 public sealed class SeedBasisSubscriptions(AccountDbContext dbContext) : IDataMigration
 {

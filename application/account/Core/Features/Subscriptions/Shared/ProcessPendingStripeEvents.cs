@@ -1,13 +1,13 @@
 using System.Data;
+using Account.Database;
+using Account.Features.Subscriptions.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Integrations.Stripe;
 using Microsoft.ApplicationInsights;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Integrations.Stripe;
-using PlatformPlatform.SharedKernel.Telemetry;
+using SharedKernel.Telemetry;
 
-namespace PlatformPlatform.Account.Features.Subscriptions.Shared;
+namespace Account.Features.Subscriptions.Shared;
 
 /// <summary>
 ///     Phase 2 of two-phase webhook processing. Acquires a pessimistic lock on the subscription row

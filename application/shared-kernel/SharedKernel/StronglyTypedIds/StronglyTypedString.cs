@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace PlatformPlatform.SharedKernel.StronglyTypedIds;
+namespace SharedKernel.StronglyTypedIds;
 
 /// <summary>
 ///     This is a strongly typed ID for string values. It uses a custom string value with an optional prefix.

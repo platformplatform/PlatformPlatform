@@ -1,10 +1,10 @@
+using Account.Database;
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.ExecutionContext;
-using PlatformPlatform.SharedKernel.Persistence;
+using SharedKernel.Domain;
+using SharedKernel.ExecutionContext;
+using SharedKernel.Persistence;
 
-namespace PlatformPlatform.Account.Features.Tenants.Domain;
+namespace Account.Features.Tenants.Domain;
 
 public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDeletableRepository<Tenant, TenantId>
 {

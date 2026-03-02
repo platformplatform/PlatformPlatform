@@ -1,10 +1,10 @@
-using PlatformPlatform.Account.Features.Authentication.Commands;
-using PlatformPlatform.Account.Features.Authentication.Queries;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.Authentication.Commands;
+using Account.Features.Authentication.Queries;
+using SharedKernel.ApiResults;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class AuthenticationEndpoints : IEndpoints
 {

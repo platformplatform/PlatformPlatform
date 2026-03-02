@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
 
-namespace PlatformPlatform.SharedKernel.OpenIdConnect;
+namespace SharedKernel.OpenIdConnect;
 
 public static class NonceUtilities
 {

@@ -1,9 +1,9 @@
+using BackOffice.Database;
 using Bogus;
-using PlatformPlatform.BackOffice.Database;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.BackOffice.Tests;
+namespace BackOffice.Tests;
 
 public sealed class DatabaseSeeder
 {

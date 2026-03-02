@@ -1,8 +1,8 @@
 using FluentAssertions;
-using PlatformPlatform.SharedKernel.StronglyTypedIds;
+using SharedKernel.StronglyTypedIds;
 using Xunit;
 
-namespace PlatformPlatform.SharedKernel.Tests.StronglyTypedIds;
+namespace SharedKernel.Tests.StronglyTypedIds;
 
 public class StronglyTypedStringTests
 {

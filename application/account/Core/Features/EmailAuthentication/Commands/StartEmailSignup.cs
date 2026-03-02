@@ -1,12 +1,12 @@
+using Account.Features.EmailAuthentication.Domain;
+using Account.Features.EmailAuthentication.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.EmailAuthentication.Domain;
-using PlatformPlatform.Account.Features.EmailAuthentication.Shared;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.Telemetry;
-using PlatformPlatform.SharedKernel.Validation;
+using SharedKernel.Cqrs;
+using SharedKernel.Telemetry;
+using SharedKernel.Validation;
 
-namespace PlatformPlatform.Account.Features.EmailAuthentication.Commands;
+namespace Account.Features.EmailAuthentication.Commands;
 
 [PublicAPI]
 public sealed record StartEmailSignupCommand(string Email) : ICommand, IRequest<Result<StartEmailSignupResponse>>

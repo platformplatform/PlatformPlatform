@@ -1,12 +1,12 @@
+using Account.Features.Authentication.Domain;
+using Account.Features.Tenants.Domain;
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Authentication.Domain;
-using PlatformPlatform.Account.Features.Tenants.Domain;
-using PlatformPlatform.Account.Features.Users.Domain;
-using PlatformPlatform.SharedKernel.Authentication.TokenGeneration;
-using PlatformPlatform.SharedKernel.Cqrs;
-using PlatformPlatform.SharedKernel.ExecutionContext;
+using SharedKernel.Authentication.TokenGeneration;
+using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
 
-namespace PlatformPlatform.Account.Features.Authentication.Queries;
+namespace Account.Features.Authentication.Queries;
 
 [PublicAPI]
 public sealed record GetUserSessionsQuery : IRequest<Result<UserSessionsResponse>>;

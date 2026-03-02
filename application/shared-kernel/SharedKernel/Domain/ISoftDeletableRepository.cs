@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel.Domain;
+namespace SharedKernel.Domain;
 
 /// <summary>
 ///     Interface for repositories that manage soft-deletable aggregates.

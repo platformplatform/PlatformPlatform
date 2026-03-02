@@ -1,9 +1,9 @@
-using PlatformPlatform.Account.Features.Subscriptions.Commands;
-using PlatformPlatform.Account.Features.Subscriptions.Queries;
-using PlatformPlatform.SharedKernel.ApiResults;
-using PlatformPlatform.SharedKernel.Endpoints;
+using Account.Features.Subscriptions.Commands;
+using Account.Features.Subscriptions.Queries;
+using SharedKernel.ApiResults;
+using SharedKernel.Endpoints;
 
-namespace PlatformPlatform.Account.Api.Endpoints;
+namespace Account.Api.Endpoints;
 
 public sealed class SubscriptionEndpoints : IEndpoints
 {

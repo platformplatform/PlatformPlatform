@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.EntityFramework;
+using SharedKernel.Domain;
+using SharedKernel.EntityFramework;
 
-namespace PlatformPlatform.SharedKernel.Persistence;
+namespace SharedKernel.Persistence;
 
 /// <summary>
 ///     Base class for repositories managing soft-deletable aggregates.

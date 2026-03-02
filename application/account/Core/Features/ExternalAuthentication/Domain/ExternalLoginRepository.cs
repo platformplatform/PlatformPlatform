@@ -1,8 +1,8 @@
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Domain;
-using PlatformPlatform.SharedKernel.Persistence;
+using Account.Database;
+using SharedKernel.Domain;
+using SharedKernel.Persistence;
 
-namespace PlatformPlatform.Account.Features.ExternalAuthentication.Domain;
+namespace Account.Features.ExternalAuthentication.Domain;
 
 public interface IExternalLoginRepository : IAppendRepository<ExternalLogin, ExternalLoginId>
 {

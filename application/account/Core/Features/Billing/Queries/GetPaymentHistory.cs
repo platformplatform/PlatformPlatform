@@ -1,8 +1,8 @@
+using Account.Features.Subscriptions.Domain;
 using JetBrains.Annotations;
-using PlatformPlatform.Account.Features.Subscriptions.Domain;
-using PlatformPlatform.SharedKernel.Cqrs;
+using SharedKernel.Cqrs;
 
-namespace PlatformPlatform.Account.Features.Billing.Queries;
+namespace Account.Features.Billing.Queries;
 
 [PublicAPI]
 public sealed record GetPaymentHistoryQuery(int PageOffset = 0, int PageSize = 10) : IRequest<Result<PaymentHistoryResponse>>;

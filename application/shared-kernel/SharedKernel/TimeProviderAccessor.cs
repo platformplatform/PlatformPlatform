@@ -1,4 +1,4 @@
-namespace PlatformPlatform.SharedKernel;
+namespace SharedKernel;
 
 /// <summary>
 ///     Provides access to the current TimeProvider using AsyncLocal for thread-safe, async-context-isolated access.

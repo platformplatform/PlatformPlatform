@@ -2,7 +2,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 
-namespace PlatformPlatform.SharedKernel.Integrations.BlobStorage;
+namespace SharedKernel.Integrations.BlobStorage;
 
 public class BlobStorageClient(BlobServiceClient blobServiceClient, TimeProvider timeProvider) : IBlobStorageClient
 {

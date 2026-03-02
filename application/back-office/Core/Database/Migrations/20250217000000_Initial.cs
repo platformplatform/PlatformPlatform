@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace PlatformPlatform.BackOffice.Database.Migrations;
+namespace BackOffice.Database.Migrations;
 
 [DbContext(typeof(BackOfficeDbContext))]
 [Migration("20250217000000_Initial")]

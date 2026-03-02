@@ -1,6 +1,6 @@
-using PlatformPlatform.BackOffice;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.SinglePageApp;
+using BackOffice;
+using SharedKernel.Configuration;
+using SharedKernel.SinglePageApp;
 
 var builder = WebApplication.CreateBuilder(args);
 

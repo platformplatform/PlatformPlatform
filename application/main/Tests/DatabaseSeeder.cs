@@ -1,9 +1,9 @@
 using Bogus;
-using PlatformPlatform.Main.Database;
-using PlatformPlatform.SharedKernel.Authentication;
-using PlatformPlatform.SharedKernel.Domain;
+using Main.Database;
+using SharedKernel.Authentication;
+using SharedKernel.Domain;
 
-namespace PlatformPlatform.Main.Tests;
+namespace Main.Tests;
 
 public sealed class DatabaseSeeder
 {

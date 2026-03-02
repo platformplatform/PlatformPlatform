@@ -1,7 +1,7 @@
-using PlatformPlatform.Account;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Configuration;
-using PlatformPlatform.SharedKernel.Database;
+using Account;
+using Account.Database;
+using SharedKernel.Configuration;
+using SharedKernel.Database;
 
 // Worker service is using WebApplication.CreateBuilder instead of Host.CreateDefaultBuilder to allow scaling to zero
 var builder = WebApplication.CreateBuilder(args);

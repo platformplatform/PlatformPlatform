@@ -1,10 +1,10 @@
+using Account.Database;
 using FluentAssertions;
 using NJsonSchema;
-using PlatformPlatform.Account.Database;
-using PlatformPlatform.SharedKernel.Tests;
+using SharedKernel.Tests;
 using Xunit;
 
-namespace PlatformPlatform.Account.Tests.Tenants;
+namespace Account.Tests.Tenants;
 
 public sealed class GetCurrentTenantTests : EndpointBaseTest<AccountDbContext>
 {
