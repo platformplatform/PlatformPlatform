@@ -115,8 +115,8 @@ function DropdownMenuItem({
 }) {
   const menuTrackingTitle = useContext(MenuTrackingContext);
 
-  const handleClick: typeof onClick = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
+  const handleClick: typeof onClick = useCallback<NonNullable<typeof onClick>>(
+    (event) => {
       if (menuTrackingTitle) {
         (window as unknown as WindowWithTracking).__trackInteraction?.(
           menuTrackingTitle,

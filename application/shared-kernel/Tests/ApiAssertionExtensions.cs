@@ -94,7 +94,7 @@ public static class ApiAssertionExtensions
 
         public Task ShouldHaveErrorStatusCode(HttpStatusCode statusCode, IEnumerable<ErrorDetail> expectedErrors)
         {
-            return ShouldHaveErrorStatusCode(response, statusCode, null, expectedErrors);
+            return response.ShouldHaveErrorStatusCode(statusCode, null, expectedErrors);
         }
 
         public async Task ShouldHaveErrorStatusCode(
@@ -107,7 +107,7 @@ public static class ApiAssertionExtensions
             response.StatusCode.Should().Be(statusCode);
             response.Content.Headers.ContentType!.MediaType.Should().Be("application/problem+json");
 
-            var problemDetails = await DeserializeProblemDetails(response);
+            var problemDetails = await response.DeserializeProblemDetails();
 
             problemDetails.Should().NotBeNull();
             problemDetails.Status.Should().Be((int)statusCode);
