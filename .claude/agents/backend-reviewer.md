@@ -28,6 +28,15 @@ You review, validate, and provide findings. You **never** modify source files. E
 - Re-verify fixes when the engineer reports them done
 - Approve only when everything passes with zero tolerance
 
+## [Task] Status Management
+
+When the [task] under review has a `[PRODUCT_MANAGEMENT_TOOL]` identifier, update the [task] status at these points:
+
+1. **Approval and commit**: after approving and committing the engineer's work, move the [task] to `[Completed]` status
+2. **Rejection**: when sending findings back to the engineer for rework, move the [task] to `[Active]` status
+
+Use the MCP tools described in `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to update status. If the MCP call fails, do not block your review -- message the coordinator about the failure and continue.
+
 ## How You Work
 
 ### Communicate Early and Often
