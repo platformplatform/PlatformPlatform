@@ -1,0 +1,143 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "eslint",
+    "typescript",
+    "unicorn",
+    "react",
+    "react-perf",
+    "oxc",
+    "import",
+    "jsdoc",
+    "jsx-a11y",
+    "promise"
+  ],
+  "jsPlugins": ["./shared-webapp/config/jsPlugins/no-misplaced-tanstack-query-options.js"],
+  "categories": {},
+  "rules": {
+    // BASIC CODE QUALITY
+    "eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+
+    // TANSTACK QUERY
+    "tanstack-query/no-misplaced-options": "error",
+
+    // NO BARREL FILES - set threshold=1 for zero tolerance
+    "oxc/no-barrel-file": ["error", { "threshold": 1 }],
+
+    // FILE SIZE LIMITS - 200 lines per file, 150 lines per function (excluding blank lines and comments)
+    "max-lines": ["error", { "max": 200, "skipBlankLines": true, "skipComments": true }],
+    "max-lines-per-function": ["error", { "max": 150 }],
+
+    // REACT HOOKS
+    "react/exhaustive-deps": "error",
+    "react/rules-of-hooks": "error",
+
+    // REACT CORRECTNESS
+    "react/jsx-key": "error",
+    "react/no-children-prop": "error",
+
+    // REACT STYLE (auto-fixable)
+    "react/jsx-curly-brace-presence": "error",
+    "react/self-closing-comp": "error",
+
+    // IMPORT ORGANIZATION
+    "import/no-cycle": "error",
+    "import/no-self-import": "error",
+    "import/first": "error",
+    "import/no-duplicates": "error",
+    "import/no-anonymous-default-export": "error",
+
+    // PROMISES
+    "promise/no-multiple-resolved": "error",
+    "promise/no-callback-in-promise": "error",
+
+    // TYPESCRIPT STYLE
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/triple-slash-reference": "off",
+
+    // PERFORMANCE
+    "no-await-in-loop": "error",
+    "oxc/no-accumulating-spread": "error",
+
+    // UNICORN (auto-fixable)
+    "unicorn/no-useless-spread": "error",
+    "unicorn/prefer-string-slice": "error",
+    "unicorn/prefer-array-flat-map": "error",
+
+    // NO DEPRECATED (type-aware rule - warns about deprecated APIs)
+    "typescript/no-deprecated": "error",
+
+    // Core hooks rules
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "error",
+
+    // Restrict specific imports with custom messages
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "@lingui/core/macro",
+            "importNames": ["t"],
+            "message": "Please import 'useLingui' from '@lingui/react/macro' instead of 't' from '@lingui/core/macro' to ensure proper integration with React components."
+          }
+        ]
+      }
+    ]
+  },
+  "settings": {
+    "jsx-a11y": {
+      "polymorphicPropName": null,
+      "components": {},
+      "attributes": {}
+    },
+    "react": {
+      "formComponents": [],
+      "linkComponents": [],
+      "version": null,
+      "componentWrapperFunctions": []
+    },
+    "jsdoc": {
+      "ignorePrivate": false,
+      "ignoreInternal": false,
+      "ignoreReplacesDocs": true,
+      "overrideReplacesDocs": true,
+      "augmentsExtendsReplacesDocs": false,
+      "implementsReplacesDocs": false,
+      "exemptDestructuredRootsFromChecks": false,
+      "tagNamePreference": {}
+    },
+    "vitest": {
+      "typecheck": false
+    }
+  },
+  "env": {
+    "builtin": true
+  },
+  "globals": {
+    "React": "readonly",
+    "ReactNode": "readonly",
+    "CustomBuildEnv": "readonly",
+    "RuntimeEnv": "readonly",
+    "UserInfoEnv": "readonly"
+  },
+  "ignorePatterns": ["e2e/**"],
+  "overrides": [
+    {
+      "files": ["**/public/*.html"],
+      "rules": {
+        "jsx-a11y/use-valid-lang": "off",
+        "no-assign-in-expression": "off"
+      }
+    },
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/tests/**/*.ts", "**/tests/**/*.tsx"],
+      "rules": {
+        "max-lines": "off",
+        "max-lines-per-function": "off"
+      }
+    }
+  ]
+}
