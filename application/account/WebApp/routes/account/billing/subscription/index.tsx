@@ -184,9 +184,9 @@ function PlansPage() {
 
   const formatLongDate = useFormatLongDate();
   const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
-  const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
+  const currentPlan = (subscription?.plan ?? SubscriptionPlan.Basis) as SubscriptionPlan;
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
-  const scheduledPlan = subscription?.scheduledPlan ?? null;
+  const scheduledPlan = (subscription?.scheduledPlan ?? null) as SubscriptionPlan | null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
   const billingInfo = subscription?.billingInfo;
   const formattedPeriodEnd = formatLongDate(currentPeriodEnd);

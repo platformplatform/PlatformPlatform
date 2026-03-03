@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
+import { useSubscription, useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -59,12 +59,8 @@ interface TenantInfo {
 
 function AccountInfoFields({ tenant }: { tenant: TenantInfo | undefined }) {
   const formatDate = useFormatDate();
-  const { data: subscription } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { enabled: isSubscriptionEnabled }
-  );
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
 
   const isSuspended = tenant?.state === TenantState.Suspended;
 

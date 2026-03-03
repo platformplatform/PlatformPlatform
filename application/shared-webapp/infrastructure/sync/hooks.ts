@@ -1,4 +1,4 @@
-import { eq, not, useLiveQuery } from "@tanstack/react-db";
+import { eq, isNull, not, useLiveQuery } from "@tanstack/react-db";
 import { useMemo } from "react";
 import { sessionCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
 
@@ -24,7 +24,7 @@ export function useUsers() {
   const { data: rawData, ...rest } = useLiveQuery((q) =>
     q
       .from({ users: userCollection })
-      .where(({ users }) => eq(users.deletedAt, null))
+      .where(({ users }) => isNull(users.deletedAt))
       .select(({ users }) => ({
         id: users.id,
         tenantId: users.tenantId,
@@ -54,7 +54,7 @@ export function useDeletedUsers() {
   const { data: rawData, ...rest } = useLiveQuery((q) =>
     q
       .from({ users: userCollection })
-      .where(({ users }) => not(eq(users.deletedAt, null)))
+      .where(({ users }) => not(isNull(users.deletedAt)))
       .select(({ users }) => ({
         id: users.id,
         tenantId: users.tenantId,
@@ -145,6 +145,21 @@ export function useTenant(tenantId: string) {
   return { ...rest, data };
 }
 
+function toCamelCaseKeys(obj: unknown): unknown {
+  if (Array.isArray(obj)) {
+    return obj.map(toCamelCaseKeys);
+  }
+  if (obj !== null && typeof obj === "object") {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>).map(([key, val]) => [
+        key.charAt(0).toLowerCase() + key.slice(1),
+        toCamelCaseKeys(val)
+      ])
+    );
+  }
+  return obj;
+}
+
 function castParsed<T>(value: unknown): T | null {
   if (!value) {
     return null;
@@ -160,17 +175,17 @@ function castParsed<T>(value: unknown): T | null {
   if (typeof parsed !== "object") {
     return null;
   }
-  return parsed as T;
+  return toCamelCaseKeys(parsed) as T;
 }
 
-interface PaymentMethod {
+export interface PaymentMethod {
   brand: string;
   last4: string;
   expMonth: number;
   expYear: number;
 }
 
-interface BillingAddress {
+export interface BillingAddress {
   line1: string | null;
   line2: string | null;
   postalCode: string | null;
@@ -179,7 +194,7 @@ interface BillingAddress {
   country: string;
 }
 
-interface BillingInfo {
+export interface BillingInfo {
   name: string | null;
   address: BillingAddress | null;
   email: string | null;
@@ -244,7 +259,7 @@ export function useSessions() {
   return useLiveQuery((q) =>
     q
       .from({ sessions: sessionCollection })
-      .where(({ sessions }) => eq(sessions.revokedAt, null))
+      .where(({ sessions }) => isNull(sessions.revokedAt))
       .select(({ sessions }) => ({
         id: sessions.id,
         tenantId: sessions.tenantId,

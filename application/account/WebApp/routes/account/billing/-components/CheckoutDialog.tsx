@@ -1,6 +1,7 @@
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useSubscription } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import {
   Dialog,
@@ -49,12 +50,22 @@ export function CheckoutDialog({
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isWaitingForActivation, setIsWaitingForActivation] = useState(false);
 
-  const { data: subscription } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { refetchInterval: isWaitingForActivation ? ActivationPollingIntervalMs : false }
-  );
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
+
+  const processPendingEventsMutation = api.useMutation("post", "/api/account/subscriptions/process-pending-events");
+  const { mutate: processPendingEvents } = processPendingEventsMutation;
+
+  useEffect(() => {
+    if (!isWaitingForActivation) {
+      return;
+    }
+    const interval = setInterval(() => {
+      processPendingEvents({});
+    }, ActivationPollingIntervalMs);
+    processPendingEvents({});
+    return () => clearInterval(interval);
+  }, [isWaitingForActivation, processPendingEvents]);
 
   useEffect(() => {
     if (!isWaitingForActivation || !subscription?.hasStripeSubscription) {
@@ -212,7 +223,8 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPaymentReady, setIsPaymentReady] = useState(false);
 
-  const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
   const { data: preview } = api.useQuery("get", "/api/account/subscriptions/checkout-preview", {
     params: { query: { Plan: plan } }
   });
