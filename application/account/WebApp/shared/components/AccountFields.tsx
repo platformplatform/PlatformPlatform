@@ -13,13 +13,17 @@ import { TextField } from "@repo/ui/components/TextField";
 import { CameraIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
-import type { Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 
+interface TenantData {
+  name: string;
+  logoUrl: string | null;
+}
+
 export interface AccountFieldsProps {
-  tenant: Schemas["TenantResponse"] | undefined;
+  tenant: TenantData | undefined;
   isPending: boolean;
   onLogoFileSelect: (file: File | null) => void;
   onLogoRemove?: () => void;
@@ -28,6 +32,8 @@ export interface AccountFieldsProps {
   description?: string;
   autoFocus?: boolean;
   onChange?: () => void;
+  nameValue?: string;
+  onNameChange?: (value: string) => void;
   layout?: "stacked" | "horizontal";
   infoFields?: ReactNode;
 }
@@ -42,6 +48,8 @@ export function AccountFields({
   tooltip,
   description,
   onChange,
+  nameValue,
+  onNameChange,
   layout = "stacked",
   infoFields
 }: AccountFieldsProps) {
@@ -146,19 +154,26 @@ export function AccountFields({
     </>
   );
 
+  const isControlled = nameValue !== undefined;
+
+  const handleNameChange = (value: string) => {
+    onNameChange?.(value);
+    onChange?.();
+  };
+
   const fieldsSection = (
     <TextField
       autoFocus={autoFocus}
       isRequired={true}
       name="name"
-      defaultValue={tenant?.name ?? ""}
+      {...(isControlled ? { value: nameValue } : { defaultValue: tenant?.name ?? "" })}
       isDisabled={isPending}
       isReadOnly={isReadOnly}
       label={t`Account name`}
       placeholder={t`E.g. Acme Corp`}
       tooltip={tooltip}
       description={description}
-      onChange={onChange}
+      onChange={isControlled ? handleNameChange : onChange}
     />
   );
 

@@ -2,6 +2,7 @@ import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
 import { loadStripe } from "@stripe/stripe-js/pure";
@@ -51,7 +52,8 @@ function PlansPage() {
   const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false);
   const [subscribeTarget, setSubscribeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
 
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
 
   const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {

@@ -1,8 +1,9 @@
 import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
 import SuspendedPage from "@/federated-modules/subscription/SuspendedPage";
 import { AccountSideMenu } from "@/shared/components/AccountSideMenu";
-import { api, TenantState } from "@/shared/lib/api/client";
+import { TenantState } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/user")({
   beforeLoad: () => requireAuthentication(),
@@ -10,7 +11,8 @@ export const Route = createFileRoute("/user")({
 });
 
 function UserLayout() {
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
   const location = useLocation();
   const isBillingPage = location.pathname.startsWith("/account/billing");
 

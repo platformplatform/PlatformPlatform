@@ -1,11 +1,12 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { components } from "@/shared/lib/api/client";
-import { api, UserRole } from "@/shared/lib/api/client";
+import { UserRole } from "@/shared/lib/api/client";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import InviteUserDialog from "./InviteUserDialog";
 import { TenantNameRequiredDialog } from "./TenantNameRequiredDialog";
@@ -41,8 +42,9 @@ function getHysteresis(): number {
 }
 
 export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<UserToolbarProps>) {
-  const { data: currentUser } = api.useQuery("get", "/api/account/users/me");
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { id: userId, tenantId } = import.meta.user_info_env;
+  const { data: currentUser } = useUser(userId ?? "");
+  const { data: tenant } = useTenant(tenantId ?? "");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [showTenantNameRequiredDialog, setShowTenantNameRequiredDialog] = useState(false);
