@@ -60,6 +60,19 @@ var frontendBuild = builder
 var accountDatabase = postgres
     .AddDatabase("account-database", "account");
 
+var postgresPasswordValue = postgresPassword.Resource.GetValueAsync(CancellationToken.None).GetAwaiter().GetResult()
+                            ?? throw new InvalidOperationException("PostgreSQL password is not configured.");
+
+var accountElectric = builder
+    .AddContainer("account-electric", "electricsql/electric")
+    .WithHttpEndpoint(9005, 3000)
+    .WithEnvironment("DATABASE_URL", $"postgresql://postgres:{Uri.EscapeDataString(postgresPasswordValue)}@host.docker.internal:9002/account")
+    .WithEnvironment("ELECTRIC_INSECURE", "true")
+    .WithEnvironment("ELECTRIC_REPLICATION_STREAM_ID", "account")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithHttpHealthCheck("/v1/health")
+    .WaitFor(accountDatabase);
+
 var accountWorkers = builder
     .AddProject<Account_Workers>("account-workers")
     .WithReference(accountDatabase)
@@ -71,6 +84,7 @@ var accountApi = builder
     .WithUrlConfiguration("/account")
     .WithReference(accountDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("ELECTRIC_URL", accountElectric.GetEndpoint("http"))
     .WithEnvironment("OAuth__Google__ClientId", googleOAuthClientId)
     .WithEnvironment("OAuth__Google__ClientSecret", googleOAuthClientSecret)
     .WithEnvironment("OAuth__AllowMockProvider", "true")
@@ -100,6 +114,16 @@ var backOfficeApi = builder
 var mainDatabase = postgres
     .AddDatabase("main-database", "main");
 
+var mainElectric = builder
+    .AddContainer("main-electric", "electricsql/electric")
+    .WithHttpEndpoint(9006, 3000)
+    .WithEnvironment("DATABASE_URL", $"postgresql://postgres:{Uri.EscapeDataString(postgresPasswordValue)}@host.docker.internal:9002/main")
+    .WithEnvironment("ELECTRIC_INSECURE", "true")
+    .WithEnvironment("ELECTRIC_REPLICATION_STREAM_ID", "main")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithHttpHealthCheck("/v1/health")
+    .WaitFor(mainDatabase);
+
 var mainWorkers = builder
     .AddProject<Main_Workers>("main-workers")
     .WithReference(mainDatabase)
@@ -111,6 +135,7 @@ var mainApi = builder
     .WithUrlConfiguration("")
     .WithReference(mainDatabase)
     .WithReference(azureStorage)
+    .WithEnvironment("ELECTRIC_URL", mainElectric.GetEndpoint("http"))
     .WithEnvironment("PUBLIC_GOOGLE_OAUTH_ENABLED", googleOAuthConfigured ? "true" : "false")
     .WithEnvironment("PUBLIC_SUBSCRIPTION_ENABLED", stripeFullyConfigured ? "true" : "false")
     .WaitFor(mainWorkers);

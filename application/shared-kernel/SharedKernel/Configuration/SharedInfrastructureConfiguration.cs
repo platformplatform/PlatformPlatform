@@ -86,7 +86,7 @@ public static class SharedInfrastructureConfiguration
                 : builder.Configuration.GetConnectionString(connectionName);
 
             builder.Services.AddDbContext<T>(options =>
-                options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention()
+                options.UseNpgsql(connectionString, o => o.MigrationsHistoryTable("__ef_migrations_history")).UseSnakeCaseNamingConvention()
             );
 
             return builder;
