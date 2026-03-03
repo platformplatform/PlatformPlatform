@@ -5,6 +5,7 @@ import { loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@repo/ui/components/DropdownMenu";
 import { collapsedContext, overlayContext } from "@repo/ui/components/SideMenu";
 import { TenantLogo } from "@repo/ui/components/TenantLogo";
@@ -42,6 +43,8 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
 
+  const { data: electricTenant } = useTenant(userInfo?.tenantId ?? "");
+
   useTrackOpen("User menu", "menu", isMenuOpen);
 
   const { sortedTenants, currentTenant, currentTenantId, isLoadingTenants, isSwitching, handleTenantSwitch } =
@@ -55,9 +58,17 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
     return null;
   }
 
-  const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
-  const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
-  const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
+  const displayTenantName = electricTenant
+    ? electricTenant.name || "PlatformPlatform"
+    : currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
+  const displayTenantNameForLogo = electricTenant
+    ? electricTenant.name || ""
+    : currentTenant?.tenantName || userInfo.tenantName || "";
+  const displayTenantLogoUrl = electricTenant
+    ? electricTenant.logoUrl
+    : currentTenant
+      ? currentTenant.logoUrl
+      : userInfo.tenantLogoUrl;
   const isAccountContext = navigateToMain !== null;
 
   const closeMenuAndOverlay = () => {
@@ -127,12 +138,12 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger disabled={isSwitching} className={triggerClassName} aria-label={t`User menu`}>
           <div className="flex size-8 shrink-0 items-center justify-center">
-            <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
+            <TenantLogo logoUrl={displayTenantLogoUrl} tenantName={displayTenantNameForLogo} />
           </div>
           {!isCollapsed && (
             <>
               <div className="ml-3 flex-1 overflow-hidden text-left font-medium text-ellipsis whitespace-nowrap text-foreground">
-                {currentTenantName}
+                {displayTenantName}
               </div>
               <ChevronsUpDownIcon className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
             </>

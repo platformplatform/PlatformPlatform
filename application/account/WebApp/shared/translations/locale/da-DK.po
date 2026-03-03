@@ -1330,9 +1330,6 @@ msgstr "Prøv at justere din søgning eller filtre"
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Unable to load profile"
-msgstr "Kunne ikke indlæse profil"
-
 msgid "Unknown"
 msgstr "Ukendt"
 
