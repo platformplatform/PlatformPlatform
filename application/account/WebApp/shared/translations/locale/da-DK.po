@@ -2818,9 +2818,6 @@ msgstr "Indtast en dato"
 msgid "Type or search..."
 msgstr "Skriv eller søg..."
 
-msgid "Unable to load profile"
-msgstr "Kunne ikke indlæse profil"
-
 msgid "Under 30 minutes"
 msgstr "Under 30 minutter"
 
