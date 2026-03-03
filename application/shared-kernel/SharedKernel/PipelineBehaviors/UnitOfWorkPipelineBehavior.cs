@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using SharedKernel.Cqrs;
 using SharedKernel.Persistence;
 
@@ -10,7 +11,7 @@ namespace SharedKernel.PipelineBehaviors;
 ///     are successfully handled. If an exception occurs the UnitOfWork.Commit will never be called, and all changes
 ///     will be lost.
 /// </summary>
-public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork unitOfWork, ConcurrentCommandCounter concurrentCommandCounter)
+public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork unitOfWork, ConcurrentCommandCounter concurrentCommandCounter, IHttpContextAccessor httpContextAccessor)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : ICommand where TResponse : ResultBase
 {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -23,7 +24,11 @@ public sealed class UnitOfWorkPipelineBehavior<TRequest, TResponse>(IUnitOfWork 
             concurrentCommandCounter.Decrement();
             if (concurrentCommandCounter.IsZero())
             {
-                await unitOfWork.CommitAsync(cancellationToken);
+                var txid = await unitOfWork.CommitAsync(cancellationToken);
+                if (txid is not null)
+                {
+                    httpContextAccessor.HttpContext?.Response.Headers["electric-offset"] = txid;
+                }
             }
         }
 
