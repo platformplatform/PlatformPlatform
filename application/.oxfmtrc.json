@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "trailingComma": "none",
+  "sortImports": {
+    "groups": [
+      "type-import",
+      ["value-builtin", "value-external"],
+      "type-internal",
+      "value-internal",
+      ["type-parent", "type-sibling", "type-index"],
+      ["value-parent", "value-sibling", "value-index"],
+      "unknown"
+    ]
+  },
+  "sortTailwindcss": {
+    "stylesheet": "./shared-webapp/ui/tailwind.css",
+    "attributes": ["class", "className", "classList"],
+    "functions": ["clsx", "cva", "cn", "tv"],
+    "preserveWhitespace": true
+  },
+  "sortPackageJson": {
+    "sortScripts": true
+  },
+  "ignorePatterns": [
+    "**/obj/**",
+    "**/bin/**",
+    "**/artifacts/**",
+    "**/dist/**",
+    "**/.turbo/**",
+    "**/test-results/**",
+    "**/*.generated.*",
+    "**/translations/locale/**"
+  ]
+}

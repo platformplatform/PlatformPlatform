@@ -42,8 +42,9 @@
     "dev": "tsc -p . -w",
     "dev:setup": "tsc -p .",
     "build": "rimraf ./dist && tsc -p .",
-    "format": "biome check --write --unsafe",
-    "lint": "biome check --error-on-warnings"
+    "format": "oxfmt && (oxlint --fix || true)",
+    "lint": "oxlint",
+    "check": "oxfmt --check && oxlint"
   },
   "devDependencies": {
     "@repo/config": "*",

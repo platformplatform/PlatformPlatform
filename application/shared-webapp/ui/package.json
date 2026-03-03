@@ -40,8 +40,9 @@
     "dev:setup": "rimraf ./dist && npm run copyImages && tsc -p .",
     "build": "rimraf ./dist && npm run copyImages && tsc -p .",
     "copyImages": "node ./copyImages.js",
-    "format": "biome check --write --unsafe",
-    "lint": "biome check --error-on-warnings"
+    "format": "oxfmt && (oxlint --fix || true)",
+    "lint": "oxlint",
+    "check": "oxfmt --check && oxlint"
   },
   "devDependencies": {
     "@repo/build": "*",
