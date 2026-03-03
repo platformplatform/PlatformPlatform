@@ -1,3 +1,5 @@
+import type { BillingInfo, PaymentMethod } from "@repo/infrastructure/sync/hooks";
+
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -18,15 +20,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import type { components } from "@/shared/lib/api/api.generated";
-
 import { api } from "@/shared/lib/api/client";
 
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
 import { PaymentMethodDisplay } from "./PaymentMethodDisplay";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
-type PaymentMethod = components["schemas"]["PaymentMethod"];
 
 interface RetryPaymentDialogProps {
   isOpen: boolean;

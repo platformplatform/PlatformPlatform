@@ -1,9 +1,7 @@
+import type { PaymentMethod } from "@repo/infrastructure/sync/hooks";
+
 import { Trans } from "@lingui/react/macro";
 import { CreditCardIcon } from "lucide-react";
-
-import type { components } from "@/shared/lib/api/api.generated";
-
-type PaymentMethod = components["schemas"]["PaymentMethod"];
 
 type PaymentMethodDisplayProps = {
   paymentMethod: PaymentMethod | null | undefined;

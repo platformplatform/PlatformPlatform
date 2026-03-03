@@ -27,7 +27,7 @@ export function usePlansPageState() {
 
   const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
-  const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
+  const currentPlan = (subscription?.plan ?? SubscriptionPlan.Basis) as SubscriptionPlan;
 
   const { upgradeMutation, subscribeMutation } = useUpgradeSubscribeMutations({
     startPolling,

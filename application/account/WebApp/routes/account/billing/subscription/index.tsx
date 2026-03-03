@@ -26,7 +26,7 @@ function PlansPage() {
   const formatLongDate = useFormatLongDate();
 
   const cancelAtPeriodEnd = state.subscription?.cancelAtPeriodEnd ?? false;
-  const scheduledPlan = state.subscription?.scheduledPlan ?? null;
+  const scheduledPlan = (state.subscription?.scheduledPlan ?? null) as SubscriptionPlan | null;
   const currentPeriodEnd = state.subscription?.currentPeriodEnd ?? null;
   const formattedPeriodEnd = formatLongDate(currentPeriodEnd);
   const isStripeConfigured = (state.pricingCatalog?.plans?.length ?? 0) > 0;
