@@ -1,4 +1,4 @@
-import { createContext, type FormEvent, type FormHTMLAttributes } from "react";
+import { createContext, type FormHTMLAttributes } from "react";
 import { cn } from "../utils";
 
 export type ValidationErrors = Record<string, string | string[]>;
@@ -18,7 +18,7 @@ export function Form({
   onSubmit,
   ...props
 }: Readonly<FormProps>) {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit: FormProps["onSubmit"] = (event) => {
     if (validationBehavior === "aria") {
       event.preventDefault();
     }
