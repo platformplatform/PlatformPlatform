@@ -109,7 +109,7 @@ export async function expectToastMessage(
   options: AssertToastOptions = { expectNetworkError: true }
 ): Promise<void> {
   const { page } = context;
-  const toastRegionSelector = '[data-sonner-toaster]';
+  const toastRegionSelector = "[data-sonner-toaster]";
   const timeoutMs = 3000;
 
   // Determine if we have status + message or just message
@@ -159,7 +159,10 @@ Ensure tests assert all expected toasts or fix the root cause.`
 
   // Close the toast and wait for it to disappear
   try {
-    const toastContainer = page.locator(`${toastRegionSelector} li[data-sonner-toast]`).filter({ hasText: message }).last();
+    const toastContainer = page
+      .locator(`${toastRegionSelector} li[data-sonner-toast]`)
+      .filter({ hasText: message })
+      .last();
     const closeButton = toastContainer.locator("button[data-close-button]").first();
     if (await closeButton.isVisible()) {
       await closeButton.click();
@@ -383,8 +386,7 @@ export async function checkUnexpectedToasts(context: TestContext, expectedMessag
         if (toastMessage) {
           // Exclude toast if the expected message matches either title or description
           const isExpected =
-            expectedMessage &&
-            (toastMessage.includes(expectedMessage) || (descriptionText && descriptionText.includes(expectedMessage)));
+            expectedMessage && (toastMessage.includes(expectedMessage) || descriptionText?.includes(expectedMessage));
           if (!isExpected) {
             unexpectedToasts.push(toastMessage);
           }
@@ -484,13 +486,12 @@ export async function typeOneTimeCode(page: Page, code: string): Promise<void> {
   // Type the entire code at once using native value setter to trigger React's onChange
   await page.evaluate((codeToType) => {
     const activeElement = document.activeElement as HTMLInputElement;
-    if (!activeElement) return;
+    if (!activeElement) {
+      return;
+    }
 
     // Get the native HTMLInputElement value setter (bypasses React's controlled input wrapper)
-    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-      window.HTMLInputElement.prototype,
-      "value"
-    )?.set;
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
 
     if (nativeInputValueSetter) {
       // Set the value using native setter

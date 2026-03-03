@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
@@ -64,7 +65,8 @@ interface AccountSetupFormProps {
 function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
 
-  const { data: tenant, isLoading } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant, isLoading } = useTenant(tenantId ?? "");
 
   const updateTenantMutation = api.useMutation("put", "/api/account/tenants/current");
   const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo");

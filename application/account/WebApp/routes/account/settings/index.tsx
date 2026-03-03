@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -12,7 +13,7 @@ import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
@@ -49,7 +50,14 @@ function DangerZone({ setIsDeleteModalOpen }: { setIsDeleteModalOpen: (open: boo
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
 
-function AccountInfoFields({ tenant }: { tenant: Schemas["TenantResponse"] | undefined }) {
+interface TenantInfo {
+  id: string;
+  createdAt: string;
+  state: string;
+  suspensionReason: string | null;
+}
+
+function AccountInfoFields({ tenant }: { tenant: TenantInfo | undefined }) {
   const formatDate = useFormatDate();
   const { data: subscription } = api.useQuery(
     "get",
@@ -125,15 +133,23 @@ export function AccountSettings() {
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [removeLogoFlag, setRemoveLogoFlag] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const [accountName, setAccountName] = useState("");
   const queryClient = useQueryClient();
 
-  const { data: tenant, isLoading: tenantLoading } = api.useQuery("get", "/api/account/tenants/current");
-  const { data: currentUser, isLoading: userLoading } = api.useQuery("get", "/api/account/users/me");
+  const { id: userId, tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
+  const { data: currentUser } = useUser(userId ?? "");
   const updateCurrentTenantMutation = api.useMutation("put", "/api/account/tenants/current");
   const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo");
   const removeTenantLogoMutation = api.useMutation("delete", "/api/account/tenants/current/remove-logo");
 
   const isOwner = currentUser?.role === UserRole.Owner;
+
+  useEffect(() => {
+    if (!isFormDirty && tenant?.name !== undefined) {
+      setAccountName(tenant.name);
+    }
+  }, [tenant?.name, isFormDirty]);
 
   const saveMutation = useMutation<
     void,
@@ -176,10 +192,6 @@ export function AccountSettings() {
     hasUnsavedChanges: isFormDirty && isOwner
   });
 
-  if (tenantLoading || userLoading) {
-    return null;
-  }
-
   return (
     <>
       <AppLayout
@@ -205,6 +217,8 @@ export function AccountSettings() {
             isReadOnly={!isOwner}
             tooltip={isOwner ? t`The name of your account, shown to users and in email notifications` : undefined}
             description={!isOwner ? t`Only account owners can modify the account name` : undefined}
+            nameValue={accountName}
+            onNameChange={setAccountName}
             onChange={() => setIsFormDirty(true)}
             infoFields={<AccountInfoFields tenant={tenant} />}
           />

@@ -137,7 +137,7 @@ export async function completeSignupFlow(
   page: Page,
   expect: typeof import("@playwright/test").expect,
   user: { email: string; firstName: string; lastName: string },
-  context: TestContext,
+  _context: TestContext,
   keepUserLoggedIn = true
 ): Promise<void> {
   // Step 1: Navigate directly to signup page
@@ -170,7 +170,7 @@ export async function completeSignupFlow(
 
   // Step 6: Verify redirect to dashboard after welcome flow
   await expect(page).toHaveURL("/dashboard");
-    await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your dashboard is empty" })).toBeVisible();
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
