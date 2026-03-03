@@ -20,6 +20,13 @@ export interface UserProfileFieldsProps {
   onAvatarRemove?: () => void;
   autoFocus?: boolean;
   layout?: "stacked" | "horizontal";
+  firstNameValue?: string;
+  lastNameValue?: string;
+  titleValue?: string;
+  onFirstNameChange?: (value: string) => void;
+  onLastNameChange?: (value: string) => void;
+  onTitleChange?: (value: string) => void;
+  onChange?: () => void;
 }
 
 export function UserProfileFields({
@@ -28,7 +35,14 @@ export function UserProfileFields({
   onAvatarFileSelect,
   onAvatarRemove,
   autoFocus,
-  layout = "stacked"
+  layout = "stacked",
+  firstNameValue,
+  lastNameValue,
+  titleValue,
+  onFirstNameChange,
+  onLastNameChange,
+  onTitleChange,
+  onChange
 }: UserProfileFieldsProps) {
   const avatarSection = (
     <UserAvatarPicker
@@ -39,6 +53,23 @@ export function UserProfileFields({
     />
   );
 
+  const isControlled = firstNameValue !== undefined;
+
+  const handleFirstNameChange = (value: string) => {
+    onFirstNameChange?.(value);
+    onChange?.();
+  };
+
+  const handleLastNameChange = (value: string) => {
+    onLastNameChange?.(value);
+    onChange?.();
+  };
+
+  const handleTitleChange = (value: string) => {
+    onTitleChange?.(value);
+    onChange?.();
+  };
+
   const fieldsSection = (
     <>
       <div className="flex flex-col gap-4 sm:flex-row">
@@ -47,7 +78,8 @@ export function UserProfileFields({
           isRequired={true}
           name="firstName"
           label={t`First name`}
-          defaultValue={user?.firstName ?? undefined}
+          {...(isControlled ? { value: firstNameValue } : { defaultValue: user?.firstName ?? undefined })}
+          onChange={isControlled ? handleFirstNameChange : onChange}
           placeholder={t`E.g. Alex`}
           className="sm:flex-1"
         />
@@ -55,7 +87,8 @@ export function UserProfileFields({
           isRequired={true}
           name="lastName"
           label={t`Last name`}
-          defaultValue={user?.lastName ?? undefined}
+          {...(isControlled ? { value: lastNameValue } : { defaultValue: user?.lastName ?? undefined })}
+          onChange={isControlled ? handleLastNameChange : onChange}
           placeholder={t`E.g. Taylor`}
           className="sm:flex-1"
         />
@@ -64,7 +97,7 @@ export function UserProfileFields({
       <TextField
         name="email"
         label={t`Email`}
-        value={user?.email}
+        value={user?.email ?? ""}
         isDisabled={true}
         startIcon={<MailIcon className="size-4" />}
       />
@@ -73,7 +106,8 @@ export function UserProfileFields({
         name="title"
         label={t`Title`}
         tooltip={t`Your professional title or role`}
-        defaultValue={user?.title ?? undefined}
+        {...(isControlled ? { value: titleValue } : { defaultValue: user?.title ?? undefined })}
+        onChange={isControlled ? handleTitleChange : onChange}
         placeholder={t`E.g. Software engineer`}
       />
     </>
