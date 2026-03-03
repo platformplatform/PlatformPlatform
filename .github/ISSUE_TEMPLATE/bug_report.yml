@@ -47,7 +47,7 @@ body:
     id: security-related
     attributes:
       label: Is this bug security related?
-      description: Please let us know if this bug is security related. If so please consider using our [Report a security vulnerability](../security/advisories/new) form instead.
+      description: Please let us know if this bug is security related. If so please consider using our [Report a security vulnerability](https://github.com/platformplatform/PlatformPlatform/security/advisories/new) form instead.
       options:
         - label: This bug is related to security
           required: false
@@ -55,7 +55,7 @@ body:
     id: terms
     attributes:
       label: Code of Conduct
-      description: By submitting this issue, you agree to follow our [Code of Conduct](../blob/main/.github/CODE_OF_CONDUCT.md)
+      description: By submitting this issue, you agree to follow our [Code of Conduct](https://github.com/platformplatform/PlatformPlatform/blob/main/.github/CODE_OF_CONDUCT.md)
       options:
         - label: I agree to follow this project's Code of Conduct
           required: true
