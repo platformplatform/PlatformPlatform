@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
+import { useUser } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -9,7 +10,7 @@ import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
@@ -24,10 +25,28 @@ function ProfilePage() {
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
   const [removeAvatarFlag, setRemoveAvatarFlag] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [title, setTitle] = useState("");
 
   const { updateUserInfo } = useContext(AuthenticationContext);
 
-  const { data: user, isLoading: isLoadingUser, refetch } = api.useQuery("get", "/api/account/users/me");
+  const { id: userId } = import.meta.user_info_env;
+  const { data: user } = useUser(userId ?? "");
+
+  useEffect(() => {
+    if (!isFormDirty) {
+      if (user?.firstName !== undefined) {
+        setFirstName(user.firstName ?? "");
+      }
+      if (user?.lastName !== undefined) {
+        setLastName(user.lastName ?? "");
+      }
+      if (user?.title !== undefined) {
+        setTitle(user.title ?? "");
+      }
+    }
+  }, [user?.firstName, user?.lastName, user?.title, isFormDirty]);
 
   const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar");
   const removeAvatarMutation = api.useMutation("delete", "/api/account/users/me/remove-avatar");
@@ -48,16 +67,16 @@ function ProfilePage() {
       }
 
       await updateCurrentUserMutation.mutateAsync(data);
-
-      const { data: updatedUser } = await refetch();
-      if (updatedUser) {
-        updateUserInfo(updatedUser);
-      }
     },
     onSuccess: () => {
       setSelectedAvatarFile(null);
       setRemoveAvatarFlag(false);
       setIsFormDirty(false);
+      updateUserInfo({
+        firstName: firstName || undefined,
+        lastName: lastName || undefined,
+        title: title || undefined
+      });
       toast.success(t`Profile updated successfully`);
     }
   });
@@ -76,26 +95,6 @@ function ProfilePage() {
     setRemoveAvatarFlag(true);
     setIsFormDirty(true);
   };
-
-  if (isLoadingUser) {
-    return (
-      <AppLayout variant="center" maxWidth="64rem">
-        <div className="flex flex-1 items-center justify-center">
-          <Trans>Loading...</Trans>
-        </div>
-      </AppLayout>
-    );
-  }
-
-  if (!user) {
-    return (
-      <AppLayout variant="center" maxWidth="64rem">
-        <div className="flex flex-1 items-center justify-center">
-          <Trans>Unable to load profile</Trans>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <>
@@ -119,6 +118,13 @@ function ProfilePage() {
             isPending={saveMutation.isPending}
             onAvatarFileSelect={handleAvatarFileSelect}
             onAvatarRemove={handleAvatarRemove}
+            firstNameValue={firstName}
+            lastNameValue={lastName}
+            titleValue={title}
+            onFirstNameChange={setFirstName}
+            onLastNameChange={setLastName}
+            onTitleChange={setTitle}
+            onChange={() => setIsFormDirty(true)}
           />
 
           <div className="mt-4 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
