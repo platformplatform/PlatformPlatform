@@ -17,10 +17,6 @@ public sealed class SubscriptionEndpoints : IEndpoints
             => await mediator.Send(query)
         ).Produces<PricingCatalogResponse>();
 
-        group.MapGet("/current", async Task<ApiResult<SubscriptionResponse>> ([AsParameters] GetCurrentSubscriptionQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<SubscriptionResponse>();
-
         group.MapGet("/checkout-preview", async Task<ApiResult<CheckoutPreviewResponse>> ([AsParameters] GetCheckoutPreviewQuery query, IMediator mediator)
             => await mediator.Send(query)
         ).Produces<CheckoutPreviewResponse>();
