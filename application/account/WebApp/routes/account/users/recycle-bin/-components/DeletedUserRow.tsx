@@ -1,3 +1,5 @@
+import type { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Badge } from "@repo/ui/components/Badge";
@@ -6,15 +8,15 @@ import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger } from "@repo/ui/utils/responsive";
 import { getInitials } from "@repo/utils/string/getInitials";
 
-import type { components } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
 
 import { SmartDate } from "@/shared/components/SmartDate";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
-type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
+type ElectricDeletedUser = ReturnType<typeof useDeletedUsers>["data"][number];
 
 interface DeletedUserRowProps {
-  user: DeletedUserDetails;
+  user: ElectricDeletedUser;
   isSelected: boolean;
   isMultiSelectMode: boolean;
 }
@@ -29,7 +31,7 @@ export function DeletedUserRow({ user, isSelected, isMultiSelectMode }: Readonly
             onCheckedChange={() => {
               /* selection is driven by the Table click delegation */
             }}
-            aria-label={t`Select ${user.firstName} ${user.lastName}`}
+            aria-label={t`Select ${user.firstName ?? ""} ${user.lastName ?? ""}`}
           />
         </TableCell>
       )}
@@ -38,7 +40,9 @@ export function DeletedUserRow({ user, isSelected, isMultiSelectMode }: Readonly
           <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
             <Avatar size="lg">
               <AvatarImage src={user.avatarUrl ?? undefined} />
-              <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+              <AvatarFallback>
+                {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+              </AvatarFallback>
             </Avatar>
             <div className="flex min-w-0 flex-1 flex-col">
               <div className="flex items-center gap-2 truncate text-foreground">
@@ -67,7 +71,7 @@ export function DeletedUserRow({ user, isSelected, isMultiSelectMode }: Readonly
       )}
       {isSmallViewportOrLarger() && (
         <TableCell>
-          <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+          <Badge variant="outline">{getUserRoleLabel(user.role as UserRole)}</Badge>
         </TableCell>
       )}
     </TableRow>

@@ -16,12 +16,17 @@ import { AlertTriangleIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { api, type components } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
-type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
+interface DeletedUserData {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+}
 
 interface PermanentlyDeleteUserDialogProps {
-  users: DeletedUserDetails[];
+  users: DeletedUserData[];
   isEmptyRecycleBin: boolean;
   totalDeletedUsersCount: number;
   isOpen: boolean;

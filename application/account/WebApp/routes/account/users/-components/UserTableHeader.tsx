@@ -2,7 +2,7 @@ import { Trans } from "@lingui/react/macro";
 import { TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { ArrowUp } from "lucide-react";
 
-import { SortableUserProperties } from "@/shared/lib/api/client";
+import { SortableUserProperties } from "@/shared/lib/api/sortTypes";
 
 export type SortDescriptor = {
   column: string;

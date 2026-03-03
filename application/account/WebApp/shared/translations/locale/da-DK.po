@@ -943,7 +943,7 @@ msgid "Deleted users"
 msgstr "Slettede brugere"
 
 msgid "Deleted users loading"
-msgstr "Slettede brugere indlæses"
+msgstr ""
 
 msgid "Deleted users will appear here for recovery"
 msgstr "Slettede brugere vil blive vist her til gendannelse"
@@ -2018,7 +2018,7 @@ msgid "Preview settings"
 msgstr "Forhåndsvisningsindstillinger"
 
 msgid "Previous"
-msgstr "Forrige"
+msgstr ""
 
 msgid "Pricing"
 msgstr "Priser"
@@ -2317,8 +2317,8 @@ msgstr "Vælg"
 msgid "Select {0}"
 msgstr "Vælg {0}"
 
-#. placeholder {0}: user.firstName
-#. placeholder {1}: user.lastName
+#. placeholder {0}: user.firstName ?? ""
+#. placeholder {1}: user.lastName ?? ""
 msgid "Select {0} {1}"
 msgstr "Vælg {0} {1}"
 
@@ -2897,9 +2897,6 @@ msgstr "Bruger"
 msgid "User actions"
 msgstr "Brugerhandlinger"
 
-msgid "User data updated"
-msgstr "Brugerdata opdateret"
-
 msgid "User deleted successfully: {userDisplayName}"
 msgstr "Bruger slettet succesfuldt: {userDisplayName}"
 
@@ -2949,7 +2946,7 @@ msgid "Users"
 msgstr "Brugere"
 
 msgid "Users loading"
-msgstr "Brugere indlæses"
+msgstr ""
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"
