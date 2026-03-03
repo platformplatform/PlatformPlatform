@@ -501,9 +501,6 @@ msgstr "Slettet"
 msgid "Deleted users"
 msgstr "Slettede brugere"
 
-msgid "Deleted users loading"
-msgstr "Slettede brugere indlæses"
-
 msgid "Deleted users will appear here for recovery"
 msgstr "Slettede brugere vil blive vist her til gendannelse"
 
@@ -985,9 +982,6 @@ msgstr "Præferencer"
 msgid "Premium"
 msgstr "Premium"
 
-msgid "Previous"
-msgstr "Forrige"
-
 msgid "Priority support"
 msgstr "Prioriteret support"
 
@@ -1106,8 +1100,8 @@ msgstr "Sikkerhedsadvarsel"
 msgid "Security, privacy, and compliance information"
 msgstr "Sikkerheds-, privatlivs- og overholdelsesoplysninger"
 
-#. placeholder {0}: user.firstName
-#. placeholder {1}: user.lastName
+#. placeholder {0}: user.firstName ?? ""
+#. placeholder {1}: user.lastName ?? ""
 msgid "Select {0} {1}"
 msgstr "Vælg {0} {1}"
 
@@ -1380,9 +1374,6 @@ msgstr "Bruger"
 msgid "User actions"
 msgstr "Brugerhandlinger"
 
-msgid "User data updated"
-msgstr "Brugerdata opdateret"
-
 msgid "User deleted successfully: {userDisplayName}"
 msgstr "Bruger slettet succesfuldt: {userDisplayName}"
 
@@ -1430,9 +1421,6 @@ msgstr "user@email.com"
 
 msgid "Users"
 msgstr "Brugere"
-
-msgid "Users loading"
-msgstr "Brugere indlæses"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"

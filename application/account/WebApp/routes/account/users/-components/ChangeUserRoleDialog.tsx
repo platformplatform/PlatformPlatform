@@ -19,12 +19,20 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { api, type components, UserRole } from "@/shared/lib/api/client";
+import { api, UserRole } from "@/shared/lib/api/client";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+  role: string;
+}
 
 interface ChangeUserRoleDialogProps {
-  user: UserDetails | null;
+  user: UserData | null;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
 }
@@ -66,7 +74,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
       params: {
         path: { id: user.id }
       },
-      body: { userRole: currentRole }
+      body: { userRole: currentRole as UserRole }
     });
   };
 

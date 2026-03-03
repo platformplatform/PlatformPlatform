@@ -1,9 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useUsers } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { api, UserStatus } from "@/shared/lib/api/client";
+import { useMemo } from "react";
+import { UserStatus } from "@/shared/lib/api/userStatus";
 
 export const Route = createFileRoute("/account/")({
   staticData: { trackingTitle: "Account overview" },
@@ -11,7 +13,20 @@ export const Route = createFileRoute("/account/")({
 });
 
 export default function Home() {
-  const { data: usersSummary } = api.useQuery("get", "/api/account/users/summary");
+  const { data: users } = useUsers();
+
+  const usersSummary = useMemo(() => {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    return {
+      totalUsers: users.length,
+      activeUsers: users.filter(
+        (user) => user.emailConfirmed && user.lastSeenAt && new Date(user.lastSeenAt) >= thirtyDaysAgo
+      ).length,
+      pendingUsers: users.filter((user) => !user.emailConfirmed).length
+    };
+  }, [users]);
 
   return (
     <AppLayout
@@ -34,7 +49,7 @@ export default function Home() {
               <Trans>Add more in the Users menu</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary.totalUsers}</div>
         </Link>
         <Link
           to="/account/users"
@@ -54,7 +69,7 @@ export default function Home() {
               <Trans>Active users in the past 30 days</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary.activeUsers}</div>
         </Link>
         <Link
           to="/account/users"
@@ -70,7 +85,7 @@ export default function Home() {
               <Trans>Users who haven't confirmed their email</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary.pendingUsers}</div>
         </Link>
       </div>
     </AppLayout>

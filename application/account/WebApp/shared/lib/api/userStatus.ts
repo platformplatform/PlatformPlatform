@@ -1,5 +1,9 @@
 import { t } from "@lingui/core/macro";
-import { UserStatus } from "@/shared/lib/api/client";
+
+export enum UserStatus {
+  Active = "Active",
+  Pending = "Pending"
+}
 
 export function getUserStatusLabel(userStatus: UserStatus): string {
   switch (userStatus) {

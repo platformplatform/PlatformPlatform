@@ -1,10 +1,13 @@
 import { t } from "@lingui/core/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { useUser, type useUsers } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { z } from "zod";
-import { api, type components, SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { UserRole } from "@/shared/lib/api/client";
+import { SortableUserProperties, SortOrder } from "@/shared/lib/api/sortTypes";
+import { UserStatus } from "@/shared/lib/api/userStatus";
 import { ChangeUserRoleDialog } from "./-components/ChangeUserRoleDialog";
 import { DeleteUserDialog } from "./-components/DeleteUserDialog";
 import { UserProfileSidePane } from "./-components/UserProfileSidePane";
@@ -12,7 +15,7 @@ import { UserTable } from "./-components/UserTable";
 import { UserTabNavigation } from "./-components/UserTabNavigation";
 import { UserToolbar } from "./-components/UserToolbar";
 
-type UserDetails = components["schemas"]["UserDetails"];
+type ElectricUser = ReturnType<typeof useUsers>["data"][number];
 
 const userPageSearchSchema = z.object({
   search: z.string().optional(),
@@ -34,17 +37,24 @@ export const Route = createFileRoute("/account/users/")({
 
 export default function UsersPage() {
   const userInfo = useUserInfo();
-  const [selectedUsers, setSelectedUsers] = useState<UserDetails[]>([]);
-  const [profileUser, setProfileUser] = useState<UserDetails | null>(null);
-  const [userToDelete, setUserToDelete] = useState<UserDetails | null>(null);
-  const [userToChangeRole, setUserToChangeRole] = useState<UserDetails | null>(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [tableUsers, setTableUsers] = useState<UserDetails[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<ElectricUser[]>([]);
+  const [profileUser, setProfileUser] = useState<ElectricUser | null>(null);
+  const [userToDelete, setUserToDelete] = useState<ElectricUser | null>(null);
+  const [userToChangeRole, setUserToChangeRole] = useState<ElectricUser | null>(null);
+  const [tableUsers, setTableUsers] = useState<ElectricUser[]>([]);
 
   const navigate = useNavigate({ from: Route.fullPath });
   const { userId } = Route.useSearch();
 
   const canSeeDeletedUsers = userInfo?.role === "Owner" || userInfo?.role === "Admin";
+
+  const { data: linkedUser } = useUser(userId ?? "");
+
+  useEffect(() => {
+    if (userId && linkedUser) {
+      setProfileUser(linkedUser);
+    }
+  }, [userId, linkedUser]);
 
   const handleCloseProfile = useCallback(() => {
     setProfileUser(null);
@@ -61,7 +71,7 @@ export default function UsersPage() {
   }, [navigate, selectedUsers]);
 
   const handleViewProfile = useCallback(
-    (user: UserDetails | null) => {
+    (user: ElectricUser | null) => {
       setProfileUser(user);
       if (user) {
         navigate({ search: (prev) => ({ ...prev, userId: user.id }) });
@@ -72,47 +82,19 @@ export default function UsersPage() {
     [navigate]
   );
 
-  const { data: userData, isLoading: isLoadingUser } = api.useQuery(
-    "get",
-    "/api/account/users/{id}",
-    { params: { path: { id: userId || "" } } },
-    { enabled: !!userId }
-  );
-
-  useEffect(() => {
-    if (userId && userData) {
-      setProfileUser(userData);
-      if (isInitialLoad) {
-        setSelectedUsers([userData]);
-        setIsInitialLoad(false);
-      }
-    } else if (!userId && isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, [userId, userData, isInitialLoad]);
-
-  const handleDeleteUser = useCallback((user: UserDetails) => {
+  const handleDeleteUser = useCallback((user: ElectricUser) => {
     setUserToDelete(user);
   }, []);
 
-  const handleChangeRole = useCallback((user: UserDetails) => {
+  const handleChangeRole = useCallback((user: ElectricUser) => {
     setUserToChangeRole(user);
   }, []);
 
-  const handleUsersLoaded = useCallback((users: UserDetails[]) => {
+  const handleUsersLoaded = useCallback((users: ElectricUser[]) => {
     setTableUsers(users);
   }, []);
 
   const isUserInCurrentView = profileUser ? tableUsers.some((u) => u.id === profileUser.id) : true;
-
-  const tableUser = profileUser ? tableUsers.find((u) => u.id === profileUser.id) : null;
-  const isDataNewer = !!(
-    userData &&
-    tableUser &&
-    userData.modifiedAt &&
-    tableUser.modifiedAt &&
-    new Date(userData.modifiedAt).getTime() !== new Date(tableUser.modifiedAt).getTime()
-  );
 
   const getSidePane = () => {
     if (profileUser) {
@@ -121,10 +103,8 @@ export default function UsersPage() {
           user={profileUser}
           isOpen={!!profileUser}
           onClose={handleCloseProfile}
-          onDeleteUser={handleDeleteUser}
+          onDeleteUser={(user) => setUserToDelete(user as ElectricUser)}
           isUserInCurrentView={isUserInCurrentView}
-          isDataNewer={isDataNewer}
-          isLoading={isLoadingUser || !!(userId && profileUser.id !== userId)}
         />
       );
     }
@@ -143,7 +123,10 @@ export default function UsersPage() {
         {canSeeDeletedUsers && <UserTabNavigation activeTab="all-users" />}
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="max-sm:sticky max-sm:top-12">
-            <UserToolbar selectedUsers={selectedUsers} onSelectedUsersChange={setSelectedUsers} />
+            <UserToolbar
+              selectedUsers={selectedUsers}
+              onSelectedUsersChange={(users) => setSelectedUsers(users as ElectricUser[])}
+            />
           </div>
           <div className="flex min-h-0 flex-1 flex-col">
             <UserTable

@@ -22,9 +22,10 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Filter, FilterX, SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
+import { UserRole } from "@/shared/lib/api/client";
+import type { SortableUserProperties, SortOrder } from "@/shared/lib/api/sortTypes";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { getUserStatusLabel, UserStatus } from "@/shared/lib/api/userStatus";
 
 interface SearchParams {
   search: string | undefined;
