@@ -22,7 +22,6 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.Property(s => s.CurrentPriceAmount).HasPrecision(18, 2);
 
         builder.Property(s => s.PaymentTransactions)
-            .HasColumnName("PaymentTransactions")
             .HasConversion(
                 v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
                 v => JsonSerializer.Deserialize<ImmutableArray<PaymentTransaction>>(v, JsonSerializerOptions)
@@ -37,7 +36,6 @@ public sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscri
         builder.OwnsOne(s => s.PaymentMethod, b => b.ToJson());
 
         builder.Property(s => s.BillingInfo)
-            .HasColumnName("BillingInfo")
             .HasConversion(
                 v => v == null ? null : JsonSerializer.Serialize(v, JsonSerializerOptions),
                 v => v == null ? null : JsonSerializer.Deserialize<BillingInfo>(v, JsonSerializerOptions)
