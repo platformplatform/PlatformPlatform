@@ -135,7 +135,6 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         // ✅ DO: Map collection with custom JsonSerializer
         builder.Property(i => i.InvoiceLines)
-            .HasColumnName("InvoiceLines")
             .HasConversion(
                 v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
                 v => JsonSerializer.Deserialize<ImmutableArray<InvoiceLine>>(v, JsonSerializerOptions)
