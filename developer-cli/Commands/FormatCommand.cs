@@ -163,7 +163,7 @@ public class FormatCommand : Command
     private static void RunFrontendFormat(bool quiet)
     {
         if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend code format...[/]");
-        ProcessHelper.Run("npm run lint", Configuration.ApplicationFolder, "Frontend format", quiet);
+        ProcessHelper.Run("npm run check:fix", Configuration.ApplicationFolder, "Frontend format", quiet);
     }
 
     private static void RunDeveloperCliFormat(bool noBuild, bool quiet)

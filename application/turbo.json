@@ -20,8 +20,8 @@
       "dependsOn": ["^dev:setup"],
       "outputs": ["dist/**"]
     },
-    "lint": {
-      "dependsOn": ["^lint"],
+    "check:fix": {
+      "dependsOn": ["^check:fix"],
       "cache": false
     },
     "clean": {
