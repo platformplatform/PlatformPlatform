@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
-import { api, TenantState } from "@/shared/lib/api/client";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
+
+import { TenantState } from "@/shared/lib/api/client";
 
 import SuspendedPage from "./SuspendedPage";
 
@@ -10,7 +12,8 @@ interface TenantStateGuardProps {
 }
 
 export default function TenantStateGuard({ children, pathname }: Readonly<TenantStateGuardProps>) {
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
 
   const isBillingPage = pathname.startsWith("/account/billing");
 

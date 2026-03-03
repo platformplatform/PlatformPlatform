@@ -3,12 +3,18 @@ import { Trans } from "@lingui/react/macro";
 import { TextField } from "@repo/ui/components/TextField";
 import { MailIcon } from "lucide-react";
 
-import type { Schemas } from "@/shared/lib/api/client";
-
 import { UserAvatarPicker } from "./UserAvatarPicker";
 
+interface UserData {
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+}
+
 export interface UserProfileFieldsProps {
-  user: Schemas["CurrentUserResponse"] | undefined;
+  user: UserData | undefined;
   isPending: boolean;
   onAvatarFileSelect: (file: File | null) => void;
   onAvatarRemove?: () => void;
@@ -42,7 +48,7 @@ export function UserProfileFields({
           required={true}
           name="firstName"
           label={t`First name`}
-          defaultValue={user?.firstName}
+          defaultValue={user?.firstName ?? undefined}
           placeholder={t`E.g. Alex`}
           className="sm:flex-1"
         />
@@ -50,7 +56,7 @@ export function UserProfileFields({
           required={true}
           name="lastName"
           label={t`Last name`}
-          defaultValue={user?.lastName}
+          defaultValue={user?.lastName ?? undefined}
           placeholder={t`E.g. Taylor`}
           className="sm:flex-1"
         />
@@ -65,7 +71,13 @@ export function UserProfileFields({
         startIcon={<MailIcon className="size-4" />}
       />
 
-      <TextField name="title" label={t`Title`} defaultValue={user?.title} placeholder={t`E.g. Software engineer`} />
+      <TextField
+        name="title"
+        label={t`Title`}
+        tooltip={t`Your professional title or role`}
+        defaultValue={user?.title ?? undefined}
+        placeholder={t`E.g. Software engineer`}
+      />
     </>
   );
 

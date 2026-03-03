@@ -3116,6 +3116,9 @@ msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuvær
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 msgstr "Din plan vil blive nedgraderet til {planName} ved udgangen af din nuværende faktureringsperiode. Du beholder dine nuværende planfunktioner indtil da."
 
+msgid "Your professional title or role"
+msgstr ""
+
 msgid "Your profile has been verified"
 msgstr ""
 

@@ -4,12 +4,15 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { TextField } from "@repo/ui/components/TextField";
 
-import type { Schemas } from "@/shared/lib/api/client";
-
 import { TenantLogoPicker } from "./TenantLogoPicker";
 
+interface TenantData {
+  name: string;
+  logoUrl: string | null;
+}
+
 export interface AccountFieldsProps {
-  tenant: Schemas["TenantResponse"] | undefined;
+  tenant: TenantData | undefined;
   isPending: boolean;
   onLogoFileSelect: (file: File | null) => void;
   onLogoRemove?: () => void;
@@ -18,6 +21,8 @@ export interface AccountFieldsProps {
   description?: string;
   autoFocus?: boolean;
   onChange?: () => void;
+  nameValue?: string;
+  onNameChange?: (value: string) => void;
   layout?: "stacked" | "horizontal";
   infoFields?: ReactNode;
 }
@@ -32,6 +37,8 @@ export function AccountFields({
   tooltip,
   description,
   onChange,
+  nameValue,
+  onNameChange,
   layout = "stacked",
   infoFields
 }: AccountFieldsProps) {
@@ -47,19 +54,26 @@ export function AccountFields({
     />
   );
 
+  const isControlled = nameValue !== undefined;
+
+  const handleNameChange = (value: string) => {
+    onNameChange?.(value);
+    onChange?.();
+  };
+
   const fieldsSection = (
     <TextField
       autoFocus={autoFocus}
       required={true}
       name="name"
-      defaultValue={tenant?.name ?? ""}
+      {...(isControlled ? { value: nameValue } : { defaultValue: tenant?.name ?? "" })}
       disabled={isPending}
       readOnly={readOnly}
       label={t`Account name`}
       placeholder={t`E.g. Acme Corp`}
       tooltip={tooltip}
       description={description}
-      onChange={onChange}
+      onChange={isControlled ? handleNameChange : onChange}
     />
   );
 

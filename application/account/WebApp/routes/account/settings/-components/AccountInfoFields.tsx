@@ -4,11 +4,18 @@ import { Badge } from "@repo/ui/components/Badge";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
 
-import { api, type Schemas, SuspensionReason, TenantState } from "@/shared/lib/api/client";
+import { api, SuspensionReason, TenantState } from "@/shared/lib/api/client";
 import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
 
+interface TenantInfo {
+  id: string;
+  createdAt: string;
+  state: string;
+  suspensionReason: string | null;
+}
+
 interface AccountInfoFieldsProps {
-  tenant: Readonly<Schemas["TenantResponse"] | undefined>;
+  tenant: Readonly<TenantInfo | undefined>;
 }
 
 const isSubscriptionEnabled = import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";

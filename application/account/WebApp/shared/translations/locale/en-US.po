@@ -3118,6 +3118,9 @@ msgstr "Your plan will be downgraded to {planName} at the end of your current bi
 msgid "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 msgstr "Your plan will be downgraded to {planName} at the end of your current billing period. You will keep your current plan features until then."
 
+msgid "Your professional title or role"
+msgstr "Your professional title or role"
+
 msgid "Your profile has been verified"
 msgstr "Your profile has been verified"
 
