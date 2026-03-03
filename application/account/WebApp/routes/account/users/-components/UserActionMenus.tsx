@@ -18,25 +18,25 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { EllipsisVerticalIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 
-import type { components } from "@/shared/lib/api/client";
-
-type UserDetails = components["schemas"]["UserDetails"];
-
-interface UserActionMenuProps {
-  user: UserDetails;
-  currentUserRole: string | undefined;
-  currentUserId: string | undefined;
-  onSelectedUsersChange: (users: UserDetails[]) => void;
-  onViewProfile: (user: UserDetails, isKeyboardOpen?: boolean) => void;
-  onDeleteUser: (user: UserDetails) => void;
-  onChangeRole: (user: UserDetails) => void;
+interface UserActionMenuUser {
+  id: string;
 }
 
-interface MobileUserActionMenuProps extends UserActionMenuProps {
+interface UserActionMenuProps<T extends UserActionMenuUser> {
+  user: T;
+  currentUserRole: string | undefined;
+  currentUserId: string | undefined;
+  onSelectedUsersChange: (users: T[]) => void;
+  onViewProfile: (user: T, isKeyboardOpen?: boolean) => void;
+  onDeleteUser: (user: T) => void;
+  onChangeRole: (user: T) => void;
+}
+
+interface MobileUserActionMenuProps<T extends UserActionMenuUser> extends UserActionMenuProps<T> {
   children: React.ReactNode;
 }
 
-export function MobileUserActionMenu({
+export function MobileUserActionMenu<T extends UserActionMenuUser>({
   user,
   currentUserRole,
   currentUserId,
@@ -45,7 +45,7 @@ export function MobileUserActionMenu({
   onDeleteUser,
   onChangeRole,
   children
-}: Readonly<MobileUserActionMenuProps>) {
+}: Readonly<MobileUserActionMenuProps<T>>) {
   return (
     <ContextMenu
       onOpenChange={(isOpen) => {
@@ -83,7 +83,7 @@ export function MobileUserActionMenu({
   );
 }
 
-export function DesktopUserActionMenu({
+export function DesktopUserActionMenu<T extends UserActionMenuUser>({
   user,
   currentUserRole,
   currentUserId,
@@ -91,7 +91,7 @@ export function DesktopUserActionMenu({
   onViewProfile,
   onDeleteUser,
   onChangeRole
-}: Readonly<UserActionMenuProps>) {
+}: Readonly<UserActionMenuProps<T>>) {
   return (
     <DropdownMenu
       onOpenChange={(isOpen) => {

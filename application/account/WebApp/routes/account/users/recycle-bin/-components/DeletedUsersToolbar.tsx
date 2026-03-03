@@ -1,20 +1,20 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
-import { Skeleton } from "@repo/ui/components/Skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { api, type components } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
-type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
+type ElectricDeletedUser = ReturnType<typeof useDeletedUsers>["data"][number];
 
 interface DeletedUsersToolbarProps {
-  selectedUsers: DeletedUserDetails[];
-  onSelectedUsersChange: (users: DeletedUserDetails[]) => void;
-  onPermanentlyDelete: (users: DeletedUserDetails[]) => void;
+  selectedUsers: ElectricDeletedUser[];
+  onSelectedUsersChange: (users: ElectricDeletedUser[]) => void;
+  onPermanentlyDelete: (users: ElectricDeletedUser[]) => void;
   onEmptyRecycleBin: (totalCount: number) => void;
 }
 
@@ -26,10 +26,7 @@ export function DeletedUsersToolbar({
 }: Readonly<DeletedUsersToolbarProps>) {
   const queryClient = useQueryClient();
   const [isRestoring, setIsRestoring] = useState(false);
-
-  const { data: deletedUsersData, isLoading } = api.useQuery("get", "/api/account/users/deleted", {
-    params: { query: { PageOffset: 0, PageSize: 25 } }
-  });
+  const { data: deletedUsers } = useDeletedUsers();
 
   const restoreUserMutation = api.useMutation("post", "/api/account/users/{id}/restore", {
     onSuccess: () => {
@@ -38,7 +35,7 @@ export function DeletedUsersToolbar({
     }
   });
 
-  const hasDeletedUsers = (deletedUsersData?.users?.length ?? 0) > 0;
+  const hasDeletedUsers = deletedUsers.length > 0;
   const hasSelection = selectedUsers.length > 0;
 
   const handleRestore = async () => {
@@ -63,11 +60,6 @@ export function DeletedUsersToolbar({
     setIsRestoring(false);
     onSelectedUsersChange([]);
   };
-
-  // Reserve toolbar height during loading to prevent layout shift when "Empty recycle bin" button appears
-  if (isLoading) {
-    return <Skeleton className="mb-4 h-[var(--control-height)] bg-transparent" />;
-  }
 
   if (!hasDeletedUsers) {
     return null;
@@ -116,7 +108,7 @@ export function DeletedUsersToolbar({
         <Button
           variant="destructive"
           className="max-sm:grow"
-          onClick={() => onEmptyRecycleBin(deletedUsersData?.totalCount ?? 0)}
+          onClick={() => onEmptyRecycleBin(deletedUsers.length)}
           aria-label={t`Empty recycle bin`}
         >
           <Trash2Icon />
