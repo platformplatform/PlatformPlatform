@@ -10,5 +10,5 @@ namespace SharedKernel.Persistence;
 /// </summary>
 public interface IUnitOfWork
 {
-    Task CommitAsync(CancellationToken cancellationToken);
+    Task<string?> CommitAsync(CancellationToken cancellationToken);
 }
