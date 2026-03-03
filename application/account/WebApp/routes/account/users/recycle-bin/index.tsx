@@ -1,15 +1,15 @@
 import { t } from "@lingui/core/macro";
 import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
+import type { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import type { components } from "@/shared/lib/api/client";
 import { UserTabNavigation } from "../-components/UserTabNavigation";
 import { DeletedUsersTable } from "./-components/DeletedUsersTable";
 import { DeletedUsersToolbar } from "./-components/DeletedUsersToolbar";
 import { PermanentlyDeleteUserDialog } from "./-components/PermanentlyDeleteUserDialog";
 
-type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
+type ElectricDeletedUser = ReturnType<typeof useDeletedUsers>["data"][number];
 
 export const Route = createFileRoute("/account/users/recycle-bin/")({
   staticData: { trackingTitle: "User recycle bin" },
@@ -18,18 +18,12 @@ export const Route = createFileRoute("/account/users/recycle-bin/")({
 });
 
 export default function DeletedUsersPage() {
-  const [selectedDeletedUsers, setSelectedDeletedUsers] = useState<DeletedUserDetails[]>([]);
-  const [usersToDelete, setUsersToDelete] = useState<DeletedUserDetails[]>([]);
+  const [selectedDeletedUsers, setSelectedDeletedUsers] = useState<ElectricDeletedUser[]>([]);
+  const [usersToDelete, setUsersToDelete] = useState<ElectricDeletedUser[]>([]);
   const [isEmptyRecycleBin, setIsEmptyRecycleBin] = useState(false);
   const [totalDeletedUsersCount, setTotalDeletedUsersCount] = useState(0);
-  const [pageOffset, setPageOffset] = useState(0);
 
-  const handlePageChange = (page: number) => {
-    setPageOffset(() => page - 1);
-    setSelectedDeletedUsers([]);
-  };
-
-  const handlePermanentlyDeleteUsers = (users: DeletedUserDetails[]) => {
+  const handlePermanentlyDeleteUsers = (users: ElectricDeletedUser[]) => {
     setIsEmptyRecycleBin(false);
     setUsersToDelete(users);
   };
@@ -56,12 +50,7 @@ export default function DeletedUsersPage() {
             onPermanentlyDelete={handlePermanentlyDeleteUsers}
             onEmptyRecycleBin={handleEmptyRecycleBin}
           />
-          <DeletedUsersTable
-            selectedUsers={selectedDeletedUsers}
-            onSelectedUsersChange={setSelectedDeletedUsers}
-            pageOffset={pageOffset}
-            onPageChange={handlePageChange}
-          />
+          <DeletedUsersTable selectedUsers={selectedDeletedUsers} onSelectedUsersChange={setSelectedDeletedUsers} />
         </div>
       </AppLayout>
 

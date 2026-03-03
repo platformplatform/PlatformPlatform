@@ -6,26 +6,34 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
-import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { InfoIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
-import type { components } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+  role: string;
+  emailConfirmed: boolean;
+  createdAt: string;
+  lastSeenAt: string | null;
+}
 
 interface UserProfileSidePaneProps {
-  user: UserDetails | null;
+  user: UserData | null;
   isOpen: boolean;
   onClose: () => void;
-  onDeleteUser: (user: UserDetails) => void;
+  onDeleteUser: (user: UserData) => void;
   isUserInCurrentView?: boolean;
-  isDataNewer?: boolean;
-  isLoading?: boolean;
 }
 
 function UserProfileContent({
@@ -34,7 +42,7 @@ function UserProfileContent({
   isCurrentUser,
   onChangeRole
 }: Readonly<{
-  user: UserDetails;
+  user: UserData;
   canModifyUser: boolean;
   isCurrentUser: boolean;
   onChangeRole: () => void;
@@ -47,7 +55,9 @@ function UserProfileContent({
       <div className="mb-6 text-center">
         <Avatar className="mx-auto mb-3 size-16">
           <AvatarImage src={user.avatarUrl ?? undefined} />
-          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+          </AvatarFallback>
         </Avatar>
         <h4>
           {user.firstName} {user.lastName}
@@ -92,7 +102,7 @@ function UserProfileContent({
             onClick={onChangeRole}
             aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
-            {getUserRoleLabel(user.role)}
+            {getUserRoleLabel(user.role as UserRole)}
             <PencilIcon className="size-3 text-muted-foreground" />
           </Button>
         ) : (
@@ -103,7 +113,7 @@ function UserProfileContent({
                 className="pointer-events-none h-[var(--control-height-xs)] px-3 text-sm"
                 disabled={true}
               >
-                {getUserRoleLabel(user.role)}
+                {getUserRoleLabel(user.role as UserRole)}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -152,9 +162,7 @@ export function UserProfileSidePane({
   isOpen,
   onClose,
   onDeleteUser,
-  isUserInCurrentView = true,
-  isDataNewer = false,
-  isLoading = false
+  isUserInCurrentView = true
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
@@ -181,31 +189,14 @@ export function UserProfileSidePane({
           </NoticeBar>
         )}
 
-        {isDataNewer && (
-          <NoticeBar>
-            <Trans>User data updated</Trans>
-          </NoticeBar>
-        )}
-
         <SidePaneBody>
-          {isLoading ? (
-            <>
-              <div className="mb-6 text-center">
-                <Skeleton className="mx-auto mb-3 size-20 rounded-full" />
-                <Skeleton className="mx-auto mb-2 h-6 w-32" />
-                <Skeleton className="mx-auto h-4 w-24" />
-              </div>
-              <Skeleton className="h-64 w-full" />
-            </>
-          ) : (
-            user && (
-              <UserProfileContent
-                user={user}
-                canModifyUser={canModifyUser}
-                isCurrentUser={isCurrentUser ?? false}
-                onChangeRole={() => setIsChangeRoleDialogOpen(true)}
-              />
-            )
+          {user && (
+            <UserProfileContent
+              user={user}
+              canModifyUser={canModifyUser}
+              isCurrentUser={isCurrentUser ?? false}
+              onChangeRole={() => setIsChangeRoleDialogOpen(true)}
+            />
           )}
         </SidePaneBody>
 

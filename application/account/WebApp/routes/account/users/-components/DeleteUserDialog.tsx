@@ -15,12 +15,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { api, type components } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+}
 
 interface DeleteUserDialogProps {
-  users: UserDetails[];
+  users: UserData[];
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onUsersDeleted?: () => void;

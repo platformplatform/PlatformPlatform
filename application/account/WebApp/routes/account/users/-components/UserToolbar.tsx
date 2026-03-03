@@ -5,18 +5,22 @@ import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { components } from "@/shared/lib/api/client";
 import { UserRole } from "@/shared/lib/api/client";
 import { DeleteUserDialog } from "./DeleteUserDialog";
 import InviteUserDialog from "./InviteUserDialog";
 import { TenantNameRequiredDialog } from "./TenantNameRequiredDialog";
 import { UserQuerying } from "./UserQuerying";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+}
 
 interface UserToolbarProps {
-  selectedUsers: UserDetails[];
-  onSelectedUsersChange: (users: UserDetails[]) => void;
+  selectedUsers: UserData[];
+  onSelectedUsersChange: (users: UserData[]) => void;
 }
 
 // Thresholds based on max content widths (Danish language, long dates)
