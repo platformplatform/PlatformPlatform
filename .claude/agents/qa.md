@@ -31,6 +31,16 @@ Multiple engineers work on the same branch simultaneously:
 - If a teammate's change breaks your tests, message them directly with the specific error
 - **If a reviewer or engineer asks you to pause or run tests, respond promptly**
 
+## [Task] Status Management
+
+When your [task] has a `[PRODUCT_MANAGEMENT_TOOL]` identifier (e.g., passed by the coordinator), update the [task] status at these points:
+
+1. **Starting work**: move the [task] to `[Active]` status
+2. **Handing off to reviewer**: move the [task] to `[Review]` status
+3. **Reviewer rejects**: when a reviewer sends findings requiring rework, move the [task] back to `[Active]` status
+
+Use the MCP tools described in `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to update status. If the MCP call fails, do not block your work -- message the coordinator about the failure and continue.
+
 ## How You Work
 
 ### Communicate Early and Often
