@@ -14,18 +14,6 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
-        group.MapGet("/", async Task<ApiResult<UsersResponse>> ([AsParameters] GetUsersQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<UsersResponse>();
-
-        group.MapGet("/{id}", async Task<ApiResult<UserDetails>> (UserId id, IMediator mediator)
-            => await mediator.Send(new GetUserByIdQuery(id))
-        ).Produces<UserDetails>();
-
-        group.MapGet("/summary", async Task<ApiResult<UserSummaryResponse>> (IMediator mediator)
-            => await mediator.Send(new GetUserSummaryQuery())
-        ).Produces<UserSummaryResponse>();
-
         group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new DeleteUserCommand(id))
         );
@@ -45,10 +33,6 @@ public sealed class UserEndpoints : IEndpoints
         group.MapPost("/decline-invitation", async Task<ApiResult> (DeclineInvitationCommand command, IMediator mediator)
             => await mediator.Send(command)
         );
-
-        group.MapGet("/deleted", async Task<ApiResult<DeletedUsersResponse>> ([AsParameters] GetDeletedUsersQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<DeletedUsersResponse>();
 
         group.MapPost("/{id}/restore", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new RestoreUserCommand(id))
