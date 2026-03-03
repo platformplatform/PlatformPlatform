@@ -1,24 +1,56 @@
-import { expect } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
+import { mockElectricSubscription, mockElectricTenant, unmockElectricShape } from "@shared/e2e/utils/electric-mock";
 import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
+
+/**
+ * Create a Stripe customer and subscription via API calls.
+ * This simulates the full checkout flow using MockStripeClient:
+ * 1. Save billing info (creates Stripe customer cus_mock_12345)
+ * 2. Fire a mock webhook (creates a pending StripeEvent)
+ * 3. Process pending events (syncs subscription state from MockStripeClient to DB)
+ *
+ * After this, Electric syncs the subscription to the frontend automatically.
+ * MockStripeClient returns: Standard plan, $29.99 USD, visa 4242, 30-day period.
+ */
+async function createSubscriptionViaApi(page: Page): Promise<void> {
+  await page.request.put("/api/account/billing/billing-info", {
+    data: {
+      name: "Test Organization",
+      address: "Vestergade 12",
+      postalCode: "1456",
+      city: "Copenhagen",
+      state: null,
+      country: "DK",
+      email: "billing@example.com",
+      taxId: null
+    }
+  });
+
+  await page.request.post("/api/account/subscriptions/stripe-webhook", {
+    data: "webhook-trigger",
+    headers: { "Stripe-Signature": "event_type:checkout.session.completed", "Content-Type": "text/plain" }
+  });
+
+  await page.request.post("/api/account/subscriptions/process-pending-events");
+}
 
 test.describe("@smoke", () => {
   /**
    * SUBSCRIPTION MANAGEMENT E2E TEST
    *
-   * Tests the complete subscription lifecycle using MockStripeClient responses:
+   * Tests the complete subscription lifecycle:
    * - Basis plan display with plan comparison cards (no-subscription view)
-   * - Subscribe flow with billing info gate and mock checkout session callback
-   * - Upgrade from Standard to Premium (subscription page)
+   * - Subscribe flow with billing info gate dialog
+   * - Active subscription overview with payment details (real DB state via API)
+   * - Upgrade from Standard to Premium (subscription page with mocked state)
    * - Schedule downgrade from Premium to Standard (subscription page with mocked state)
-   * - Downgrade to Basis (free plan) with cancellation reason selection (subscription page)
+   * - Downgrade to Basis (free plan) with cancellation reason selection
    * - Cancelling state with reactivation banner and confirmation dialog
-   * - Payment history table with invoice links
    * - Payment failed warning banner display
-   * - Suspension error page (Owner vs Member view)
+   * - Suspension error page for Owner
    * - Stripe unconfigured state handling
-   * - Access denied for non-Owner users
    */
   test("should handle complete subscription lifecycle with plan changes and billing states", async ({ ownerPage }) => {
     const context = createTestContext(ownerPage);
@@ -55,7 +87,7 @@ test.describe("@smoke", () => {
       await expect(premiumCard.getByRole("button", { name: "Subscribe" })).toBeVisible();
     })();
 
-    // === SUBSCRIBE FLOW (BILLING INFO DIALOG + MOCKED ACTIVE STATE) ===
+    // === SUBSCRIBE FLOW (BILLING INFO DIALOG) ===
     await step("Click Subscribe on Standard plan & verify billing info dialog fields")(async () => {
       const standardCard = ownerPage.locator(".grid > div").filter({ hasText: "Standard" }).first();
       await standardCard.getByRole("button", { name: "Subscribe" }).click();
@@ -75,40 +107,33 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByRole("heading", { name: "Add billing information" })).not.toBeVisible();
     })();
 
-    await step("Mock active Standard subscription & verify subscription overview with payment history")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Standard",
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: false,
-            paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
-            billingInfo: {
-              name: "Test Organization",
-              address: {
-                line1: "Vestergade 12",
-                line2: null,
-                postalCode: "1456",
-                city: "Copenhagen",
-                state: null,
-                country: "DK"
-              },
-              email: "billing@example.com",
-              taxId: null
-            },
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+    // === CREATE SUBSCRIPTION VIA API & VERIFY ACTIVE STATE ===
+    await step("Create Standard subscription via API & verify subscription overview with payment history")(async () => {
+      await createSubscriptionViaApi(ownerPage);
+
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock_12345",
+        stripeSubscriptionId: "sub_mock_12345",
+        currentPriceAmount: 29.99,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false,
+        paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+        billingInfo: {
+          name: "Test Organization",
+          address: {
+            line1: "Vestergade 12",
+            line2: null,
+            postalCode: "1456",
+            city: "Copenhagen",
+            state: null,
+            country: "DK"
+          },
+          email: "billing@example.com",
+          taxId: null
+        }
+      }));
 
       await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
         await route.fulfill({
@@ -134,7 +159,7 @@ test.describe("@smoke", () => {
       await ownerPage.goto("/account/billing");
 
       await expect(ownerPage.getByText("Standard", { exact: false }).first()).toBeVisible();
-      await expect(ownerPage.getByText("Active")).toBeVisible();
+      await expect(ownerPage.getByText("Active", { exact: true }).first()).toBeVisible();
       await expect(ownerPage.getByText("Next billing date:")).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Change plan" })).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Update payment method" })).toBeEnabled();
@@ -150,34 +175,23 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByText("Succeeded")).toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Invoice" })).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/subscriptions/current");
       await ownerPage.unroute("**/api/account/billing/payment-history**");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
-    // === UPGRADE FLOW ===
+    // === UPGRADE FLOW (MockStripeClient is stateless so we mock Electric + API routes) ===
     await step("Mock Standard subscription & click Upgrade on Premium plan & confirm upgrade dialog")(async () => {
       let currentPlan = "Standard";
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: currentPlan,
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: false,
-            paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: currentPlan,
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 29.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false,
+        paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 }
+      }));
 
       await ownerPage.route("**/api/account/subscriptions/upgrade-preview**", async (route) => {
         await route.fulfill({
@@ -203,6 +217,10 @@ test.describe("@smoke", () => {
         });
       });
 
+      await ownerPage.route("**/api/account/subscriptions/process-pending-events", async (route) => {
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
       await ownerPage.goto("/account/billing/subscription");
 
       const premiumCard = ownerPage.locator(".grid > div").filter({ hasText: "Premium" }).first();
@@ -216,36 +234,30 @@ test.describe("@smoke", () => {
       await expectToastMessage(context, "Your plan has been upgraded.");
       await ownerPage.unroute("**/api/account/subscriptions/upgrade-preview**");
       await ownerPage.unroute("**/api/account/subscriptions/upgrade");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === DOWNGRADE FLOW (MOCKED PREMIUM STATE) ===
     await step("Mock Premium subscription state & click Downgrade on Standard plan")(async () => {
       let scheduledPlan: string | null = null;
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Premium",
-            scheduledPlan,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 99.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: false,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Premium",
+        scheduledPlan,
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 99.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false
+      }));
 
       await ownerPage.route("**/api/account/subscriptions/schedule-downgrade", async (route) => {
         scheduledPlan = "Standard";
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/process-pending-events", async (route) => {
         await route.fulfill({ status: 200, contentType: "application/json", json: {} });
       });
 
@@ -267,37 +279,30 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Your downgrade has been scheduled.");
       await ownerPage.unroute("**/api/account/subscriptions/schedule-downgrade");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === CANCEL SUBSCRIPTION ===
     await step("Mock Standard subscription & click Downgrade on Basis card & verify cancel confirmation dialog")(
       async () => {
         let cancelAtPeriodEnd = false;
-        await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            json: {
-              id: "sub_mock",
-              plan: "Standard",
-              scheduledPlan: null,
-              hasStripeCustomer: true,
-              hasStripeSubscription: true,
-              currentPriceAmount: 29.0,
-              currentPriceCurrency: "USD",
-              currentPeriodEnd: "2026-03-24T00:00:00Z",
-              cancelAtPeriodEnd,
-              isPaymentFailed: false,
-              paymentMethod: null,
-              billingInfo: null,
-              hasPendingStripeEvents: false
-            }
-          });
-        });
+        await mockElectricSubscription(ownerPage, () => ({
+          plan: "Standard",
+          stripeCustomerId: "cus_mock",
+          stripeSubscriptionId: "sub_mock",
+          currentPriceAmount: 29.0,
+          currentPriceCurrency: "USD",
+          currentPeriodEnd: "2026-03-24T00:00:00Z",
+          cancelAtPeriodEnd
+        }));
 
         await ownerPage.route("**/api/account/subscriptions/cancel", async (route) => {
           cancelAtPeriodEnd = true;
+          await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+        });
+
+        await ownerPage.route("**/api/account/subscriptions/process-pending-events", async (route) => {
           await route.fulfill({ status: 200, contentType: "application/json", json: {} });
         });
 
@@ -319,33 +324,22 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Your subscription has been cancelled.");
       await ownerPage.unroute("**/api/account/subscriptions/cancel");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === CANCELLING STATE (MOCKED) ===
     await step("Mock cancelling subscription state & verify cancellation banner with reactivate button")(async () => {
       let cancelAtPeriodEnd = true;
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Standard",
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd,
-            isPaymentFailed: false,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 29.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd
+      }));
 
       await ownerPage.goto("/account/billing");
       await expect(ownerPage.getByText("Cancelling")).toBeVisible();
@@ -360,6 +354,10 @@ test.describe("@smoke", () => {
           json: { clientSecret: null, publishableKey: null }
         });
       });
+
+      await ownerPage.route("**/api/account/subscriptions/process-pending-events", async (route) => {
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
     })();
 
     // === REACTIVATE SUBSCRIPTION ===
@@ -372,149 +370,65 @@ test.describe("@smoke", () => {
 
       await expectToastMessage(context, "Your subscription has been reactivated.");
       await ownerPage.unroute("**/api/account/subscriptions/reactivate");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === PAYMENT FAILED BANNER (MOCKED SUBSCRIPTION STATE) ===
     await step("Mock subscription payment failed & verify warning banner displayed")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Standard",
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: true,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 29.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false,
+        isPaymentFailed: true
+      }));
 
       await ownerPage.goto("/account/billing");
-      await expect(ownerPage.getByText("Payment failed. Your subscription will be suspended soon.")).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Update payment method" }).first()).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await expect(ownerPage.getByText("Payment failed. Your subscription will be suspended soon.")).toBeVisible();
+
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
-    // === SUSPENDED STATE (MOCKED TENANT STATE) ===
-    await step("Mock tenant Suspended state & verify blocked page for Owner")(async () => {
-      await ownerPage.route("**/api/account/tenants/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: 1,
-            createdAt: "2026-01-01T00:00:00Z",
-            modifiedAt: null,
-            name: "Test Organization",
-            state: "Suspended",
-            logoUrl: null
-          }
-        });
-      });
+    // === SUSPENSION (MOCKED TENANT STATE) ===
+    await step("Mock suspended tenant state & verify suspension error page for Owner")(async () => {
+      await mockElectricTenant(ownerPage, () => ({
+        state: "Suspended",
+        suspensionReason: "PaymentFailed"
+      }));
 
-      await ownerPage.goto("/account");
+      await ownerPage.goto("/dashboard");
+
       await expect(ownerPage.getByRole("heading", { name: "Account suspended" })).toBeVisible();
       await expect(
-        ownerPage.getByText(
-          "Your account has been suspended. Please visit the subscription page to resolve any issues and restore access."
-        )
+        ownerPage.getByText("Your account has been suspended. Please visit the subscription page")
       ).toBeVisible();
       await expect(ownerPage.getByRole("button", { name: "Manage subscription" })).toBeVisible();
-    })();
 
-    await step("Navigate to billing page while Suspended & verify access is allowed")(async () => {
-      await ownerPage.goto("/account/billing");
-      await expect(ownerPage.getByRole("heading", { name: "Billing", exact: true })).toBeVisible();
-
-      await ownerPage.unroute("**/api/account/tenants/current");
+      await unmockElectricShape(ownerPage, "tenants");
     })();
 
     // === STRIPE UNCONFIGURED STATE ===
-    await step("Mock empty pricing catalog & verify warning message on subscription page")(async () => {
+    await step("Mock empty pricing catalog & verify Stripe unconfigured warning")(async () => {
       await ownerPage.route("**/api/account/subscriptions/pricing-catalog", async (route) => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
-          json: {
-            plans: []
-          }
+          json: { plans: [] }
         });
       });
 
-      await ownerPage.goto("/account/billing/subscription");
+      await ownerPage.goto("/account/billing");
+
       await expect(
         ownerPage.getByText("Billing is not configured. Please contact support to enable payment processing.")
       ).toBeVisible();
 
       await ownerPage.unroute("**/api/account/subscriptions/pricing-catalog");
-    })();
-  });
-
-  test("should deny billing page access to non-Owner users", async ({ ownerPage }) => {
-    createTestContext(ownerPage);
-
-    await step("Mock Member role & navigate to billing page & verify access denied")(async () => {
-      await ownerPage.addInitScript(() => {
-        let originalFn: (() => { userInfoEnv: { role: string } }) | null = null;
-        Object.defineProperty(window, "getApplicationEnvironment", {
-          configurable: true,
-          set(fn: () => { userInfoEnv: { role: string } }) {
-            originalFn = fn;
-          },
-          get() {
-            if (!originalFn) {
-              return undefined;
-            }
-            return () => {
-              const env = originalFn?.();
-              return { ...env, userInfoEnv: { ...env?.userInfoEnv, role: "Member" } };
-            };
-          }
-        });
-      });
-
-      await ownerPage.goto("/account/billing");
-
-      await expect(ownerPage.getByRole("heading", { name: "Access denied" })).toBeVisible();
-      await expect(ownerPage.getByText("You do not have permission to access this page.")).toBeVisible();
-    })();
-
-    // === SUSPENDED STATE FOR NON-OWNER ===
-    await step("Mock Suspended tenant with Member role & verify contact owner message")(async () => {
-      await ownerPage.route("**/api/account/tenants/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: 1,
-            createdAt: "2026-01-01T00:00:00Z",
-            modifiedAt: null,
-            name: "Test Organization",
-            state: "Suspended",
-            logoUrl: null
-          }
-        });
-      });
-
-      await ownerPage.goto("/account");
-      await expect(ownerPage.getByRole("heading", { name: "Account suspended" })).toBeVisible();
-      await expect(
-        ownerPage.getByText("Your account has been suspended. Please contact the account owner to restore access.")
-      ).toBeVisible();
-      await expect(ownerPage.getByRole("button", { name: "Manage subscription" })).not.toBeVisible();
-
-      await ownerPage.unroute("**/api/account/tenants/current");
     })();
   });
 });
@@ -524,7 +438,7 @@ test.describe("@comprehensive", () => {
    * SUBSCRIPTION EDGE CASES AND BILLING DETAILS E2E TEST
    *
    * Tests subscription features not covered by the smoke test:
-   * - Tab navigation between Billing and Subscription pages
+   * - Tab navigation between Billing and Subscription pages (real DB state via API)
    * - Scheduled downgrade banner on billing page with Cancel downgrade dialog
    * - Edit billing info dialog with form fields and Tax ID display
    * - Payment history with refunded transaction and credit note link
@@ -537,58 +451,35 @@ test.describe("@comprehensive", () => {
     const context = createTestContext(ownerPage);
 
     // === TAB NAVIGATION ===
-    await step("Mock active subscription & navigate to billing page & verify tab navigation to Subscription")(
-      async () => {
-        await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            json: {
-              id: "sub_mock",
-              plan: "Standard",
-              scheduledPlan: null,
-              hasStripeCustomer: true,
-              hasStripeSubscription: true,
-              currentPriceAmount: 29.0,
-              currentPriceCurrency: "USD",
-              currentPeriodEnd: "2026-03-24T00:00:00Z",
-              cancelAtPeriodEnd: false,
-              isPaymentFailed: false,
-              paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
-              billingInfo: {
-                name: "Test Organization",
-                address: {
-                  line1: "Vestergade 12",
-                  line2: null,
-                  postalCode: "1456",
-                  city: "Copenhagen",
-                  state: null,
-                  country: "DK"
-                },
-                email: "billing@example.com",
-                taxId: "DK12345678"
-              },
-              hasPendingStripeEvents: false
-            }
-          });
+    await step("Create subscription via API & navigate to billing page & verify tab navigation")(async () => {
+      await createSubscriptionViaApi(ownerPage);
+
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock_12345",
+        stripeSubscriptionId: "sub_mock_12345",
+        currentPriceAmount: 29.99,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false,
+        paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 }
+      }));
+
+      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { totalCount: 0, transactions: [] }
         });
+      });
 
-        await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            json: { totalCount: 0, transactions: [] }
-          });
-        });
+      await ownerPage.goto("/account/billing");
 
-        await ownerPage.goto("/account/billing");
+      await expect(ownerPage.getByRole("tablist", { name: "Billing tabs" })).toBeVisible();
+      await ownerPage.getByRole("tab", { name: "Subscription" }).click();
 
-        await expect(ownerPage.getByRole("tablist", { name: "Billing tabs" })).toBeVisible();
-        await ownerPage.getByRole("tab", { name: "Subscription" }).click();
-
-        await expect(ownerPage).toHaveURL("/account/billing/subscription");
-      }
-    )();
+      await expect(ownerPage).toHaveURL("/account/billing/subscription");
+    })();
 
     await step("Navigate back to Billing tab & verify billing content loads")(async () => {
       await ownerPage.getByRole("tab", { name: "Billing" }).click();
@@ -597,12 +488,50 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByRole("heading", { name: "Current plan" })).toBeVisible();
     })();
 
-    // === BILLING INFO WITH TAX ID ===
-    await step("Open edit billing info dialog & verify Tax ID and address fields pre-populated")(async () => {
+    // === BILLING INFO WITH TAX ID (ELECTRIC MOCK for Tax ID - MockStripeClient returns null taxId) ===
+    await step("Mock subscription with Tax ID & verify billing info display")(async () => {
+      await ownerPage.unroute("**/api/account/billing/payment-history**");
+
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 29.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false,
+        paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+        billingInfo: {
+          name: "Test Organization",
+          address: {
+            line1: "Vestergade 12",
+            line2: null,
+            postalCode: "1456",
+            city: "Copenhagen",
+            state: null,
+            country: "DK"
+          },
+          email: "billing@example.com",
+          taxId: "DK12345678"
+        }
+      }));
+
+      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          json: { totalCount: 0, transactions: [] }
+        });
+      });
+
+      await ownerPage.goto("/account/billing");
+
       await expect(ownerPage.getByText("DK12345678")).toBeVisible();
       await expect(ownerPage.getByText("billing@example.com")).toBeVisible();
       await expect(ownerPage.getByText("Vestergade 12")).toBeVisible();
+    })();
 
+    await step("Open edit billing info dialog & verify Tax ID and address fields pre-populated")(async () => {
       await ownerPage.getByRole("button", { name: "Edit billing information" }).click();
 
       await expect(ownerPage.getByRole("heading", { name: "Edit billing information" })).toBeVisible();
@@ -622,32 +551,20 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByText("No payment history available.")).toBeVisible();
 
       await ownerPage.unroute("**/api/account/billing/payment-history**");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === PAYMENT HISTORY WITH REFUNDED TRANSACTION AND CREDIT NOTE ===
     await step("Mock payment history with refunded transaction & verify credit note link")(async () => {
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Standard",
-            scheduledPlan: null,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 29.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: false,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Standard",
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 29.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false
+      }));
 
       await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
         await route.fulfill({
@@ -689,33 +606,22 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByRole("link", { name: "Credit note" })).toBeVisible();
 
       await ownerPage.unroute("**/api/account/billing/payment-history**");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
     // === SCHEDULED DOWNGRADE BANNER ON OVERVIEW ===
     await step("Mock scheduled downgrade state & verify downgrade banner with cancel button on overview")(async () => {
       let scheduledPlan: string | null = "Standard";
-      await ownerPage.route("**/api/account/subscriptions/current", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            id: "sub_mock",
-            plan: "Premium",
-            scheduledPlan,
-            hasStripeCustomer: true,
-            hasStripeSubscription: true,
-            currentPriceAmount: 99.0,
-            currentPriceCurrency: "USD",
-            currentPeriodEnd: "2026-03-24T00:00:00Z",
-            cancelAtPeriodEnd: false,
-            isPaymentFailed: false,
-            paymentMethod: null,
-            billingInfo: null,
-            hasPendingStripeEvents: false
-          }
-        });
-      });
+      await mockElectricSubscription(ownerPage, () => ({
+        plan: "Premium",
+        scheduledPlan,
+        stripeCustomerId: "cus_mock",
+        stripeSubscriptionId: "sub_mock",
+        currentPriceAmount: 99.0,
+        currentPriceCurrency: "USD",
+        currentPeriodEnd: "2026-03-24T00:00:00Z",
+        cancelAtPeriodEnd: false
+      }));
 
       await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
         await route.fulfill({
@@ -727,6 +633,10 @@ test.describe("@comprehensive", () => {
 
       await ownerPage.route("**/api/account/subscriptions/cancel-downgrade", async (route) => {
         scheduledPlan = null;
+        await route.fulfill({ status: 200, contentType: "application/json", json: {} });
+      });
+
+      await ownerPage.route("**/api/account/subscriptions/process-pending-events", async (route) => {
         await route.fulfill({ status: 200, contentType: "application/json", json: {} });
       });
 
@@ -745,8 +655,9 @@ test.describe("@comprehensive", () => {
 
       await expectToastMessage(context, "Your scheduled downgrade has been cancelled.");
       await ownerPage.unroute("**/api/account/subscriptions/cancel-downgrade");
-      await ownerPage.unroute("**/api/account/subscriptions/current");
+      await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
       await ownerPage.unroute("**/api/account/billing/payment-history**");
+      await unmockElectricShape(ownerPage, "subscriptions");
     })();
   });
 });

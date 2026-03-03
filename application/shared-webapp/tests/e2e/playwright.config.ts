@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { defineConfig, devices } from "@playwright/test";
-import { getBaseUrl, isWindows } from "./utils/constants";
+import { getBaseUrl, isLocalhost, isWindows } from "./utils/constants";
 
 let workers: number | undefined;
 if (process.env.CI) {
@@ -48,6 +48,10 @@ export default defineConfig({
       slowMo: process.env.PLAYWRIGHT_SLOW_MO ? Number.parseInt(process.env.PLAYWRIGHT_SLOW_MO, 10) : 0
     },
 
+    // Ignore HTTPS errors for localhost dev server with self-signed certificate
+    // biome-ignore lint/style/useNamingConvention: Using Playwright's required property name
+    ignoreHTTPSErrors: isLocalhost(),
+
     // Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer
     trace: "on-first-retry",
     // Take screenshot on failure
@@ -85,12 +89,7 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        // biome-ignore lint/style/useNamingConvention: <explanation>
-        ignoreHTTPSErrors: isWindows
-      },
+      use: { ...devices["Desktop Safari"] },
       grep: /@smoke/
     },
 
@@ -107,12 +106,7 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        // biome-ignore lint/style/useNamingConvention: <explanation>
-        ignoreHTTPSErrors: isWindows
-      },
+      use: { ...devices["Desktop Safari"] },
       grepInvert: /@smoke/
     }
   ]

@@ -74,7 +74,9 @@ function startMonitoring(page: Page): MonitoringResults {
         "Error: Loading CSS chunk", // CSS chunk loading error variations
         "downloadable font: download failed", // Firefox font loading failures
         "downloadable font: glyf:", // Firefox font loading failures
-        "ResizeObserver loop completed with undelivered notifications" // Benign browser warning, especially in Firefox
+        "ResizeObserver loop completed with undelivered notifications", // Benign browser warning, especially in Firefox
+        "An error occurred while syncing collection:", // Electric collection sync errors on unauthenticated pages
+        "Base UI: A component is changing the default value state of an uncontrolled FieldControl" // Base UI FieldControl warning when Electric data arrives after initial render
       ];
 
       const isExpected = expectedMessages.some((expected) => message.includes(expected));
@@ -87,7 +89,12 @@ function startMonitoring(page: Page): MonitoringResults {
   // Monitor network errors with filtering for expected errors
   page.on("response", (response) => {
     if (response.status() >= 400) {
-      results.networkErrors.push(`${response.request().method()} ${response.url()} - HTTP ${response.status()}`);
+      const url = response.url();
+      // Electric shape sync returns 401 on unauthenticated pages -- expected behavior
+      if (url.includes("/electric/v1/shape") && response.status() === 401) {
+        return;
+      }
+      results.networkErrors.push(`${response.request().method()} ${url} - HTTP ${response.status()}`);
     }
   });
 
