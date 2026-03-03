@@ -1,47 +1,37 @@
 import { t } from "@lingui/core/macro";
-import { useQueryClient } from "@tanstack/react-query";
+import { useSubscription } from "@repo/infrastructure/sync/hooks";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 const WebhookPollIntervalMs = 1000;
 const WebhookTimeoutMs = 15_000;
 
-type SubscriptionData = Schemas["SubscriptionResponse"];
+type SubscriptionData = NonNullable<ReturnType<typeof useSubscription>["data"]>;
 
 export function useSubscriptionPolling() {
-  const queryClient = useQueryClient();
   const [isPolling, setIsPolling] = useState(false);
   const checkFnRef = useRef<((subscription: SubscriptionData) => boolean) | null>(null);
   const successMessageRef = useRef<string>("");
   const onCompleteRef = useRef<(() => void) | null>(null);
   const conditionMetRef = useRef(false);
-  const isProcessingPendingEvents = useRef(false);
 
-  const { data: subscription, isLoading } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { refetchInterval: isPolling ? WebhookPollIntervalMs : false }
-  );
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
 
-  const processPendingEventsMutation = api.useMutation("post", "/api/account/subscriptions/process-pending-events", {
-    onSuccess: () => {
-      isProcessingPendingEvents.current = false;
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
-    },
-    onError: () => {
-      isProcessingPendingEvents.current = false;
-    }
-  });
+  const processPendingEventsMutation = api.useMutation("post", "/api/account/subscriptions/process-pending-events");
   const { mutate: processPendingEvents } = processPendingEventsMutation;
 
   useEffect(() => {
-    if (subscription?.hasPendingStripeEvents && !isProcessingPendingEvents.current) {
-      isProcessingPendingEvents.current = true;
-      processPendingEvents({});
+    if (!isPolling) {
+      return;
     }
-  }, [subscription?.hasPendingStripeEvents, processPendingEvents]);
+    const interval = setInterval(() => {
+      processPendingEvents({});
+    }, WebhookPollIntervalMs);
+    processPendingEvents({});
+    return () => clearInterval(interval);
+  }, [isPolling, processPendingEvents]);
 
   function startPolling(options: {
     check: (subscription: SubscriptionData) => boolean;
@@ -53,7 +43,6 @@ export function useSubscriptionPolling() {
     onCompleteRef.current = options.onComplete ?? null;
     conditionMetRef.current = false;
     setIsPolling(true);
-    queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
   }
 
   useEffect(() => {
@@ -63,11 +52,10 @@ export function useSubscriptionPolling() {
     if (checkFnRef.current?.(subscription)) {
       conditionMetRef.current = true;
       setIsPolling(false);
-      queryClient.invalidateQueries();
       toast.success(successMessageRef.current);
       onCompleteRef.current?.();
     }
-  }, [isPolling, subscription, queryClient]);
+  }, [isPolling, subscription]);
 
   useEffect(() => {
     if (!isPolling) {
@@ -76,13 +64,12 @@ export function useSubscriptionPolling() {
     const timeout = setTimeout(() => {
       if (!conditionMetRef.current) {
         setIsPolling(false);
-        queryClient.invalidateQueries();
         toast.warning(t`Your changes may take a moment to appear.`);
         onCompleteRef.current?.();
       }
     }, WebhookTimeoutMs);
     return () => clearTimeout(timeout);
-  }, [isPolling, queryClient]);
+  }, [isPolling]);
 
-  return { isPolling, isLoading, startPolling, subscription };
+  return { isPolling, isLoading: false, startPolling, subscription };
 }

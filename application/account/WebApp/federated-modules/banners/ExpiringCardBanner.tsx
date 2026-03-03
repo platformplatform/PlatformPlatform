@@ -1,19 +1,13 @@
 import { Trans } from "@lingui/react/macro";
 import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { useSubscription } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { AlertTriangleIcon } from "lucide-react";
-import { api } from "@/shared/lib/api/client";
 
 export default function ExpiringCardBanner() {
   const userInfo = useUserInfo();
-
-  const { data: subscription } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { enabled: userInfo?.isAuthenticated && userInfo?.role === "Owner" }
-  );
+  const { data: subscription } = useSubscription(userInfo?.tenantId ?? "");
 
   const paymentMethod = subscription?.paymentMethod;
   const currentPeriodEnd = subscription?.currentPeriodEnd;

@@ -87,9 +87,9 @@ function BillingPage() {
   });
 
   const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
-  const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
+  const currentPlan = (subscription?.plan ?? SubscriptionPlan.Basis) as SubscriptionPlan;
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
-  const scheduledPlan = subscription?.scheduledPlan ?? null;
+  const scheduledPlan = (subscription?.scheduledPlan ?? null) as SubscriptionPlan | null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
   const hasStripeCustomer = subscription?.hasStripeCustomer ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);

@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -19,13 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { TextAreaField } from "@repo/ui/components/TextAreaField";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo, useState } from "react";
 import { toast } from "sonner";
-import type { components } from "@/shared/lib/api/api.generated";
 import { api } from "@/shared/lib/api/client";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
 
 // Hardcoded ISO 3166-1 alpha-2 codes because Intl.DisplayNames resolves historical and pseudo codes that Stripe rejects
 const countryCodes = [
@@ -356,14 +353,12 @@ export function EditBillingInfoDialog({
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(billingInfo?.address?.country ?? undefined);
   const userInfo = useUserInfo();
-  const queryClient = useQueryClient();
   const { i18n } = useLingui();
   const countries = useCountryOptions(i18n.locale);
 
   const mutation = api.useMutation("put", "/api/account/billing/billing-info", {
-    onSuccess: async () => {
+    onSuccess: () => {
       setIsFormDirty(false);
-      await queryClient.invalidateQueries({ queryKey: ["get", "/api/account/subscriptions/current"] });
       toast.success(t`Billing information updated`);
       onOpenChange(false);
       onSuccess?.();
