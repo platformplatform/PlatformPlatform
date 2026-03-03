@@ -86,9 +86,7 @@ public static class SharedInfrastructureConfiguration
                 : builder.Configuration.GetConnectionString(connectionName);
 
             builder.Services.AddDbContext<T>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
-                        sqlOptions.UseCompatibilityLevel(150) // SQL Server 2019 compatibility to avoid native JSON type
-                )
+                options.UseNpgsql(connectionString, o => o.MigrationsHistoryTable("__ef_migrations_history")).UseSnakeCaseNamingConvention()
             );
 
             return builder;
