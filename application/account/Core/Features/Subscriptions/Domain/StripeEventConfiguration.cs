@@ -13,5 +13,6 @@ public sealed class StripeEventConfiguration : IEntityTypeConfiguration<StripeEv
         builder.MapStronglyTypedNullableId<StripeEvent, StripeCustomerId, string>(e => e.StripeCustomerId);
         builder.MapStronglyTypedNullableId<StripeEvent, StripeSubscriptionId, string>(e => e.StripeSubscriptionId);
         builder.MapStronglyTypedNullableLongId<StripeEvent, TenantId>(e => e.TenantId);
+        builder.Property(e => e.Payload).HasColumnType("jsonb");
     }
 }

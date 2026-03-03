@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Extensions.AspNetCore.Configuration.Secrets;
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Npgsql;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
@@ -85,11 +87,27 @@ public static class SharedInfrastructureConfiguration
                 ? Environment.GetEnvironmentVariable("DATABASE_CONNECTION_STRING")
                 : builder.Configuration.GetConnectionString(connectionName);
 
-            builder.Services.AddDbContext<T>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
-                        sqlOptions.UseCompatibilityLevel(150) // SQL Server 2019 compatibility to avoid native JSON type
-                )
-            );
+            if (IsRunningInAzure)
+            {
+                var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+                dataSourceBuilder.UsePeriodicPasswordProvider(async (_, cancellationToken) =>
+                    {
+                        var token = await DefaultAzureCredential.GetTokenAsync(new TokenRequestContext(["https://ossrdbms-aad.database.windows.net/.default"]), cancellationToken);
+                        return token.Token;
+                    }, TimeSpan.FromMinutes(30), TimeSpan.FromSeconds(5)
+                );
+                var dataSource = dataSourceBuilder.Build();
+                builder.Services.AddSingleton(dataSource);
+                builder.Services.AddDbContext<T>(options =>
+                    options.UseNpgsql(dataSource, o => o.MigrationsHistoryTable("__ef_migrations_history")).UseSnakeCaseNamingConvention()
+                );
+            }
+            else
+            {
+                builder.Services.AddDbContext<T>(options =>
+                    options.UseNpgsql(connectionString, o => o.MigrationsHistoryTable("__ef_migrations_history")).UseSnakeCaseNamingConvention()
+                );
+            }
 
             return builder;
         }

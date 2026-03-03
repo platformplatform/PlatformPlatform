@@ -17,7 +17,6 @@
 
     <ItemGroup>
         <PackageReference Include="Aspire.Azure.Storage.Blobs"/>
-        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer"/>
         <PackageReference Include="Azure.Communication.Email"/>
         <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets"/>
         <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore"/>
@@ -34,7 +33,8 @@
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer"/>
+        <PackageReference Include="EFCore.NamingConventions"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

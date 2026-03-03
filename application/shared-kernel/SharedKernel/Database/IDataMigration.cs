@@ -1,6 +1,6 @@
 namespace SharedKernel.Database;
 
-/// <summary>Data migration that runs after schema migrations. Tracked in __DataMigrationsHistory table.</summary>
+/// <summary>Data migration that runs after schema migrations. Tracked in __data_migrations_history table.</summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public interface IDataMigration
 {

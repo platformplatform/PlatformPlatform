@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Account.Database;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
 using SharedKernel.Persistence;
@@ -38,7 +39,7 @@ public interface ISessionRepository : ICrudRepository<Session, SessionId>
     Task<bool> TryRevokeForReplayUnfilteredAsync(SessionId sessionId, DateTimeOffset now, CancellationToken cancellationToken);
 }
 
-public sealed class SessionRepository(AccountDbContext accountDbContext)
+public sealed class SessionRepository(AccountDbContext accountDbContext, IServiceProvider serviceProvider)
     : RepositoryBase<Session, SessionId>(accountDbContext), ISessionRepository
 {
     public async Task<Session?> GetByIdUnfilteredAsync(SessionId sessionId, CancellationToken cancellationToken)
@@ -53,27 +54,38 @@ public sealed class SessionRepository(AccountDbContext accountDbContext)
     /// </summary>
     public async Task<bool> TryRefreshAsync(SessionId sessionId, RefreshTokenJti currentJti, int currentVersion, RefreshTokenJti newJti, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        var existingConnection = accountDbContext.Database.GetDbConnection();
-
-        // Create a new connection of the same type to ensure complete isolation from EF Core's transaction.
-        await using var connection = (DbConnection)Activator.CreateInstance(existingConnection.GetType())!;
-        connection.ConnectionString = accountDbContext.Database.GetConnectionString();
-        await connection.OpenAsync(cancellationToken);
+        // Create a new connection to ensure complete isolation from EF Core's transaction.
+        // Use NpgsqlDataSource from DI to preserve the Entra ID token provider configured for Azure.
+        // For SQLite (tests), fall back to creating a raw connection from the connection string.
+        await using var connection = serviceProvider.GetService(typeof(NpgsqlDataSource)) is NpgsqlDataSource npgsqlDataSource
+            ? await npgsqlDataSource.OpenConnectionAsync(cancellationToken)
+            : await OpenFallbackConnectionAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-                              UPDATE Sessions
-                              SET PreviousRefreshTokenJti = RefreshTokenJti,
-                                  RefreshTokenJti = @newJti,
-                                  RefreshTokenVersion = RefreshTokenVersion + 1,
-                                  ModifiedAt = @now
-                              WHERE Id = @sessionId
-                                AND RefreshTokenJti = @currentJti
-                                AND RefreshTokenVersion = @currentVersion
-                              """;
+        command.CommandText = accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite"
+            ? """
+              UPDATE Sessions
+              SET PreviousRefreshTokenJti = RefreshTokenJti,
+                  RefreshTokenJti = @newJti,
+                  RefreshTokenVersion = RefreshTokenVersion + 1,
+                  ModifiedAt = @now
+              WHERE Id = @sessionId
+                AND RefreshTokenJti = @currentJti
+                AND RefreshTokenVersion = @currentVersion
+              """
+            : """
+              UPDATE sessions
+              SET previous_refresh_token_jti = refresh_token_jti,
+                  refresh_token_jti = @newJti,
+                  refresh_token_version = refresh_token_version + 1,
+                  modified_at = @now
+              WHERE id = @sessionId
+                AND refresh_token_jti = @currentJti
+                AND refresh_token_version = @currentVersion
+              """;
 
         AddParameter(command, "@newJti", newJti.Value);
-        AddParameter(command, "@now", now.ToString("O"));
+        AddParameter(command, "@now", accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite" ? now.ToString("O") : now);
         AddParameter(command, "@sessionId", sessionId.Value);
         AddParameter(command, "@currentJti", currentJti.Value);
         AddParameter(command, "@currentVersion", currentVersion);
@@ -113,6 +125,15 @@ public sealed class SessionRepository(AccountDbContext accountDbContext)
             .Where(s => userIds.AsEnumerable().Contains(s.UserId) && s.RevokedAt == null)
             .ToArrayAsync(cancellationToken);
         return sessions.OrderByDescending(s => s.ModifiedAt ?? s.CreatedAt).ToArray();
+    }
+
+    private async Task<DbConnection> OpenFallbackConnectionAsync(CancellationToken cancellationToken)
+    {
+        var existingConnection = accountDbContext.Database.GetDbConnection();
+        var connection = (DbConnection)Activator.CreateInstance(existingConnection.GetType())!;
+        connection.ConnectionString = accountDbContext.Database.GetConnectionString();
+        await connection.OpenAsync(cancellationToken);
+        return connection;
     }
 
     private static void AddParameter(DbCommand command, string name, object value)

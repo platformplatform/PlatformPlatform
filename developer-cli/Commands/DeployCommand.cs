@@ -298,7 +298,7 @@ public class DeployCommand : Command
         var uniquePrefix = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX));
 
         AnsiConsole.MarkupLine(
-            "When creating Azure resources like Azure Container Registry, SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'."
+            "When creating Azure resources like Azure Container Registry, PostgreSQL, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production PostgreSQL server in West Europe will be named 'acme-prod-euw'."
         );
 
         if (uniquePrefix is not null)
