@@ -52,8 +52,8 @@ jobs:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
       CLUSTER_RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
-      SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
-      SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
+      POSTGRES_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      POSTGRES_HOST: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.postgres.database.azure.com
 
     steps:
       - name: Checkout Code
@@ -83,15 +83,16 @@ jobs:
         working-directory: cloud-infrastructure/cluster
         env:
           CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+          POSTGRES_SERVER_NAME: ${{ env.POSTGRES_SERVER_NAME }}
+          DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh open
 
       - name: Generate Script for Pending Migrations
         id: generate-migration-script
         working-directory: application
         run: |
-          CONNECTION_STRING="Server=tcp:${{ env.SQL_SERVER_FQDN }},1433;Database=${{ inputs.database_name }};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;"
+          ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group ${{ env.CLUSTER_RESOURCE_GROUP_NAME }} --server-name ${{ env.POSTGRES_SERVER_NAME }} --query "[0].principalName" --output tsv)
+          CONNECTION_STRING="Host=${{ env.POSTGRES_HOST }};Database=${{ inputs.database_name }};Username=$ENTRA_USER;Password=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv);Ssl Mode=Require;"
           
           echo "Checking for pending migrations..."
           MIGRATION_INFO=$(dotnet ef migrations list \
@@ -100,7 +101,7 @@ jobs:
             --context ${{ inputs.db_context }} \
             --connection "$CONNECTION_STRING" \
             --no-build \
-            --json 2>/dev/null || echo '[]')
+            --json)
           
           MIGRATION_JSON=$(echo "$MIGRATION_INFO" | sed -n '/^[{[]/,$p')
           PENDING_MIGRATIONS_JSON=$(echo "$MIGRATION_JSON" | jq '[.[] | select(.applied == false)]')
@@ -143,8 +144,8 @@ jobs:
         working-directory: cloud-infrastructure/cluster
         env:
           CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+          POSTGRES_SERVER_NAME: ${{ env.POSTGRES_SERVER_NAME }}
+          DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh close
 
       - name: Upload Migration Script
@@ -239,8 +240,8 @@ jobs:
       UNIQUE_PREFIX: ${{ vars.UNIQUE_PREFIX }}
       TENANT_ID: ${{ vars.TENANT_ID }}
       CLUSTER_RESOURCE_GROUP_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
-      SQL_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
-      SQL_SERVER_FQDN: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.database.windows.net
+      POSTGRES_SERVER_NAME: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
+      POSTGRES_HOST: ${{ vars.UNIQUE_PREFIX }}-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}.postgres.database.azure.com
 
     steps:
       - name: Checkout Code
@@ -259,25 +260,23 @@ jobs:
           name: migration-script-${{ inputs.azure_environment }}-${{ inputs.cluster_location_acronym }}
           path: .
 
-      - name: Install Microsoft sqlcmd Utility
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc &&
-          sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/prod.list)" &&
-          sudo apt-get update &&
-          sudo apt-get install -y sqlcmd
+      - name: Install PostgreSQL Client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Open Firewall
         working-directory: cloud-infrastructure/cluster
         env:
           CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+          POSTGRES_SERVER_NAME: ${{ env.POSTGRES_SERVER_NAME }}
+          DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh open
 
       - name: Apply Migrations
         run: |
-          echo "Applying migrations to ${{ inputs.database_name }} database on ${{ env.SQL_SERVER_FQDN }}..."
-          sqlcmd -S "tcp:${{ env.SQL_SERVER_FQDN }},1433" -d "${{ inputs.database_name }}" --authentication-method=ActiveDirectoryDefault --exit-on-error -i migration.sql
+          echo "Applying migrations to ${{ inputs.database_name }} database on ${{ env.POSTGRES_HOST }}..."
+          ACCESS_TOKEN=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv)
+          ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group ${{ env.CLUSTER_RESOURCE_GROUP_NAME }} --server-name ${{ env.POSTGRES_SERVER_NAME }} --query "[0].principalName" --output tsv)
+          PGPASSWORD=$ACCESS_TOKEN psql "host=${{ env.POSTGRES_HOST }} dbname=${{ inputs.database_name }} user='$ENTRA_USER' sslmode=require" -f migration.sql
           echo "Migrations applied successfully!"
 
       - name: Display Migration Summary
@@ -290,6 +289,6 @@ jobs:
         working-directory: cloud-infrastructure/cluster
         env:
           CLUSTER_RESOURCE_GROUP_NAME: ${{ env.CLUSTER_RESOURCE_GROUP_NAME }}
-          SQL_SERVER_NAME: ${{ env.SQL_SERVER_NAME }}
-          SQL_DATABASE_NAME: ${{ inputs.database_name }}
+          POSTGRES_SERVER_NAME: ${{ env.POSTGRES_SERVER_NAME }}
+          DATABASE_NAME: ${{ inputs.database_name }}
         run: bash ./firewall.sh close

@@ -25,9 +25,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2025-01-01' = {
             {
               service: 'Microsoft.KeyVault'
             }
-            {
-              service: 'Microsoft.Sql'
-            }
           ]
           delegations: []
           privateEndpointNetworkPolicies: 'Enabled'
