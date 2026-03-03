@@ -11,7 +11,7 @@ Guidelines for implementing strongly typed IDs in the backend, covering type saf
 
 1. Use strongly typed IDs to provide type safety and prevent mixing different ID types, improving readability and maintainability
 2. By default, use `StronglyTypedUlid<T>` as the base class—it provides chronological ordering and includes a prefix for easy recognition (e.g., `usr_01JMVAW4T4320KJ3A7EJMCG8R0`)
-3. Use the `[IdPrefix]` attribute with a short prefix (max 5 characters)—ULIDs are 26 chars, plus 5-char prefix and underscore = 32 chars for varchar(32)
+3. Use the `[IdPrefix]` attribute with a short prefix (max 5 characters)—ULIDs are 26 chars, plus 5-char prefix and underscore = 32 chars max
 4. Follow the naming convention `[Entity]Id`
 5. Include the `[JsonConverter]` attribute for proper serialization
 6. Always override `ToString()` in the concrete class—record types don't inherit this from the base class

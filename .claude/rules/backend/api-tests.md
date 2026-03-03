@@ -30,7 +30,7 @@ Guidelines for writing tests for the backend. By default, tests should test API 
 11. Avoid sharing fields between tests—prefer local constants or variables within each test method
 12. Verify side effects like database changes and telemetry events
 13. Always call `TelemetryEventsCollectorSpy.Reset()` as the last Arrange statement if API calls were used to set up state (to ensure only the events from the Act phase are verified)
-14. Use the `Connection` property from `EndpointBaseTest<TContext>` for test data—it provides a SQLite connection with:
+14. Use the `Connection` property from `EndpointBaseTest<TContext>` for test data—it provides a database connection with:
     - `Insert` to populate test data
     - `Update` to update test data
     - `Delete` to delete test data
@@ -39,7 +39,7 @@ Guidelines for writing tests for the backend. By default, tests should test API 
 15. Never use Dapper for database operations in tests—this is the main reason for rejected tests
 16. The `EndpointBaseTest<TContext>` class provides:
     - Authenticated and anonymous HTTP clients
-    - In-memory SQLite database for test isolation
+    - In-memory database for test isolation
     - Service mocking with NSubstitute
     - Telemetry event collection
     - Proper test cleanup with the Dispose pattern
@@ -54,7 +54,7 @@ Ensure consistent ordering, naming, spacing, and line breaks. When creating SQL 
 public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
 {
     // Arrange
-    var (loginId, _) = await StartLogin(DatabaseSeeder.User1.Email); // ✅ DO: Use test helpers for setup
+    var (loginId, _) = await StartLogin(DatabaseSeeder.Tenant1Owner.Email); // ✅ DO: Use test helpers for setup
     var command = new CompleteLoginCommand(CorrectOneTimePassword);
     TelemetryEventsCollectorSpy.Reset(); // ✅ DO: Reset telemetry if API was called in Arrange
 
@@ -63,7 +63,7 @@ public async Task CompleteLogin_WhenValid_ShouldCompleteLoginAndCreateTokens()
 
     // Assert
     await response.ShouldBeSuccessfulPostRequest(hasLocation: false); // ✅ DO: Use custom assertion helpers
-    Connection.ExecuteScalar("SELECT COUNT(*) FROM Logins WHERE Id = @id AND Completed = 1", new { id = loginId.ToString() }).Should().Be(1); // ✅ DO: Verify DB side effects
+    Connection.ExecuteScalar("SELECT COUNT(*) FROM email_logins WHERE id = @id AND completed = 1", new { id = loginId.ToString() }).Should().Be(1); // ✅ DO: Verify DB side effects
     TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2); // ✅ DO: Verify telemetry
     TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("LoginStarted");
     TelemetryEventsCollectorSpy.CollectedEvents[1].GetType().Name.Should().Be("LoginCompleted");  // ✅ DO: Verify the correct events were collected
@@ -82,12 +82,12 @@ public async Task BadTest()
 private string InsertTestUser(string? email = null)
 {
     var userId = UserId.NewId().ToString();
-    Connection.Insert("Users", [
-        ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-        ("Id", userId),
-        ("CreatedAt", TimeProvider.System.GetUtcNow().AddMinutes(-10)), // ✅ DO: Use TimeProvider for dates
-        ("ModifiedAt", null),
-        ("Email", email ?? Faker.Internet.Email())
+    Connection.Insert("users", [
+        ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+        ("id", userId),
+        ("created_at", TimeProvider.System.GetUtcNow().AddMinutes(-10)), // ✅ DO: Use TimeProvider for dates
+        ("modified_at", null),
+        ("email", email ?? Faker.Internet.Email())
     ]);
     return userId;
 }
@@ -115,8 +115,8 @@ public class BadTestSetup
         connection.Open();
 
         // Insert user // ❌ DON'T: Add comments
-        connection.Execute("INSERT INTO Users ...");
-        connection.Execute("INSERT INTO Users (Email, Id, TenantId) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 }); // ❌ DON'T: Use Dapper Execute
+        connection.Execute("INSERT INTO users ...");
+        connection.Execute("INSERT INTO users (email, id, tenant_id) VALUES (@Email, @Id, @TenantId)", new { Email = "test@example.com", Id = Guid.NewGuid(), TenantId = 1 }); // ❌ DON'T: Use Dapper Execute
     }
 }
 ```

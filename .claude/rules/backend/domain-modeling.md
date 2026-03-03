@@ -132,9 +132,9 @@ public sealed class InvoiceConfiguration : IEntityTypeConfiguration<Invoice>
 
         builder.OwnsOne(i => i.Address, b => b.ToJson()); // ✅ DO: Map 1:1 valueobjects and entites with .ToJson()
 
-        // ✅ DO: Map collection with custom JsonSerializer
+        // ✅ DO: Map collection with custom JsonSerializer and HasColumnType("jsonb")
         builder.Property(i => i.InvoiceLines)
-            .HasColumnName("InvoiceLines")
+            .HasColumnType("jsonb")
             .HasConversion(
                 v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
                 v => JsonSerializer.Deserialize<ImmutableArray<InvoiceLine>>(v, JsonSerializerOptions)
