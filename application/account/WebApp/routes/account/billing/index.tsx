@@ -49,7 +49,7 @@ function BillingPage() {
   const { tenantId } = import.meta.user_info_env;
   const { data: tenant } = useTenant(tenantId ?? "");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
-  const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
+  const currentPlan = (subscription?.plan ?? SubscriptionPlan.Basis) as SubscriptionPlan;
 
   const { reactivateMutation, cancelDowngradeMutation } = useBillingPageMutations({
     startPolling,
@@ -64,7 +64,7 @@ function BillingPage() {
 
   const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
   const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
-  const scheduledPlan = subscription?.scheduledPlan ?? null;
+  const scheduledPlan = (subscription?.scheduledPlan ?? null) as SubscriptionPlan | null;
   const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
   const hasStripeCustomer = subscription?.hasStripeCustomer ?? false;
   const formattedPeriodEndLong = formatLongDate(currentPeriodEnd);

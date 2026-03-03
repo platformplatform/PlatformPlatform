@@ -1,3 +1,5 @@
+import type { BillingInfo, PaymentMethod } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -14,16 +16,11 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 
-import type { components } from "@/shared/lib/api/api.generated";
-
 import { api, type SubscriptionPlan } from "@/shared/lib/api/client";
 
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
 import { PaymentMethodDisplay } from "./PaymentMethodDisplay";
 import { getFormattedPrice, getPlanDetails } from "./PlanCard";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
-type PaymentMethod = components["schemas"]["PaymentMethod"];
 
 type UpgradeConfirmationDialogProps = {
   isOpen: boolean;

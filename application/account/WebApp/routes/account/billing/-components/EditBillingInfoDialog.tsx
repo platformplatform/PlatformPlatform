@@ -1,3 +1,5 @@
+import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react";
 import { Trans } from "@lingui/react/macro";
@@ -20,14 +22,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import type { components } from "@/shared/lib/api/api.generated";
-
 import { api } from "@/shared/lib/api/client";
 
 import { BillingInfoFormFields } from "./BillingInfoFormFields";
 import { useCountryOptions } from "./CountrySelect";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
 
 interface EditBillingInfoDialogProps {
   isOpen: boolean;

@@ -1,14 +1,16 @@
-import { eq, not, useLiveQuery } from "@tanstack/react-db";
+import { eq, isNull, not, useLiveQuery } from "@tanstack/react-db";
 import { useMemo } from "react";
 
 import { sessionCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
 import { type BillingInfo, castParsed, extractUrl, type PaymentMethod } from "./hookHelpers";
 
+export type { BillingAddress, BillingInfo, PaymentMethod } from "./hookHelpers";
+
 export function useUsers() {
   const { data: rawData, ...rest } = useLiveQuery((q) =>
     q
       .from({ users: userCollection })
-      .where(({ users }) => eq(users.deletedAt, null))
+      .where(({ users }) => isNull(users.deletedAt))
       .select(({ users }) => ({
         id: users.id,
         tenantId: users.tenantId,
@@ -38,7 +40,7 @@ export function useDeletedUsers() {
   const { data: rawData, ...rest } = useLiveQuery((q) =>
     q
       .from({ users: userCollection })
-      .where(({ users }) => not(eq(users.deletedAt, null)))
+      .where(({ users }) => not(isNull(users.deletedAt)))
       .select(({ users }) => ({
         id: users.id,
         tenantId: users.tenantId,
@@ -187,7 +189,7 @@ export function useSessions() {
   return useLiveQuery((q) =>
     q
       .from({ sessions: sessionCollection })
-      .where(({ sessions }) => eq(sessions.revokedAt, null))
+      .where(({ sessions }) => isNull(sessions.revokedAt))
       .select(({ sessions }) => ({
         id: sessions.id,
         tenantId: sessions.tenantId,

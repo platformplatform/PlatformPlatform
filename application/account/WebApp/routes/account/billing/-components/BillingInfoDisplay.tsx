@@ -1,9 +1,7 @@
+import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
+
 import { Trans } from "@lingui/react/macro";
 import { HashIcon, MailIcon, MapPinIcon, UserIcon } from "lucide-react";
-
-import type { components } from "@/shared/lib/api/api.generated";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
 
 type BillingInfoDisplayProps = {
   billingInfo: BillingInfo | null | undefined;
