@@ -9,11 +9,22 @@ import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { PencilIcon } from "lucide-react";
 
-import type { components } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
 
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+  role: string;
+  emailConfirmed: boolean;
+  createdAt: string;
+  lastSeenAt: string | null;
+}
 
 export function UserProfileContent({
   user,
@@ -21,7 +32,7 @@ export function UserProfileContent({
   isCurrentUser,
   onChangeRole
 }: Readonly<{
-  user: UserDetails;
+  user: UserData;
   canModifyUser: boolean;
   isCurrentUser: boolean;
   onChangeRole: () => void;
@@ -34,7 +45,9 @@ export function UserProfileContent({
       <div className="mb-6 text-center">
         <Avatar className="mx-auto mb-3 size-16">
           <AvatarImage src={user.avatarUrl ?? undefined} />
-          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+          </AvatarFallback>
         </Avatar>
         <h4>
           {user.firstName} {user.lastName}
@@ -79,7 +92,7 @@ export function UserProfileContent({
             onClick={onChangeRole}
             aria-label={t`Change user role for ${`${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email}`}
           >
-            {getUserRoleLabel(user.role)}
+            {getUserRoleLabel(user.role as UserRole)}
             <PencilIcon className="size-3 text-muted-foreground" />
           </Button>
         ) : (
@@ -90,7 +103,7 @@ export function UserProfileContent({
                 className="pointer-events-none h-[var(--control-height-xs)] px-3 text-sm"
                 disabled={true}
               >
-                {getUserRoleLabel(user.role)}
+                {getUserRoleLabel(user.role as UserRole)}
               </Button>
             </TooltipTrigger>
             <TooltipContent>

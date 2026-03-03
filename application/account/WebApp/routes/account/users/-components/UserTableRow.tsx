@@ -4,30 +4,41 @@ import { Badge } from "@repo/ui/components/Badge";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
 import { getInitials } from "@repo/utils/string/getInitials";
 
-import type { components } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
 
 import { SmartDate } from "@/shared/components/SmartDate";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 
 import { DesktopUserActionMenu, MobileUserActionMenu } from "./UserActionMenus";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+  role: string;
+  emailConfirmed: boolean;
+  createdAt: string;
+  lastSeenAt: string | null;
+}
 
-interface UserTableRowProps {
-  user: UserDetails;
+interface UserTableRowProps<T extends UserData> {
+  user: T;
   index: number;
   isSelected: boolean;
   isMobile: boolean;
   currentUserRole: string | undefined;
   currentUserId: string | undefined;
-  onRowClick: (user: UserDetails, event: React.MouseEvent) => void;
-  onSelectedUsersChange: (users: UserDetails[]) => void;
-  onViewProfile: (user: UserDetails, isKeyboardOpen?: boolean) => void;
-  onDeleteUser: (user: UserDetails) => void;
-  onChangeRole: (user: UserDetails) => void;
+  onRowClick: (user: T, event: React.MouseEvent) => void;
+  onSelectedUsersChange: (users: T[]) => void;
+  onViewProfile: (user: T, isKeyboardOpen?: boolean) => void;
+  onDeleteUser: (user: T) => void;
+  onChangeRole: (user: T) => void;
 }
 
-export function UserTableRow({
+export function UserTableRow<T extends UserData>({
   user,
   index,
   isSelected,
@@ -39,13 +50,15 @@ export function UserTableRow({
   onViewProfile,
   onDeleteUser,
   onChangeRole
-}: Readonly<UserTableRowProps>) {
+}: Readonly<UserTableRowProps<T>>) {
   const userRowContent = (
     <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
       <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
         <Avatar size="lg">
           <AvatarImage src={user.avatarUrl ?? undefined} />
-          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
+          <AvatarFallback>
+            {getInitials(user.firstName ?? undefined, user.lastName ?? undefined, user.email)}
+          </AvatarFallback>
         </Avatar>
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-center gap-2 truncate text-foreground">
@@ -108,7 +121,7 @@ export function UserTableRow({
           </TableCell>
           <TableCell>
             <div className="flex h-full w-full items-center justify-between p-0">
-              <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
+              <Badge variant="outline">{getUserRoleLabel(user.role as UserRole)}</Badge>
               <DesktopUserActionMenu {...actionMenuProps} />
             </div>
           </TableCell>

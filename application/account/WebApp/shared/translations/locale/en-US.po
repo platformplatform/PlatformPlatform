@@ -1105,8 +1105,8 @@ msgstr "Security alert"
 msgid "Security, privacy, and compliance information"
 msgstr "Security, privacy, and compliance information"
 
-#. placeholder {0}: user.firstName
-#. placeholder {1}: user.lastName
+#. placeholder {0}: user.firstName ?? ""
+#. placeholder {1}: user.lastName ?? ""
 msgid "Select {0} {1}"
 msgstr "Select {0} {1}"
 
@@ -1378,9 +1378,6 @@ msgstr "User"
 
 msgid "User actions"
 msgstr "User actions"
-
-msgid "User data updated"
-msgstr "User data updated"
 
 msgid "User deleted successfully: {userDisplayName}"
 msgstr "User deleted successfully: {userDisplayName}"

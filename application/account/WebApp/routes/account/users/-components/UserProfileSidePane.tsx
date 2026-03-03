@@ -3,26 +3,32 @@ import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { SidePane, SidePaneBody, SidePaneFooter, SidePaneHeader } from "@repo/ui/components/SidePane";
-import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { InfoIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 
-import type { components } from "@/shared/lib/api/client";
-
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 import { UserProfileContent } from "./UserProfileContent";
 
-type UserDetails = components["schemas"]["UserDetails"];
+interface UserData {
+  id: string;
+  avatarUrl: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  email: string;
+  title: string | null;
+  role: string;
+  emailConfirmed: boolean;
+  createdAt: string;
+  lastSeenAt: string | null;
+}
 
 interface UserProfileSidePaneProps {
-  user: UserDetails | null;
+  user: UserData | null;
   isOpen: boolean;
   onClose: () => void;
-  onDeleteUser: (user: UserDetails) => void;
+  onDeleteUser: (user: UserData) => void;
   isUserInCurrentView?: boolean;
-  isDataNewer?: boolean;
-  isLoading?: boolean;
 }
 
 function NoticeBar({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -41,9 +47,7 @@ export function UserProfileSidePane({
   isOpen,
   onClose,
   onDeleteUser,
-  isUserInCurrentView = true,
-  isDataNewer = false,
-  isLoading = false
+  isUserInCurrentView = true
 }: Readonly<UserProfileSidePaneProps>) {
   const userInfo = useUserInfo();
   const [isChangeRoleDialogOpen, setIsChangeRoleDialogOpen] = useState(false);
@@ -70,31 +74,14 @@ export function UserProfileSidePane({
           </NoticeBar>
         )}
 
-        {isDataNewer && (
-          <NoticeBar>
-            <Trans>User data updated</Trans>
-          </NoticeBar>
-        )}
-
         <SidePaneBody>
-          {isLoading ? (
-            <>
-              <div className="mb-6 text-center">
-                <Skeleton className="mx-auto mb-3 size-20 rounded-full" />
-                <Skeleton className="mx-auto mb-2 h-6 w-32" />
-                <Skeleton className="mx-auto h-4 w-24" />
-              </div>
-              <Skeleton className="h-64 w-full" />
-            </>
-          ) : (
-            user && (
-              <UserProfileContent
-                user={user}
-                canModifyUser={canModifyUser}
-                isCurrentUser={isCurrentUser ?? false}
-                onChangeRole={() => setIsChangeRoleDialogOpen(true)}
-              />
-            )
+          {user && (
+            <UserProfileContent
+              user={user}
+              canModifyUser={canModifyUser}
+              isCurrentUser={isCurrentUser ?? false}
+              onChangeRole={() => setIsChangeRoleDialogOpen(true)}
+            />
           )}
         </SidePaneBody>
 

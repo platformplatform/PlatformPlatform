@@ -10,9 +10,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Too
 import { format } from "date-fns";
 import { Filter, FilterX, SearchIcon, XIcon } from "lucide-react";
 
-import { UserRole, UserStatus } from "@/shared/lib/api/client";
+import { UserRole } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { getUserStatusLabel, UserStatus } from "@/shared/lib/api/userStatus";
 
 import { UserFilterDialog } from "./UserFilterDialog";
 import { useUserFilters } from "./useUserFilters";
