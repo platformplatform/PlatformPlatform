@@ -54,7 +54,8 @@ export function UserToolbar({ selectedUsers, onSelectedUsersChange }: Readonly<U
 
   const isOwner = currentUser?.role === UserRole.Owner;
   const hasSelectedSelf = selectedUsers.some((user) => user.id === currentUser?.id);
-  const hasTenantName = tenant?.name && tenant.name.trim() !== "";
+  const tenantName = tenant ? tenant.name : import.meta.user_info_env.tenantName;
+  const hasTenantName = tenantName && tenantName.trim() !== "";
 
   const handleInviteClick = () => {
     if (!hasTenantName) {

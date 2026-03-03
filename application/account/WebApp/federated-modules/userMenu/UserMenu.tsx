@@ -6,6 +6,7 @@ import { loggedInPath, loginPath } from "@repo/infrastructure/auth/constants";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { hasPermission } from "@repo/infrastructure/auth/routeGuards";
 import { createLoginUrlWithReturnPath } from "@repo/infrastructure/auth/util";
+import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import {
   DropdownMenu,
@@ -95,6 +96,7 @@ function useSidebarWidth(isCollapsed: boolean) {
 
 export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<UserMenuProps>) {
   const userInfo = useUserInfo();
+  const { data: electricUser } = useUser(userInfo?.id ?? "");
   const isCollapsedContext = useContext(collapsedContext);
   const isCollapsed = isCollapsedProp ?? isCollapsedContext;
   const overlayCtx = useContext(overlayContext);
@@ -110,6 +112,22 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
 
   const sidebarWidth = useSidebarWidth(isCollapsed);
   const canAccessAccountSettings = hasPermission({ allowedRoles: ["Owner", "Admin"] });
+
+  const displayEmail = electricUser ? electricUser.email : (userInfo?.email ?? "");
+  const displayFirstName = electricUser ? electricUser.firstName : userInfo?.firstName;
+  const displayLastName = electricUser ? electricUser.lastName : userInfo?.lastName;
+  const displayFullName =
+    displayFirstName || displayLastName ? `${displayFirstName ?? ""} ${displayLastName ?? ""}`.trim() : displayEmail;
+  const displayInitials = (() => {
+    const fi = displayFirstName?.[0] ?? "";
+    const li = displayLastName?.[0] ?? "";
+    const initials = `${fi}${li}`.toUpperCase();
+    return initials || displayEmail.slice(0, 2).toUpperCase();
+  })();
+  const displayAvatarUrl = electricUser ? electricUser.avatarUrl : userInfo?.avatarUrl;
+
+  const currentTenantId = userInfo?.tenantId;
+  const { data: electricTenant } = useTenant(currentTenantId ?? "");
 
   useTrackOpen("User menu", "menu", isMenuOpen);
 
@@ -155,13 +173,20 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
     return null;
   }
 
-  const currentTenantId = userInfo.tenantId;
   const acceptedTenants = tenants.filter((t) => !t.isNew);
   const sortedTenants = sortTenants(acceptedTenants);
   const currentTenant = tenants.find((t) => t.tenantId === currentTenantId);
-  const currentTenantName = currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
-  const currentTenantNameForLogo = currentTenant?.tenantName || userInfo.tenantName || "";
-  const currentTenantLogoUrl = currentTenant ? currentTenant.logoUrl : userInfo.tenantLogoUrl;
+  const displayTenantName = electricTenant
+    ? electricTenant.name || "PlatformPlatform"
+    : currentTenant?.tenantName || userInfo.tenantName || "PlatformPlatform";
+  const displayTenantNameForLogo = electricTenant
+    ? electricTenant.name || ""
+    : currentTenant?.tenantName || userInfo.tenantName || "";
+  const displayTenantLogoUrl = electricTenant
+    ? electricTenant.logoUrl
+    : currentTenant
+      ? currentTenant.logoUrl
+      : userInfo.tenantLogoUrl;
   const isAccountContext = navigateToMain !== null;
 
   const handleNavigateBackToApp = () => {
@@ -269,12 +294,12 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger disabled={isSwitching} className={triggerClassName} aria-label={t`User menu`}>
           <div className="flex size-8 shrink-0 items-center justify-center">
-            <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
+            <TenantLogo logoUrl={displayTenantLogoUrl} tenantName={displayTenantNameForLogo} />
           </div>
           {!isCollapsed && (
             <>
               <div className="ml-3 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-foreground">
-                {currentTenantName}
+                {displayTenantName}
               </div>
               <ChevronsUpDownIcon className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
             </>
@@ -305,8 +330,8 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
             >
               <div className="relative">
                 <Avatar className="size-16">
-                  <AvatarImage src={userInfo.avatarUrl ?? undefined} />
-                  <AvatarFallback className="text-xl">{userInfo.initials ?? ""}</AvatarFallback>
+                  <AvatarImage src={displayAvatarUrl ?? undefined} />
+                  <AvatarFallback className="text-xl">{displayInitials}</AvatarFallback>
                 </Avatar>
                 <div
                   className="[&_*]:!text-inherit pointer-events-none absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full border border-border"
@@ -320,9 +345,9 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                   <PencilIcon className="size-2.5" strokeWidth={3} />
                 </div>
               </div>
-              <span className="font-medium">{userInfo.fullName}</span>
+              <span className="font-medium">{displayFullName}</span>
               <span className="text-muted-foreground text-sm group-focus/dropdown-menu-item:hidden">
-                {userInfo.email}
+                {displayEmail}
               </span>
               <span className="hidden text-sm group-focus/dropdown-menu-item:inline">
                 <Trans>Edit profile</Trans>
@@ -376,7 +401,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                           <div className="flex flex-1 items-center justify-between gap-2">
                             <div className="flex flex-col">
                               <span className="whitespace-nowrap">{tenant.tenantName || t`Unnamed account`}</span>
-                              <span className="whitespace-nowrap text-muted-foreground text-xs">{userInfo?.email}</span>
+                              <span className="whitespace-nowrap text-muted-foreground text-xs">{displayEmail}</span>
                             </div>
                             <Check
                               className={`ml-2 size-4 shrink-0 ${tenant.tenantId === currentTenantId ? "" : "invisible"}`}
