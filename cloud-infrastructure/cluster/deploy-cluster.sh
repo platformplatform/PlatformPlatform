@@ -4,7 +4,7 @@ UNIQUE_PREFIX=$1
 ENVIRONMENT=$2
 CLUSTER_LOCATION=$3
 CLUSTER_LOCATION_ACRONYM=$4
-SQL_ADMIN_OBJECT_ID=$5
+DB_ADMIN_OBJECT_ID=$5
 DOMAIN_NAME=$6
 
 get_active_version()
@@ -29,7 +29,7 @@ export UNIQUE_PREFIX
 export ENVIRONMENT
 export LOCATION=$CLUSTER_LOCATION
 export DOMAIN_NAME
-export SQL_ADMIN_OBJECT_ID
+export DB_ADMIN_OBJECT_ID
 export GOOGLE_OAUTH_CLIENT_ID
 export GOOGLE_OAUTH_CLIENT_SECRET
 export STRIPE_PUBLISHABLE_KEY
@@ -97,7 +97,7 @@ then
     exit 1
   fi
 
-  # Extract the ID of the Managed Identities, which can be used to grant access to SQL Database
+  # Extract the ID of the Managed Identities, which can be used to grant access to PostgreSQL databases
   ACCOUNT_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.accountIdentityClientId.value')
   BACK_OFFICE_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.backOfficeIdentityClientId.value')
   MAIN_IDENTITY_CLIENT_ID=$(echo "$cleaned_output" | jq -r '.properties.outputs.mainIdentityClientId.value')
