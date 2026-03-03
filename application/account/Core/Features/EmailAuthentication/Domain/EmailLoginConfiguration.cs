@@ -8,7 +8,6 @@ public sealed class EmailLoginConfiguration : IEntityTypeConfiguration<EmailLogi
 {
     public void Configure(EntityTypeBuilder<EmailLogin> builder)
     {
-        builder.ToTable("EmailLogins");
         builder.MapStronglyTypedUuid<EmailLogin, EmailLoginId>(el => el.Id);
     }
 }
