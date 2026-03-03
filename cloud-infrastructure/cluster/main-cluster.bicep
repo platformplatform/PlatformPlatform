@@ -6,7 +6,7 @@ param globalResourceGroupName string
 param environment string
 param containerRegistryName string
 param domainName string
-param sqlAdminObjectId string
+param dbAdminObjectId string
 param appGatewayVersion string
 param accountVersion string
 param backOfficeVersion string
@@ -143,30 +143,16 @@ module communicationService '../modules/communication-services.bicep' = {
   }
 }
 
-module microsoftSqlServer '../modules/microsoft-sql-server.bicep' = {
+module postgresServer '../modules/postgresql-flexible-server.bicep' = {
   scope: clusterResourceGroup
-  name: '${clusterResourceGroupName}-microsoft-sql-server'
+  name: '${clusterResourceGroupName}-postgresql-server'
   params: {
     location: location
     name: clusterResourceGroupName
     tags: tags
-    subnetId: subnetId
     tenantId: subscription().tenantId
-    sqlAdminObjectId: sqlAdminObjectId
+    dbAdminObjectId: dbAdminObjectId
   }
-  dependsOn: [virtualNetwork]
-}
-
-module microsoftSqlDerverDiagnosticConfiguration '../modules/microsoft-sql-server-diagnostic.bicep' = {
-  scope: clusterResourceGroup
-  name: '${clusterResourceGroupName}-microsoft-sql-server-diagnostic'
-  params: {
-    diagnosticStorageAccountName: diagnosticStorageAccountName
-    microsoftSqlServerName: clusterResourceGroupName
-    dianosticStorageAccountBlobEndpoint: diagnosticStorageAccount.outputs.blobEndpoint
-    dianosticStorageAccountSubscriptionId: subscription().subscriptionId
-  }
-  dependsOn: [microsoftSqlServer]
 }
 
 var isCustomDomainSet = domainName != ''
@@ -192,16 +178,14 @@ module accountIdentity '../modules/user-assigned-managed-identity.bicep' = {
   }
 }
 
-module accountDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${clusterResourceGroupName}-account-sql-database'
+module accountDatabase '../modules/postgresql-flexible-database.bicep' = {
+  name: '${clusterResourceGroupName}-account-postgres-database'
   scope: clusterResourceGroup
   params: {
-    sqlServerName: clusterResourceGroupName
+    serverName: clusterResourceGroupName
     databaseName: 'account'
-    location: location
-    tags: tags
   }
-  dependsOn: [microsoftSqlServer]
+  dependsOn: [postgresServer]
 }
 
 var accountStorageAccountName = '${storageAccountUniquePrefix}account'
@@ -239,7 +223,7 @@ var accountEnvironmentVariables = [
   }
   {
     name: 'DATABASE_CONNECTION_STRING'
-    value: '${accountDatabase.outputs.connectionString};User Id=${accountIdentity.outputs.clientId};'
+    value: '${accountDatabase.outputs.connectionString};Username=${accountIdentity.outputs.clientId}'
   }
   {
     name: 'KEYVAULT_URL'
@@ -338,16 +322,14 @@ module backOfficeIdentity '../modules/user-assigned-managed-identity.bicep' = {
   }
 }
 
-module backOfficeDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${clusterResourceGroupName}-back-office-sql-database'
+module backOfficeDatabase '../modules/postgresql-flexible-database.bicep' = {
+  name: '${clusterResourceGroupName}-back-office-postgres-database'
   scope: clusterResourceGroup
   params: {
-    sqlServerName: clusterResourceGroupName
+    serverName: clusterResourceGroupName
     databaseName: 'back-office'
-    location: location
-    tags: tags
   }
-  dependsOn: [microsoftSqlServer]
+  dependsOn: [postgresServer]
 }
 
 var backOfficeStorageAccountName = '${storageAccountUniquePrefix}backoffice'
@@ -375,7 +357,7 @@ var backOfficeEnvironmentVariables = [
   }
   {
     name: 'DATABASE_CONNECTION_STRING'
-    value: '${backOfficeDatabase.outputs.connectionString};User Id=${backOfficeIdentity.outputs.clientId};'
+    value: '${backOfficeDatabase.outputs.connectionString};Username=${backOfficeIdentity.outputs.clientId}'
   }
   {
     name: 'KEYVAULT_URL'
@@ -466,16 +448,14 @@ module mainIdentity '../modules/user-assigned-managed-identity.bicep' = {
   }
 }
 
-module mainDatabase '../modules/microsoft-sql-database.bicep' = {
-  name: '${clusterResourceGroupName}-main-sql-database'
+module mainDatabase '../modules/postgresql-flexible-database.bicep' = {
+  name: '${clusterResourceGroupName}-main-postgres-database'
   scope: clusterResourceGroup
   params: {
-    sqlServerName: clusterResourceGroupName
+    serverName: clusterResourceGroupName
     databaseName: 'main'
-    location: location
-    tags: tags
   }
-  dependsOn: [microsoftSqlServer]
+  dependsOn: [postgresServer]
 }
 
 var mainStorageAccountName = '${storageAccountUniquePrefix}main'
@@ -503,7 +483,7 @@ var mainEnvironmentVariables = [
   }
   {
     name: 'DATABASE_CONNECTION_STRING'
-    value: '${mainDatabase.outputs.connectionString};User Id=${mainIdentity.outputs.clientId};'
+    value: '${mainDatabase.outputs.connectionString};Username=${mainIdentity.outputs.clientId}'
   }
   {
     name: 'KEYVAULT_URL'
