@@ -31,11 +31,10 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Use `window.location.href` for navigation between systems (not TanStack Router)
 
 3. **API Integration**:
-   - API client auto-generated from OpenAPI spec
-   - Located in `shared/lib/api/client.ts`
+   - **Reads**: Use TanStack DB live queries via Electric SQL sync for all entity reads (users, tenants, subscriptions, sessions). See [tanstack-db-electric-sync.md](/.agent/rules/frontend/tanstack-db-electric-sync.md) for patterns
+   - **Writes**: Use TanStack Query mutations via the OpenAPI-generated client in `shared/lib/api/client.ts`
    - Never make direct fetch calls
-   - Server state lives in TanStack Query only
-   - Use `queryClient.invalidateQueries()` to refresh data after mutations
+   - After write mutations, Electric sync delivers updated data automatically -- do not use `queryClient.invalidateQueries()` for Electric-synced entities
 
 4. **ShadCN 2.0 with BaseUI** (not Radix UI):
    - **BaseUI** (`@base-ui/react`): Headless primitives providing accessibility and behavior
