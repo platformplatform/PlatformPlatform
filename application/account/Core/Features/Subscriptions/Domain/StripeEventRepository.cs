@@ -12,12 +12,6 @@ public interface IStripeEventRepository : IAppendRepository<StripeEvent, StripeE
     void Update(StripeEvent aggregate);
 
     Task<StripeEvent[]> GetPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Checks if any pending events exist for a Stripe customer without locking.
-    ///     Used by the frontend to poll for webhook processing completion.
-    /// </summary>
-    Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken);
 }
 
 internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
@@ -34,10 +28,5 @@ internal sealed class StripeEventRepository(AccountDbContext accountDbContext)
         return await DbSet
             .Where(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending)
             .ToArrayAsync(cancellationToken);
-    }
-
-    public async Task<bool> HasPendingByStripeCustomerIdAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
-    {
-        return await DbSet.AnyAsync(e => e.StripeCustomerId == stripeCustomerId && e.Status == StripeEventStatus.Pending, cancellationToken);
     }
 }
