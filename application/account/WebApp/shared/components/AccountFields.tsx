@@ -15,13 +15,28 @@ import { TextField } from "@repo/ui/components/TextField";
 import { CameraIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
 
-import type { Schemas } from "@/shared/lib/api/client";
-
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
 
+interface TenantData {
+  name: string;
+  logoUrl: string | null;
+}
+
+function validateLogoFile(file: File): boolean {
+  if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+    alert(t`Please select a JPEG, PNG, GIF, WebP, or SVG image.`);
+    return false;
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    alert(t`Image must be smaller than 1 MB.`);
+    return false;
+  }
+  return true;
+}
+
 export interface AccountFieldsProps {
-  tenant: Schemas["TenantResponse"] | undefined;
+  tenant: TenantData | undefined;
   isPending: boolean;
   onLogoFileSelect: (file: File | null) => void;
   onLogoRemove?: () => void;
@@ -30,6 +45,8 @@ export interface AccountFieldsProps {
   description?: string;
   autoFocus?: boolean;
   onChange?: () => void;
+  nameValue?: string;
+  onNameChange?: (value: string) => void;
   layout?: "stacked" | "horizontal";
   infoFields?: ReactNode;
 }
@@ -44,6 +61,8 @@ export function AccountFields({
   tooltip,
   description,
   onChange,
+  nameValue,
+  onNameChange,
   layout = "stacked",
   infoFields
 }: AccountFieldsProps) {
@@ -53,23 +72,11 @@ export function AccountFields({
   const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   const onFileSelect = (files: FileList | null) => {
-    if (files?.[0]) {
-      const file = files[0];
-
-      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        alert(t`Please select a JPEG, PNG, GIF, WebP, or SVG image.`);
-        return;
-      }
-
-      if (file.size > MAX_FILE_SIZE) {
-        alert(t`Image must be smaller than 1 MB.`);
-        return;
-      }
-
-      setLogoPreviewUrl(URL.createObjectURL(file));
-      setIsLogoRemoved(false);
-      onLogoFileSelect(file);
-    }
+    const file = files?.[0];
+    if (!file || !validateLogoFile(file)) return;
+    setLogoPreviewUrl(URL.createObjectURL(file));
+    setIsLogoRemoved(false);
+    onLogoFileSelect(file);
   };
 
   const handleRemove = () => {
@@ -148,19 +155,26 @@ export function AccountFields({
     </>
   );
 
+  const isControlled = nameValue !== undefined;
+
+  const handleNameChange = (value: string) => {
+    onNameChange?.(value);
+    onChange?.();
+  };
+
   const fieldsSection = (
     <TextField
       autoFocus={autoFocus}
       isRequired={true}
       name="name"
-      defaultValue={tenant?.name ?? ""}
+      {...(isControlled ? { value: nameValue } : { defaultValue: tenant?.name ?? "" })}
       isDisabled={isPending}
       isReadOnly={isReadOnly}
       label={t`Account name`}
       placeholder={t`E.g. Acme Corp`}
       tooltip={tooltip}
       description={description}
-      onChange={onChange}
+      onChange={isControlled ? handleNameChange : onChange}
     />
   );
 

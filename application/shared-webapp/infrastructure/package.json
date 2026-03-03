@@ -26,6 +26,11 @@
       "source": "./applicationInsights/*",
       "default": "./dist/applicationInsights/*"
     },
+    "./sync/*": {
+      "types": "./dist/sync/*.d.ts",
+      "source": "./sync/*",
+      "default": "./dist/sync/*"
+    },
     "./translations/*": {
       "types": "./dist/translations/*.d.ts",
       "source": "./translations/*",

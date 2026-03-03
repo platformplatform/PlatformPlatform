@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
@@ -45,7 +46,8 @@ function BillingPage() {
   const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
   const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
 
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
   const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
 
