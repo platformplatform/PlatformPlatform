@@ -38,4 +38,13 @@
   "biome.enabled": true,
   "playwright.projectDir": "application/End2EndTests",
   "playwright.showTrace": true,
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    { "text": "Use imperative form (e.g., 'Add feature' not 'Added feature')" },
+    { "text": "Start with a capital letter" },
+    { "text": "Do not end with a period (exception: 'etc.' is allowed)" },
+    { "text": "Keep to a single line only - no multi-line messages" },
+    { "text": "Do not use multiple sentences" },
+    { "text": "Do not use conventional commit prefixes like 'feat:', 'fix:', 'docs:', 'chore:'" },
+    { "text": "Be concise and describe the change and motivation" }
+  ]
 }
