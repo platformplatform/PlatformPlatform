@@ -15,6 +15,7 @@ export function createShapeOptions(table: ElectricTable): ShapeStreamOptions {
       int8: (value: string) => value
     },
     columnMapper: snakeCamelMapper(),
+    liveSse: true,
     onError: (error) => {
       if (error instanceof FetchError && error.status === 403) {
         return;
