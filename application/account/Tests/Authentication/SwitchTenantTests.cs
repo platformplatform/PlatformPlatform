@@ -30,7 +30,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -110,7 +111,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -170,7 +172,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -240,7 +243,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -318,7 +322,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 

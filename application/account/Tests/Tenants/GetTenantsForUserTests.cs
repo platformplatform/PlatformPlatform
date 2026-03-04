@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Account.Database;
+using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Tenants.Queries;
 using Account.Features.Users.Domain;
@@ -29,7 +30,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -103,7 +105,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", "Other Tenant"),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -148,7 +151,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", "Other User Tenant"),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -194,7 +198,8 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 

@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Account.Database;
+using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
@@ -28,7 +29,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -100,7 +102,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -110,7 +113,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 

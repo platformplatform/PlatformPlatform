@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Billing.Queries;
@@ -37,5 +38,15 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
         result.Transactions[0].Amount.Should().Be(29.99m);
         result.Transactions[0].Currency.Should().Be("usd");
         result.Transactions[0].Status.Should().Be(PaymentTransactionStatus.Succeeded);
+    }
+
+    [Fact]
+    public async Task GetPaymentHistory_WhenNotOwner_ShouldReturnForbidden()
+    {
+        // Act
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account/billing/payment-history");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }
