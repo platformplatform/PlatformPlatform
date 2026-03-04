@@ -22,7 +22,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' =
     createMode: 'Default'
     authConfig: {
       activeDirectoryAuth: 'Enabled'
-      passwordAuth: 'Disabled'
+      passwordAuth: 'Enabled'
       tenantId: tenantId
     }
     storage: {
@@ -141,10 +141,20 @@ resource walLevelConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configuration
   }
 }
 
+resource maxReplicationSlots 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
+  parent: postgresServer
+  name: 'max_replication_slots'
+  dependsOn: [walLevelConfig]
+  properties: {
+    value: '10'
+    source: 'user-override'
+  }
+}
+
 resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: '${name}-postgres-diagnostics'
   scope: postgresServer
-  dependsOn: [walLevelConfig]
+  dependsOn: [maxReplicationSlots]
   properties: {
     storageAccountId: diagnosticStorageAccountId
     logs: [

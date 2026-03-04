@@ -67,6 +67,20 @@ resource signKeyVaultKeysRoleAssignment 'Microsoft.Authorization/roleAssignments
   }
 }
 
+var keyVaultSecretsOfficerRoleDefinitionId = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7' // Key Vault Secrets Officer
+resource writeKeyVaultSecretsRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (grantKeyVaultWritePermissions) {
+  name: guid(keyVaultName, name, keyVaultSecretsOfficerRoleDefinitionId)
+  scope: keyVault
+  properties: {
+    roleDefinitionId: subscriptionResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      keyVaultSecretsOfficerRoleDefinitionId
+    )
+    principalType: 'ServicePrincipal'
+    principalId: userAssignedIdentity.properties.principalId
+  }
+}
+
 output name string = userAssignedIdentity.name
 output id string = userAssignedIdentity.id
 output clientId string = userAssignedIdentity.properties.clientId
