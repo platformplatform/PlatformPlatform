@@ -34,7 +34,7 @@ public class End2EndCommand : Command
         var stopOnFirstFailureOption = new Option<bool>("--stop-on-first-failure", "-x") { Description = "Stop after the first failure" };
         var uiOption = new Option<bool>("--ui") { Description = "Run tests in interactive UI mode with time-travel debugging" };
         var workersOption = new Option<int?>("--workers", "-w") { Description = "Number of worker processes to use for running tests" };
-        var waitForAspireOption = new Option<bool>("--wait-for-aspire") { Description = "Wait for Aspire to start (retries server check up to 50 seconds)" };
+        var waitForAspireOption = new Option<bool>("--wait-for-aspire") { Description = "Wait for Aspire to start (retries server check up to 2 minutes)" };
 
         Arguments.Add(searchTermsArgument);
         Options.Add(browserOption);
@@ -347,33 +347,42 @@ public class End2EndCommand : Command
 
     private static void CheckWebsiteAccessibility(bool waitForAspire)
     {
-        var maxRetries = waitForAspire ? 10 : 1;
+        var maxRetries = waitForAspire ? 24 : 1;
         var retryDelaySeconds = 5;
 
         for (var attempt = 1; attempt <= maxRetries; attempt++)
         {
             try
             {
-                using var httpClient = new HttpClient();
+                using var httpClient = new HttpClient(new HttpClientHandler { AllowAutoRedirect = true });
                 httpClient.Timeout = TimeSpan.FromSeconds(5);
 
-                var response = httpClient.Send(new HttpRequestMessage(HttpMethod.Head, BaseUrl));
+                var response = httpClient.Send(new HttpRequestMessage(HttpMethod.Get, BaseUrl));
 
                 if (response.IsSuccessStatusCode)
                 {
                     AnsiConsole.MarkupLine($"[green]Server is accessible at {BaseUrl}[/]");
                     return;
                 }
+
+                if (waitForAspire && attempt < maxRetries)
+                {
+                    AnsiConsole.MarkupLine($"[yellow]Server returned {(int)response.StatusCode}, retrying in {retryDelaySeconds} seconds... (attempt {attempt}/{maxRetries})[/]");
+                    Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
+                    continue;
+                }
             }
             catch
             {
-                // Retry if waiting for Aspire and not the last attempt
                 if (waitForAspire && attempt < maxRetries)
                 {
                     AnsiConsole.MarkupLine($"[yellow]Server not ready yet, retrying in {retryDelaySeconds} seconds... (attempt {attempt}/{maxRetries})[/]");
                     Thread.Sleep(TimeSpan.FromSeconds(retryDelaySeconds));
+                    continue;
                 }
             }
+
+            break;
         }
 
         AnsiConsole.MarkupLine($"[red]Server is not accessible at {BaseUrl}[/]");
