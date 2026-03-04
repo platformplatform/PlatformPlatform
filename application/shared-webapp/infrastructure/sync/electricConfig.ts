@@ -1,6 +1,6 @@
 import type { ShapeStreamOptions } from "@electric-sql/client";
 
-import { snakeCamelMapper } from "@electric-sql/client";
+import { FetchError, snakeCamelMapper } from "@electric-sql/client";
 
 const ACCOUNT_ELECTRIC_SHAPE_URL = "/api/account/electric/v1/shape";
 
@@ -15,7 +15,13 @@ export function createShapeOptions(table: ElectricTable): ShapeStreamOptions {
     parser: {
       int8: (value: string) => value
     },
-    columnMapper: snakeCamelMapper()
+    columnMapper: snakeCamelMapper(),
+    onError: (error) => {
+      if (error instanceof FetchError && error.status === 403) {
+        return;
+      }
+      return {};
+    }
   };
 }
 
