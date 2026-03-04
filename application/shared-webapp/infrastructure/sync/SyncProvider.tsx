@@ -2,9 +2,9 @@ import { useEffect, useRef } from "react";
 
 import { type AuthSyncMessage, authSyncService } from "../auth/AuthSyncService";
 import { useIsAuthenticated } from "../auth/hooks";
-import { sessionCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
+import { subscriptionCollection, tenantCollection, userCollection } from "./collections";
 
-const allCollections = [userCollection, tenantCollection, subscriptionCollection, sessionCollection];
+const allCollections = [userCollection, tenantCollection, subscriptionCollection];
 
 function cleanupCollections() {
   for (const collection of allCollections) {
