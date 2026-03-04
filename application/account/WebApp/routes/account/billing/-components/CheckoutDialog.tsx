@@ -50,8 +50,7 @@ export function CheckoutDialog({
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isWaitingForActivation, setIsWaitingForActivation] = useState(false);
 
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
+  const { data: subscription } = useSubscription();
 
   const processPendingEventsMutation = api.useMutation("post", "/api/account/subscriptions/process-pending-events");
   const { mutate: processPendingEvents } = processPendingEventsMutation;
@@ -223,8 +222,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPaymentReady, setIsPaymentReady] = useState(false);
 
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
+  const { data: subscription } = useSubscription();
   const { data: preview } = api.useQuery("get", "/api/account/subscriptions/checkout-preview", {
     params: { query: { Plan: plan } }
   });

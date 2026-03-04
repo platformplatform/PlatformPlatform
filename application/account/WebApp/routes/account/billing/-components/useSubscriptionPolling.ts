@@ -16,8 +16,7 @@ export function useSubscriptionPolling() {
   const onCompleteRef = useRef<(() => void) | null>(null);
   const conditionMetRef = useRef(false);
 
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
+  const { data: subscription } = useSubscription();
 
   const processPendingEventsMutation = api.useMutation("post", "/api/account/subscriptions/process-pending-events");
   const { mutate: processPendingEvents } = processPendingEventsMutation;

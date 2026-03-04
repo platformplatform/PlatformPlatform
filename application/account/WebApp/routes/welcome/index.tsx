@@ -1,17 +1,16 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
-import { useTenant } from "@repo/infrastructure/sync/hooks";
+import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
@@ -134,12 +133,10 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
 }
 
 function ProfileSetupForm() {
-  const queryClient = useQueryClient();
-  const { updateUserInfo } = useContext(AuthenticationContext);
-
   const [selectedAvatarFile, setSelectedAvatarFile] = useState<File | null>(null);
 
-  const { data: user, isLoading, refetch: refetchUser } = api.useQuery("get", "/api/account/users/me");
+  const { id: userId } = import.meta.user_info_env;
+  const { data: user, isLoading } = useUser(userId ?? "");
 
   const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar");
   const updateCurrentUserMutation = api.useMutation("put", "/api/account/users/me");
@@ -163,14 +160,6 @@ function ProfileSetupForm() {
       await updateCurrentUserMutation.mutateAsync({
         body: { firstName, lastName, title }
       });
-
-      // Refresh user info
-      const { data: updatedUser } = await refetchUser();
-      if (updatedUser) {
-        updateUserInfo(updatedUser);
-      }
-
-      await queryClient.invalidateQueries();
     },
     onSuccess: () => {
       const returnPath = new URLSearchParams(window.location.search).get("returnPath");
