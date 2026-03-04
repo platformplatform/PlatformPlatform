@@ -27,6 +27,8 @@ test.describe("@smoke", () => {
    */
   test("should handle user invitation, role management & permissions workflow", async ({ page }) => {
     const context = createTestContext(page);
+    // Mark 403 as expected because subscription Electric shape is Owner-only (non-Owner logins trigger 403)
+    context.monitoring.expectedStatusCodes.push(403);
     const owner = testUser();
     const adminUser = testUser();
     const memberUser = testUser();
@@ -472,6 +474,8 @@ test.describe("@comprehensive", () => {
    */
   test("should handle single and bulk user deletion workflows with dashboard integration", async ({ page }) => {
     const context = createTestContext(page);
+    // Mark 403 as expected because subscription Electric shape is Owner-only (non-Owner logins trigger 403)
+    context.monitoring.expectedStatusCodes.push(403);
     const owner = testUser();
     const user1 = testUser();
     const user2 = testUser();
@@ -692,7 +696,7 @@ test.describe("@comprehensive", () => {
     // === ROLE CHANGE WITH LASTSEENAT PRESERVATION SECTION ===
     await step("Change user1 role to Admin & verify LastSeenAt unchanged")(async () => {
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
-      const user1LastSeenAtBefore = await user1Row.locator("td").nth(3).innerText();
+      const user1LastSeenAtBefore = await user1Row.locator("td").nth(2).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
       await user1ActionsButton.dispatchEvent("click");
@@ -712,7 +716,7 @@ test.describe("@comprehensive", () => {
       await expectToastMessage(context, `User role updated successfully for ${user1FullName}`);
       await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
 
-      await expect(user1Row.locator("td").nth(3)).toHaveText(user1LastSeenAtBefore);
+      await expect(user1Row.locator("td").nth(2)).toHaveText(user1LastSeenAtBefore);
       await expect(user1Row).toContainText("Admin");
     })();
 
@@ -723,7 +727,7 @@ test.describe("@comprehensive", () => {
       const user1FullName = `${user1.firstName} ${user1.lastName}`;
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
 
-      user1LastSeenAtBeforeDelete = await user1Row.locator("td").nth(3).innerText();
+      user1LastSeenAtBeforeDelete = await user1Row.locator("td").nth(2).innerText();
 
       const user1ActionsButton = user1Row.locator("button[aria-label='User actions']").first();
       await user1ActionsButton.dispatchEvent("click");
@@ -847,7 +851,7 @@ test.describe("@comprehensive", () => {
       await expect(page.locator("tbody").first()).not.toContainText(user2.email);
 
       const user1Row = page.locator("tbody").first().locator("tr").filter({ hasText: user1.email });
-      await expect(user1Row.locator("td").nth(3)).toHaveText(user1LastSeenAtBeforeDelete);
+      await expect(user1Row.locator("td").nth(2)).toHaveText(user1LastSeenAtBeforeDelete);
     })();
   });
 });

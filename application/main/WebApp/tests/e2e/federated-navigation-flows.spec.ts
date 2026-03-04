@@ -152,7 +152,9 @@ test.describe("@smoke", () => {
     })();
 
     await step("Log out from owner & verify redirect to login")(async () => {
-      context.monitoring.expectedStatusCodes.push(401);
+      // Mark 401 as expected during logout transition
+      // Mark 403 as expected because subscription Electric shape is Owner-only
+      context.monitoring.expectedStatusCodes.push(401, 403);
 
       const triggerButton = page.getByRole("button", { name: "User menu" });
       await triggerButton.dispatchEvent("click");

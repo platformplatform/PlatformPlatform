@@ -120,7 +120,8 @@ test.describe("@smoke", () => {
       await expect(page.locator("tbody").first()).toContainText(member.email);
 
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
-      context.monitoring.expectedStatusCodes.push(401);
+      // Mark 403 as expected because subscription Electric shape is Owner-only
+      context.monitoring.expectedStatusCodes.push(401, 403);
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/dashboard");
@@ -336,7 +337,8 @@ test.describe("@smoke", () => {
       await expect(thirdRow).toHaveAttribute("data-state", "selected");
 
       // Mark 401 as expected during logout transition (React Query may have in-flight requests)
-      context.monitoring.expectedStatusCodes.push(401);
+      // Mark 403 as expected because subscription Electric shape is Owner-only
+      context.monitoring.expectedStatusCodes.push(401, 403);
 
       // Navigate away from users page first to prevent background requests
       await page.goto("/dashboard");

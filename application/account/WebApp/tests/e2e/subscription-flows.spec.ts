@@ -120,6 +120,17 @@ test.describe("@smoke", () => {
         currentPeriodEnd: "2026-03-24T00:00:00Z",
         cancelAtPeriodEnd: false,
         paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 },
+        paymentTransactions: [
+          {
+            id: "txn_mock_1",
+            amount: 29.0,
+            currency: "USD",
+            status: "Succeeded",
+            date: "2026-02-24T00:00:00Z",
+            invoiceUrl: "https://mock.stripe.local/invoice/12345",
+            creditNoteUrl: null
+          }
+        ],
         billingInfo: {
           name: "Test Organization",
           address: {
@@ -134,27 +145,6 @@ test.describe("@smoke", () => {
           taxId: null
         }
       }));
-
-      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            totalCount: 1,
-            transactions: [
-              {
-                id: "txn_mock_1",
-                amount: 29.0,
-                currency: "USD",
-                status: "Succeeded",
-                date: "2026-02-24T00:00:00Z",
-                invoiceUrl: "https://mock.stripe.local/invoice/12345",
-                creditNoteUrl: null
-              }
-            ]
-          }
-        });
-      });
 
       await ownerPage.goto("/account/billing");
 
@@ -175,7 +165,6 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByText("Succeeded")).toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Invoice" })).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/billing/payment-history**");
       await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
@@ -375,15 +364,9 @@ test.describe("@smoke", () => {
     })();
 
     // === PAYMENT FAILED BANNER (MOCKED SUBSCRIPTION STATE) ===
-    await step("Mock subscription payment failed & verify warning banner displayed")(async () => {
+    await step("Mock subscription payment failed state & verify warning banner displayed")(async () => {
       await mockElectricSubscription(ownerPage, () => ({
-        plan: "Standard",
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
-        currentPriceAmount: 29.0,
-        currentPriceCurrency: "USD",
-        currentPeriodEnd: "2026-03-24T00:00:00Z",
-        cancelAtPeriodEnd: false,
+        plan: "Starter",
         isPaymentFailed: true
       }));
 
@@ -465,14 +448,6 @@ test.describe("@comprehensive", () => {
         paymentMethod: { brand: "visa", last4: "4242", expMonth: 12, expYear: 2026 }
       }));
 
-      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: { totalCount: 0, transactions: [] }
-        });
-      });
-
       await ownerPage.goto("/account/billing");
 
       await expect(ownerPage.getByRole("tablist", { name: "Billing tabs" })).toBeVisible();
@@ -490,8 +465,6 @@ test.describe("@comprehensive", () => {
 
     // === BILLING INFO WITH TAX ID (ELECTRIC MOCK for Tax ID - MockStripeClient returns null taxId) ===
     await step("Mock subscription with Tax ID & verify billing info display")(async () => {
-      await ownerPage.unroute("**/api/account/billing/payment-history**");
-
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
         stripeCustomerId: "cus_mock",
@@ -515,14 +488,6 @@ test.describe("@comprehensive", () => {
           taxId: "DK12345678"
         }
       }));
-
-      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: { totalCount: 0, transactions: [] }
-        });
-      });
 
       await ownerPage.goto("/account/billing");
 
@@ -550,7 +515,6 @@ test.describe("@comprehensive", () => {
       await expect(ownerPage.getByRole("heading", { name: "Billing history" })).toBeVisible();
       await expect(ownerPage.getByText("No payment history available.")).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/billing/payment-history**");
       await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
@@ -563,38 +527,28 @@ test.describe("@comprehensive", () => {
         currentPriceAmount: 29.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
-        cancelAtPeriodEnd: false
-      }));
-
-      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: {
-            totalCount: 2,
-            transactions: [
-              {
-                id: "txn_mock_1",
-                amount: 29.0,
-                currency: "USD",
-                status: "Succeeded",
-                date: "2026-02-24T00:00:00Z",
-                invoiceUrl: "https://mock.stripe.local/invoice/12345",
-                creditNoteUrl: null
-              },
-              {
-                id: "txn_mock_2",
-                amount: 29.0,
-                currency: "USD",
-                status: "Refunded",
-                date: "2026-01-24T00:00:00Z",
-                invoiceUrl: "https://mock.stripe.local/invoice/12346",
-                creditNoteUrl: "https://mock.stripe.local/credit-note/67890"
-              }
-            ]
+        cancelAtPeriodEnd: false,
+        paymentTransactions: [
+          {
+            id: "txn_mock_1",
+            amount: 29.0,
+            currency: "USD",
+            status: "Succeeded",
+            date: "2026-02-24T00:00:00Z",
+            invoiceUrl: "https://mock.stripe.local/invoice/12345",
+            creditNoteUrl: null
+          },
+          {
+            id: "txn_mock_2",
+            amount: 29.0,
+            currency: "USD",
+            status: "Refunded",
+            date: "2026-01-24T00:00:00Z",
+            invoiceUrl: "https://mock.stripe.local/invoice/12346",
+            creditNoteUrl: "https://mock.stripe.local/credit-note/67890"
           }
-        });
-      });
+        ]
+      }));
 
       await ownerPage.goto("/account/billing");
 
@@ -605,7 +559,6 @@ test.describe("@comprehensive", () => {
       await expect(invoiceLinks.first()).toBeVisible();
       await expect(ownerPage.getByRole("link", { name: "Credit note" })).toBeVisible();
 
-      await ownerPage.unroute("**/api/account/billing/payment-history**");
       await unmockElectricShape(ownerPage, "subscriptions");
     })();
 
@@ -622,14 +575,6 @@ test.describe("@comprehensive", () => {
         currentPeriodEnd: "2026-03-24T00:00:00Z",
         cancelAtPeriodEnd: false
       }));
-
-      await ownerPage.route("**/api/account/billing/payment-history**", async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: "application/json",
-          json: { totalCount: 0, transactions: [] }
-        });
-      });
 
       await ownerPage.route("**/api/account/subscriptions/cancel-downgrade", async (route) => {
         scheduledPlan = null;
@@ -656,7 +601,6 @@ test.describe("@comprehensive", () => {
       await expectToastMessage(context, "Your scheduled downgrade has been cancelled.");
       await ownerPage.unroute("**/api/account/subscriptions/cancel-downgrade");
       await ownerPage.unroute("**/api/account/subscriptions/process-pending-events");
-      await ownerPage.unroute("**/api/account/billing/payment-history**");
       await unmockElectricShape(ownerPage, "subscriptions");
     })();
   });

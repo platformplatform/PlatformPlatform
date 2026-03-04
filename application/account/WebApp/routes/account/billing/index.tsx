@@ -308,7 +308,7 @@ function BillingPage() {
               <Trans>Billing history</Trans>
             </h3>
             <Separator />
-            <BillingHistoryTable />
+            <BillingHistoryTable transactions={subscription?.paymentTransactions ?? []} />
           </div>
         </AppLayout>
       ) : (

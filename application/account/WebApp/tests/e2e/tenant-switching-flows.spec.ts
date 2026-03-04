@@ -72,7 +72,10 @@ test.describe("@comprehensive", () => {
 
       // Capture the primary tenant ID from server-injected user info for later re-login
       primaryTenantId = await page1.evaluate(
-        () => (window as any).getApplicationEnvironment().userInfoEnv.tenantId ?? ""
+        () =>
+          (
+            window as unknown as { getApplicationEnvironment: () => { userInfoEnv: { tenantId?: string } } }
+          ).getApplicationEnvironment().userInfoEnv.tenantId ?? ""
       );
 
       // With single tenant, "Switch account" option should not appear in menu

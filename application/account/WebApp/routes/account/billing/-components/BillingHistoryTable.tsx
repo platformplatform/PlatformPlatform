@@ -1,53 +1,46 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
+import type { PaymentTransaction } from "@repo/infrastructure/sync/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { buttonVariants } from "@repo/ui/components/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { DownloadIcon } from "lucide-react";
-import { api, PaymentTransactionStatus } from "@/shared/lib/api/client";
 
-const PAGE_SIZE = 10;
-
-function getStatusVariant(status: PaymentTransactionStatus): "default" | "secondary" | "destructive" | "outline" {
+function getStatusVariant(status: string): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
-    case PaymentTransactionStatus.Succeeded:
+    case "Succeeded":
       return "default";
-    case PaymentTransactionStatus.Failed:
+    case "Failed":
       return "destructive";
-    case PaymentTransactionStatus.Pending:
+    case "Pending":
       return "outline";
-    case PaymentTransactionStatus.Refunded:
+    case "Refunded":
       return "secondary";
+    default:
+      return "outline";
   }
 }
 
-function getStatusLabel(status: PaymentTransactionStatus): string {
+function getStatusLabel(status: string): string {
   switch (status) {
-    case PaymentTransactionStatus.Succeeded:
+    case "Succeeded":
       return t`Succeeded`;
-    case PaymentTransactionStatus.Failed:
+    case "Failed":
       return t`Failed`;
-    case PaymentTransactionStatus.Pending:
+    case "Pending":
       return t`Pending`;
-    case PaymentTransactionStatus.Refunded:
+    case "Refunded":
       return t`Refunded`;
+    default:
+      return status;
   }
 }
 
-export function BillingHistoryTable() {
+export function BillingHistoryTable({ transactions }: { transactions: PaymentTransaction[] }) {
   const formatDate = useFormatDate();
-  const { data, isLoading } = api.useQuery("get", "/api/account/billing/payment-history", {
-    params: { query: { PageOffset: 0, PageSize: PAGE_SIZE } }
-  });
-
-  const transactions = data?.transactions ?? [];
-
-  if (isLoading) {
-    return null;
-  }
 
   if (transactions.length === 0) {
     return (

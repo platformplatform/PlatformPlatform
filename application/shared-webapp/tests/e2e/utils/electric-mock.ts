@@ -22,21 +22,21 @@ interface ElectricColumnSchema {
 }
 
 const subscriptionSchema: Record<string, ElectricColumnSchema> = {
-  id: { type: "text", not_null: true },
   tenant_id: { type: "text", not_null: true },
+  id: { type: "text", not_null: true },
   created_at: { type: "timestamptz", not_null: true },
   modified_at: { type: "timestamptz" },
   plan: { type: "text", not_null: true },
   scheduled_plan: { type: "text" },
+  cancel_at_period_end: { type: "bool", not_null: true },
+  first_payment_failed_at: { type: "timestamptz" },
+  cancellation_reason: { type: "text" },
+  cancellation_feedback: { type: "text" },
   stripe_customer_id: { type: "text" },
   stripe_subscription_id: { type: "text" },
   current_price_amount: { type: "int8" },
   current_price_currency: { type: "text" },
   current_period_end: { type: "timestamptz" },
-  cancel_at_period_end: { type: "bool", not_null: true },
-  first_payment_failed_at: { type: "timestamptz" },
-  cancellation_reason: { type: "text" },
-  cancellation_feedback: { type: "text" },
   payment_transactions: { type: "jsonb", not_null: true },
   payment_method: { type: "jsonb" },
   billing_info: { type: "jsonb" }
@@ -49,16 +49,15 @@ const tenantSchema: Record<string, ElectricColumnSchema> = {
   name: { type: "text", not_null: true },
   state: { type: "text", not_null: true },
   suspension_reason: { type: "text" },
-  suspended_at: { type: "timestamptz" },
   logo: { type: "jsonb", not_null: true },
-  deleted_at: { type: "timestamptz" }
+  plan: { type: "text", not_null: true }
 };
 
 const schemas: Record<ElectricTable, Record<string, ElectricColumnSchema>> = {
   subscriptions: subscriptionSchema,
   tenants: tenantSchema,
-  users: {},
-  sessions: {}
+  users: { tenant_id: { type: "text", not_null: true }, id: { type: "text", not_null: true }, created_at: { type: "timestamptz", not_null: true }, modified_at: { type: "timestamptz" } },
+  sessions: { tenant_id: { type: "text", not_null: true }, id: { type: "text", not_null: true }, created_at: { type: "timestamptz", not_null: true }, modified_at: { type: "timestamptz" } }
 };
 
 const offsetCounters = new Map<string, number>();
@@ -95,6 +94,17 @@ function buildElectricResponse(
   };
 }
 
+interface PaymentTransactionMockData {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  date: string;
+  failureReason?: string | null;
+  invoiceUrl?: string | null;
+  creditNoteUrl?: string | null;
+}
+
 interface SubscriptionMockData {
   id?: string;
   tenantId?: string;
@@ -108,6 +118,7 @@ interface SubscriptionMockData {
   cancelAtPeriodEnd?: boolean;
   isPaymentFailed?: boolean;
   firstPaymentFailedAt?: string | null;
+  paymentTransactions?: PaymentTransactionMockData[];
   paymentMethod?: { brand: string; last4: string; expMonth: number; expYear: number } | null;
   billingInfo?: {
     name: string | null;
@@ -126,23 +137,23 @@ interface SubscriptionMockData {
 
 function toSubscriptionRow(data: SubscriptionMockData, resolvedTenantId?: string): Record<string, string | null> {
   return {
-    id: data.id ?? "sub_mock",
     tenant_id: data.tenantId ?? resolvedTenantId ?? "mock-tenant",
+    id: data.id ?? "sub_mock",
     created_at: "2026-01-01T00:00:00Z",
     modified_at: null,
     plan: data.plan,
     scheduled_plan: data.scheduledPlan ?? null,
-    stripe_customer_id: data.stripeCustomerId ?? null,
-    stripe_subscription_id: data.stripeSubscriptionId ?? null,
-    current_price_amount: data.currentPriceAmount != null ? String(data.currentPriceAmount) : null,
-    current_price_currency: data.currentPriceCurrency ?? null,
-    current_period_end: data.currentPeriodEnd ?? null,
     cancel_at_period_end: String(data.cancelAtPeriodEnd ?? false),
     first_payment_failed_at:
       data.firstPaymentFailedAt ?? (data.isPaymentFailed ? "2026-03-01T00:00:00Z" : null),
     cancellation_reason: null,
     cancellation_feedback: null,
-    payment_transactions: "[]",
+    stripe_customer_id: data.stripeCustomerId ?? null,
+    stripe_subscription_id: data.stripeSubscriptionId ?? null,
+    current_price_amount: data.currentPriceAmount != null ? String(data.currentPriceAmount) : null,
+    current_price_currency: data.currentPriceCurrency ?? null,
+    current_period_end: data.currentPeriodEnd ?? null,
+    payment_transactions: JSON.stringify(data.paymentTransactions ?? []),
     payment_method: data.paymentMethod ? JSON.stringify(data.paymentMethod) : null,
     billing_info: data.billingInfo ? JSON.stringify(data.billingInfo) : null
   };
@@ -154,6 +165,7 @@ interface TenantMockData {
   state: string;
   suspensionReason?: string | null;
   logoUrl?: string | null;
+  plan?: string;
 }
 
 function toTenantRow(data: TenantMockData, resolvedTenantId?: string): Record<string, string | null> {
@@ -164,9 +176,8 @@ function toTenantRow(data: TenantMockData, resolvedTenantId?: string): Record<st
     name: data.name ?? "Test Organization",
     state: data.state,
     suspension_reason: data.suspensionReason ?? null,
-    suspended_at: data.state === "Suspended" ? "2026-03-01T00:00:00Z" : null,
     logo: data.logoUrl ? JSON.stringify({ Url: data.logoUrl }) : "{}",
-    deleted_at: null
+    plan: data.plan ?? "Basis"
   };
 }
 

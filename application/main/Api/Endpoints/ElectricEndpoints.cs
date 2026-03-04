@@ -8,7 +8,7 @@ public sealed class ElectricEndpoints : IEndpoints
     private const string RoutesPrefix = "/api/main/electric";
 
     // ReSharper disable once CollectionNeverUpdated.Local -- Tables will be added when main SCS gets syncable entities
-    private static readonly Dictionary<string, string> AllowedTables = new();
+    private static readonly Dictionary<string, ShapeTableConfig> AllowedTables = new();
 
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
