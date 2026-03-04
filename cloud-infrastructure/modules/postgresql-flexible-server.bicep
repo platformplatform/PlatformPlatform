@@ -6,6 +6,7 @@ param subnetId string
 param virtualNetworkId string
 param isProduction bool
 param diagnosticStorageAccountId string
+param dbAdminObjectId string
 
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' = {
   name: name
@@ -20,7 +21,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' =
     createMode: 'Default'
     authConfig: {
       activeDirectoryAuth: 'Enabled'
-      passwordAuth: 'Disabled'
+      passwordAuth: 'Enabled'
       tenantId: tenantId
     }
     storage: {
@@ -41,6 +42,16 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' =
       // Runtime traffic from Container Apps flows exclusively through the private endpoint.
       publicNetworkAccess: 'Enabled'
     }
+  }
+}
+
+resource postgresServerAdministrator 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2025-08-01' = {
+  parent: postgresServer
+  name: dbAdminObjectId
+  properties: {
+    principalName: 'PostgreSQL Admins'
+    principalType: 'Group'
+    tenantId: tenantId
   }
 }
 
@@ -129,10 +140,20 @@ resource walLevelConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configuration
   }
 }
 
+resource maxReplicationSlots 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
+  parent: postgresServer
+  name: 'max_replication_slots'
+  dependsOn: [walLevelConfig]
+  properties: {
+    value: '10'
+    source: 'user-override'
+  }
+}
+
 resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: '${name}-postgres-diagnostics'
   scope: postgresServer
-  dependsOn: [walLevelConfig]
+  dependsOn: [maxReplicationSlots]
   properties: {
     storageAccountId: diagnosticStorageAccountId
     logs: [

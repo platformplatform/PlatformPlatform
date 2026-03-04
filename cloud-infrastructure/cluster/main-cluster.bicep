@@ -211,6 +211,20 @@ module accountStorageAccount '../modules/storage-account.bicep' = {
   }
 }
 
+module accountElectricSetup '../modules/electric-database-setup.bicep' = {
+  name: '${clusterResourceGroupName}-account-electric-setup'
+  scope: clusterResourceGroup
+  params: {
+    location: location
+    tags: tags
+    keyVaultName: keyVault.outputs.name
+    postgresServerFqdn: postgresServer.outputs.serverFqdn
+    databaseName: 'account'
+    scriptIdentityId: accountIdentity.outputs.id
+  }
+  dependsOn: [keyVault, postgresServer, accountDatabase]
+}
+
 var accountEnvironmentVariables = [
   {
     name: 'AZURE_CLIENT_ID'
@@ -252,6 +266,62 @@ var accountEnvironmentVariables = [
     name: 'Stripe__AllowMockProvider'
     value: 'false'
   }
+  {
+    name: 'ELECTRIC_URL'
+    value: 'http://localhost:3000'
+  }
+]
+
+var accountElectricSidecar = [
+  {
+    name: 'electric'
+    image: 'electricsql/electric:1.0'
+    resources: {
+      cpu: json('0.25')
+      memory: '0.5Gi'
+    }
+    command: [
+      '/bin/sh'
+      '-c'
+      'export ELECTRIC_REPLICATION_STREAM_ID="account-$(hostname)" && /app/bin/electric start'
+    ]
+    env: [
+      {
+        name: 'DATABASE_URL'
+        secretRef: 'electric-account-database-url'
+      }
+      {
+        name: 'ELECTRIC_INSECURE'
+        value: 'true'
+      }
+    ]
+    probes: [
+      {
+        type: 'Liveness'
+        httpGet: {
+          path: '/v1/health'
+          port: 3000
+          scheme: 'HTTP'
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 3
+        timeoutSeconds: 3
+      }
+      {
+        type: 'Readiness'
+        httpGet: {
+          path: '/v1/health'
+          port: 3000
+          scheme: 'HTTP'
+        }
+        initialDelaySeconds: 1
+        periodSeconds: 2
+        failureThreshold: 30
+        timeoutSeconds: 2
+      }
+    ]
+  }
 ]
 
 module accountWorkers '../modules/container-app.bicep' = {
@@ -292,8 +362,8 @@ module accountApi '../modules/container-app.bicep' = {
     containerRegistryName: containerRegistryName
     containerImageName: 'account-api'
     containerImageTag: accountVersion
-    cpu: '0.25'
-    memory: '0.5Gi'
+    cpu: '0.5'
+    memory: '1Gi'
     minReplicas: 0
     maxReplicas: 3
     userAssignedIdentityName: accountIdentityName
@@ -301,6 +371,14 @@ module accountApi '../modules/container-app.bicep' = {
     hasProbesEndpoint: true
     revisionSuffix: revisionSuffix
     environmentVariables: accountEnvironmentVariables
+    sidecarContainers: accountElectricSidecar
+    containerAppSecrets: [
+      {
+        name: 'electric-account-database-url'
+        keyVaultUrl: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}/secrets/${accountElectricSetup.outputs.databaseUrlSecretName}'
+        identity: accountIdentity.outputs.id
+      }
+    ]
   }
   dependsOn: [accountWorkers]
 }
@@ -442,6 +520,7 @@ module mainIdentity '../modules/user-assigned-managed-identity.bicep' = {
     containerRegistryName: containerRegistryName
     globalResourceGroupName: globalResourceGroupName
     keyVaultName: keyVault.outputs.name
+    grantKeyVaultWritePermissions: true
   }
 }
 
@@ -465,6 +544,20 @@ module mainStorageAccount '../modules/storage-account.bicep' = {
     sku: 'Standard_GRS'
     userAssignedIdentityName: mainIdentity.outputs.name
   }
+}
+
+module mainElectricSetup '../modules/electric-database-setup.bicep' = {
+  name: '${clusterResourceGroupName}-main-electric-setup'
+  scope: clusterResourceGroup
+  params: {
+    location: location
+    tags: tags
+    keyVaultName: keyVault.outputs.name
+    postgresServerFqdn: postgresServer.outputs.serverFqdn
+    databaseName: 'main'
+    scriptIdentityId: mainIdentity.outputs.id
+  }
+  dependsOn: [keyVault, postgresServer, mainDatabase]
 }
 
 var mainEnvironmentVariables = [
@@ -508,6 +601,62 @@ var mainEnvironmentVariables = [
     name: 'PUBLIC_SUBSCRIPTION_ENABLED'
     value: !empty(stripeApiKey) && !empty(stripeWebhookSecret) && !empty(stripePublishableKey) ? 'true' : 'false'
   }
+  {
+    name: 'ELECTRIC_URL'
+    value: 'http://localhost:3000'
+  }
+]
+
+var mainElectricSidecar = [
+  {
+    name: 'electric'
+    image: 'electricsql/electric:1.0'
+    resources: {
+      cpu: json('0.25')
+      memory: '0.5Gi'
+    }
+    command: [
+      '/bin/sh'
+      '-c'
+      'export ELECTRIC_REPLICATION_STREAM_ID="main-$(hostname)" && /app/bin/electric start'
+    ]
+    env: [
+      {
+        name: 'DATABASE_URL'
+        secretRef: 'electric-main-database-url'
+      }
+      {
+        name: 'ELECTRIC_INSECURE'
+        value: 'true'
+      }
+    ]
+    probes: [
+      {
+        type: 'Liveness'
+        httpGet: {
+          path: '/v1/health'
+          port: 3000
+          scheme: 'HTTP'
+        }
+        initialDelaySeconds: 10
+        periodSeconds: 10
+        failureThreshold: 3
+        timeoutSeconds: 3
+      }
+      {
+        type: 'Readiness'
+        httpGet: {
+          path: '/v1/health'
+          port: 3000
+          scheme: 'HTTP'
+        }
+        initialDelaySeconds: 1
+        periodSeconds: 2
+        failureThreshold: 30
+        timeoutSeconds: 2
+      }
+    ]
+  }
 ]
 
 module mainWorkers '../modules/container-app.bicep' = {
@@ -548,8 +697,8 @@ module mainApi '../modules/container-app.bicep' = {
     containerRegistryName: containerRegistryName
     containerImageName: 'main-api'
     containerImageTag: mainVersion
-    cpu: '0.25'
-    memory: '0.5Gi'
+    cpu: '0.5'
+    memory: '1Gi'
     minReplicas: 0
     maxReplicas: 1
     userAssignedIdentityName: mainIdentityName
@@ -557,6 +706,14 @@ module mainApi '../modules/container-app.bicep' = {
     hasProbesEndpoint: true
     revisionSuffix: revisionSuffix
     environmentVariables: mainEnvironmentVariables
+    sidecarContainers: mainElectricSidecar
+    containerAppSecrets: [
+      {
+        name: 'electric-main-database-url'
+        keyVaultUrl: 'https://${keyVault.outputs.name}${az.environment().suffixes.keyvaultDns}/secrets/${mainElectricSetup.outputs.databaseUrlSecretName}'
+        identity: mainIdentity.outputs.id
+      }
+    ]
   }
   dependsOn: [mainWorkers]
 }
