@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -58,6 +59,7 @@ public static class ApiDependencyConfiguration
         public IServiceCollection AddApiServices(Assembly[] assemblies)
         {
             return services
+                .AddRequestTimeouts(options => { options.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(20), TimeoutStatusCode = 504 }; })
                 .AddApiExecutionContext()
                 .AddExceptionHandler<GlobalExceptionHandler>()
                 .AddTransient<TelemetryContextMiddleware>()
@@ -102,6 +104,7 @@ public static class ApiDependencyConfiguration
 
             app
                 .UseForwardedHeaders()
+                .UseRequestTimeouts()
                 .UseAuthentication() // Must be above TelemetryContextMiddleware to ensure authentication happens first
                 .UseAuthorization()
                 .UseAntiforgery()

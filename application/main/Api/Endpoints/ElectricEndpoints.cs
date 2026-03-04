@@ -16,6 +16,6 @@ public sealed class ElectricEndpoints : IEndpoints
 
         group.MapGet("/v1/shape", async (HttpContext httpContext, IExecutionContext executionContext, IConfiguration configuration) =>
             await ElectricShapeProxy.ProxyShapeRequest(httpContext, executionContext, configuration, AllowedTables)
-        ).ExcludeFromDescription();
+        ).ExcludeFromDescription().DisableRequestTimeout();
     }
 }
