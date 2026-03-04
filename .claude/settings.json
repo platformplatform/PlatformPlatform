@@ -23,6 +23,14 @@
             "command": ".claude/hooks/post-tool-use-bash.sh"
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/check-interrupt.sh"
+          }
+        ]
       }
     ]
   },
