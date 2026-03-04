@@ -149,48 +149,54 @@ public static class DeveloperCliMcpTools
     [Description("Start .NET Aspire AppHost and run database migrations at https://localhost:9000. Runs in the background so you can continue working while it starts.")]
     public static string Run()
     {
-        // Call run command in detached mode - don't wait for process exit
-        var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var args = new List<string> { "run", "--project", developerCliPath, "run", "--detach", "--force" };
-
-        var processStartInfo = new ProcessStartInfo
+        try
         {
-            FileName = "dotnet",
-            Arguments = string.Join(" ", args),
-            WorkingDirectory = Configuration.SourceCodeFolder,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true
-        };
+            var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
+            var args = new List<string> { "run", "--project", developerCliPath, "run", "--detach", "--force" };
 
-        using var process = new Process();
-        process.StartInfo = processStartInfo;
-        var output = new List<string>();
-        var errors = new List<string>();
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "dotnet",
+                Arguments = string.Join(" ", args),
+                WorkingDirectory = Configuration.SourceCodeFolder,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true
+            };
 
-        process.OutputDataReceived += (_, e) =>
-        {
-            if (e.Data is not null) output.Add(e.Data);
-        };
-        process.ErrorDataReceived += (_, e) =>
-        {
-            if (e.Data is not null) errors.Add(e.Data);
-        };
+            using var process = new Process();
+            process.StartInfo = processStartInfo;
+            var output = new List<string>();
+            var errors = new List<string>();
 
-        process.Start();
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
+            process.OutputDataReceived += (_, e) =>
+            {
+                if (e.Data is not null) output.Add(e.Data);
+            };
+            process.ErrorDataReceived += (_, e) =>
+            {
+                if (e.Data is not null) errors.Add(e.Data);
+            };
 
-        // Wait briefly to capture startup messages, then return (don't wait for full exit)
-        Thread.Sleep(TimeSpan.FromSeconds(3));
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
 
-        if (process.HasExited && process.ExitCode != 0)
-        {
-            return $"Failed to start Aspire.\n\n{string.Join("\n", output)}\n{string.Join("\n", errors)}";
+            // Wait briefly to capture startup messages, then return (don't wait for full exit)
+            Thread.Sleep(TimeSpan.FromSeconds(3));
+
+            if (process.HasExited && process.ExitCode != 0)
+            {
+                return $"Failed to start Aspire.\n\n{string.Join("\n", output)}\n{string.Join("\n", errors)}";
+            }
+
+            return "Aspire started successfully in detached mode at https://localhost:9000";
         }
-
-        return "Aspire started successfully in detached mode at https://localhost:9000";
+        catch (Exception exception)
+        {
+            return $"Error starting Aspire: {exception.Message}";
+        }
     }
 
     [McpServerTool]
@@ -225,13 +231,20 @@ public static class DeveloperCliMcpTools
 
     private static async Task<string> ExecuteCliCommandAsync(string[] args)
     {
-        var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
-        var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
-        allArgs.AddRange(args);
+        try
+        {
+            var developerCliPath = Path.Combine(Configuration.SourceCodeFolder, "developer-cli");
+            var allArgs = new List<string> { "run", "--project", developerCliPath, "--" };
+            allArgs.AddRange(args);
 
-        var command = $"dotnet {string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
-        var result = await ProcessHelper.ExecuteQuietlyAsync(command, Configuration.SourceCodeFolder);
+            var command = $"dotnet {string.Join(" ", allArgs.Select(arg => arg.Contains(" ") ? $"\"{arg}\"" : arg))}";
+            var result = await ProcessHelper.ExecuteQuietlyAsync(command, Configuration.SourceCodeFolder);
 
-        return result.CombinedOutput;
+            return result.CombinedOutput;
+        }
+        catch (Exception exception)
+        {
+            return $"Error executing command: {exception.Message}";
+        }
     }
 }
