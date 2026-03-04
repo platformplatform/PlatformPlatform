@@ -1,7 +1,7 @@
 param serverName string
 param databaseName string
 
-resource postgresDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
+resource postgresDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2025-08-01' = {
   name: '${serverName}/${databaseName}'
   properties: {
     charset: 'UTF8'

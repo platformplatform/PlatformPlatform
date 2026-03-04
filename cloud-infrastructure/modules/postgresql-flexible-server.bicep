@@ -4,7 +4,7 @@ param tags object
 param tenantId string
 param dbAdminObjectId string
 
-resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
+resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' = {
   name: name
   location: location
   tags: tags
@@ -17,7 +17,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
     createMode: 'Default'
     authConfig: {
       activeDirectoryAuth: 'Enabled'
-      passwordAuth: 'Disabled'
+      passwordAuth: 'Enabled'
       tenantId: tenantId
     }
     storage: {
@@ -36,7 +36,7 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' =
   }
 }
 
-resource postgresServerAdministrator 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2024-08-01' = {
+resource postgresServerAdministrator 'Microsoft.DBforPostgreSQL/flexibleServers/administrators@2025-08-01' = {
   parent: postgresServer
   name: dbAdminObjectId
   properties: {
@@ -46,7 +46,7 @@ resource postgresServerAdministrator 'Microsoft.DBforPostgreSQL/flexibleServers/
   }
 }
 
-resource postgresVirtualNetworkRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = {
+resource postgresVirtualNetworkRule 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2025-08-01' = {
   parent: postgresServer
   name: 'allow-azure-services'
   properties: {
@@ -55,11 +55,20 @@ resource postgresVirtualNetworkRule 'Microsoft.DBforPostgreSQL/flexibleServers/f
   }
 }
 
-resource walLevelConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2024-08-01' = {
+resource walLevelConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
   parent: postgresServer
   name: 'wal_level'
   properties: {
     value: 'logical'
+    source: 'user-override'
+  }
+}
+
+resource maxReplicationSlots 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
+  parent: postgresServer
+  name: 'max_replication_slots'
+  properties: {
+    value: '10'
     source: 'user-override'
   }
 }
