@@ -1,7 +1,7 @@
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import { createShapeOptions } from "./electricConfig";
-import type { SessionRow, SubscriptionRow, TenantRow, UserRow } from "./types";
+import type { SubscriptionRow, TenantRow, UserRow } from "./types";
 
 export const userCollection = createCollection<UserRow>(
   electricCollectionOptions({
@@ -27,14 +27,5 @@ export const subscriptionCollection = createCollection<SubscriptionRow>(
     shapeOptions: createShapeOptions("subscriptions"),
     getKey: (item) => item.id,
     syncMode: "eager"
-  })
-);
-
-export const sessionCollection = createCollection<SessionRow>(
-  electricCollectionOptions({
-    id: "sessions",
-    shapeOptions: createShapeOptions("sessions"),
-    getKey: (item) => item.id,
-    syncMode: "on-demand"
   })
 );

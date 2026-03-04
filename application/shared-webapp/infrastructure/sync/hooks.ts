@@ -1,6 +1,6 @@
 import { eq, isNull, not, useLiveQuery } from "@tanstack/react-db";
 import { useMemo } from "react";
-import { sessionCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
+import { subscriptionCollection, tenantCollection, userCollection } from "./collections";
 
 function extractUrl(value: unknown): string | null {
   if (!value) {
@@ -27,7 +27,6 @@ export function useUsers() {
       .where(({ users }) => isNull(users.deletedAt))
       .select(({ users }) => ({
         id: users.id,
-        tenantId: users.tenantId,
         createdAt: users.createdAt,
         modifiedAt: users.modifiedAt,
         email: users.email,
@@ -57,7 +56,6 @@ export function useDeletedUsers() {
       .where(({ users }) => not(isNull(users.deletedAt)))
       .select(({ users }) => ({
         id: users.id,
-        tenantId: users.tenantId,
         createdAt: users.createdAt,
         modifiedAt: users.modifiedAt,
         email: users.email,
@@ -87,7 +85,6 @@ export function useUser(userId: string) {
         .where(({ users }) => eq(users.id, userId))
         .select(({ users }) => ({
           id: users.id,
-          tenantId: users.tenantId,
           createdAt: users.createdAt,
           modifiedAt: users.modifiedAt,
           email: users.email,
@@ -213,55 +210,41 @@ export interface BillingInfo {
   taxId: string | null;
 }
 
-export function useSubscription(tenantId: string) {
-  const { data: rawData, ...rest } = useLiveQuery(
-    (q) =>
-      q
-        .from({ subscriptions: subscriptionCollection })
-        .where(({ subscriptions }) => eq(subscriptions.tenantId, tenantId))
-        .select(({ subscriptions }) => ({
-          id: subscriptions.id,
-          tenantId: subscriptions.tenantId,
-          createdAt: subscriptions.createdAt,
-          modifiedAt: subscriptions.modifiedAt,
-          plan: subscriptions.plan,
-          scheduledPlan: subscriptions.scheduledPlan,
-          cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
-          firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
-          cancellationReason: subscriptions.cancellationReason,
-          cancellationFeedback: subscriptions.cancellationFeedback,
-          stripeCustomerId: subscriptions.stripeCustomerId,
-          stripeSubscriptionId: subscriptions.stripeSubscriptionId,
-          currentPriceAmount: subscriptions.currentPriceAmount,
-          currentPriceCurrency: subscriptions.currentPriceCurrency,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          paymentTransactions: subscriptions.paymentTransactions,
-          paymentMethod: subscriptions.paymentMethod,
-          billingInfo: subscriptions.billingInfo
-        }))
-        .findOne(),
-    [tenantId]
+export function useSubscription() {
+  const { data: rawData, ...rest } = useLiveQuery((q) =>
+    q
+      .from({ subscriptions: subscriptionCollection })
+      .select(({ subscriptions }) => ({
+        id: subscriptions.id,
+        createdAt: subscriptions.createdAt,
+        modifiedAt: subscriptions.modifiedAt,
+        plan: subscriptions.plan,
+        scheduledPlan: subscriptions.scheduledPlan,
+        cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+        firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
+        cancellationReason: subscriptions.cancellationReason,
+        cancellationFeedback: subscriptions.cancellationFeedback,
+        currentPriceAmount: subscriptions.currentPriceAmount,
+        currentPriceCurrency: subscriptions.currentPriceCurrency,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+        paymentTransactions: subscriptions.paymentTransactions,
+        paymentMethod: subscriptions.paymentMethod,
+        billingInfo: subscriptions.billingInfo
+      }))
+      .findOne()
   );
 
   const data = useMemo(() => {
     if (!rawData) {
       return undefined;
     }
-    const {
-      paymentMethod,
-      billingInfo,
-      paymentTransactions,
-      stripeCustomerId,
-      stripeSubscriptionId,
-      firstPaymentFailedAt,
-      currentPriceAmount,
-      ...fields
-    } = rawData;
+    const { paymentMethod, billingInfo, paymentTransactions, firstPaymentFailedAt, currentPriceAmount, ...fields } =
+      rawData;
     return {
       ...fields,
       currentPriceAmount: currentPriceAmount != null ? Number(currentPriceAmount) : null,
-      hasStripeCustomer: stripeCustomerId != null,
-      hasStripeSubscription: stripeSubscriptionId != null,
+      hasStripeCustomer: currentPriceAmount != null,
+      hasStripeSubscription: fields.currentPeriodEnd != null,
       isPaymentFailed: firstPaymentFailedAt != null,
       paymentTransactions: castParsed<PaymentTransaction[]>(paymentTransactions) ?? [],
       paymentMethod: castParsed<PaymentMethod>(paymentMethod),
@@ -270,22 +253,4 @@ export function useSubscription(tenantId: string) {
   }, [rawData]);
 
   return { ...rest, data };
-}
-
-export function useSessions() {
-  return useLiveQuery((q) =>
-    q
-      .from({ sessions: sessionCollection })
-      .where(({ sessions }) => isNull(sessions.revokedAt))
-      .select(({ sessions }) => ({
-        id: sessions.id,
-        tenantId: sessions.tenantId,
-        createdAt: sessions.createdAt,
-        modifiedAt: sessions.modifiedAt,
-        userId: sessions.userId,
-        loginMethod: sessions.loginMethod,
-        deviceType: sessions.deviceType,
-        userAgent: sessions.userAgent
-      }))
-  );
 }

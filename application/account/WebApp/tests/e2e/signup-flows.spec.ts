@@ -114,8 +114,13 @@ test.describe("@smoke", () => {
 
     // === PROFILE FORM VALIDATION & COMPLETION ===
     await step("Clear profile fields & submit empty form & verify validation errors appear")(async () => {
-      await page.getByRole("textbox", { name: "First name" }).clear();
-      await page.getByRole("textbox", { name: "Last name" }).clear();
+      const firstNameField = page.getByRole("textbox", { name: "First name" });
+      const lastNameField = page.getByRole("textbox", { name: "Last name" });
+
+      await firstNameField.fill("");
+      await expect(firstNameField).toHaveValue("");
+      await lastNameField.fill("");
+      await expect(lastNameField).toHaveValue("");
       await page.getByRole("button", { name: "Save changes" }).click();
 
       await expectValidationError(testContext, "First name must be between 1 and 30 characters.");

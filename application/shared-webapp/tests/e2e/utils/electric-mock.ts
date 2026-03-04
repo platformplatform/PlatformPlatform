@@ -13,7 +13,7 @@ async function getPageTenantId(page: Page): Promise<string> {
   });
 }
 
-type ElectricTable = "subscriptions" | "tenants" | "users" | "sessions";
+type ElectricTable = "subscriptions" | "tenants" | "users";
 
 interface ElectricColumnSchema {
   type: string;
@@ -22,7 +22,6 @@ interface ElectricColumnSchema {
 }
 
 const subscriptionSchema: Record<string, ElectricColumnSchema> = {
-  tenant_id: { type: "text", not_null: true },
   id: { type: "text", not_null: true },
   created_at: { type: "timestamptz", not_null: true },
   modified_at: { type: "timestamptz" },
@@ -32,8 +31,6 @@ const subscriptionSchema: Record<string, ElectricColumnSchema> = {
   first_payment_failed_at: { type: "timestamptz" },
   cancellation_reason: { type: "text" },
   cancellation_feedback: { type: "text" },
-  stripe_customer_id: { type: "text" },
-  stripe_subscription_id: { type: "text" },
   current_price_amount: { type: "int8" },
   current_price_currency: { type: "text" },
   current_period_end: { type: "timestamptz" },
@@ -56,8 +53,7 @@ const tenantSchema: Record<string, ElectricColumnSchema> = {
 const schemas: Record<ElectricTable, Record<string, ElectricColumnSchema>> = {
   subscriptions: subscriptionSchema,
   tenants: tenantSchema,
-  users: { tenant_id: { type: "text", not_null: true }, id: { type: "text", not_null: true }, created_at: { type: "timestamptz", not_null: true }, modified_at: { type: "timestamptz" } },
-  sessions: { tenant_id: { type: "text", not_null: true }, id: { type: "text", not_null: true }, created_at: { type: "timestamptz", not_null: true }, modified_at: { type: "timestamptz" } }
+  users: { id: { type: "text", not_null: true }, created_at: { type: "timestamptz", not_null: true }, modified_at: { type: "timestamptz" } }
 };
 
 const offsetCounters = new Map<string, number>();
@@ -107,11 +103,8 @@ interface PaymentTransactionMockData {
 
 interface SubscriptionMockData {
   id?: string;
-  tenantId?: string;
   plan: string;
   scheduledPlan?: string | null;
-  stripeCustomerId?: string | null;
-  stripeSubscriptionId?: string | null;
   currentPriceAmount?: number | null;
   currentPriceCurrency?: string | null;
   currentPeriodEnd?: string | null;
@@ -135,9 +128,8 @@ interface SubscriptionMockData {
   } | null;
 }
 
-function toSubscriptionRow(data: SubscriptionMockData, resolvedTenantId?: string): Record<string, string | null> {
+function toSubscriptionRow(data: SubscriptionMockData): Record<string, string | null> {
   return {
-    tenant_id: data.tenantId ?? resolvedTenantId ?? "mock-tenant",
     id: data.id ?? "sub_mock",
     created_at: "2026-01-01T00:00:00Z",
     modified_at: null,
@@ -148,8 +140,6 @@ function toSubscriptionRow(data: SubscriptionMockData, resolvedTenantId?: string
       data.firstPaymentFailedAt ?? (data.isPaymentFailed ? "2026-03-01T00:00:00Z" : null),
     cancellation_reason: null,
     cancellation_feedback: null,
-    stripe_customer_id: data.stripeCustomerId ?? null,
-    stripe_subscription_id: data.stripeSubscriptionId ?? null,
     current_price_amount: data.currentPriceAmount != null ? String(data.currentPriceAmount) : null,
     current_price_currency: data.currentPriceCurrency ?? null,
     current_period_end: data.currentPeriodEnd ?? null,
@@ -290,8 +280,7 @@ export async function mockElectricSubscription(
   page: Page,
   dataFn: () => SubscriptionMockData
 ): Promise<void> {
-  const tenantId = await getPageTenantId(page);
-  await mockElectricShape(page, "subscriptions", () => [toSubscriptionRow(dataFn(), tenantId)]);
+  await mockElectricShape(page, "subscriptions", () => [toSubscriptionRow(dataFn())]);
 }
 
 /**

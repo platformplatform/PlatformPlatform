@@ -113,8 +113,7 @@ test.describe("@smoke", () => {
 
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
-        stripeCustomerId: "cus_mock_12345",
-        stripeSubscriptionId: "sub_mock_12345",
+
         currentPriceAmount: 29.99,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -173,8 +172,7 @@ test.describe("@smoke", () => {
       let currentPlan = "Standard";
       await mockElectricSubscription(ownerPage, () => ({
         plan: currentPlan,
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 29.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -233,8 +231,7 @@ test.describe("@smoke", () => {
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Premium",
         scheduledPlan,
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 99.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -278,8 +275,7 @@ test.describe("@smoke", () => {
         let cancelAtPeriodEnd = false;
         await mockElectricSubscription(ownerPage, () => ({
           plan: "Standard",
-          stripeCustomerId: "cus_mock",
-          stripeSubscriptionId: "sub_mock",
+
           currentPriceAmount: 29.0,
           currentPriceCurrency: "USD",
           currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -322,8 +318,7 @@ test.describe("@smoke", () => {
       let cancelAtPeriodEnd = true;
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 29.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -439,8 +434,7 @@ test.describe("@comprehensive", () => {
 
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
-        stripeCustomerId: "cus_mock_12345",
-        stripeSubscriptionId: "sub_mock_12345",
+
         currentPriceAmount: 29.99,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -467,8 +461,7 @@ test.describe("@comprehensive", () => {
     await step("Mock subscription with Tax ID & verify billing info display")(async () => {
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 29.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -522,8 +515,7 @@ test.describe("@comprehensive", () => {
     await step("Mock payment history with refunded transaction & verify credit note link")(async () => {
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Standard",
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 29.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
@@ -568,8 +560,7 @@ test.describe("@comprehensive", () => {
       await mockElectricSubscription(ownerPage, () => ({
         plan: "Premium",
         scheduledPlan,
-        stripeCustomerId: "cus_mock",
-        stripeSubscriptionId: "sub_mock",
+
         currentPriceAmount: 99.0,
         currentPriceCurrency: "USD",
         currentPeriodEnd: "2026-03-24T00:00:00Z",
