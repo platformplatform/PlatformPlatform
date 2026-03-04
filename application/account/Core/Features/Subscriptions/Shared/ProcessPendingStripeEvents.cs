@@ -77,6 +77,7 @@ public sealed class ProcessPendingStripeEvents(
         if (customerResult.IsCustomerDeleted)
         {
             subscription.ResetToFreePlan();
+            tenant.UpdatePlan(SubscriptionPlan.Basis);
             tenant.Suspend(SuspensionReason.CustomerDeleted, timeProvider.GetUtcNow());
             tenantRepository.Update(tenant);
             subscriptionRepository.Update(subscription);
@@ -112,6 +113,7 @@ public sealed class ProcessPendingStripeEvents(
         if (stripeState is not null)
         {
             subscription.SetStripeSubscription(stripeState.StripeSubscriptionId, stripeState.Plan, stripeState.CurrentPriceAmount, stripeState.CurrentPriceCurrency, stripeState.CurrentPeriodEnd, stripeState.PaymentMethod);
+            tenant.UpdatePlan(stripeState.Plan);
         }
 
         // Always sync payment transactions from Stripe (via subscription when active, via invoices when cancelled)
@@ -201,18 +203,21 @@ public sealed class ProcessPendingStripeEvents(
         if (subscriptionExpired)
         {
             subscription.ResetToFreePlan();
+            tenant.UpdatePlan(SubscriptionPlan.Basis);
             events.CollectEvent(new SubscriptionExpired(subscription.Id, previousPlan, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
         }
 
         if (subscriptionImmediatelyCancelled)
         {
             subscription.ResetToFreePlan();
+            tenant.UpdatePlan(SubscriptionPlan.Basis);
             events.CollectEvent(new SubscriptionCancelled(subscription.Id, previousPlan, CancellationReason.CancelledByAdmin, 0, daysOnCurrentPlan, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
         }
 
         if (subscriptionSuspended)
         {
             subscription.ResetToFreePlan();
+            tenant.UpdatePlan(SubscriptionPlan.Basis);
             tenant.Suspend(SuspensionReason.PaymentFailed, timeProvider.GetUtcNow());
             events.CollectEvent(new SubscriptionSuspended(subscription.Id, previousPlan, SuspensionReason.PaymentFailed, previousPriceAmount!.Value, -previousPriceAmount.Value, previousPriceCurrency!));
         }
@@ -240,7 +245,8 @@ public sealed class ProcessPendingStripeEvents(
         }
 
         // Persist all aggregate mutations and mark pending events as processed
-        if (subscriptionCreated || subscriptionSuspended)
+        var tenantChanged = stripeState is not null || subscriptionCreated || subscriptionExpired || subscriptionImmediatelyCancelled || subscriptionSuspended;
+        if (tenantChanged)
         {
             tenantRepository.Update(tenant);
         }

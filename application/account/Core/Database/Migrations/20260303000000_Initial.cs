@@ -21,7 +21,8 @@ public sealed class Initial : Migration
                 state = table.Column<string>("varchar(20)", nullable: false),
                 logo = table.Column<string>("varchar(150)", nullable: false, defaultValue: "{}"),
                 suspension_reason = table.Column<string>("varchar(30)", nullable: true),
-                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
+                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                plan = table.Column<string>("varchar(10)", nullable: false, defaultValue: "Basis")
             },
             constraints: table => { table.PrimaryKey("pk_tenants", x => x.id); }
         );
