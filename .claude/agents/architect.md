@@ -59,10 +59,28 @@ When your work is done, send your final result to the agent that delegated the t
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
+- Messages queue when the recipient is busy. Never send more than one message to the same agent without getting a response
+- If you receive multiple queued messages at once, process them in order but evaluate each for relevance -- earlier messages may be outdated
 - Be specific: file paths, line numbers, what to change, where, and why
 - When two approaches exist, present trade-offs and recommend one
-- Proactively message engineers when you spot issues -- don't wait to be asked
-- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Never send more than one message to the same agent without a response. Consolidate everything into a single message
+- Proactively message engineers when you spot issues
+
+### Interrupt Signals
+
+A PostToolUse hook checks for `~/.claude/teams/{teamName}/signals/architect.signal` after every tool call (`{teamName}` is your team name from the team config file). Interrupts always take priority -- over queued messages, over current work, and over work from a previous interrupt you have not yet finished.
+
+**When you see an `INTERRUPT [architect]:` error from the hook:**
+1. Stop current work immediately. Leave partial file changes in place -- do not revert them, and do not return to the interrupted work later
+2. Delete the signal file: `rm ~/.claude/teams/{teamName}/signals/architect.signal`
+3. Act on the interrupt instructions -- this is now your task
+4. When done, you may receive queued messages. Ignore any that assign the same work the interrupt superseded -- act normally on unrelated messages
+
+**When you receive a SendMessage saying "Check your interrupt signal":** Read `~/.claude/teams/{teamName}/signals/architect.signal`. If it exists, act on its contents and delete it. If it does not exist (already handled via hook), ignore the message. Never send an interrupt in response to receiving an interrupt.
+
+**To interrupt another agent:**
+1. Call the `SendInterruptSignal` MCP tool with detailed instructions
+2. Send ONE SendMessage: "Check your interrupt signal"
+3. STOP. No follow-ups
 
 ## Principles
 

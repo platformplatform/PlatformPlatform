@@ -33,6 +33,7 @@ Protect your context. Delegate everything to team agents, including slash comman
 16. Never stage or unstage git changes unless explicitly instructed. The user manages git staging to track agent work and create checkpoints
 17. When delegating commits, scope to the relevant task. If multiple agents have uncommitted changes, tell the committing agent to only include changes related to its work, not unrelated changes from other agents
 18. Never use abbreviations or acronyms for agent names or roles. Use full names: "frontend", "backend", "architect", "frontend-reviewer" -- not "frontend eng", "BE", "FE", "QA eng", etc.
+19. When the user shares findings or context, acknowledge briefly and confirm delegation. Do not echo back the user's insight as your own analysis. Example: "Got it -- delegated to the backend agent to investigate."
 
 ### Session Recovery
 
@@ -60,23 +61,41 @@ For changes beyond one-line trivial fixes, spin up both an engineer and a review
 
 Non-trivial work (cross-boundary, multi-file, architectural): align architect + engineers on a plan before authorizing implementation.
 
-### Message Queuing
+### Agent Communication
 
-Messages are processed sequentially. If you send a message to an agent that is busy, it queues and is not read until the agent finishes its current work. Sending follow-up corrections creates a stale message queue where the agent works through outdated instructions one by one. Never send more than one message to the same agent without a response. If you need to correct an instruction, use TaskUpdate to modify the task instead. If an agent is not responding, it is processing a previous message. It is not stale. Do not respawn it.
+There are two channels. They work differently.
 
-If the user sends you rapid follow-up messages, inform them that you cannot relay corrections in real time. Ask them to consolidate instructions before you dispatch work.
+**SendMessage** queues a message that the agent receives only after completing its current task. Multiple messages to the same agent queue sequentially and earlier ones may be outdated by the time the agent receives them. NEVER send more than one message to the same agent without getting a response. You may message different agents in parallel. An unresponsive agent is busy, not stuck.
+
+**Interrupt signal** = hook. A PostToolUse hook checks `~/.claude/teams/{teamName}/signals/{agentName}.signal` after every tool call. If the file exists, it surfaces as an `INTERRUPT` error the agent sees immediately. Multiple signals from different senders append to the same file. The agent deletes the file after reading it, before acting on the instructions.
+
+### Communication Flows
+
+Pick the right flow:
+
+**Assign work:** TaskCreate with full details, then ONE SendMessage pointing the agent to the task. Wait for response.
+
+**Correct unstarted work:** TaskUpdate the task description. No message needed. If unsure whether the agent already started, use the urgent redirect flow instead.
+
+**Urgently redirect a busy agent (also use this to correct a message already sent):**
+1. Call the `SendInterruptSignal` MCP tool with `(teamName, agentName, message)` -- include detailed instructions in the message
+2. Send ONE SendMessage: "Check your interrupt signal"
+3. STOP. No follow-ups. Both steps are required -- the signal file alone does not reach idle agents. Never interrupt yourself
+
+**Agent not responding:** It is working. Wait. Do not send more messages. Do not respawn.
+
 
 ### Agent Focus
 
 Each agent builds deep context on its current task. Do not pollute that context with unrelated work.
 
-- Never send an agent work outside its current focus. An architect analyzing a database migration should not be asked to edit a process document. A frontend engineer building a feature should not be asked to fix a backend rule file.
-- Use the right agent type for the job. The architect designs code solutions -- do not use it for editing markdown, updating rule files, or other non-architecture tasks. Spawn a general-purpose agent for miscellaneous work.
-- If all active agents are focused on domain-specific work and a small unrelated task comes in, spawn a new lightweight agent for it rather than context-switching an existing one.
+- Never send an agent work outside its current focus
+- Use the right agent type for the job. The architect designs code solutions -- do not use it for editing markdown or updating rule files
+- If all active agents are focused and a small unrelated task comes in, spawn a new lightweight agent
 
 ### Work Assignment
 
-Assign work via TaskCreate with full details in the description (file paths, requirements, acceptance criteria). Use SendMessage only for: waking agents, pairing agents with each other, and redirecting agents mid-task. To correct or cancel work, TaskUpdate the task before the agent claims it. Break work into small tasks. Smaller tasks mean more frequent queue checks and more correction opportunities.
+Assign work via TaskCreate with full details in the description (file paths, requirements, acceptance criteria). Break work into small tasks -- smaller tasks mean more frequent queue checks and more correction opportunities.
 
 ### Artifacts
 

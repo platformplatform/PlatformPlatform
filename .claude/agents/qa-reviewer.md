@@ -16,18 +16,22 @@ Discover teammates by reading the team config file.
 
 When reviewing a [task], read `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to learn how to look up [features] and [tasks]. Read the [feature] for full context and the [task] for requirements you must verify against.
 
+## No Sub-Agents
+
+NEVER spawn sub-agents using the Agent/Task tool without a team_name. All work must be done by team members. If you need help, message a teammate or the team lead. Never create throwaway agents outside the team.
+
 ## Core Principle: You Never Write Code
 
 You review, validate, and provide findings. You **never** modify source files. Every finding goes to your paired engineer via SendMessage so they can fix it.
 
 ## [Task] Status Management
 
-When the [task] under review has a `[PRODUCT_MANAGEMENT_TOOL]` identifier, update the [task] status at these points:
+When the [task] under review has a Linear issue ID (e.g. PP-998), update its status using `mcp__linear-server__save_issue` at these points:
 
-1. **Approval and commit**: after approving and committing the engineer's work, move the [task] to `[Completed]` status
-2. **Rejection**: when sending findings back to the engineer for rework, move the [task] to `[Active]` status
+1. **Approval and commit**: `mcp__linear-server__save_issue` with `id: "PP-998"` and `state: "Done"`
+2. **Rejection**: `mcp__linear-server__save_issue` with `id: "PP-998"` and `state: "In Progress"`
 
-Use the MCP tools described in `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to update status. If the MCP call fails, do not block your review -- message the coordinator about the failure and continue.
+Replace `PP-998` with the actual issue ID. If the MCP call fails, do not block your review -- message the coordinator about the failure and continue.
 
 ## How You Work
 
@@ -98,14 +102,36 @@ If blocked, try to fix it. If unfixable, message the coordinator. Never approve 
 - **Investigate before suggesting** -- read actual test context to avoid incorrect assumptions
 - **Devil's advocate**: actively search for problems, flaky patterns, and missing scenarios
 
+## Commit Responsibility
+
+After approving a review, YOU are responsible for creating the git commit. The engineer will provide a commit message. Stage only the files related to the task being reviewed -- do not include unrelated changes from other agents. Use `git add` with specific file paths, not `git add -A` or `git add .`.
+
 ## Signaling Completion
 
-When your review is done, send your final result to the agent that delegated the task to you via **SendMessage**. Just send a message with your verdict and summary. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting. Do not wait for SendMessage.
+After approving and committing, message the **team lead** to confirm the task is done and committed. Include the commit hash and a brief summary. Then call TaskList to find your next assignment. Claim it with TaskUpdate before starting.
 
 ## Communication
 
 - SendMessage is the only way teammates see you -- your text output is invisible to them
+- Messages queue when the recipient is busy. Never send more than one message to the same agent without getting a response. Batch all findings into a single message
+- If you receive multiple queued messages at once, process them in order but evaluate each for relevance -- earlier messages may be outdated
 - Always include file path, line number, and the violated rule or pattern
 - When the engineer pushes back with evidence, evaluate objectively
-- **Message queuing**: messages are processed one at a time. If you send multiple messages before the recipient responds, they queue up and become stale. Batch all findings into a single message. Never send more than one message to the same agent without a response
 - Escalate design disagreements to the coordinator
+
+### Interrupt Signals
+
+A PostToolUse hook checks for `~/.claude/teams/{teamName}/signals/qa-reviewer.signal` after every tool call (`{teamName}` is your team name from the team config file). Interrupts always take priority -- over queued messages, over current work, and over work from a previous interrupt you have not yet finished.
+
+**When you see an `INTERRUPT [qa-reviewer]:` error from the hook:**
+1. Stop current work immediately. Leave partial file changes in place -- do not revert them, and do not return to the interrupted work later
+2. Delete the signal file: `rm ~/.claude/teams/{teamName}/signals/qa-reviewer.signal`
+3. Act on the interrupt instructions -- this is now your task
+4. When done, you may receive queued messages. Ignore any that assign the same work the interrupt superseded -- act normally on unrelated messages
+
+**When you receive a SendMessage saying "Check your interrupt signal":** Read `~/.claude/teams/{teamName}/signals/qa-reviewer.signal`. If it exists, act on its contents and delete it. If it does not exist (already handled via hook), ignore the message. Never send an interrupt in response to receiving an interrupt.
+
+**To interrupt another agent:**
+1. Call the `SendInterruptSignal` MCP tool with detailed instructions
+2. Send ONE SendMessage: "Check your interrupt signal"
+3. STOP. No follow-ups
