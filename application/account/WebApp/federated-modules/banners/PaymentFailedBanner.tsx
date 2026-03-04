@@ -9,9 +9,7 @@ export default function PaymentFailedBanner() {
   const userInfo = useUserInfo();
   const { data: subscription } = useSubscription(userInfo?.tenantId ?? "");
 
-  const isOwner = userInfo?.role === "Owner";
-
-  if (!subscription?.isPaymentFailed) {
+  if (userInfo?.role !== "Owner" || !subscription?.isPaymentFailed) {
     return null;
   }
 
@@ -21,17 +19,15 @@ export default function PaymentFailedBanner() {
       <span className="flex-1 text-warning-foreground">
         <Trans>Payment failed. Your subscription will be suspended soon.</Trans>
       </span>
-      {isOwner && (
-        <Button
-          size="sm"
-          onClick={() => {
-            trackInteraction("Payment failed banner", "interaction", "Update payment method");
-            globalThis.location.href = "/account/billing";
-          }}
-        >
-          <Trans>Update payment method</Trans>
-        </Button>
-      )}
+      <Button
+        size="sm"
+        onClick={() => {
+          trackInteraction("Payment failed banner", "interaction", "Update payment method");
+          globalThis.location.href = "/account/billing";
+        }}
+      >
+        <Trans>Update payment method</Trans>
+      </Button>
     </div>
   );
 }

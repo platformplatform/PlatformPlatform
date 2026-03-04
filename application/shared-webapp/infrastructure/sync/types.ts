@@ -14,7 +14,6 @@ export type UserRow = Row & {
   avatar: string;
   locale: string;
   lastSeenAt: string | null;
-  externalIdentities: string;
   deletedAt: string | null;
 };
 
@@ -25,9 +24,8 @@ export type TenantRow = Row & {
   name: string;
   state: string;
   suspensionReason: string | null;
-  suspendedAt: string | null;
   logo: string;
-  deletedAt: string | null;
+  plan: string;
 };
 
 export type SubscriptionRow = Row & {
@@ -37,15 +35,15 @@ export type SubscriptionRow = Row & {
   modifiedAt: string | null;
   plan: string;
   scheduledPlan: string | null;
+  cancelAtPeriodEnd: boolean;
+  firstPaymentFailedAt: string | null;
+  cancellationReason: string | null;
+  cancellationFeedback: string | null;
   stripeCustomerId: string | null;
   stripeSubscriptionId: string | null;
   currentPriceAmount: string | null;
   currentPriceCurrency: string | null;
   currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: boolean;
-  firstPaymentFailedAt: string | null;
-  cancellationReason: string | null;
-  cancellationFeedback: string | null;
   paymentTransactions: string;
   paymentMethod: string | null;
   billingInfo: string | null;
@@ -57,13 +55,9 @@ export type SessionRow = Row & {
   createdAt: string;
   modifiedAt: string | null;
   userId: string;
-  refreshTokenJti: string;
-  previousRefreshTokenJti: string | null;
-  refreshTokenVersion: number;
   loginMethod: string;
   deviceType: string;
   userAgent: string;
-  ipAddress: string;
   revokedAt: string | null;
   revokedReason: string | null;
 };

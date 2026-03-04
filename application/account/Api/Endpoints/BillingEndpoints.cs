@@ -1,5 +1,4 @@
 using Account.Features.Billing.Commands;
-using Account.Features.Billing.Queries;
 using SharedKernel.ApiResults;
 using SharedKernel.Endpoints;
 
@@ -12,10 +11,6 @@ public sealed class BillingEndpoints : IEndpoints
     public void MapEndpoints(IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Billing").RequireAuthorization().ProducesValidationProblem();
-
-        group.MapGet("/payment-history", async Task<ApiResult<PaymentHistoryResponse>> ([AsParameters] GetPaymentHistoryQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<PaymentHistoryResponse>();
 
         group.MapPut("/billing-info", async Task<ApiResult> (UpdateBillingInfoCommand command, IMediator mediator)
             => await mediator.Send(command)

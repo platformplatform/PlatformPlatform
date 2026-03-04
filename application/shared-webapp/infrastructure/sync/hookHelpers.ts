@@ -49,6 +49,17 @@ export function castParsed<T>(value: unknown): T | null {
   return toCamelCaseKeys(parsed) as T;
 }
 
+export interface PaymentTransaction {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  date: string;
+  failureReason: string | null;
+  invoiceUrl: string | null;
+  creditNoteUrl: string | null;
+}
+
 export interface PaymentMethod {
   brand: string;
   last4: string;
