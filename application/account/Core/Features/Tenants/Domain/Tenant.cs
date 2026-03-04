@@ -1,3 +1,4 @@
+using Account.Features.Subscriptions.Domain;
 using SharedKernel.Domain;
 
 namespace Account.Features.Tenants.Domain;
@@ -7,6 +8,7 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     private Tenant() : base(TenantId.NewId())
     {
         State = TenantState.Active;
+        Plan = SubscriptionPlan.Basis;
         Logo = new Logo();
     }
 
@@ -19,6 +21,8 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public DateTimeOffset? SuspendedAt { get; private set; }
 
     public Logo Logo { get; private set; }
+
+    public SubscriptionPlan Plan { get; private set; }
 
     public static Tenant Create(string email)
     {
@@ -54,6 +58,11 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public void RemoveLogo()
     {
         Logo = new Logo(Version: Logo.Version);
+    }
+
+    public void UpdatePlan(SubscriptionPlan plan)
+    {
+        Plan = plan;
     }
 }
 

@@ -21,7 +21,8 @@ public sealed class Initial : Migration
                 state = table.Column<string>("text", nullable: false),
                 logo = table.Column<string>("jsonb", nullable: false, defaultValue: "{}"),
                 suspension_reason = table.Column<string>("text", nullable: true),
-                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
+                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                plan = table.Column<string>("text", nullable: false, defaultValue: "Basis")
             },
             constraints: table => { table.PrimaryKey("pk_tenants", x => x.id); }
         );

@@ -2,6 +2,7 @@ using System.Net;
 using Account.Database;
 using Account.Features.Authentication.Domain;
 using Account.Features.Authentication.Queries;
+using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
 using SharedKernel.Authentication.TokenGeneration;
 using SharedKernel.Domain;
@@ -134,7 +135,8 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", name),
                 ("State", "Active"),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
