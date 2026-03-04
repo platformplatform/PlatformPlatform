@@ -46,9 +46,9 @@ When working on tasks, follow any specific workflow instructions provided for yo
    **Example: running all tools after build (do NOT use run_in_background):**
    ```
    Task(subagent_type: "general-purpose", prompt: "Restart Aspire: mcp__developer-cli__run()", run_in_background: false)
-   Task(subagent_type: "general-purpose", prompt: "Test backend: mcp__developer-cli__execute_command(command='test', backend=true, noBuild=true)", run_in_background: false)
-   Task(subagent_type: "general-purpose", prompt: "Format backend: mcp__developer-cli__execute_command(command='format', backend=true, noBuild=true)", run_in_background: false)
-   Task(subagent_type: "general-purpose", prompt: "Lint backend: mcp__developer-cli__execute_command(command='lint', backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Test backend: mcp__developer-cli__test(backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Format backend: mcp__developer-cli__format(backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Lint backend: mcp__developer-cli__lint(backend=true, noBuild=true)", run_in_background: false)
    Task(subagent_type: "general-purpose", prompt: "Run e2e: mcp__developer-cli__end_to_end(browser='chromium', waitForAspire=true)", run_in_background: false)
    ```
    Format, lint, and test run while Aspire starts. End-to-end tests use `waitForAspire=true` to wait until Aspire is ready.

@@ -38,29 +38,16 @@ public class McpCommand : Command
 public static class DeveloperCliMcpTools
 {
     [McpServerTool]
-    [Description("Execute developer CLI commands: build, test, format, or lint code")]
-    public static async Task<string> ExecuteCommand(
-        [Description("Command to execute: 'build', 'test', 'format', or 'lint'")]
-        string command,
-        [Description("Backend")] bool backend = false,
-        [Description("Frontend")] bool frontend = false,
+    [Description("Build the solution including backend (.NET), frontend (React/TypeScript), and developer CLI projects")]
+    public static async Task<string> Build(
+        [Description("Backend (.NET)")] bool backend = false,
+        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Developer CLI")] bool cli = false,
         [Description("Self-contained system, e.g., 'account' (optional)")]
-        string? selfContainedSystem = null,
-        [Description("Skip build (for test, format, lint only)")]
-        bool noBuild = false,
-        [Description("Filter tests by name (test command only)")]
-        string? filter = null,
-        [Description("Developer CLI")] bool cli = false)
+        string? selfContainedSystem = null)
     {
-        var validCommands = new[] { "build", "test", "format", "lint" };
-        if (!validCommands.Contains(command))
-        {
-            return $"Invalid command: '{command}'. Valid commands: {string.Join(", ", validCommands)}";
-        }
+        var args = new List<string> { "build", "--quiet" };
 
-        var args = new List<string> { command, "--quiet" };
-
-        // Add target flags - if none specified, command will run all targets
         if (backend) args.Add("--backend");
         if (frontend) args.Add("--frontend");
         if (cli) args.Add("--cli");
@@ -71,16 +58,89 @@ public static class DeveloperCliMcpTools
             args.Add(selfContainedSystem);
         }
 
-        if (noBuild && command != "build")
+        return await ExecuteCliCommandAsync(args.ToArray());
+    }
+
+    [McpServerTool]
+    [Description("Run backend (.NET) xUnit tests with optional name filtering")]
+    public static async Task<string> Test(
+        [Description("Backend (.NET)")] bool backend = false,
+        [Description("Skip build before running tests")] bool noBuild = false,
+        [Description("Filter tests by name")] string? filter = null,
+        [Description("Self-contained system, e.g., 'account' (optional)")]
+        string? selfContainedSystem = null)
+    {
+        var args = new List<string> { "test", "--quiet" };
+
+        if (backend) args.Add("--backend");
+
+        if (selfContainedSystem is not null)
         {
-            args.Add("--no-build");
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
         }
 
-        if (filter is not null && command == "test")
+        if (noBuild) args.Add("--no-build");
+
+        if (filter is not null)
         {
             args.Add("--filter");
             args.Add(filter);
         }
+
+        return await ExecuteCliCommandAsync(args.ToArray());
+    }
+
+    [McpServerTool]
+    [Description("Format and auto-fix code style for backend (.NET), frontend (React/TypeScript), and developer CLI projects")]
+    public static async Task<string> Format(
+        [Description("Backend (.NET)")] bool backend = false,
+        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Developer CLI")] bool cli = false,
+        [Description("Skip build before formatting")] bool noBuild = false,
+        [Description("Self-contained system, e.g., 'account' (optional)")]
+        string? selfContainedSystem = null)
+    {
+        var args = new List<string> { "format", "--quiet" };
+
+        if (backend) args.Add("--backend");
+        if (frontend) args.Add("--frontend");
+        if (cli) args.Add("--cli");
+
+        if (selfContainedSystem is not null)
+        {
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
+        }
+
+        if (noBuild) args.Add("--no-build");
+
+        return await ExecuteCliCommandAsync(args.ToArray());
+    }
+
+    [McpServerTool]
+    [Description("Lint code for backend (.NET), frontend (React/TypeScript), and developer CLI projects to find issues")]
+    public static async Task<string> Lint(
+        [Description("Backend (.NET)")] bool backend = false,
+        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Developer CLI")] bool cli = false,
+        [Description("Skip build before linting")] bool noBuild = false,
+        [Description("Self-contained system, e.g., 'account' (optional)")]
+        string? selfContainedSystem = null)
+    {
+        var args = new List<string> { "lint", "--quiet" };
+
+        if (backend) args.Add("--backend");
+        if (frontend) args.Add("--frontend");
+        if (cli) args.Add("--cli");
+
+        if (selfContainedSystem is not null)
+        {
+            args.Add("--self-contained-system");
+            args.Add(selfContainedSystem);
+        }
+
+        if (noBuild) args.Add("--no-build");
 
         return await ExecuteCliCommandAsync(args.ToArray());
     }

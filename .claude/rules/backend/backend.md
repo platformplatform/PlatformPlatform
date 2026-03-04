@@ -109,13 +109,13 @@ Follow these steps when implementing changes:
 
 1. Always start new changes by writing new test cases (or change existing tests)—consult [API Tests](/.claude/rules/backend/api-tests.md) for details
 2. Build and test your changes:
-   - Use the **execute MCP tool** with `command: "build"` for backend
-   - Use the **execute MCP tool** with `command: "test"` to run all tests
+   - Use the **build** MCP tool for backend
+   - Use the **test** MCP tool to run all tests
    - If you change API contracts (endpoints, DTOs), also build frontend to ensure it still compiles
 3. Format and lint your code in parallel:
    - When all tests pass and the feature is complete, call both MCP tools in a single message:
-     - `execute_command(command: "format")`
-     - `execute_command(command: "lint")`
+     - `format(backend=true)`
+     - `lint(backend=true)`
    - Format automatically fixes code style issues according to our conventions
    - **ALL lint findings are blocking** - CI pipeline fails on any result marked "Issues found"
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
