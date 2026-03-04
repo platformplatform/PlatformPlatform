@@ -28,5 +28,8 @@
   },
   "enabledPlugins": {
     "typescript-lsp@claude-plugins-official": true
+  },
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
   }
 }
