@@ -17,6 +17,8 @@ param hasProbesEndpoint bool
 param domainName string = ''
 param external bool = false
 param environmentVariables object[] = []
+param sidecarContainers object[] = []
+param containerAppSecrets object[] = []
 param revisionSuffix string
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
@@ -73,69 +75,72 @@ resource containerApp 'Microsoft.App/containerApps@2025-10-02-preview' = {
   properties: {
     environmentId: containerAppsEnvironmentId
     template: {
-      containers: [
-        {
-          name: name
-          image: image
-          resources: {
-            cpu: json(cpu)
-            memory: memory
+      containers: concat(
+        [
+          {
+            name: name
+            image: image
+            resources: {
+              cpu: json(cpu)
+              memory: memory
+            }
+            env: environmentVariables
+            probes: hasProbesEndpoint && containerImageTag != 'initial' // The quickstart image does not have liveness and readiness probes
+              ? [
+                  {
+                    type: 'Liveness'
+                    httpGet: {
+                      path: '/internal-api/live'
+                      port: 8080
+                      scheme: 'HTTP'
+                    }
+                    initialDelaySeconds: 3
+                    failureThreshold: 3
+                    periodSeconds: 5
+                    successThreshold: 1
+                    timeoutSeconds: 1
+                  }
+                  {
+                    type: 'Readiness'
+                    httpGet: {
+                      path: '/internal-api/ready'
+                      port: 8080
+                      scheme: 'HTTP'
+                    }
+                    initialDelaySeconds: 3
+                    failureThreshold: 3
+                    periodSeconds: 6
+                    successThreshold: 1
+                    timeoutSeconds: 5
+                  }
+                ]
+              : [
+                  {
+                    type: 'Liveness'
+                    failureThreshold: 3
+                    periodSeconds: 10
+                    successThreshold: 1
+                    tcpSocket: {
+                      port: 8080
+                    }
+                    timeoutSeconds: 1
+                  }
+                  {
+                    type: 'Readiness'
+                    failureThreshold: 48
+                    initialDelaySeconds: 3
+                    periodSeconds: 5
+                    successThreshold: 1
+                    tcpSocket: {
+                      port: 8080
+                    }
+                    timeoutSeconds: 5
+                  }
+                ]
           }
-          env: environmentVariables
-          probes: hasProbesEndpoint && containerImageTag != 'initial' // The quickstart image does not have liveness and readiness probes
-            ? [
-                {
-                  type: 'Liveness'
-                  httpGet: {
-                    path: '/internal-api/live'
-                    port: 8080
-                    scheme: 'HTTP'
-                  }
-                  initialDelaySeconds: 3
-                  failureThreshold: 3
-                  periodSeconds: 5
-                  successThreshold: 1
-                  timeoutSeconds: 1
-                }
-                {
-                  type: 'Readiness'
-                  httpGet: {
-                    path: '/internal-api/ready'
-                    port: 8080
-                    scheme: 'HTTP'
-                  }
-                  initialDelaySeconds: 3
-                  failureThreshold: 3
-                  periodSeconds: 6
-                  successThreshold: 1
-                  timeoutSeconds: 5
-                }
-              ]
-            : [
-                {
-                  type: 'Liveness'
-                  failureThreshold: 3
-                  periodSeconds: 10
-                  successThreshold: 1
-                  tcpSocket: {
-                    port: 8080
-                  }
-                  timeoutSeconds: 1
-                }
-                {
-                  type: 'Readiness'
-                  failureThreshold: 48
-                  initialDelaySeconds: 3
-                  periodSeconds: 5
-                  successThreshold: 1
-                  tcpSocket: {
-                    port: 8080
-                  }
-                  timeoutSeconds: 5
-                }
-              ]
-        }
-      ]
+        ]
+        sidecarContainers
+      )
       revisionSuffix: fullRevisionSuffix
       scale: {
         minReplicas: minReplicas
@@ -143,6 +148,7 @@ resource containerApp 'Microsoft.App/containerApps@2025-10-02-preview' = {
       }
     }
     configuration: {
+      secrets: containerAppSecrets
       registries: [
         {
           server: containerRegistryServerUrl
