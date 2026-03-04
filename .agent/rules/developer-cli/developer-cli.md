@@ -130,7 +130,7 @@ public class BadBuildCommand : Command
 
 ## Troubleshooting
 
-The CLI is self-compiling, so to build use `execute_command(command: "build", cli: true)`. Sometimes you will get errors like:
+The CLI is self-compiling, so to build use `build(cli=true)`. Sometimes you will get errors like:
 
 ```bash
 Failed to publish new CLI. Please run 'dotnet run' to fix. Could not load file or assembly 'System.IO.Pipelines,

@@ -48,20 +48,20 @@ Team leads: execute this workflow directly. Do not delegate it.
      - Only describe changes that downstream must make themselves, never include steps for changes already in the upstream merge
    - Include exact filenames, code snippets, and Git diffs as needed
 
-6. Build, test, format and inspect the codebase using the `execute_command` MCP tool:
+6. Build, test, format and inspect the codebase using the MCP tools:
 
    **For backend changes** (`*.cs` files):
-   1. Run **build** first: `execute_command(command: "build", backend: true)`
+   1. Run **build** first: `build(backend=true)`
    2. Then run **format**, **test**, **inspect** in parallel (or sequentially if parallel not supported):
-      - `execute_command(command: "format", backend: true)`
-      - `execute_command(command: "test", backend: true)`
-      - `execute_command(command: "inspect", backend: true)`
+      - `format(backend=true)`
+      - `test(backend=true)`
+      - `inspect(backend=true)`
 
    **For frontend changes** (`*.ts`, `*.tsx` files):
-   1. Run **build** first: `execute_command(command: "build", frontend: true)`
+   1. Run **build** first: `build(frontend=true)`
    2. Then run **format** and **inspect** in parallel (or sequentially if parallel not supported):
-      - `execute_command(command: "format", frontend: true)`
-      - `execute_command(command: "inspect", frontend: true)`
+      - `format(frontend=true)`
+      - `inspect(frontend=true)`
 
    If there are errors, they must be fixed before the pull request can be created.
 

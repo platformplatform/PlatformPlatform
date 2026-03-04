@@ -137,7 +137,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
     - Reference existing implementations to maintain consistency
 
 11. Build and format your changes:
-    - After each minor change, use the **execute MCP tool** with `command: "build"` for frontend
+    - After each minor change, use the **build** MCP tool for frontend
     - This ensures consistent code style across the codebase
 
 12. Verify your changes:
