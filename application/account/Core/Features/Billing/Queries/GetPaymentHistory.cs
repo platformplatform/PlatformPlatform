@@ -1,6 +1,8 @@
 using Account.Features.Subscriptions.Domain;
+using Account.Features.Users.Domain;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
+using SharedKernel.ExecutionContext;
 
 namespace Account.Features.Billing.Queries;
 
@@ -21,11 +23,16 @@ public sealed record PaymentTransactionResponse(
     string? CreditNoteUrl
 );
 
-public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository)
+public sealed class GetPaymentHistoryHandler(ISubscriptionRepository subscriptionRepository, IExecutionContext executionContext)
     : IRequestHandler<GetPaymentHistoryQuery, Result<PaymentHistoryResponse>>
 {
     public async Task<Result<PaymentHistoryResponse>> Handle(GetPaymentHistoryQuery query, CancellationToken cancellationToken)
     {
+        if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
+        {
+            return Result<PaymentHistoryResponse>.Forbidden("Only owners can view payment history.");
+        }
+
         var subscription = await subscriptionRepository.GetCurrentAsync(cancellationToken);
 
         var allTransactions = subscription.PaymentTransactions

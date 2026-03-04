@@ -32,9 +32,10 @@ public sealed class Initial : Migration
                 deleted_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 name = table.Column<string>("text", nullable: false),
                 state = table.Column<string>("text", nullable: false),
-                logo = table.Column<string>("jsonb", nullable: false, defaultValue: "{}"),
+                plan = table.Column<string>("text", nullable: false),
                 suspension_reason = table.Column<string>("text", nullable: true),
-                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true)
+                suspended_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
+                logo = table.Column<string>("jsonb", nullable: false, defaultValue: "{}")
             },
             constraints: table => { table.PrimaryKey("pk_tenants", x => x.id); }
         );
@@ -87,7 +88,7 @@ public sealed class Initial : Migration
                 deleted_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 last_seen_at = table.Column<DateTimeOffset>("timestamptz", nullable: true),
                 email = table.Column<string>("text", nullable: false),
-                external_identities = table.Column<string>("jsonb", nullable: false, defaultValue: "[]"),
+                external_identities = table.Column<string>("jsonb", nullable: false),
                 email_confirmed = table.Column<bool>("boolean", nullable: false),
                 first_name = table.Column<string>("text", nullable: true),
                 last_name = table.Column<string>("text", nullable: true),

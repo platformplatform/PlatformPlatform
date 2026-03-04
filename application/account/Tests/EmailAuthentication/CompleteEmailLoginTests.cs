@@ -218,7 +218,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -316,7 +317,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("ModifiedAt", null),
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+                ("Logo", """{"Url":null,"Version":0}"""),
+                ("Plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
