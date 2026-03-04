@@ -1,5 +1,5 @@
 import { enhancedFetch } from "../http/httpClient";
-import { sessionCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
+import { subscriptionCollection, tenantCollection, userCollection } from "./collections";
 import { getElectricOffset } from "./electricConfig";
 
 async function mutateAndAwaitSync(url: string, method: string, body?: unknown): Promise<number | undefined> {
@@ -33,13 +33,6 @@ export async function updateTenant(data: { name: string }): Promise<void> {
   const txid = await mutateAndAwaitSync("/api/account/tenants/current", "PUT", data);
   if (txid != null) {
     await tenantCollection.utils.awaitTxId(txid);
-  }
-}
-
-export async function revokeSession(sessionId: string): Promise<void> {
-  const txid = await mutateAndAwaitSync(`/api/account/authentication/sessions/${sessionId}`, "DELETE");
-  if (txid != null) {
-    await sessionCollection.utils.awaitTxId(txid);
   }
 }
 

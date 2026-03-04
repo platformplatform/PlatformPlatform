@@ -1,5 +1,4 @@
 using Account.Features.Users.Commands;
-using Account.Features.Users.Queries;
 using SharedKernel.ApiResults;
 using SharedKernel.Domain;
 using SharedKernel.Endpoints;
@@ -51,10 +50,6 @@ public sealed class UserEndpoints : IEndpoints
         ).Produces<int>();
 
         // The following endpoints are for the current user only
-        group.MapGet("/me", async Task<ApiResult<CurrentUserResponse>> ([AsParameters] GetUserQuery query, IMediator mediator)
-            => await mediator.Send(query)
-        ).Produces<CurrentUserResponse>();
-
         group.MapPut("/me", async Task<ApiResult> (UpdateCurrentUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
         );

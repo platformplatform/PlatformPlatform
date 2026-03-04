@@ -7,7 +7,7 @@ import { AlertTriangleIcon } from "lucide-react";
 
 export default function ExpiringCardBanner() {
   const userInfo = useUserInfo();
-  const { data: subscription } = useSubscription(userInfo?.tenantId ?? "");
+  const { data: subscription } = useSubscription();
 
   const paymentMethod = subscription?.paymentMethod;
   const currentPeriodEnd = subscription?.currentPeriodEnd;
