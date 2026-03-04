@@ -7,7 +7,7 @@ import { AlertTriangleIcon } from "lucide-react";
 
 export default function PaymentFailedBanner() {
   const userInfo = useUserInfo();
-  const { data: subscription } = useSubscription(userInfo?.tenantId ?? "");
+  const { data: subscription } = useSubscription();
 
   if (userInfo?.role !== "Owner" || !subscription?.isPaymentFailed) {
     return null;

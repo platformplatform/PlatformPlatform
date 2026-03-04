@@ -2,7 +2,6 @@ import type { Row } from "@electric-sql/client";
 
 export type UserRow = Row & {
   id: string;
-  tenantId: string;
   createdAt: string;
   modifiedAt: string | null;
   email: string;
@@ -30,7 +29,6 @@ export type TenantRow = Row & {
 
 export type SubscriptionRow = Row & {
   id: string;
-  tenantId: string;
   createdAt: string;
   modifiedAt: string | null;
   plan: string;
@@ -39,25 +37,10 @@ export type SubscriptionRow = Row & {
   firstPaymentFailedAt: string | null;
   cancellationReason: string | null;
   cancellationFeedback: string | null;
-  stripeCustomerId: string | null;
-  stripeSubscriptionId: string | null;
   currentPriceAmount: string | null;
   currentPriceCurrency: string | null;
   currentPeriodEnd: string | null;
   paymentTransactions: string;
   paymentMethod: string | null;
   billingInfo: string | null;
-};
-
-export type SessionRow = Row & {
-  id: string;
-  tenantId: string;
-  createdAt: string;
-  modifiedAt: string | null;
-  userId: string;
-  loginMethod: string;
-  deviceType: string;
-  userAgent: string;
-  revokedAt: string | null;
-  revokedReason: string | null;
 };
