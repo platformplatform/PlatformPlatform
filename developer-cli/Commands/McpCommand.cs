@@ -41,7 +41,8 @@ public static class DeveloperCliMcpTools
     [Description("Build the solution including backend (.NET), frontend (React/TypeScript), and developer CLI projects")]
     public static async Task<string> Build(
         [Description("Backend (.NET)")] bool backend = false,
-        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Frontend (React/TypeScript)")]
+        bool frontend = false,
         [Description("Developer CLI")] bool cli = false,
         [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null)
@@ -65,7 +66,8 @@ public static class DeveloperCliMcpTools
     [Description("Run backend (.NET) xUnit tests with optional name filtering")]
     public static async Task<string> Test(
         [Description("Backend (.NET)")] bool backend = false,
-        [Description("Skip build before running tests")] bool noBuild = false,
+        [Description("Skip build before running tests")]
+        bool noBuild = false,
         [Description("Filter tests by name")] string? filter = null,
         [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null)
@@ -95,9 +97,11 @@ public static class DeveloperCliMcpTools
     [Description("Format and auto-fix code style for backend (.NET), frontend (React/TypeScript), and developer CLI projects")]
     public static async Task<string> Format(
         [Description("Backend (.NET)")] bool backend = false,
-        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Frontend (React/TypeScript)")]
+        bool frontend = false,
         [Description("Developer CLI")] bool cli = false,
-        [Description("Skip build before formatting")] bool noBuild = false,
+        [Description("Skip build before formatting")]
+        bool noBuild = false,
         [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null)
     {
@@ -122,9 +126,11 @@ public static class DeveloperCliMcpTools
     [Description("Lint code for backend (.NET), frontend (React/TypeScript), and developer CLI projects to find issues")]
     public static async Task<string> Lint(
         [Description("Backend (.NET)")] bool backend = false,
-        [Description("Frontend (React/TypeScript)")] bool frontend = false,
+        [Description("Frontend (React/TypeScript)")]
+        bool frontend = false,
         [Description("Developer CLI")] bool cli = false,
-        [Description("Skip build before linting")] bool noBuild = false,
+        [Description("Skip build before linting")]
+        bool noBuild = false,
         [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null)
     {
@@ -223,7 +229,31 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Sync AI rules from .claude to .windsurf, .cursor, .github/instructions, and .agent. CRITICAL: Always make AI rule changes in .claude folder first, then sync")]
+    [Description("Send an interrupt signal to a team agent. The signal is picked up by the agent's PostToolUse hook on their next tool call. For idle/sleeping agents, also use SendMessage with 'Check your interrupt signal' to wake them.")]
+    public static string SendInterruptSignal(
+        [Description("Team name (e.g., 'feature-team')")]
+        string teamName,
+        [Description("Target agent name (e.g., 'backend', 'frontend')")]
+        string agentName,
+        [Description("Interrupt message to deliver to the agent")]
+        string message)
+    {
+        var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var signalsDirectory = Path.Combine(homeDirectory, ".claude", "teams", teamName, "signals");
+
+        if (!Directory.Exists(signalsDirectory))
+        {
+            Directory.CreateDirectory(signalsDirectory);
+        }
+
+        var signalFilePath = Path.Combine(signalsDirectory, $"{agentName}.signal");
+        File.AppendAllText(signalFilePath, message + "\n");
+
+        return $"Interrupt sent to {agentName} in {teamName}";
+    }
+
+    [McpServerTool]
+    [Description("Sync AI rules from .claude to .windsurf and .cursor. CRITICAL: Always make AI rule changes in .claude folder first, then sync")]
     public static async Task<string> SyncAiRules()
     {
         return await ExecuteCliCommandAsync(["sync-ai-rules"]);
