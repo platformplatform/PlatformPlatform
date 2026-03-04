@@ -130,27 +130,33 @@ export function useTenant(tenantId: string) {
 }
 
 export function useSubscription() {
-  const { data: rawData, ...rest } = useLiveQuery((q) =>
-    q
-      .from({ subscriptions: subscriptionCollection })
-      .select(({ subscriptions }) => ({
-        id: subscriptions.id,
-        createdAt: subscriptions.createdAt,
-        modifiedAt: subscriptions.modifiedAt,
-        plan: subscriptions.plan,
-        scheduledPlan: subscriptions.scheduledPlan,
-        cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
-        firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
-        cancellationReason: subscriptions.cancellationReason,
-        cancellationFeedback: subscriptions.cancellationFeedback,
-        currentPriceAmount: subscriptions.currentPriceAmount,
-        currentPriceCurrency: subscriptions.currentPriceCurrency,
-        currentPeriodEnd: subscriptions.currentPeriodEnd,
-        paymentTransactions: subscriptions.paymentTransactions,
-        paymentMethod: subscriptions.paymentMethod,
-        billingInfo: subscriptions.billingInfo
-      }))
-      .findOne()
+  const isOwner = import.meta.user_info_env.role === "Owner";
+
+  const { data: rawData, ...rest } = useLiveQuery(
+    (q) =>
+      isOwner
+        ? q
+            .from({ subscriptions: subscriptionCollection })
+            .select(({ subscriptions }) => ({
+              id: subscriptions.id,
+              createdAt: subscriptions.createdAt,
+              modifiedAt: subscriptions.modifiedAt,
+              plan: subscriptions.plan,
+              scheduledPlan: subscriptions.scheduledPlan,
+              cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+              firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
+              cancellationReason: subscriptions.cancellationReason,
+              cancellationFeedback: subscriptions.cancellationFeedback,
+              currentPriceAmount: subscriptions.currentPriceAmount,
+              currentPriceCurrency: subscriptions.currentPriceCurrency,
+              currentPeriodEnd: subscriptions.currentPeriodEnd,
+              paymentTransactions: subscriptions.paymentTransactions,
+              paymentMethod: subscriptions.paymentMethod,
+              billingInfo: subscriptions.billingInfo
+            }))
+            .findOne()
+        : undefined,
+    [isOwner]
   );
 
   const data = useMemo(() => {
