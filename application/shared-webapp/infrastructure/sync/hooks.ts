@@ -128,7 +128,8 @@ export function useTenant(tenantId: string) {
           name: tenants.name,
           state: tenants.state,
           suspensionReason: tenants.suspensionReason,
-          logo: tenants.logo
+          logo: tenants.logo,
+          plan: tenants.plan
         }))
         .findOne(),
     [tenantId]
@@ -178,6 +179,17 @@ function castParsed<T>(value: unknown): T | null {
   return toCamelCaseKeys(parsed) as T;
 }
 
+export interface PaymentTransaction {
+  id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  date: string;
+  failureReason: string | null;
+  invoiceUrl: string | null;
+  creditNoteUrl: string | null;
+}
+
 export interface PaymentMethod {
   brand: string;
   last4: string;
@@ -214,13 +226,16 @@ export function useSubscription(tenantId: string) {
           modifiedAt: subscriptions.modifiedAt,
           plan: subscriptions.plan,
           scheduledPlan: subscriptions.scheduledPlan,
+          cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+          firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
+          cancellationReason: subscriptions.cancellationReason,
+          cancellationFeedback: subscriptions.cancellationFeedback,
           stripeCustomerId: subscriptions.stripeCustomerId,
           stripeSubscriptionId: subscriptions.stripeSubscriptionId,
           currentPriceAmount: subscriptions.currentPriceAmount,
           currentPriceCurrency: subscriptions.currentPriceCurrency,
           currentPeriodEnd: subscriptions.currentPeriodEnd,
-          cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
-          firstPaymentFailedAt: subscriptions.firstPaymentFailedAt,
+          paymentTransactions: subscriptions.paymentTransactions,
           paymentMethod: subscriptions.paymentMethod,
           billingInfo: subscriptions.billingInfo
         }))
@@ -235,6 +250,7 @@ export function useSubscription(tenantId: string) {
     const {
       paymentMethod,
       billingInfo,
+      paymentTransactions,
       stripeCustomerId,
       stripeSubscriptionId,
       firstPaymentFailedAt,
@@ -247,6 +263,7 @@ export function useSubscription(tenantId: string) {
       hasStripeCustomer: stripeCustomerId != null,
       hasStripeSubscription: stripeSubscriptionId != null,
       isPaymentFailed: firstPaymentFailedAt != null,
+      paymentTransactions: castParsed<PaymentTransaction[]>(paymentTransactions) ?? [],
       paymentMethod: castParsed<PaymentMethod>(paymentMethod),
       billingInfo: castParsed<BillingInfo>(billingInfo)
     };
@@ -264,11 +281,11 @@ export function useSessions() {
         id: sessions.id,
         tenantId: sessions.tenantId,
         createdAt: sessions.createdAt,
+        modifiedAt: sessions.modifiedAt,
         userId: sessions.userId,
         loginMethod: sessions.loginMethod,
         deviceType: sessions.deviceType,
-        userAgent: sessions.userAgent,
-        ipAddress: sessions.ipAddress
+        userAgent: sessions.userAgent
       }))
   );
 }

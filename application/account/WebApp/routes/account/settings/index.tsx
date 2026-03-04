@@ -1,6 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useSubscription, useTenant, useUser } from "@repo/infrastructure/sync/hooks";
+import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
@@ -55,13 +55,11 @@ interface TenantInfo {
   createdAt: string;
   state: string;
   suspensionReason: string | null;
+  plan: string;
 }
 
 function AccountInfoFields({ tenant }: { tenant: TenantInfo | undefined }) {
   const formatDate = useFormatDate();
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
-
   const isSuspended = tenant?.state === TenantState.Suspended;
 
   function getSuspensionReasonLabel(reason: string | null | undefined): string {
@@ -116,7 +114,7 @@ function AccountInfoFields({ tenant }: { tenant: TenantInfo | undefined }) {
             <Trans>Current plan</Trans>
           </span>
           <Link to="/account/billing/subscription" className="text-primary hover:underline">
-            {getPlanLabelWithFree(subscription?.plan)}
+            {getPlanLabelWithFree(tenant?.plan)}
           </Link>
         </div>
       )}
