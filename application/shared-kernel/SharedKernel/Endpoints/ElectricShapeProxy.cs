@@ -94,6 +94,7 @@ public static class ElectricShapeProxy
         }
 
         httpContext.Response.Headers.Remove("transfer-encoding");
+        httpContext.Response.Headers["Cache-Control"] = "no-store";
 
         await response.Content.CopyToAsync(httpContext.Response.Body, httpContext.RequestAborted);
     }
