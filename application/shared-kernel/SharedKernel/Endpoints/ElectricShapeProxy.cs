@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Server.Kestrel.Core.Features;
 using Microsoft.Extensions.Configuration;
 using SharedKernel.ExecutionContext;
 
@@ -95,6 +96,12 @@ public static class ElectricShapeProxy
 
         httpContext.Response.Headers.Remove("transfer-encoding");
         httpContext.Response.Headers["Cache-Control"] = "no-store";
+
+        var minResponseDataRateFeature = httpContext.Features.Get<IHttpMinResponseDataRateFeature>();
+        if (minResponseDataRateFeature is not null)
+        {
+            minResponseDataRateFeature.MinDataRate = null;
+        }
 
         await response.Content.CopyToAsync(httpContext.Response.Body, httpContext.RequestAborted);
     }
