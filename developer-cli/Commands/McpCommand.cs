@@ -199,7 +199,7 @@ public static class DeveloperCliMcpTools
         [Description("Search terms")] string[]? searchTerms = null,
         [Description("Browser")] string browser = "all",
         [Description("Smoke only")] bool smoke = false,
-        [Description("Wait for Aspire to start (retries server check up to 50 seconds)")]
+        [Description("Wait for Aspire to start (retries server check up to 2 minutes)")]
         bool waitForAspire = false)
     {
         var args = new List<string> { "e2e", "--quiet" };
