@@ -24,6 +24,8 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public SubscriptionPlan Plan { get; private set; }
 
+    public ContactInfo? ContactInfo { get; private set; }
+
     public static Tenant Create(string email)
     {
         var tenant = new Tenant();
@@ -64,6 +66,13 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     {
         Plan = plan;
     }
+
+    public void UpdateContactInfo(string phoneNumber, string street, string city, string postalCode, string country)
+    {
+        ContactInfo = new ContactInfo(phoneNumber, street, city, postalCode, country);
+    }
 }
 
 public sealed record Logo(string? Url = null, int Version = 0);
+
+public sealed record ContactInfo(string PhoneNumber, string Street, string City, string PostalCode, string Country);

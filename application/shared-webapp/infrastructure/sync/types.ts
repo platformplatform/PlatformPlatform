@@ -25,6 +25,7 @@ export type TenantRow = Row & {
   suspensionReason: string | null;
   logo: string;
   plan: string;
+  contactInfo: string | null;
 };
 
 export type SubscriptionRow = Row & {

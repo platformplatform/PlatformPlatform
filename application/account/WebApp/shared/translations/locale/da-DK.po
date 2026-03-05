@@ -401,6 +401,12 @@ msgstr "Overholdelse"
 msgid "Confirm downgrade"
 msgstr "Bekræft nedgradering"
 
+msgid "Contact information"
+msgstr "Kontaktoplysninger"
+
+msgid "Contact information updated"
+msgstr "Kontaktoplysninger opdateret"
+
 msgid "Contact support"
 msgstr "Kontakt support"
 
@@ -540,11 +546,17 @@ msgstr "F.eks. Softwareingeniør"
 msgid "E.g. Taylor"
 msgstr "F.eks. Jensen"
 
+msgid "E.g., +45 12345678"
+msgstr "F.eks. +45 12345678"
+
 msgid "Edit"
 msgstr "Rediger"
 
 msgid "Edit billing information"
 msgstr "Rediger faktureringsoplysninger"
+
+msgid "Edit contact information"
+msgstr "Rediger kontaktoplysninger"
 
 msgid "Edit profile"
 msgstr "Rediger profil"
@@ -855,6 +867,9 @@ msgstr "Ingen betalingsmetode registreret"
 msgid "No users found"
 msgstr "Ingen brugere fundet"
 
+msgid "Not provided"
+msgstr "Ikke angivet"
+
 msgid "OK"
 msgstr "OK"
 
@@ -936,6 +951,12 @@ msgstr "Slet bruger permanent"
 
 msgid "Permanently delete users"
 msgstr "Slet brugere permanent"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Phone number"
+msgstr "Telefonnummer"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -1599,6 +1620,9 @@ msgstr "ditnavn@eksempel.com"
 
 msgid "YouTube"
 msgstr "YouTube"
+
+msgid "Zip code"
+msgstr "Postnummer"
 
 msgid "Zoom"
 msgstr "Zoom"

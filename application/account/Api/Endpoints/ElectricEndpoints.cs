@@ -11,7 +11,7 @@ public sealed class ElectricEndpoints : IEndpoints
     private static readonly Dictionary<string, ShapeTableConfig> AllowedTables = new()
     {
         ["users"] = new ShapeTableConfig("tenant_id", ["id", "created_at", "modified_at", "email", "first_name", "last_name", "title", "role", "email_confirmed", "avatar", "locale", "last_seen_at", "deleted_at"]),
-        ["tenants"] = new ShapeTableConfig("id", ["id", "created_at", "modified_at", "name", "state", "suspension_reason", "logo", "plan"]),
+        ["tenants"] = new ShapeTableConfig("id", ["id", "created_at", "modified_at", "name", "state", "suspension_reason", "logo", "plan", "contact_info"]),
         ["subscriptions"] = new ShapeTableConfig("tenant_id", ["id", "created_at", "modified_at", "plan", "scheduled_plan", "cancel_at_period_end", "first_payment_failed_at", "cancellation_reason", "cancellation_feedback", "current_price_amount", "current_price_currency", "current_period_end", "payment_transactions", "payment_method", "billing_info"], nameof(UserRole.Owner))
     };
 

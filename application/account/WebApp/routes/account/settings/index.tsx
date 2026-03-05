@@ -19,6 +19,7 @@ import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, type Schemas, SuspensionReason, TenantState, UserRole } from "@/shared/lib/api/client";
 import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
+import ContactInfoSection from "./-components/ContactInfoSection";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({
@@ -228,6 +229,8 @@ export function AccountSettings() {
             </div>
           )}
         </Form>
+
+        {isOwner && <ContactInfoSection contactInfo={tenant?.contactInfo ?? null} />}
 
         {isOwner && <DangerZone setIsDeleteModalOpen={setIsDeleteModalOpen} />}
       </AppLayout>

@@ -126,7 +126,8 @@ export function useTenant(tenantId: string) {
           state: tenants.state,
           suspensionReason: tenants.suspensionReason,
           logo: tenants.logo,
-          plan: tenants.plan
+          plan: tenants.plan,
+          contactInfo: tenants.contactInfo
         }))
         .findOne(),
     [tenantId]
@@ -136,8 +137,12 @@ export function useTenant(tenantId: string) {
     if (!rawData) {
       return undefined;
     }
-    const { logo, ...fields } = rawData;
-    return { ...fields, logoUrl: extractUrl(logo) };
+    const { logo, contactInfo, ...fields } = rawData;
+    return {
+      ...fields,
+      logoUrl: extractUrl(logo),
+      contactInfo: castParsed<ContactInfo>(contactInfo)
+    };
   }, [rawData]);
 
   return { ...rest, data };
@@ -208,6 +213,14 @@ export interface BillingInfo {
   address: BillingAddress | null;
   email: string | null;
   taxId: string | null;
+}
+
+export interface ContactInfo {
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  postalCode: string | null;
+  country: string | null;
 }
 
 export function useSubscription() {

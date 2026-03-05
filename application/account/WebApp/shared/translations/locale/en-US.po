@@ -401,6 +401,12 @@ msgstr "Compliance"
 msgid "Confirm downgrade"
 msgstr "Confirm downgrade"
 
+msgid "Contact information"
+msgstr "Contact information"
+
+msgid "Contact information updated"
+msgstr "Contact information updated"
+
 msgid "Contact support"
 msgstr "Contact support"
 
@@ -540,11 +546,17 @@ msgstr "E.g. Software engineer"
 msgid "E.g. Taylor"
 msgstr "E.g. Taylor"
 
+msgid "E.g., +45 12345678"
+msgstr "E.g., +45 12345678"
+
 msgid "Edit"
 msgstr "Edit"
 
 msgid "Edit billing information"
 msgstr "Edit billing information"
+
+msgid "Edit contact information"
+msgstr "Edit contact information"
 
 msgid "Edit profile"
 msgstr "Edit profile"
@@ -855,6 +867,9 @@ msgstr "No payment method on file"
 msgid "No users found"
 msgstr "No users found"
 
+msgid "Not provided"
+msgstr "Not provided"
+
 msgid "OK"
 msgstr "OK"
 
@@ -936,6 +951,12 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
+
+msgid "Phone"
+msgstr "Phone"
+
+msgid "Phone number"
+msgstr "Phone number"
 
 msgid "PlatformPlatform"
 msgstr "PlatformPlatform"
@@ -1599,6 +1620,9 @@ msgstr "yourname@example.com"
 
 msgid "YouTube"
 msgstr "YouTube"
+
+msgid "Zip code"
+msgstr "Zip code"
 
 msgid "Zoom"
 msgstr "Zoom"

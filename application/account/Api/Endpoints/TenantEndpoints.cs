@@ -26,6 +26,10 @@ public sealed class TenantEndpoints : IEndpoints
             => await mediator.Send(new UpdateTenantLogoCommand(file.OpenReadStream(), file.ContentType))
         ).DisableAntiforgery();
 
+        group.MapPut("/current/contact-info", async Task<ApiResult> (UpdateTenantContactInfoCommand command, IMediator mediator)
+            => await mediator.Send(command)
+        );
+
         group.MapDelete("/current/remove-logo", async Task<ApiResult> (IMediator mediator)
             => await mediator.Send(new RemoveTenantLogoCommand())
         );
