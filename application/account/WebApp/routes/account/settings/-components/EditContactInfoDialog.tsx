@@ -14,11 +14,10 @@ import { DirtyDialog } from "@repo/ui/components/DirtyDialog";
 import { Form } from "@repo/ui/components/Form";
 import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { CountrySelect, useCountryOptions } from "@/shared/components/CountrySelect";
-import type { Schemas } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
 interface EditContactInfoDialogProps {
   isOpen: boolean;
@@ -32,8 +31,8 @@ export default function EditContactInfoDialog({
   contactInfo
 }: Readonly<EditContactInfoDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [street, setStreet] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState<string | undefined>(undefined);
@@ -41,19 +40,15 @@ export default function EditContactInfoDialog({
 
   useEffect(() => {
     if (!isFormDirty && contactInfo) {
-      setPhone(contactInfo.phone ?? "");
-      setAddress(contactInfo.address ?? "");
+      setPhoneNumber(contactInfo.phoneNumber ?? "");
+      setStreet(contactInfo.street ?? "");
       setPostalCode(contactInfo.postalCode ?? "");
       setCity(contactInfo.city ?? "");
       setCountry(contactInfo.country ?? undefined);
     }
   }, [contactInfo, isFormDirty]);
 
-  // Mocked mutation -- the integration task (PP-1004) will replace this with the real API call
-  const mutation = useMutation<void, Schemas["HttpValidationProblemDetails"], Record<string, unknown>>({
-    mutationFn: async (_data) => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    },
+  const mutation = api.useMutation("put", "/api/account/tenants/current/contact-info", {
     onSuccess: () => {
       setIsFormDirty(false);
       toast.success(t`Contact information updated`);
@@ -63,8 +58,8 @@ export default function EditContactInfoDialog({
 
   const handleCloseComplete = () => {
     setIsFormDirty(false);
-    setPhone(contactInfo?.phone ?? "");
-    setAddress(contactInfo?.address ?? "");
+    setPhoneNumber(contactInfo?.phoneNumber ?? "");
+    setStreet(contactInfo?.street ?? "");
     setPostalCode(contactInfo?.postalCode ?? "");
     setCity(contactInfo?.city ?? "");
     setCountry(contactInfo?.country ?? undefined);
@@ -101,11 +96,11 @@ export default function EditContactInfoDialog({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TextField
                 autoFocus={true}
-                name="phone"
+                name="phoneNumber"
                 label={t`Phone number`}
-                value={phone}
+                value={phoneNumber}
                 onChange={(value) => {
-                  setPhone(value);
+                  setPhoneNumber(value);
                   markDirty();
                 }}
                 placeholder={t`E.g., +45 12345678`}
@@ -113,11 +108,11 @@ export default function EditContactInfoDialog({
                 disabled={mutation.isPending}
               />
               <TextField
-                name="address"
+                name="street"
                 label={t`Address`}
-                value={address}
+                value={street}
                 onChange={(value) => {
-                  setAddress(value);
+                  setStreet(value);
                   markDirty();
                 }}
                 placeholder={t`Street address`}

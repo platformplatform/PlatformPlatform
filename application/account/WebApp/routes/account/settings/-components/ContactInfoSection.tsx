@@ -38,8 +38,8 @@ export default function ContactInfoSection({ contactInfo }: Readonly<ContactInfo
       </div>
       <Separator />
       <div className="flex flex-col">
-        <ContactInfoRow label={t`Phone`} value={contactInfo?.phone} />
-        <ContactInfoRow label={t`Address`} value={contactInfo?.address} />
+        <ContactInfoRow label={t`Phone`} value={contactInfo?.phoneNumber} />
+        <ContactInfoRow label={t`Address`} value={contactInfo?.street} />
         <ContactInfoRow label={t`City`} value={contactInfo?.city} />
         <ContactInfoRow label={t`Zip code`} value={contactInfo?.postalCode} />
         <ContactInfoRow label={t`Country`} value={countryName} />

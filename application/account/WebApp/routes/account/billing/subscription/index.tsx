@@ -404,6 +404,7 @@ function PlansPage() {
         isOpen={isEditBillingInfoOpen}
         onOpenChange={setIsEditBillingInfoOpen}
         billingInfo={billingInfo}
+        contactInfo={tenant?.contactInfo}
         tenantName={tenant?.name ?? ""}
         onSuccess={handleBillingInfoSuccess}
         submitLabel={t`Next`}

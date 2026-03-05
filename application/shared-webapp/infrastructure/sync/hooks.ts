@@ -216,8 +216,8 @@ export interface BillingInfo {
 }
 
 export interface ContactInfo {
-  phone: string | null;
-  address: string | null;
+  phoneNumber: string | null;
+  street: string | null;
   city: string | null;
   postalCode: string | null;
   country: string | null;

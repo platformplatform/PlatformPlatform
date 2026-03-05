@@ -370,6 +370,7 @@ function BillingPage() {
         isOpen={isEditBillingInfoOpen}
         onOpenChange={setIsEditBillingInfoOpen}
         billingInfo={billingInfo}
+        contactInfo={tenant?.contactInfo}
         tenantName={tenant?.name ?? ""}
         onSuccess={handleBillingInfoSuccess}
         submitLabel={pendingCheckoutPlan != null ? t`Next` : undefined}

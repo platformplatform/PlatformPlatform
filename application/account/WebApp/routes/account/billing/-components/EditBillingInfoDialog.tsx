@@ -1,7 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
-import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
+import type { BillingInfo, ContactInfo } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -28,6 +28,7 @@ interface EditBillingInfoDialogProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   billingInfo: BillingInfo | null | undefined;
+  contactInfo?: ContactInfo | null;
   tenantName: string;
   onSuccess?: () => void;
   submitLabel?: string;
@@ -38,13 +39,16 @@ export function EditBillingInfoDialog({
   isOpen,
   onOpenChange,
   billingInfo,
+  contactInfo,
   tenantName,
   onSuccess,
   submitLabel,
   pendingLabel
 }: Readonly<EditBillingInfoDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(billingInfo?.address?.country ?? undefined);
+  const [selectedCountry, setSelectedCountry] = useState(
+    billingInfo?.address?.country ?? contactInfo?.country ?? undefined
+  );
   const userInfo = useUserInfo();
   const countries = useCountryOptions();
 
@@ -59,7 +63,7 @@ export function EditBillingInfoDialog({
 
   const handleCloseComplete = () => {
     setIsFormDirty(false);
-    setSelectedCountry(billingInfo?.address?.country ?? undefined);
+    setSelectedCountry(billingInfo?.address?.country ?? contactInfo?.country ?? undefined);
   };
 
   const markDirty = () => setIsFormDirty(true);
@@ -109,7 +113,7 @@ export function EditBillingInfoDialog({
               />
               <CountrySelect
                 countries={countries}
-                defaultValue={billingInfo?.address?.country ?? undefined}
+                defaultValue={billingInfo?.address?.country ?? contactInfo?.country ?? undefined}
                 onValueChange={(value) => {
                   setSelectedCountry(value ?? undefined);
                   markDirty();
@@ -126,7 +130,11 @@ export function EditBillingInfoDialog({
               <TextAreaField
                 name="address"
                 label={t`Address`}
-                defaultValue={[billingInfo?.address?.line1, billingInfo?.address?.line2].filter(Boolean).join("\n")}
+                defaultValue={
+                  [billingInfo?.address?.line1, billingInfo?.address?.line2].filter(Boolean).join("\n") ||
+                  contactInfo?.street ||
+                  ""
+                }
                 placeholder={t`Street address`}
                 textareaClassName="resize-none"
                 className="sm:col-span-2"
@@ -157,14 +165,14 @@ export function EditBillingInfoDialog({
                 <TextField
                   name="postalCode"
                   label={t`Postal code`}
-                  defaultValue={billingInfo?.address?.postalCode ?? ""}
+                  defaultValue={billingInfo?.address?.postalCode ?? contactInfo?.postalCode ?? ""}
                   placeholder={t`Postal code`}
                   onChange={markDirty}
                 />
                 <TextField
                   name="city"
                   label={t`City`}
-                  defaultValue={billingInfo?.address?.city ?? ""}
+                  defaultValue={billingInfo?.address?.city ?? contactInfo?.city ?? ""}
                   placeholder={t`City`}
                   className="col-span-2 sm:col-span-1"
                   onChange={markDirty}
