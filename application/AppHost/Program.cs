@@ -69,7 +69,7 @@ var accountElectric = builder
     .WithEnvironment("DATABASE_URL", $"postgresql://postgres:{Uri.EscapeDataString(postgresPasswordValue)}@host.docker.internal:9002/account")
     .WithEnvironment("ELECTRIC_INSECURE", "true")
     .WithEnvironment("ELECTRIC_REPLICATION_STREAM_ID", "account")
-    .WithLifetime(ContainerLifetime.Persistent)
+    .WithLifetime(ContainerLifetime.Session)
     .WithHttpHealthCheck("/v1/health")
     .WaitFor(accountDatabase);
 
@@ -120,7 +120,7 @@ var mainElectric = builder
     .WithEnvironment("DATABASE_URL", $"postgresql://postgres:{Uri.EscapeDataString(postgresPasswordValue)}@host.docker.internal:9002/main")
     .WithEnvironment("ELECTRIC_INSECURE", "true")
     .WithEnvironment("ELECTRIC_REPLICATION_STREAM_ID", "main")
-    .WithLifetime(ContainerLifetime.Persistent)
+    .WithLifetime(ContainerLifetime.Session)
     .WithHttpHealthCheck("/v1/health")
     .WaitFor(mainDatabase);
 
