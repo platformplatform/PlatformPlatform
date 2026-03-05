@@ -67,12 +67,19 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
         Plan = plan;
     }
 
-    public void UpdateContactInfo(string phoneNumber, string street, string city, string postalCode, string country)
+    public void UpdateContactInfo(string address, string postalCode, string city, string? state, string country, string? phoneNumber)
     {
-        ContactInfo = new ContactInfo(phoneNumber, street, city, postalCode, country);
+        ContactInfo = new ContactInfo(address, postalCode, city, state, country, phoneNumber);
     }
 }
 
 public sealed record Logo(string? Url = null, int Version = 0);
 
-public sealed record ContactInfo(string PhoneNumber, string Street, string City, string PostalCode, string Country);
+public sealed record ContactInfo(
+    string Address,
+    string PostalCode,
+    string City,
+    string? State,
+    string Country,
+    string? PhoneNumber
+);

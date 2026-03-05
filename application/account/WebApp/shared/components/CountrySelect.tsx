@@ -283,6 +283,7 @@ interface CountrySelectProps {
   value?: string | null;
   onValueChange: (value: string | null) => void;
   disabled?: boolean;
+  className?: string;
 }
 
 export function CountrySelect({
@@ -290,7 +291,8 @@ export function CountrySelect({
   defaultValue,
   value,
   onValueChange,
-  disabled
+  disabled,
+  className
 }: Readonly<CountrySelectProps>) {
   const formErrors = useContext(FormValidationContext);
   const countryErrors = formErrors.country;
@@ -301,7 +303,7 @@ export function CountrySelect({
     : undefined;
 
   return (
-    <Field>
+    <Field className={className}>
       <FieldLabel>{t`Country`}</FieldLabel>
       <Select
         name="country"

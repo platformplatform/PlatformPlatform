@@ -855,6 +855,9 @@ msgstr "No active sessions found."
 msgid "No billing information on file"
 msgstr "No billing information on file"
 
+msgid "No contact information provided"
+msgstr "No contact information provided"
+
 msgid "No longer needed"
 msgstr "No longer needed"
 
@@ -866,9 +869,6 @@ msgstr "No payment method on file"
 
 msgid "No users found"
 msgstr "No users found"
-
-msgid "Not provided"
-msgstr "Not provided"
 
 msgid "OK"
 msgstr "OK"
@@ -951,9 +951,6 @@ msgstr "Permanently delete user"
 
 msgid "Permanently delete users"
 msgstr "Permanently delete users"
-
-msgid "Phone"
-msgstr "Phone"
 
 msgid "Phone number"
 msgstr "Phone number"
@@ -1620,9 +1617,6 @@ msgstr "yourname@example.com"
 
 msgid "YouTube"
 msgstr "YouTube"
-
-msgid "Zip code"
-msgstr "Zip code"
 
 msgid "Zoom"
 msgstr "Zoom"

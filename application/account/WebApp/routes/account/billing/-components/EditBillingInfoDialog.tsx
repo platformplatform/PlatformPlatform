@@ -132,7 +132,7 @@ export function EditBillingInfoDialog({
                 label={t`Address`}
                 defaultValue={
                   [billingInfo?.address?.line1, billingInfo?.address?.line2].filter(Boolean).join("\n") ||
-                  contactInfo?.street ||
+                  contactInfo?.address ||
                   ""
                 }
                 placeholder={t`Street address`}
@@ -161,7 +161,7 @@ export function EditBillingInfoDialog({
                   }
                 }}
               />
-              <div className="grid grid-cols-3 gap-4 sm:col-span-2 sm:grid-cols-2">
+              <div className="grid grid-cols-3 gap-4 sm:col-span-2">
                 <TextField
                   name="postalCode"
                   label={t`Postal code`}
@@ -174,7 +174,7 @@ export function EditBillingInfoDialog({
                   label={t`City`}
                   defaultValue={billingInfo?.address?.city ?? contactInfo?.city ?? ""}
                   placeholder={t`City`}
-                  className="col-span-2 sm:col-span-1"
+                  className="col-span-2"
                   onChange={markDirty}
                 />
               </div>

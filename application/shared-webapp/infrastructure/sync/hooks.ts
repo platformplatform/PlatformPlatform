@@ -216,11 +216,12 @@ export interface BillingInfo {
 }
 
 export interface ContactInfo {
-  phoneNumber: string | null;
-  street: string | null;
-  city: string | null;
+  address: string | null;
   postalCode: string | null;
+  city: string | null;
+  state: string | null;
   country: string | null;
+  phoneNumber: string | null;
 }
 
 export function useSubscription() {

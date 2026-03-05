@@ -855,6 +855,9 @@ msgstr "Ingen aktive sessioner"
 msgid "No billing information on file"
 msgstr "Ingen faktureringsoplysninger registreret"
 
+msgid "No contact information provided"
+msgstr "Ingen kontaktoplysninger angivet"
+
 msgid "No longer needed"
 msgstr "Ikke længere nødvendigt"
 
@@ -866,9 +869,6 @@ msgstr "Ingen betalingsmetode registreret"
 
 msgid "No users found"
 msgstr "Ingen brugere fundet"
-
-msgid "Not provided"
-msgstr "Ikke angivet"
 
 msgid "OK"
 msgstr "OK"
@@ -951,9 +951,6 @@ msgstr "Slet bruger permanent"
 
 msgid "Permanently delete users"
 msgstr "Slet brugere permanent"
-
-msgid "Phone"
-msgstr "Telefon"
 
 msgid "Phone number"
 msgstr "Telefonnummer"
@@ -1620,9 +1617,6 @@ msgstr "ditnavn@eksempel.com"
 
 msgid "YouTube"
 msgstr "YouTube"
-
-msgid "Zip code"
-msgstr "Postnummer"
 
 msgid "Zoom"
 msgstr "Zoom"
