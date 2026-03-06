@@ -96,13 +96,11 @@ Workflows that integrate with product management tools must use tool-agnostic te
 
 The `[PRODUCT_MANAGEMENT_TOOL]` variable in `AGENTS.md` determines which specific tool guide to load. Reference tool-specific guides at `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
-## Sync and Limits
+## Sync
 
 1. `.claude/` is the source of truth. Don't modify files in other editor directories directly
 
 2. Run the `sync_ai_rules` MCP tool after updating files
-
-3. **12,000 character limit** per file. Some editors like Windsurf truncate content exceeding this limit
 
 ## Review Checklist
 

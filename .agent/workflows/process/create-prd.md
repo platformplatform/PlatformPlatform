@@ -57,7 +57,7 @@ Conduct deep research for a feasible solution that takes the existing codebase a
 Now that you've done research, ask the user ALL required questions in ONE single AskUserQuestion call:
 
 ```
-AskUserQuestion with 4 questions:
+AskUserQuestion with 3 questions:
 
 Question 1 - Feature name:
 - question: "What is the name of this feature? (Use sentence case, e.g., 'User management' not 'User Management')"
@@ -82,19 +82,11 @@ Question 3 - E2E tests:
 - options:
   - label: "Yes", description: "Include E2E tests as a separate [task]"
   - label: "No", description: "Skip E2E tests for now"
-
-Question 4 - Parallel optimization:
-- question: "Should [tasks] be optimized for parallel work of backend and frontend?"
-- header: "Parallel"
-- multiSelect: false
-- options:
-  - label: "Yes", description: "Backend and frontend with mocks work in parallel, then integration"
-  - label: "No", description: "Sequential approach: backend first, then frontend"
 ```
 
 **Ask additional questions:**
 
-After the first 4 questions, ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
+After the first 3 questions, ask additional relevant questions to gather comprehensive requirements. Use multiple AskUserQuestion calls (max 4 questions per call, max 4 options per question).
 
 Ask as many questions as needed to understand:
 - User roles and permissions
@@ -106,7 +98,7 @@ Ask as many questions as needed to understand:
 
 **The more questions you ask, the better the PRD.**
 
-**Frontend-first approach (only ask if user selected "No" for parallel optimization):**
+**Implementation approach:**
 ```
 AskUserQuestion with:
 - question: "Should we create frontend mockups first for UI/UX exploration?"
@@ -114,7 +106,7 @@ AskUserQuestion with:
 - multiSelect: false
 - options:
   - label: "Yes", description: "Frontend mockups first to validate UI/UX before backend"
-  - label: "No", description: "Backend-first approach"
+  - label: "No", description: "Backend-first approach (default)"
 ```
 
 ### Step 5: Draft the complete PRD and get approval
@@ -134,10 +126,9 @@ Based on all the research and user answers, draft the complete PRD.
 
    **Examples based on common patterns:**
 
-   **Example 1 - Parallel optimization (small [feature]):**
-   - Frontend with mocked API responses
-   - Backend implementation with real data (can work in parallel)
-   - Integration (connect frontend to real backend, remove mocks)
+   **Example 1 - Backend-first approach (default):**
+   - Backend implementation
+   - Frontend implementation
    - E2E tests (if E2E tests selected)
 
    **Example 2 - Frontend-first approach:**
@@ -146,24 +137,17 @@ Based on all the research and user answers, draft the complete PRD.
    - Integration (connect frontend to backend)
    - E2E tests (if E2E tests selected)
 
-   **Example 3 - Backend-first approach:**
-   - Backend implementation
-   - Frontend implementation
-   - E2E tests (if E2E tests selected)
-
-   **Example 4 - Backend-only [feature]:**
+   **Example 3 - Backend-only [feature]:**
    - Backend implementation (API endpoints, commands, queries, migrations, tests)
 
-   **Example 5 - Large complex [feature]:**
-   - Frontend core UI with mocks
+   **Example 4 - Large complex [feature]:**
    - Backend core functionality
-   - Integration frontend with backend
-   - Frontend advanced features with mocks
+   - Frontend core UI
    - Backend advanced functionality
-   - Integration frontend with backend
+   - Frontend advanced features
    - E2E tests (if E2E tests selected)
 
-   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers.
+   **Note:** These are examples only. Adapt the [task] structure to match the actual [feature] requirements, scope, and user answers. All work is sequential -- one [task] fully completed before the next starts.
 
 3. **[Task] guidelines:**
    - Each [task] should be a logical grouping (e.g., "all backend", "all frontend", "all e2e tests")
