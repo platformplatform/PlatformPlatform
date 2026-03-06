@@ -1,4 +1,5 @@
 using Account.Features.Tenants.Domain;
+using Account.Features.Tenants.Shared;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -10,7 +11,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Tenants.Commands;
 
 [PublicAPI]
-public sealed record UpdateCurrentTenantCommand : ICommand, IRequest<Result>
+public sealed record UpdateCurrentTenantCommand : ICommand, IRequest<Result<TenantResponse>>
 {
     public required string Name { get; init; }
 }
@@ -27,19 +28,19 @@ public sealed class UpdateTenantHandler(
     ITenantRepository tenantRepository,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events
-) : IRequestHandler<UpdateCurrentTenantCommand, Result>
+) : IRequestHandler<UpdateCurrentTenantCommand, Result<TenantResponse>>
 {
-    public async Task<Result> Handle(UpdateCurrentTenantCommand command, CancellationToken cancellationToken)
+    public async Task<Result<TenantResponse>> Handle(UpdateCurrentTenantCommand command, CancellationToken cancellationToken)
     {
         if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
-            return Result.Forbidden("Only owners are allowed to update tenant information.");
+            return Result<TenantResponse>.Forbidden("Only owners are allowed to update tenant information.");
         }
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
         if (tenant is null)
         {
-            return Result.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
+            return Result<TenantResponse>.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
                 {
                     { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
                 }
@@ -51,6 +52,6 @@ public sealed class UpdateTenantHandler(
 
         events.CollectEvent(new TenantUpdated());
 
-        return Result.Success();
+        return TenantResponse.FromTenant(tenant);
     }
 }

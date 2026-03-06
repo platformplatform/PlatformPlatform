@@ -1,4 +1,5 @@
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -9,7 +10,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record BulkDeleteUsersCommand(UserId[] UserIds) : ICommand, IRequest<Result>;
+public sealed record BulkDeleteUsersCommand(UserId[] UserIds) : ICommand, IRequest<Result<UserResponse[]>>;
 
 public sealed class BulkDeleteUsersValidator : AbstractValidator<BulkDeleteUsersCommand>
 {
@@ -27,18 +28,18 @@ public sealed class BulkDeleteUsersHandler(
     IUserRepository userRepository,
     IExecutionContext executionContext,
     ITelemetryEventsCollector events
-) : IRequestHandler<BulkDeleteUsersCommand, Result>
+) : IRequestHandler<BulkDeleteUsersCommand, Result<UserResponse[]>>
 {
-    public async Task<Result> Handle(BulkDeleteUsersCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse[]>> Handle(BulkDeleteUsersCommand command, CancellationToken cancellationToken)
     {
         if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
-            return Result.Forbidden("Only owners are allowed to delete other users.");
+            return Result<UserResponse[]>.Forbidden("Only owners are allowed to delete other users.");
         }
 
         if (command.UserIds.Contains(executionContext.UserInfo.Id))
         {
-            return Result.Forbidden("You cannot delete yourself.");
+            return Result<UserResponse[]>.Forbidden("You cannot delete yourself.");
         }
 
         var usersToDelete = await userRepository.GetByIdsAsync(command.UserIds, cancellationToken);
@@ -46,7 +47,7 @@ public sealed class BulkDeleteUsersHandler(
         var missingUserIds = command.UserIds.Where(id => !usersToDelete.Select(u => u.Id).Contains(id)).ToArray();
         if (missingUserIds.Length > 0)
         {
-            return Result.NotFound($"Users with ids '{string.Join(", ", missingUserIds.Select(id => id.ToString()))}' not found.");
+            return Result<UserResponse[]>.NotFound($"Users with ids '{string.Join(", ", missingUserIds.Select(id => id.ToString()))}' not found.");
         }
 
         userRepository.RemoveRange(usersToDelete);
@@ -57,6 +58,6 @@ public sealed class BulkDeleteUsersHandler(
 
         events.CollectEvent(new UsersBulkDeleted(command.UserIds.Length));
 
-        return Result.Success();
+        return usersToDelete.Select(UserResponse.FromUser).ToArray();
     }
 }

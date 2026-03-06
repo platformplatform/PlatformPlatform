@@ -1,4 +1,5 @@
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -8,7 +9,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record ChangeLocaleCommand(string Locale) : ICommand, IRequest<Result>;
+public sealed record ChangeLocaleCommand(string Locale) : ICommand, IRequest<Result<UserResponse>>;
 
 public sealed class ChangeLocaleValidator : AbstractValidator<ChangeLocaleCommand>
 {
@@ -21,9 +22,9 @@ public sealed class ChangeLocaleValidator : AbstractValidator<ChangeLocaleComman
 }
 
 public sealed class ChangeLocaleHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
-    : IRequestHandler<ChangeLocaleCommand, Result>
+    : IRequestHandler<ChangeLocaleCommand, Result<UserResponse>>
 {
-    public async Task<Result> Handle(ChangeLocaleCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(ChangeLocaleCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
         var fromLocale = user.Locale;
@@ -32,6 +33,6 @@ public sealed class ChangeLocaleHandler(IUserRepository userRepository, ITelemet
 
         events.CollectEvent(new UserLocaleChanged(fromLocale, command.Locale));
 
-        return Result.Success();
+        return UserResponse.FromUser(user);
     }
 }
