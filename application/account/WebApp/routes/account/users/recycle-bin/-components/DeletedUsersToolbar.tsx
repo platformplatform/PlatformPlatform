@@ -1,8 +1,8 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { userCollection } from "@repo/infrastructure/sync/collections";
 import { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
-import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,15 +23,11 @@ export function DeletedUsersToolbar({
   onPermanentlyDelete,
   onEmptyRecycleBin
 }: Readonly<DeletedUsersToolbarProps>) {
-  const queryClient = useQueryClient();
   const [isRestoring, setIsRestoring] = useState(false);
   const { data: deletedUsers } = useDeletedUsers();
 
   const restoreUserMutation = api.useMutation("post", "/api/account/users/{id}/restore", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/users/deleted"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/users"] });
-    }
+    meta: { skipQueryInvalidation: true }
   });
 
   const hasDeletedUsers = deletedUsers.length > 0;
@@ -48,10 +44,16 @@ export function DeletedUsersToolbar({
       const user = selectedUsers[0];
       const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
+      userCollection.update(user.id, (draft) => {
+        draft.deletedAt = null;
+      });
       toast.success(t`User restored successfully: ${userName}`);
     } else {
       for (const user of selectedUsers) {
         await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
+        userCollection.update(user.id, (draft) => {
+          draft.deletedAt = null;
+        });
       }
       toast.success(t`${selectedUsers.length} users restored successfully`);
     }

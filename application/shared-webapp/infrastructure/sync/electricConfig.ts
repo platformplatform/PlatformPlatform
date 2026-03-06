@@ -43,8 +43,3 @@ export function createShapeOptions(table: ElectricTable): ShapeStreamOptions {
     }
   };
 }
-
-export function getElectricOffset(response: Response): number | undefined {
-  const offset = response.headers.get("electric-offset");
-  return offset != null ? Number.parseInt(offset, 10) : undefined;
-}

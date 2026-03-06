@@ -17,7 +17,8 @@ function extractUrl(value: unknown): string | null {
   if (typeof parsed !== "object") {
     return null;
   }
-  return ((parsed as Record<string, unknown>)?.Url as string | null) ?? null;
+  const record = parsed as Record<string, unknown>;
+  return (record?.Url as string | null) ?? (record?.url as string | null) ?? null;
 }
 
 export function useUsers() {

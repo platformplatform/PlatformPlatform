@@ -79,7 +79,9 @@ function PreferencesPage() {
     { value: "1.25", label: t`Larger`, fontSize: "20px" }
   ];
 
-  const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale");
+  const changeLocaleMutation = api.useMutation("put", "/api/account/users/me/change-locale", {
+    meta: { skipQueryInvalidation: true }
+  });
   const changeZoomLevelMutation = api.useMutation("put", "/api/account/users/me/change-zoom-level", {
     meta: { skipQueryInvalidation: true }
   });
