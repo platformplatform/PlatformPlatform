@@ -38,6 +38,7 @@
     "typescript-lsp@claude-plugins-official": true
   },
   "env": {
-    "ENABLE_TOOL_SEARCH": "true"
+    "ENABLE_TOOL_SEARCH": "true",
+    "CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS": "1"
   }
 }
