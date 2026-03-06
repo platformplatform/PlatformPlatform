@@ -2,7 +2,6 @@
 name: researcher
 description: Domain research specialist who investigates APIs, libraries, best practices, and technical topics. Reports findings to the team -- does not write code.
 tools: *
-model: claude-sonnet-4-5-20250929
 color: cyan
 ---
 
