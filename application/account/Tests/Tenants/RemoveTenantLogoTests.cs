@@ -1,6 +1,8 @@
 using System.Net;
+using System.Net.Http.Json;
 using Account.Database;
 using Account.Features;
+using Account.Features.Tenants.Shared;
 using FluentAssertions;
 using SharedKernel.Tests;
 using Xunit;
@@ -19,7 +21,9 @@ public sealed class RemoveTenantLogoTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync("/api/account/tenants/current/remove-logo");
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tenantResponse = await response.Content.ReadFromJsonAsync<TenantResponse>();
+        tenantResponse.Should().NotBeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].Should().BeOfType<TenantLogoRemoved>();

@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
@@ -25,7 +26,11 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(DatabaseSeeder.Tenant1Member.Id);
+        userResponse.Role.Should().Be(UserRole.Owner);
 
         var updatedRole = Connection.ExecuteScalar<string>(
             "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
@@ -53,7 +58,11 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(DatabaseSeeder.Tenant1Member.Id);
+        userResponse.Role.Should().Be(UserRole.Member);
 
         var updatedRole = Connection.ExecuteScalar<string>(
             "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
