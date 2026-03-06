@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Users.Commands;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using SharedKernel.Tests;
 using SharedKernel.Tests.Persistence;
@@ -23,7 +24,9 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/users/me/change-locale", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
             "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
@@ -48,7 +51,9 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedMemberHttpClient.PutAsJsonAsync("/api/account/users/me/change-locale", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
             "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
@@ -109,7 +114,9 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/users/me/change-locale", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
             "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]

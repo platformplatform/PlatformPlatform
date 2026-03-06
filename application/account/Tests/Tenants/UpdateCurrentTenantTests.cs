@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Tenants.Commands;
+using Account.Features.Tenants.Shared;
 using FluentAssertions;
 using SharedKernel.Tests;
 using SharedKernel.Validation;
@@ -21,7 +22,10 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountDbContext
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/tenants/current", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var tenantResponse = await response.Content.ReadFromJsonAsync<TenantResponse>();
+        tenantResponse.Should().NotBeNull();
+        tenantResponse.Name.Should().Be(command.Name);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("TenantUpdated");

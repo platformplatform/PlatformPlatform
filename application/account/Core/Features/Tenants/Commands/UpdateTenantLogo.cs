@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using Account.Features.Tenants.Domain;
+using Account.Features.Tenants.Shared;
 using Account.Features.Users.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
@@ -13,7 +14,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Tenants.Commands;
 
 [PublicAPI]
-public sealed record UpdateTenantLogoCommand(Stream FileStream, string ContentType) : ICommand, IRequest<Result>;
+public sealed record UpdateTenantLogoCommand(Stream FileStream, string ContentType) : ICommand, IRequest<Result<TenantResponse>>;
 
 public sealed class UpdateTenantLogoValidator : AbstractValidator<UpdateTenantLogoCommand>
 {
@@ -35,21 +36,21 @@ public sealed class UpdateTenantLogoHandler(
     [FromKeyedServices("account-storage")] IBlobStorageClient blobStorageClient,
     ITelemetryEventsCollector events
 )
-    : IRequestHandler<UpdateTenantLogoCommand, Result>
+    : IRequestHandler<UpdateTenantLogoCommand, Result<TenantResponse>>
 {
     private const string ContainerName = "logos";
 
-    public async Task<Result> Handle(UpdateTenantLogoCommand command, CancellationToken cancellationToken)
+    public async Task<Result<TenantResponse>> Handle(UpdateTenantLogoCommand command, CancellationToken cancellationToken)
     {
         if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
-            return Result.Forbidden("Only owners are allowed to update tenant logo.");
+            return Result<TenantResponse>.Forbidden("Only owners are allowed to update tenant logo.");
         }
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
         if (tenant is null)
         {
-            return Result.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
+            return Result<TenantResponse>.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
                 {
                     { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
                 }
@@ -71,7 +72,7 @@ public sealed class UpdateTenantLogoHandler(
             events.CollectEvent(new TenantLogoUpdated(command.ContentType, command.FileStream.Length));
         }
 
-        return Result.Success();
+        return TenantResponse.FromTenant(tenant);
     }
 
     private static async Task<string> GetFileHash(Stream fileStream, CancellationToken cancellationToken)

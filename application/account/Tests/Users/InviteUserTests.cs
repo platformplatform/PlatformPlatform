@@ -4,6 +4,7 @@ using System.Text.Json;
 using Account.Database;
 using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using NSubstitute;
 using SharedKernel.Domain;
@@ -46,7 +47,10 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/users/invite", command);
 
         // Assert
-        await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Email.Should().Be(email.ToLower());
 
         // Verify user was created
         Connection.ExecuteScalar<long>(

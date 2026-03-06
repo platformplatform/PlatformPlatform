@@ -1,4 +1,5 @@
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -8,7 +9,7 @@ namespace Account.Features.Users.Commands;
 
 [PublicAPI]
 public sealed record UpdateCurrentUserCommand(string FirstName, string LastName, string Title)
-    : ICommand, IRequest<Result>
+    : ICommand, IRequest<Result<UserResponse>>
 {
     public string FirstName { get; } = FirstName.Trim();
 
@@ -28,9 +29,9 @@ public sealed class UpdateCurrentUserValidator : AbstractValidator<UpdateCurrent
 }
 
 public sealed class UpdateCurrentUserHandler(IUserRepository userRepository, ITelemetryEventsCollector events)
-    : IRequestHandler<UpdateCurrentUserCommand, Result>
+    : IRequestHandler<UpdateCurrentUserCommand, Result<UserResponse>>
 {
-    public async Task<Result> Handle(UpdateCurrentUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(UpdateCurrentUserCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
 
@@ -39,6 +40,6 @@ public sealed class UpdateCurrentUserHandler(IUserRepository userRepository, ITe
 
         events.CollectEvent(new UserUpdated());
 
-        return Result.Success();
+        return UserResponse.FromUser(user);
     }
 }

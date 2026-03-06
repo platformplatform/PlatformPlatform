@@ -8,7 +8,7 @@ using SharedKernel.Telemetry;
 namespace Account.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record UpdateAvatarCommand(Stream FileSteam, string ContentType) : ICommand, IRequest<Result>;
+public sealed record UpdateAvatarCommand(Stream FileSteam, string ContentType) : ICommand, IRequest<Result<UserResponse>>;
 
 public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarCommand>
 {
@@ -25,9 +25,9 @@ public sealed class UpdateAvatarValidator : AbstractValidator<UpdateAvatarComman
 }
 
 public sealed class UpdateAvatarHandler(IUserRepository userRepository, AvatarUpdater avatarUpdater, ITelemetryEventsCollector events)
-    : IRequestHandler<UpdateAvatarCommand, Result>
+    : IRequestHandler<UpdateAvatarCommand, Result<UserResponse>>
 {
-    public async Task<Result> Handle(UpdateAvatarCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(UpdateAvatarCommand command, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetLoggedInUserAsync(cancellationToken);
 
@@ -36,6 +36,6 @@ public sealed class UpdateAvatarHandler(IUserRepository userRepository, AvatarUp
             events.CollectEvent(new UserAvatarUpdated(command.ContentType, command.FileSteam.Length));
         }
 
-        return Result.Success();
+        return UserResponse.FromUser(user);
     }
 }

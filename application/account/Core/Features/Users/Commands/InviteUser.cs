@@ -1,5 +1,6 @@
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Authentication;
@@ -13,7 +14,7 @@ using SharedKernel.Validation;
 namespace Account.Features.Users.Commands;
 
 [PublicAPI]
-public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result>
+public sealed record InviteUserCommand(string Email) : ICommand, IRequest<Result<UserResponse>>
 {
     public string Email { get; init; } = Email.Trim().ToLower();
 }
@@ -33,19 +34,19 @@ public sealed class InviteUserHandler(
     IExecutionContext executionContext,
     IMediator mediator,
     ITelemetryEventsCollector events
-) : IRequestHandler<InviteUserCommand, Result>
+) : IRequestHandler<InviteUserCommand, Result<UserResponse>>
 {
-    public async Task<Result> Handle(InviteUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<UserResponse>> Handle(InviteUserCommand command, CancellationToken cancellationToken)
     {
         if (executionContext.UserInfo.Role != nameof(UserRole.Owner))
         {
-            return Result.Forbidden("Only owners are allowed to invite other users.");
+            return Result<UserResponse>.Forbidden("Only owners are allowed to invite other users.");
         }
 
         var tenant = await tenantRepository.GetCurrentTenantAsync(cancellationToken);
         if (tenant is null)
         {
-            return Result.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
+            return Result<UserResponse>.Unauthorized("Tenant has been deleted.", responseHeaders: new Dictionary<string, string>
                 {
                     { AuthenticationTokenHttpKeys.UnauthorizedReasonHeaderKey, nameof(UnauthorizedReason.TenantDeleted) }
                 }
@@ -54,7 +55,7 @@ public sealed class InviteUserHandler(
 
         if (string.IsNullOrWhiteSpace(tenant.Name))
         {
-            return Result.BadRequest("Account name must be set before inviting users.");
+            return Result<UserResponse>.BadRequest("Account name must be set before inviting users.");
         }
 
         if (!await userRepository.IsEmailFreeAsync(command.Email, cancellationToken))
@@ -62,10 +63,10 @@ public sealed class InviteUserHandler(
             var deletedUser = await userRepository.GetDeletedUserByEmailAsync(command.Email, cancellationToken);
             if (deletedUser is not null)
             {
-                return Result.BadRequest($"The user '{command.Email}' was previously deleted. Please restore or permanently delete the user before inviting again.");
+                return Result<UserResponse>.BadRequest($"The user '{command.Email}' was previously deleted. Please restore or permanently delete the user before inviting again.");
             }
 
-            return Result.BadRequest($"The user '{command.Email}' already exists.");
+            return Result<UserResponse>.BadRequest($"The user '{command.Email}' already exists.");
         }
 
         var result = await mediator.Send(
@@ -89,6 +90,7 @@ public sealed class InviteUserHandler(
             cancellationToken
         );
 
-        return Result.Success();
+        var user = await userRepository.GetByIdAsync(result.Value!, cancellationToken);
+        return UserResponse.FromUser(user!);
     }
 }
