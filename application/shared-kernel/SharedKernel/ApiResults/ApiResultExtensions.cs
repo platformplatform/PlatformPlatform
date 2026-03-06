@@ -16,4 +16,16 @@ public static class ApiResultExtensions
             );
         }
     }
+
+    extension<T>(Result<T> result)
+    {
+        public ApiResult<T> AddRefreshAuthenticationTokens()
+        {
+            if (!result.IsSuccess) return new ApiResult<T>(result);
+
+            return new ApiResult<T>(result, httpHeaders: new Dictionary<string, string>
+                { { AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, "true" } }
+            );
+        }
+    }
 }

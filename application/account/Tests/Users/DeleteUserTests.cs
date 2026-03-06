@@ -1,8 +1,10 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Account.Database;
 using Account.Features.EmailAuthentication.Domain;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
@@ -53,7 +55,10 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account/users/{userId}");
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(userId);
         Connection.RowExists("users", userId.ToString()).Should().BeTrue();
         var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
@@ -114,7 +119,10 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account/users/{userId}");
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(userId);
         Connection.RowExists("users", userId.ToString()).Should().BeTrue();
         var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
@@ -148,7 +156,10 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/account/users/{userId}");
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(userId);
         Connection.RowExists("users", userId.ToString()).Should().BeTrue();
         var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();

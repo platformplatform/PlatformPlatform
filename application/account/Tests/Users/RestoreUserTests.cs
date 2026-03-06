@@ -1,7 +1,9 @@
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Account.Database;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
@@ -39,7 +41,10 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PostAsync($"/api/account/users/{deletedUserId}/restore", null);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.Id.Should().Be(deletedUserId);
         var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = deletedUserId.ToString() }]);
         deletedAt.Should().BeNullOrEmpty();
 

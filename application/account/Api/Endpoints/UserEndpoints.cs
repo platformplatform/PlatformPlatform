@@ -1,4 +1,5 @@
 using Account.Features.Users.Commands;
+using Account.Features.Users.Shared;
 using SharedKernel.ApiResults;
 using SharedKernel.Domain;
 using SharedKernel.Endpoints;
@@ -13,29 +14,29 @@ public sealed class UserEndpoints : IEndpoints
     {
         var group = routes.MapGroup(RoutesPrefix).WithTags("Users").RequireAuthorization().ProducesValidationProblem();
 
-        group.MapDelete("/{id}", async Task<ApiResult> (UserId id, IMediator mediator)
+        group.MapDelete("/{id}", async Task<ApiResult<UserResponse>> (UserId id, IMediator mediator)
             => await mediator.Send(new DeleteUserCommand(id))
-        );
+        ).Produces<UserResponse>();
 
-        group.MapPost("/bulk-delete", async Task<ApiResult> (BulkDeleteUsersCommand command, IMediator mediator)
+        group.MapPost("/bulk-delete", async Task<ApiResult<UserResponse[]>> (BulkDeleteUsersCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<UserResponse[]>();
 
-        group.MapPut("/{id}/change-user-role", async Task<ApiResult> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
+        group.MapPut("/{id}/change-user-role", async Task<ApiResult<UserResponse>> (UserId id, ChangeUserRoleCommand command, IMediator mediator)
             => await mediator.Send(command with { Id = id })
-        );
+        ).Produces<UserResponse>();
 
-        group.MapPost("/invite", async Task<ApiResult> (InviteUserCommand command, IMediator mediator)
+        group.MapPost("/invite", async Task<ApiResult<UserResponse>> (InviteUserCommand command, IMediator mediator)
             => await mediator.Send(command)
-        );
+        ).Produces<UserResponse>();
 
         group.MapPost("/decline-invitation", async Task<ApiResult> (DeclineInvitationCommand command, IMediator mediator)
             => await mediator.Send(command)
         );
 
-        group.MapPost("/{id}/restore", async Task<ApiResult> (UserId id, IMediator mediator)
+        group.MapPost("/{id}/restore", async Task<ApiResult<UserResponse>> (UserId id, IMediator mediator)
             => await mediator.Send(new RestoreUserCommand(id))
-        );
+        ).Produces<UserResponse>();
 
         group.MapDelete("/{id}/purge", async Task<ApiResult> (UserId id, IMediator mediator)
             => await mediator.Send(new PurgeUserCommand(id))
@@ -50,21 +51,21 @@ public sealed class UserEndpoints : IEndpoints
         ).Produces<int>();
 
         // The following endpoints are for the current user only
-        group.MapPut("/me", async Task<ApiResult> (UpdateCurrentUserCommand command, IMediator mediator)
+        group.MapPut("/me", async Task<ApiResult<UserResponse>> (UpdateCurrentUserCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
-        );
+        ).Produces<UserResponse>();
 
-        group.MapPost("/me/update-avatar", async Task<ApiResult> (IFormFile file, IMediator mediator)
+        group.MapPost("/me/update-avatar", async Task<ApiResult<UserResponse>> (IFormFile file, IMediator mediator)
             => await mediator.Send(new UpdateAvatarCommand(file.OpenReadStream(), file.ContentType))
-        );
+        ).Produces<UserResponse>();
 
-        group.MapDelete("/me/remove-avatar", async Task<ApiResult> (IMediator mediator)
+        group.MapDelete("/me/remove-avatar", async Task<ApiResult<UserResponse>> (IMediator mediator)
             => await mediator.Send(new RemoveAvatarCommand())
-        );
+        ).Produces<UserResponse>();
 
-        group.MapPut("/me/change-locale", async Task<ApiResult> (ChangeLocaleCommand command, IMediator mediator)
+        group.MapPut("/me/change-locale", async Task<ApiResult<UserResponse>> (ChangeLocaleCommand command, IMediator mediator)
             => (await mediator.Send(command)).AddRefreshAuthenticationTokens()
-        );
+        ).Produces<UserResponse>();
 
         group.MapPut("/me/change-zoom-level", async Task<ApiResult> (ChangeZoomLevelCommand command, IMediator mediator)
             => await mediator.Send(command)

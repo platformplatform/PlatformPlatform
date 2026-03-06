@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Users.Commands;
+using Account.Features.Users.Shared;
+using FluentAssertions;
 using SharedKernel.Tests;
 using SharedKernel.Validation;
 using Xunit;
@@ -24,7 +26,12 @@ public sealed class UpdateCurrentUserTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync("/api/account/users/me", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponse = await response.Content.ReadFromJsonAsync<UserResponse>();
+        userResponse.Should().NotBeNull();
+        userResponse.FirstName.Should().Be(command.FirstName);
+        userResponse.LastName.Should().Be(command.LastName);
+        userResponse.Title.Should().Be(command.Title);
     }
 
     [Fact]

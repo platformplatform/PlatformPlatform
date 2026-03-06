@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
-[Collection("StripeTests")]
+[Collection("StripeIntegration")]
 public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDbContext>
 {
     protected override void Dispose(bool disposing)

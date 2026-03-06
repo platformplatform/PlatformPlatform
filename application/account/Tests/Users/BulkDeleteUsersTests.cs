@@ -4,6 +4,7 @@ using System.Text.Json;
 using Account.Database;
 using Account.Features.Users.Commands;
 using Account.Features.Users.Domain;
+using Account.Features.Users.Shared;
 using FluentAssertions;
 using SharedKernel.Domain;
 using SharedKernel.Tests;
@@ -49,7 +50,10 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/users/bulk-delete", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponses = await response.Content.ReadFromJsonAsync<UserResponse[]>();
+        userResponses.Should().NotBeNull();
+        userResponses.Length.Should().Be(3);
         foreach (var userId in userIds)
         {
             Connection.RowExists("users", userId.ToString()).Should().BeTrue();
@@ -177,7 +181,10 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         var response = await AuthenticatedOwnerHttpClient.PostAsJsonAsync("/api/account/users/bulk-delete", command);
 
         // Assert
-        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var userResponses = await response.Content.ReadFromJsonAsync<UserResponse[]>();
+        userResponses.Should().NotBeNull();
+        userResponses.Length.Should().Be(2);
 
         Connection.RowExists("users", confirmedUserId.ToString()).Should().BeTrue();
         var confirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = confirmedUserId.ToString() }]);

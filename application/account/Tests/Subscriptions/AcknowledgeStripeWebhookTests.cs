@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
-[Collection("StripeTests")]
+[Collection("StripeIntegration")]
 public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbContext>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
