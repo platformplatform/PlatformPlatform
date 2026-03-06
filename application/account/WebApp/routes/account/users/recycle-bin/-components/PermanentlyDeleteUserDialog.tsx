@@ -1,5 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { userCollection } from "@repo/infrastructure/sync/collections";
+import { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +13,6 @@ import {
   AlertDialogMedia,
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
-import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangleIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -42,10 +43,16 @@ export function PermanentlyDeleteUserDialog({
   onOpenChange,
   onUsersDeleted
 }: Readonly<PermanentlyDeleteUserDialogProps>) {
-  const queryClient = useQueryClient();
-  const purgeUserMutation = api.useMutation("delete", "/api/account/users/{id}/purge");
-  const bulkPurgeUsersMutation = api.useMutation("post", "/api/account/users/deleted/bulk-purge");
-  const emptyRecycleBinMutation = api.useMutation("post", "/api/account/users/deleted/empty-recycle-bin");
+  const { data: allDeletedUsers } = useDeletedUsers();
+  const purgeUserMutation = api.useMutation("delete", "/api/account/users/{id}/purge", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const bulkPurgeUsersMutation = api.useMutation("post", "/api/account/users/deleted/bulk-purge", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const emptyRecycleBinMutation = api.useMutation("post", "/api/account/users/deleted/empty-recycle-bin", {
+    meta: { skipQueryInvalidation: true }
+  });
 
   const isSingleUser = users.length === 1;
   const user = users[0];
@@ -54,7 +61,9 @@ export function PermanentlyDeleteUserDialog({
   const handleDelete = useCallback(async () => {
     if (isEmptyRecycleBin) {
       const deletedCount = await emptyRecycleBinMutation.mutateAsync({});
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/users/deleted"] });
+      for (const deletedUser of allDeletedUsers) {
+        userCollection.delete(deletedUser.id);
+      }
       toast.success(deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
@@ -67,13 +76,15 @@ export function PermanentlyDeleteUserDialog({
 
     if (isSingleUser) {
       await purgeUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/users/deleted"] });
+      userCollection.delete(user.id);
       toast.success(t`User permanently deleted: ${userDisplayName}`);
       onUsersDeleted?.();
       onOpenChange(false);
     } else {
       await bulkPurgeUsersMutation.mutateAsync({ body: { userIds: users.map((u) => u.id) } });
-      queryClient.invalidateQueries({ queryKey: ["get", "/api/account/users/deleted"] });
+      for (const u of users) {
+        userCollection.delete(u.id);
+      }
       toast.success(t`${users.length} users permanently deleted`);
       onUsersDeleted?.();
       onOpenChange(false);
@@ -81,13 +92,13 @@ export function PermanentlyDeleteUserDialog({
   }, [
     isEmptyRecycleBin,
     emptyRecycleBinMutation,
+    allDeletedUsers,
     bulkPurgeUsersMutation,
     users,
     isSingleUser,
     user,
     userDisplayName,
     purgeUserMutation,
-    queryClient,
     onUsersDeleted,
     onOpenChange
   ]);
