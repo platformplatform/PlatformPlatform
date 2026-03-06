@@ -8,89 +8,125 @@ namespace DeveloperCli.Commands;
 
 public class ClaudeAgentCommand : Command
 {
+    private static readonly string[] PrimaryAgents = ["pair-programmer", "team-lead"];
+
+    private readonly Argument<string?> _agentTypeArgument = new("agent-type")
+    {
+        Description = "Agent type to launch (e.g., pair-programmer, team-lead)",
+        Arity = ArgumentArity.ZeroOrOne,
+        DefaultValueFactory = _ => null
+    };
+
+    private readonly Option<bool> _continueOption = new("--continue", "-c") { Description = "Continue the previous session without prompting" };
+
     private readonly Option<bool> _skipIntroOption = new("--skip-intro", "-s") { Description = "Skip the initial greeting prompt on new sessions" };
 
     public ClaudeAgentCommand() : base("claude-agent", "Launch Claude Code with session management")
     {
+        Arguments.Add(_agentTypeArgument);
+        Options.Add(_continueOption);
         Options.Add(_skipIntroOption);
-        SetAction(async parseResult => await ExecuteAsync(parseResult.GetValue(_skipIntroOption)));
+        SetAction(async parseResult => await ExecuteAsync(parseResult.GetValue(_agentTypeArgument), parseResult.GetValue(_continueOption), parseResult.GetValue(_skipIntroOption)));
     }
 
-    private async Task ExecuteAsync(bool skipIntro)
+    private async Task ExecuteAsync(string? agentType, bool continueSession, bool skipIntro)
     {
         try
         {
             // Check for optional LSP prerequisites (non-blocking)
             Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer);
 
-            var workspace = new Workspace("tech-lead");
+            // If no agent type provided, prompt for selection
+            if (string.IsNullOrEmpty(agentType))
+            {
+                var availableAgents = GetAvailableAgents();
+                agentType = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select an [green]agent type[/] to launch:")
+                        .AddChoices(availableAgents)
+                );
+            }
+
+            // Validate agent definition exists
+            var agentDefinitionPath = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents", $"{agentType}.md");
+            if (!File.Exists(agentDefinitionPath))
+            {
+                AnsiConsole.MarkupLine($"[red]Agent definition not found: .claude/agents/{agentType}.md[/]");
+                Environment.Exit(1);
+            }
+
+            var workspace = new Workspace(agentType);
             var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
             // Create workspace directory
             Directory.CreateDirectory(workspace.AgentWorkspaceDirectory);
 
-            // Build session selection menu: Continue, Start new, then saved sessions by date
-            var choices = new List<string>();
-            var currentSessionId = File.Exists(sessionIdFile) ? (await File.ReadAllTextAsync(sessionIdFile)).Trim() : null;
-            string? continueOption = null;
-
-            if (Directory.Exists(workspace.AgentWorkspaceDirectory))
+            // With --continue, skip the session menu and use the existing session directly
+            if (!continueSession)
             {
-                var savedSessions = Directory.GetFiles(workspace.AgentWorkspaceDirectory, "*.claude-session-id")
-                    .Where(f => Path.GetFileName(f) != ".claude-session-id")
-                    .Select(f => new
+                // Build session selection menu: Continue, Start new, then saved sessions by date
+                var choices = new List<string>();
+                var currentSessionId = File.Exists(sessionIdFile) ? (await File.ReadAllTextAsync(sessionIdFile)).Trim() : null;
+                string? continueOption = null;
+
+                if (Directory.Exists(workspace.AgentWorkspaceDirectory))
+                {
+                    var savedSessions = Directory.GetFiles(workspace.AgentWorkspaceDirectory, "*.claude-session-id")
+                        .Where(f => Path.GetFileName(f) != ".claude-session-id")
+                        .Select(f => new
+                            {
+                                Name = Path.GetFileNameWithoutExtension(f),
+                                SessionId = File.ReadAllText(f).Trim(),
+                                Date = File.GetLastWriteTime(f)
+                            }
+                        )
+                        .OrderByDescending(s => s.Date);
+
+                    foreach (var session in savedSessions)
+                    {
+                        if (session.SessionId == currentSessionId)
                         {
-                            Name = Path.GetFileNameWithoutExtension(f),
-                            SessionId = File.ReadAllText(f).Trim(),
-                            Date = File.GetLastWriteTime(f)
+                            continueOption = $"Continue: {session.Name} ({session.Date:yyyy-MM-dd})";
                         }
-                    )
-                    .OrderByDescending(s => s.Date);
-
-                foreach (var session in savedSessions)
-                {
-                    if (session.SessionId == currentSessionId)
-                    {
-                        continueOption = $"Continue: {session.Name} ({session.Date:yyyy-MM-dd})";
-                    }
-                    else
-                    {
-                        choices.Add($"Resume: {session.Name} ({session.Date:yyyy-MM-dd})");
+                        else
+                        {
+                            choices.Add($"Resume: {session.Name} ({session.Date:yyyy-MM-dd})");
+                        }
                     }
                 }
-            }
 
-            // Build final menu: Continue, Start new, then saved sessions
-            var menu = new List<string>();
-            if (continueOption != null)
-            {
-                menu.Add(continueOption);
-            }
-            else if (currentSessionId != null) menu.Add("Continue previous session");
-
-            menu.Add("Start new session");
-            menu.AddRange(choices);
-
-            if (menu.Count > 1)
-            {
-                var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
-                    .Title("Select a [darkorange]session[/]:").AddChoices(menu)
-                );
-
-                if (selection == "Start new session")
+                // Build final menu: Continue, Start new, then saved sessions
+                var menu = new List<string>();
+                if (continueOption != null)
                 {
-                    File.Delete(sessionIdFile);
+                    menu.Add(continueOption);
                 }
-                else if (selection.StartsWith("Resume: "))
+                else if (currentSessionId != null) menu.Add("Continue previous session");
+
+                menu.Add("Start new session");
+                menu.AddRange(choices);
+
+                if (menu.Count > 1)
                 {
-                    var name = selection.Split('(')[0].Substring(8).Trim();
-                    File.Copy(Path.Combine(workspace.AgentWorkspaceDirectory, $"{name}.claude-session-id"), sessionIdFile, true);
+                    var selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                        .Title("Select a [darkorange]session[/]:").AddChoices(menu)
+                    );
+
+                    if (selection == "Start new session")
+                    {
+                        File.Delete(sessionIdFile);
+                    }
+                    else if (selection.StartsWith("Resume: "))
+                    {
+                        var name = selection.Split('(')[0].Substring(8).Trim();
+                        File.Copy(Path.Combine(workspace.AgentWorkspaceDirectory, $"{name}.claude-session-id"), sessionIdFile, true);
+                    }
                 }
             }
 
-            // Launch Claude Code (greet on new sessions only, unless skip-intro is set)
+            // Launch Claude Code (greet on new sessions only, unless skip-intro or continue is set)
             var isNewSession = !File.Exists(sessionIdFile);
-            await LaunchClaudeCode(workspace, isNewSession && !skipIntro);
+            await LaunchClaudeCode(workspace, isNewSession && !skipIntro && !continueSession);
 
             // On exit: rename if already saved, else offer to save with name
             if (!File.Exists(sessionIdFile))
@@ -106,12 +142,12 @@ public class ClaudeAgentCommand : Command
 
                 if (existingSaved != null && await AnsiConsole.Console.PromptAsync(new ConfirmationPrompt($"Rename '[darkorange]{Path.GetFileNameWithoutExtension(existingSaved)}[/]'?")))
                 {
-                    var title = await AnsiConsole.Console.PromptAsync(new TextPrompt<string>("New title:").DefaultValue(workspace.Branch));
+                    var title = await AnsiConsole.Console.PromptAsync(new TextPrompt<string>("New title:").DefaultValue(GitHelper.GetCurrentBranch()));
                     File.Move(existingSaved, Path.Combine(workspace.AgentWorkspaceDirectory, $"{title}.claude-session-id"), true);
                 }
                 else if (existingSaved == null && await AnsiConsole.Console.PromptAsync(new ConfirmationPrompt("Save this session?")))
                 {
-                    var title = await AnsiConsole.Console.PromptAsync(new TextPrompt<string>("Session title:").DefaultValue(workspace.Branch));
+                    var title = await AnsiConsole.Console.PromptAsync(new TextPrompt<string>("Session title:").DefaultValue(GitHelper.GetCurrentBranch()));
                     File.Copy(sessionIdFile, Path.Combine(workspace.AgentWorkspaceDirectory, $"{title}.claude-session-id"), true);
                 }
             }
@@ -130,7 +166,7 @@ public class ClaudeAgentCommand : Command
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--dangerously-skip-permissions",
-            "--agent", "team-lead"
+            "--agent", workspace.AgentType
         };
 
         // Greet user on new sessions
@@ -196,6 +232,21 @@ public class ClaudeAgentCommand : Command
         return process;
     }
 
+    private static string[] GetAvailableAgents()
+    {
+        var agentsDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents");
+        if (!Directory.Exists(agentsDirectory)) return PrimaryAgents;
+
+        var allAgents = Directory.GetFiles(agentsDirectory, "*.md")
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(name => name is not null)
+            .Cast<string>()
+            .ToHashSet();
+
+        // Only show primary agents (sub-agents like backend, frontend, qa are spawned by team-lead)
+        return PrimaryAgents.Where(a => allAgents.Contains(a)).ToArray();
+    }
+
     private static ProcessStartInfo BuildProcessStartInfo(List<string> claudeArgs, string workingDirectory)
     {
         // Properly escape arguments: escape backslashes and quotes, then wrap in quotes if needed
@@ -219,26 +270,13 @@ public class ClaudeAgentCommand : Command
     }
 }
 
-public class Workspace(string agentType, string? branch = null)
+public class Workspace(string agentType)
 {
-    // Define which agents are branch-agnostic
-    private static readonly HashSet<string> BranchAgnosticAgents = ["tech-lead"];
-
     public string AgentType { get; } = agentType;
 
-    private bool IsBranchAgnostic => BranchAgnosticAgents.Contains(AgentType);
+    public string AgentWorkspaceDirectory => Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", AgentType);
 
-    public string Branch { get; } = branch ?? GitHelper.GetCurrentBranch();
-
-    public string BranchWorkspaceDirectory => IsBranchAgnostic
-        ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces")
-        : Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", Branch);
-
-    public string AgentWorkspaceDirectory => IsBranchAgnostic
-        ? Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", AgentType)
-        : Path.Combine(BranchWorkspaceDirectory, AgentType);
-
-    public string MessagesDirectory => Path.Combine(BranchWorkspaceDirectory, "messages");
+    public string MessagesDirectory => Path.Combine(Configuration.SourceCodeFolder, ".workspace", "agent-workspaces", "messages");
 
     public string SystemPromptFile => Path.Combine(Configuration.SourceCodeFolder, ".claude", "agentic-workflow", "system-prompts", $"{AgentType}.txt");
 }
