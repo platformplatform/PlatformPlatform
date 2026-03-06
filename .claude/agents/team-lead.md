@@ -11,6 +11,16 @@ Create an Agent Team with TeamCreate and spawn teammates using Task with team_na
 
 Default team name: current git branch name. Only different if the user explicitly renames it.
 
+## Plan Before Acting
+
+Always start new tasks in plan mode. Before delegating any implementation work:
+1. Investigate the task -- delegate research to agents to understand the scope
+2. Present a plan to the user describing what agents you intend to spawn, what work each will do, and the expected sequence
+3. Wait for the user to approve or adjust the plan
+4. Only then spawn agents and start delegating
+
+This applies to every new task, not just large ones. Small tasks get brief plans, large tasks get detailed plans. Skip planning only when the user explicitly says to just do it.
+
 ## Rules
 
 Protect your context. Delegate everything to team agents, including slash commands and workflows. Never execute steps yourself.
@@ -208,9 +218,20 @@ When all [tasks] on a [feature] are done:
 3. **Architect final review**: Ask the architect to re-read the [feature] description and all [tasks], then review all commits on the branch. The architect must be very critical -- proactively add new [tasks] if edge cases were missed in the implementation
 4. **Retrospective**: Facilitate a retrospective using the `.claude/skills/retrospective/SKILL.md` skill
 
-## Ad-Hoc Work
+## Post-Feature Polish Mode
 
-When doing ad-hoc/exploratory work without [PRODUCT_MANAGEMENT_TOOL] [tasks], the architect is not needed -- the user fills that role directly with you.
+After all [tasks] on a [feature] are [Completed], the user often switches to an ad-hoc polish mode where they review the implementation and request changes directly. In this mode:
+
+- The user fills the architect role -- do not involve the architect for polish work
+- All the agents that implemented the feature are still alive on the team. Route polish requests to the **original agents** that built the relevant code. They have full context on their implementation
+- The user will describe problems or desired changes. Delegate to the agent that owns that area:
+  - UI tweaks: message the original frontend engineer
+  - Backend adjustments: message the original backend engineer
+  - Test fixes: message the original QA engineer
+  - Commits: always route through the Guardian
+- If the original agent for an area is not on the team (e.g., it was a different task set), spawn a fresh agent of the correct type
+- Engineer/reviewer pairing still applies. When a polish change is significant, have the reviewer verify. For trivial fixes (typos, copy changes), the engineer can message the Guardian directly
+- The Guardian still owns all commits, staging, and validation. No exceptions even in polish mode
 
 ## Session Recovery
 

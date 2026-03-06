@@ -8,22 +8,51 @@ namespace DeveloperCli.Commands;
 
 public class ClaudeAgentCommand : Command
 {
+    private static readonly string[] PrimaryAgents = ["pair-programmer", "team-lead"];
+
+    private readonly Argument<string?> _agentTypeArgument = new("agent-type")
+    {
+        Description = "Agent type to launch (e.g., pair-programmer, team-lead)",
+        Arity = ArgumentArity.ZeroOrOne,
+        DefaultValueFactory = _ => null
+    };
+
     private readonly Option<bool> _skipIntroOption = new("--skip-intro", "-s") { Description = "Skip the initial greeting prompt on new sessions" };
 
     public ClaudeAgentCommand() : base("claude-agent", "Launch Claude Code with session management")
     {
+        Arguments.Add(_agentTypeArgument);
         Options.Add(_skipIntroOption);
-        SetAction(async parseResult => await ExecuteAsync(parseResult.GetValue(_skipIntroOption)));
+        SetAction(async parseResult => await ExecuteAsync(parseResult.GetValue(_agentTypeArgument), parseResult.GetValue(_skipIntroOption)));
     }
 
-    private async Task ExecuteAsync(bool skipIntro)
+    private async Task ExecuteAsync(string? agentType, bool skipIntro)
     {
         try
         {
             // Check for optional LSP prerequisites (non-blocking)
             Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer);
 
-            var workspace = new Workspace("tech-lead");
+            // If no agent type provided, prompt for selection
+            if (string.IsNullOrEmpty(agentType))
+            {
+                var availableAgents = GetAvailableAgents();
+                agentType = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Select an [green]agent type[/] to launch:")
+                        .AddChoices(availableAgents)
+                );
+            }
+
+            // Validate agent definition exists
+            var agentDefinitionPath = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents", $"{agentType}.md");
+            if (!File.Exists(agentDefinitionPath))
+            {
+                AnsiConsole.MarkupLine($"[red]Agent definition not found: .claude/agents/{agentType}.md[/]");
+                Environment.Exit(1);
+            }
+
+            var workspace = new Workspace(agentType);
             var sessionIdFile = Path.Combine(workspace.AgentWorkspaceDirectory, ".claude-session-id");
 
             // Create workspace directory
@@ -130,7 +159,7 @@ public class ClaudeAgentCommand : Command
         {
             "--settings", Path.Combine(Configuration.SourceCodeFolder, ".claude", "settings.json"),
             "--dangerously-skip-permissions",
-            "--agent", "team-lead"
+            "--agent", workspace.AgentType
         };
 
         // Greet user on new sessions
@@ -196,6 +225,21 @@ public class ClaudeAgentCommand : Command
         return process;
     }
 
+    private static string[] GetAvailableAgents()
+    {
+        var agentsDirectory = Path.Combine(Configuration.SourceCodeFolder, ".claude", "agents");
+        if (!Directory.Exists(agentsDirectory)) return PrimaryAgents;
+
+        var allAgents = Directory.GetFiles(agentsDirectory, "*.md")
+            .Select(Path.GetFileNameWithoutExtension)
+            .Where(name => name is not null)
+            .Cast<string>()
+            .ToHashSet();
+
+        // Only show primary agents (sub-agents like backend, frontend, qa are spawned by team-lead)
+        return PrimaryAgents.Where(a => allAgents.Contains(a)).ToArray();
+    }
+
     private static ProcessStartInfo BuildProcessStartInfo(List<string> claudeArgs, string workingDirectory)
     {
         // Properly escape arguments: escape backslashes and quotes, then wrap in quotes if needed
@@ -221,8 +265,8 @@ public class ClaudeAgentCommand : Command
 
 public class Workspace(string agentType, string? branch = null)
 {
-    // Define which agents are branch-agnostic
-    private static readonly HashSet<string> BranchAgnosticAgents = ["tech-lead"];
+    // Define which agents are branch-agnostic (sessions not tied to a specific branch)
+    private static readonly HashSet<string> BranchAgnosticAgents = ["team-lead", "pair-programmer"];
 
     public string AgentType { get; } = agentType;
 
