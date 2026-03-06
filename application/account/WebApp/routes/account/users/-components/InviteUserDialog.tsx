@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { userCollection } from "@repo/infrastructure/sync/collections";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -27,7 +28,26 @@ interface InviteUserDialogProps {
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
   const inviteUserMutation = api.useMutation("post", "/api/account/users/invite", {
-    onSuccess: () => {
+    meta: { skipQueryInvalidation: true },
+    onSuccess: (data) => {
+      if (data && typeof data === "object" && "id" in data) {
+        const userData = data as Record<string, unknown>;
+        userCollection.insert({
+          id: userData.id as string,
+          createdAt: (userData.createdAt as string) ?? new Date().toISOString(),
+          modifiedAt: (userData.modifiedAt as string | null) ?? null,
+          email: (userData.email as string) ?? "",
+          firstName: (userData.firstName as string | null) ?? null,
+          lastName: (userData.lastName as string | null) ?? null,
+          title: (userData.title as string | null) ?? null,
+          role: (userData.role as string) ?? "Member",
+          emailConfirmed: (userData.emailConfirmed as boolean) ?? false,
+          avatar: userData.avatar ? JSON.stringify(userData.avatar) : "",
+          locale: (userData.locale as string) ?? "",
+          lastSeenAt: (userData.lastSeenAt as string | null) ?? null,
+          deletedAt: null
+        });
+      }
       setIsFormDirty(false);
       toast.success(t`User invited successfully`);
       onOpenChange(false);

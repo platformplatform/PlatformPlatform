@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
+import { userCollection } from "@repo/infrastructure/sync/collections";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import {
@@ -16,7 +17,6 @@ import { Field, FieldContent, FieldDescription, FieldLabel, FieldTitle } from "@
 import { Form } from "@repo/ui/components/Form";
 import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { getInitials } from "@repo/utils/string/getInitials";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 
@@ -39,21 +39,22 @@ interface ChangeUserRoleDialogProps {
 }
 
 export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
-  const queryClient = useQueryClient();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const changeUserRoleMutation = api.useMutation("put", "/api/account/users/{id}/change-user-role", {
-    onSuccess: () => {
+    meta: { skipQueryInvalidation: true },
+    onSuccess: (_data) => {
       if (!user) {
         return;
       }
 
+      userCollection.update(user.id, (draft) => {
+        draft.role = selectedRole ?? user.role;
+      });
+
       setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
       toast.success(t`User role updated successfully for ${userDisplayName}`);
-      queryClient.invalidateQueries({
-        queryKey: ["get", "/api/account/users"]
-      });
       onOpenChange(false);
     }
   });
