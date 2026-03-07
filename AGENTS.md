@@ -4,7 +4,7 @@ Always use MCP tools (`build`, `test`, `format`, `lint`, `run`, `end_to_end`) in
 
 **Slow:** Aspire restart, backend format, backend lint, end-to-end tests. **Fast:** frontend format/lint, backend test. If any slow operation is needed, run everything in parallel Task agents. End-to-end tests use `waitForAspire=true`.
 
-**Aspire**: The `run` MCP tool starts the AppHost at [APP_URL]. Restart when backend changes or hot reload breaks. In the agentic workflow, only the Guardian agent calls the `run` MCP tool. All other agents must message the Guardian if they need Aspire restarted.
+**Aspire**: The `run` MCP tool starts the AppHost at [APP_URL]. Restart when backend changes or hot reload breaks. In the agentic workflow, only the Guardian agent calls the `run` MCP tool. All other agents must notify the Guardian if they need Aspire restarted.
 
 Never commit, amend, or revert without explicit user instruction each time. Commit messages: one descriptive line in imperative form, no description body. In the agentic workflow, only the Guardian agent commits. No other agent commits, stages, or unstages code.
 
@@ -31,6 +31,22 @@ Whenever you see `[PRODUCT_MANAGEMENT_TOOL]`, replace it with the configured val
 ```
 PRODUCT_MANAGEMENT_TOOL="Linear"
 ```
+
+When working with [features] or [tasks], read `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to learn how to look them up, how to update status, and how generic statuses like [Active], [Review], [Completed] map to the tool. Read the [feature] for full context and the [task] for specific requirements.
+
+## Auto Memory
+
+Never write to or edit any auto memory files (MEMORY.md or any file in a memory directory). These files are managed by the user only.
+
+## Interrupts
+
+**Receiving:** On `INTERRUPT:` hook errors with an ID like `#2026-03-07:14:32.09`: stop and read incoming messages until you find the one starting with that ID.
+
+**Sending:** "Interrupt" = SendInterruptSignal + SendMessage (urgent). "Notify" = SendMessage only (can wait). Always notify the Guardian (SendMessage), never interrupt it.
+
+## Source of Truth
+
+Always verify paths, names, and API routes against the actual codebase. Never rely on memory, cached context, or prior session knowledge for these. Always look them up. Only read files within the git repository unless explicitly asked to look elsewhere.
 
 ## Project Structure
 

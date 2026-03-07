@@ -8,7 +8,7 @@ allowed-tools: Read, Write, Bash, Glob, Grep
 
 Conduct a retrospective at the end of a [feature] to evaluate what was built, how it was built, and what could be improved. This covers both the feature implementation quality and the agentic workflow effectiveness.
 
-Team leads: delegate this to all active agents. Each agent writes their own retrospective, then all agents cross-review.
+Team leads: delegate this to all agents including the team lead. Each agent writes their own retrospective, then all agents cross-review.
 
 ## STEP 1: Gather Context
 
