@@ -1,7 +1,15 @@
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
+import { getLastElectricOffset } from "../http/queryClient";
 import { createShapeOptions } from "./electricConfig";
 import type { SubscriptionRow, TenantRow, UserRow } from "./types";
+
+function txidHandler() {
+  const offset = getLastElectricOffset();
+  if (offset != null) {
+    return { txid: offset };
+  }
+}
 
 export const userCollection = createCollection<UserRow>(
   electricCollectionOptions({
@@ -9,9 +17,9 @@ export const userCollection = createCollection<UserRow>(
     shapeOptions: createShapeOptions("users"),
     getKey: (item) => item.id,
     syncMode: "on-demand",
-    onInsert: async () => {},
-    onUpdate: async () => {},
-    onDelete: async () => {}
+    onInsert: async () => txidHandler(),
+    onUpdate: async () => txidHandler(),
+    onDelete: async () => txidHandler()
   })
 );
 
@@ -21,7 +29,7 @@ export const tenantCollection = createCollection<TenantRow>(
     shapeOptions: createShapeOptions("tenants"),
     getKey: (item) => item.id,
     syncMode: "eager",
-    onUpdate: async () => {}
+    onUpdate: async () => txidHandler()
   })
 );
 
@@ -33,3 +41,15 @@ export const subscriptionCollection = createCollection<SubscriptionRow>(
     syncMode: "eager"
   })
 );
+
+declare global {
+  interface Window {
+    __electricCollections?: {
+      userCollection: typeof userCollection;
+      tenantCollection: typeof tenantCollection;
+      subscriptionCollection: typeof subscriptionCollection;
+    };
+  }
+}
+
+window.__electricCollections = { userCollection, tenantCollection, subscriptionCollection };

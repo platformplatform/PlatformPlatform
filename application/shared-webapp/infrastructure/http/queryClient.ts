@@ -18,6 +18,18 @@ import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT } from "./httpClient";
 
+let lastElectricOffset: number | null = null;
+
+/**
+ * Returns the last electric-offset header value from a mutation response.
+ * Consumed once -- reading resets to null.
+ */
+export function getLastElectricOffset(): number | null {
+  const value = lastElectricOffset;
+  lastElectricOffset = null;
+  return value;
+}
+
 /**
  * Creates HTTP middleware for the OpenAPI client
  * Handles antiforgery tokens, request timeouts, and error processing
@@ -58,6 +70,11 @@ function createHttpMiddleware() {
       return new Request(request, { signal });
     },
     onResponse: async ({ response }: { request: Request; response: Response }) => {
+      const electricOffset = response.headers.get("electric-offset");
+      if (electricOffset != null) {
+        lastElectricOffset = Number(electricOffset);
+      }
+
       if (!response.ok) {
         // Normalize error and re-throw, so failed requests are handled via error handling
         throw await normalizeError(response);

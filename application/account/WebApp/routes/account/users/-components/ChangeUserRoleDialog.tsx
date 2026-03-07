@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
 import { userCollection } from "@repo/infrastructure/sync/collections";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
 import { Button } from "@repo/ui/components/Button";
 import {
@@ -19,7 +20,7 @@ import { RadioGroup, RadioGroupItem } from "@repo/ui/components/RadioGroup";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { api, UserRole } from "@/shared/lib/api/client";
+import { apiClient, UserRole } from "@/shared/lib/api/client";
 
 interface UserData {
   id: string;
@@ -40,17 +41,27 @@ interface ChangeUserRoleDialogProps {
 export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<ChangeUserRoleDialogProps>) {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
-  const changeUserRoleMutation = api.useMutation("put", "/api/account/users/{id}/change-user-role", {
-    meta: { skipQueryInvalidation: true },
-    onSuccess: (_data) => {
+  const changeUserRoleMutation = useElectricMutation({
+    mutationFn: async (vars: { userId: string; role: UserRole }) => {
+      const { data, error } = await apiClient.PUT("/api/account/users/{id}/change-user-role", {
+        params: { path: { id: vars.userId } },
+        body: { userRole: vars.role }
+      });
+      if (error) {
+        throw error;
+      }
+      return data;
+    },
+    utils: userCollection.utils,
+    onMutate: (vars) => {
+      userCollection.update(vars.userId, (draft) => {
+        draft.role = vars.role;
+      });
+    },
+    onSuccess: () => {
       if (!user) {
         return;
       }
-
-      userCollection.update(user.id, (draft) => {
-        draft.role = selectedRole ?? user.role;
-      });
-
       setSelectedRole(null);
       const userDisplayName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email;
       toast.success(t`User role updated successfully for ${userDisplayName}`);
@@ -71,12 +82,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    changeUserRoleMutation.mutate({
-      params: {
-        path: { id: user.id }
-      },
-      body: { userRole: currentRole as UserRole }
-    });
+    changeUserRoleMutation.mutate({ userId: user.id, role: currentRole as UserRole });
   };
 
   return (
@@ -100,7 +106,7 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
 
         <Form
           onSubmit={handleSubmit}
-          validationErrors={changeUserRoleMutation.error?.errors}
+          validationErrors={changeUserRoleMutation.validationErrors}
           validationBehavior="aria"
           className="flex flex-col max-sm:h-full"
         >

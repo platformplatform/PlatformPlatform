@@ -3,20 +3,19 @@ import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
 import { userCollection } from "@repo/infrastructure/sync/collections";
 import { useUser } from "@repo/infrastructure/sync/hooks";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
-import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/user/profile/")({
   staticData: { trackingTitle: "User profile" },
@@ -50,33 +49,31 @@ function ProfilePage() {
     }
   }, [user?.firstName, user?.lastName, user?.title, isFormDirty]);
 
-  const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const removeAvatarMutation = api.useMutation("delete", "/api/account/users/me/remove-avatar", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const updateCurrentUserMutation = api.useMutation("put", "/api/account/users/me", {
-    meta: { skipQueryInvalidation: true }
-  });
-
-  const saveMutation = useMutation<
-    void,
-    Schemas["HttpValidationProblemDetails"],
-    { body: Schemas["UpdateCurrentUserCommand"] }
-  >({
-    mutationFn: async (data) => {
+  const saveMutation = useElectricMutation({
+    mutationFn: async (data: { body: { firstName: string; lastName: string; title: string } }) => {
       if (selectedAvatarFile) {
         const formData = new FormData();
         formData.append("file", selectedAvatarFile);
-        await (updateAvatarMutation as unknown as FileUploadMutation).mutateAsync({ body: formData });
+        const { error: avatarError } = await apiClient.POST("/api/account/users/me/update-avatar", {
+          body: formData as unknown as { file: string | null }
+        });
+        if (avatarError) {
+          throw avatarError;
+        }
       } else if (removeAvatarFlag) {
-        await removeAvatarMutation.mutateAsync({});
+        const { error: removeError } = await apiClient.DELETE("/api/account/users/me/remove-avatar");
+        if (removeError) {
+          throw removeError;
+        }
       }
 
-      await updateCurrentUserMutation.mutateAsync(data);
+      const { error } = await apiClient.PUT("/api/account/users/me", data);
+      if (error) {
+        throw error;
+      }
     },
-    onSuccess: () => {
+    utils: userCollection.utils,
+    onMutate: () => {
       if (userId) {
         userCollection.update(userId, (draft) => {
           draft.firstName = firstName || null;
@@ -84,6 +81,8 @@ function ProfilePage() {
           draft.title = title || null;
         });
       }
+    },
+    onSuccess: () => {
       setSelectedAvatarFile(null);
       setRemoveAvatarFlag(false);
       setIsFormDirty(false);
@@ -141,7 +140,7 @@ function ProfilePage() {
           <Form
             onSubmit={mutationSubmitter(saveMutation)}
             validationBehavior="aria"
-            validationErrors={saveMutation.error?.errors}
+            validationErrors={saveMutation.validationErrors}
             className="flex flex-col gap-4"
             onChange={() => setIsFormDirty(true)}
           >

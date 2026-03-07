@@ -1,14 +1,14 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loggedInPath } from "@repo/infrastructure/auth/constants";
+import { tenantCollection, userCollection } from "@repo/infrastructure/sync/collections";
 import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
-import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
@@ -16,7 +16,7 @@ import { AccountFields } from "@/shared/components/AccountFields";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
-import { api, type Schemas } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/welcome/")({
   staticData: { trackingTitle: "Welcome" },
@@ -67,26 +67,25 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
   const { tenantId } = import.meta.user_info_env;
   const { data: tenant, isLoading } = useTenant(tenantId ?? "");
 
-  const updateTenantMutation = api.useMutation("put", "/api/account/tenants/current", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo", {
-    meta: { skipQueryInvalidation: true }
-  });
-
-  const saveMutation = useMutation<void, Schemas["HttpValidationProblemDetails"], { body: { name: string } }>({
-    meta: { skipQueryInvalidation: true },
-    mutationFn: async (data) => {
-      // Upload logo if selected
+  const saveMutation = useElectricMutation({
+    mutationFn: async (data: { body: { name: string } }) => {
       if (selectedLogoFile) {
         const logoFormData = new FormData();
         logoFormData.append("file", selectedLogoFile);
-        await (updateTenantLogoMutation as unknown as FileUploadMutation).mutateAsync({ body: logoFormData });
+        const { error: logoError } = await apiClient.POST("/api/account/tenants/current/update-logo", {
+          body: logoFormData as unknown as { file: string | null }
+        });
+        if (logoError) {
+          throw logoError;
+        }
       }
 
-      // Update tenant name
-      await updateTenantMutation.mutateAsync({ body: data.body });
+      const { error } = await apiClient.PUT("/api/account/tenants/current", data);
+      if (error) {
+        throw error;
+      }
     },
+    utils: tenantCollection.utils,
     onSuccess: () => {
       onComplete();
     }
@@ -97,7 +96,7 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
   return (
     <Form
       onSubmit={mutationSubmitter(saveMutation)}
-      validationErrors={saveMutation.error?.errors}
+      validationErrors={saveMutation.validationErrors}
       validationBehavior="aria"
       className="flex w-full max-w-[25rem] flex-col items-center gap-4"
     >
@@ -143,34 +142,25 @@ function ProfileSetupForm() {
   const { id: userId } = import.meta.user_info_env;
   const { data: user, isLoading } = useUser(userId ?? "");
 
-  const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const updateCurrentUserMutation = api.useMutation("put", "/api/account/users/me", {
-    meta: { skipQueryInvalidation: true }
-  });
-
-  const saveMutation = useMutation<
-    void,
-    Schemas["HttpValidationProblemDetails"],
-    { body: { firstName: string; lastName: string; title: string } }
-  >({
-    meta: { skipQueryInvalidation: true },
-    mutationFn: async (data) => {
-      const { firstName, lastName, title } = data.body;
-
-      // Upload avatar if selected
+  const saveMutation = useElectricMutation({
+    mutationFn: async (data: { body: { firstName: string; lastName: string; title: string } }) => {
       if (selectedAvatarFile) {
         const avatarFormData = new FormData();
         avatarFormData.append("file", selectedAvatarFile);
-        await (updateAvatarMutation as unknown as FileUploadMutation).mutateAsync({ body: avatarFormData });
+        const { error: avatarError } = await apiClient.POST("/api/account/users/me/update-avatar", {
+          body: avatarFormData as unknown as { file: string | null }
+        });
+        if (avatarError) {
+          throw avatarError;
+        }
       }
 
-      // Update user profile
-      await updateCurrentUserMutation.mutateAsync({
-        body: { firstName, lastName, title }
-      });
+      const { error } = await apiClient.PUT("/api/account/users/me", data);
+      if (error) {
+        throw error;
+      }
     },
+    utils: userCollection.utils,
     onSuccess: () => {
       const returnPath = new URLSearchParams(window.location.search).get("returnPath");
       window.location.href = returnPath || loggedInPath;
@@ -182,7 +172,7 @@ function ProfileSetupForm() {
   return (
     <Form
       onSubmit={mutationSubmitter(saveMutation)}
-      validationErrors={saveMutation.error?.errors}
+      validationErrors={saveMutation.validationErrors}
       validationBehavior="aria"
       className="flex w-full max-w-[25rem] flex-col items-center gap-4"
     >

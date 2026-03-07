@@ -2,11 +2,11 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { userCollection } from "@repo/infrastructure/sync/collections";
 import { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { Button } from "@repo/ui/components/Button";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
-import { api } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 type ElectricDeletedUser = ReturnType<typeof useDeletedUsers>["data"][number];
 
@@ -23,43 +23,49 @@ export function DeletedUsersToolbar({
   onPermanentlyDelete,
   onEmptyRecycleBin
 }: Readonly<DeletedUsersToolbarProps>) {
-  const [isRestoring, setIsRestoring] = useState(false);
   const { data: deletedUsers } = useDeletedUsers();
 
-  const restoreUserMutation = api.useMutation("post", "/api/account/users/{id}/restore", {
-    meta: { skipQueryInvalidation: true }
-  });
-
-  const hasDeletedUsers = deletedUsers.length > 0;
-  const hasSelection = selectedUsers.length > 0;
-
-  const handleRestore = async () => {
-    if (selectedUsers.length === 0) {
-      return;
-    }
-
-    setIsRestoring(true);
-
-    if (selectedUsers.length === 1) {
-      const user = selectedUsers[0];
-      const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
-      await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      userCollection.update(user.id, (draft) => {
-        draft.deletedAt = null;
-      });
-      toast.success(t`User restored successfully: ${userName}`);
-    } else {
-      for (const user of selectedUsers) {
-        await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-        userCollection.update(user.id, (draft) => {
+  const restoreMutation = useElectricMutation({
+    mutationFn: async (vars: { userIds: string[] }) => {
+      for (const userId of vars.userIds) {
+        const { error } = await apiClient.POST("/api/account/users/{id}/restore", {
+          params: { path: { id: userId } }
+        });
+        if (error) {
+          throw error;
+        }
+      }
+    },
+    utils: userCollection.utils,
+    onMutate: (vars) => {
+      for (const userId of vars.userIds) {
+        userCollection.update(userId, (draft) => {
           draft.deletedAt = null;
         });
       }
-      toast.success(t`${selectedUsers.length} users restored successfully`);
+    },
+    onSuccess: (_data, vars) => {
+      if (vars.userIds.length === 1) {
+        const user = selectedUsers[0];
+        const userName = user.firstName || user.lastName ? `${user.firstName} ${user.lastName}`.trim() : user.email;
+        toast.success(t`User restored successfully: ${userName}`);
+      } else {
+        toast.success(t`${vars.userIds.length} users restored successfully`);
+      }
+      onSelectedUsersChange([]);
     }
+  });
 
-    setIsRestoring(false);
-    onSelectedUsersChange([]);
+  const isRestoring = restoreMutation.isPending;
+  const hasDeletedUsers = deletedUsers.length > 0;
+  const hasSelection = selectedUsers.length > 0;
+
+  const handleRestore = () => {
+    if (selectedUsers.length === 0) {
+      return;
+    }
+    const userIds = selectedUsers.map((u) => u.id);
+    restoreMutation.mutate({ userIds });
   };
 
   if (!hasDeletedUsers) {
