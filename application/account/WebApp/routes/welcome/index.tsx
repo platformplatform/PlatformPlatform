@@ -67,10 +67,15 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
   const { tenantId } = import.meta.user_info_env;
   const { data: tenant, isLoading } = useTenant(tenantId ?? "");
 
-  const updateTenantMutation = api.useMutation("put", "/api/account/tenants/current");
-  const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo");
+  const updateTenantMutation = api.useMutation("put", "/api/account/tenants/current", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo", {
+    meta: { skipQueryInvalidation: true }
+  });
 
   const saveMutation = useMutation<void, Schemas["HttpValidationProblemDetails"], { body: { name: string } }>({
+    meta: { skipQueryInvalidation: true },
     mutationFn: async (data) => {
       // Upload logo if selected
       if (selectedLogoFile) {
@@ -138,14 +143,19 @@ function ProfileSetupForm() {
   const { id: userId } = import.meta.user_info_env;
   const { data: user, isLoading } = useUser(userId ?? "");
 
-  const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar");
-  const updateCurrentUserMutation = api.useMutation("put", "/api/account/users/me");
+  const updateAvatarMutation = api.useMutation("post", "/api/account/users/me/update-avatar", {
+    meta: { skipQueryInvalidation: true }
+  });
+  const updateCurrentUserMutation = api.useMutation("put", "/api/account/users/me", {
+    meta: { skipQueryInvalidation: true }
+  });
 
   const saveMutation = useMutation<
     void,
     Schemas["HttpValidationProblemDetails"],
     { body: { firstName: string; lastName: string; title: string } }
   >({
+    meta: { skipQueryInvalidation: true },
     mutationFn: async (data) => {
       const { firstName, lastName, title } = data.body;
 
