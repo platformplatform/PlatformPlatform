@@ -1,9 +1,8 @@
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
-
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { tenantCollection } from "@repo/infrastructure/sync/collections";
 import { useTenant, useUser } from "@repo/infrastructure/sync/hooks";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
@@ -11,7 +10,6 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
-import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -19,7 +17,7 @@ import { toast } from "sonner";
 
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
-import { api, type Schemas, UserRole } from "@/shared/lib/api/client";
+import { apiClient, UserRole } from "@/shared/lib/api/client";
 
 import { AccountInfoFields } from "./-components/AccountInfoFields";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
@@ -61,16 +59,6 @@ export function AccountSettings() {
   const { id: userId, tenantId } = import.meta.user_info_env;
   const { data: tenant } = useTenant(tenantId ?? "");
   const { data: currentUser } = useUser(userId ?? "");
-  const updateCurrentTenantMutation = api.useMutation("put", "/api/account/tenants/current", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const updateTenantLogoMutation = api.useMutation("post", "/api/account/tenants/current/update-logo", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const removeTenantLogoMutation = api.useMutation("delete", "/api/account/tenants/current/remove-logo", {
-    meta: { skipQueryInvalidation: true }
-  });
-
   const isOwner = currentUser?.role === UserRole.Owner;
 
   useEffect(() => {
@@ -79,28 +67,38 @@ export function AccountSettings() {
     }
   }, [tenant?.name, isFormDirty]);
 
-  const saveMutation = useMutation<
-    void,
-    Schemas["HttpValidationProblemDetails"],
-    { body: Schemas["UpdateCurrentTenantCommand"] }
-  >({
-    mutationFn: async (data) => {
+  const saveMutation = useElectricMutation({
+    mutationFn: async (data: { body: { name: string } }) => {
       if (selectedLogoFile) {
-        const formData = new FormData();
-        formData.append("file", selectedLogoFile);
-        await (updateTenantLogoMutation as unknown as FileUploadMutation).mutateAsync({ body: formData });
+        const logoFormData = new FormData();
+        logoFormData.append("file", selectedLogoFile);
+        const { error: logoError } = await apiClient.POST("/api/account/tenants/current/update-logo", {
+          body: logoFormData as unknown as { file: string | null }
+        });
+        if (logoError) {
+          throw logoError;
+        }
       } else if (removeLogoFlag) {
-        await removeTenantLogoMutation.mutateAsync({});
+        const { error: removeError } = await apiClient.DELETE("/api/account/tenants/current/remove-logo");
+        if (removeError) {
+          throw removeError;
+        }
       }
 
-      await updateCurrentTenantMutation.mutateAsync(data);
+      const { error } = await apiClient.PUT("/api/account/tenants/current", data);
+      if (error) {
+        throw error;
+      }
     },
-    onSuccess: () => {
+    utils: tenantCollection.utils,
+    onMutate: () => {
       if (tenantId) {
         tenantCollection.update(tenantId, (draft) => {
           draft.name = accountName;
         });
       }
+    },
+    onSuccess: () => {
       setSelectedLogoFile(null);
       setRemoveLogoFlag(false);
       setIsFormDirty(false);
@@ -146,7 +144,7 @@ export function AccountSettings() {
         ) : (
           <Form
             onSubmit={isOwner ? mutationSubmitter(saveMutation) : undefined}
-            validationErrors={isOwner ? saveMutation.error?.errors : undefined}
+            validationErrors={isOwner ? saveMutation.validationErrors : undefined}
             validationBehavior="aria"
             className="flex flex-col gap-4"
             onChange={() => setIsFormDirty(true)}

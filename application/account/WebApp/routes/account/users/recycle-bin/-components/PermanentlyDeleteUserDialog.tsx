@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { userCollection } from "@repo/infrastructure/sync/collections";
 import { useDeletedUsers } from "@repo/infrastructure/sync/hooks";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,10 +15,9 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { AlertTriangleIcon } from "lucide-react";
-import { useCallback } from "react";
 import { toast } from "sonner";
 
-import { api } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 interface DeletedUserData {
   id: string;
@@ -44,64 +44,76 @@ export function PermanentlyDeleteUserDialog({
   onUsersDeleted
 }: Readonly<PermanentlyDeleteUserDialogProps>) {
   const { data: allDeletedUsers } = useDeletedUsers();
-  const purgeUserMutation = api.useMutation("delete", "/api/account/users/{id}/purge", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const bulkPurgeUsersMutation = api.useMutation("post", "/api/account/users/deleted/bulk-purge", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const emptyRecycleBinMutation = api.useMutation("post", "/api/account/users/deleted/empty-recycle-bin", {
-    meta: { skipQueryInvalidation: true }
-  });
 
   const isSingleUser = users.length === 1;
   const user = users[0];
   const userDisplayName = isSingleUser ? `${user?.firstName ?? ""} ${user?.lastName ?? ""}`.trim() || user?.email : "";
 
-  const handleDelete = useCallback(async () => {
-    if (isEmptyRecycleBin) {
-      const deletedCount = await emptyRecycleBinMutation.mutateAsync({});
-      for (const deletedUser of allDeletedUsers) {
-        userCollection.delete(deletedUser.id);
+  interface PurgeVars {
+    mode: "single" | "bulk" | "empty";
+    userIds: string[];
+  }
+
+  const purgeMutation = useElectricMutation<number | undefined, PurgeVars>({
+    mutationFn: async (vars) => {
+      if (vars.mode === "empty") {
+        const { data, error } = await apiClient.POST("/api/account/users/deleted/empty-recycle-bin", {});
+        if (error) {
+          throw error;
+        }
+        return data;
       }
-      toast.success(deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`);
+      if (vars.mode === "single") {
+        const { error } = await apiClient.DELETE("/api/account/users/{id}/purge", {
+          params: { path: { id: vars.userIds[0] } }
+        });
+        if (error) {
+          throw error;
+        }
+      } else {
+        const { error } = await apiClient.POST("/api/account/users/deleted/bulk-purge", {
+          body: { userIds: vars.userIds }
+        });
+        if (error) {
+          throw error;
+        }
+      }
+      return undefined;
+    },
+    utils: userCollection.utils,
+    onMutate: (vars) => {
+      for (const userId of vars.userIds) {
+        userCollection.delete(userId);
+      }
+    },
+    onSuccess: (data, vars) => {
+      if (vars.mode === "empty") {
+        const deletedCount = data ?? vars.userIds.length;
+        toast.success(
+          deletedCount === 1 ? t`1 user permanently deleted` : t`${deletedCount} users permanently deleted`
+        );
+      } else if (vars.mode === "single") {
+        toast.success(t`User permanently deleted: ${userDisplayName}`);
+      } else {
+        toast.success(t`${vars.userIds.length} users permanently deleted`);
+      }
       onUsersDeleted?.();
       onOpenChange(false);
+    }
+  });
+
+  const handleDelete = () => {
+    if (isEmptyRecycleBin) {
+      const userIds = allDeletedUsers.map((u) => u.id);
+      purgeMutation.mutate({ mode: "empty", userIds });
       return;
     }
-
     if (users.length === 0) {
       return;
     }
-
-    if (isSingleUser) {
-      await purgeUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      userCollection.delete(user.id);
-      toast.success(t`User permanently deleted: ${userDisplayName}`);
-      onUsersDeleted?.();
-      onOpenChange(false);
-    } else {
-      await bulkPurgeUsersMutation.mutateAsync({ body: { userIds: users.map((u) => u.id) } });
-      for (const u of users) {
-        userCollection.delete(u.id);
-      }
-      toast.success(t`${users.length} users permanently deleted`);
-      onUsersDeleted?.();
-      onOpenChange(false);
-    }
-  }, [
-    isEmptyRecycleBin,
-    emptyRecycleBinMutation,
-    allDeletedUsers,
-    bulkPurgeUsersMutation,
-    users,
-    isSingleUser,
-    user,
-    userDisplayName,
-    purgeUserMutation,
-    onUsersDeleted,
-    onOpenChange
-  ]);
+    const userIds = users.map((u) => u.id);
+    purgeMutation.mutate({ mode: isSingleUser ? "single" : "bulk", userIds });
+  };
 
   const getDialogTitle = () => {
     if (isEmptyRecycleBin) {
