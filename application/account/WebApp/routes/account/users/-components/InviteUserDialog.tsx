@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { userCollection } from "@repo/infrastructure/sync/collections";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import { Button } from "@repo/ui/components/Button";
 import {
   DialogBody,
@@ -18,7 +19,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { api } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 interface InviteUserDialogProps {
   isOpen: boolean;
@@ -27,27 +28,38 @@ interface InviteUserDialogProps {
 
 export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<InviteUserDialogProps>) {
   const [isFormDirty, setIsFormDirty] = useState(false);
-  const inviteUserMutation = api.useMutation("post", "/api/account/users/invite", {
-    meta: { skipQueryInvalidation: true },
-    onSuccess: (data) => {
+  const inviteUserMutation = useElectricMutation({
+    mutationFn: async (vars: { body: { email: string } }) => {
+      const { data, error } = await apiClient.POST("/api/account/users/invite", vars);
+      if (error) {
+        throw error;
+      }
+      return data;
+    },
+    utils: userCollection.utils,
+    onInsert: (data) => {
       if (data && typeof data === "object" && "id" in data) {
         const userData = data as Record<string, unknown>;
-        userCollection.insert({
-          id: userData.id as string,
-          createdAt: (userData.createdAt as string) ?? new Date().toISOString(),
-          modifiedAt: (userData.modifiedAt as string | null) ?? null,
-          email: (userData.email as string) ?? "",
-          firstName: (userData.firstName as string | null) ?? null,
-          lastName: (userData.lastName as string | null) ?? null,
-          title: (userData.title as string | null) ?? null,
-          role: (userData.role as string) ?? "Member",
-          emailConfirmed: (userData.emailConfirmed as boolean) ?? false,
-          avatar: userData.avatar ? JSON.stringify(userData.avatar) : "",
-          locale: (userData.locale as string) ?? "",
-          lastSeenAt: (userData.lastSeenAt as string | null) ?? null,
-          deletedAt: null
-        });
+        if (!userCollection.has(userData.id as string)) {
+          userCollection.insert({
+            id: userData.id as string,
+            createdAt: (userData.createdAt as string) ?? new Date().toISOString(),
+            modifiedAt: (userData.modifiedAt as string | null) ?? null,
+            email: (userData.email as string) ?? "",
+            firstName: (userData.firstName as string | null) ?? null,
+            lastName: (userData.lastName as string | null) ?? null,
+            title: (userData.title as string | null) ?? null,
+            role: (userData.role as string) ?? "Member",
+            emailConfirmed: (userData.emailConfirmed as boolean) ?? false,
+            avatar: userData.avatar ? JSON.stringify(userData.avatar) : "",
+            locale: (userData.locale as string) ?? "",
+            lastSeenAt: (userData.lastSeenAt as string | null) ?? null,
+            deletedAt: null
+          });
+        }
       }
+    },
+    onSuccess: () => {
       setIsFormDirty(false);
       toast.success(t`User invited successfully`);
       onOpenChange(false);
@@ -82,7 +94,7 @@ export default function InviteUserDialog({ isOpen, onOpenChange }: Readonly<Invi
 
         <Form
           onSubmit={mutationSubmitter(inviteUserMutation)}
-          validationErrors={inviteUserMutation.error?.errors}
+          validationErrors={inviteUserMutation.validationErrors}
           validationBehavior="aria"
           className="flex flex-col max-sm:h-full"
         >

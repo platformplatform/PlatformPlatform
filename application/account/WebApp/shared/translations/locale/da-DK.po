@@ -25,15 +25,15 @@ msgstr "{0, plural, one {# minut siden} other {# minutter siden}}"
 msgid "{0} plan"
 msgstr "{0}-abonnement"
 
-#. placeholder {0}: users.length
+#. placeholder {0}: vars.userIds.length
 msgid "{0} users deleted successfully"
 msgstr "{0} brugere slettet succesfuldt"
 
-#. placeholder {0}: users.length
+#. placeholder {0}: vars.userIds.length
 msgid "{0} users permanently deleted"
 msgstr "{0} brugere slettet permanent"
 
-#. placeholder {0}: selectedUsers.length
+#. placeholder {0}: vars.userIds.length
 msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
