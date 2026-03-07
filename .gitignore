@@ -401,7 +401,13 @@ dist/
 **/translations/locale/*.ts
 application/account/WebApp/tsconfig.tsbuildinfo
 
-# AI Rules
+# Ignore AI files from Antigravity, Cursor, CoPilot, and Windsurf. To enable, run the sync-ai-rules CLI command and remove ignore below
+.agent
+.cursor
+.github/copilot
+.github/instructions
+.github/copilot-instructions.md
+.windsurf
 .windsurfrules
 
 # Git submodules
