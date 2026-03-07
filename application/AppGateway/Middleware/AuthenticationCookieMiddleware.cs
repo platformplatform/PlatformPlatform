@@ -21,10 +21,13 @@ public class AuthenticationCookieMiddleware(
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        // Track the current refresh token -- may be updated if the access token expired and tokens were refreshed
+        string? currentRefreshToken = null;
+
         if (context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenCookieValue))
         {
             context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenCookieName, out var accessTokenCookieValue);
-            await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenCookieValue, accessTokenCookieValue);
+            currentRefreshToken = await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenCookieValue, accessTokenCookieValue);
         }
 
         // If session was revoked during refresh, handle based on request type
@@ -50,7 +53,7 @@ public class AuthenticationCookieMiddleware(
                 if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
                 {
                     logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
-                    var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
+                    var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken!);
                     await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
                     context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
                 }
@@ -65,7 +68,10 @@ public class AuthenticationCookieMiddleware(
         await next(context);
     }
 
-    private async Task ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
+    /// <summary>
+    ///     Returns the current refresh token value, which may differ from the input if tokens were refreshed.
+    /// </summary>
+    private async Task<string> ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
     {
         if (context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey) ||
             context.Request.Headers.ContainsKey(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey))
@@ -84,7 +90,7 @@ public class AuthenticationCookieMiddleware(
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.RefreshTokenCookieName, expiredCookieOptions);
                     context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, expiredCookieOptions);
                     logger.LogDebug("The refresh-token has expired; authentication token cookies are removed");
-                    return;
+                    return refreshToken;
                 }
 
                 logger.LogDebug("The access-token has expired, attempting to refresh");
@@ -127,6 +133,8 @@ public class AuthenticationCookieMiddleware(
             context.Items[UnauthorizedReasonItemKey] = nameof(UnauthorizedReason.SessionNotFound);
             logger.LogError(ex, "Unexpected exception during authentication token validation. Path: {Path}", context.Request.Path);
         }
+
+        return refreshToken;
     }
 
     private async Task<(string newRefreshToken, string newAccessToken)> RefreshAuthenticationTokensAsync(string refreshToken)
