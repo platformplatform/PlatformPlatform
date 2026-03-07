@@ -244,7 +244,7 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Send an interrupt signal to a team agent. The signal is picked up by the agent's PostToolUse hook on their next tool call. For idle/sleeping agents, also use SendMessage with 'Check your interrupt signal' to wake them.")]
+    [Description("Send an interrupt signal to a team agent. The signal is picked up by the agent's PostToolUse hook on their next tool call. Returns an interrupt ID to use in the follow-up SendMessage. For idle/sleeping agents, also send a SendMessage to wake them.")]
     public static string SendInterruptSignal(
         [Description("Team name (e.g., 'feature-team')")]
         string teamName,
@@ -261,10 +261,11 @@ public static class DeveloperCliMcpTools
             Directory.CreateDirectory(signalsDirectory);
         }
 
+        var interruptId = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd:HH:mm.ss");
         var signalFilePath = Path.Combine(signalsDirectory, $"{agentName}.signal");
-        File.AppendAllText(signalFilePath, message + "\n");
+        File.WriteAllText(signalFilePath, $"Stop working until you see message #{interruptId}. {message}");
 
-        return $"Interrupt sent to {agentName} in {teamName}";
+        return $"Interrupt sent to {agentName}. Use interrupt ID #{interruptId} in your follow-up SendMessage: '#{interruptId} [your instructions]'";
     }
 
     [McpServerTool]

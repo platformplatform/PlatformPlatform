@@ -16,7 +16,7 @@ Speed is critical -- commit should be fast. Don't recommend slow commands unless
 2. **Determine files to commit**:
    - **Clean session** (no prior context): Include all changed files
    - **With session context**: Include only files you changed; exclude others
-   - Auto-generated files: `*.Api.json` (backend), `*.po` (frontend)
+   - Auto-generated files: `*.po` (frontend translations)
 
 3. **Auto-run sync-ai-rules if AI rules changed**:
    - If any files in `.claude/` changed, run sync-ai-rules automatically
