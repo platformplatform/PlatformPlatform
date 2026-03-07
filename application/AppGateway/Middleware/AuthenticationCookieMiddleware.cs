@@ -45,21 +45,24 @@ public class AuthenticationCookieMiddleware(
             context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, hostCookieOptions);
         }
 
+        context.Response.OnStarting(async () =>
+            {
+                if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+                {
+                    logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
+                    var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
+                    context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+                }
+                else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var newRefreshToken) &&
+                         context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var newAccessToken))
+                {
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken.Single()!, newAccessToken.Single()!);
+                }
+            }
+        );
+
         await next(context);
-
-
-        if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
-        {
-            logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
-            var (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
-            await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken, accessToken);
-            context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
-        }
-        else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshToken) &&
-                 context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessToken))
-        {
-            await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken.Single()!, accessToken.Single()!);
-        }
     }
 
     private async Task ValidateAuthenticationCookieAndConvertToHttpBearerHeader(HttpContext context, string refreshToken, string? accessToken)
