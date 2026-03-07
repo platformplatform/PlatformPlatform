@@ -8,7 +8,10 @@ export const userCollection = createCollection<UserRow>(
     id: "users",
     shapeOptions: createShapeOptions("users"),
     getKey: (item) => item.id,
-    syncMode: "on-demand"
+    syncMode: "on-demand",
+    onInsert: async () => {},
+    onUpdate: async () => {},
+    onDelete: async () => {}
   })
 );
 
@@ -17,7 +20,8 @@ export const tenantCollection = createCollection<TenantRow>(
     id: "tenants",
     shapeOptions: createShapeOptions("tenants"),
     getKey: (item) => item.id,
-    syncMode: "eager"
+    syncMode: "eager",
+    onUpdate: async () => {}
   })
 );
 
