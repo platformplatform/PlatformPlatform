@@ -3,6 +3,7 @@
   "globalEnv": ["CERTIFICATE_PASSWORD"],
   "tasks": {
     "build": {
+      "inputs": ["$TURBO_DEFAULT$", "shared/lib/api/*.Api.json"],
       "outputs": ["dist/**", "tests/test-results/**"],
       "dependsOn": ["^build"]
     },
@@ -18,6 +19,7 @@
     },
     "dev:setup": {
       "dependsOn": ["^dev:setup"],
+      "inputs": ["$TURBO_DEFAULT$", "shared/lib/api/*.Api.json"],
       "outputs": ["dist/**"]
     },
     "lint": {
