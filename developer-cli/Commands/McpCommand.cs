@@ -249,9 +249,7 @@ public static class DeveloperCliMcpTools
         [Description("Team name (e.g., 'feature-team')")]
         string teamName,
         [Description("Target agent name (e.g., 'backend', 'frontend')")]
-        string agentName,
-        [Description("Interrupt message to deliver to the agent")]
-        string message)
+        string agentName)
     {
         var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var signalsDirectory = Path.Combine(homeDirectory, ".claude", "teams", teamName, "signals");
@@ -263,9 +261,9 @@ public static class DeveloperCliMcpTools
 
         var interruptId = DateTimeOffset.UtcNow.ToString("yyyy-MM-dd:HH:mm.ss");
         var signalFilePath = Path.Combine(signalsDirectory, $"{agentName}.signal");
-        File.WriteAllText(signalFilePath, $"Stop working until you see message #{interruptId}. {message}");
+        File.WriteAllText(signalFilePath, $"Stop working until you see message #{interruptId}");
 
-        return $"Interrupt sent to {agentName}. Use interrupt ID #{interruptId} in your follow-up SendMessage: '#{interruptId} [your instructions]'";
+        return $"Interrupt signal sent to {agentName}. Send your message now using SendMessage with prefix #{interruptId}";
     }
 
     [McpServerTool]
