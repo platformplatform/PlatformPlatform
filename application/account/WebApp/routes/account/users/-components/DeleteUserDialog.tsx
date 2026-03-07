@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { userCollection } from "@repo/infrastructure/sync/collections";
+import { useElectricMutation } from "@repo/infrastructure/sync/useElectricMutation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,10 +14,9 @@ import {
   AlertDialogTitle
 } from "@repo/ui/components/AlertDialog";
 import { Trash2Icon } from "lucide-react";
-import { useState } from "react";
 import { toast } from "sonner";
 
-import { api } from "@/shared/lib/api/client";
+import { apiClient } from "@/shared/lib/api/client";
 
 interface UserData {
   id: string;
@@ -36,43 +36,52 @@ export function DeleteUserDialog({ users, isOpen, onOpenChange, onUsersDeleted }
   const isSingleUser = users.length === 1;
   const user = users[0];
 
-  const deleteUserMutation = api.useMutation("delete", "/api/account/users/{id}", {
-    meta: { skipQueryInvalidation: true }
-  });
-  const bulkDeleteUsersMutation = api.useMutation("post", "/api/account/users/bulk-delete", {
-    meta: { skipQueryInvalidation: true }
-  });
   const userDisplayName = isSingleUser ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() || user.email : "";
 
-  const [isPending, setIsPending] = useState(false);
-
-  const handleDelete = async () => {
-    setIsPending(true);
-    try {
+  const deleteUserMutation = useElectricMutation({
+    mutationFn: async (vars: { userIds: string[] }) => {
+      if (vars.userIds.length === 1) {
+        const { error } = await apiClient.DELETE("/api/account/users/{id}", {
+          params: { path: { id: vars.userIds[0] } }
+        });
+        if (error) {
+          throw error;
+        }
+      } else {
+        const { error } = await apiClient.POST("/api/account/users/bulk-delete", {
+          body: { userIds: vars.userIds }
+        });
+        if (error) {
+          throw error;
+        }
+      }
+    },
+    utils: userCollection.utils,
+    onMutate: (vars) => {
       const now = new Date().toISOString();
-      if (isSingleUser) {
-        await deleteUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-        userCollection.update(user.id, (draft) => {
+      for (const userId of vars.userIds) {
+        userCollection.update(userId, (draft) => {
           draft.deletedAt = now;
         });
+      }
+    },
+    onSuccess: (_data, vars) => {
+      if (vars.userIds.length === 1) {
         toast.success(t`User deleted successfully: ${userDisplayName}`);
       } else {
-        const userIds = users.map((user) => user.id);
-        await bulkDeleteUsersMutation.mutateAsync({ body: { userIds: userIds } });
-        for (const userId of userIds) {
-          userCollection.update(userId, (draft) => {
-            draft.deletedAt = now;
-          });
-        }
-        toast.success(t`${users.length} users deleted successfully`);
+        toast.success(t`${vars.userIds.length} users deleted successfully`);
       }
-
       onUsersDeleted?.();
       onOpenChange(false);
-    } finally {
-      setIsPending(false);
     }
+  });
+
+  const handleDelete = () => {
+    const userIds = users.map((u) => u.id);
+    deleteUserMutation.mutate({ userIds });
   };
+
+  const isPending = deleteUserMutation.isPending;
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange} trackingTitle="Delete user">
