@@ -46,20 +46,20 @@ Use this workflow to create pull request titles and descriptions.
    - Include exact filenames, code snippets, and Git diffs as needed
    - Use the placeholder term `your-self-contained-system` for downstream implementations
 
-6. Build, test, format and inspect the codebase using the `execute_command` MCP tool:
+6. Build, test, format and lint the codebase using the `execute_command` MCP tool:
 
    **For backend changes** (`*.cs` files):
    1. Run **build** first: `execute_command(command: "build", backend: true)`
-   2. Then run **format**, **test**, **inspect** in parallel (or sequentially if parallel not supported):
+   2. Then run **format**, **test**, **lint** in parallel (or sequentially if parallel not supported):
       - `execute_command(command: "format", backend: true)`
       - `execute_command(command: "test", backend: true)`
-      - `execute_command(command: "inspect", backend: true)`
+      - `execute_command(command: "lint", backend: true)`
 
    **For frontend changes** (`*.ts`, `*.tsx` files):
    1. Run **build** first: `execute_command(command: "build", frontend: true)`
-   2. Then run **format** and **inspect** in parallel (or sequentially if parallel not supported):
+   2. Then run **format** and **lint** in parallel (or sequentially if parallel not supported):
       - `execute_command(command: "format", frontend: true)`
-      - `execute_command(command: "inspect", frontend: true)`
+      - `execute_command(command: "lint", frontend: true)`
 
    If there are errors, they must be fixed before the pull request can be created.
 

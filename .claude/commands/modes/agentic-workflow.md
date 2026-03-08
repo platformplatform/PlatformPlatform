@@ -455,7 +455,7 @@ Understanding these files helps debug workflow issues:
 
 ### For Validation
 1. Always run appropriate tools after changes:
-   - Modified .cs files: build, format, test, inspect
+   - Modified .cs files: build, format, test, lint
    - Modified system prompts: check for contradictions
    - Modified agent definitions: validate YAML frontmatter
    - Modified workflow files: verify no tool-specific terms exist

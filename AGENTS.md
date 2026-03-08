@@ -32,11 +32,11 @@ When working on tasks, follow any specific workflow instructions provided for yo
    **Slow Operations:**
    - Aspire restart
    - Backend format
-   - Backend inspect
+   - Backend lint
    - End-to-end tests
 
    **Fast Operations:**
-   - Frontend format, inspect
+   - Frontend format, lint
    - Backend test
 
    **Parallelization rule:**
@@ -48,10 +48,10 @@ When working on tasks, follow any specific workflow instructions provided for yo
    Task(subagent_type: "general-purpose", prompt: "Restart Aspire: mcp__developer-cli__run()", run_in_background: false)
    Task(subagent_type: "general-purpose", prompt: "Test backend: mcp__developer-cli__execute_command(command='test', backend=true, noBuild=true)", run_in_background: false)
    Task(subagent_type: "general-purpose", prompt: "Format backend: mcp__developer-cli__execute_command(command='format', backend=true, noBuild=true)", run_in_background: false)
-   Task(subagent_type: "general-purpose", prompt: "Inspect backend: mcp__developer-cli__execute_command(command='inspect', backend=true, noBuild=true)", run_in_background: false)
+   Task(subagent_type: "general-purpose", prompt: "Lint backend: mcp__developer-cli__execute_command(command='lint', backend=true, noBuild=true)", run_in_background: false)
    Task(subagent_type: "general-purpose", prompt: "Run e2e: mcp__developer-cli__end_to_end(browser='chromium', waitForAspire=true)", run_in_background: false)
    ```
-   Format, inspect, and test run while Aspire starts. End-to-end tests use `waitForAspire=true` to wait until Aspire is ready.
+   Format, lint, and test run while Aspire starts. End-to-end tests use `waitForAspire=true` to wait until Aspire is ready.
 
    **About Aspire**: The **run** MCP tool starts the Aspire AppHost at https://localhost:9000. Restart it when the backend has changed, when frontend hot reload stops working, or when it is not running.
 

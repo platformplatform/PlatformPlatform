@@ -112,12 +112,12 @@ Follow these steps when implementing changes:
    - Use the **execute MCP tool** with `command: "build"` for backend
    - Use the **execute MCP tool** with `command: "test"` to run all tests
    - If you change API contracts (endpoints, DTOs), also build frontend to ensure it still compiles
-3. Format and inspect your code in parallel:
+3. Format and lint your code in parallel:
    - When all tests pass and the feature is complete, call both MCP tools in a single message:
      - `execute_command(command: "format")`
-     - `execute_command(command: "inspect")`
+     - `execute_command(command: "lint")`
    - Format automatically fixes code style issues according to our conventions
-   - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
+   - **ALL lint findings are blocking** - CI pipeline fails on any result marked "Issues found"
    - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
 
 When you see paths like `/[scs-name]/Core/Features/[Feature]/Domain` in rules, replace `[scs-name]` with the specific self-contained system name (e.g., `main`, `account`, `back-office`) and `[Feature]` with the feature name (e.g., `Users`, `Tenants`). A feature is often 1:1 with a domain aggregate.

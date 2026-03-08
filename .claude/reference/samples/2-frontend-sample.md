@@ -32,7 +32,7 @@ The following subtasks guide the engineer through implementing this complete UI 
 - All subtasks implemented together
 - UI is functional and visually complete after implementation
 - Engineer builds incrementally after each subtask
-- Final validation includes build, format, inspect, and Chrome DevTools testing
+- Final validation includes build, format, lint, and Chrome DevTools testing
 
 **NOT included in this task:**
 - Backend API implementation (separate task)

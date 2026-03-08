@@ -22,8 +22,8 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
    - These synced directories must be included in the commit (step 7)
 
 4. **Offer validation commands** (optional question in same `AskUserQuestion`):
-   - **Frontend changes**: Offer build, format, inspect
-   - **Backend changes**: Offer build, format, inspect (note: format/inspect are slow)
+   - **Frontend changes**: Offer build, format, lint
+   - **Backend changes**: Offer build, format, lint (note: format/lint are slow)
    - **Big changes**: Also offer end-to-end tests
    - Let user multi-select or skip all
 
@@ -35,7 +35,7 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
    - One line but elaborate enough to understand the change without reading the diff
    - Add contextual questions as needed (file selection, validation commands, actions for leftovers, etc.)
 
-6. **Run selected validation commands** (build, format, inspect, etc.):
+6. **Run selected validation commands** (build, format, lint, etc.):
    - Run all selected tools/commands before staging and committing
    - Wait for all commands to complete
 

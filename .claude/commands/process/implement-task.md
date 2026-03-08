@@ -177,7 +177,7 @@ Since [tasks] are complete vertical slices, build and test incrementally as you 
 - Ensures each piece works before moving on.
 - Critical for larger tasks.
 
-**Do NOT run format/inspect after each subtask** - these are slow and run once at the end in STEP 6.
+**Do NOT run format/lint after each subtask** - these are slow and run once at the end in STEP 6.
 
 **STEP 5**: Build and verify translations (frontend-engineer only)
 
@@ -195,10 +195,10 @@ Since [tasks] are complete vertical slices, build and test incrementally as you 
 - This includes pre-existing issues unrelated to your changes.
 - Don't request review with outstanding issues.
 
-**Inspect findings block merging**: If inspect returns "Issues found", the CI pipeline will fail and the code cannot be merged. The severity level (note/warning/error) is irrelevant - all findings must be fixed before requesting review.
+**Lint findings block merging**: If lint returns "Issues found", the CI pipeline will fail and the code cannot be merged. The severity level (note/warning/error) is irrelevant - all findings must be fixed before requesting review.
 
 For **backend [tasks]**:
-1. Run **inspect** for your self-contained system: `execute_command(command: "inspect", backend: true, selfContainedSystem: "{self-contained-system}")`.
+1. Run **lint** for your self-contained system: `execute_command(command: "lint", backend: true, selfContainedSystem: "{self-contained-system}")`.
 2. Fix ALL failures found (zero tolerance).
 
 **Note**: Build and test were already run after each subtask in STEP 4. Backend-engineer does NOT run format - the reviewer will handle formatting before commit.
@@ -206,7 +206,7 @@ For **backend [tasks]**:
 For **frontend [tasks]**:
 1. Run **build** for your self-contained system: `execute_command(command: "build", frontend: true, selfContainedSystem: "{self-contained-system}")`.
 2. Run **format** for all self-contained systems: `execute_command(command: "format", frontend: true)`.
-3. Run **inspect** for all self-contained systems: `execute_command(command: "inspect", frontend: true)`.
+3. Run **lint** for all self-contained systems: `execute_command(command: "lint", frontend: true)`.
 4. Fix ALL failures found (zero tolerance).
 
 **STEP 7**: Test in browser with zero tolerance (frontend-engineer only)
