@@ -10,7 +10,6 @@ import { Input } from "./Input";
 // explicit bg-white background, outline-based focus ring, and removed combobox context styles.
 function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: Stock ShadCN component uses div with role="group" for styling flexibility
     <div
       data-slot="input-group"
       role="group"

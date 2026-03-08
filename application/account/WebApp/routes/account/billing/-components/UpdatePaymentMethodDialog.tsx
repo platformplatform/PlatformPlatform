@@ -176,7 +176,6 @@ function PaymentForm({ onSuccess, onError }: Readonly<PaymentFormProps>) {
     const result = await stripe.confirmSetup({
       elements,
       confirmParams: {
-        // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
         return_url: window.location.href
       },
       redirect: "if_required"

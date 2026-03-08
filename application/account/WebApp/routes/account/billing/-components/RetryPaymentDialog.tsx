@@ -61,7 +61,6 @@ export function RetryPaymentDialog({
         const result = await paymentStripe.confirmPayment({
           clientSecret: data.clientSecret,
           confirmParams: {
-            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
             return_url: window.location.href
           },
           redirect: "if_required"

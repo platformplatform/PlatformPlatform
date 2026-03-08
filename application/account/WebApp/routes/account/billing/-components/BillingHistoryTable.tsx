@@ -93,7 +93,6 @@ export function BillingHistoryTable() {
                   <Tooltip>
                     <TooltipTrigger
                       render={
-                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
                         <a
                           href={transaction.invoiceUrl}
                           target="_blank"
@@ -118,7 +117,6 @@ export function BillingHistoryTable() {
                   <Tooltip>
                     <TooltipTrigger
                       render={
-                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
                         <a
                           href={transaction.creditNoteUrl}
                           target="_blank"

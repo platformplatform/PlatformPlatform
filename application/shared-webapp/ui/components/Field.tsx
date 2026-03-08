@@ -74,7 +74,6 @@ function Field({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: Stock ShadCN Field component uses role="group" on div
     <div
       role="group"
       data-slot="field"

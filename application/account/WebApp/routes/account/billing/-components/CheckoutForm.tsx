@@ -64,7 +64,6 @@ export function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFo
         line1: billingInfo?.address?.line1,
         line2: billingInfo?.address?.line2 ?? null,
         city: billingInfo?.address?.city,
-        // biome-ignore lint/style/useNamingConvention: Stripe API requires snake_case
         postal_code: billingInfo?.address?.postalCode,
         state: billingInfo?.address?.state ?? null
       }
