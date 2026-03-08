@@ -795,42 +795,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         }
     }
 
-    private static void SyncClaudeToCopilotWorkflows(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
-    {
-        if (!Directory.Exists(sourceDirectory)) return;
-        Directory.CreateDirectory(targetDirectory);
-
-        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-
-        foreach (var sourceFile in sourceFiles)
-        {
-            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
-            var targetFile = Path.Combine(targetDirectory, relativePath);
-            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
-
-            expectedFiles.Add(targetFile);
-            ConvertClaudeToCopilot(sourceFile, targetFile);
-        }
-    }
-
-    private static void SyncClaudeToCopilotRules(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
-    {
-        if (!Directory.Exists(sourceDirectory)) return;
-        Directory.CreateDirectory(targetDirectory);
-
-        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
-
-        foreach (var sourceFile in sourceFiles)
-        {
-            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
-            var targetFile = Path.Combine(targetDirectory, relativePath);
-            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
-
-            expectedFiles.Add(targetFile);
-            ConvertClaudeToCopilot(sourceFile, targetFile);
-        }
-    }
-
     private static void SyncClaudeToCopilotInstructions(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
     {
         if (!Directory.Exists(sourceDirectory)) return;
@@ -887,44 +851,6 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             lines[i] = lines[i].Replace(".claude/reference/", ".github/instructions/reference/");
             // Convert remaining .claude/ references to .github/instructions/
             lines[i] = lines[i].Replace(".claude/", ".github/instructions/");
-        }
-    }
-
-    private static void ConvertClaudeToCopilot(string sourceFile, string targetFile)
-    {
-        var lines = File.ReadAllLines(sourceFile);
-        var (_, contentLines) = SplitFrontmatter(lines);
-
-        // Skip path conversion for update-ai-rules file
-        var skipFile = IsUpdateAiRulesFile(sourceFile);
-
-        // Copilot doesn't use frontmatter - just content
-        var contentToWrite = contentLines.ToList();
-        if (contentToWrite.Count > 0 && string.IsNullOrWhiteSpace(contentToWrite[0]))
-        {
-            contentToWrite.RemoveAt(0);
-        }
-
-        // Replace Claude references with Copilot references
-        var outputArray = contentToWrite.ToArray();
-        ReplaceClaudeReferencesWithCopilot(outputArray, skipFile);
-
-        File.WriteAllLines(targetFile, outputArray);
-    }
-
-    private static void ReplaceClaudeReferencesWithCopilot(string[] lines, bool skipFile = false)
-    {
-        if (skipFile) return;
-
-        for (var i = 0; i < lines.Length; i++)
-        {
-            // Order matters - specific paths first, then generic
-            // Convert .claude/commands/ to .github/copilot/workflows/
-            lines[i] = lines[i].Replace(".claude/commands/", ".github/copilot/workflows/");
-            // Convert .claude/rules/ to .github/instructions/
-            lines[i] = lines[i].Replace(".claude/rules/", ".github/instructions/");
-            // Convert remaining .claude/ references to .github/copilot/
-            lines[i] = lines[i].Replace(".claude/", ".github/copilot/");
         }
     }
 
