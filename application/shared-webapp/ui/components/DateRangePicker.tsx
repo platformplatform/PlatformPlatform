@@ -1,9 +1,11 @@
+import type { DateRange } from "react-day-picker";
+
 import { useLingui } from "@lingui/react";
 import { format, type Locale } from "date-fns";
 import { da, enUS } from "date-fns/locale";
 import { CalendarIcon, XIcon } from "lucide-react";
 import { useState } from "react";
-import type { DateRange } from "react-day-picker";
+
 import { cn } from "../utils";
 import { Button } from "./Button";
 import { Calendar } from "./Calendar";

@@ -22,7 +22,9 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useContext, useMemo, useState } from "react";
 import { toast } from "sonner";
+
 import type { components } from "@/shared/lib/api/api.generated";
+
 import { api } from "@/shared/lib/api/client";
 
 type BillingInfo = components["schemas"]["BillingInfo"];

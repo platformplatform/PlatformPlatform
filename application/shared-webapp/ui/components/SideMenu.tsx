@@ -1,8 +1,10 @@
+import type React from "react";
+
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
 import { cva } from "class-variance-authority";
 import { ChevronsLeftIcon, type LucideIcon, Menu, X } from "lucide-react";
-import type React from "react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+
 import { useResponsiveMenu } from "../hooks/useResponsiveMenu";
 import logoMarkUrl from "../images/logo-mark.svg";
 import { cn } from "../utils";
@@ -49,7 +51,7 @@ const _handleFocusTrap = (e: KeyboardEvent, containerRef: React.RefObject<HTMLEl
 
 // NOTE: Menu items have active:bg-hover-background for press feedback on interactive menu buttons.
 const menuButtonStyles = cva(
-  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 font-normal text-sm outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
+  "menu-item relative flex h-11 items-center justify-start gap-0 overflow-visible rounded-md py-2 text-sm font-normal outline-ring hover:bg-hover-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 active:bg-hover-background",
   {
     variants: {
       isCollapsed: {
@@ -78,7 +80,7 @@ const menuButtonStyles = cva(
   }
 );
 
-const menuTextStyles = cva("overflow-hidden whitespace-nowrap text-start", {
+const menuTextStyles = cva("overflow-hidden text-start whitespace-nowrap", {
   variants: {
     isCollapsed: {
       true: "hidden",
@@ -681,7 +683,7 @@ const DefaultLogoSection = ({ actualIsCollapsed }: { actualIsCollapsed: boolean 
     <img src={logoMarkUrl} alt="Logo" className="size-8 shrink-0" />
     {!actualIsCollapsed && (
       <span
-        className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold text-foreground text-sm"
+        className="overflow-hidden text-sm font-semibold text-ellipsis whitespace-nowrap text-foreground"
         style={{ minWidth: 0 }}
       >
         PlatformPlatform
@@ -739,7 +741,7 @@ const ResizableToggleButton = ({
     <button
       ref={toggleButtonRef}
       type="button"
-      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100"
+      className="toggle-button flex size-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
       onMouseDown={handleResizeStart}
       onTouchStart={handleResizeStart}
       onClick={handleClick}
@@ -860,7 +862,7 @@ const MenuNav = ({
         <div ref={toggleButtonRef as React.RefObject<HTMLDivElement>}>
           <Toggle
             aria-label={sidebarToggleAriaLabel}
-            className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 group-focus-within:opacity-100 group-hover:opacity-100 aria-pressed:bg-primary"
+            className="toggle-button flex size-6 min-w-6 cursor-pointer items-center justify-center rounded-full bg-primary text-primary-foreground opacity-0 outline-primary transition-opacity duration-100 group-focus-within:opacity-100 group-hover:opacity-100 hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 aria-pressed:bg-primary"
             pressed={actualIsCollapsed}
             onPressedChange={toggleMenu}
           >
@@ -1091,7 +1093,7 @@ export function SideMenu({
   );
 }
 
-const sideMenuSeparatorStyles = cva("border-b-0 font-semibold text-muted-foreground uppercase leading-4", {
+const sideMenuSeparatorStyles = cva("border-b-0 leading-4 font-semibold text-muted-foreground uppercase", {
   variants: {
     isCollapsed: {
       true: "mb-2 flex h-8 w-full items-end pt-4 pl-4",
@@ -1111,7 +1113,7 @@ export function SideMenuSeparator({ children }: Readonly<SideMenuSeparatorProps>
   const isCollapsed = useContext(collapsedContext);
   return (
     <div className={sideMenuSeparatorStyles({ isCollapsed })}>
-      {isCollapsed ? <div className="w-6 border-border border-b-4" /> : children}
+      {isCollapsed ? <div className="w-6 border-b-4 border-border" /> : children}
     </div>
   );
 }
@@ -1213,7 +1215,7 @@ function MobileMenu({ ariaLabel, topMenuContent }: { ariaLabel: string; topMenuC
               aria-label="Mobile navigation"
             >
               <div
-                className="flex-1 overflow-y-auto overflow-x-hidden px-3 pb-20 supports-[padding:max(0px)]:pb-[max(5rem,env(safe-area-inset-bottom))]"
+                className="flex-1 overflow-x-hidden overflow-y-auto px-3 pb-20 supports-[padding:max(0px)]:pb-[max(5rem,env(safe-area-inset-bottom))]"
                 style={{
                   margin: 0,
                   paddingLeft: "0.75rem",

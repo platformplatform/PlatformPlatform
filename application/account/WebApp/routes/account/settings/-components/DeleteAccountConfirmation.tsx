@@ -34,7 +34,7 @@ export default function DeleteAccountConfirmation({ isOpen, onOpenChange }: Read
             isReadOnly={true}
             startIcon={<MailIcon className="size-4" />}
           />
-          <p className="text-muted-foreground text-sm">{t`Our support team will assist you with the account deletion process and ensure all your data is properly removed.`}</p>
+          <p className="text-sm text-muted-foreground">{t`Our support team will assist you with the account deletion process and ensure all your data is properly removed.`}</p>
         </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button autoFocus={true} />}>{t`Close`}</DialogClose>

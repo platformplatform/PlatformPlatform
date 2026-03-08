@@ -1,3 +1,5 @@
+import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
@@ -7,10 +9,10 @@ import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useState } from "react";
+
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
@@ -101,7 +103,7 @@ function AccountSetupForm({ onComplete }: AccountSetupFormProps) {
       <h2>
         <Trans>Let's set up your account</Trans>
       </h2>
-      <div className="text-center text-muted-foreground text-sm">
+      <div className="text-center text-sm text-muted-foreground">
         <Trans>Add your account name and logo.</Trans>
       </div>
 
@@ -191,7 +193,7 @@ function ProfileSetupForm() {
       <h2>
         <Trans>Let's set up your profile</Trans>
       </h2>
-      <div className="text-center text-muted-foreground text-sm">
+      <div className="text-center text-sm text-muted-foreground">
         <Trans>Tell us a bit about yourself to get started.</Trans>
       </div>
 

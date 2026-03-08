@@ -1,5 +1,7 @@
-import { useRouterState } from "@tanstack/react-router";
 import type { ComponentType } from "react";
+
+import { useRouterState } from "@tanstack/react-router";
+
 import { useAuthSync } from "./useAuthSync";
 
 // Type for the AuthSyncModal component

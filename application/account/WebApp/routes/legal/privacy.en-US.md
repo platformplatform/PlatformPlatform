@@ -7,6 +7,7 @@
 > ⚠️ **Important: Customize This Privacy Policy**
 >
 > This is an AI-generated template privacy policy for B2B SaaS applications. Before production use, you must:
+>
 > - Update "Last updated" date at top
 > - Replace Data Controller details (company name, address, email)
 > - Customize Section 1 data collection categories to match what you actually collect
@@ -47,13 +48,13 @@ Email: legal@example.com
 
 ## At a Glance
 
-| Data Type | Purpose | Legal Basis | Retention |
-|-----------|---------|-------------|-----------|
-| Account info (name, email, business details) | Provide the Service | Contract | Active + 60 days minimum |
-| Usage data (pages visited, features used) | Improve the Service | Legitimate Interest | Duration of operations |
-| Device info (browser, OS) | Security and troubleshooting | Legitimate Interest | Duration of operations |
-| Payment info | Process transactions | Contract | As required by law |
-| Communications | Respond to inquiries | Contract | Active + 60 days minimum |
+| Data Type                                    | Purpose                      | Legal Basis         | Retention                |
+| -------------------------------------------- | ---------------------------- | ------------------- | ------------------------ |
+| Account info (name, email, business details) | Provide the Service          | Contract            | Active + 60 days minimum |
+| Usage data (pages visited, features used)    | Improve the Service          | Legitimate Interest | Duration of operations   |
+| Device info (browser, OS)                    | Security and troubleshooting | Legitimate Interest | Duration of operations   |
+| Payment info                                 | Process transactions         | Contract            | As required by law       |
+| Communications                               | Respond to inquiries         | Contract            | Active + 60 days minimum |
 
 For complete details, see the sections below.
 
@@ -148,6 +149,7 @@ We track usage activity under the legal basis of legitimate interest. We have co
 We use artificial intelligence and machine learning technologies extensively to provide and improve the Service:
 
 **AI-Powered Features:**
+
 - Automated classification and data processing (such as document categorization, data extraction, and pattern recognition)
 - Intelligent recommendations and insights based on your data and usage patterns
 - Automated analysis and suggestions to assist Users in making decisions
@@ -214,4 +216,3 @@ This Privacy Policy is governed by the laws of Denmark.
 ## 16. California Residents
 
 We do not sell or share Personal Data as defined by the California Consumer Privacy Act (CCPA). The rights described in Section 7 apply to all Users, including California residents.
-

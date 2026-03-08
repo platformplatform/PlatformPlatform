@@ -19,6 +19,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { InfoIcon, LoaderIcon, LogOutIcon, MonitorIcon, SmartphoneIcon, TabletIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, DeviceType, LoginMethod } from "@/shared/lib/api/client";
 
@@ -131,7 +132,7 @@ function SessionCard({
               <DeviceIcon className="size-6 text-muted-foreground" />
             </div>
             <div>
-              <h4 className="font-medium text-lg">{browser}</h4>
+              <h4 className="text-lg font-medium">{browser}</h4>
               <p className="text-muted-foreground">
                 {os} · {deviceType}
               </p>
@@ -139,7 +140,7 @@ function SessionCard({
           </div>
 
           {isCurrent ? (
-            <span className="shrink-0 rounded-full bg-success px-3 py-1 font-medium text-sm text-success-foreground">
+            <span className="shrink-0 rounded-full bg-success px-3 py-1 text-sm font-medium text-success-foreground">
               <Trans>This device</Trans>
             </span>
           ) : (

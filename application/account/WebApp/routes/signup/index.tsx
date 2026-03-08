@@ -13,6 +13,7 @@ import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { DotIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
@@ -20,6 +21,7 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
+
 import { getLoginState } from "../login/-shared/loginState";
 import { clearSignupState, getSignupState, setSignupState } from "./-shared/signupState";
 
@@ -95,7 +97,7 @@ export function StartSignupForm() {
       <h2>
         <Trans>Create your account</Trans>
       </h2>
-      <div className="text-center text-muted-foreground text-sm">
+      <div className="text-center text-sm text-muted-foreground">
         <Trans>Sign up in seconds to start building on PlatformPlatform – just like thousands of others.</Trans>
       </div>
       <Field className="flex w-full flex-col">
@@ -118,7 +120,7 @@ export function StartSignupForm() {
         </Select>
         <FieldDescription>{t`This is the region where your data is stored`}</FieldDescription>
       </Field>
-      <div className="w-full border-border border-t" />
+      <div className="w-full border-t border-border" />
       <TextField
         name="email"
         type="email"
@@ -143,7 +145,7 @@ export function StartSignupForm() {
         <>
           <div className="flex w-full items-center gap-4">
             <div className="h-px flex-1 bg-border" />
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm text-muted-foreground">
               <Trans>or</Trans>
             </span>
             <div className="h-px flex-1 bg-border" />
@@ -161,13 +163,13 @@ export function StartSignupForm() {
           </Button>
         </>
       )}
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         <Trans>Do you already have an account?</Trans>{" "}
         <Link href={loginPath}>
           <Trans>Log in</Trans>
         </Link>
       </p>
-      <div className="text-center text-muted-foreground text-sm">
+      <div className="text-center text-sm text-muted-foreground">
         <Trans>By continuing, you accept our policies</Trans>
         <div className="flex flex-wrap items-center justify-center">
           <Link href="/legal/terms">
@@ -184,7 +186,7 @@ export function StartSignupForm() {
         We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
       */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm text-muted-foreground">
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

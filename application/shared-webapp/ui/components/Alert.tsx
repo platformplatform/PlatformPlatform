@@ -24,7 +24,7 @@ function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & V
 }
 
 function AlertTitle({ className, ...props }: React.ComponentProps<"h5">) {
-  return <h5 data-slot="alert-title" className={cn("font-medium leading-none", className)} {...props} />;
+  return <h5 data-slot="alert-title" className={cn("leading-none font-medium", className)} {...props} />;
 }
 
 function AlertDescription({ className, ...props }: React.ComponentProps<"p">) {

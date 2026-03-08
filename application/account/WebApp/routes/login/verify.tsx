@@ -12,6 +12,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
@@ -226,7 +227,7 @@ export function CompleteLoginForm() {
           <h2 className="mb-3 text-center">
             <Trans>Enter your verification code</Trans>
           </h2>
-          <div className="text-center text-muted-foreground text-sm">
+          <div className="text-center text-sm text-muted-foreground">
             <Trans>
               Please check your email for a verification code sent to <span className="font-semibold">{email}</span>
             </Trans>
@@ -264,11 +265,11 @@ export function CompleteLoginForm() {
           </InputOtp>
           <div aria-live={isExpired ? "polite" : "off"}>
             {!isExpired ? (
-              <p className="text-center text-muted-foreground text-sm">
+              <p className="text-center text-sm text-muted-foreground">
                 <Trans>Your verification code is valid for {expiresInString}</Trans>
               </p>
             ) : (
-              <p className="text-center text-destructive text-sm">
+              <p className="text-center text-sm text-destructive">
                 <Trans>Your verification code has expired</Trans>
               </p>
             )}
@@ -289,7 +290,7 @@ export function CompleteLoginForm() {
         </div>
       </Form>
 
-      <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
+      <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
         <div className="text-center text-sm">
           <Trans>Can&apos;t find your code?</Trans>{" "}
           {/* Show either the spam folder message or the request link message based on conditions */}
@@ -326,7 +327,7 @@ export function CompleteLoginForm() {
           <Trans>Back to login</Trans>
         </Link>
         <div className="mt-6 flex flex-col items-center gap-1">
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm text-muted-foreground">
             <Trans>Powered by</Trans>
           </span>
           <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

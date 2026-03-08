@@ -11,6 +11,7 @@ import {
 import { TextField } from "@repo/ui/components/TextField";
 import { CameraIcon, MailIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useRef, useState } from "react";
+
 import type { Schemas } from "@/shared/lib/api/client";
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
@@ -86,7 +87,7 @@ export function UserProfileFields({
               <Button
                 variant="ghost"
                 size="icon"
-                className="size-[7rem] rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
+                className="size-[7rem] rounded-full border border-dashed border-border bg-secondary hover:bg-secondary/80"
                 aria-label={t`Change profile picture`}
                 disabled={isPending}
               >
@@ -176,7 +177,7 @@ export function UserProfileFields({
     return (
       <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
         <div className="flex flex-col">
-          <span className="pb-2.75 font-medium text-sm">
+          <span className="pb-2.75 text-sm font-medium">
             <Trans>Profile photo</Trans>
           </span>
           <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">

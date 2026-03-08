@@ -3,15 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "npm run update-translations && npm run swagger && rsbuild build",
+    "check": "oxfmt --check && oxlint",
     "dev": "rsbuild dev",
     "dev:setup": "npm run update-translations && npm run swagger",
-    "build": "npm run update-translations && npm run swagger && rsbuild build",
-    "update-translations": "lingui extract --clean && lingui compile --typescript",
     "format": "oxfmt && (oxlint --fix || true)",
     "lint": "oxlint",
-    "check": "oxfmt --check && oxlint",
+    "publish": "npm run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/",
     "swagger": "openapi-typescript shared/lib/api/Main.Api.json -o shared/lib/api/api.generated.d.ts --properties-required-by-default -t --enum --alphabetize",
-    "publish": "npm run build && mkdir -p ../Api/publish/WebApp/dist/ && rsync -r ./dist/ ../Api/publish/WebApp/dist/"
+    "update-translations": "lingui extract --clean && lingui compile --typescript"
   },
   "devDependencies": {
     "@repo/build": "*",

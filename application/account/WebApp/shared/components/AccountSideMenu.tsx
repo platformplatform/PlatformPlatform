@@ -12,6 +12,7 @@ import {
   UsersIcon
 } from "lucide-react";
 import { useContext } from "react";
+
 import MobileMenu from "@/federated-modules/sideMenu/MobileMenu";
 import UserMenu from "@/federated-modules/userMenu/UserMenu";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";

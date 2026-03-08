@@ -12,8 +12,10 @@ import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AlertTriangleIcon, PencilIcon } from "lucide-react";
 import { useState } from "react";
+
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
+
 import { BillingHistoryTable } from "./-components/BillingHistoryTable";
 import { BillingInfoDisplay } from "./-components/BillingInfoDisplay";
 import { BillingTabNavigation } from "./-components/BillingTabNavigation";
@@ -130,7 +132,7 @@ function BillingPage() {
           <BillingTabNavigation activeTab="billing" />
 
           {cancelAtPeriodEnd && (
-            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-3">
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 {formattedPeriodEndLong ? (
@@ -151,7 +153,7 @@ function BillingPage() {
           )}
 
           {scheduledPlan && !cancelAtPeriodEnd && (
-            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-3">
                 <AlertTriangleIcon className="size-4 shrink-0" />
                 {formattedPeriodEndLong ? (
@@ -196,7 +198,7 @@ function BillingPage() {
                   )}
                 </div>
                 {formattedPeriodEndLong && (
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm text-muted-foreground">
                     {cancelAtPeriodEnd ? (
                       <Trans>Access until {formattedPeriodEndLong}</Trans>
                     ) : (
@@ -205,7 +207,7 @@ function BillingPage() {
                   </p>
                 )}
                 {scheduledPlan && !cancelAtPeriodEnd && (
-                  <p className="text-muted-foreground text-sm">
+                  <p className="text-sm text-muted-foreground">
                     <Trans>
                       Changing to {getPlanLabel(scheduledPlan)}{" "}
                       {getFormattedPrice(scheduledPlan, pricingCatalog?.plans)} on {formattedPeriodEndLong}
@@ -312,7 +314,7 @@ function BillingPage() {
       ) : (
         <AppLayout variant="center" maxWidth="64rem" title={t`Billing`} subtitle={t`Choose a plan to get started.`}>
           {!isStripeConfigured && (
-            <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+            <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
               <AlertTriangleIcon className="size-4 shrink-0" />
               <Trans>Billing is not configured. Please contact support to enable payment processing.</Trans>
             </div>

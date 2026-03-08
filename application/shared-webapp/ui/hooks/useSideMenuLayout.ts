@@ -1,5 +1,7 @@
 import type React from "react";
+
 import { useEffect, useState } from "react";
+
 import {
   getRootFontSize,
   getSideMenuCollapsedWidth,

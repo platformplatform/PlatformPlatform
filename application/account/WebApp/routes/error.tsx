@@ -11,6 +11,7 @@ import { Link } from "@repo/ui/components/Link";
 import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import { AlertCircle, Building2, LogIn, LogOut, ShieldAlert, UserPlus, UserX } from "lucide-react";
 import { type ReactNode, useContext, useRef, useState } from "react";
+
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
@@ -344,7 +345,7 @@ function ErrorPage() {
           </div>
 
           {id && (
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm text-muted-foreground">
               <Trans>Reference ID: {id}</Trans>
             </p>
           )}

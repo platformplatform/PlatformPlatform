@@ -4,6 +4,7 @@ import { loginPath, signUpPath } from "@repo/infrastructure/auth/constants";
 import { useIsAuthenticated } from "@repo/infrastructure/auth/hooks";
 import { Link } from "@repo/ui/components/Link";
 import { Suspense } from "react";
+
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";
 import UserMenu from "@/federated-modules/userMenu/UserMenu";

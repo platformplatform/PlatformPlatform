@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+
 import type { AuthSyncMessage, TenantSwitchedMessage, UserLoggedInMessage } from "./AuthSyncService";
+
 import { authSyncService, setHasPendingAuthSync } from "./AuthSyncService";
 import { useUserInfo } from "./hooks";
 import { getCurrentSanitizedUrl } from "./urlSanitizer";

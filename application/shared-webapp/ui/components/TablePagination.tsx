@@ -1,5 +1,7 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import type { ReactNode } from "react";
+
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+
 import { Button } from "./Button";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink } from "./Pagination";
 

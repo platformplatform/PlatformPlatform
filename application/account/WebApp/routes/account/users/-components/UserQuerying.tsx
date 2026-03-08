@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Filter, FilterX, SearchIcon, XIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
 import { type SortableUserProperties, type SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
 import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
@@ -170,7 +171,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
 
   return (
     <div ref={containerRef} className="flex items-center gap-2">
-      <Field className={showAllFilters ? "w-60 shrink-0" : "min-w-32 max-w-60 flex-1"}>
+      <Field className={showAllFilters ? "w-60 shrink-0" : "max-w-60 min-w-32 flex-1"}>
         <FieldLabel>{t`Search`}</FieldLabel>
         <InputGroup>
           <InputGroupAddon>
@@ -295,7 +296,7 @@ export function UserQuerying({ onFiltersUpdated, onFiltersExpandedChange }: User
                 <Filter size={16} aria-label={t`Show search filters`} />
               )}
               {activeFilterCount > 0 && !showAllFilters && (
-                <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground text-xs">
+                <span className="absolute -top-1 -right-1 flex size-5 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                   {activeFilterCount}
                 </span>
               )}

@@ -12,8 +12,11 @@ import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { getInitials } from "@repo/utils/string/getInitials";
 import { InfoIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
+
 import type { components } from "@/shared/lib/api/client";
+
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+
 import { ChangeUserRoleDialog } from "./ChangeUserRoleDialog";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -52,7 +55,7 @@ function UserProfileContent({
         <h4>
           {user.firstName} {user.lastName}
         </h4>
-        {user.title && <span className="block text-muted-foreground text-sm">{user.title}</span>}
+        {user.title && <span className="block text-sm text-muted-foreground">{user.title}</span>}
       </div>
 
       {/* Contact Information */}
@@ -65,7 +68,7 @@ function UserProfileContent({
             <div className="flex flex-col items-end gap-1">
               <p className="text-right text-sm">{user.email}</p>
               {user.emailConfirmed ? (
-                <Badge variant="secondary" className="bg-success text-success-foreground text-xs">
+                <Badge variant="secondary" className="bg-success text-xs text-success-foreground">
                   <Trans>Verified</Trans>
                 </Badge>
               ) : (
@@ -82,7 +85,7 @@ function UserProfileContent({
 
       {/* Role Information */}
       <div className="mb-4 flex items-center justify-between">
-        <span className="font-semibold text-sm">
+        <span className="text-sm font-semibold">
           <Trans>Role</Trans>
         </span>
         {canModifyUser ? (
@@ -138,10 +141,10 @@ function UserProfileContent({
 
 function NoticeBar({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="border-border border-b bg-muted px-4 py-3">
+    <div className="border-b border-border bg-muted px-4 py-3">
       <div className="flex items-center gap-2 text-muted-foreground">
         <InfoIcon className="size-4 flex-shrink-0" />
-        <p className="font-medium text-sm">{children}</p>
+        <p className="text-sm font-medium">{children}</p>
       </div>
     </div>
   );

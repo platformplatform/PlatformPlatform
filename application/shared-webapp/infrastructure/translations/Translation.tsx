@@ -1,7 +1,9 @@
+import type React from "react";
+
 import { i18n, type Messages } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import type React from "react";
 import { useEffect, useMemo, useState } from "react";
+
 import localeMap from "./i18n.config.json";
 import { type TranslationContext, translationContext } from "./TranslationContext";
 

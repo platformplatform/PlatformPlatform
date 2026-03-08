@@ -1,10 +1,12 @@
+import type { ReactNode } from "react";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { enhancedFetch } from "@repo/infrastructure/http/httpClient";
 import { Button } from "@repo/ui/components/Button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { LogOutIcon } from "lucide-react";
-import type { ReactNode } from "react";
+
 import LocaleSwitcher from "@/federated-modules/common/LocaleSwitcher";
 import SupportButton from "@/federated-modules/common/SupportButton";
 import ThemeModeSelector from "@/federated-modules/common/ThemeModeSelector";

@@ -1,6 +1,8 @@
+import type * as React from "react";
+
 import { t } from "@lingui/core/macro";
 import { InfoIcon } from "lucide-react";
-import type * as React from "react";
+
 import { Tooltip, TooltipContent, TooltipTrigger } from "./Tooltip";
 
 export interface LabelWithTooltipProps {

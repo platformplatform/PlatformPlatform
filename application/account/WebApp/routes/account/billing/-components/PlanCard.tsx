@@ -5,7 +5,9 @@ import { Button } from "@repo/ui/components/Button";
 import { Separator } from "@repo/ui/components/Separator";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { CheckIcon } from "lucide-react";
+
 import type { components } from "@/shared/lib/api/api.generated";
+
 import { SubscriptionPlan } from "@/shared/lib/api/client";
 
 type PlanPriceItem = components["schemas"]["PlanPriceItem"];
@@ -199,7 +201,7 @@ export function PlanCard({
         )}
       </div>
       <div className="flex flex-col gap-1">
-        <div className="font-semibold text-2xl">
+        <div className="text-2xl font-semibold">
           {isCurrent &&
           currentPriceAmount != null &&
           currentPriceCurrency != null &&
@@ -214,7 +216,7 @@ export function PlanCard({
           )}
         </div>
         {taxExclusive && plan !== SubscriptionPlan.Basis && (
-          <span className="font-normal text-muted-foreground text-sm">
+          <span className="text-sm font-normal text-muted-foreground">
             <Trans>Excl. tax</Trans>
           </span>
         )}

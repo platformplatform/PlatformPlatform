@@ -31,6 +31,7 @@ import {
   UsersIcon
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import { fetchTenants, logoutApi, sortTenants, switchTenantApi, type TenantInfo } from "../common/tenantUtils";
@@ -77,16 +78,16 @@ function TenantSwitcherDrawer({
                 variant="ghost"
                 onClick={() => onTenantSwitch(tenant)}
                 disabled={tenant.tenantId === currentTenantId || tenant.isNew}
-                className="flex h-[var(--control-height)] w-full items-center justify-start gap-3 rounded-md px-3 py-2 font-normal text-sm hover:bg-hover-background active:bg-hover-background disabled:cursor-default disabled:opacity-100"
+                className="flex h-[var(--control-height)] w-full items-center justify-start gap-3 rounded-md px-3 py-2 text-sm font-normal hover:bg-hover-background active:bg-hover-background disabled:cursor-default disabled:opacity-100"
               >
                 <TenantLogo logoUrl={tenant.logoUrl} tenantName={tenant.tenantName || ""} />
                 <div className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                  <span className="overflow-hidden text-ellipsis whitespace-nowrap text-left">
+                  <span className="overflow-hidden text-left text-ellipsis whitespace-nowrap">
                     {tenant.tenantName || t`Unnamed account`}
                   </span>
                   <div className="flex shrink-0 items-center gap-2">
                     {tenant.isNew && (
-                      <Badge variant="secondary" className="bg-warning text-warning-foreground text-xs">
+                      <Badge variant="secondary" className="bg-warning text-xs text-warning-foreground">
                         <Trans>Invitation pending</Trans>
                       </Badge>
                     )}
@@ -169,7 +170,7 @@ function MobileMenuContent({
           <Button
             variant="ghost"
             onClick={() => setIsUserExpanded(!isUserExpanded)}
-            className="flex h-14 w-full items-center justify-start gap-3 rounded-md py-2 pr-3 pl-2 font-normal text-sm hover:bg-hover-background active:bg-hover-background"
+            className="flex h-14 w-full items-center justify-start gap-3 rounded-md py-2 pr-3 pl-2 text-sm font-normal hover:bg-hover-background active:bg-hover-background"
             aria-expanded={isUserExpanded}
           >
             <Avatar className="size-8">
@@ -178,7 +179,7 @@ function MobileMenuContent({
             </Avatar>
             <div className="min-w-0 flex-1 text-left">
               <div className="truncate font-medium text-foreground">{userInfo.fullName}</div>
-              <div className="truncate text-muted-foreground text-xs">{userInfo.email}</div>
+              <div className="truncate text-xs text-muted-foreground">{userInfo.email}</div>
             </div>
             <ChevronDownIcon
               className={`size-4 shrink-0 text-muted-foreground transition-transform duration-150 ${isUserExpanded ? "rotate-180" : ""}`}
@@ -241,13 +242,13 @@ function MobileMenuContent({
           <Button
             variant="ghost"
             onClick={() => setIsTenantExpanded(!isTenantExpanded)}
-            className="flex h-14 w-full items-center justify-start gap-3 rounded-md py-2 pr-3 pl-2 font-normal text-sm hover:bg-hover-background active:bg-hover-background"
+            className="flex h-14 w-full items-center justify-start gap-3 rounded-md py-2 pr-3 pl-2 text-sm font-normal hover:bg-hover-background active:bg-hover-background"
             aria-expanded={isTenantExpanded}
           >
             <div className="flex size-8 shrink-0 items-center justify-center">
               <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} />
             </div>
-            <div className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-foreground">
+            <div className="min-w-0 flex-1 overflow-hidden text-left font-medium text-ellipsis whitespace-nowrap text-foreground">
               {currentTenantName}
             </div>
             <ChevronDownIcon
@@ -450,15 +451,15 @@ export default function MobileMenu({ onNavigate }: Readonly<MobileMenuProps>) {
       {userInfo?.isAuthenticated && (
         <div className="-mx-3 -mt-5 mb-2 flex items-center justify-center gap-3 bg-muted px-3 py-2.5 dark:bg-transparent">
           <TenantLogo logoUrl={currentTenantLogoUrl} tenantName={currentTenantNameForLogo} size="sm" />
-          <h5 className="mb-0 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap font-normal">
+          <h5 className="mb-0 min-w-0 overflow-hidden font-normal text-ellipsis whitespace-nowrap">
             {currentTenantName}
           </h5>
         </div>
       )}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-1 py-1">
+      <div className="flex-1 overflow-x-hidden overflow-y-auto px-1 py-1">
         <MobileMenuContent tenants={tenants} onOpenTenantSwitcher={handleOpenTenantSwitcher} />
 
-        <div className="my-3 border-border border-b" />
+        <div className="my-3 border-b border-border" />
 
         <div className="flex flex-col">
           <SideMenuSeparator>

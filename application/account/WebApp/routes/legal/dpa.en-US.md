@@ -7,6 +7,7 @@
 > ⚠️ **Important: Customize This DPA**
 >
 > This is an AI-generated template Data Processing Agreement for self-signup B2B SaaS applications. Before production use, you must:
+>
 > - Update "Effective date" at top
 > - Replace Data Processor details below with your company information
 > - Review and customize Schedule 1 processing details to match your actual service (remove "Communications data" if you don't have chat/messaging features)
@@ -196,12 +197,15 @@ By continuing to use the Service after the effective date of changes, the Accoun
 ## Schedule 1: Details of Processing
 
 ### Subject Matter
+
 Processing of Personal Data in connection with the provision of the Service to the Controller.
 
 ### Duration
+
 The duration of the Controller's subscription to the Service, plus the retention period described in Section 11.
 
 ### Nature and Purpose of Processing
+
 - Hosting and storage of data uploaded by the Controller
 - Providing Service functionality to the Controller and its Users
 - Processing data according to Controller's instructions through use of Service features
@@ -213,17 +217,20 @@ The duration of the Controller's subscription to the Service, plus the retention
 The specific types of Personal Data processed depend on how the Controller uses the Service and what data the Controller uploads. This may include:
 
 **Account and User Information:**
+
 - Account information (names, logos, business details, etc.)
 - User information (email addresses, names, profile information, preferences, etc.)
 - Authentication and access credentials
 
 **Usage and Technical Data:**
+
 - Application usage (pages visited, features used, interaction patterns, time spent, etc.)
 - Device and technical information (browser, operating system, app version, etc.)
 - Location data (country, state, city, etc.) derived from connections
 - User and Account metadata (subscription plans, feature flags, roles, settings, etc.)
 
 **Business Data:**
+
 - Business activity data (entity types, state changes, user actions, etc.)
 - Communications data (messages, chat conversations, etc. where applicable)
 - Any other data the Controller uploads or creates through the Service
@@ -237,6 +244,7 @@ Data Subjects processed under this DPA include:
 - Other individuals whose Personal Data the Controller processes through the Service
 
 ### Processing Operations
+
 Collection, recording, organization, structuring, storage, adaptation, retrieval, consultation, use, disclosure by transmission, dissemination, restriction, erasure, and destruction.
 
 ---
@@ -261,36 +269,44 @@ We will provide 14 days advance notice before engaging additional Sub-Processors
 ### Technical Security Measures
 
 **Encryption:**
+
 - Data in transit protected by HTTPS/TLS 1.3 or higher
 - Data at rest encrypted by Azure platform services
 
 **Access Controls:**
+
 - Role-based access control
 - Authentication and access management
 
 **Database Security:**
+
 - SQL Server auditing (90-day retention)
 - SQL Server vulnerability assessments
 - SQL Server security alerts
 
 **Monitoring and Logging:**
+
 - Application monitoring and logging
 - Database audit logs
 - Security event logging
 
 **Infrastructure Security:**
+
 - Azure Platform-as-a-Service security (managed infrastructure, automatic patching, network protection)
 
 ### Organizational Security Measures
 
 **Personnel Security:**
+
 - Employees subject to confidentiality obligations under applicable employment law or contract
 - Access to Personal Data limited to personnel who require it for their functions
 
 **Incident Response:**
+
 - Data breach notification procedures as described in Section 8
 
 **Data Protection:**
+
 - Data retention and deletion policies as described in Section 11 and [Privacy Policy](/legal/privacy)
 - Backup procedures (Azure-managed)
 

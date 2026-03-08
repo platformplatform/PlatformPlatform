@@ -1,4 +1,5 @@
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
+
 import { cn } from "../utils";
 
 function ScrollArea({ className, children, ...props }: ScrollAreaPrimitive.Root.Props) {
@@ -23,7 +24,7 @@ function ScrollAreaScrollbar({ className, orientation = "vertical", ...props }: 
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
       className={cn(
-        "flex touch-none select-none transition-opacity duration-150",
+        "flex touch-none transition-opacity duration-150 select-none",
         "opacity-0 data-hovering:opacity-100 data-scrolling:opacity-100",
         orientation === "vertical" && "absolute top-0 right-0 bottom-0 w-2.5",
         orientation === "horizontal" && "absolute right-0 bottom-0 left-0 h-2.5 flex-col",

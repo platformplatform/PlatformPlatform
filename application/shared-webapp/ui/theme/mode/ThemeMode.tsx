@@ -1,5 +1,6 @@
-import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import type React from "react";
+
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 import { useEffect } from "react";
 
 export { useTheme } from "next-themes";

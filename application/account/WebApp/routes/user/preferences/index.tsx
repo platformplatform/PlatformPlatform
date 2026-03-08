@@ -11,6 +11,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, MoonIcon, MoonStarIcon, SunIcon, SunMoonIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { use, useEffect, useState } from "react";
+
 import { api } from "@/shared/lib/api/client";
 
 const zoomLevelStorageKey = "zoom-level";
@@ -186,7 +187,7 @@ function PreferencesPage() {
           <h3 className="mb-1">
             <Trans>Theme</Trans>
           </h3>
-          <p className="mb-4 text-muted-foreground text-sm">
+          <p className="mb-4 text-sm text-muted-foreground">
             <Trans>Choose how the application looks to you on this device.</Trans>
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -215,7 +216,7 @@ function PreferencesPage() {
           <h3 className="mb-1">
             <Trans>Language</Trans>
           </h3>
-          <p className="mb-4 text-muted-foreground text-sm">
+          <p className="mb-4 text-sm text-muted-foreground">
             <Trans>Select your preferred language. Saved to your profile.</Trans>
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -235,7 +236,7 @@ function PreferencesPage() {
           <h3 className="mb-1">
             <Trans>Zoom</Trans>
           </h3>
-          <p className="mb-4 text-muted-foreground text-sm">
+          <p className="mb-4 text-sm text-muted-foreground">
             <Trans>Adjust the interface size on this device to your preference.</Trans>
           </p>
           <Select value={currentZoomLevel} onValueChange={handleZoomLevelChange}>

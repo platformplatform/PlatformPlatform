@@ -1,4 +1,5 @@
 import type { Messages } from "@lingui/core";
+
 import { type Locale, type LocaleFile, Translation } from "./Translation";
 
 // Module federation container type

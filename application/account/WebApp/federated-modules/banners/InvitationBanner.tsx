@@ -5,9 +5,12 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { MailIcon } from "lucide-react";
 import { useState } from "react";
-import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
+
 import type { components } from "@/shared/lib/api/api.generated";
+
+import { useSwitchTenant } from "@/shared/hooks/useSwitchTenant";
 import { api } from "@/shared/lib/api/client";
+
 import { AcceptInvitationDialog } from "../common/AcceptInvitationDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 
@@ -63,7 +66,7 @@ export default function InvitationBanner() {
 
   return (
     <>
-      <div className="flex h-12 items-center gap-3 border-warning/50 border-b bg-warning px-4 text-sm">
+      <div className="flex h-12 items-center gap-3 border-b border-warning/50 bg-warning px-4 text-sm">
         <MailIcon className="size-4 shrink-0 text-warning-foreground" />
         <span className="flex-1 text-warning-foreground">
           {invitationCount === 1 ? (

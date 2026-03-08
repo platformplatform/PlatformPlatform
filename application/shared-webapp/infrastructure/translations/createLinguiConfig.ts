@@ -1,5 +1,7 @@
 import type { LinguiConfig } from "@lingui/conf";
+
 import { formatter } from "@lingui/format-po";
+
 import i18nConfig from "./i18n.config.json";
 
 export function createLinguiConfig(): LinguiConfig {

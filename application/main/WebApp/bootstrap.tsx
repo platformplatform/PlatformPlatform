@@ -7,6 +7,7 @@ import { Toaster } from "@repo/ui/components/Sonner";
 import { RouterProvider } from "@tanstack/react-router";
 import React from "react";
 import reactDom from "react-dom/client";
+
 import { router } from "@/shared/lib/router/router";
 
 const { TranslationProvider } = await createFederatedTranslation(

@@ -1,3 +1,5 @@
+import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
@@ -8,16 +10,17 @@ import { Separator } from "@repo/ui/components/Separator";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { AccountFields } from "@/shared/components/AccountFields";
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { api, type Schemas, SuspensionReason, TenantState, UserRole } from "@/shared/lib/api/client";
 import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
+
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
 
 export const Route = createFileRoute("/account/settings/")({

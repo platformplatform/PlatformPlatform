@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { getDateDaysAgo, getTodayIsoDate } from "@repo/utils/date/formatDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
+
 import { api, UserStatus } from "@/shared/lib/api/client";
 
 export const Route = createFileRoute("/account/")({
@@ -27,14 +28,14 @@ export default function Home() {
           aria-label={t`View users`}
         >
           <div>
-            <div className="font-medium text-foreground text-sm">
+            <div className="text-sm font-medium text-foreground">
               <Trans>Total users</Trans>
             </div>
-            <div className="mt-1 text-muted-foreground text-sm">
+            <div className="mt-1 text-sm text-muted-foreground">
               <Trans>Add more in the Users menu</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
+          <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.totalUsers ?? "-"}</div>
         </Link>
         <Link
           to="/account/users"
@@ -47,14 +48,14 @@ export default function Home() {
           aria-label={t`View active users`}
         >
           <div>
-            <div className="font-medium text-foreground text-sm">
+            <div className="text-sm font-medium text-foreground">
               <Trans>Active users</Trans>
             </div>
-            <div className="mt-1 text-muted-foreground text-sm">
+            <div className="mt-1 text-sm text-muted-foreground">
               <Trans>Active users in the past 30 days</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
+          <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.activeUsers ?? "-"}</div>
         </Link>
         <Link
           to="/account/users"
@@ -63,14 +64,14 @@ export default function Home() {
           aria-label={t`View invited users`}
         >
           <div>
-            <div className="font-medium text-foreground text-sm">
+            <div className="text-sm font-medium text-foreground">
               <Trans>Invited users</Trans>
             </div>
-            <div className="mt-1 text-muted-foreground text-sm">
+            <div className="mt-1 text-sm text-muted-foreground">
               <Trans>Users who haven't confirmed their email</Trans>
             </div>
           </div>
-          <div className="mt-4 font-semibold text-2xl text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
+          <div className="mt-4 text-2xl font-semibold text-foreground">{usersSummary?.pendingUsers ?? "-"}</div>
         </Link>
       </div>
     </AppLayout>

@@ -1,8 +1,9 @@
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+import type postcss from "postcss";
+
+import tailwindPostcssPlugin from "@tailwindcss/postcss";
 import fs from "node:fs";
 import path from "node:path";
-import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
-import tailwindPostcssPlugin from "@tailwindcss/postcss";
-import type postcss from "postcss";
 
 /**
  * Path to the shared Tailwind CSS styles file.

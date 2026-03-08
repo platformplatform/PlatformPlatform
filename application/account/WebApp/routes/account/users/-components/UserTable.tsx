@@ -30,9 +30,11 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { ArrowUp, EllipsisVerticalIcon, SearchIcon, SettingsIcon, Trash2Icon, UserIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+
 import { useInfiniteUsers } from "../-hooks/useInfiniteUsers";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -375,7 +377,7 @@ function UserTableContent({
                 className="cursor-pointer select-none"
                 onClick={() => handleSortChange(SortableUserProperties.Name)}
               >
-                <div className="flex items-center gap-1 font-bold text-xs">
+                <div className="flex items-center gap-1 text-xs font-bold">
                   <span>
                     <Trans>Name</Trans>
                   </span>
@@ -389,7 +391,7 @@ function UserTableContent({
                     className="cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.Email)}
                   >
-                    <div className="flex items-center gap-1 font-bold text-xs">
+                    <div className="flex items-center gap-1 text-xs font-bold">
                       <span>
                         <Trans>Email</Trans>
                       </span>
@@ -401,7 +403,7 @@ function UserTableContent({
                     className="w-[7rem] min-w-[4rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.CreatedAt)}
                   >
-                    <div className="flex items-center gap-1 font-bold text-xs">
+                    <div className="flex items-center gap-1 text-xs font-bold">
                       <span>
                         <Trans>Created</Trans>
                       </span>
@@ -413,7 +415,7 @@ function UserTableContent({
                     className="w-[7.5rem] min-w-[4rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.LastSeenAt)}
                   >
-                    <div className="flex items-center gap-1 font-bold text-xs">
+                    <div className="flex items-center gap-1 text-xs font-bold">
                       <span>
                         <Trans>Last seen</Trans>
                       </span>
@@ -425,7 +427,7 @@ function UserTableContent({
                     className="w-[8.5rem] cursor-pointer select-none"
                     onClick={() => handleSortChange(SortableUserProperties.Role)}
                   >
-                    <div className="flex items-center gap-1 font-bold text-xs">
+                    <div className="flex items-center gap-1 text-xs font-bold">
                       <span>
                         <Trans>Role</Trans>
                       </span>
@@ -466,7 +468,7 @@ function UserTableContent({
                           <Trans>Pending</Trans>
                         </Badge>
                       ) : (
-                        <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                        <span className="block truncate text-sm text-muted-foreground">{user.title ?? ""}</span>
                       )}
                     </div>
                   </div>

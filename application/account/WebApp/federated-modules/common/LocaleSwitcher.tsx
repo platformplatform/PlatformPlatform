@@ -87,13 +87,13 @@ export default function LocaleSwitcher({
           render={
             <Button
               variant="ghost"
-              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 font-normal text-base text-muted-foreground hover:bg-hover-background hover:text-foreground"
+              className="flex h-11 w-full items-center justify-start gap-4 px-3 py-2 text-base font-normal text-muted-foreground hover:bg-hover-background hover:text-foreground"
               style={{ pointerEvents: "auto" }}
             >
               <div className="flex size-6 shrink-0 items-center justify-center">
                 <GlobeIcon className="size-5 stroke-current" />
               </div>
-              <div className="min-w-0 flex-1 overflow-hidden whitespace-nowrap text-start">
+              <div className="min-w-0 flex-1 overflow-hidden text-start whitespace-nowrap">
                 <Trans>Language</Trans>
               </div>
               <div className="shrink-0 text-base text-muted-foreground">{currentLocaleLabel}</div>

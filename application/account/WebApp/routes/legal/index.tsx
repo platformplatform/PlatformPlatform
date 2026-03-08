@@ -14,6 +14,7 @@ import {
   ServerIcon,
   ShieldCheckIcon
 } from "lucide-react";
+
 import PublicFooter from "@/federated-modules/public/PublicFooter";
 import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 import gdprBadge from "@/shared/images/compliance/gdpr.png";
@@ -55,7 +56,7 @@ function LegalIndex() {
               <Link
                 href="/legal/terms"
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full px-6 transition-colors hover:bg-hover-background">
                   <ScrollTextIcon className="mb-4 size-10 text-primary" />
@@ -73,7 +74,7 @@ function LegalIndex() {
               <Link
                 href="/legal/privacy"
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full px-6 transition-colors hover:bg-hover-background">
                   <ShieldCheckIcon className="mb-4 size-10 text-primary" />
@@ -89,7 +90,7 @@ function LegalIndex() {
               <Link
                 href="/legal/dpa"
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full px-6 transition-colors hover:bg-hover-background">
                   <FileTextIcon className="mb-4 size-10 text-primary" />
@@ -217,7 +218,7 @@ function LegalIndex() {
             {/* PlatformPlatform Credit */}
             <div className="flex items-center justify-center gap-3">
               <img src={platformLogo} alt={t`PlatformPlatform logo`} className="size-10" loading="lazy" />
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 <Trans>
                   Built on{" "}
                   <Link
@@ -258,7 +259,7 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label={t`Trust Center (opens in new window)`}
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureSecurity} alt="" className="size-10" />
@@ -277,7 +278,7 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label={t`Azure Compliance (opens in new window)`}
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureCompliance} alt="" className="size-10" />
@@ -296,7 +297,7 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label={t`SOC and ISO Reports (opens in new window)`}
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azureActivityLog} alt="" className="size-10" />
@@ -315,7 +316,7 @@ function LegalIndex() {
                 rel="noopener noreferrer"
                 aria-label={t`Microsoft DPA (opens in new window)`}
                 underline={false}
-                className="block min-w-0 whitespace-normal rounded-xl outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                className="block min-w-0 rounded-xl whitespace-normal outline-ring focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
               >
                 <Card className="h-full gap-3 px-6 py-5 transition-colors hover:bg-hover-background">
                   <img src={azurePolicy} alt="" className="size-10" />

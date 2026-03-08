@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+
 import { api, TenantState } from "@/shared/lib/api/client";
+
 import SuspendedPage from "./SuspendedPage";
 
 interface TenantStateGuardProps {

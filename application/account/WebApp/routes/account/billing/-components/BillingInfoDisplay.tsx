@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { HashIcon, MailIcon, MapPinIcon, UserIcon } from "lucide-react";
+
 import type { components } from "@/shared/lib/api/api.generated";
 
 type BillingInfo = components["schemas"]["BillingInfo"];
@@ -11,7 +12,7 @@ type BillingInfoDisplayProps = {
 export function BillingInfoDisplay({ billingInfo }: Readonly<BillingInfoDisplayProps>) {
   if (!billingInfo) {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         <Trans>No billing information on file</Trans>
       </p>
     );

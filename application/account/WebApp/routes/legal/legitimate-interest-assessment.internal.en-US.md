@@ -21,6 +21,7 @@ We have determined that this processing does not require a Data Protection Impac
 ## 2. Processing Activity Under Assessment
 
 **What we process:**
+
 - Usage data from authenticated Users including pages visited, features used, interaction patterns, and session information
 - Device and browser information
 - Location data (country, state, city)
@@ -28,11 +29,13 @@ We have determined that this processing does not require a Data Protection Impac
 - Business activity data (entity types, state changes, User actions)
 
 **How we process it:**
+
 - Data is collected via Azure Application Insights (first-party analytics)
 - Data flows to our own endpoint before being processed by Microsoft Azure as our data processor
 - Data is used for aggregated analysis, individual troubleshooting, and Service improvement
 
 **Who is affected:**
+
 - Authenticated Users of our Service
 - Users are typically members of Accounts that have subscribed to our Service
 
@@ -43,20 +46,24 @@ We have determined that this processing does not require a Data Protection Impac
 We have identified the following legitimate interests in processing this data:
 
 **Product improvement:**
+
 - Understanding which features are used and valued
 - Identifying usability issues and friction points
 - Prioritizing development resources effectively
 
 **Service reliability:**
+
 - Detecting and diagnosing errors and performance issues
 - Monitoring system health and stability
 - Ensuring consistent user experience
 
 **Security:**
+
 - Identifying unusual activity patterns that may indicate security threats
 - Supporting incident investigation and response
 
 **Business operations:**
+
 - Understanding user adoption and engagement
 - Making informed decisions about service development
 
@@ -137,9 +144,9 @@ We commit to:
 
 ## 6. Document History
 
-| Date | Version | Change |
-|------|---------|--------|
-| 4 Dec, 2025 | 1.0 | Initial assessment |
+| Date        | Version | Change             |
+| ----------- | ------- | ------------------ |
+| 4 Dec, 2025 | 1.0     | Initial assessment |
 
 ---
 

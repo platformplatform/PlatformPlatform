@@ -9,8 +9,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AlertTriangleIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
 import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
+
 import { BillingTabNavigation } from "../-components/BillingTabNavigation";
 import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
 import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
@@ -275,7 +277,7 @@ function PlansPage() {
         <BillingTabNavigation activeTab="subscription" />
 
         {cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
             <AlertTriangleIcon className="size-4 shrink-0" />
             {formattedPeriodEnd ? (
               <Trans>
@@ -288,7 +290,7 @@ function PlansPage() {
         )}
 
         {scheduledPlan && !cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
             <AlertTriangleIcon className="size-4 shrink-0" />
             {formattedPeriodEnd ? (
               <Trans>
@@ -304,7 +306,7 @@ function PlansPage() {
         )}
 
         {!isStripeConfigured && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
+          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
             <AlertTriangleIcon className="size-4 shrink-0" />
             <Trans>Billing is not configured. Please contact support to enable payment processing.</Trans>
           </div>

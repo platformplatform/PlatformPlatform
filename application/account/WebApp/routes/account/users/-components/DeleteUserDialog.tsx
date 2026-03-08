@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { api, type components } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];

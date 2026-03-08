@@ -36,7 +36,9 @@ import {
   SlidersHorizontalIcon
 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+
 import { MainNavigationContext } from "@/shared/hooks/useMainNavigation";
+
 import { SupportDialog } from "../common/SupportDialog";
 import { SwitchingAccountLoader } from "../common/SwitchingAccountLoader";
 import { fetchTenants, logoutApi, sortTenants, switchTenantApi, type TenantInfo } from "../common/tenantUtils";
@@ -273,7 +275,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
           </div>
           {!isCollapsed && (
             <>
-              <div className="ml-3 flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-left font-medium text-foreground">
+              <div className="ml-3 flex-1 overflow-hidden text-left font-medium text-ellipsis whitespace-nowrap text-foreground">
                 {currentTenantName}
               </div>
               <ChevronsUpDownIcon className="ml-2 size-3.5 shrink-0 text-foreground opacity-70" />
@@ -309,7 +311,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                   <AvatarFallback className="text-xl">{userInfo.initials ?? ""}</AvatarFallback>
                 </Avatar>
                 <div
-                  className="[&_*]:!text-inherit pointer-events-none absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full border border-border"
+                  className="pointer-events-none absolute -right-0.5 -bottom-0.5 flex size-5 items-center justify-center rounded-full border border-border [&_*]:!text-inherit"
                   style={{
                     backgroundColor: isProfileCardHighlighted ? "var(--color-primary)" : "var(--color-popover)",
                     color: isProfileCardHighlighted
@@ -321,7 +323,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                 </div>
               </div>
               <span className="font-medium">{userInfo.fullName}</span>
-              <span className="text-muted-foreground text-sm group-focus/dropdown-menu-item:hidden">
+              <span className="text-sm text-muted-foreground group-focus/dropdown-menu-item:hidden">
                 {userInfo.email}
               </span>
               <span className="hidden text-sm group-focus/dropdown-menu-item:inline">
@@ -376,7 +378,7 @@ export default function UserMenu({ isCollapsed: isCollapsedProp }: Readonly<User
                           <div className="flex flex-1 items-center justify-between gap-2">
                             <div className="flex flex-col">
                               <span className="whitespace-nowrap">{tenant.tenantName || t`Unnamed account`}</span>
-                              <span className="whitespace-nowrap text-muted-foreground text-xs">{userInfo?.email}</span>
+                              <span className="text-xs whitespace-nowrap text-muted-foreground">{userInfo?.email}</span>
                             </div>
                             <Check
                               className={`ml-2 size-4 shrink-0 ${tenant.tenantId === currentTenantId ? "" : "invisible"}`}

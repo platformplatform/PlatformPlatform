@@ -10,6 +10,7 @@
  */
 
 import { toast } from "sonner";
+
 import { applicationInsights } from "../applicationInsights/ApplicationInsightsProvider";
 
 // RFC 7807 Problem Details format

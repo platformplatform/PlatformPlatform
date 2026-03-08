@@ -1,3 +1,5 @@
+import type { Stripe } from "@stripe/stripe-js";
+
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -14,12 +16,13 @@ import {
 } from "@repo/ui/components/Dialog";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import type { Stripe } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js/pure";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
 import { api } from "@/shared/lib/api/client";
+
 import { getStripeAppearance } from "./stripeAppearance";
 
 interface OpenInvoiceInfo {
@@ -106,7 +109,7 @@ export function UpdatePaymentMethodDialog({
         </DialogHeader>
         <DialogBody>
           {isLoading && <PaymentFormSkeleton />}
-          {setupError && <div className="text-destructive text-sm">{setupError}</div>}
+          {setupError && <div className="text-sm text-destructive">{setupError}</div>}
           {isReady && (
             <Elements stripe={stripePromise} options={elementsOptions}>
               <PaymentForm onSuccess={handlePaymentFormSuccess} onError={setSetupError} />

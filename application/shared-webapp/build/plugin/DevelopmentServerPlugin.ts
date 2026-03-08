@@ -1,8 +1,9 @@
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+
+import { logger } from "@rsbuild/core";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
-import { logger } from "@rsbuild/core";
 
 /**
  * Build ignore pattern for the dist folder

@@ -1,3 +1,5 @@
+import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AuthenticationContext } from "@repo/infrastructure/auth/AuthenticationProvider";
@@ -6,11 +8,11 @@ import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { useUnsavedChangesGuard } from "@repo/ui/hooks/useUnsavedChangesGuard";
-import type { FileUploadMutation } from "@repo/ui/types/FileUpload";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useContext, useState } from "react";
 import { toast } from "sonner";
+
 import { UnsavedChangesDialog } from "@/shared/components/UnsavedChangesDialog";
 import { UserProfileFields } from "@/shared/components/UserProfileFields";
 import { api, type Schemas } from "@/shared/lib/api/client";

@@ -1,3 +1,5 @@
+import type { ErrorComponentProps } from "@tanstack/react-router";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { applicationInsights } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
@@ -8,11 +10,12 @@ import { isAccessDeniedError, isNotFoundError } from "@repo/infrastructure/auth/
 import { Button } from "@repo/ui/components/Button";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
-import type { ErrorComponentProps } from "@tanstack/react-router";
 import { AlertTriangle, Home, LogOut, RefreshCw } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
+
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
+
 import LocaleSwitcher from "../common/LocaleSwitcher";
 import SupportButton from "../common/SupportButton";
 import ThemeModeSelector from "../common/ThemeModeSelector";
@@ -169,15 +172,15 @@ function GeneralErrorPage({ error }: Readonly<ErrorComponentProps>) {
               <Button
                 variant="ghost"
                 onClick={() => setShowDetails(!showDetails)}
-                className="text-muted-foreground text-sm"
+                className="text-sm text-muted-foreground"
               >
                 {showDetails ? <Trans>Hide details</Trans> : <Trans>Show details</Trans>}
               </Button>
               {showDetails && (
                 <div className="mt-3 rounded-lg border border-border bg-muted/50 p-4 text-left">
-                  <p className="break-all font-mono text-muted-foreground text-sm">{error.message}</p>
+                  <p className="font-mono text-sm break-all text-muted-foreground">{error.message}</p>
                   {error.stack && (
-                    <pre className="mt-2 max-h-40 overflow-auto font-mono text-muted-foreground text-xs">
+                    <pre className="mt-2 max-h-40 overflow-auto font-mono text-xs text-muted-foreground">
                       {error.stack}
                     </pre>
                   )}

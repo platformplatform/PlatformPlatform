@@ -4,6 +4,7 @@ import { createBlockableMemoryHistory } from "@repo/infrastructure/router/create
 import { shouldBlockNavigation } from "@repo/ui/hooks/federatedNavigationGuard";
 import { createRouter, type NavigateOptions, RouterProvider } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { UnsavedChangesDialog } from "../shared/components/UnsavedChangesDialog";
 import { MainNavigationContext } from "../shared/hooks/useMainNavigation";
 import { routeTree } from "../shared/lib/router/routeTree.generated";

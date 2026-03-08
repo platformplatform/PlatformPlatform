@@ -12,6 +12,7 @@ import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from
 import { getInitials } from "@repo/utils/string/getInitials";
 import { Trash2Icon } from "lucide-react";
 import { useCallback, useMemo } from "react";
+
 import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
@@ -194,27 +195,27 @@ export function DeletedUsersTable({
                 </TableHead>
               )}
               <TableHead className={isSmallViewportOrLarger() ? "min-w-[16rem]" : ""}>
-                <span className="font-bold text-xs">
+                <span className="text-xs font-bold">
                   <Trans>Name</Trans>
                 </span>
               </TableHead>
               {isSmallViewportOrLarger() && (
                 <TableHead className="min-w-[10rem]">
-                  <span className="font-bold text-xs">
+                  <span className="text-xs font-bold">
                     <Trans>Email</Trans>
                   </span>
                 </TableHead>
               )}
               {isMediumViewportOrLarger() && (
                 <TableHead className="w-[9rem] min-w-[7.5rem]">
-                  <span className="font-bold text-xs">
+                  <span className="text-xs font-bold">
                     <Trans>Deleted</Trans>
                   </span>
                 </TableHead>
               )}
               {isSmallViewportOrLarger() && (
                 <TableHead className="w-[6rem]">
-                  <span className="font-bold text-xs">
+                  <span className="text-xs font-bold">
                     <Trans>Role</Trans>
                   </span>
                 </TableHead>
@@ -257,7 +258,7 @@ export function DeletedUsersTable({
                                   : ""}
                             </span>
                           </div>
-                          <span className="block truncate text-muted-foreground text-sm">{user.title ?? ""}</span>
+                          <span className="block truncate text-sm text-muted-foreground">{user.title ?? ""}</span>
                         </div>
                       </div>
                     </div>

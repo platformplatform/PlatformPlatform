@@ -1,4 +1,5 @@
 import type { Middleware } from "openapi-fetch";
+
 import { loginPath } from "./constants";
 import { createLoginUrlWithReturnPath } from "./util";
 

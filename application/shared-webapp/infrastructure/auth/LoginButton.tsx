@@ -1,6 +1,8 @@
+import type { ComponentPropsWithoutRef } from "react";
+
 import { Button } from "@repo/ui/components/Button";
 import { useNavigate } from "@tanstack/react-router";
-import type { ComponentPropsWithoutRef } from "react";
+
 import { loginPath } from "./constants";
 
 type LoginButtonProps = {

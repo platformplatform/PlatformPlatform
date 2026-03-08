@@ -1,3 +1,5 @@
+import type { Stripe } from "@stripe/stripe-js";
+
 import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
@@ -16,12 +18,13 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Skeleton } from "@repo/ui/components/Skeleton";
 import { formatCurrency } from "@repo/utils/currency/formatCurrency";
 import { CheckoutProvider, PaymentElement, useCheckout } from "@stripe/react-stripe-js/checkout";
-import type { Stripe } from "@stripe/stripe-js";
 import { loadStripe } from "@stripe/stripe-js/pure";
 import { LoaderCircleIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+
 import { api, type SubscriptionPlan as SubscriptionPlanType } from "@/shared/lib/api/client";
+
 import { getPlanDetails } from "./PlanCard";
 import { getStripeAppearance } from "./stripeAppearance";
 
@@ -156,14 +159,14 @@ export function CheckoutDialog({
           {isWaitingForActivation ? (
             <div className="flex flex-col items-center gap-4 py-8">
               <LoaderCircleIcon className="size-8 animate-spin text-primary" />
-              <p className="text-muted-foreground text-sm">
+              <p className="text-sm text-muted-foreground">
                 <Trans>Activating your subscription...</Trans>
               </p>
             </div>
           ) : (
             <>
               {isLoading && <CheckoutSkeleton />}
-              {paymentError && <div className="text-destructive text-sm">{paymentError}</div>}
+              {paymentError && <div className="text-sm text-destructive">{paymentError}</div>}
               {isReady && (
                 <CheckoutProvider stripe={stripePromise} options={checkoutOptions}>
                   <CheckoutForm plan={plan} onConfirmed={handleConfirmed} onError={setPaymentError} />
@@ -308,7 +311,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
               <span>
                 <Trans>Total</Trans>
               </span>
-              <span className="shrink-0 whitespace-nowrap text-lg tabular-nums">
+              <span className="shrink-0 text-lg whitespace-nowrap tabular-nums">
                 {formatCurrency(preview.totalAmount, preview.currency)}
               </span>
             </div>
@@ -341,7 +344,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
           />
           {isPaymentReady && (
             <>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-xs text-muted-foreground">
                 <Trans>
                   By subscribing, you agree to our{" "}
                   <a href="/legal/terms" className="underline" target="_blank" rel="noopener noreferrer">
