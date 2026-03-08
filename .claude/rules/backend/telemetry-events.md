@@ -10,7 +10,7 @@ Guidelines for implementing telemetry events in the backend, including event str
 ## Implementation
 
 1. Create telemetry events to collect information about application behavior and usage, helping stakeholders understand how the application is used
-2. Always create telemetry events in `/[scs-name]/Core/TelemetryEvents.cs` to maintain consistent naming
+2. Always create telemetry events in `/[scs-name]/Core/Features/TelemetryEvents.cs` to maintain consistent naming
 3. Name telemetry events in past tense (e.g., `LoginCompleted`, `UserCreated`) and inherit from `TelemetryEvent`
 4. Ensure events are sorted alphabetically in the `TelemetryEvents.cs` file
 5. Use primary constructors to define event properties

@@ -13,7 +13,7 @@ Guidelines for implementing and extending the custom Developer Command Line Inte
    - Create one file per command in `developer-cli/Commands`
    - Name the file with `Command` suffix and inherit from `System.CommandLine.Command`
    - Provide a concise description in the constructor explaining the command's purpose
-   - Define all command options using `AddOption()` in the constructor
+   - Define command options and register them using `Options.Add()`
    - Implement the command's logic in a private `Execute` method
    - Use static methods where appropriate for better organization
 
@@ -32,10 +32,10 @@ Guidelines for implementing and extending the custom Developer Command Line Inte
 
 4. Process Execution:
    - Use `ProcessHelper` for all external process execution
-   - Use `ProcessHelper.StartProcess()` for simple execution
-   - Use `ProcessHelper.StartProcessWithSystemShell()` for shell features
+   - Use `ProcessHelper.Run()` for standard operations (handles quiet vs verbose output automatically)
+   - Use `ProcessHelper.ExecuteQuietly()` to capture output without showing user feedback
+   - Use `ProcessHelper.StartProcess()` for direct execution with special cases
    - Specify working directory as the second parameter when needed
-   - Handle process execution errors appropriately
 
 5. Error Handling:
    - Use `try/catch` blocks to handle exceptions
@@ -51,8 +51,8 @@ Guidelines for implementing and extending the custom Developer Command Line Inte
    - Use tables, panels, or other Spectre.Console features for complex output
 
 7. Command Registration:
-   - Set the command handler in the constructor using `CommandHandler.Create<>()`
-   - Match handler parameters with command options
+   - Set the command handler using `SetAction(parseResult => Execute(...))` in the constructor
+   - Use `parseResult.GetValue(option)` to map options to handler parameters
    - Use nullable types for optional parameters
 
 8. Utility Classes:
@@ -78,9 +78,16 @@ public class BuildCommand : Command
 {
     public BuildCommand() : base("build", "Builds the solution")
     {
-        AddOption(new Option<string?>(["<self-contained-system>", "--self-contained-system", "-s"], "The self-contained system to build")); // ✅ DO: Consistent option naming
-        AddOption(new Option<bool>(["--verbose", "-v"], () => false, "Enable verbose output"));
-        Handler = CommandHandler.Create<string?, bool>(Execute);
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The self-contained system to build" }; // ✅ DO: Constructor-style option definition
+        var verboseOption = new Option<bool>("--verbose", "-v") { Description = "Enable verbose output" };
+
+        Options.Add(selfContainedSystemOption); // ✅ DO: Register with Options.Add()
+        Options.Add(verboseOption);
+
+        SetAction(parseResult => Execute( // ✅ DO: Use SetAction with parseResult
+            parseResult.GetValue(selfContainedSystemOption),
+            parseResult.GetValue(verboseOption)
+        ));
     }
 
     private static void Execute(string? solutionName, bool verbose)
@@ -97,7 +104,7 @@ public class BuildCommand : Command
         {
             AnsiConsole.MarkupLine("[blue]Building solution...[/]"); // ✅ DO: Use AnsiConsole
 
-            ProcessHelper.StartProcess($"dotnet build {solutionName}"); // ✅ DO: Use ProcessHelper
+            ProcessHelper.Run($"dotnet build {solutionName}", verbose); // ✅ DO: Use ProcessHelper.Run()
             AnsiConsole.MarkupLine("[green]Build completed successfully[/]");
         }
         catch (Exception ex)
@@ -113,14 +120,13 @@ public class BadBuildCommand : Command
     public BadBuildCommand() : base("bad-build", "Bad build command")
     {
         // ❌ Use inconsistent option naming (single dash for long names, double dash for short)
-        AddOption(new Option<string?>(["-file-name", "--f"], "The name of the solution to process")); 
-        Handler = CommandHandler.Create<string>(Execute);
+        AddOption(new Option<string?>(["-file-name", "--f"], "The name of the solution to process"));
+        Handler = CommandHandler.Create<string>(Execute); // ❌ DON'T: Use CommandHandler.Create, use SetAction instead
     }
     private static int Execute(string file)
     {
         // ❌ DON'T: Skip prerequisite checks
         if (string.IsNullOrEmpty(file)) throw new ArgumentException("File required"); // ❌ DON'T: Throw exceptions
-        Console.WriteLine("Building..."); // ❌ DON'T: Use Console.WriteLine
         var process = System.Diagnostics.Process.Start("dotnet", $"build {file}"); // ❌ DON'T: Use Process.Start directly
         process.WaitForExit();
         return process.ExitCode; // ❌ DON'T: Return exit code, use Environment.Exit instead

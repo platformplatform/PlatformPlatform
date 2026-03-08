@@ -13,7 +13,6 @@ Team leads: execute this workflow directly. Do not delegate it.
 1. Before creating a pull request, gather context by inspecting the changes:
    - Get the full list of commits: `git --no-pager log --format=%s --reverse $(git merge-base HEAD main)..HEAD`
    - View the full diff: `git --no-pager diff main`
-   - If needed, examine specific files for more context
 
 2. Create a pull request title that is:
    - In imperative form ("Fix", "Add", "Upgrade", "Refactor", etc.)
@@ -31,24 +30,7 @@ Team leads: execute this workflow directly. Do not delegate it.
    - **Summary & Motivation**: Start with the most important change, use bullet points for multiple changes, and mention minor fixes last
    - **Checklist**: Do not change the checklist from .github/PULL_REQUEST_TEMPLATE.md, and do not [x] the list—this should be a manual task
 
-5. Only for pull requests to the "PlatformPlatform Upstream repository" add a `### Downstream projects` section if needed:
-   - Downstream projects integrate all pull requests from the PlatformPlatform Upstream repository into their own downstream repository, where the product is built in the [Main](/application/main) self-contained system
-   - If the file [application/PlatformPlatform.slnx](/application/PlatformPlatform.slnx) exists, this is the "PlatformPlatform Upstream repository". In downstream projects, the Visual Studio solution file has been renamed
-   - **Important**: Since downstream projects build in [Main](/application/main), all changes already made to `main/` files in the upstream PR arrive automatically when downstream merges. Never tell downstream to redo, verify, or re-apply changes that are already in the upstream `main/` code. The downstream section should only describe genuinely new work that downstream must do in their own custom code
-   - Include this section only when changes require modifications in downstream custom code beyond what the upstream merge provides
-   - A sign that this is needed is when:
-     - Breaking changes have been made to shared components (typically in `application/shared-kernel` or `application/shared-webapp`) that introduce new required props, renamed APIs, or removed features that downstream custom code may use
-     - New conventions or patterns are introduced (e.g., a required prop on a shared component) that downstream must apply to their own custom usages
-     - Changes to workflow files [main.yml](/.github/workflows/main.yml), [account.yml](/.github/workflows/account.yml), and [back-office.yml](/.github/workflows/back-office.yml) that need equivalent changes in downstream workflow files
-   - Use direct, specific language when addressing what needs to be done, e.g., "Add `trackingTitle` to all `Dialog` usages in custom code:"
-   - Avoid phrases like "Downstream projects should" or "Downstream projects must". Use more direct phrasing
-   - Use a numbered list for multiple changes, make it clear if multiple changes are required
-   - Be very specific about the changes needed:
-     - Reference `main/` paths when describing where downstream should make changes
-     - Only describe changes that downstream must make themselves, never include steps for changes already in the upstream merge
-   - Include exact filenames, code snippets, and Git diffs as needed
-
-6. Build, test, format and lint the codebase using the MCP tools:
+5. Build, test, format and lint the codebase using the MCP tools:
 
    **For backend changes** (`*.cs` files):
    1. Run **build** first: `build(backend=true)`
@@ -65,9 +47,7 @@ Team leads: execute this workflow directly. Do not delegate it.
 
    If there are errors, they must be fixed before the pull request can be created.
 
-7. Save the generated pull request (title and description) to `.workspace/pull-request.md`:
-   - Create the file with the pull request title as a level 1 heading, followed by the full description
-   - Display the pull request content in the AI editor as normal
+6. Save the pull request title (as a level 1 heading) and description to `.workspace/<branch-name>/pull-request.md`
    - End with a clickable link to the saved file using the full absolute path
 
 ## Examples
@@ -99,19 +79,6 @@ Add data protection key sharing between self-contained systems to fix antiforger
 
 # ✅ Correctly NOT adding a short summary of the benefits here!!!
 
-### Downstream projects
-
-1. Update `main/Api/Program.cs` to use the shared data protection keys. # ✅ DO: use `main/` paths since downstream projects build in main
-
-# ✅ DO: Use Git diff syntax to show what should be changed
-   '''diff
-   - // No shared data protection configuration
-   + // Configure shared data protection keys
-   + builder.Services
-   +     .AddDataProtection()
-   +     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(".platformplatform", "dataprotection-keys")));
-   '''
-
 ### Checklist # ✅ DO: Correctly add the check points from PULL_REQUEST_TEMPLATE.md without setting the [x]
 
 - [ ] I have added tests, or done manual regression tests
@@ -129,10 +96,6 @@ In this pull request we fixed a bug causing issues in our scs's.
 
 These changes make the system more robust and maintainable. # ❌ DON'T: Create short summary statements to finish the description. Skip this line
 
-### Downstream projects # ❌ DON'T: Include steps for downstream projects when all changes are done in PlatformPlatform
-
-Update SharedKernel with new feature.
-
 ### Checklist  # ❌ DON'T: Use made up checklist
 
 - [x] Code follows the style guidelines of the project
@@ -141,8 +104,8 @@ Update SharedKernel with new feature.
 
 ### Example 3 - Output with File Link
 
-After generating the pull request, end the output with a clickable link:
+End with a clickable link to the saved file:
 
 ```
-Saved to: /Users/thomasjespersen/Developer/PlatformPlatform/.workspace/pull-request.md
+Saved to: /absolute/path/to/repo/.workspace/[branch-name]/pull-request.md
 ```

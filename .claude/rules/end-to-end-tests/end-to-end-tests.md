@@ -73,6 +73,7 @@ These rules outline the structure, patterns, and best practices for writing end-
      - Add JSDoc comments for complex test workflows
    - Use semantic selectors: `page.getByRole("button", { name: "Submit" })`, `page.getByText("Welcome")`, `page.getByLabel("Email")`
    - Assert side effects immediately after actions using `expectToastMessage`, `expectValidationError`, `expectNetworkErrors`
+   - Use `selectOption(trigger, page, optionName)` to interact with Select components (handles open, select, close sequence reliably across browsers)
    - Form validation pattern: Use `await blurActiveElement(page);` when updating a textbox the second time before submitting a form to trigger validation
 
 7. Timeout Configuration:
@@ -97,7 +98,7 @@ These rules outline the structure, patterns, and best practices for writing end-
     - Tooltips, keyboard navigation, accessibility, validation messages, translations, responsiveness, etc.
 
 11. Test Fixtures and Page Management:
-    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests
+    - Use appropriate fixtures: `{ page }` for basic tests, `{ anonymousPage }` for tests with existing tenant/owner but not logged in, `{ ownerPage }`, `{ adminPage }`, `{ memberPage }` for authenticated tests, `{ browser }` for tests requiring multiple independent browser contexts (e.g., multi-session scenarios)
     - Destructure anonymous page data: `const { page, tenant } = anonymousPage; const existingUser = tenant.owner;`
     - Pre-logged in users (`ownerPage`, `adminPage`, `memberPage`) are isolated between workers and will not conflict between tests
     - When using pre-logged in users, do not put the tenant or user into an invalid state that could affect other tests

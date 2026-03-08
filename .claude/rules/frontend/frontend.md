@@ -28,16 +28,21 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Common UI exposed via federation in `federated-modules/`
    - Shared components in `application/shared-webapp/`
    - Don't import directly between self-contained systems
-   - Use `window.location.href` for navigation between systems (not TanStack Router)
 
-3. **API Integration**:
+3. **Navigation**:
+   - **Within a self-contained system**: Use `useNavigate()` hook or `<Link>` component from TanStack Router
+   - **Account to Main**: Account runs as a federated module inside Main with a memory router. Use the `useMainNavigation()` hook (backed by `MainNavigationContext`) to navigate back to Main, not `window.location.href`
+   - **To Back-Office**: Back-Office is a separate SPA, so use `window.location.href` for full-page navigation
+   - Only use `window.location.href` when navigating to a different SPA or for full-page reloads (e.g., logout)
+
+4. **API Integration**:
    - API client auto-generated from OpenAPI spec
    - Located in `shared/lib/api/client.ts`
    - Never make direct fetch calls
    - Server state lives in TanStack Query only
    - Use `queryClient.invalidateQueries()` to refresh data after mutations
 
-4. **ShadCN 2.0 with BaseUI** (not Radix UI):
+5. **ShadCN 2.0 with BaseUI** (not Radix UI):
    - **BaseUI** (`@base-ui/react`): Headless primitives providing accessibility and behavior
    - **ShadCN 2.0**: Pre-styled components built on BaseUI, using class-variance-authority (cva)
    - Install components via `npx shadcn add <component>` - never copy manually
@@ -48,7 +53,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Import from `@repo/ui/components/`, never from BaseUI directly
    - Only create custom components when no ShadCN equivalent exists (edge cases)
    - **Cursor pointer**: Replace `cursor-default` with `cursor-pointer` on clickable elements
-   - **Icon-only buttons**: Must have a `Tooltip` wrapper. Use descriptive labels -- e.g., "Account settings" not "Settings", "Log out" not "Logout"
+   - **Icon-only buttons**: Must have a `Tooltip` wrapper. Use descriptive labels, e.g., "Account settings" not "Settings", "Log out" not "Logout"
    - **Active state feedback**: Add press feedback to interactive elements using `active:` pseudo-class with background color changes. Buttons/triggers: `active:bg-primary/70` (or variant-specific active backgrounds). Menu/list items: `active:bg-accent`. Small controls (checkbox, radio): `active:border-primary`
    - **Use BaseUI `render` prop** to customize underlying elements (not Radix's `asChild`): `<DialogClose render={<Button />}>Close</DialogClose>`
 
@@ -66,13 +71,14 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Don't use acronyms (e.g., use `errorMessage` not `errMsg`, `button` not `btn`, `authentication` not `auth`)
    - Prioritize code readability and maintainability
    - Don't introduce new npm dependencies
+   - **No barrel export files**: Do not create `index.ts` files that only re-export components from a folder. Import each component directly from its file (e.g., `import { Button } from "../components/Button"` not `import { Button } from "../components"`)
    - **Workspace package imports**: Within the same package (e.g., within `@repo/ui`), use relative imports (`../components/Button`) to avoid circular dependencies. Between different packages, use absolute imports (`@repo/ui/components/Button`)
    - Use ShadCN components instead of native HTML elements like `<a>`, `<button>`, `<fieldset>`, `<form>`, `<input>`, `<label>`, `<ol>`, `<p>`, `<progress>`, `<select>`, `<table>`, `<textarea>`, `<ul>` (native `<div>`, `<span>`, `<section>`, `<article>`, `<img>`, `<h1>`-`<h4>` are acceptable)
    - **Headings**: Use native `<h1>`-`<h4>` elements with global styles from `tailwind.css`. Never override font sizes or weights - use the correct semantic level for the visual hierarchy. Allowed overrides: alignment (`text-center`), margins (`mb-X`), visibility (`hidden sm:block`). Exception: Hero/marketing pages can override sizes
    - Use native `<img>` for images. Keep it simple for small logos/icons. For large images:
      - **LCP images** (large hero images): Add `fetchPriority="high"`
      - **Below-the-fold images**: Add `loading="lazy"`
-     - Never use `width`/`height` HTML attributes -- use Tailwind `size-*` classes instead
+     - Never use `width`/`height` HTML attributes. Use Tailwind `size-*` classes instead
      - Always include localized `alt` text using the `t` macro (e.g., `alt={t\`Description\`}`)
    - **Square dimensions**: Use Tailwind's `size-N` utility instead of `h-N w-N` for any square element (e.g., `size-4` not `h-4 w-4`). Only use separate `h-N w-N` for rectangular dimensions
    - **Rem-based sizing**: All sizes must use `rem`, never `px`. This enables UI scaling via the `--zoom-level` CSS variable while maintaining aspect ratios.
@@ -109,15 +115,15 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - Use `isMediumViewportOrLarger()` for desktop-specific features
 
 5. Z-index layering (don't invent new values):
-   - `z-0` to `z-10`: **Content** -- sticky table headers, sticky toolbars, inline badges, calendar layers
-   - `z-20`: **App bars** -- desktop top bar, mobile floating menu button
-   - `z-30`: **Navigation + mobile header** -- side menu, mobile sticky header (animates below banners)
-   - `z-[35]`: **Backdrops** -- dimmed overlays behind panels and overlay-mode navigation
-   - `z-40`: **Banners + panels** -- banner container (above mobile header), side panes, mobile full-screen menus, side menu in overlay mode
-   - `z-50`: **Popups** -- dialogs, dropdowns, popovers, tooltips (ShadCN default)
-   - `z-[60]`: **Toasts** -- always visible, even above dialogs
-   - `z-[99]`: **Critical** -- full-screen loaders, system overlays (e.g., account switching)
-   - `z-100`: **Select popup** -- Select dropdown renders above dialogs (ShadCN default)
+   - `z-0` to `z-10`: **Content**: sticky table headers, sticky toolbars, inline badges, calendar layers
+   - `z-20`: **App bars**: desktop top bar, mobile floating menu button
+   - `z-30`: **Navigation + mobile header**: side menu, mobile sticky header (animates below banners)
+   - `z-[35]`: **Backdrops**: dimmed overlays behind panels and overlay-mode navigation
+   - `z-40`: **Banners + panels**: banner container (above mobile header), side panes, mobile full-screen menus, side menu in overlay mode
+   - `z-50`: **Popups**: dialogs, dropdowns, popovers, tooltips (ShadCN default)
+   - `z-[60]`: **Toasts**: always visible, even above dialogs
+   - `z-[99]`: **Critical**: full-screen loaders, system overlays (e.g., account switching)
+   - `z-100`: **Select popup**: Select dropdown renders above dialogs (ShadCN default)
 
 6. Dialog structure and DirtyDialog patterns:
    - **Always use DialogBody** for content between DialogHeader and DialogFooter - it provides proper scrolling for tall content
@@ -125,7 +131,7 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
    - **Cancel button**: Use `<DialogClose render={<Button type="reset" .../>}>` - the `type="reset"` bypasses the warning
    - Always clear dirty state in `onSuccess` and `onCloseComplete`
 
-7. **Telemetry tracking** (all tracked as `trackPageView`, not custom events): `Dialog`, `AlertDialog`, `SidePane`, and `TablePagination` require a `trackingTitle` prop (e.g., `trackingTitle="Invite user"`). `DropdownMenu` accepts an optional `trackingTitle` prop for menu open/close tracking, and `DropdownMenuItem` accepts an optional `trackingLabel` prop for item selection tracking (e.g., `trackingLabel="Upload logo"`). For custom interactions, use `trackInteraction(name, type, action)` from `ApplicationInsightsProvider` -- this also emits a page view, not a custom event. Route-level page tracking uses `staticData: { trackingTitle: "Page name" }` in route definitions
+7. **Telemetry tracking** (all tracked as `trackPageView`, not custom events): `Dialog`, `AlertDialog`, `SidePane`, and `TablePagination` require a `trackingTitle` prop (e.g., `trackingTitle="Invite user"`). `DropdownMenu` accepts an optional `trackingTitle` prop for menu open/close tracking, and `DropdownMenuItem` accepts an optional `trackingLabel` prop for item selection tracking (e.g., `trackingLabel="Upload logo"`). For custom interactions, use `trackInteraction(name, type, action)` from `ApplicationInsightsProvider`. This also emits a page view, not a custom event. Route-level page tracking uses `staticData: { trackingTitle: "Page name" }` in route definitions
 
 8. **Empty states**: Use the `Empty` component with icon, title, and description when there is no content to display
 
