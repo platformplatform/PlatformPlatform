@@ -6,15 +6,15 @@ using Spectre.Console;
 
 namespace DeveloperCli.Commands;
 
-public class InspectCommand : Command
+public class LintCommand : Command
 {
-    public InspectCommand() : base("inspect", "Run code inspections for frontend and backend code")
+    public LintCommand() : base("lint", "Run code linting for frontend and backend code")
     {
-        var backendOption = new Option<bool>("--backend", "-b") { Description = "Run backend inspections" };
-        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run frontend inspections" };
-        var cliOption = new Option<bool>("--cli", "-c") { Description = "Run developer-cli inspections" };
-        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to inspect (e.g., main, account, back-office)" };
-        var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running inspections" };
+        var backendOption = new Option<bool>("--backend", "-b") { Description = "Run backend linting" };
+        var frontendOption = new Option<bool>("--frontend", "-f") { Description = "Run frontend linting" };
+        var cliOption = new Option<bool>("--cli", "-c") { Description = "Run developer-cli linting" };
+        var selfContainedSystemOption = new Option<string?>("<self-contained-system>", "--self-contained-system", "-s") { Description = "The name of the self-contained system to lint (e.g., main, account, back-office)" };
+        var noBuildOption = new Option<bool>("--no-build") { Description = "Skip building and restoring the solution before running linting" };
         var quietOption = new Option<bool>("--quiet", "-q") { Description = "Minimal output mode" };
 
         Options.Add(backendOption);
@@ -38,9 +38,9 @@ public class InspectCommand : Command
     private static void Execute(bool backend, bool frontend, bool developerCli, string? selfContainedSystem, bool noBuild, bool quiet)
     {
         var noFlags = !backend && !frontend && !developerCli;
-        var inspectBackend = backend || noFlags;
-        var inspectFrontend = frontend || noFlags;
-        var inspectDeveloperCli = developerCli || noFlags;
+        var lintBackend = backend || noFlags;
+        var lintFrontend = frontend || noFlags;
+        var lintDeveloperCli = developerCli || noFlags;
 
         try
         {
@@ -50,24 +50,24 @@ public class InspectCommand : Command
             var developerCliTime = TimeSpan.Zero;
             var hasIssues = false;
 
-            if (inspectBackend)
+            if (lintBackend)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                hasIssues = RunBackendInspections(selfContainedSystem, noBuild, quiet);
+                hasIssues = RunBackendLinting(selfContainedSystem, noBuild, quiet);
                 backendTime = Stopwatch.GetElapsedTime(startTime);
             }
 
-            if (inspectFrontend)
+            if (lintFrontend)
             {
                 Prerequisite.Ensure(Prerequisite.Node);
-                RunFrontendInspections(quiet);
+                RunFrontendLinting(quiet);
                 frontendTime = Stopwatch.GetElapsedTime(startTime) - backendTime;
             }
 
-            if (inspectDeveloperCli)
+            if (lintDeveloperCli)
             {
                 Prerequisite.Ensure(Prerequisite.Dotnet);
-                var developerCliHasIssues = RunDeveloperCliInspections(noBuild, quiet);
+                var developerCliHasIssues = RunDeveloperCliLinting(noBuild, quiet);
                 hasIssues = hasIssues || developerCliHasIssues;
                 developerCliTime = Stopwatch.GetElapsedTime(startTime) - backendTime - frontendTime;
             }
@@ -80,19 +80,19 @@ public class InspectCommand : Command
                     Environment.Exit(1);
                 }
 
-                Console.WriteLine("Inspections completed successfully. No issues found.");
+                Console.WriteLine("Linting completed successfully. No issues found.");
             }
             else
             {
-                AnsiConsole.MarkupLine($"[green]Code inspections completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
+                AnsiConsole.MarkupLine($"[green]Code linting completed in {Stopwatch.GetElapsedTime(startTime).Format()}[/]");
 
-                var multipleTargets = (inspectBackend ? 1 : 0) + (inspectFrontend ? 1 : 0) + (inspectDeveloperCli ? 1 : 0) > 1;
+                var multipleTargets = (lintBackend ? 1 : 0) + (lintFrontend ? 1 : 0) + (lintDeveloperCli ? 1 : 0) > 1;
                 if (multipleTargets)
                 {
                     var timingLines = new List<string>();
-                    if (inspectBackend) timingLines.Add($"Backend:       [green]{backendTime.Format()}[/]");
-                    if (inspectFrontend) timingLines.Add($"Frontend:      [green]{frontendTime.Format()}[/]");
-                    if (inspectDeveloperCli) timingLines.Add($"Developer CLI: [green]{developerCliTime.Format()}[/]");
+                    if (lintBackend) timingLines.Add($"Backend:       [green]{backendTime.Format()}[/]");
+                    if (lintFrontend) timingLines.Add($"Frontend:      [green]{frontendTime.Format()}[/]");
+                    if (lintDeveloperCli) timingLines.Add($"Developer CLI: [green]{developerCliTime.Format()}[/]");
                     AnsiConsole.MarkupLine(string.Join(Environment.NewLine, timingLines));
                 }
 
@@ -106,24 +106,24 @@ public class InspectCommand : Command
         {
             if (quiet)
             {
-                Console.WriteLine($"Inspections failed: {ex.Message}");
+                Console.WriteLine($"Linting failed: {ex.Message}");
             }
             else
             {
-                AnsiConsole.MarkupLine($"[red]Error during code inspections: {ex.Message}[/]");
+                AnsiConsole.MarkupLine($"[red]Error during code linting: {ex.Message}[/]");
             }
 
             Environment.Exit(1);
         }
     }
 
-    private static bool RunBackendInspections(string? selfContainedSystem, bool noBuild, bool quiet)
+    private static bool RunBackendLinting(string? selfContainedSystem, bool noBuild, bool quiet)
     {
         var solutionFile = SelfContainedSystemHelper.GetSolutionFile(selfContainedSystem);
 
         if (!noBuild)
         {
-            if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend code inspections...[/]");
+            if (!quiet) AnsiConsole.MarkupLine("[blue]Running backend code linting...[/]");
             ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
             ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName, "Build", quiet);
         }
@@ -138,7 +138,7 @@ public class InspectCommand : Command
         ProcessHelper.Run(
             $"dotnet jb inspectcode {solutionFile.Name} --no-build --no-restore --output=result.json --severity=SUGGESTION",
             solutionFile.Directory!.FullName,
-            "Inspections",
+            "Linting",
             quiet
         );
 
@@ -161,19 +161,19 @@ public class InspectCommand : Command
         return hasIssues;
     }
 
-    private static void RunFrontendInspections(bool quiet)
+    private static void RunFrontendLinting(bool quiet)
     {
-        if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend type checking...[/]");
-        ProcessHelper.Run("npm run check", Configuration.ApplicationFolder, "Frontend type checking", quiet);
+        if (!quiet) AnsiConsole.MarkupLine("[blue]Running frontend linting...[/]");
+        ProcessHelper.Run("npm run lint", Configuration.ApplicationFolder, "Frontend linting", quiet);
     }
 
-    private static bool RunDeveloperCliInspections(bool noBuild, bool quiet)
+    private static bool RunDeveloperCliLinting(bool noBuild, bool quiet)
     {
         var solutionFile = new FileInfo(Path.Combine(Configuration.CliFolder, "DeveloperCli.slnx"));
 
         if (!noBuild)
         {
-            if (!quiet) AnsiConsole.MarkupLine("[blue]Running developer-cli code inspections...[/]");
+            if (!quiet) AnsiConsole.MarkupLine("[blue]Running developer-cli code linting...[/]");
             ProcessHelper.Run("dotnet tool restore", solutionFile.Directory!.FullName, "Tool restore", quiet);
             ProcessHelper.Run($"dotnet build {solutionFile.Name}", solutionFile.Directory!.FullName, "Build", quiet);
         }
@@ -188,7 +188,7 @@ public class InspectCommand : Command
         ProcessHelper.Run(
             $"dotnet jb inspectcode {solutionFile.Name} --no-build --no-restore --output=result.json --severity=SUGGESTION",
             solutionFile.Directory!.FullName,
-            "Inspections",
+            "Linting",
             quiet
         );
 
