@@ -1,12 +1,11 @@
 name: Add a feature request
 description: Suggest an idea for this project
-title: "[Feature]: "
-labels: ["enhancement"]
+labels: ["Enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this feature request!
+        Write your feature request as a clear prompt that an AI agent can act on. Focus on the problem, desired outcome, and any constraints.
   - type: input
     id: contact
     attributes:
@@ -16,22 +15,19 @@ body:
     validations:
       required: false
   - type: textarea
-    id: detailed-description
+    id: description
     attributes:
-      label: Detailed description?
-      description: Tell us more about the feature request and what you would like to see.
+      label: Feature description
+      description: Describe the feature as if you are instructing an AI to implement it.
       value: |
-        **Is your feature request related to a problem? Please describe.**
-        A clear and concise description of what the problem is.
+        **Problem**
+        What problem does this solve or what need does it address?
 
-        **Describe the solution you'd like**
-        A clear and concise description of what you want to happen.
+        **Desired behavior**
+        What should happen when this feature is implemented?
 
-        **Describe alternatives you've considered**
-        A clear and concise description of any alternative solutions or features you've considered.
-
-        **Additional context**
-        Add any other context or screenshots about the feature request here.
+        **Constraints or considerations**
+        Any technical constraints, design preferences, or edge cases to keep in mind.
     validations:
       required: true
   - type: dropdown
