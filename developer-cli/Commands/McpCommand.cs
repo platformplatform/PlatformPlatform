@@ -159,7 +159,7 @@ public static class DeveloperCliMcpTools
     }
 
     [McpServerTool]
-    [Description("Sync AI rules from .claude to .windsurf and .cursor. CRITICAL: Always make AI rule changes in .claude folder first, then sync")]
+    [Description("Sync AI rules from .claude to .windsurf, .cursor, .github/instructions, and .agent. CRITICAL: Always make AI rule changes in .claude folder first, then sync")]
     public static async Task<string> SyncAiRules()
     {
         return await ExecuteCliCommandAsync(["sync-ai-rules"]);
