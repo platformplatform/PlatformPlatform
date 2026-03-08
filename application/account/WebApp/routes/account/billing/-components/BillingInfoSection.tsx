@@ -1,3 +1,5 @@
+import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -5,11 +7,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PencilIcon } from "lucide-react";
 
-import type { components } from "@/shared/lib/api/api.generated";
-
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
 
 interface BillingInfoSectionProps {
   billingInfo: BillingInfo | null | undefined;

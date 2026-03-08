@@ -1,3 +1,5 @@
+import type { useUsers } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { Table, TableBody } from "@repo/ui/components/Table";
@@ -6,7 +8,7 @@ import { useInfiniteScroll } from "@repo/ui/hooks/useInfiniteScroll";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { type components, SortableUserProperties, SortOrder } from "@/shared/lib/api/client";
+import { SortableUserProperties, SortOrder } from "@/shared/lib/api/sortTypes";
 
 import { useUserSelection } from "../-hooks/useUserSelection";
 import { UserTableEmptyState } from "./UserTableEmptyState";
@@ -14,7 +16,7 @@ import { type SortDescriptor, UserTableHeader } from "./UserTableHeader";
 import { UserTableRow } from "./UserTableRow";
 import { UserTableSkeleton } from "./UserTableSkeleton";
 
-type UserDetails = components["schemas"]["UserDetails"];
+type UserDetails = ReturnType<typeof useUsers>["data"][number];
 
 export interface UserTableContentProps {
   selectedUsers: UserDetails[];

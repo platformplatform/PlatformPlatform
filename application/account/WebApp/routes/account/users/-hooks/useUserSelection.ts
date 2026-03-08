@@ -1,8 +1,8 @@
+import type { useUsers } from "@repo/infrastructure/sync/hooks";
+
 import { useCallback, useMemo } from "react";
 
-import type { components } from "@/shared/lib/api/client";
-
-type UserDetails = components["schemas"]["UserDetails"];
+type UserDetails = ReturnType<typeof useUsers>["data"][number];
 
 interface UseUserSelectionProps {
   usersList: UserDetails[];

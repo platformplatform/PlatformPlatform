@@ -1,15 +1,13 @@
+import type { BillingInfo } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { TextAreaField } from "@repo/ui/components/TextAreaField";
 import { TextField } from "@repo/ui/components/TextField";
-
-import type { components } from "@/shared/lib/api/api.generated";
 
 import type { CountryOption } from "./CountrySelect";
 
 import { stateRequiredCountries } from "./countryCodes";
 import { CountrySelect } from "./CountrySelect";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
 
 interface BillingInfoFormFieldsProps {
   billingInfo: BillingInfo | null | undefined;

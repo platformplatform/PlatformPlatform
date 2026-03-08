@@ -1,7 +1,8 @@
+import type { PaymentTransaction } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { trackInteraction } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
-import type { PaymentTransaction } from "@repo/infrastructure/sync/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { buttonVariants } from "@repo/ui/components/Button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
