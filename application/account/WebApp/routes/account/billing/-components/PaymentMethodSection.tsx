@@ -1,3 +1,5 @@
+import type { PaymentMethod } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
@@ -5,11 +7,7 @@ import { Separator } from "@repo/ui/components/Separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { PencilIcon } from "lucide-react";
 
-import type { components } from "@/shared/lib/api/api.generated";
-
 import { PaymentMethodDisplay } from "./PaymentMethodDisplay";
-
-type PaymentMethod = components["schemas"]["PaymentMethod"];
 
 interface PaymentMethodSectionProps {
   paymentMethod: PaymentMethod | null | undefined;

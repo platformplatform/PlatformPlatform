@@ -1,10 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useSubscription } from "@repo/infrastructure/sync/hooks";
 import { Badge } from "@repo/ui/components/Badge";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { Link } from "@tanstack/react-router";
 
-import { api, SuspensionReason, TenantState } from "@/shared/lib/api/client";
+import { SuspensionReason, TenantState } from "@/shared/lib/api/client";
 import { getPlanLabelWithFree } from "@/shared/lib/api/subscriptionPlan";
 
 interface TenantInfo {
@@ -33,12 +34,8 @@ function getSuspensionReasonLabel(reason: string | null | undefined): string {
 
 export function AccountInfoFields({ tenant }: Readonly<AccountInfoFieldsProps>) {
   const formatDate = useFormatDate();
-  const { data: subscription } = api.useQuery(
-    "get",
-    "/api/account/subscriptions/current",
-    {},
-    { enabled: isSubscriptionEnabled }
-  );
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
 
   const isSuspended = tenant?.state === TenantState.Suspended;
 

@@ -1,3 +1,4 @@
+import { useTenant } from "@repo/infrastructure/sync/hooks";
 import { useState } from "react";
 
 import { api, SubscriptionPlan } from "@/shared/lib/api/client";
@@ -25,7 +26,8 @@ export function usePlansPageState() {
   const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false);
   const [subscribeTarget, setSubscribeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
 
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: tenant } = useTenant(tenantId ?? "");
   const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
   const currentPlan = (subscription?.plan ?? SubscriptionPlan.Basis) as SubscriptionPlan;
 

@@ -20,9 +20,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format } from "date-fns";
 import { SearchIcon, XIcon } from "lucide-react";
 
-import { UserRole, UserStatus } from "@/shared/lib/api/client";
+import { UserRole } from "@/shared/lib/api/client";
 import { getUserRoleLabel } from "@/shared/lib/api/userRole";
-import { getUserStatusLabel } from "@/shared/lib/api/userStatus";
+import { getUserStatusLabel, UserStatus } from "@/shared/lib/api/userStatus";
 
 import type { FilterUpdateFn } from "./userQueryingTypes";
 
