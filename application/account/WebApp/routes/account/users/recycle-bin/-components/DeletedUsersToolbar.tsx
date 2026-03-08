@@ -54,9 +54,9 @@ export function DeletedUsersToolbar({
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       toast.success(t`User restored successfully: ${userName}`);
     } else {
-      for (const user of selectedUsers) {
-        await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      }
+      await Promise.all(
+        selectedUsers.map((user) => restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } }))
+      );
       toast.success(t`${selectedUsers.length} users restored successfully`);
     }
 

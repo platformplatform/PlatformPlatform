@@ -209,7 +209,7 @@ function UserTableContent({
         })
       });
     },
-    [navigate, sortDescriptor]
+    [navigate, sortDescriptor, onSelectedUsersChange]
   );
 
   const previousPageOffset = useRef(pageOffset);

@@ -92,6 +92,7 @@ export function CheckoutDialog({
       setIsLoading(false);
     }
   });
+  const startCheckout = checkoutMutation.mutate;
 
   useEffect(() => {
     if (isOpen) {
@@ -104,7 +105,7 @@ export function CheckoutDialog({
         setIsLoading(true);
         setClientSecret(null);
         setStripePromise(null);
-        checkoutMutation.mutate({
+        startCheckout({
           body: { plan }
         });
       }
@@ -115,7 +116,7 @@ export function CheckoutDialog({
       setPaymentError(null);
       setIsWaitingForActivation(false);
     }
-  }, [isOpen]);
+  }, [isOpen, prefetchedClientSecret, prefetchedPublishableKey, plan, startCheckout]);
 
   const handleConfirmed = () => {
     setIsWaitingForActivation(true);
@@ -221,16 +222,16 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
   });
 
   const planDetails = getPlanDetails(plan);
-  const hasCheckoutError = checkoutResult.type === "error";
+  const checkoutError = checkoutResult.type === "error" ? checkoutResult.error : null;
 
   useEffect(() => {
-    if (hasCheckoutError) {
-      console.error("[Checkout] useCheckout() error:", checkoutResult.error);
-      const errorMessage = getDisplayError(checkoutResult.error.message);
+    if (checkoutError) {
+      console.error("[Checkout] useCheckout() error:", checkoutError);
+      const errorMessage = getDisplayError(checkoutError.message);
       onError(errorMessage);
       toast.error(errorMessage);
     }
-  }, [hasCheckoutError]);
+  }, [checkoutError, onError]);
 
   const handleSubmit = async () => {
     if (checkoutResult.type !== "success") {
@@ -330,7 +331,7 @@ function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFormProps
           </>
         )}
       </div>
-      {hasCheckoutError ? (
+      {checkoutError ? (
         <DialogFooter>
           <DialogClose render={<Button type="reset" variant="secondary" />}>
             <Trans>Close</Trans>

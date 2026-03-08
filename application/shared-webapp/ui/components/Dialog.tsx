@@ -15,7 +15,7 @@ import {
 
 import { cn } from "../utils";
 import { Button } from "./Button";
-import { DirtyDialogContext } from "./DirtyDialog";
+import { DirtyDialogContext } from "./DirtyDialogContext";
 
 type WindowWithTracking = {
   __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;

@@ -117,9 +117,9 @@ export function Link({
 
   if (href === undefined) {
     return (
-      // biome-ignore lint/a11y/useSemanticElements: Button with role="link" is intentional for click-only links used in navigation menus
       <button
         type="button"
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Button with role="link" is intentional for click-only links
         role="link"
         className={linkClassName}
         onClick={onClick as (event: MouseEvent<HTMLButtonElement>) => void}

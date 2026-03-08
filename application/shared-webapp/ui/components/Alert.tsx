@@ -24,6 +24,7 @@ function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & V
 }
 
 function AlertTitle({ className, ...props }: React.ComponentProps<"h5">) {
+  // oxlint-disable-next-line jsx-a11y/heading-has-content -- Content provided via {...props} spread
   return <h5 data-slot="alert-title" className={cn("leading-none font-medium", className)} {...props} />;
 }
 

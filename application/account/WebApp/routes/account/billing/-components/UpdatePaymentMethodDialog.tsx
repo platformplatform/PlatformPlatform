@@ -56,6 +56,7 @@ export function UpdatePaymentMethodDialog({
       setIsLoading(false);
     }
   });
+  const startSetup = setupMutation.mutate;
 
   useEffect(() => {
     if (isOpen) {
@@ -63,14 +64,14 @@ export function UpdatePaymentMethodDialog({
       setSetupError(null);
       setClientSecret(null);
       setStripePromise(null);
-      setupMutation.mutate({});
+      startSetup({});
     } else {
       setClientSecret(null);
       setStripePromise(null);
       setSetupError(null);
       setIsLoading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, startSetup]);
 
   const elementsOptions = useMemo(() => {
     if (!clientSecret) {

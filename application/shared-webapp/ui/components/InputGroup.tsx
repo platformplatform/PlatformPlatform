@@ -47,8 +47,6 @@ function InputGroupAddon({
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof inputGroupAddonVariants>) {
   return (
-    // biome-ignore lint/a11y/useSemanticElements: Stock ShadCN component uses div with role="group" for styling flexibility
-    // biome-ignore lint/a11y/useKeyWithClickEvents: Stock ShadCN component onClick focuses input - keyboard users navigate directly to input
     <div
       role="group"
       data-slot="input-group-addon"
@@ -59,6 +57,11 @@ function InputGroupAddon({
           return;
         }
         e.currentTarget.parentElement?.querySelector("input")?.focus();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.currentTarget.parentElement?.querySelector("input")?.focus();
+        }
       }}
       {...props}
     />

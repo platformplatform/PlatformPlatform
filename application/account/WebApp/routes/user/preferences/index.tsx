@@ -102,6 +102,7 @@ function PreferencesPage() {
     if (savedZoomLevel && zoomLevelOptions.some((z) => z.value === savedZoomLevel)) {
       setCurrentZoomLevel(savedZoomLevel);
     }
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- Initialization effect, should only run once on mount
   }, []);
 
   const handleLocaleChange = (locale: Locale) => {
