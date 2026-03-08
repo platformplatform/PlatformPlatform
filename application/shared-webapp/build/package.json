@@ -1,7 +1,7 @@
 {
   "name": "@repo/build",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "license": "MIT",
   "exports": {
     ".": "./dist/index.js",
@@ -12,11 +12,12 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "build": "rimraf ./dist && tsc -b . environment",
+    "check": "oxfmt --check && oxlint",
     "dev": "tsc -b . environment -w",
     "dev:setup": "tsc -b . environment",
-    "build": "rimraf ./dist && tsc -b . environment",
-    "format": "biome check --write --unsafe",
-    "lint": "biome check --error-on-warnings"
+    "format": "oxfmt && (oxlint --fix || true)",
+    "lint": "oxlint"
   },
   "devDependencies": {
     "@repo/config": "*"

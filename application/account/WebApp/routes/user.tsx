@@ -1,5 +1,6 @@
 import { requireAuthentication } from "@repo/infrastructure/auth/routeGuards";
 import { createFileRoute, Outlet, useLocation } from "@tanstack/react-router";
+
 import SuspendedPage from "@/federated-modules/subscription/SuspendedPage";
 import { AccountSideMenu } from "@/shared/components/AccountSideMenu";
 import { api, TenantState } from "@/shared/lib/api/client";

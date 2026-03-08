@@ -1,4 +1,5 @@
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+
 import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 
 /**

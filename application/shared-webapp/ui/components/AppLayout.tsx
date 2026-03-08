@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+
 import { useSideMenuLayout } from "../hooks/useSideMenuLayout";
 import { cn } from "../utils";
 import { getSideMenuCollapsedWidth } from "../utils/responsive";
@@ -297,7 +298,7 @@ export function AppLayout({
         {title && (
           <div
             className={cn(
-              "fixed top-[var(--banner-offset,0rem)] right-0 left-0 z-30 border-border border-b bg-background px-[16px] py-3",
+              "fixed top-[var(--banner-offset,0rem)] right-0 left-0 z-30 border-b border-border bg-background px-[16px] py-3",
               "flex flex-col items-center justify-center text-center sm:hidden",
               "transform transition-all duration-200",
               (scrollAwayHeader ? isFullyScrolled : isSticky)
@@ -306,7 +307,7 @@ export function AppLayout({
             )}
             aria-hidden={scrollAwayHeader ? !isFullyScrolled : !isSticky}
           >
-            <div className="max-w-[80%] truncate font-medium text-sm">{title}</div>
+            <div className="max-w-[80%] truncate text-sm font-medium">{title}</div>
           </div>
         )}
 

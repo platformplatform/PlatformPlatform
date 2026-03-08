@@ -29,7 +29,6 @@ export function MarkdownRenderer({ path }: MarkdownRendererProps) {
 
   return (
     <div className="text-foreground">
-      {/* biome-ignore lint/style/useNamingConvention: React's dangerouslySetInnerHTML requires __html */}
       <div dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );

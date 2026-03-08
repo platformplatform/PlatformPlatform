@@ -30,11 +30,11 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
 
 // NOTE: This diverges from stock ShadCN to add text-lg and margin below title for visual separation from description.
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-title" className={cn("mb-1 font-semibold text-lg leading-none", className)} {...props} />;
+  return <div data-slot="card-title" className={cn("mb-1 text-lg leading-none font-semibold", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-slot="card-description" className={cn("text-muted-foreground text-sm", className)} {...props} />;
+  return <div data-slot="card-description" className={cn("text-sm text-muted-foreground", className)} {...props} />;
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {

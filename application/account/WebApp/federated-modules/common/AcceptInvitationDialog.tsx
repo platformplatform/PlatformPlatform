@@ -1,7 +1,9 @@
 import { Trans } from "@lingui/react/macro";
 import { Button } from "@repo/ui/components/Button";
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@repo/ui/components/Dialog";
+
 import type { components } from "@/shared/lib/api/api.generated";
+
 import { api } from "@/shared/lib/api/client";
 
 type TenantInfo = components["schemas"]["TenantInfo"];
@@ -61,7 +63,7 @@ export function AcceptInvitationDialog({
               You have been invited to join <strong>{tenant.tenantName}</strong>.
             </Trans>
           </p>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground">
             <Trans>
               When you accept this invitation, your profile information (name, title, and avatar) from your current
               account will be copied to the new account.

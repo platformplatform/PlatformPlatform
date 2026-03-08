@@ -1,5 +1,6 @@
 import { MarkdownRenderer } from "@repo/ui/components/MarkdownRenderer";
 import { createFileRoute } from "@tanstack/react-router";
+
 import PublicFooter from "@/federated-modules/public/PublicFooter";
 import PublicNavigation from "@/federated-modules/public/PublicNavigation";
 

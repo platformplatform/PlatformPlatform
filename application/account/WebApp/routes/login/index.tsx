@@ -9,6 +9,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { mutationSubmitter } from "@repo/ui/forms/mutationSubmitter";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+
 import ErrorPage from "@/federated-modules/errorPages/ErrorPage";
 import { useMainNavigation } from "@/shared/hooks/useMainNavigation";
 import googleIconUrl from "@/shared/images/google-icon.svg";
@@ -16,6 +17,7 @@ import logoMarkUrl from "@/shared/images/logo-mark.svg";
 import logoWrapUrl from "@/shared/images/logo-wrap.svg";
 import { HorizontalHeroLayout } from "@/shared/layouts/HorizontalHeroLayout";
 import { api } from "@/shared/lib/api/client";
+
 import { getSignupState } from "../signup/-shared/signupState";
 import { clearLoginState, getLoginState, setLoginState } from "./-shared/loginState";
 
@@ -105,7 +107,7 @@ export function LoginForm() {
       <h2>
         <Trans>Hi! Welcome back</Trans>
       </h2>
-      <div className="text-center text-muted-foreground text-sm">
+      <div className="text-center text-sm text-muted-foreground">
         <Trans>Enter your email below to log in</Trans>
       </div>
       <TextField
@@ -128,7 +130,7 @@ export function LoginForm() {
         <>
           <div className="flex w-full items-center gap-4">
             <div className="h-px flex-1 bg-border" />
-            <span className="text-muted-foreground text-sm">
+            <span className="text-sm text-muted-foreground">
               <Trans>or</Trans>
             </span>
             <div className="h-px flex-1 bg-border" />
@@ -146,7 +148,7 @@ export function LoginForm() {
           </Button>
         </>
       )}
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         <Trans>
           Don't have an account?{" "}
           <Link href={signUpPath} aria-label={t`Create new account`}>
@@ -159,7 +161,7 @@ export function LoginForm() {
         We'd appreciate it if you keep this attribution to help others discover this free, open-source platform. Thank you! 🙏
       */}
       <div className="flex flex-col items-center gap-1">
-        <span className="text-muted-foreground text-sm">
+        <span className="text-sm text-muted-foreground">
           <Trans>Built with</Trans>
         </span>
         <Link href="https://github.com/platformplatform/PlatformPlatform" className="cursor-pointer">

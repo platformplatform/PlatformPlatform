@@ -1,6 +1,7 @@
+import type * as React from "react";
+
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
-import type * as React from "react";
 import {
   cloneElement,
   createContext,
@@ -11,9 +12,10 @@ import {
   useEffect,
   useRef
 } from "react";
+
 import { cn } from "../utils";
 import { Button } from "./Button";
-import { DirtyDialogContext } from "./DirtyDialog";
+import { DirtyDialogContext } from "./DirtyDialogContext";
 
 type WindowWithTracking = {
   __trackInteraction?: (name: string, type: string, action: string, extraProperties?: Record<string, string>) => void;
@@ -128,7 +130,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "data-closed:fade-out-0 data-open:fade-in-0 fixed inset-0 isolate z-50 bg-black/10 duration-100 data-closed:animate-out data-open:animate-in supports-backdrop-filter:backdrop-blur-xs",
+        "fixed inset-0 isolate z-50 bg-black/10 duration-100 data-closed:animate-out data-closed:fade-out-0 data-open:animate-in data-open:fade-in-0 supports-backdrop-filter:backdrop-blur-xs",
         className
       )}
       {...props}
@@ -152,7 +154,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 fixed left-1/2 z-50 flex w-full -translate-x-1/2 flex-col gap-6 bg-background p-6 text-sm outline-none ring-1 ring-foreground/10 transition-[opacity,transform] duration-100 data-closed:animate-out data-open:animate-in",
+          "fixed left-1/2 z-50 flex w-full -translate-x-1/2 flex-col gap-6 bg-background p-6 text-sm ring-1 ring-foreground/10 transition-[opacity,transform] duration-100 outline-none data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
           "top-0 h-dvh max-h-dvh max-w-full",
           "sm:top-1/2 sm:h-auto sm:max-h-[calc(100dvh-theme(spacing.16))] sm:-translate-y-1/2 sm:rounded-xl",
           className
@@ -219,7 +221,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("mt-4 font-medium leading-none", className)}
+      className={cn("mt-4 leading-none font-medium", className)}
       {...props}
     />
   );
@@ -230,7 +232,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
     <DialogPrimitive.Description
       data-slot="dialog-description"
       className={cn(
-        "text-muted-foreground text-sm [&>a]:underline [&>a]:underline-offset-3 [&>a]:hover:text-foreground",
+        "text-sm text-muted-foreground [&>a]:underline [&>a]:underline-offset-3 [&>a]:hover:text-foreground",
         className
       )}
       {...props}

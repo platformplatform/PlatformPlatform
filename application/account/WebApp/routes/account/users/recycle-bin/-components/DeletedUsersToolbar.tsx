@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
@@ -53,9 +54,9 @@ export function DeletedUsersToolbar({
       await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
       toast.success(t`User restored successfully: ${userName}`);
     } else {
-      for (const user of selectedUsers) {
-        await restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } });
-      }
+      await Promise.all(
+        selectedUsers.map((user) => restoreUserMutation.mutateAsync({ params: { path: { id: user.id } } }))
+      );
       toast.success(t`${selectedUsers.length} users restored successfully`);
     }
 

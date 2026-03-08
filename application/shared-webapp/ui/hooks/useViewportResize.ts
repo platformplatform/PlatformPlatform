@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { isMobileViewport } from "../utils/responsive";
 
 export function useViewportResize() {

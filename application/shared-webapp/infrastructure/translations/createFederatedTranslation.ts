@@ -1,4 +1,5 @@
 import type { Messages } from "@lingui/core";
+
 import { type Locale, type LocaleFile, Translation } from "./Translation";
 
 // Module federation container type
@@ -63,7 +64,7 @@ async function loadRemoteTranslations(remoteName: string, locale: Locale): Promi
       translationModuleCache.set(cacheKey, module.messages);
       return module.messages;
     }
-  } catch (_error) {
+  } catch {
     // Silently fail - the remote might not have translations for this locale
   }
 

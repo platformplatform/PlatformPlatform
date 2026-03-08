@@ -1,7 +1,8 @@
+import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+
+import { logger } from "@rsbuild/core";
 import fs from "node:fs";
 import path from "node:path";
-import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
-import { logger } from "@rsbuild/core";
 
 const manifestFile = "remoteEntry.js";
 const applicationRoot = path.resolve(process.cwd(), "..", "..");

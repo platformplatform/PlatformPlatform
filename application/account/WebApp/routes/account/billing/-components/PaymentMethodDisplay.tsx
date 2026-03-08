@@ -1,5 +1,6 @@
 import { Trans } from "@lingui/react/macro";
 import { CreditCardIcon } from "lucide-react";
+
 import type { components } from "@/shared/lib/api/api.generated";
 
 type PaymentMethod = components["schemas"]["PaymentMethod"];
@@ -11,7 +12,7 @@ type PaymentMethodDisplayProps = {
 export function PaymentMethodDisplay({ paymentMethod }: Readonly<PaymentMethodDisplayProps>) {
   if (!paymentMethod) {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         <Trans>No payment method on file</Trans>
       </p>
     );

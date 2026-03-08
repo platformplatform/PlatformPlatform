@@ -36,7 +36,6 @@ export default defineConfig({
   // Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions.
   use: {
     // Base URL to use in actions like `await page.goto('/')`.
-    // biome-ignore lint/style/useNamingConvention: Using Playwright's required property name
     baseURL: getBaseUrl(),
 
     // Default timeout for actions like click(), fill(), etc.
@@ -88,7 +87,6 @@ export default defineConfig({
       use: {
         ...devices["Desktop Safari"],
         // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         ignoreHTTPSErrors: isWindows
       },
       grep: /@smoke/
@@ -110,7 +108,6 @@ export default defineConfig({
       use: {
         ...devices["Desktop Safari"],
         // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        // biome-ignore lint/style/useNamingConvention: <explanation>
         ignoreHTTPSErrors: isWindows
       },
       grepInvert: /@smoke/

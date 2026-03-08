@@ -3,7 +3,9 @@ import { requirePermission } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+
 import type { components } from "@/shared/lib/api/client";
+
 import { UserTabNavigation } from "../-components/UserTabNavigation";
 import { DeletedUsersTable } from "./-components/DeletedUsersTable";
 import { DeletedUsersToolbar } from "./-components/DeletedUsersToolbar";

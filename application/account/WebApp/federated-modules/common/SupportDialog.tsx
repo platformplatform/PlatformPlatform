@@ -34,7 +34,7 @@ export function SupportDialog({ isOpen, onOpenChange }: Readonly<SupportDialogPr
             isReadOnly={true}
             startIcon={<MailIcon className="size-4" />}
           />
-          <p className="text-muted-foreground text-sm">{t`Feel free to reach out with any questions or issues you may have.`}</p>
+          <p className="text-sm text-muted-foreground">{t`Feel free to reach out with any questions or issues you may have.`}</p>
         </DialogBody>
         <DialogFooter>
           <DialogClose render={<Button autoFocus={true} />}>{t`Close`}</DialogClose>

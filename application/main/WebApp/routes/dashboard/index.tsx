@@ -4,6 +4,7 @@ import { useUserInfo } from "@repo/infrastructure/auth/hooks";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { createFileRoute } from "@tanstack/react-router";
 import { LayoutDashboardIcon } from "lucide-react";
+
 import { MainSideMenu } from "@/shared/components/MainSideMenu";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -21,7 +22,7 @@ function EmptyDashboard() {
         <h2 className="text-muted-foreground">
           <Trans>Your dashboard is empty</Trans>
         </h2>
-        <p className="max-w-md text-muted-foreground text-sm">
+        <p className="max-w-md text-sm text-muted-foreground">
           <Trans>This is where your personalized dashboard content will appear. Stay tuned for updates.</Trans>
         </p>
       </div>

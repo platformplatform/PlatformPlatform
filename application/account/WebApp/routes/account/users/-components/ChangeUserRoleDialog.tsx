@@ -19,6 +19,7 @@ import { getInitials } from "@repo/utils/string/getInitials";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
+
 import { api, type components, UserRole } from "@/shared/lib/api/client";
 
 type UserDetails = components["schemas"]["UserDetails"];
@@ -105,8 +106,8 @@ export function ChangeUserRoleDialog({ user, isOpen, onOpenChange }: Readonly<Ch
               </Avatar>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{displayName}</p>
-                {user.title && <p className="truncate text-muted-foreground text-sm">{user.title}</p>}
-                <p className="truncate text-muted-foreground text-sm">{user.email}</p>
+                {user.title && <p className="truncate text-sm text-muted-foreground">{user.title}</p>}
+                <p className="truncate text-sm text-muted-foreground">{user.email}</p>
               </div>
             </div>
 

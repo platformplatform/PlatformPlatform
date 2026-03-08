@@ -1,5 +1,6 @@
 import { useRouter } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+
 import { applicationInsights } from "./ApplicationInsightsProvider";
 
 interface PageStaticData {

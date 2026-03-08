@@ -3,6 +3,7 @@ import { Trans } from "@lingui/react/macro";
 import { Link } from "@repo/ui/components/Link";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { Github, Linkedin, MailIcon, Youtube } from "lucide-react";
+
 import logoMark from "@/shared/images/logo-mark.svg";
 import logoWrap from "@/shared/images/logo-wrap.svg";
 
@@ -37,7 +38,7 @@ export default function PublicFooter() {
               <h3 className="hidden sm:block">
                 <Trans>PlatformPlatform</Trans>
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="leading-relaxed text-muted-foreground">
                 <Trans>Free, open-source .NET and React starter kit for building modern SaaS applications.</Trans>
               </p>
             </div>
@@ -45,7 +46,7 @@ export default function PublicFooter() {
         </div>
 
         {/* Bottom Section */}
-        <div className="mt-14 flex flex-col items-center gap-6 border-border border-t pt-14 sm:flex-row sm:justify-between">
+        <div className="mt-14 flex flex-col items-center gap-6 border-t border-border pt-14 sm:flex-row sm:justify-between">
           {/* Left: Copyright and Legal Links */}
           <div className="flex flex-wrap items-center justify-center gap-x-3 text-center text-muted-foreground sm:justify-start sm:text-left">
             <div>

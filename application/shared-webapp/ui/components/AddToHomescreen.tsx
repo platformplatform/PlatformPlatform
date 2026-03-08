@@ -1,5 +1,6 @@
 import { Share, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
 import { Button } from "./Button";
 
 const STORAGE_KEY = "add-to-homescreen-dismissed";
@@ -83,7 +84,7 @@ export function AddToHomescreen() {
 
   return (
     <div
-      className="slide-in-from-top-2 fixed top-0 right-0 left-0 z-40 animate-in"
+      className="fixed top-0 right-0 left-0 z-40 animate-in slide-in-from-top-2"
       style={{
         transform: `translateY(${translateY}px)`,
         transition: isDragging ? "none" : "transform 0.2s ease-out"
@@ -97,7 +98,7 @@ export function AddToHomescreen() {
           <img src="/apple-touch-icon.png" alt="PlatformPlatform" className="size-10 rounded-lg shadow-sm" />
           <div className="flex-1">
             <h5>Install PlatformPlatform</h5>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-xs text-muted-foreground">
               Add to your home screen for a faster, app-like experience. Tap <Share className="mx-0.5 inline size-3" />{" "}
               then "Add to Home Screen"
             </p>

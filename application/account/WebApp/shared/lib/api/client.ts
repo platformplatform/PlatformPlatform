@@ -1,4 +1,5 @@
 import { createApiClient } from "@repo/infrastructure/http/queryClient";
+
 import type { components, paths } from "./api.generated";
 
 export * from "./api.generated.d";

@@ -1,6 +1,7 @@
 import { OTPInput, OTPInputContext } from "input-otp";
 import { MinusIcon } from "lucide-react";
 import * as React from "react";
+
 import { cn } from "../utils";
 
 function InputOtp({
@@ -50,7 +51,7 @@ function InputOtpSlot({
       data-active={isActive}
       // NOTE: This diverges from stock ShadCN to --control-height CSS variable for Apple HIG compliance and use a before pseudo-element for the focus ring (outline-offset gap is transparent and box-shadow gets clipped by adjacent slots; the pseudo-element as a child of the z-10 context renders above adjacent z-0 slots). Transparent left border ensures consistent spacing on all sides.
       className={cn(
-        "relative z-0 flex size-[var(--control-height)] items-center justify-center border border-input border-l-transparent text-sm shadow-xs transition-all first:rounded-l-md first:border-l-input last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:aria-invalid:border-destructive data-[active=true]:before:pointer-events-none data-[active=true]:before:absolute data-[active=true]:before:-inset-[5px] data-[active=true]:before:z-[-1] data-[active=true]:before:rounded-[inherit] data-[active=true]:before:border-2 data-[active=true]:before:border-ring data-[active=true]:before:bg-background dark:bg-input/30",
+        "relative z-0 flex size-[var(--control-height)] items-center justify-center border border-input border-l-transparent text-sm shadow-xs transition-all first:rounded-l-md first:border-l-input last:rounded-r-md aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:before:pointer-events-none data-[active=true]:before:absolute data-[active=true]:before:-inset-[5px] data-[active=true]:before:z-[-1] data-[active=true]:before:rounded-[inherit] data-[active=true]:before:border-2 data-[active=true]:before:border-ring data-[active=true]:before:bg-background data-[active=true]:aria-invalid:border-destructive dark:bg-input/30",
         className
       )}
       {...props}
@@ -58,7 +59,7 @@ function InputOtpSlot({
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-4 w-px animate-caret-blink bg-foreground duration-1000" />
+          <div className="animate-caret-blink h-4 w-px bg-foreground duration-1000" />
         </div>
       )}
     </div>

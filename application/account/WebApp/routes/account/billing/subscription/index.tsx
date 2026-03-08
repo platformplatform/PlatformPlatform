@@ -1,27 +1,16 @@
-import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { requirePermission, requireSubscriptionEnabled } from "@repo/infrastructure/auth/routeGuards";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { useFormatLongDate } from "@repo/ui/hooks/useSmartDate";
-import { loadStripe } from "@stripe/stripe-js/pure";
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangleIcon } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { api, SubscriptionPlan } from "@/shared/lib/api/client";
-import { getPlanLabel } from "@/shared/lib/api/subscriptionPlan";
+
+import { SubscriptionPlan } from "@/shared/lib/api/client";
+
 import { BillingTabNavigation } from "../-components/BillingTabNavigation";
-import { CancelDowngradeDialog } from "../-components/CancelDowngradeDialog";
-import { CancelSubscriptionDialog } from "../-components/CancelSubscriptionDialog";
-import { CheckoutDialog } from "../-components/CheckoutDialog";
-import { DowngradeConfirmationDialog } from "../-components/DowngradeConfirmationDialog";
-import { EditBillingInfoDialog } from "../-components/EditBillingInfoDialog";
-import { getCatalogUnitAmount, getFormattedPrice, PlanCard } from "../-components/PlanCard";
-import { ReactivateConfirmationDialog } from "../-components/ReactivateConfirmationDialog";
-import { SubscribeConfirmationDialog } from "../-components/SubscribeConfirmationDialog";
-import { UpgradeConfirmationDialog } from "../-components/UpgradeConfirmationDialog";
-import { useSubscriptionPolling } from "../-components/useSubscriptionPolling";
+import { PlanCardGrid } from "../-components/PlanCardGrid";
+import { CancellationBanner, DowngradeBanner, StripeNotConfiguredBanner } from "../-components/SubscriptionBanner";
+import { SubscriptionDialogs } from "../-components/SubscriptionDialogs";
+import { usePlansPageState } from "../-components/usePlansPageState";
 
 export const Route = createFileRoute("/account/billing/subscription/")({
   staticData: { trackingTitle: "Subscription" },
@@ -33,393 +22,110 @@ export const Route = createFileRoute("/account/billing/subscription/")({
 });
 
 function PlansPage() {
-  const { isPolling, startPolling, subscription } = useSubscriptionPolling();
-  const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
-  const [upgradeTarget, setUpgradeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
-  const [isDowngradeDialogOpen, setIsDowngradeDialogOpen] = useState(false);
-  const [downgradeTarget, setDowngradeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
-  const [isCancelDowngradeDialogOpen, setIsCancelDowngradeDialogOpen] = useState(false);
-  const [isReactivateDialogOpen, setIsReactivateDialogOpen] = useState(false);
-  const [isCheckoutDialogOpen, setIsCheckoutDialogOpen] = useState(false);
-  const [isEditBillingInfoOpen, setIsEditBillingInfoOpen] = useState(false);
-  const [checkoutPlan, setCheckoutPlan] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
-  const [pendingCheckoutPlan, setPendingCheckoutPlan] = useState<SubscriptionPlan | null>(null);
-  const [reactivateClientSecret, setReactivateClientSecret] = useState<string | undefined>();
-  const [reactivatePublishableKey, setReactivatePublishableKey] = useState<string | undefined>();
-  const [isConfirmingPayment, setIsConfirmingPayment] = useState(false);
-  const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false);
-  const [subscribeTarget, setSubscribeTarget] = useState<SubscriptionPlan>(SubscriptionPlan.Standard);
-
-  const { data: tenant } = api.useQuery("get", "/api/account/tenants/current");
-  const { data: pricingCatalog } = api.useQuery("get", "/api/account/subscriptions/pricing-catalog");
-
-  const upgradeMutation = api.useMutation("post", "/api/account/subscriptions/upgrade", {
-    onSuccess: async (data, variables) => {
-      const targetPlan = variables.body?.newPlan;
-      if (data.clientSecret && data.publishableKey) {
-        setIsConfirmingPayment(true);
-        const stripe = await loadStripe(data.publishableKey, { locale: i18n.locale as "auto" });
-        if (!stripe) {
-          setIsConfirmingPayment(false);
-          toast.error(t`Failed to load payment processor.`);
-          return;
-        }
-        const result = await stripe.confirmPayment({
-          clientSecret: data.clientSecret,
-          confirmParams: {
-            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
-            return_url: window.location.href
-          },
-          redirect: "if_required"
-        });
-        setIsConfirmingPayment(false);
-        if (result.error) {
-          toast.error(result.error.message ?? t`Payment authentication failed.`);
-          return;
-        }
-        startPolling({
-          check: (subscription) => subscription.plan === targetPlan,
-          successMessage: t`Your plan has been upgraded.`,
-          onComplete: () => setIsUpgradeDialogOpen(false)
-        });
-      } else {
-        startPolling({
-          check: (subscription) => subscription.plan === targetPlan,
-          successMessage: t`Your plan has been upgraded.`,
-          onComplete: () => setIsUpgradeDialogOpen(false)
-        });
-      }
-    }
-  });
-
-  const downgradeMutation = api.useMutation("post", "/api/account/subscriptions/schedule-downgrade", {
-    onSuccess: () => {
-      startPolling({
-        check: (subscription) => subscription.scheduledPlan === downgradeTarget,
-        successMessage: t`Your downgrade has been scheduled.`,
-        onComplete: () => setIsDowngradeDialogOpen(false)
-      });
-    }
-  });
-
-  const cancelMutation = api.useMutation("post", "/api/account/subscriptions/cancel", {
-    onSuccess: () => {
-      startPolling({
-        check: (subscription) => subscription.cancelAtPeriodEnd === true,
-        successMessage: t`Your subscription has been cancelled.`,
-        onComplete: () => setIsCancelDialogOpen(false)
-      });
-    }
-  });
-
-  const cancelDowngradeMutation = api.useMutation("post", "/api/account/subscriptions/cancel-downgrade", {
-    onSuccess: () => {
-      startPolling({
-        check: (subscription) => subscription.scheduledPlan == null,
-        successMessage: t`Your scheduled downgrade has been cancelled.`,
-        onComplete: () => setIsCancelDowngradeDialogOpen(false)
-      });
-    }
-  });
-
-  const reactivateMutation = api.useMutation("post", "/api/account/subscriptions/reactivate", {
-    onSuccess: (data) => {
-      if (data.clientSecret && data.publishableKey) {
-        setIsReactivateDialogOpen(false);
-        setReactivateClientSecret(data.clientSecret);
-        setReactivatePublishableKey(data.publishableKey);
-        setPendingCheckoutPlan(currentPlan);
-        setIsEditBillingInfoOpen(true);
-      } else {
-        startPolling({
-          check: (subscription) => subscription.cancelAtPeriodEnd === false,
-          successMessage: t`Your subscription has been reactivated.`,
-          onComplete: () => setIsReactivateDialogOpen(false)
-        });
-      }
-    }
-  });
-
-  const subscribeMutation = api.useMutation("post", "/api/account/subscriptions/start-checkout", {
-    onSuccess: async (data, variables) => {
-      const targetPlan = variables.body?.plan;
-      if (data.clientSecret && data.publishableKey) {
-        setIsConfirmingPayment(true);
-        const stripe = await loadStripe(data.publishableKey, { locale: i18n.locale as "auto" });
-        if (!stripe) {
-          setIsConfirmingPayment(false);
-          toast.error(t`Failed to load payment processor.`);
-          return;
-        }
-        const result = await stripe.confirmPayment({
-          clientSecret: data.clientSecret,
-          confirmParams: {
-            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
-            return_url: window.location.href
-          },
-          redirect: "if_required"
-        });
-        setIsConfirmingPayment(false);
-        if (result.error) {
-          toast.error(result.error.message ?? t`Payment authentication failed.`);
-          return;
-        }
-        startPolling({
-          check: (sub) => sub.plan === targetPlan,
-          successMessage: t`Your subscription has been activated.`,
-          onComplete: () => setIsSubscribeDialogOpen(false)
-        });
-      } else {
-        startPolling({
-          check: (sub) => sub.plan === targetPlan,
-          successMessage: t`Your subscription has been activated.`,
-          onComplete: () => setIsSubscribeDialogOpen(false)
-        });
-      }
-    }
-  });
-
+  const state = usePlansPageState();
   const formatLongDate = useFormatLongDate();
-  const isStripeConfigured = (pricingCatalog?.plans?.length ?? 0) > 0;
-  const currentPlan = subscription?.plan ?? SubscriptionPlan.Basis;
-  const cancelAtPeriodEnd = subscription?.cancelAtPeriodEnd ?? false;
-  const scheduledPlan = subscription?.scheduledPlan ?? null;
-  const currentPeriodEnd = subscription?.currentPeriodEnd ?? null;
-  const billingInfo = subscription?.billingInfo;
+
+  const cancelAtPeriodEnd = state.subscription?.cancelAtPeriodEnd ?? false;
+  const scheduledPlan = state.subscription?.scheduledPlan ?? null;
+  const currentPeriodEnd = state.subscription?.currentPeriodEnd ?? null;
   const formattedPeriodEnd = formatLongDate(currentPeriodEnd);
-
-  const isPending =
-    upgradeMutation.isPending ||
-    subscribeMutation.isPending ||
-    downgradeMutation.isPending ||
-    cancelDowngradeMutation.isPending ||
-    reactivateMutation.isPending ||
-    cancelMutation.isPending ||
-    isPolling;
-
-  const pendingPlan = upgradeMutation.isPending
-    ? (upgradeMutation.variables?.body?.newPlan ?? null)
-    : downgradeMutation.isPending
-      ? downgradeTarget
-      : cancelMutation.isPending
-        ? SubscriptionPlan.Basis
-        : reactivateMutation.isPending
-          ? currentPlan
-          : null;
+  const isStripeConfigured = (state.pricingCatalog?.plans?.length ?? 0) > 0;
 
   const handleSubscribe = (plan: SubscriptionPlan) => {
-    if (subscription?.billingInfo && subscription?.paymentMethod) {
-      setSubscribeTarget(plan);
-      setIsSubscribeDialogOpen(true);
+    if (state.subscription?.billingInfo && state.subscription?.paymentMethod) {
+      state.setSubscribeTarget(plan);
+      state.setIsSubscribeDialogOpen(true);
     } else {
-      setPendingCheckoutPlan(plan);
-      setIsEditBillingInfoOpen(true);
+      state.setPendingCheckoutPlan(plan);
+      state.setIsEditBillingInfoOpen(true);
     }
-  };
-
-  const handleUpgrade = (plan: SubscriptionPlan) => {
-    setUpgradeTarget(plan);
-    setIsUpgradeDialogOpen(true);
   };
 
   const handleDowngrade = (plan: SubscriptionPlan) => {
     if (plan === SubscriptionPlan.Basis) {
-      setIsCancelDialogOpen(true);
+      state.setIsCancelDialogOpen(true);
     } else {
-      setDowngradeTarget(plan);
-      setIsDowngradeDialogOpen(true);
+      state.setDowngradeTarget(plan);
+      state.setIsDowngradeDialogOpen(true);
     }
-  };
-
-  const handleConfirmUpgrade = () => {
-    upgradeMutation.mutate({ body: { newPlan: upgradeTarget } });
-  };
-
-  const handleConfirmSubscribe = () => {
-    subscribeMutation.mutate({ body: { plan: subscribeTarget } });
-  };
-
-  const handleConfirmDowngrade = () => {
-    downgradeMutation.mutate({ body: { newPlan: downgradeTarget } });
-  };
-
-  const handleCancelDowngrade = () => {
-    setIsCancelDowngradeDialogOpen(true);
-  };
-
-  const handleConfirmCancelDowngrade = () => {
-    cancelDowngradeMutation.mutate({});
-  };
-
-  const handleReactivate = () => {
-    setIsReactivateDialogOpen(true);
-  };
-
-  const handleConfirmReactivate = () => {
-    reactivateMutation.mutate({});
-  };
-
-  const handleBillingInfoSuccess = () => {
-    if (pendingCheckoutPlan == null) {
-      return;
-    }
-    setCheckoutPlan(pendingCheckoutPlan);
-    setPendingCheckoutPlan(null);
-    setIsCheckoutDialogOpen(true);
   };
 
   return (
     <>
       <AppLayout variant="center" maxWidth="64rem" title={t`Subscription`} subtitle={t`Manage your subscription plan.`}>
         <BillingTabNavigation activeTab="subscription" />
-
         {cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
-            <AlertTriangleIcon className="size-4 shrink-0" />
-            {formattedPeriodEnd ? (
-              <Trans>
-                Your {getPlanLabel(currentPlan)} subscription has been cancelled and will end on {formattedPeriodEnd}.
-              </Trans>
-            ) : (
-              <Trans>Your subscription has been cancelled and will end at the end of the current billing period.</Trans>
-            )}
-          </div>
+          <CancellationBanner currentPlan={state.currentPlan} formattedPeriodEnd={formattedPeriodEnd} />
         )}
-
         {scheduledPlan && !cancelAtPeriodEnd && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
-            <AlertTriangleIcon className="size-4 shrink-0" />
-            {formattedPeriodEnd ? (
-              <Trans>
-                Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} on {formattedPeriodEnd}.
-              </Trans>
-            ) : (
-              <Trans>
-                Your subscription will be downgraded to {getPlanLabel(scheduledPlan)} at the end of the current billing
-                period.
-              </Trans>
-            )}
-          </div>
+          <DowngradeBanner scheduledPlan={scheduledPlan} formattedPeriodEnd={formattedPeriodEnd} />
         )}
-
-        {!isStripeConfigured && (
-          <div className="mb-6 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-4 text-muted-foreground text-sm">
-            <AlertTriangleIcon className="size-4 shrink-0" />
-            <Trans>Billing is not configured. Please contact support to enable payment processing.</Trans>
-          </div>
-        )}
-
-        <div className="grid gap-4 lg:grid-cols-3">
-          {[SubscriptionPlan.Basis, SubscriptionPlan.Standard, SubscriptionPlan.Premium].map((plan) => {
-            const planItem = pricingCatalog?.plans?.find((p) => p.plan === plan);
-            const taxExclusive = planItem != null && !planItem.taxInclusive;
-            return (
-              <PlanCard
-                key={plan}
-                plan={plan}
-                formattedPrice={getFormattedPrice(plan, pricingCatalog?.plans)}
-                currentPlan={currentPlan}
-                cancelAtPeriodEnd={cancelAtPeriodEnd}
-                scheduledPlan={scheduledPlan}
-                isStripeConfigured={isStripeConfigured}
-                onSubscribe={handleSubscribe}
-                onUpgrade={handleUpgrade}
-                onDowngrade={handleDowngrade}
-                onReactivate={handleReactivate}
-                onCancelDowngrade={handleCancelDowngrade}
-                isPending={isPending}
-                pendingPlan={pendingPlan}
-                isCancelDowngradePending={cancelDowngradeMutation.isPending}
-                currentPriceAmount={subscription?.currentPriceAmount}
-                currentPriceCurrency={subscription?.currentPriceCurrency}
-                catalogUnitAmount={getCatalogUnitAmount(plan, pricingCatalog?.plans)}
-                taxExclusive={taxExclusive}
-              />
-            );
-          })}
-        </div>
-      </AppLayout>
-
-      <CancelSubscriptionDialog
-        isOpen={isCancelDialogOpen}
-        onOpenChange={setIsCancelDialogOpen}
-        onConfirm={(reason, feedback) => cancelMutation.mutate({ body: { reason, feedback } })}
-        isPending={cancelMutation.isPending || isPolling}
-        currentPeriodEnd={currentPeriodEnd}
-      />
-
-      <UpgradeConfirmationDialog
-        isOpen={isUpgradeDialogOpen}
-        onOpenChange={setIsUpgradeDialogOpen}
-        onConfirm={handleConfirmUpgrade}
-        isPending={upgradeMutation.isPending || isConfirmingPayment || isPolling}
-        targetPlan={upgradeTarget}
-        billingInfo={billingInfo}
-        paymentMethod={subscription?.paymentMethod}
-      />
-
-      <SubscribeConfirmationDialog
-        isOpen={isSubscribeDialogOpen}
-        onOpenChange={setIsSubscribeDialogOpen}
-        onConfirm={handleConfirmSubscribe}
-        isPending={subscribeMutation.isPending || isConfirmingPayment || isPolling}
-        targetPlan={subscribeTarget}
-        billingInfo={billingInfo}
-        paymentMethod={subscription?.paymentMethod}
-      />
-
-      <DowngradeConfirmationDialog
-        isOpen={isDowngradeDialogOpen}
-        onOpenChange={setIsDowngradeDialogOpen}
-        onConfirm={handleConfirmDowngrade}
-        isPending={downgradeMutation.isPending || isPolling}
-        targetPlan={downgradeTarget}
-        currentPeriodEnd={currentPeriodEnd}
-      />
-
-      {scheduledPlan && (
-        <CancelDowngradeDialog
-          isOpen={isCancelDowngradeDialogOpen}
-          onOpenChange={setIsCancelDowngradeDialogOpen}
-          onConfirm={handleConfirmCancelDowngrade}
-          isPending={cancelDowngradeMutation.isPending || isPolling}
-          currentPlan={currentPlan}
+        {!isStripeConfigured && <StripeNotConfiguredBanner />}
+        <PlanCardGrid
+          plans={state.pricingCatalog?.plans}
+          currentPlan={state.currentPlan}
+          cancelAtPeriodEnd={cancelAtPeriodEnd}
           scheduledPlan={scheduledPlan}
-          currentPeriodEnd={currentPeriodEnd}
+          isStripeConfigured={isStripeConfigured}
+          onSubscribe={handleSubscribe}
+          onUpgrade={(plan) => {
+            state.setUpgradeTarget(plan);
+            state.setIsUpgradeDialogOpen(true);
+          }}
+          onDowngrade={handleDowngrade}
+          onReactivate={() => state.setIsReactivateDialogOpen(true)}
+          onCancelDowngrade={() => state.setIsCancelDowngradeDialogOpen(true)}
+          isPending={state.isPending}
+          pendingPlan={state.pendingPlan}
+          isCancelDowngradePending={state.cancelDowngradeMutation.isPending}
+          currentPriceAmount={state.subscription?.currentPriceAmount}
+          currentPriceCurrency={state.subscription?.currentPriceCurrency}
         />
-      )}
-
-      <ReactivateConfirmationDialog
-        isOpen={isReactivateDialogOpen}
-        onOpenChange={setIsReactivateDialogOpen}
-        onConfirm={handleConfirmReactivate}
-        isPending={reactivateMutation.isPending || isPolling}
-        currentPlan={currentPlan}
-      />
-
-      <EditBillingInfoDialog
-        isOpen={isEditBillingInfoOpen}
-        onOpenChange={setIsEditBillingInfoOpen}
-        billingInfo={billingInfo}
-        tenantName={tenant?.name ?? ""}
-        onSuccess={handleBillingInfoSuccess}
-        submitLabel={t`Next`}
-        pendingLabel={t`Saving...`}
-      />
-
-      <CheckoutDialog
-        isOpen={isCheckoutDialogOpen}
-        onOpenChange={(open) => {
-          setIsCheckoutDialogOpen(open);
-          if (!open) {
-            setReactivateClientSecret(undefined);
-            setReactivatePublishableKey(undefined);
-          }
-        }}
-        plan={checkoutPlan}
-        prefetchedClientSecret={reactivateClientSecret}
-        prefetchedPublishableKey={reactivatePublishableKey}
+      </AppLayout>
+      <SubscriptionDialogs
+        isCancelDialogOpen={state.isCancelDialogOpen}
+        setIsCancelDialogOpen={state.setIsCancelDialogOpen}
+        onCancelConfirm={(reason, feedback) => state.cancelMutation.mutate({ body: { reason, feedback } })}
+        isCancelPending={state.cancelMutation.isPending || state.isPolling}
+        currentPeriodEnd={currentPeriodEnd}
+        isUpgradeDialogOpen={state.isUpgradeDialogOpen}
+        setIsUpgradeDialogOpen={state.setIsUpgradeDialogOpen}
+        onUpgradeConfirm={() => state.upgradeMutation.mutate({ body: { newPlan: state.upgradeTarget } })}
+        isUpgradePending={state.upgradeMutation.isPending || state.isConfirmingPayment || state.isPolling}
+        upgradeTarget={state.upgradeTarget}
+        isSubscribeDialogOpen={state.isSubscribeDialogOpen}
+        setIsSubscribeDialogOpen={state.setIsSubscribeDialogOpen}
+        onSubscribeConfirm={() => state.subscribeMutation.mutate({ body: { plan: state.subscribeTarget } })}
+        isSubscribePending={state.subscribeMutation.isPending || state.isConfirmingPayment || state.isPolling}
+        subscribeTarget={state.subscribeTarget}
+        isDowngradeDialogOpen={state.isDowngradeDialogOpen}
+        setIsDowngradeDialogOpen={state.setIsDowngradeDialogOpen}
+        onDowngradeConfirm={() => state.downgradeMutation.mutate({ body: { newPlan: state.downgradeTarget } })}
+        isDowngradePending={state.downgradeMutation.isPending || state.isPolling}
+        downgradeTarget={state.downgradeTarget}
+        scheduledPlan={scheduledPlan}
+        isCancelDowngradeDialogOpen={state.isCancelDowngradeDialogOpen}
+        setIsCancelDowngradeDialogOpen={state.setIsCancelDowngradeDialogOpen}
+        onCancelDowngradeConfirm={() => state.cancelDowngradeMutation.mutate({})}
+        isCancelDowngradePending={state.cancelDowngradeMutation.isPending || state.isPolling}
+        currentPlan={state.currentPlan}
+        isReactivateDialogOpen={state.isReactivateDialogOpen}
+        setIsReactivateDialogOpen={state.setIsReactivateDialogOpen}
+        onReactivateConfirm={() => state.reactivateMutation.mutate({})}
+        isReactivatePending={state.reactivateMutation.isPending || state.isPolling}
+        isEditBillingInfoOpen={state.isEditBillingInfoOpen}
+        setIsEditBillingInfoOpen={state.setIsEditBillingInfoOpen}
+        billingInfo={state.subscription?.billingInfo}
+        paymentMethod={state.subscription?.paymentMethod}
+        tenantName={state.tenant?.name ?? ""}
+        onBillingInfoSuccess={state.handleBillingInfoSuccess}
+        isCheckoutDialogOpen={state.isCheckoutDialogOpen}
+        setIsCheckoutDialogOpen={state.setIsCheckoutDialogOpen}
+        checkoutPlan={state.checkoutPlan}
+        reactivateClientSecret={state.reactivateClientSecret}
+        reactivatePublishableKey={state.reactivatePublishableKey}
+        setReactivateClientSecret={state.setReactivateClientSecret}
+        setReactivatePublishableKey={state.setReactivatePublishableKey}
       />
     </>
   );

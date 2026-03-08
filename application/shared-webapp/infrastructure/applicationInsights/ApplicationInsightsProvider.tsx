@@ -1,6 +1,7 @@
 import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { type ReactNode, useEffect, useRef } from "react";
+
 import { useUserInfo } from "../auth/hooks";
 
 const reactPlugin = new ReactPlugin();

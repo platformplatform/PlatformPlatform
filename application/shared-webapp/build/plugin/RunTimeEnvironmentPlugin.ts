@@ -1,5 +1,6 @@
-import path from "node:path";
 import type { RsbuildConfig, RsbuildPlugin } from "@rsbuild/core";
+
+import path from "node:path";
 
 /**
  * The application ID is the relative path from the root of the repository to the

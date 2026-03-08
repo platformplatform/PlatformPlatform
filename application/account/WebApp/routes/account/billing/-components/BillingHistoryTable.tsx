@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@repo/ui/components/Tooltip";
 import { useFormatDate } from "@repo/ui/hooks/useSmartDate";
 import { DownloadIcon } from "lucide-react";
+
 import { api, PaymentTransactionStatus } from "@/shared/lib/api/client";
 
 const PAGE_SIZE = 10;
@@ -51,7 +52,7 @@ export function BillingHistoryTable() {
 
   if (transactions.length === 0) {
     return (
-      <p className="text-muted-foreground text-sm">
+      <p className="text-sm text-muted-foreground">
         <Trans>No payment history available.</Trans>
       </p>
     );
@@ -92,7 +93,6 @@ export function BillingHistoryTable() {
                   <Tooltip>
                     <TooltipTrigger
                       render={
-                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
                         <a
                           href={transaction.invoiceUrl}
                           target="_blank"
@@ -117,7 +117,6 @@ export function BillingHistoryTable() {
                   <Tooltip>
                     <TooltipTrigger
                       render={
-                        // biome-ignore lint/a11y/useAnchorContent: Children injected by TooltipTrigger render prop; aria-label provides accessible name
                         <a
                           href={transaction.creditNoteUrl}
                           target="_blank"

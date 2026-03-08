@@ -1,5 +1,7 @@
-import { Building2Icon } from "lucide-react";
 import type { ComponentProps } from "react";
+
+import { Building2Icon } from "lucide-react";
+
 import { cn } from "../utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./Avatar";
 

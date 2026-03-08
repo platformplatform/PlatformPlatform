@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { MEDIA_QUERIES, SIDE_MENU_DEFAULT_WIDTH_REM } from "../utils/responsive";
 
 // Expanded menu width in rem

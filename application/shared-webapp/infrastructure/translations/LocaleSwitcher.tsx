@@ -8,6 +8,7 @@ import {
 } from "@repo/ui/components/DropdownMenu";
 import { CheckIcon, GlobeIcon } from "lucide-react";
 import { use, useMemo } from "react";
+
 import { preferredLocaleKey } from "./constants";
 import { type Locale, translationContext } from "./TranslationContext";
 

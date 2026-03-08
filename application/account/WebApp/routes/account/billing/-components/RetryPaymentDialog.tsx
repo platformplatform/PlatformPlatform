@@ -17,8 +17,11 @@ import { loadStripe } from "@stripe/stripe-js/pure";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+
 import type { components } from "@/shared/lib/api/api.generated";
+
 import { api } from "@/shared/lib/api/client";
+
 import { BillingInfoDisplay } from "./BillingInfoDisplay";
 import { PaymentMethodDisplay } from "./PaymentMethodDisplay";
 
@@ -58,7 +61,6 @@ export function RetryPaymentDialog({
         const result = await paymentStripe.confirmPayment({
           clientSecret: data.clientSecret,
           confirmParams: {
-            // biome-ignore lint/style/useNamingConvention: Stripe API uses snake_case
             return_url: window.location.href
           },
           redirect: "if_required"
@@ -94,7 +96,7 @@ export function RetryPaymentDialog({
         <DialogBody>
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <span className="font-medium text-sm">
+              <span className="text-sm font-medium">
                 <Trans>Bill to</Trans>
               </span>
               <BillingInfoDisplay billingInfo={billingInfo} />
@@ -103,7 +105,7 @@ export function RetryPaymentDialog({
             <Separator />
 
             <div className="flex flex-col gap-2">
-              <span className="font-medium text-sm">
+              <span className="text-sm font-medium">
                 <Trans>Payment method</Trans>
               </span>
               <PaymentMethodDisplay paymentMethod={paymentMethod} />
@@ -115,7 +117,7 @@ export function RetryPaymentDialog({
               <span>
                 <Trans>Total</Trans>
               </span>
-              <span className="shrink-0 whitespace-nowrap text-lg tabular-nums">
+              <span className="shrink-0 text-lg whitespace-nowrap tabular-nums">
                 {formatCurrency(amount, currency)}
               </span>
             </div>

@@ -1,12 +1,14 @@
+import type { ComponentProps, MouseEvent, ReactNode } from "react";
+
 import { Link as RouterLink } from "@tanstack/react-router";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps, MouseEvent, ReactNode } from "react";
+
 import { cn } from "../utils";
 
 // NOTE: Button-styled variants (button-primary, button-secondary, button-destructive) diverge from stock ShadCN Link
 // to include active backgrounds for press feedback, matching the Button component.
 const linkVariants = cva(
-  "inline-flex cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-md px-1 py-0.5 font-medium outline-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+  "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-1 py-0.5 font-medium whitespace-nowrap outline-0 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
   {
     variants: {
       variant: {
@@ -115,9 +117,9 @@ export function Link({
 
   if (href === undefined) {
     return (
-      // biome-ignore lint/a11y/useSemanticElements: Button with role="link" is intentional for click-only links used in navigation menus
       <button
         type="button"
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role -- Button with role="link" is intentional for click-only links
         role="link"
         className={linkClassName}
         onClick={onClick as (event: MouseEvent<HTMLButtonElement>) => void}

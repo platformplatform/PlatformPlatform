@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangleIcon } from "lucide-react";
 import { useCallback } from "react";
 import { toast } from "sonner";
+
 import { api, type components } from "@/shared/lib/api/client";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];

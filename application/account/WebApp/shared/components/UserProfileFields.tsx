@@ -1,20 +1,11 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Button } from "@repo/ui/components/Button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@repo/ui/components/DropdownMenu";
 import { TextField } from "@repo/ui/components/TextField";
-import { CameraIcon, MailIcon, PencilIcon, Trash2Icon } from "lucide-react";
-import { useRef, useState } from "react";
+import { MailIcon } from "lucide-react";
+
 import type { Schemas } from "@/shared/lib/api/client";
 
-const MAX_FILE_SIZE = 1024 * 1024; // 1MB in bytes
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+import { UserAvatarPicker } from "./UserAvatarPicker";
 
 export interface UserProfileFieldsProps {
   user: Schemas["CurrentUserResponse"] | undefined;
@@ -33,103 +24,13 @@ export function UserProfileFields({
   autoFocus,
   layout = "stacked"
 }: UserProfileFieldsProps) {
-  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
-  const [isAvatarRemoved, setIsAvatarRemoved] = useState(false);
-  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const avatarFileInputRef = useRef<HTMLInputElement>(null);
-
-  const onFileSelect = (files: FileList | null) => {
-    if (files?.[0]) {
-      const file = files[0];
-
-      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-        alert(t`Please select a JPEG, PNG, GIF, or WebP image.`);
-        return;
-      }
-
-      if (file.size > MAX_FILE_SIZE) {
-        alert(t`Image must be smaller than 1 MB.`);
-        return;
-      }
-
-      setAvatarPreviewUrl(URL.createObjectURL(file));
-      setIsAvatarRemoved(false);
-      onAvatarFileSelect(file);
-    }
-  };
-
-  const handleRemove = () => {
-    setAvatarMenuOpen(false);
-    setAvatarPreviewUrl(null);
-    setIsAvatarRemoved(true);
-    onAvatarFileSelect(null);
-    onAvatarRemove?.();
-  };
-
   const avatarSection = (
-    <>
-      <input
-        type="file"
-        ref={avatarFileInputRef}
-        onChange={(e) => {
-          setAvatarMenuOpen(false);
-          onFileSelect(e.target.files);
-        }}
-        accept={ALLOWED_FILE_TYPES.join(",")}
-        className="hidden"
-      />
-
-      <DropdownMenu open={avatarMenuOpen} onOpenChange={setAvatarMenuOpen} trackingTitle="Profile picture menu">
-        <div className="group relative">
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-[7rem] rounded-full border border-border border-dashed bg-secondary hover:bg-secondary/80"
-                aria-label={t`Change profile picture`}
-                disabled={isPending}
-              >
-                {avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl) ? (
-                  <img
-                    src={avatarPreviewUrl ?? user?.avatarUrl ?? ""}
-                    width={80}
-                    height={80}
-                    className="size-full rounded-full object-cover"
-                    alt={t`Profile avatar`}
-                  />
-                ) : (
-                  <CameraIcon className="size-8 text-secondary-foreground" aria-label={t`Add profile picture`} />
-                )}
-              </Button>
-            }
-          />
-          <div className="pointer-events-none absolute right-1 bottom-1 flex size-6 items-center justify-center rounded-full border border-border bg-popover opacity-0 group-hover:bg-primary group-hover:opacity-100">
-            <PencilIcon className="size-3 text-muted-foreground group-hover:text-primary-foreground" strokeWidth={3} />
-          </div>
-        </div>
-        <DropdownMenuContent>
-          <DropdownMenuItem
-            trackingLabel="Upload profile picture"
-            onClick={() => {
-              avatarFileInputRef.current?.click();
-            }}
-          >
-            <CameraIcon className="size-4" />
-            <Trans>Upload profile picture</Trans>
-          </DropdownMenuItem>
-          {(avatarPreviewUrl || (!isAvatarRemoved && user?.avatarUrl)) && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" trackingLabel="Remove profile picture" onClick={handleRemove}>
-                <Trash2Icon className="size-4" />
-                <Trans>Remove profile picture</Trans>
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <UserAvatarPicker
+      avatarUrl={user?.avatarUrl}
+      isPending={isPending}
+      onFileSelect={onAvatarFileSelect}
+      onRemove={onAvatarRemove}
+    />
   );
 
   const fieldsSection = (
@@ -176,7 +77,7 @@ export function UserProfileFields({
     return (
       <div className="mt-8 flex flex-col gap-6 md:grid md:grid-cols-[8.5rem_1fr] md:gap-8">
         <div className="flex flex-col">
-          <span className="pb-2.75 font-medium text-sm">
+          <span className="pb-2.75 text-sm font-medium">
             <Trans>Profile photo</Trans>
           </span>
           <div className="flex h-[8.5rem] w-full flex-col items-center justify-center rounded-xl bg-card md:size-[8.5rem]">

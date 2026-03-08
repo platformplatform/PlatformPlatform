@@ -13,6 +13,7 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import createFetchClient from "openapi-fetch";
 import createClient from "openapi-react-query";
+
 import { createAuthenticationMiddleware } from "../auth/AuthenticationMiddleware";
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
 import { type HttpError, normalizeError } from "./errorHandler";

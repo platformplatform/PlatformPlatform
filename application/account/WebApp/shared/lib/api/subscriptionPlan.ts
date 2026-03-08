@@ -1,4 +1,5 @@
 import { t } from "@lingui/core/macro";
+
 import { SubscriptionPlan } from "@/shared/lib/api/client";
 
 export function getPlanLabel(plan: SubscriptionPlan): string {

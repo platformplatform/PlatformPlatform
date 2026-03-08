@@ -1,14 +1,11 @@
-import { createContext, type ReactNode, useCallback } from "react";
+import { type ReactNode, useCallback } from "react";
+
 import { useUnsavedChangesGuard } from "../hooks/useUnsavedChangesGuard";
 import { Dialog, type DialogProps } from "./Dialog";
+import { DirtyDialogContext } from "./DirtyDialogContext";
 import { UnsavedChangesAlertDialog } from "./UnsavedChangesAlertDialog";
 
-type DirtyDialogContextValue = {
-  cancel: () => void;
-  hasUnsavedChanges: boolean;
-};
-
-export const DirtyDialogContext = createContext<DirtyDialogContextValue | null>(null);
+export { DirtyDialogContext };
 
 export type DirtyDialogProps = Omit<DialogProps, "onOpenChange"> & {
   onOpenChange: (isOpen: boolean) => void;

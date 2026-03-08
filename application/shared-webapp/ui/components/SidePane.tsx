@@ -1,7 +1,9 @@
-import { XIcon } from "lucide-react";
 import type * as React from "react";
+
+import { XIcon } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+
 import { cn } from "../utils";
 import { Button } from "./Button";
 

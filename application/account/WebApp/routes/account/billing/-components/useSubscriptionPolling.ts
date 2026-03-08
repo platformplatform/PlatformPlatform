@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+
 import { api, type Schemas } from "@/shared/lib/api/client";
 
 const WebhookPollIntervalMs = 1000;

@@ -7,6 +7,7 @@
 > ⚠️ **Important: Customize These Terms**
 >
 > This is an AI-generated template Terms of Service for B2B SaaS applications. Before production use, you must:
+>
 > - Update "Effective date" at top
 > - Replace Service Provider details (company name, address, email)
 > - Update Section 2 with your specific service description and value proposition
@@ -168,4 +169,3 @@ These Terms, together with our [Privacy Policy](/legal/privacy) and [Data Proces
 You may not assign these Terms without our prior written consent. We may assign these Terms in connection with a merger, acquisition, or sale of assets with notice to you.
 
 We will not be liable for any failure or delay in performance due to circumstances beyond our reasonable control.
-

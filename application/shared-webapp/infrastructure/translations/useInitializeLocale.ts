@@ -1,7 +1,9 @@
 import { useContext, useEffect } from "react";
+
+import type { Locale } from "./Translation";
+
 import { AuthenticationContext } from "../auth/AuthenticationProvider";
 import { preferredLocaleKey } from "./constants";
-import type { Locale } from "./Translation";
 import { translationContext } from "./TranslationContext";
 
 export function useInitializeLocale() {
