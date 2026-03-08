@@ -32,8 +32,7 @@ export function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFo
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPaymentReady, setIsPaymentReady] = useState(false);
 
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
+  const { data: subscription } = useSubscription();
   const { data: preview } = api.useQuery("get", "/api/account/subscriptions/checkout-preview", {
     params: { query: { Plan: plan } }
   });

@@ -34,8 +34,7 @@ function getSuspensionReasonLabel(reason: string | null | undefined): string {
 
 export function AccountInfoFields({ tenant }: Readonly<AccountInfoFieldsProps>) {
   const formatDate = useFormatDate();
-  const { tenantId } = import.meta.user_info_env;
-  const { data: subscription } = useSubscription(tenantId ?? "");
+  const { data: subscription } = useSubscription();
 
   const isSuspended = tenant?.state === TenantState.Suspended;
 
