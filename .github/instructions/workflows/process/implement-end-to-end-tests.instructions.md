@@ -9,7 +9,7 @@ You are implementing: **{{{title}}}**
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/copilot/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/instructions/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
    - `requestFilePath`: Request file path
@@ -221,5 +221,5 @@ CompleteWork requires reviewer approval and committed code.
 - **Tests must pass**: Never complete without running tests and verifying they pass
 - **Database migrations**: Always run the run tool if backend schema changed
 - **Speed is critical**: Structure tests to minimize steps while maximizing coverage
-- **Follow conventions**: Adhere to patterns in [End-to-End Tests](/.github/copilot/rules/end-to-end-tests/end-to-end-tests.md)
+- **Follow conventions**: Adhere to patterns in [End-to-End Tests](/.github/instructions/end-to-end-tests/end-to-end-tests.md)
 - **Realistic user journeys**: Test scenarios that reflect actual user behavior

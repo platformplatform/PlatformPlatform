@@ -11,7 +11,7 @@ You are reviewing: **{{{title}}}**
 
 **Zero Tolerance for Test Quality**: E2E tests must be perfect. ALL tests must pass, ZERO console errors, ZERO network errors, NO sleep statements. There are no exceptions.
 
-**Evidence-Based Reviews**: Every finding must be backed by rules in `/.github/copilot/rules/end-to-end-tests/end-to-end-tests.md` or established patterns in the codebase.
+**Evidence-Based Reviews**: Every finding must be backed by rules in `/.github/instructions/end-to-end-tests/end-to-end-tests.md` or established patterns in the codebase.
 
 **Speed is Critical**: Tests must run fast. Reject tests that are unnecessarily slow or create too many small test files.
 
@@ -19,7 +19,7 @@ You are reviewing: **{{{title}}}**
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/copilot/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/instructions/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
    - `requestFilePath`: Request file path (contains engineer's request message)
@@ -71,7 +71,7 @@ You are reviewing: **{{{title}}}**
 **If [task] lookup fails** (not found, already completed, or error): This is a coordination error. Report a problem and reject the review explaining the task could not be found.
 
 4. **Study E2E rules**:
-   - Read [End-to-End Tests](/.github/copilot/rules/end-to-end-tests/end-to-end-tests.md)
+   - Read [End-to-End Tests](/.github/instructions/end-to-end-tests/end-to-end-tests.md)
    - Ensure engineer followed all patterns
 
 **STEP 2**: Run feature-specific e2e tests first

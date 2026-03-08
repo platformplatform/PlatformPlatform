@@ -102,7 +102,7 @@ Guidelines for C# backend development, including code style, naming, exceptions,
 
 Follow these steps when implementing changes:
 
-1. Always start new changes by writing new test cases (or change existing tests)—consult [API Tests](/.github/copilot/rules/backend/api-tests.md) for details
+1. Always start new changes by writing new test cases (or change existing tests)—consult [API Tests](/.github/instructions/backend/api-tests.md) for details
 2. Build and test your changes:
    - Use the **execute MCP tool** with `command: "build"` for backend
    - Use the **execute MCP tool** with `command: "test"` to run all tests

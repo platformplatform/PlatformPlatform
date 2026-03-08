@@ -19,7 +19,7 @@ Guidelines for implementing CQRS queries, including structure, validation, respo
    - Create a public sealed record marked with `[PublicAPI]`
    - Name with `Response` suffix (e.g., `UserResponse`)
    - Include all necessary data for the client
-   - Use [Strongly Typed IDs](/.github/copilot/rules/backend/strongly-typed-ids.md) and enums
+   - Use [Strongly Typed IDs](/.github/instructions/backend/strongly-typed-ids.md) and enums
    - Take special care not to include sensitive data
 5. Validator (optional):
    - Focus on preventing malicious input like `PageSize=1_000_000_000`—the WebApp ensures meaningful input

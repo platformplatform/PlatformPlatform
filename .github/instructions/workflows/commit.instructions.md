@@ -13,7 +13,7 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
    - Auto-generated files: `*.Api.json` (backend), `*.po` (frontend)
 
 3. **Auto-run sync-ai-rules if AI rules changed**:
-   - If any files in `.github/copilot/` changed, run sync-ai-rules automatically
+   - If any files in `.github/instructions/` changed, run sync-ai-rules automatically
    - Sync updates files in `.agent/`, `.cursor/`, `.github/copilot/`, `.windsurf/`
    - These synced directories must be included in the commit (step 7)
 

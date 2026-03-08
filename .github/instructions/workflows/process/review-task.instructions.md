@@ -14,7 +14,7 @@ You are reviewing: **{{{title}}}**
 **Zero Tolerance**: ALL findings must be fixed, regardless of severity. Never dismiss issues as "minor" or "not worth fixing". Every deviation from rules or established patterns must be addressed.
 
 **Evidence-Based Reviews**: Every finding must be backed by:
-1. Explicit rules from `.github/copilot/rules/` files, OR
+1. Explicit rules from `.github/instructions/` files, OR
 2. Established patterns found elsewhere in the codebase (cite specific file:line examples), OR
 3. Well-established ecosystem conventions (e.g., .NET interfaces prefixed with `I`)
 
@@ -30,7 +30,7 @@ Avoid subjective personal preferences.
 
 ## STEP 0: Mandatory Preparation
 
-1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/copilot/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
+1. **Read [PRODUCT_MANAGEMENT_TOOL]-specific guide** at `/.github/instructions/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md` to understand terminology, status mapping, ID format, and MCP configuration.
 
 2. **Read `current-task.json` from `.workspace/agent-workspaces/{branch-name}/{agent-type}/current-task.json`** to get:
    - `requestFilePath`: Request file path (contains engineer's request message)
@@ -435,7 +435,7 @@ When calling CompleteWork with `responseContent`:
 
 ### File.cs:Line
 [Objective description of problem]
-- **Rule/Pattern**: [Reference to .github/copilot/rules/X.md or pattern from codebase]
+- **Rule/Pattern**: [Reference to .github/instructions/X.md or pattern from codebase]
 - **Fix**: [Optional: Suggest specific change]
 
 ### AnotherFile.cs:Line

@@ -33,7 +33,7 @@ Coordinator (orchestrates implementation)
 
 ### Use These Standardized Terms
 
-When writing or updating `.github/copilot/workflows/process/**` files, system prompts, agent definitions, or any workflow documentation:
+When writing or updating `.github/instructions/workflows/process/**` files, system prompts, agent definitions, or any workflow documentation:
 
 **Work Item Hierarchy**:
 - `[feature]` / `[features]` or `[Feature]` / `[Features]` — a collection of tasks
@@ -86,7 +86,7 @@ When the workflow runs, the underlying tool maps our generic terms:
 
 ### When Updating Workflow Files
 
-**Before making changes to `.github/copilot/workflows/process/**` files**:
+**Before making changes to `.github/instructions/workflows/process/**` files**:
 
 1. Search for tool-specific terms and replace with standardized terms
 2. Verify status flows use only `[Planned]` → `[Active]` → `[Review]` → `[Completed]`
@@ -414,9 +414,9 @@ Understanding these files helps debug workflow issues:
 - `developer-cli/Commands/ClaudeAgentCommand.cs` — Worker-host lifecycle, session management, process monitoring
 - `developer-cli/Commands/McpCommand.cs` — MCP server exposing `start_worker_agent` tool
 - `developer-cli/Utilities/ClaudeAgentLifecycle.cs` — Worker completion logic, file creation
-- `.github/copilot/agentic-workflow/system-prompts/*.txt` — Agent behavior and rules
-- `.github/copilot/agents/*.md` — Agent definitions for Task tool (proxy agents)
-- `.github/copilot/workflows/**/*.md` — Slash command workflows
+- `.github/instructions/agentic-workflow/system-prompts/*.txt` — Agent behavior and rules
+- `.github/instructions/agents/*.md` — Agent definitions for Task tool (proxy agents)
+- `.github/instructions/workflows/**/*.md` — Slash command workflows
 
 ## Best Practices
 
@@ -440,7 +440,7 @@ Understanding these files helps debug workflow issues:
 4. Don't use tool-specific terms (Issue, User Story, Epic, Work Item, etc.)
 5. Be token-efficient (agents read these on every launch)
 
-### For Workflow Files (.github/copilot/workflows/process/**)
+### For Workflow Files (.github/instructions/workflows/process/**)
 1. **Before editing**: Review the "Terminology Standards" section above
 2. Use ONLY standardized terms: `[feature]`, `[task]`, `[subtask]`
 3. Use ONLY standardized statuses: `[Planned]`, `[Active]`, `[Review]`, `[Resolved]`, `[Completed]`

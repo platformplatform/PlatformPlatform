@@ -19,7 +19,7 @@ Guidelines for implementing minimal API endpoints in the backend, including stru
    - Line 2: Expression calling `=> mediator.Send()`
    - Line 3: Optional configuration (`.Produces<T>()`, `.AllowAnonymous()`, etc.)
 6. Follow these requirements:
-   - Use [Strongly Typed IDs](/.github/copilot/rules/backend/strongly-typed-ids.md) for route parameters
+   - Use [Strongly Typed IDs](/.github/instructions/backend/strongly-typed-ids.md) for route parameters
    - Return `ApiResult<T>` for queries and `ApiResult` or `IRequest<Result<T>>` for commands
    - Use `[AsParameters]` for query parameters
    - Use `with { Id = id }` syntax to bind route parameters to commands and queries

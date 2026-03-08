@@ -9,11 +9,11 @@ Guidelines for implementing DDD models for aggregates, entities, and value objec
    - Aggregates are the root of the DDD model and map 1:1 to database tables
    - Entities belong to aggregates but have their own identity
    - Value objects are immutable and have no identity
-   - Repositories add, get, update, and remove aggregates—see [Repositories](/.github/copilot/rules/backend/repositories.md)
+   - Repositories add, get, update, and remove aggregates—see [Repositories](/.github/instructions/backend/repositories.md)
 3. Store entities and value objects as JSON columns on the Aggregate to avoid EF Core's `.Include()` method
 4. For Aggregates:
    - Use public sealed classes that inherit from `AggregateRoot<TId>`
-   - Create a strongly typed ID—see [Strongly Typed IDs](/.github/copilot/rules/backend/strongly-typed-ids.md)
+   - Create a strongly typed ID—see [Strongly Typed IDs](/.github/instructions/backend/strongly-typed-ids.md)
    - Never use navigational properties to other aggregates (e.g., no `User.Tenant` or `Order.Customer`)
    - Use factory methods when creating aggregates
    - Make properties private; use methods for state changes and enforcing business rules

@@ -28,7 +28,7 @@ Commands should be created in the `/[scs-name]/Core/Features/[Feature]/Commands`
    - Use guard statements with early returns like `Result.BadRequest()`, `Result.NotFound()`
      - Enclose dynamic values in single quotes and end messages with a period
    - Never throw exceptions—always return `Result.Xxx()`
-   - Always create [Telemetry Events](/.github/copilot/rules/backend/telemetry-events.md) for successful command results
+   - Always create [Telemetry Events](/.github/instructions/backend/telemetry-events.md) for successful command results
      - Optionally log telemetry for failed commands when it adds business value
      - Prefer one event per command; for bulk operations, track individual events if single operation equivalents exist
    - Save changes:
