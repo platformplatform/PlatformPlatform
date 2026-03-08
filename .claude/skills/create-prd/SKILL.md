@@ -1,5 +1,7 @@
 ---
-description: Workflow for creating a product requirement document (PRD) for a new feature
+name: create-prd
+description: Create a product requirement document (PRD) for a new feature. Use when the user wants to create a new feature, plan a feature, or write a PRD.
+allowed-tools: *
 ---
 
 # Create PRD Workflow
@@ -187,7 +189,7 @@ This task implements team CRUD operations with API endpoints and tests. Teams ar
 - Create tests covering permissions (403 for non-owners/admins), name uniqueness, tenant isolation
 ```
 
-4. **Frontend task descriptions - use ASCII art sketches:**
+4. **Frontend task descriptions - use ASCII art fat marker sketches:**
 
 For frontend tasks, include ASCII art fat marker sketches showing UI layout and components:
 
