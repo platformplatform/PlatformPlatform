@@ -1,5 +1,6 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
+import { useSubscription } from "@repo/infrastructure/sync/hooks";
 import { Button } from "@repo/ui/components/Button";
 import { DialogClose, DialogFooter } from "@repo/ui/components/Dialog";
 import { Separator } from "@repo/ui/components/Separator";
@@ -31,7 +32,8 @@ export function CheckoutForm({ plan, onConfirmed, onError }: Readonly<CheckoutFo
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPaymentReady, setIsPaymentReady] = useState(false);
 
-  const { data: subscription } = api.useQuery("get", "/api/account/subscriptions/current");
+  const { tenantId } = import.meta.user_info_env;
+  const { data: subscription } = useSubscription(tenantId ?? "");
   const { data: preview } = api.useQuery("get", "/api/account/subscriptions/checkout-preview", {
     params: { query: { Plan: plan } }
   });

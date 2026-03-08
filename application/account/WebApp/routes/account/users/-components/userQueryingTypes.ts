@@ -1,4 +1,6 @@
-import type { SortableUserProperties, SortOrder, UserRole, UserStatus } from "@/shared/lib/api/client";
+import type { UserRole } from "@/shared/lib/api/client";
+import type { SortableUserProperties, SortOrder } from "@/shared/lib/api/sortTypes";
+import type { UserStatus } from "@/shared/lib/api/userStatus";
 
 export interface SearchParams {
   search: string | undefined;

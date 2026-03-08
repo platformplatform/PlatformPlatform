@@ -1,6 +1,7 @@
+import type { BillingInfo, PaymentMethod } from "@repo/infrastructure/sync/hooks";
+
 import { t } from "@lingui/core/macro";
 
-import type { components } from "@/shared/lib/api/api.generated";
 import type { SubscriptionPlan } from "@/shared/lib/api/client";
 
 import { CancelDowngradeDialog } from "./CancelDowngradeDialog";
@@ -9,9 +10,6 @@ import { EditBillingInfoDialog } from "./EditBillingInfoDialog";
 import { ReactivateConfirmationDialog } from "./ReactivateConfirmationDialog";
 import { RetryPaymentDialog } from "./RetryPaymentDialog";
 import { UpdatePaymentMethodDialog } from "./UpdatePaymentMethodDialog";
-
-type BillingInfo = components["schemas"]["BillingInfo"];
-type PaymentMethod = components["schemas"]["PaymentMethod"];
 
 interface BillingPageDialogsProps {
   scheduledPlan: SubscriptionPlan | null;
