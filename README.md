@@ -33,7 +33,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
-* **AI rules** - 30+ rules & workflows that guide AI tools to generate consistent, production-ready code
+* **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
 * **Multi-agent workflow** (Experimental) - Specialized autonomous AI agents expert in PlatformPlatform's architecture
 
 ![Multi Agent Workflow](https://platformplatformgithub.blob.core.windows.net/multi-agent-workflow.png)
@@ -414,16 +414,13 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├─ .agent                # Google Antigravity AI rules and workflows (synchronized from .claude)
-├─ .claude               # Claude Code AI rules, commands, and samples (base for all AI editors)
+├─ .claude               # Claude Code AI rules, commands, and samples
 │  ├─ agents             # Claude Code agent definitions for Task tool subagents
 │  ├─ agentic-workflow   # Agentic workflow with system prompts and MCP configs (Claude Code only)
 │  ├─ commands           # Slash commands and workflows
 │  ├─ hooks              # Claude Code hooks to enforce MCP tool usage and prevent dangerous git operations
 │  └─ rules              # AI rules for code generation patterns
-├─ .cursor               # Cursor AI rules and workflows (synchronized from .claude)
-├─ .github               # GitHub configuration, CI/CD, and GitHub Copilot AI rules and workflows
-├─ .windsurf             # Windsurf AI rules and workflows (synchronized from .claude)
+├─ .github               # GitHub configuration and CI/CD workflows
 ├─ application           # Contains the application source code
 │  ├─ AppHost            # Aspire project starting app and all dependencies in Docker
 │  ├─ AppGateway         # Main entry point for the app using YARP as a reverse proxy

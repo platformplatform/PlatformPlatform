@@ -5,7 +5,7 @@ description: Guidelines for creating and updating AI rules and commands
 
 # AI Rules
 
-Guidelines for creating, updating, and reviewing AI configuration files (rules, commands/workflows, etc.). The `.claude/` directory is the source of truth, synchronized to other AI editors via the `sync_ai_rules` MCP tool.
+Guidelines for creating, updating, and reviewing AI configuration files (rules, commands/workflows, etc.). The `.claude/` directory is the source of truth and should be synced to other AI editors via the `sync_ai_rules` MCP tool.
 
 ## Directory Structure
 
@@ -25,7 +25,7 @@ description: Clear, one-line description of what the rule enforces
 ```
 
 - `paths:` - File patterns for conditional loading. Be specific (e.g., `**/Commands/*.cs` not `**/*.cs`)
-- `description:` - Synced to other editors. Keep it self-contained
+- `description:` - Keep it self-contained as it may be synced to other editors
 
 ### Commands Frontmatter
 
@@ -78,7 +78,7 @@ args:
 
 2. Follow formatting conventions:
    - Use Title Case for level 2 headings
-   - Descriptions must be self-contained since args don't sync to other editors
+   - Descriptions must be self-contained as args are Claude Code specific
 
 3. Reference other rules/commands with links when needed
 
@@ -96,13 +96,11 @@ Workflows that integrate with product management tools must use tool-agnostic te
 
 The `[PRODUCT_MANAGEMENT_TOOL]` variable in `AGENTS.md` determines which specific tool guide to load. Reference tool-specific guides at `.claude/reference/product-management/[PRODUCT_MANAGEMENT_TOOL].md`.
 
-## Sync and Limits
+## Sync
 
 1. `.claude/` is the source of truth. Don't modify files in other editor directories directly
 
 2. Run the `sync_ai_rules` MCP tool after updating files
-
-3. **12,000 character limit** per file. Some editors like Windsurf truncate content exceeding this limit
 
 ## Review Checklist
 
@@ -114,7 +112,7 @@ When reviewing changes to rules or commands:
 - [ ] Examples use ✅/❌ patterns where applicable
 - [ ] File organization matches its category
 - [ ] Tool-agnostic terminology used (no Issue, Epic, Story, etc.)
-- [ ] `sync_ai_rules` MCP tool will be run after changes
+- [ ] If syncing to other editors, `sync_ai_rules` MCP tool will be run after changes
 
 ## Examples
 

@@ -18,7 +18,7 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
 
 3. **Auto-run sync-ai-rules if AI rules changed**:
    - If any files in `.claude/` changed, run sync-ai-rules automatically
-   - Sync updates files in `.agent/`, `.cursor/`, `.github/copilot/`, `.windsurf/`
+   - Sync updates files in `.agent/`, `.cursor/`, `.github/instructions/`, `.windsurf/`
    - These synced directories must be included in the commit (step 7)
 
 4. **Offer validation commands** (optional question in same `AskUserQuestion`):
@@ -41,7 +41,7 @@ Speed is critical—commit should be fast. Don't recommend slow commands unless 
 
 7. **Stage explicitly and commit**:
    - `git add <file1> <file2> ...` — never use `git add -A` or `git add .`
-   - If sync-ai-rules ran: also stage `.agent/`, `.cursor/`, `.github/copilot/`, `.windsurf/`
+   - If sync-ai-rules ran: also stage `.agent/`, `.cursor/`, `.github/instructions/`, `.windsurf/`
 
 8. **Only ask follow-up questions if user selects "Other" or gives unexpected input**
 

@@ -23,26 +23,24 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var claudeReference = Path.Combine(claudeRoot, "reference");
 
         // Target directories for Windsurf
-        var windsurfWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/workflows");
-        var windsurfRules = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/rules");
-        var windsurfReference = Path.Combine(Configuration.SourceCodeFolder, ".windsurf/reference");
+        var windsurfWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".windsurf", "workflows");
+        var windsurfRules = Path.Combine(Configuration.SourceCodeFolder, ".windsurf", "rules");
+        var windsurfReference = Path.Combine(Configuration.SourceCodeFolder, ".windsurf", "reference");
 
         // Target directories for Cursor
-        var cursorWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules/workflows");
-        var cursorRules = Path.Combine(Configuration.SourceCodeFolder, ".cursor/rules");
-        var cursorReference = Path.Combine(Configuration.SourceCodeFolder, ".cursor/reference");
+        var cursorWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".cursor", "rules", "workflows");
+        var cursorRules = Path.Combine(Configuration.SourceCodeFolder, ".cursor", "rules");
+        var cursorReference = Path.Combine(Configuration.SourceCodeFolder, ".cursor", "reference");
 
-        // Target directories for GitHub Copilot
-        var copilotInstructions = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot-instructions.md");
-        var copilotRules = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/rules");
-        var copilotWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/workflows");
-        var copilotReference = Path.Combine(Configuration.SourceCodeFolder, ".github/copilot/reference");
+        // Target directories for GitHub Copilot (everything goes to .github/instructions/)
+        var copilotInstructions = Path.Combine(Configuration.SourceCodeFolder, ".github", "copilot-instructions.md");
+        var copilotInstructionsDir = Path.Combine(Configuration.SourceCodeFolder, ".github", "instructions");
         var agentsMd = Path.Combine(Configuration.SourceCodeFolder, "AGENTS.md");
 
         // Target directories for Google Antigravity
-        var antigravityWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".agent/workflows");
-        var antigravityRules = Path.Combine(Configuration.SourceCodeFolder, ".agent/rules");
-        var antigravityReference = Path.Combine(Configuration.SourceCodeFolder, ".agent/reference");
+        var antigravityWorkflows = Path.Combine(Configuration.SourceCodeFolder, ".agent", "workflows");
+        var antigravityRules = Path.Combine(Configuration.SourceCodeFolder, ".agent", "rules");
+        var antigravityReference = Path.Combine(Configuration.SourceCodeFolder, ".agent", "reference");
 
         // Create dictionaries to track file changes
         var initialFileHashes = new Dictionary<string, string>();
@@ -51,13 +49,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Track expected files in target directories
         var expectedWindsurfFiles = new HashSet<string>();
         var expectedCursorFiles = new HashSet<string>();
-        var expectedCopilotFiles = new HashSet<string>();
+        var expectedCopilotInstructionsFiles = new HashSet<string>();
         var expectedAntigravityFiles = new HashSet<string>();
 
         // Collect initial file hashes for all target directories
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), initialFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), initialFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), initialFileHashes);
+        CollectFileHashes(copilotInstructionsDir, initialFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), initialFileHashes);
         CollectSymlinkHash(copilotInstructions, initialFileHashes);
 
@@ -79,14 +77,14 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Reference → reference (simple copy for Cursor)
             SyncClaudeToPlainMarkdown(claudeReference, cursorReference, expectedCursorFiles);
 
-            // Sync to GitHub Copilot
+            // Sync to GitHub Copilot (everything goes to .github/instructions/)
             CreateOrUpdateSymlink(agentsMd, copilotInstructions);
-            // Commands → workflows
-            SyncClaudeToCopilotWorkflows(claudeCommands, copilotWorkflows, expectedCopilotFiles);
-            // Rules → rules
-            SyncClaudeToCopilotRules(claudeRules, copilotRules, expectedCopilotFiles);
-            // Reference → reference
-            SyncClaudeToCopilotRules(claudeReference, copilotReference, expectedCopilotFiles);
+            // Commands → instructions/workflows
+            SyncClaudeToCopilotInstructions(claudeCommands, Path.Combine(copilotInstructionsDir, "workflows"), expectedCopilotInstructionsFiles);
+            // Rules → instructions (nested structure with .instructions.md suffix)
+            SyncClaudeToCopilotInstructions(claudeRules, copilotInstructionsDir, expectedCopilotInstructionsFiles);
+            // Reference → instructions/reference
+            SyncClaudeToCopilotInstructions(claudeReference, Path.Combine(copilotInstructionsDir, "reference"), expectedCopilotInstructionsFiles);
 
             // Sync to Google Antigravity
             // Commands → workflows
@@ -99,7 +97,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Delete orphaned files in target directories
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), expectedWindsurfFiles);
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), expectedCursorFiles);
-            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), expectedCopilotFiles);
+            DeleteOrphanedFiles(copilotInstructionsDir, expectedCopilotInstructionsFiles);
             DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".agent"), expectedAntigravityFiles);
         }
         catch (Exception ex)
@@ -111,7 +109,7 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         // Collect final file hashes
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), finalFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), finalFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".github/copilot"), finalFileHashes);
+        CollectFileHashes(copilotInstructionsDir, finalFileHashes);
         CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), finalFileHashes);
         CollectSymlinkHash(copilotInstructions, finalFileHashes);
 
@@ -755,27 +753,46 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var linkDirectory = Path.GetDirectoryName(linkPath) ?? "";
         var relativePath = Path.GetRelativePath(linkDirectory, targetPath);
 
-        // Check if symlink already exists (works for both valid and broken symlinks)
+        // Check if symlink already exists
         var fileInfo = new FileInfo(linkPath);
-        if (fileInfo.LinkTarget is not null)
+        if (fileInfo.Exists)
         {
-            if (fileInfo.LinkTarget == relativePath)
+            // Check if it's a real symlink
+            if (fileInfo.LinkTarget is not null)
             {
-                return; // Symlink already correct
-            }
+                if (fileInfo.LinkTarget == relativePath)
+                {
+                    return; // Symlink already correct
+                }
 
-            // Delete existing symlink (broken or pointing to wrong target)
-            File.Delete(linkPath);
-        }
-        else if (File.Exists(linkPath))
-        {
-            // It's a regular file, not a symlink - delete it
-            File.Delete(linkPath);
+                // Delete existing symlink (broken or pointing to wrong target)
+                File.Delete(linkPath);
+            }
+            else
+            {
+                // Could be a git-style symlink (text file with path) - check content
+                var content = File.ReadAllText(linkPath).Trim();
+                if (content == relativePath || content == relativePath.Replace('\\', '/'))
+                {
+                    return; // Git-style symlink already correct
+                }
+
+                // It's a different file - delete it
+                File.Delete(linkPath);
+            }
         }
 
         // Create symlink
         Directory.CreateDirectory(linkDirectory);
-        File.CreateSymbolicLink(linkPath, relativePath);
+        try
+        {
+            File.CreateSymbolicLink(linkPath, relativePath);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // On Windows without admin, create git-style symlink (text file)
+            File.WriteAllText(linkPath, relativePath.Replace('\\', '/'));
+        }
     }
 
     private static void SyncClaudeToCopilotWorkflows(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
@@ -814,6 +831,65 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         }
     }
 
+    private static void SyncClaudeToCopilotInstructions(string sourceDirectory, string targetDirectory, HashSet<string> expectedFiles)
+    {
+        if (!Directory.Exists(sourceDirectory)) return;
+        Directory.CreateDirectory(targetDirectory);
+
+        var sourceFiles = Directory.GetFiles(sourceDirectory, "*.md", SearchOption.AllDirectories);
+
+        foreach (var sourceFile in sourceFiles)
+        {
+            // Maintain nested folder structure, just change extension to .instructions.md
+            var relativePath = Path.GetRelativePath(sourceDirectory, sourceFile);
+            var targetFileName = Path.GetFileNameWithoutExtension(relativePath) + ".instructions.md";
+            var targetFile = Path.Combine(targetDirectory, Path.GetDirectoryName(relativePath) ?? "", targetFileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(targetFile) ?? "");
+
+            expectedFiles.Add(targetFile);
+            ConvertClaudeToCopilotInstructions(sourceFile, targetFile);
+        }
+    }
+
+    private static void ConvertClaudeToCopilotInstructions(string sourceFile, string targetFile)
+    {
+        var lines = File.ReadAllLines(sourceFile);
+        var (_, contentLines) = SplitFrontmatter(lines);
+
+        // Skip path conversion for update-ai-rules file
+        var skipFile = IsUpdateAiRulesFile(sourceFile);
+
+        // Copilot doesn't use frontmatter - just content
+        var contentToWrite = contentLines.ToList();
+        if (contentToWrite.Count > 0 && string.IsNullOrWhiteSpace(contentToWrite[0]))
+        {
+            contentToWrite.RemoveAt(0);
+        }
+
+        // Replace Claude references with Copilot references
+        var outputArray = contentToWrite.ToArray();
+        ReplaceClaudeReferencesWithCopilotInstructions(outputArray, skipFile);
+
+        File.WriteAllLines(targetFile, outputArray);
+    }
+
+    private static void ReplaceClaudeReferencesWithCopilotInstructions(string[] lines, bool skipFile = false)
+    {
+        if (skipFile) return;
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            // Convert .claude/commands/ to .github/instructions/workflows/
+            lines[i] = lines[i].Replace(".claude/commands/", ".github/instructions/workflows/");
+            // Convert .claude/rules/ to .github/instructions/
+            lines[i] = lines[i].Replace(".claude/rules/", ".github/instructions/");
+            // Convert .claude/reference/ to .github/instructions/reference/
+            lines[i] = lines[i].Replace(".claude/reference/", ".github/instructions/reference/");
+            // Convert remaining .claude/ references to .github/instructions/
+            lines[i] = lines[i].Replace(".claude/", ".github/instructions/");
+        }
+    }
+
     private static void ConvertClaudeToCopilot(string sourceFile, string targetFile)
     {
         var lines = File.ReadAllLines(sourceFile);
@@ -845,8 +921,8 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Order matters - specific paths first, then generic
             // Convert .claude/commands/ to .github/copilot/workflows/
             lines[i] = lines[i].Replace(".claude/commands/", ".github/copilot/workflows/");
-            // Convert .claude/rules/ to .github/copilot/rules/
-            lines[i] = lines[i].Replace(".claude/rules/", ".github/copilot/rules/");
+            // Convert .claude/rules/ to .github/instructions/
+            lines[i] = lines[i].Replace(".claude/rules/", ".github/instructions/");
             // Convert remaining .claude/ references to .github/copilot/
             lines[i] = lines[i].Replace(".claude/", ".github/copilot/");
         }
