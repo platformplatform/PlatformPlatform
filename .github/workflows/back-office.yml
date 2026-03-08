@@ -188,13 +188,13 @@ jobs:
         working-directory: application
         run: dotnet build back-office/BackOffice.slnf --no-restore
 
-      - name: Run Code Inspections
+      - name: Run Code Linting
         working-directory: developer-cli
         run: |
-          dotnet run inspect --backend --self-contained-system back-office | tee inspection-output.log
+          dotnet run lint --backend --self-contained-system back-office | tee lint-output.log
 
-          if ! grep -q "No backend issues found!" inspection-output.log; then
-            echo "Code inspection issues found."
+          if ! grep -q "No backend issues found!" lint-output.log; then
+            echo "Code linting issues found."
             exit 1
           fi
 
@@ -213,9 +213,9 @@ jobs:
         working-directory: application
         run: npm run build
 
-      - name: Run Check
+      - name: Run Lint
         working-directory: application/back-office/WebApp
-        run: npm run check
+        run: npm run lint
 
   database-migrations-stage:
     name: Database Staging

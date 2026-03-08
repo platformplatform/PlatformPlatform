@@ -141,8 +141,8 @@ Use browser MCP tools to test at `https://localhost:9000`. Use `UNLOCK` as OTP v
     - This ensures consistent code style across the codebase
 
 12. Verify your changes:
-    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **inspect**
-    - **ALL inspect findings are blocking** - CI pipeline fails on any result marked "Issues found"
+    - When a feature is complete, run these MCP tools for frontend in sequence: **build**, **format**, **lint**
+    - **ALL lint findings are blocking** - CI pipeline fails on any result marked "Issues found"
     - Severity level (note/warning/error) is irrelevant - fix all findings before proceeding
     - Fix any compiler warnings or test failures before proceeding
 

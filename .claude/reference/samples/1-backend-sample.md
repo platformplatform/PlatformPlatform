@@ -27,7 +27,7 @@ The following subtasks guide the engineer through implementing this complete ver
 - All subtasks implemented together
 - Code compiles, runs, and passes tests after completion
 - Engineer builds and tests incrementally after each subtask
-- Final validation before review includes format and inspect
+- Final validation before review includes format and lint
 
 **NOT included in this task:**
 - Frontend implementation (separate task)

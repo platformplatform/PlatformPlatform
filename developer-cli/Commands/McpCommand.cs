@@ -40,21 +40,21 @@ public class McpCommand : Command
 public static class DeveloperCliMcpTools
 {
     [McpServerTool]
-    [Description("Execute developer CLI commands: build, test, format, or inspect code")]
+    [Description("Execute developer CLI commands: build, test, format, or lint code")]
     public static async Task<string> ExecuteCommand(
-        [Description("Command to execute: 'build', 'test', 'format', or 'inspect'")]
+        [Description("Command to execute: 'build', 'test', 'format', or 'lint'")]
         string command,
         [Description("Backend")] bool backend = false,
         [Description("Frontend")] bool frontend = false,
         [Description("Self-contained system, e.g., 'account' (optional)")]
         string? selfContainedSystem = null,
-        [Description("Skip build (for test, format, inspect only)")]
+        [Description("Skip build (for test, format, lint only)")]
         bool noBuild = false,
         [Description("Filter tests by name (test command only)")]
         string? filter = null,
         [Description("Developer CLI")] bool cli = false)
     {
-        var validCommands = new[] { "build", "test", "format", "inspect" };
+        var validCommands = new[] { "build", "test", "format", "lint" };
         if (!validCommands.Contains(command))
         {
             return $"Invalid command: '{command}'. Valid commands: {string.Join(", ", validCommands)}";

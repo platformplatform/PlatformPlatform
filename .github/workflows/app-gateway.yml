@@ -132,13 +132,13 @@ jobs:
         working-directory: application
         run: dotnet build PlatformPlatform.slnx --no-restore
 
-      - name: Run Code Inspections
+      - name: Run Code Linting
         working-directory: developer-cli
         run: |
-          dotnet run inspect --backend | tee inspection-output.log
+          dotnet run lint --backend | tee lint-output.log
 
-          if ! grep -q "No backend issues found!" inspection-output.log; then
-            echo "Code inspection issues found."
+          if ! grep -q "No backend issues found!" lint-output.log; then
+            echo "Code linting issues found."
             exit 1
           fi
 

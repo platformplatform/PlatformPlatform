@@ -15,8 +15,8 @@
     "dev": "tsc -b . environment -w",
     "dev:setup": "tsc -b . environment",
     "build": "rimraf ./dist && tsc -b . environment",
-    "check": "biome check --error-on-warnings",
-    "lint": "biome check --write --unsafe"
+    "format": "biome check --write --unsafe",
+    "lint": "biome check --error-on-warnings"
   },
   "devDependencies": {
     "@repo/config": "*"
