@@ -38,7 +38,6 @@ msgid "{0} users restored successfully"
 msgstr "{0} users restored successfully"
 
 #. placeholder {0}: formatCurrency(currentPriceAmount, currentPriceCurrency)
-#. placeholder {0}: formatCurrency(subscription.currentPriceAmount, subscription.currentPriceCurrency)
 msgid "{0}/month"
 msgstr "{0}/month"
 
@@ -361,7 +360,7 @@ msgid "Change user role for {0}"
 msgstr "Change user role for {0}"
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
-#. placeholder {1}: getFormattedPrice(scheduledPlan, pricingCatalog?.plans)
+#. placeholder {1}: getFormattedPrice(scheduledPlan, plans)
 msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
 msgstr "Changing to {0} {1} on {formattedPeriodEndLong}"
 
@@ -1506,10 +1505,6 @@ msgstr "You were logged out from another browser tab."
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
 msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
 
-#. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
-msgstr "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
-
 msgid "Your account has been deleted."
 msgstr "Your account has been deleted."
 
@@ -1592,10 +1587,6 @@ msgstr "Your subscription will be downgraded to {0} at the end of the current bi
 #. placeholder {0}: getPlanLabel(scheduledPlan)
 msgid "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
 msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
-
-#. placeholder {0}: getPlanLabel(scheduledPlan)
-msgid "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
-msgstr "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
 
 msgid "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."
 msgstr "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."

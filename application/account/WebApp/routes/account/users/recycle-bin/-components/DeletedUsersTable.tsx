@@ -1,23 +1,38 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Avatar, AvatarFallback, AvatarImage } from "@repo/ui/components/Avatar";
-import { Badge } from "@repo/ui/components/Badge";
 import { Checkbox } from "@repo/ui/components/Checkbox";
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@repo/ui/components/Empty";
-import { Skeleton } from "@repo/ui/components/Skeleton";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TablePagination } from "@repo/ui/components/TablePagination";
 import { useViewportResize } from "@repo/ui/hooks/useViewportResize";
 import { isMediumViewportOrLarger, isSmallViewportOrLarger, isTouchDevice } from "@repo/ui/utils/responsive";
-import { getInitials } from "@repo/utils/string/getInitials";
 import { Trash2Icon } from "lucide-react";
 import { useCallback, useMemo } from "react";
 
-import { SmartDate } from "@/shared/components/SmartDate";
 import { api, type components } from "@/shared/lib/api/client";
-import { getUserRoleLabel } from "@/shared/lib/api/userRole";
+
+import { DeletedUserRow } from "./DeletedUserRow";
+import { DeletedUsersTableSkeleton } from "./DeletedUsersTableSkeleton";
 
 type DeletedUserDetails = components["schemas"]["DeletedUserDetails"];
+
+function DeletedUsersEmptyState() {
+  return (
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Trash2Icon />
+        </EmptyMedia>
+        <EmptyTitle>
+          <Trans>Recycle bin is empty</Trans>
+        </EmptyTitle>
+        <EmptyDescription>
+          <Trans>Deleted users will appear here for recovery</Trans>
+        </EmptyDescription>
+      </EmptyHeader>
+    </Empty>
+  );
+}
 
 interface DeletedUsersTableProps {
   selectedUsers: DeletedUserDetails[];
@@ -88,68 +103,7 @@ export function DeletedUsersTable({
   // bug where rendering <thead> during page load after Playwright's clearCookies() causes
   // HttpOnly cookies to not be sent with API requests. This only affects Firefox E2E tests.
   if (isLoading) {
-    return (
-      <div className="deleted-users-table min-h-48 flex-1 overflow-auto">
-        <Table aria-label={t`Deleted users loading`}>
-          <TableBody>
-            <TableRow className="h-10">
-              {isMultiSelectMode && (
-                <TableCell>
-                  <Skeleton className="size-5 rounded" />
-                </TableCell>
-              )}
-              <TableCell>
-                <Skeleton className="h-3 w-12" />
-              </TableCell>
-              {!isMobile && (
-                <>
-                  <TableCell>
-                    <Skeleton className="h-3 w-12" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-3 w-16" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-3 w-10" />
-                  </TableCell>
-                </>
-              )}
-            </TableRow>
-            {Array.from({ length: 3 }).map((_, index) => (
-              <TableRow key={index}>
-                {isMultiSelectMode && (
-                  <TableCell>
-                    <Skeleton className="size-5 rounded" />
-                  </TableCell>
-                )}
-                <TableCell>
-                  <div className="flex h-14 items-center gap-2">
-                    <Skeleton className="size-10 rounded-full" />
-                    <div className="flex flex-col gap-1">
-                      <Skeleton className="h-4 w-32" />
-                      <Skeleton className="h-3 w-24" />
-                    </div>
-                  </div>
-                </TableCell>
-                {!isMobile && (
-                  <>
-                    <TableCell>
-                      <Skeleton className="h-4 w-40" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-20" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-5 w-16 rounded-full" />
-                    </TableCell>
-                  </>
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    );
+    return <DeletedUsersTableSkeleton isMultiSelectMode={isMultiSelectMode} isMobile={isMobile} />;
   }
 
   const users = deletedUsersData?.users ?? [];
@@ -157,21 +111,7 @@ export function DeletedUsersTable({
   const totalPages = deletedUsersData?.totalPages ?? 1;
 
   if (users.length === 0) {
-    return (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Trash2Icon />
-          </EmptyMedia>
-          <EmptyTitle>
-            <Trans>Recycle bin is empty</Trans>
-          </EmptyTitle>
-          <EmptyDescription>
-            <Trans>Deleted users will appear here for recovery</Trans>
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
+    return <DeletedUsersEmptyState />;
   }
 
   const usersLength = users.length;
@@ -223,64 +163,16 @@ export function DeletedUsersTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => {
-              const isSelected = selectedUserIds.has(user.id);
-              return (
-                <TableRow
-                  key={user.id}
-                  data-state={isSelected ? "selected" : undefined}
-                  className={`cursor-pointer select-none ${isSelected ? "bg-active-background hover:bg-active-background" : "hover:bg-hover-background"}`}
-                  onClick={(event) => handleRowClick(user, event)}
-                >
-                  {isMultiSelectMode && (
-                    <TableCell>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => handleSelectRow(user, true)}
-                        aria-label={t`Select ${user.firstName} ${user.lastName}`}
-                      />
-                    </TableCell>
-                  )}
-                  <TableCell>
-                    <div className="flex h-14 w-full items-center justify-between gap-2 p-0">
-                      <div className="flex min-w-0 flex-1 items-center gap-2 text-left font-normal">
-                        <Avatar size="lg">
-                          <AvatarImage src={user.avatarUrl ?? undefined} />
-                          <AvatarFallback>{getInitials(user.firstName, user.lastName, user.email)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <div className="flex items-center gap-2 truncate text-foreground">
-                            <span className="truncate">
-                              {user.firstName || user.lastName
-                                ? `${user.firstName} ${user.lastName}`.trim()
-                                : !isSmallViewportOrLarger()
-                                  ? user.email
-                                  : ""}
-                            </span>
-                          </div>
-                          <span className="block truncate text-sm text-muted-foreground">{user.title ?? ""}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  {isSmallViewportOrLarger() && (
-                    <TableCell>
-                      <span className="block h-full w-full justify-start p-0 text-left font-normal">{user.email}</span>
-                    </TableCell>
-                  )}
-                  {isMediumViewportOrLarger() && (
-                    <TableCell>
-                      <SmartDate date={user.deletedAt} className="text-foreground" />
-                    </TableCell>
-                  )}
-                  {isSmallViewportOrLarger() && (
-                    <TableCell>
-                      <Badge variant="outline">{getUserRoleLabel(user.role)}</Badge>
-                    </TableCell>
-                  )}
-                </TableRow>
-              );
-            })}
+            {users.map((user) => (
+              <DeletedUserRow
+                key={user.id}
+                user={user}
+                isSelected={selectedUserIds.has(user.id)}
+                isMultiSelectMode={isMultiSelectMode}
+                onSelectRow={handleSelectRow}
+                onRowClick={handleRowClick}
+              />
+            ))}
           </TableBody>
         </Table>
       </div>

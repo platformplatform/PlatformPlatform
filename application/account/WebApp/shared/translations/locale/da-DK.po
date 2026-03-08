@@ -38,7 +38,6 @@ msgid "{0} users restored successfully"
 msgstr "{0} brugere genoprettet succesfuldt"
 
 #. placeholder {0}: formatCurrency(currentPriceAmount, currentPriceCurrency)
-#. placeholder {0}: formatCurrency(subscription.currentPriceAmount, subscription.currentPriceCurrency)
 msgid "{0}/month"
 msgstr "{0}/måned"
 
@@ -361,7 +360,7 @@ msgid "Change user role for {0}"
 msgstr "Skift brugerrolle for {0}"
 
 #. placeholder {0}: getPlanLabel(scheduledPlan)
-#. placeholder {1}: getFormattedPrice(scheduledPlan, pricingCatalog?.plans)
+#. placeholder {1}: getFormattedPrice(scheduledPlan, plans)
 msgid "Changing to {0} {1} on {formattedPeriodEndLong}"
 msgstr "Skifter til {0} {1} den {formattedPeriodEndLong}"
 
@@ -1506,10 +1505,6 @@ msgstr "Du blev logget ud fra en anden browsertab."
 msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEnd}."
 msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEnd}."
 
-#. placeholder {0}: getPlanLabel(currentPlan)
-msgid "Your {0} subscription has been cancelled and will end on {formattedPeriodEndLong}."
-msgstr "Dit {0}-abonnement er blevet opsagt og udløber den {formattedPeriodEndLong}."
-
 msgid "Your account has been deleted."
 msgstr "Din konto er blevet slettet."
 
@@ -1592,10 +1587,6 @@ msgstr "Dit abonnement vil blive nedgraderet til {0} ved udgangen af den nuvære
 #. placeholder {0}: getPlanLabel(scheduledPlan)
 msgid "Your subscription will be downgraded to {0} on {formattedPeriodEnd}."
 msgstr "Dit abonnement vil blive nedgraderet til {0} den {formattedPeriodEnd}."
-
-#. placeholder {0}: getPlanLabel(scheduledPlan)
-msgid "Your subscription will be downgraded to {0} on {formattedPeriodEndLong}."
-msgstr "Dit abonnement vil blive nedgraderet til {0} den {formattedPeriodEndLong}."
 
 msgid "Your subscription will remain active until {formattedDate}. After that, your account will switch to the free plan."
 msgstr "Dit abonnement forbliver aktivt indtil {formattedDate}. Herefter skifter din konto til den gratis plan."

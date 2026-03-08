@@ -1,7 +1,7 @@
 import "@repo/ui/theme.css";
 import "@repo/ui/tailwind.css";
 import { ApplicationInsightsProvider } from "@repo/infrastructure/applicationInsights/ApplicationInsightsProvider";
-import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/errorHandler";
+import { setupGlobalErrorHandlers } from "@repo/infrastructure/http/globalErrorHandlers";
 import { createFederatedTranslation } from "@repo/infrastructure/translations/createFederatedTranslation";
 import { Toaster } from "@repo/ui/components/Sonner";
 import { RouterProvider } from "@tanstack/react-router";
