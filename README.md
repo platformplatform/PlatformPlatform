@@ -80,6 +80,13 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
     winget install OpenJS.NodeJS
     ```
 
+4.	(Recommended) Install language servers for enhanced Claude Code support:
+
+    ```powershell
+    npm install -g typescript-language-server typescript
+    dotnet tool install -g csharp-ls
+    ```
+
 </details>
 
 <details>
@@ -107,6 +114,13 @@ Open a terminal and run the following commands (if not installed):
    # Option B: Node.js directly
    brew install node
    ```
+
+4. (Recommended) Install language servers for enhanced Claude Code support:
+
+   ```bash
+   npm install -g typescript-language-server typescript
+   dotnet tool install -g csharp-ls
+   ````
 
 </details>
 
@@ -169,14 +183,21 @@ Open a terminal and run the following commands (if not installed):
 
 6. **Log out and log back in** to apply Docker group and shell configuration changes.
 
-7. (Optional) If using Snap Chromium, trust the certificate in its sandbox
+7. (Recommended) Install language servers for enhanced Claude Code support
+
+   ```bash
+   npm install -g typescript-language-server typescript
+   dotnet tool install -g csharp-ls
+   ```
+
+8. (Optional) If using Snap Chromium, trust the certificate in its sandbox
 
    ```bash
    certutil -d sql:$HOME/snap/chromium/current/.pki/nssdb -L >/dev/null 2>&1 || (mkdir -p $HOME/snap/chromium/current/.pki/nssdb && certutil -d sql:$HOME/snap/chromium/current/.pki/nssdb -N --empty-password)
    dotnet dev-certs https --trust
    ```
 
-8. (Optional) Install GitHub CLI and Azure CLI (needed for CI/CD setup)
+9. (Optional) Install GitHub CLI and Azure CLI (needed for CI/CD setup)
 
    ```bash
    (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
@@ -394,12 +415,6 @@ PlatformPlatform includes a multi-agent autonomous development workflow powered 
 ## How to use
 
 This workflow requires Claude Code and will not work with other AI coding assistants.
-
-(Optional) For enhanced Claude Code LSP support (enables go-to-definition and find-references):
-
-```bash
-npm install -g typescript-language-server typescript
-```
 
 ### 1. Create a feature branch
 
