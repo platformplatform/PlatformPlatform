@@ -34,7 +34,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure PostgreSQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 * **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
-* **Multi-agent workflow** (Experimental) - Specialized autonomous AI agents expert in PlatformPlatform's architecture
+* **Multi-agent development** - Specialized autonomous Claude Code agents expert in PlatformPlatform's architecture
 
 ![Multi Agent Workflow](https://platformplatformgithub.blob.core.windows.net/multi-agent-workflow.png)
 
@@ -383,34 +383,50 @@ pp github-config
 
 Select the **Stripe** group and enter the **Publishable Key**, **API Key** (Secret key), and **Webhook Secret** (the signing secret from the webhook endpoint). The subscription feature is automatically enabled on Azure when all three secrets are present in Key Vault.
 
-# Experimental: Agentic Workflow with Claude Code
+# Multi-Agent Development with Claude Code
 
-PlatformPlatform includes a multi-agent autonomous development workflow powered by [Claude Code](https://claude.com/product/claude-code). Nine specialized AI agents collaborate to deliver complete features, from requirements to production-ready code, while enforcing enterprise-grade quality standards.
+PlatformPlatform includes a multi-agent autonomous development workflow powered by [Claude Code Agent Teams](https://code.claude.com/docs/en/agent-teams). Specialized AI agents collaborate to deliver complete features, from requirements to production-ready code, while enforcing enterprise-grade quality standards.
 
 ## What makes this different
 
 **Zero-tolerance code reviews**: AI agents follow rules well until they hit problems, then cut corners, which is why many struggle to get AI to write production-ready code. Dedicated reviewer agents catch this. They reject any code that can objectively be made better: compiler warnings, static analysis errors, browser console warnings, or deviation from established patterns. All warnings including warnings in seemingly unrelated parts of the system are fixed. This boy scout rule approach ensures every commit meets production standards.
 
-**Interactive sessions with full visibility**: Each agent runs in an interactive Claude Code session. You can watch their work in real-time, intervene to guide decisions, or let them run autonomously. Unlike normal Claude Code agents that work in the background like a black box, you're always in control.
+**Native Agent Teams coordination**: Built on Claude Code's Agent Teams primitives (TeamCreate, SendMessage, shared TaskList). The team lead spawns and coordinates all agents automatically. No custom orchestration layer, no external process managers.
 
-**Persistent memory across interactions**: Agents maintain context between delegations. When an engineer requests a follow-up review, the same reviewer continues with full knowledge of prior feedback. No re-explaining needed.
+**Parallel execution with task sets**: Backend, frontend, and E2E tracks run concurrently within each task set. Engineers implement in parallel, reviewers validate independently, and the Guardian commits everything in dependency order once all tracks are approved.
 
-**Cross-team collaboration**: Agents can communicate directly. If the frontend engineer needs a backend API change, they ask the backend engineer, wait for implementation and review approval, then continue their work automatically. All work is locally on the same branch, but each agent only changes, reviews, and commits code within their area of expertise.
+**Guardian-owned commits**: A dedicated Guardian agent owns all git commits, staging, and final validation. It runs build, test, format, and inspect before every commit and refuses to proceed if anything fails. No other agent touches git.
 
-**No context window exhaustion**: Traditional AI agents must clear or compact their context as conversations grow, forgetting important details. With specialized agents for each domain, no single agent accumulates context bloat. The frontend engineer doesn't need backend implementation details. The system ensures that every new task starts with a fresh context window, but agents always read the feature description first to maintain the big picture.
+**Architect coherence across task sets**: A persistent architect agent tracks how implementation evolves. Engineers discuss with the architect when they need to diverge from the plan during development. After each commit, the architect reads divergence notes and updates upcoming tasks when the implementation reveals something that changes future plans.
 
-**Self-healing orchestration**: The developer-cli hosts each agent process. If an agent stops for whatever reason, the worker-host detects it and recovers automatically. E.g. if an agent forgets to signal completion, they hit Claude Code session rate limit, the server needs to be restarted, or database migrations are needed. The system will try to self-heal and continue until the feature is complete.
+**Continuous regression testing**: A regression tester runs visual and functional tests via Claude in Chrome browser automation throughout the implementation, catching UI regressions and console errors in real time.
 
-**Automatic problem reporting**: When agents encounter unclear situations (duplicate tasks, missing tools), they file problem reports. The pair-programmer agent can analyze these reports and fix workflow issues.
+**Cross-team collaboration**: Agents communicate directly via SendMessage and interrupt signals. If the frontend engineer needs a backend API change, they ask the backend engineer, wait for implementation, then continue. Engineers interrupt QA when contracts change so tests stay in sync.
 
-**Standard product management tool integration**: Works with Linear, Azure DevOps, Jira, GitHub, or markdown files in the local filesystem. Tasks flow through statuses (planned → active → review → completed) with full audit trail. Adjust tasks mid-flight or restart features entirely if the first attempt misses the mark.
+**No context window exhaustion**: With specialized agents for each domain, no single agent accumulates context bloat. Fresh engineer and reviewer pairs are spawned for each task set, always starting with a clean context window while persistent agents (guardian, architect, regression tester) maintain continuity across the feature.
+
+**Session persistence**: The developer CLI saves session IDs for the team lead and pair programmer so they can be resumed after a restart. Saved sessions can be continued or resumed from a menu.
+
+**Retrospectives**: After all tasks are completed, the team lead facilitates a retrospective. Each agent reflects over the implementation and the workflow, then all agents cross-review each other's findings. The team lead aggregates the results into a prioritized list of recommended improvements.
+
+**Standard product management tool integration**: Works with Linear, Azure DevOps, Jira, GitHub, or markdown files in the local filesystem. Tasks flow through statuses (planned, active, review, completed) with full audit trail. Adjust tasks mid-flight or restart features entirely if the first attempt misses the mark.
 
 ## Agent roles
 
-- **tech-lead**: Interviews you with targeted multiple-choice questions to rapidly gather requirements, researches codebase patterns, and creates a PRD with implementable tasks
-- **coordinator**: Maintains the big picture across hour-long implementation sessions, ensuring engineers work structured and stay aligned with feature goals
-- **backend-engineer**, **frontend-engineer**, **qa-engineer**: Implement code within their specialty
-- **backend-reviewer**, **frontend-reviewer**, **qa-reviewer**: Zero-tolerance gatekeepers who reject any deviation from established standards, then commit approved code
+**Team lead** (launched via the developer CLI):
+- Coordinates the full agent team. Spawns all sub-agents, delegates work, and tracks progress. Never writes code directly
+
+**Persistent agents** (spawned once per feature by the team lead):
+- **guardian**: Owns all git commits, Aspire restarts, and final validation. Zero tolerance for failures
+- **architect**: Tracks implementation evolution across task sets, reviews divergence notes, and updates upcoming tasks
+- **regression-tester**: Continuous visual and functional testing via Claude in Chrome browser automation
+
+**Fresh agents** (spawned per task set by the team lead):
+- **backend**, **frontend**, **qa**: Engineers who implement code within their specialty
+- **backend-reviewer**, **frontend-reviewer**, **qa-reviewer**: Zero-tolerance gatekeepers who review line-by-line, then approve files for staging
+
+**On-demand agents**:
+- **researcher**: Investigates APIs, libraries, and best practices. Reports findings but never writes code
 
 ## How to use
 
@@ -422,41 +438,33 @@ This workflow requires Claude Code and will not work with other AI coding assist
 git checkout -b feature-name
 ```
 
-### 2. Define your feature with the tech-lead
+### 2. Define your feature
 
-Start the tech-lead agent using the [Developer CLI](#2-optional-install-the-developer-cli):
-
-```bash
-pp claude-agent tech-lead
-```
-
-If you prefer not to install the CLI, run `dotnet run claude-agent tech-lead` from the `developer-cli` directory.
-
-Run the `/process:create-prd` slash command. The tech-lead will guide you through a brief interview to understand what you want to build, then generate a complete feature specification with tasks in your product management tool (Linear, Azure DevOps, Jira, GitHub, or markdown files).
-
-### 3. Launch the agent team
-
-Open seven terminal windows and start each agent:
+Start the team lead agent using the [Developer CLI](#2-optional-install-the-developer-cli):
 
 ```bash
-pp claude-agent coordinator
-pp claude-agent backend-engineer
-pp claude-agent frontend-engineer
-pp claude-agent backend-reviewer
-pp claude-agent frontend-reviewer
-pp claude-agent qa-engineer
-pp claude-agent qa-reviewer
+pp claude-agent team-lead
 ```
 
-If you prefer not to install the CLI, run `dotnet run claude-agent [agent-name]` from the `developer-cli` directory.
+Use the `/create-prd` skill. The team lead will guide you through a brief interview to understand what you want to build, then generate a complete feature specification with tasks in your product management tool (Linear, Azure DevOps, Jira, GitHub, or markdown files).
 
-### 4. Watch the magic happen
+### 3. Let the team lead take over
 
-Tell the coordinator which feature to implement by providing the title or ID of the feature created with the tech-lead. From here, the agents take over.
+Tell the team lead which feature to implement by providing the title or ID. From here, the team lead spawns all the agents automatically: guardian, architect, regression tester, and fresh engineer/reviewer pairs for each task set.
 
-The coordinator breaks down the feature into tasks and delegates them to engineers. Each engineer claims their task, studies the requirements, and builds according to project rules and guidelines - writing tests, running migrations, restarting servers, and handling all the details. When implementation is complete, reviewers scrutinize every change and only approve code that meets production standards.
+Backend and frontend engineers work in parallel. QA engineers write tests alongside implementation but wait for reviewer approval before running them. Reviewers scrutinize every change line by line and only approve code that meets production standards. The Guardian runs final validation and commits in dependency order (backend, then frontend, then E2E).
 
 The entire process can take several hours depending on complexity, but at the end you get a fully implemented feature: backend logic, database migrations, API endpoints, frontend UI, localization, and end-to-end tests. All committed. All tests passing. Ready to ship.
+
+## Ad-hoc work without the agent team
+
+For smaller tasks, bug fixes, or exploratory work that don't need the full agent team, use the pair programmer instead:
+
+```bash
+pp claude-agent pair-programmer
+```
+
+The pair programmer is a standalone agent that works directly with you as a hands-on collaborator. It is not part of the agent team workflow above. It can spawn sub-agents when the task benefits from parallel work or code review.
 
 # Inside Our Monorepo
 
@@ -464,9 +472,8 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 
 ```bash
 .
-├─ .claude               # Claude Code AI rules, commands, and samples
-│  ├─ agents             # Claude Code agent definitions for Task tool subagents
-│  ├─ agentic-workflow   # Agentic workflow with system prompts and MCP configs (Claude Code only)
+├─ .claude               # Claude Code agent definitions and team configurations
+│  ├─ agents             # Agent Teams agent definitions (team-lead, engineers, reviewers, etc.)
 │  ├─ commands           # Slash commands and workflows
 │  ├─ hooks              # Claude Code hooks to enforce MCP tool usage and prevent dangerous git operations
 │  └─ rules              # AI rules for code generation patterns
@@ -531,10 +538,8 @@ The backend is built using the most popular, mature, and commonly used technolog
 - **MediatR pipelines**: MediatR pipeline behaviors are used to ensure consistent handling of cross-cutting concerns like validation, unit of work, and handling of domain events.
 - **Strongly Typed IDs**: The codebase uses strongly typed IDs, which are a combination of the entity type and the entity ID. This is even at the outer API layer, and Swagger translates this to the underlying contract. This ensures type safety and consistency across the codebase.
 - **JetBrains Code style and Cleanup**: JetBrains Rider/ReSharper is used for code style and automatic cleanup (configured in `.DotSettings`), ensuring consistent code formatting. No need to discuss tabs vs. spaces anymore; Invalid formatting breaks the build.
-- **Monolith prepared for self-contained systems**: The codebase is organized into a monolith, but the architecture is prepared for splitting in to self-contained systems. A self-contained system is a large microservice (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large monolith and many small microservices. Unlike the popular backend-for-frontend (BFF) style with one shared frontend, this allows teams to work fully independently.
+- **Self-contained systems**: The codebase is organized into self-contained systems. A self-contained system is a large microservice (or a small monolith) that contains the full stack including frontend, background jobs, etc. These can be developed, tested, deployed, and scaled in isolation, making it a good compromise between a large monolith and many small microservices. Unlike the popular backend-for-frontend (BFF) style with one shared frontend, this allows teams to work fully independently. The main SCS is the shell application where you build your product.
 - **Shared Kernel**: The codebase uses a shared kernel for all the boilerplate code required to build a clean codebase. The shared kernel ensures consistency between self-contained systems, e.g., enforcing tenant isolation, auditing, tracking, implementation of tactical DDD patterns like aggregate, entities, repository base, ID generation, etc.
-
-Although some features like multi-tenancy are not yet implemented, the current implementation serves as a solid foundation for building business logic without unnecessary boilerplate.
 
 </details>
 
@@ -547,6 +552,8 @@ The frontend is built with these technologies:
 - [ShadCN 2.0](https://ui.shadcn.com) with [Base UI](https://base-ui.com)
 - [Tanstack Router](https://tanstack.com/router)
 - [Tanstack Query](https://tanstack.com/query)
+- [Lingui](https://lingui.dev) for internationalization (i18n)
+- [oxlint](https://oxc.rs/docs/guide/usage/linter) and [oxfmt](https://oxc.rs/docs/guide/usage/formatter) for linting and formatting
 - [Node](https://nodejs.org/en)
 
 ### Azure Cloud Infrastructure With Enterprise-Grade Security and Zero Secrets
