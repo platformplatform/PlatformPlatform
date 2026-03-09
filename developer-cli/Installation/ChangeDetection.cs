@@ -107,6 +107,28 @@ public static class ChangeDetection
         }
     }
 
+    private static FileStream WaitForBuildLock(string lockFilePath)
+    {
+        for (var attempt = 0; attempt < 120; attempt++)
+        {
+            try
+            {
+                return new FileStream(lockFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+            }
+            catch (IOException)
+            {
+                if (attempt == 0)
+                {
+                    AnsiConsole.MarkupLine("[yellow]Waiting for another process to finish building the CLI...[/]");
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
+        throw new TimeoutException("Could not acquire CLI build lock after 120 seconds.");
+    }
+
     private static string CalculateMd5HashForSolution()
     {
         // Get all files C# and C# project files in the Developer CLI solution
@@ -131,13 +153,27 @@ public static class ChangeDetection
 
     private static void PublishDeveloperCli(string currentHash)
     {
-        AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
+        // Use a cross-process file lock to prevent concurrent CLI builds from conflicting.
+        // Multiple MCP servers (or CLI instances) detecting the same change would otherwise
+        // race to build and publish, causing file locking errors on shared build artifacts.
+        var lockFilePath = Path.Combine(Configuration.PublishFolder, ".build.lock");
+        Directory.CreateDirectory(Configuration.PublishFolder);
 
         var currentExecutablePath = Environment.ProcessPath!;
         var renamedExecutablePath = "";
 
         try
         {
+            using var buildLock = WaitForBuildLock(lockFilePath);
+
+            // Re-check hash after acquiring lock - another process may have already built
+            if (CalculateMd5HashForSolution() == Configuration.GetConfigurationSetting().Hash)
+            {
+                return;
+            }
+
+            AnsiConsole.MarkupLine("[green]Changes detected, rebuilding and publishing new CLI.[/]");
+
             // Build the project before renaming exe on Windows
             ProcessHelper.StartProcess("dotnet build", Configuration.CliFolder);
 
