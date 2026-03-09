@@ -13,6 +13,7 @@ public abstract record Prerequisite
     public static readonly Prerequisite AzureCli = new CommandLineToolPrerequisite("az", "Azure CLI", new Version(2, 79));
     public static readonly Prerequisite GithubCli = new CommandLineToolPrerequisite("gh", "GitHub CLI", new Version(2, 83));
     public static readonly Prerequisite TypeScriptLanguageServer = new CommandLineToolPrerequisite("typescript-language-server", "TypeScript Language Server", new Version(4, 3, 0));
+    public static readonly Prerequisite CSharpLanguageServer = new CommandLineToolPrerequisite("csharp-ls", "C# Language Server", new Version(0, 22, 0));
 
     protected abstract bool IsValid();
 
@@ -30,18 +31,16 @@ public abstract record Prerequisite
         var missingPrerequisites = prerequisites.Where(p => !p.CheckExists()).ToList();
         if (missingPrerequisites.Count == 0) return;
 
-        AnsiConsole.MarkupLine("[yellow]Optional prerequisites for enhanced Claude Code LSP support:[/]");
-        foreach (var prerequisite in missingPrerequisites)
-        {
-            AnsiConsole.MarkupLine($"[yellow]  - {prerequisite} is not installed[/]");
-        }
-
-        AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine("[dim]Install with:[/]");
+        AnsiConsole.MarkupLine("[yellow]Recommended: Install language servers for enhanced Claude Code support:[/]");
 
         if (missingPrerequisites.Any(p => p == TypeScriptLanguageServer))
         {
-            AnsiConsole.MarkupLine("[dim]  npm install -g typescript-language-server typescript[/]");
+            AnsiConsole.MarkupLine("[yellow]  npm install -g typescript-language-server typescript[/]");
+        }
+
+        if (missingPrerequisites.Any(p => p == CSharpLanguageServer))
+        {
+            AnsiConsole.MarkupLine("[yellow]  dotnet tool install -g csharp-ls[/]");
         }
 
         AnsiConsole.WriteLine();

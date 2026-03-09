@@ -34,7 +34,7 @@ public class ClaudeAgentCommand : Command
         try
         {
             // Check for optional LSP prerequisites (non-blocking)
-            Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer);
+            Prerequisite.Recommend(Prerequisite.TypeScriptLanguageServer, Prerequisite.CSharpLanguageServer);
 
             // If no agent type provided, prompt for selection
             if (string.IsNullOrEmpty(agentType))
