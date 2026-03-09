@@ -71,6 +71,13 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
     winget install GitHub.cli
     ```
 
+3.	(Recommended) Install language servers for enhanced Claude Code support:
+
+    ```powershell
+    npm install -g typescript-language-server typescript
+    dotnet tool install -g csharp-ls
+    ```
+
 </details>
 
 <details>
@@ -83,6 +90,9 @@ Open a terminal and run the following commands (if not installed):
 - `brew install --cask dotnet-sdk`
 - `brew install --cask docker`
 - `brew install git node azure-cli gh`
+- (Recommended) Install language servers for enhanced Claude Code support:
+  - `npm install -g typescript-language-server typescript`
+  - `dotnet tool install -g csharp-ls`
 
 </details>
 
@@ -145,6 +155,12 @@ Open a terminal and run the following commands (if not installed):
   ```bash
   dotnet tool update -g linux-dev-certs
   dotnet linux-dev-certs install
+  ```
+
+- (Recommended) Install language servers for enhanced Claude Code support
+  ```bash
+  npm install -g typescript-language-server typescript
+  dotnet tool install -g csharp-ls
   ```
 
 - Trust Certificates
@@ -359,12 +375,6 @@ PlatformPlatform includes a multi-agent autonomous development workflow powered 
 ## How to use
 
 This workflow requires Claude Code and will not work with other AI coding assistants.
-
-(Optional) For enhanced Claude Code LSP support (enables go-to-definition and find-references):
-
-```bash
-npm install -g typescript-language-server typescript
-```
 
 ### 1. Create a feature branch
 
