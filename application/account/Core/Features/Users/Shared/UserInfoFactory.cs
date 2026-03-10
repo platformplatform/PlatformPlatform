@@ -1,3 +1,4 @@
+using Account.Features.FeatureFlags;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Features.Users.Domain;
@@ -11,7 +12,7 @@ namespace Account.Features.Users.Shared;
 ///     Factory for creating UserInfo instances with tenant information.
 ///     Centralizes the logic for creating UserInfo to follow SRP and avoid duplication.
 /// </summary>
-public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository)
+public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscriptionRepository subscriptionRepository, FeatureFlagEvaluationService featureFlagEvaluationService)
 {
     /// <summary>
     ///     Creates a UserInfo instance from a User entity, including tenant name.
@@ -23,6 +24,8 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
         if (tenant is null) return Result<UserInfo>.BadRequest("Tenant has been deleted.");
 
         var subscription = await subscriptionRepository.GetByTenantIdUnfilteredAsync(user.TenantId, cancellationToken);
+
+        var enabledFlags = await featureFlagEvaluationService.EvaluateAsync(tenant.Id.Value, user.Id.Value, tenant.RolloutBucket, user.RolloutBucket, cancellationToken);
 
         return new UserInfo
         {
@@ -40,7 +43,10 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
             TenantLogoUrl = tenant.Logo.Url,
             SubscriptionPlan = subscription!.Plan.ToString(),
             Locale = user.Locale,
-            IsInternalUser = user.IsInternalUser
+            IsInternalUser = user.IsInternalUser,
+            FeatureFlags = new HashSet<string>(enabledFlags),
+            TenantRolloutBucket = tenant.RolloutBucket,
+            UserRolloutBucket = user.RolloutBucket
         };
     }
 }

@@ -34,5 +34,13 @@ public class OpenTelemetryEnricher(IExecutionContext executionContext)
 
         Activity.Current.SetTag("user.role", executionContext.UserInfo.Role);
         Activity.Current.SetTag("user.session_id", executionContext.UserInfo.SessionId?.Value);
+
+        foreach (var flag in FeatureFlags.FeatureFlags.GetAll())
+        {
+            if (!flag.TrackInTelemetry) continue;
+            var telemetryName = flag.TelemetryName ?? flag.Key;
+            var value = executionContext.UserInfo.FeatureFlags.Contains(flag.Key) ? "enabled" : "disabled";
+            Activity.Current.SetTag($"feature_{telemetryName}", value);
+        }
     }
 }
