@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using DeveloperCli.Installation;
+using DeveloperCli.Utilities;
 using Spectre.Console;
 
 namespace DeveloperCli.Commands;
@@ -42,6 +43,13 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var antigravityRules = Path.Combine(Configuration.SourceCodeFolder, ".agent", "rules");
         var antigravityReference = Path.Combine(Configuration.SourceCodeFolder, ".agent", "reference");
 
+        // Check which target root directories are gitignored
+        var syncWindsurf = !IsGitIgnored(".windsurf/");
+        var syncCursor = !IsGitIgnored(".cursor/");
+        var syncCopilotInstructions = !IsGitIgnored(".github/instructions/");
+        var syncCopilotSymlink = !IsGitIgnored(".github/copilot-instructions.md");
+        var syncAntigravity = !IsGitIgnored(".agent/");
+
         // Create dictionaries to track file changes
         var initialFileHashes = new Dictionary<string, string>();
         var finalFileHashes = new Dictionary<string, string>();
@@ -52,53 +60,68 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
         var expectedCopilotInstructionsFiles = new HashSet<string>();
         var expectedAntigravityFiles = new HashSet<string>();
 
-        // Collect initial file hashes for all target directories
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), initialFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), initialFileHashes);
-        CollectFileHashes(copilotInstructionsDir, initialFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), initialFileHashes);
-        CollectSymlinkHash(copilotInstructions, initialFileHashes);
+        // Collect initial file hashes for non-ignored target directories
+        if (syncWindsurf) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), initialFileHashes);
+        if (syncCursor) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), initialFileHashes);
+        if (syncCopilotInstructions) CollectFileHashes(copilotInstructionsDir, initialFileHashes);
+        if (syncCopilotSymlink) CollectSymlinkHash(copilotInstructions, initialFileHashes);
+        if (syncAntigravity) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), initialFileHashes);
 
         try
         {
             // Sync to Windsurf
-            // Commands → workflows
-            SyncClaudeToWindsurfWorkflows(claudeCommands, windsurfWorkflows, expectedWindsurfFiles);
-            // Rules → rules
-            SyncClaudeToWindsurfRules(claudeRules, windsurfRules, expectedWindsurfFiles);
-            // Reference → reference
-            SyncClaudeToWindsurfRules(claudeReference, windsurfReference, expectedWindsurfFiles);
+            if (syncWindsurf)
+            {
+                // Commands -> workflows
+                SyncClaudeToWindsurfWorkflows(claudeCommands, windsurfWorkflows, expectedWindsurfFiles);
+                // Rules -> rules
+                SyncClaudeToWindsurfRules(claudeRules, windsurfRules, expectedWindsurfFiles);
+                // Reference -> reference
+                SyncClaudeToWindsurfRules(claudeReference, windsurfReference, expectedWindsurfFiles);
+            }
 
             // Sync to Cursor
-            // Commands → rules/workflows
-            SyncClaudeToCursorWorkflows(claudeCommands, cursorWorkflows, expectedCursorFiles);
-            // Rules → rules
-            SyncClaudeToCursorRules(claudeRules, cursorRules, cursorWorkflows, expectedCursorFiles);
-            // Reference → reference (simple copy for Cursor)
-            SyncClaudeToPlainMarkdown(claudeReference, cursorReference, expectedCursorFiles);
+            if (syncCursor)
+            {
+                // Commands -> rules/workflows
+                SyncClaudeToCursorWorkflows(claudeCommands, cursorWorkflows, expectedCursorFiles);
+                // Rules -> rules
+                SyncClaudeToCursorRules(claudeRules, cursorRules, cursorWorkflows, expectedCursorFiles);
+                // Reference -> reference (simple copy for Cursor)
+                SyncClaudeToPlainMarkdown(claudeReference, cursorReference, expectedCursorFiles);
+            }
 
-            // Sync to GitHub Copilot (everything goes to .github/instructions/)
-            CreateOrUpdateSymlink(agentsMd, copilotInstructions);
-            // Commands → instructions/workflows
-            SyncClaudeToCopilotInstructions(claudeCommands, Path.Combine(copilotInstructionsDir, "workflows"), expectedCopilotInstructionsFiles);
-            // Rules → instructions (nested structure with .instructions.md suffix)
-            SyncClaudeToCopilotInstructions(claudeRules, copilotInstructionsDir, expectedCopilotInstructionsFiles);
-            // Reference → instructions/reference
-            SyncClaudeToCopilotInstructions(claudeReference, Path.Combine(copilotInstructionsDir, "reference"), expectedCopilotInstructionsFiles);
+            // Sync to GitHub Copilot
+            if (syncCopilotSymlink)
+            {
+                CreateOrUpdateSymlink(agentsMd, copilotInstructions);
+            }
+            if (syncCopilotInstructions)
+            {
+                // Commands -> instructions/workflows
+                SyncClaudeToCopilotInstructions(claudeCommands, Path.Combine(copilotInstructionsDir, "workflows"), expectedCopilotInstructionsFiles);
+                // Rules -> instructions (nested structure with .instructions.md suffix)
+                SyncClaudeToCopilotInstructions(claudeRules, copilotInstructionsDir, expectedCopilotInstructionsFiles);
+                // Reference -> instructions/reference
+                SyncClaudeToCopilotInstructions(claudeReference, Path.Combine(copilotInstructionsDir, "reference"), expectedCopilotInstructionsFiles);
+            }
 
             // Sync to Google Antigravity
-            // Commands → workflows
-            SyncClaudeToAntigravityWorkflows(claudeCommands, antigravityWorkflows, expectedAntigravityFiles);
-            // Rules → rules
-            SyncClaudeToAntigravityRules(claudeRules, antigravityRules, expectedAntigravityFiles);
-            // Reference → reference
-            SyncClaudeToAntigravityRules(claudeReference, antigravityReference, expectedAntigravityFiles);
+            if (syncAntigravity)
+            {
+                // Commands -> workflows
+                SyncClaudeToAntigravityWorkflows(claudeCommands, antigravityWorkflows, expectedAntigravityFiles);
+                // Rules -> rules
+                SyncClaudeToAntigravityRules(claudeRules, antigravityRules, expectedAntigravityFiles);
+                // Reference -> reference
+                SyncClaudeToAntigravityRules(claudeReference, antigravityReference, expectedAntigravityFiles);
+            }
 
-            // Delete orphaned files in target directories
-            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), expectedWindsurfFiles);
-            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), expectedCursorFiles);
-            DeleteOrphanedFiles(copilotInstructionsDir, expectedCopilotInstructionsFiles);
-            DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".agent"), expectedAntigravityFiles);
+            // Delete orphaned files in non-ignored target directories
+            if (syncWindsurf) DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), expectedWindsurfFiles);
+            if (syncCursor) DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), expectedCursorFiles);
+            if (syncCopilotInstructions) DeleteOrphanedFiles(copilotInstructionsDir, expectedCopilotInstructionsFiles);
+            if (syncAntigravity) DeleteOrphanedFiles(Path.Combine(Configuration.SourceCodeFolder, ".agent"), expectedAntigravityFiles);
         }
         catch (Exception ex)
         {
@@ -106,12 +129,12 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             Environment.Exit(1);
         }
 
-        // Collect final file hashes
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), finalFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), finalFileHashes);
-        CollectFileHashes(copilotInstructionsDir, finalFileHashes);
-        CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), finalFileHashes);
-        CollectSymlinkHash(copilotInstructions, finalFileHashes);
+        // Collect final file hashes for non-ignored target directories
+        if (syncWindsurf) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".windsurf"), finalFileHashes);
+        if (syncCursor) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".cursor"), finalFileHashes);
+        if (syncCopilotInstructions) CollectFileHashes(copilotInstructionsDir, finalFileHashes);
+        if (syncCopilotSymlink) CollectSymlinkHash(copilotInstructions, finalFileHashes);
+        if (syncAntigravity) CollectFileHashes(Path.Combine(Configuration.SourceCodeFolder, ".agent"), finalFileHashes);
 
         // Display results
         DisplayFileChangeResults(initialFileHashes, finalFileHashes);
@@ -966,5 +989,11 @@ public sealed class SyncAiRulesAndWorkflowsCommand : Command
             // Convert remaining .claude/ references to .agent/
             lines[i] = lines[i].Replace(".claude/", ".agent/");
         }
+    }
+
+    private static bool IsGitIgnored(string relativePath)
+    {
+        var result = ProcessHelper.ExecuteQuietly($"git check-ignore -q {relativePath}", Configuration.SourceCodeFolder);
+        return result.ExitCode == 0;
     }
 }
