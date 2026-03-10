@@ -96,6 +96,18 @@ export declare global {
      * Tenant logo URL
      **/
     tenantLogoUrl?: string | null;
+    /**
+     * Is internal user (has access to BackOffice)
+     **/
+    isInternalUser?: boolean;
+    /**
+     * Tenant rollout bucket (1-100) for A/B testing
+     **/
+    tenantRolloutBucket?: number;
+    /**
+     * User rollout bucket (1-100) for A/B testing
+     **/
+    userRolloutBucket?: number | null;
   }
 
   /**

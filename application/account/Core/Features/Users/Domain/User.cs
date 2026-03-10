@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using Account.Features.ExternalAuthentication.Domain;
 using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
+using SharedKernel.Platform;
 
 namespace Account.Features.Users.Domain;
 
@@ -39,6 +40,8 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
     public Avatar Avatar { get; private set; }
 
     public string Locale { get; private set; }
+
+    public bool IsInternalUser => Email.EndsWith(Settings.Current.Identity.InternalEmailDomain, StringComparison.OrdinalIgnoreCase);
 
     public DateTimeOffset? LastSeenAt { get; private set; }
 
