@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using Account.Features.ExternalAuthentication.Domain;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 using SharedKernel.Platform;
 
 namespace Account.Features.Users.Domain;
@@ -17,6 +18,7 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
         Locale = locale ?? string.Empty;
         Avatar = new Avatar();
         ExternalIdentities = [];
+        RolloutBucket = RolloutBucketHasher.ComputeBucket(Id.Value);
     }
 
     public string Email
@@ -44,6 +46,8 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
     public DateTimeOffset? LastSeenAt { get; private set; }
 
     public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
+
+    public int RolloutBucket { get; private set; }
 
     public TenantId TenantId { get; }
 

@@ -35,7 +35,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
         Connection.Insert("Users", [
@@ -52,7 +53,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
         Connection.Insert("Users", [
@@ -69,7 +71,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -111,7 +114,8 @@ public sealed class BulkPurgeUsersTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 

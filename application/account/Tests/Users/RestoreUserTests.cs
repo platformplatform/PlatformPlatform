@@ -33,7 +33,8 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -97,7 +98,8 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 

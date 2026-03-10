@@ -30,7 +30,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -48,7 +49,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", ""),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -103,7 +105,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -114,7 +117,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -132,7 +136,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", ""),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -150,7 +155,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", ""),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 

@@ -31,7 +31,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -50,7 +51,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -112,7 +114,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -129,7 +132,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Owner)),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -173,7 +177,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -192,7 +197,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -244,7 +250,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Name", tenant2Name),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -264,7 +271,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -323,7 +331,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Name", Faker.Company.CompanyName()),
                 ("State", nameof(TenantState.Active)),
                 ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+                ("Plan", nameof(SubscriptionPlan.Basis)),
+                ("RolloutBucket", 42)
             ]
         );
 
@@ -342,7 +351,8 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Role", nameof(UserRole.Member)),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 

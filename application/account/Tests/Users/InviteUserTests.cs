@@ -131,7 +131,8 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
                 ("EmailConfirmed", true),
                 ("Avatar", JsonSerializer.Serialize(new Avatar())),
                 ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+                ("ExternalIdentities", "[]"),
+                ("RolloutBucket", 42)
             ]
         );
 
