@@ -2,6 +2,7 @@ using Account.Database;
 using Account.Features.EmailAuthentication.Shared;
 using Account.Features.ExternalAuthentication;
 using Account.Features.ExternalAuthentication.Shared;
+using Account.Features.FeatureFlags;
 using Account.Features.Subscriptions.Shared;
 using Account.Features.Users.Shared;
 using Account.Integrations.Gravatar;
@@ -63,6 +64,7 @@ public static class Configuration
                 .AddScoped<StartEmailConfirmation>()
                 .AddScoped<CompleteEmailConfirmation>()
                 .AddScoped<AvatarUpdater>()
+                .AddScoped<FeatureFlagEvaluationService>()
                 .AddScoped<UserInfoFactory>()
                 .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()

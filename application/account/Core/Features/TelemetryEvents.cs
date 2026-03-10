@@ -61,6 +61,27 @@ public sealed class ExternalSignupFailed(ExternalLoginId? externalLoginId, Exter
 public sealed class ExternalSignupStarted(ExternalProviderType providerType)
     : TelemetryEvent(("provider_type", providerType));
 
+public sealed class FeatureFlagActivated(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagDeactivated(string flagKey)
+    : TelemetryEvent(("flag_key", flagKey));
+
+public sealed class FeatureFlagRolloutPercentageUpdated(string flagKey, int rolloutPercentage)
+    : TelemetryEvent(("flag_key", flagKey), ("rollout_percentage", rolloutPercentage));
+
+public sealed class FeatureFlagTenantOverrideRemoved(string flagKey, string tenantId)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+
+public sealed class FeatureFlagTenantOverrideSet(string flagKey, string tenantId)
+    : TelemetryEvent(("flag_key", flagKey), ("tenant_id", tenantId));
+
+public sealed class FeatureFlagUserOverrideRemoved(string flagKey, string userId)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+
+public sealed class FeatureFlagUserOverrideSet(string flagKey, string userId)
+    : TelemetryEvent(("flag_key", flagKey), ("user_id", userId));
+
 public sealed class GravatarUpdated(long size)
     : TelemetryEvent(("size", size));
 
