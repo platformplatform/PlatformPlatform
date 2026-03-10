@@ -108,6 +108,10 @@ export declare global {
      * User rollout bucket (1-100) for A/B testing
      **/
     userRolloutBucket?: number | null;
+    /**
+     * Enabled feature flag keys (database-scoped flags evaluated server-side at token issuance)
+     **/
+    featureFlags?: string[];
   }
 
   /**
