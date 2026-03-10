@@ -136,7 +136,8 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
                 ("name", name),
                 ("state", "Active"),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("plan", nameof(SubscriptionPlan.Basis))
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -160,7 +161,8 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
                 ("role", "Owner"),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
     }

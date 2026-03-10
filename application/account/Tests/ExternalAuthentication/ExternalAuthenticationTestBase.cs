@@ -231,7 +231,8 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
-                ("external_identities", identities)
+                ("external_identities", identities),
+                ("rollout_bucket", 42)
             ]
         );
         return userId;

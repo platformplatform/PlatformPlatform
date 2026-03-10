@@ -219,7 +219,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("name", Faker.Company.CompanyName()),
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("plan", nameof(SubscriptionPlan.Basis))
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -258,7 +259,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Owner)),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -318,7 +320,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("name", Faker.Company.CompanyName()),
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("plan", nameof(SubscriptionPlan.Basis))
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("rollout_bucket", 42)
             ]
         );
 
