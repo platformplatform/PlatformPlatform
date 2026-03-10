@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { loginPath } from "@repo/infrastructure/auth/constants";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { preferredLocaleKey } from "@repo/infrastructure/translations/constants";
 import { Button } from "@repo/ui/components/Button";
 import { Field, FieldDescription, FieldLabel } from "@repo/ui/components/Field";
@@ -54,6 +55,7 @@ export function StartSignupForm() {
   const { email: savedEmail } = getSignupState();
   const { email: loginEmail } = getLoginState(); // Prefill from login page if user navigated here
   const [email, setEmail] = useState(savedEmail || loginEmail || "");
+  const { enabled: isGoogleOAuthEnabled } = useFeatureFlag("google-oauth");
 
   const startSignupMutation = api.useMutation("post", "/api/account/authentication/email/signup/start");
   const [isGoogleSignupPending, setIsGoogleSignupPending] = useState(false);
@@ -141,7 +143,7 @@ export function StartSignupForm() {
           <Trans>Sign up with email</Trans>
         )}
       </Button>
-      {import.meta.runtime_env.PUBLIC_GOOGLE_OAUTH_ENABLED === "true" && (
+      {isGoogleOAuthEnabled && (
         <>
           <div className="flex w-full items-center gap-4">
             <div className="h-px flex-1 bg-border" />

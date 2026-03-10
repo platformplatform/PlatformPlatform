@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { collapsedContext, MenuButton, SideMenu, SideMenuSeparator } from "@repo/ui/components/SideMenu";
 import {
   Building2Icon,
@@ -24,6 +25,7 @@ function LogoContent() {
 
 function AccountNavigationMenuItems() {
   const userInfo = useUserInfo();
+  const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
 
   return (
     <>
@@ -47,7 +49,7 @@ function AccountNavigationMenuItems() {
       <MenuButton icon={HomeIcon} label={t`Overview`} ariaLabel={t`Account overview`} href="/account" />
       <MenuButton icon={Building2Icon} label={t`Settings`} ariaLabel={t`Account settings`} href="/account/settings" />
       <MenuButton icon={UsersIcon} label={t`Users`} href="/account/users" matchPrefix={true} />
-      {userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true" && (
+      {userInfo?.role === "Owner" && isSubscriptionEnabled && (
         <MenuButton icon={CreditCardIcon} label={t`Billing`} href="/account/billing" matchPrefix={true} />
       )}
     </>

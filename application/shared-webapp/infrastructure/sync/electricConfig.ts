@@ -4,7 +4,7 @@ import { FetchError, snakeCamelMapper } from "@electric-sql/client";
 
 const ACCOUNT_ELECTRIC_SHAPE_URL = "/api/account/electric/v1/shape";
 
-export type ElectricTable = "users" | "tenants" | "subscriptions";
+export type ElectricTable = "users" | "tenants" | "subscriptions" | "feature_flags";
 
 const staleShapes = new Set<string>();
 let isReloading = false;

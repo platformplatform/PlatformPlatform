@@ -27,6 +27,19 @@ export type TenantRow = Row & {
   plan: string;
 };
 
+export type FeatureFlagRow = Row & {
+  id: string;
+  flagKey: string;
+  tenantId: string | null;
+  userId: string | null;
+  enabledAt: string | null;
+  disabledAt: string | null;
+  bucketStart: string | null;
+  bucketEnd: string | null;
+  configurableByTenant: string;
+  configurableByUser: string;
+};
+
 export type SubscriptionRow = Row & {
   id: string;
   createdAt: string;
