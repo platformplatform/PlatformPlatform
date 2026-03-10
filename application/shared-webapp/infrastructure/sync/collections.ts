@@ -1,7 +1,7 @@
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 
-import type { SubscriptionRow, TenantRow, UserRow } from "./types";
+import type { FeatureFlagRow, SubscriptionRow, TenantRow, UserRow } from "./types";
 
 import { getLastElectricOffset } from "../http/queryClient";
 import { createShapeOptions } from "./electricConfig";
@@ -44,14 +44,27 @@ export const subscriptionCollection = createCollection<SubscriptionRow>(
   })
 );
 
+export const featureFlagCollection = createCollection<FeatureFlagRow>(
+  electricCollectionOptions({
+    id: "feature_flags",
+    shapeOptions: createShapeOptions("feature_flags"),
+    getKey: (item) => item.id,
+    syncMode: "eager",
+    onInsert: async () => txidHandler(),
+    onUpdate: async () => txidHandler(),
+    onDelete: async () => txidHandler()
+  })
+);
+
 declare global {
   interface Window {
     __electricCollections?: {
       userCollection: typeof userCollection;
       tenantCollection: typeof tenantCollection;
       subscriptionCollection: typeof subscriptionCollection;
+      featureFlagCollection: typeof featureFlagCollection;
     };
   }
 }
 
-window.__electricCollections = { userCollection, tenantCollection, subscriptionCollection };
+window.__electricCollections = { userCollection, tenantCollection, subscriptionCollection, featureFlagCollection };

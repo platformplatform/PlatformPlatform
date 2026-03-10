@@ -1,6 +1,7 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useUserInfo } from "@repo/infrastructure/auth/hooks";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import {
   collapsedContext,
   Sidebar,
@@ -43,13 +44,14 @@ export function AccountSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
   const { navigateToMain } = useMainNavigation();
+  const { enabled: isSubscriptionEnabled } = useFeatureFlag("subscriptions");
 
   const isActive = (target: string, matchPrefix = false) => {
     const normalized = normalizePath(target);
     return matchPrefix ? currentPath.startsWith(normalized) : currentPath === normalized;
   };
 
-  const showBilling = userInfo?.role === "Owner" && import.meta.runtime_env.PUBLIC_SUBSCRIPTION_ENABLED === "true";
+  const showBilling = userInfo?.role === "Owner" && isSubscriptionEnabled;
 
   return (
     <Sidebar collapsible="icon" mobileContent={<MobileMenu onNavigate={navigateToMain ?? undefined} />}>

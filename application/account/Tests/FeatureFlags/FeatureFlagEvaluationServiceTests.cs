@@ -2,6 +2,7 @@ using Account.Database;
 using Account.Features.FeatureFlags;
 using Account.Features.FeatureFlags.Domain;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Domain;
 using SharedKernel.Tests.Persistence;

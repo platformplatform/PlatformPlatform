@@ -2,6 +2,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { signUpPath } from "@repo/infrastructure/auth/constants";
 import { isValidReturnPath } from "@repo/infrastructure/auth/util";
+import { useFeatureFlag } from "@repo/infrastructure/featureFlags/useFeatureFlag";
 import { Button } from "@repo/ui/components/Button";
 import { Form } from "@repo/ui/components/Form";
 import { Link } from "@repo/ui/components/Link";
@@ -57,6 +58,7 @@ export function LoginForm() {
   const { email: signupEmail } = getSignupState(); // Prefill from signup page if user navigated here
   const [email, setEmail] = useState(savedEmail || signupEmail || "");
   const { returnPath } = Route.useSearch();
+  const { enabled: isGoogleOAuthEnabled } = useFeatureFlag("google-oauth");
 
   const startLoginMutation = api.useMutation("post", "/api/account/authentication/email/login/start");
   const [isGoogleLoginPending, setIsGoogleLoginPending] = useState(false);
@@ -126,7 +128,7 @@ export function LoginForm() {
       <Button type="submit" disabled={isPending} className="mt-4 w-full text-center">
         {startLoginMutation.isPending ? <Trans>Sending verification code...</Trans> : <Trans>Log in with email</Trans>}
       </Button>
-      {import.meta.runtime_env.PUBLIC_GOOGLE_OAUTH_ENABLED === "true" && (
+      {isGoogleOAuthEnabled && (
         <>
           <div className="flex w-full items-center gap-4">
             <div className="h-px flex-1 bg-border" />
