@@ -3,6 +3,20 @@ namespace SharedKernel.FeatureFlags;
 [PublicAPI]
 public static class FeatureFlags
 {
+    public static readonly FeatureFlagDefinition GoogleOauth = new(
+        "google-oauth",
+        FeatureFlagScope.System,
+        FeatureFlagAdminLevel.SystemAdmin,
+        "Google OAuth authentication"
+    );
+
+    public static readonly FeatureFlagDefinition Subscriptions = new(
+        "subscriptions",
+        FeatureFlagScope.System,
+        FeatureFlagAdminLevel.SystemAdmin,
+        "Subscription billing via Stripe"
+    );
+
     public static readonly FeatureFlagDefinition BetaFeatures = new(
         "beta-features",
         FeatureFlagScope.Tenant,
@@ -35,7 +49,7 @@ public static class FeatureFlags
         ConfigurableByUser: true
     );
 
-    private static readonly FeatureFlagDefinition[] AllFlags = [BetaFeatures, Sso, CustomBranding, CompactView];
+    private static readonly FeatureFlagDefinition[] AllFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView];
 
     static FeatureFlags()
     {

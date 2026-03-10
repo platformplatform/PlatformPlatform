@@ -2,6 +2,7 @@ using Account.Database;
 using Account.Features.FeatureFlags;
 using Account.Features.FeatureFlags.Domain;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Domain;
 using SharedKernel.Tests.Persistence;
@@ -215,6 +216,21 @@ public sealed class FeatureFlagEvaluationServiceTests : EndpointBaseTest<Account
 
     private void InsertFeatureFlag(string flagKey, long? tenantId, string? userId, DateTimeOffset? enabledAt, DateTimeOffset? disabledAt, int? bucketStart, int? bucketEnd)
     {
+        // Delete any seeded row with the same scope to avoid unique constraint conflicts
+        using var deleteCommand = new SqliteCommand(
+            tenantId is null && userId is null
+                ? "DELETE FROM FeatureFlags WHERE FlagKey = @flagKey AND TenantId IS NULL AND UserId IS NULL"
+                : "DELETE FROM FeatureFlags WHERE FlagKey = @flagKey AND TenantId = @tenantId AND UserId IS NULL",
+            Connection
+        );
+        deleteCommand.Parameters.AddWithValue("@flagKey", flagKey);
+        if (tenantId is not null)
+        {
+            deleteCommand.Parameters.AddWithValue("@tenantId", tenantId);
+        }
+
+        deleteCommand.ExecuteNonQuery();
+
         var id = FeatureFlagId.NewId().ToString();
         Connection.Insert("FeatureFlags", [
                 ("Id", id),
