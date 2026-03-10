@@ -45,6 +45,14 @@ public class ApplicationInsightsTelemetryInitializer : ITelemetryInitializer
         AddCustomProperty(telemetry, "user.theme", executionContext.UserInfo.Theme);
         AddCustomProperty(telemetry, "user.role", executionContext.UserInfo.Role);
         AddCustomProperty(telemetry, "user.session_id", executionContext.UserInfo.SessionId?.Value);
+
+        foreach (var flag in FeatureFlags.FeatureFlags.GetAll())
+        {
+            if (!flag.TrackInTelemetry) continue;
+            var telemetryName = flag.TelemetryName ?? flag.Key;
+            var value = executionContext.UserInfo.FeatureFlags.Contains(flag.Key) ? "enabled" : "disabled";
+            AddCustomProperty(telemetry, $"feature_{telemetryName}", value);
+        }
     }
 
     public static void SetContext(IExecutionContext executionContext)
