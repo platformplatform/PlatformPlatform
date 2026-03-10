@@ -5,7 +5,7 @@ using SharedKernel.ExecutionContext;
 
 namespace SharedKernel.Endpoints;
 
-public sealed record ShapeTableConfig(string TenantColumn, string[] Columns, string? RequiredRole = null, string? UserScopedColumn = null);
+public sealed record ShapeTableConfig(string TenantColumn, string[] Columns, string? RequiredRole = null, string? UserScopedColumn = null, bool IncludeNullRows = false);
 
 public static class ElectricShapeProxy
 {
@@ -52,7 +52,9 @@ public static class ElectricShapeProxy
             }
         }
 
-        var whereClause = $"{tableConfig.TenantColumn}='{tenantId.Value}'";
+        var whereClause = tableConfig.IncludeNullRows
+            ? $"({tableConfig.TenantColumn}='{tenantId.Value}' OR {tableConfig.TenantColumn} IS NULL)"
+            : $"{tableConfig.TenantColumn}='{tenantId.Value}'";
 
         if (tableConfig.UserScopedColumn is not null)
         {
@@ -63,7 +65,9 @@ public static class ElectricShapeProxy
                 return;
             }
 
-            whereClause += $" AND {tableConfig.UserScopedColumn}='{userId.Value}'";
+            whereClause += tableConfig.IncludeNullRows
+                ? $" AND ({tableConfig.UserScopedColumn}='{userId.Value}' OR {tableConfig.UserScopedColumn} IS NULL)"
+                : $" AND {tableConfig.UserScopedColumn}='{userId.Value}'";
         }
 
         upstreamParameters["where"] = whereClause;
