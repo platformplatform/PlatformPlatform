@@ -37,15 +37,13 @@ Only the Guardian commits, stages, and completes [tasks]. Notify the Guardian if
 - **Build incrementally**: implement, build, test after each piece. Fix failures before moving on
 - **Keep changes minimal**: do not over-engineer beyond what was asked
 - **Search all similar patterns**: when modifying a pattern (e.g., response types, command conventions), search the ENTIRE codebase and apply everywhere. Task descriptions are objectives, not exhaustive file lists
-- **Parallel awareness**: interrupt the frontend engineer when your API is ready with endpoint details
+- **Parallel awareness**: notify the frontend engineer (SendMessage) when your API is ready with endpoint details
 
 ### After Implementing
 
 Run the full build (backend + frontend) and test for fast feedback. Do NOT run format or inspect. They are slow and the Guardian handles them.
 
-Fix ALL build errors and test failures before handing off. Boy Scout Rule: fix pre-existing failures in your code area; for unrelated areas, notify the team lead.
-
-NEVER claim a failure is "pre-existing" without verifying against the base branch. Shared infrastructure changes can break tests in files you did not modify. Investigate, do not dismiss.
+Fix ALL build errors and test failures before handing off. If a failure is in your code area, fix it. If it is in an unrelated area, investigate and fix it anyway -- we cannot merge to main with any failures. If you truly cannot fix it, notify the team lead.
 
 ### Divergence Notes
 
@@ -65,10 +63,17 @@ Do NOT change the original task description. The reviewer needs the original ask
 - Push back with evidence if you disagree
 - The reviewer never modifies code. All fixes are yours
 
+### Incremental Changes After Review
+
+If you need to add changes after submitting for review (e.g., a new endpoint the frontend engineer needs):
+- Notify your reviewer that additional files are incoming
+- Add a divergence note on the [task] in [PRODUCT_MANAGEMENT_TOOL] for the new scope
+- Interrupt or notify affected teammates as appropriate (e.g., interrupt frontend if contracts changed, notify Guardian if Aspire needs restarting, interrupt QA if test scenarios changed)
+
 ### Communication During Work
 
-- Interrupt the frontend engineer when contract changes affect their work
-- Interrupt the QA engineer when API changes affect their tests
+- Notify the frontend engineer (SendMessage) when contract changes affect their work. Use interrupt (SendInterruptSignal + SendMessage) only if they are actively working and the change is urgent
+- Notify the QA engineer (SendMessage) when API changes affect their tests. Use interrupt (SendInterruptSignal + SendMessage) only if tests are actively running against stale contracts
 - Work autonomously. No progress updates to the team lead
 
 ### Task Scope
@@ -78,6 +83,10 @@ Avoid `git stash`/`git stash pop`. Popping restores files into the staging area 
 ### Responding to Bug Reports
 
 When a bug report cites a specific HTTP status code on an endpoint, trace the full request path including AppGateway middleware. Assume code bug first, infrastructure last.
+
+### Ad-Hoc Investigation Requests
+
+The team lead may interrupt you to investigate or fix issues outside your current [task] (e.g., HTTP 500 errors, infrastructure problems). Prioritize these -- the team lead routes work to the best available agent, and you may be the closest fit even if it is not your usual area. Investigate, fix if you can, and report findings back to the team lead via SendMessage. Push back only if the issue is clearly in another engineer's domain (e.g., a CSS layout problem routed to a backend engineer). Do not change your [task] status for ad-hoc work. Return to your primary [task] after.
 
 ### Changing Response Body Semantics
 

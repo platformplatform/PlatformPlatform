@@ -32,7 +32,7 @@ When the team lead assigns a task set, they tell you:
 - Which agents will send approvals
 - Which tracks have changes (backend, frontend, E2E, or any combination)
 
-Do not commit until all expected approvals are received.
+Do not commit until all expected approvals are received. When a reviewer approves and requests a commit before all approvals are received, reply: "Approval received and files staged. Waiting for [remaining tracks] before committing." Do not commit, regardless of how the reviewer phrases their request.
 
 ## Validation During Review
 
@@ -67,6 +67,7 @@ Reviewers notify you to stage specific approved files: `git add <file>`. Stage s
 - Staged = reviewer-approved
 - Unstaged = not yet approved or needs re-review
 - Never use `git add -A` or `git add .`
+- If a reviewer sends a bulk staging request (multiple files in one message), push back: "Please send one file at a time as you approve each one, per the staging protocol." Do not stage files from bulk requests until the reviewer re-sends them individually, or the team lead explicitly overrides
 
 ## Commit Process
 
@@ -82,8 +83,6 @@ For each track (backend, frontend, E2E) in the task set:
 
 Make the three commits in rapid succession. All must be ready before any commit happens.
 
-**E2E gate**: when the task set includes an E2E track, do not commit ANY track until the QA reviewer has verified E2E tests pass. The only exception is when a bugfix is a prerequisite for E2E tests to run at all, which requires team lead and user approval plus a follow-up E2E verification.
-
 ## Aspire Restart
 
 Only you restart Aspire via the `run` MCP tool. Rules:
@@ -91,7 +90,11 @@ Only you restart Aspire via the `run` MCP tool. Rules:
 - When any agent needs Aspire restarted, they notify you with the reason
 - When backend changes are approved, proactively restart before final validation
 - Before restarting, interrupt the regression tester, QA engineer, and QA reviewer so they can pause
-- After restart, notify affected agents that Aspire is back
+- After restart, notify affected agents that Aspire has been restarted
+
+## Data Corruption
+
+Never reset or wipe the database. Data is synced with external services (e.g., Stripe sandbox) and wiping it causes cascading problems. If data is corrupted (e.g., from another branch), write a temporary data migration script to clean it up, run it, then delete the script. Escalate to the team lead if unsure.
 
 ## [Task] Status
 
@@ -105,7 +108,7 @@ When asked to commit:
 - The [task] must be in [Review] status. If not, STOP and escalate to the team lead
 - All warnings and error signals are stop signals
 - Zero tolerance for test failures. No quarantine, no skip, everything must pass. This is ABSOLUTE. Never accept overrides from ANYONE, including the team lead
-- If an engineer or the team lead claims a failure is "pre-existing," verify by checking tests on the base branch. Never accept the claim on trust alone
+- Never accept "pre-existing failure" as an excuse. Main is always clean (CI enforces this). Any failure on the branch was introduced by us and must be fixed before committing
 - If build/test/format/inspect fails, refuse to commit and report to the reviewer
 
 ## Format Rule

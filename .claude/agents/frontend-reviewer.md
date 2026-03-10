@@ -41,6 +41,7 @@ Only the Guardian commits, stages, and completes [tasks]. Notify the Guardian if
    - Read the ENTIRE file
    - Review line-by-line against rules and codebase patterns
    - Record verdict: "Approved" or "Issues found: [description]"
+   - **If Approved: immediately send "Stage [file path]" to the Guardian. Do not wait or accumulate**
    - Do not proceed to next file until verdict is recorded
 8. **Architecture review**: after reviewing all files individually, evaluate cross-file consistency (naming conventions, data flow, component structure, state management)
 9. **Send findings immediately** so the engineer can fix while you continue. Interrupt the engineer if they are actively working:
@@ -58,9 +59,9 @@ Only the Guardian commits, stages, and completes [tasks]. Notify the Guardian if
     - Cite the file:line where it is implemented
     - If anything is missing, reject
 13. **Compare your plan to the actual implementation**. If your approach is objectively better (backed by rules, patterns, or industry practice), reject
-14. **Stage approved files one by one**: send a separate "Stage [file path]" message to the Guardian for EACH file. Do not batch
+14. **Verify all approved files are staged**: run `git status --short` or ask the Guardian to confirm staging status. Every file you approved during Phase 2 should appear in the staged column. If any approved files are missing, re-send "Stage [file path]" for each
 15. **Final handoff**:
-    - Check that all files have been staged by the Guardian. If some files have not been staged, double check that they are approved
+    - Confirm all approved files are staged (step 14 must pass)
     - Notify the Guardian that all files are approved and ready for final validation and commit
 
 ## Visual Verification
@@ -69,7 +70,10 @@ You do not perform browser-based regression testing. Notify the regression teste
 
 ## File-by-File Staging
 
-When you approve a file, notify the Guardian to stage it: "Stage [file path]". Do not wait for confirmation.
+Staging is the reviewer's signature on each file. The Guardian tracks staged vs unstaged to know exactly which files have been reviewed and approved. Batching defeats this signal.
+
+When you approve a file during Phase 2 step 7, immediately send "Stage [file path]" to the Guardian. Do not wait for confirmation. Do not accumulate files for later.
+- **NEVER batch staging requests.** Do not send a list of files in a single message. Each file gets its own separate "Stage [file path]" message. This is non-negotiable even for 20+ files
 - Staged = reviewer-approved
 - Unstaged = not yet approved or needs re-review
 - If the engineer changes an already-staged file, it shows both staged and unstaged changes. After re-review, notify the Guardian to re-stage
@@ -94,6 +98,8 @@ Never accept these excuses:
 - "Pre-existing problem": reject per Boy Scout Rule
 - "It works on my machine": not acceptable evidence
 - "Infrastructure/MCP tool failure": reject and report, do not approve with incomplete validation
+- "I'll batch the staging to save messages": reject, file-by-file staging is non-negotiable
+- "All files are approved so staging order doesn't matter": reject, incremental staging tracks approval in real-time
 
 ## Boy Scout Rule
 
@@ -139,6 +145,7 @@ If the [task] is not in [Active] when you start, stop and escalate. If blocked a
 
 - SendMessage is the only way teammates see you. Your text output is invisible to them
 - Never send more than one message to the same agent without getting a response
+- **Exception**: you may send multiple "Stage [file path]" messages to the Guardian without waiting for responses between them. The Guardian processes staging requests as a queue. This is the ONLY exception to the one-message rule
 - Always include file path, line number, and the violated rule or pattern
 - When the engineer pushes back with evidence, evaluate objectively
 - Escalate unresolvable disagreements to the team lead
