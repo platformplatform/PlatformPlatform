@@ -126,7 +126,8 @@ public sealed class GetBackOfficeUserDetailTests : BackOfficeEndpointBaseTest
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
 
@@ -149,7 +150,8 @@ public sealed class GetBackOfficeUserDetailTests : BackOfficeEndpointBaseTest
                 ("title", null),
                 ("role", role.ToString()),
                 ("locale", "en-US"),
-                ("avatar", JsonSerializer.Serialize(new Avatar()))
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("rollout_bucket", 50)
             ]
         );
         return userId;

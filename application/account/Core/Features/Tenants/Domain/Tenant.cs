@@ -1,5 +1,6 @@
 using Account.Features.Subscriptions.Domain;
 using SharedKernel.Domain;
+using SharedKernel.FeatureFlags;
 
 namespace Account.Features.Tenants.Domain;
 
@@ -10,6 +11,7 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
         State = TenantState.Active;
         Plan = SubscriptionPlan.Basis;
         Logo = new Logo();
+        RolloutBucket = RolloutBucketHasher.ComputeBucket(Id.Value.ToString());
     }
 
     public string Name { get; private set; } = string.Empty;
@@ -23,6 +25,8 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public DateTimeOffset? SuspendedAt { get; private set; }
 
     public Logo Logo { get; private set; }
+
+    public int RolloutBucket { get; private set; }
 
     public static Tenant Create(string email)
     {

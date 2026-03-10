@@ -37,7 +37,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
                 ("last_seen_at", now.AddDays(-5)),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -56,7 +57,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
                 ("last_seen_at", thirtyOneDaysAgo),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -75,7 +77,8 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
                 ("last_seen_at", null),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 

@@ -30,7 +30,8 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
                 ("name", "Other"),
                 ("state", "Active"),
                 ("plan", "Basis"),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
         SeedUser(otherTenantId, "outsider@other.com", "Outsider", null, UserRole.Member);
@@ -152,7 +153,8 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
                 ("title", null),
                 ("role", role.ToString()),
                 ("locale", "en-US"),
-                ("avatar", JsonSerializer.Serialize(new Avatar()))
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("rollout_bucket", 50)
             ]
         );
     }

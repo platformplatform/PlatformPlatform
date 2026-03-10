@@ -29,7 +29,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("name", "Acme Corp"),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Premium)),
-                ("logo", """{"Url":"https://example.com/logo.png","Version":1}""")
+                ("logo", """{"Url":"https://example.com/logo.png","Version":1}"""),
+                ("rollout_bucket", 50)
             ]
         );
 
@@ -100,7 +101,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("name", "No Subscription Inc"),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("logo", """{"Url":null,"Version":1}""")
+                ("logo", """{"Url":null,"Version":1}"""),
+                ("rollout_bucket", 50)
             ]
         );
 
@@ -130,7 +132,8 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("name", "Refunded Customer"),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Premium)),
-                ("logo", """{"Url":null,"Version":1}""")
+                ("logo", """{"Url":null,"Version":1}"""),
+                ("rollout_bucket", 50)
             ]
         );
 

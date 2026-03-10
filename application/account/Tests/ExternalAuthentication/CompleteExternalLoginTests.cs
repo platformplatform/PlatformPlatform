@@ -217,7 +217,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -258,7 +259,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -300,7 +302,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -408,7 +411,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("name", Faker.Company.CompanyName()),
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("plan", nameof(SubscriptionPlan.Basis))
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -451,7 +455,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
-                ("external_identities", identities)
+                ("external_identities", identities),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -468,7 +473,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("role", nameof(UserRole.Owner)),
                 ("locale", "en-US"),
-                ("external_identities", identities)
+                ("external_identities", identities),
+                ("rollout_bucket", 42)
             ]
         );
 
@@ -589,7 +595,8 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
                 ("name", Faker.Company.CompanyName()),
                 ("state", nameof(TenantState.Active)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("plan", nameof(SubscriptionPlan.Basis))
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("rollout_bucket", 42)
             ]
         );
 

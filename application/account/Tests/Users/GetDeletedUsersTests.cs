@@ -33,7 +33,8 @@ public sealed class GetDeletedUsersTests : EndpointBaseTest<AccountDbContext>
                 ("email_confirmed", true),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
-                ("external_identities", "[]")
+                ("external_identities", "[]"),
+                ("rollout_bucket", 42)
             ]
         );
 

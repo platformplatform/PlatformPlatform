@@ -190,7 +190,8 @@ public sealed class GetDashboardTrendsTests : BackOfficeEndpointBaseTest
                 ("name", name),
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Basis)),
-                ("logo", """{"Url":null,"Version":0}""")
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("rollout_bucket", 50)
             ]
         );
         return tenantId;
@@ -211,7 +212,8 @@ public sealed class GetDashboardTrendsTests : BackOfficeEndpointBaseTest
                 ("title", null),
                 ("role", nameof(UserRole.Owner)),
                 ("locale", "en-US"),
-                ("avatar", JsonSerializer.Serialize(new Avatar()))
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("rollout_bucket", 50)
             ]
         );
     }
