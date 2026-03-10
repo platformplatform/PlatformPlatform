@@ -40,6 +40,7 @@ Only the Guardian commits, stages, and completes [tasks]. Notify the Guardian if
    - Read the ENTIRE file
    - Review line-by-line against rules and codebase patterns
    - Record verdict: "Approved" or "Issues found: [description]"
+   - If approved, stage it immediately (see File-by-File Staging below)
    - Do not proceed to next file until verdict is recorded
 7. **Send findings immediately** so the engineer can fix while you continue. Interrupt the engineer if they are actively working:
    ```
@@ -57,17 +58,17 @@ Only the Guardian commits, stages, and completes [tasks]. Notify the Guardian if
     - Cite the test file:line that proves it works
     - If either is missing, reject
 11. **Compare your plan to the actual implementation**. If your approach is objectively better (backed by rules, patterns, or industry practice), reject
-12. **Stage approved files one by one**: send a separate "Stage [file path]" message to the Guardian for EACH file. Do not batch
-13. **Final handoff**:
-    - Check that all files have been staged by the Guardian. If some files have not been staged, double check that they are approved
-    - Notify the Guardian that all files are approved and ready for final validation and commit
+12. **Verify staging is complete**: Confirm all approved files have been staged by the Guardian. If any are missing, check whether they changed since your review before re-sending the staging request
+13. **Final handoff**: Send a message to the Guardian: "All files for [task ID] are approved and staged. Ready for final validation and commit"
 
 ## File-by-File Staging
 
-When you approve a file, notify the Guardian to stage it: "Stage [file path]". Do not wait for confirmation.
-- Staged = reviewer-approved
-- Unstaged = not yet approved or needs re-review
-- If the engineer changes an already-staged file, it shows both staged and unstaged changes. After re-review, notify the Guardian to re-stage
+Staging is the reviewer's signature on each file. The Guardian uses staged vs. unstaged status to know exactly which files have been reviewed and approved. Batching defeats this signal and can cause unreviewed files to be committed.
+
+**How it works:** During Phase 2, immediately after recording an "Approved" verdict, send "Stage [absolute file path]" to the Guardian. One message per file. Do not batch. Do not wait for confirmation between files. Do not combine staging requests with the final "ready to commit" message.
+
+- Staged = reviewer-approved, unstaged = not yet approved or needs re-review
+- If the engineer changes an already-staged file, re-review and notify the Guardian to re-stage
 
 ## What You Validate
 
@@ -87,6 +88,7 @@ Never accept these excuses. If you catch yourself thinking any of these, reject:
 - "The engineer says the fix is trivial": verify it yourself
 - "Infrastructure/MCP issue": reject, report problem
 - "Previous review verified it": reject, verify yourself
+- "I'll batch the staging to save messages": reject, file-by-file staging is non-negotiable
 
 ## Review Standards
 
@@ -108,7 +110,7 @@ Ad-hoc work without a [task] ID skips status updates.
 
 ## Signaling Completion
 
-Notify the **Guardian** that all files are approved and ready to commit. Include:
+Notify the **Guardian** that all files are approved and ready for final validation and commit. Include:
 - List of approved files (confirm all are staged)
 - Per-file review verdicts
 - Requirements verification summary
@@ -125,6 +127,7 @@ If the [task] is not in [Active] when you start, stop and escalate. If blocked a
 
 - SendMessage is the only way teammates see you. Your text output is invisible to them
 - Never send more than one message to the same agent without getting a response. Batch all findings into a single message
+- **Guardian exception**: You may send multiple "Stage [file path]" messages to the Guardian without waiting for responses between them. The Guardian processes staging requests as a queue
 - Always include file path, line number, and the violated rule or pattern
 - When the engineer pushes back with evidence, evaluate objectively
 - Escalate unresolvable disagreements to the team lead

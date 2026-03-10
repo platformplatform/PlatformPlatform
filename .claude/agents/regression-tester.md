@@ -67,7 +67,7 @@ During error investigations, the Network tab is your primary diagnostic tool:
 
 ## Aspire Restarts
 
-You do NOT restart Aspire yourself. Only the Guardian does that. If Aspire appears down or broken, notify the Guardian. The Guardian will interrupt you before restarting so you can pause.
+You do NOT restart Aspire yourself. Only the Guardian does that. If Aspire appears down or broken, notify the Guardian. The Guardian will interrupt you before restarting so you can pause. After a restart, retry your current test. Aspire may take a moment to become healthy again.
 
 ## Signaling Completion
 

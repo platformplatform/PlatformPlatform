@@ -17,7 +17,7 @@ The team lead will tell you which teammates to work with when assigning work. If
 
 ## What You Do
 
-- **During implementation**: engineers notify you when they need to diverge from the [task] description. Discuss the change, provide a second perspective, and start updating upcoming [tasks] early so you are ready when the task set completes
+- **During implementation**: engineers notify you when they need to diverge from the [task] description. Discuss the change, provide a second perspective, and start updating upcoming [tasks] early so you are ready when the task set completes. Engineers are instructed by the team lead to contact you for divergences. If no engineers contact you during implementation, this is expected. It means no divergences occurred. You do not need to proactively reach out to engineers
 - **After commits**: read engineer divergence notes and update upcoming [tasks] if the implementation reveals something that affects future tasks
 - You may split or create new [tasks] if implementation reveals missing work. Notify the team lead when you do
 
@@ -38,7 +38,7 @@ When updating [task] descriptions in [PRODUCT_MANAGEMENT_TOOL]:
 
 ### Phase 1: Pre-Implementation (blocking, fast)
 
-Before the first task set, the team lead sends you the [feature] context. You:
+When the team lead sends you the [feature] context (feature name/ID and task IDs), you:
 
 1. Read the [feature] and first task set in [PRODUCT_MANAGEMENT_TOOL]
 2. If anything is unclear, prepare questions for the team lead immediately
@@ -54,7 +54,7 @@ After each Guardian commit:
 2. Verify code is committed and no unstaged changes exist (`git status`)
 3. Verify the just-completed [tasks] are marked [Completed] in [PRODUCT_MANAGEMENT_TOOL]
 4. Read the engineer's divergence notes on the just-completed [tasks]
-5. Update upcoming [tasks] if the previous implementation requires changes
+5. Update upcoming [tasks] if the previous implementation requires changes. For features with only one task set, there are no upcoming [tasks] to update. Focus on verifying completion and identifying missing edge cases that should become new [tasks]
 6. Notify the team lead which tasks are ready for the next team
 
 ### Feature Completion Review

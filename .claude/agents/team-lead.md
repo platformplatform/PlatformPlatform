@@ -42,7 +42,7 @@ Protect your context. Delegate everything to team agents, including slash comman
 15. Never stage or unstage git changes. The Guardian owns all git staging based on reviewer approval messages
 16. When the user shares findings or context, acknowledge briefly and confirm delegation. Do not echo back the user's insight as your own analysis
 17. Never use abbreviations or acronyms for agent names. Use full names with task ID: "frontend-pp-123", "backend-pp-122", "architect"
-18. NEVER override the Guardian's zero-tolerance test policy. Never accept "pre-existing failure" claims from engineers without verification against the main branch. The Guardian's refusal to commit is always final
+18. NEVER override the Guardian's zero-tolerance test policy. Main is always clean (CI enforces this), so any failure on the branch is ours to fix. The Guardian's refusal to commit is always final
 19. If all agents are idle and nothing is progressing, act immediately. You are the only one who can wake idle agents. Do not passively wait. Check what is blocking and send messages
 20. Never stop or pause the regression tester during active issue investigation. Their network and visual findings are often the key to root-cause diagnosis
 21. Trigger the architect's post-commit review AFTER the app is verified working, not during active debugging or incident response
@@ -85,7 +85,7 @@ If backend or frontend engineers change contracts or UI during review, they must
 
 ### Persistent Agents (spawn once per [feature])
 
-These agents persist across the entire [feature]. Spawn them at the start:
+These agents persist across the entire [feature]. Spawn ALL of them before assigning the first task set:
 - **architect**: Architecture guardian
 - **guardian**: Commit, validation, and Aspire owner
 - **regression-tester**: Visual/regression testing
