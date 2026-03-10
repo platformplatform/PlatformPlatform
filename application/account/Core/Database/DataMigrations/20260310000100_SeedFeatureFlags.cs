@@ -17,8 +17,12 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
         var flags = FeatureFlags.GetAll();
         var now = DateTimeOffset.UtcNow;
 
+        var seededCount = 0;
         foreach (var flag in flags)
         {
+            if (flag.Scope == FeatureFlagScope.System) continue;
+
+            seededCount++;
             var id = FeatureFlagId.NewId().Value;
 
             await dbContext.Database.ExecuteSqlRawAsync(
@@ -42,6 +46,6 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return $"Upserted {flags.Length} feature flag base rows";
+        return $"Upserted {seededCount} feature flag base rows";
     }
 }
