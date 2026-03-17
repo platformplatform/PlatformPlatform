@@ -1,3 +1,4 @@
+using System.Data;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -26,7 +27,7 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
         await using var connection = serviceProvider.GetService(typeof(NpgsqlDataSource)) is NpgsqlDataSource npgsqlDataSource
             ? await npgsqlDataSource.OpenConnectionAsync(cancellationToken)
             : (NpgsqlConnection)dbContext.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open) await connection.OpenAsync(cancellationToken);
+        if (connection.State != ConnectionState.Open) await connection.OpenAsync(cancellationToken);
 
         await using var lockCommand = connection.CreateCommand();
         lockCommand.CommandText = "SELECT pg_advisory_lock(@key)";

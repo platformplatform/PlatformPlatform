@@ -23,32 +23,32 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
         var newTenantId = TenantId.NewId();
         var userId = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", newTenantId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", newTenantId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", newTenantId.ToString()),
-                ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", ""),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", newTenantId.ToString()),
+                ("id", userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", ""),
+                ("external_identities", "[]")
             ]
         );
 
@@ -60,8 +60,8 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        Connection.RowExists("users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
@@ -96,61 +96,61 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
         var userId2 = UserId.NewId();
         var userId3 = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant3Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant3Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.ToString()),
-                ("Id", userId2.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", ""),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.ToString()),
+                ("id", userId2.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", ""),
+                ("external_identities", "[]")
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant3Id.ToString()),
-                ("Id", userId3.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", ""),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant3Id.ToString()),
+                ("id", userId3.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-5)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", ""),
+                ("external_identities", "[]")
             ]
         );
 
@@ -162,10 +162,10 @@ public sealed class DeclineInvitationTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId2.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId2.ToString() }]);
+        Connection.RowExists("users", userId2.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId2.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
-        Connection.RowExists("Users", userId3.ToString()).Should().BeTrue();
+        Connection.RowExists("users", userId3.ToString()).Should().BeTrue();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("UserInviteDeclined");

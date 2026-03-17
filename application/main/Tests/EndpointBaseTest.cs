@@ -52,18 +52,18 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Connection = new SqliteConnection($"Data Source=TestDb_{Guid.NewGuid():N};Mode=Memory;Cache=Shared");
         Connection.Open();
 
-        // Configure SQLite to behave more like SQL Server
+        // Configure SQLite to behave more like PostgreSQL
         using (var command = Connection.CreateCommand())
         {
-            // Enable foreign key constraints (SQL Server has this by default)
+            // Enable foreign key constraints (PostgreSQL has this by default)
             command.CommandText = "PRAGMA foreign_keys = ON;";
             command.ExecuteNonQuery();
 
-            // Enable recursive triggers (SQL Server supports nested triggers)
+            // Enable recursive triggers (PostgreSQL supports nested triggers)
             command.CommandText = "PRAGMA recursive_triggers = ON;";
             command.ExecuteNonQuery();
 
-            // Enforce CHECK constraints (SQL Server enforces these by default)
+            // Enforce CHECK constraints (PostgreSQL enforces these by default)
             command.CommandText = "PRAGMA ignore_check_constraints = OFF;";
             command.ExecuteNonQuery();
 
@@ -72,7 +72,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
             command.ExecuteNonQuery();
         }
 
-        Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+        Services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
 
         Services.AddMainServices();
 
@@ -106,7 +106,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
                     {
                         // Replace the default DbContext in the WebApplication to use an in-memory SQLite database
                         services.Remove(services.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<TContext>)));
-                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection); });
+                        services.AddDbContext<TContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
 
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         services.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);

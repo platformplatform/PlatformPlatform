@@ -16,11 +16,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenPremiumToStandard_ShouldSucceed()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Premium)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Standard);
@@ -39,11 +39,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenPlanNotLower_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Premium);
@@ -62,11 +62,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenTargetIsBasis_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Basis);
@@ -85,11 +85,11 @@ public sealed class ScheduleDowngradeTests : EndpointBaseTest<AccountDbContext>
     public async Task ScheduleDowngrade_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Premium)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ScheduleDowngradeCommand(SubscriptionPlan.Standard);

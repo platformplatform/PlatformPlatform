@@ -62,30 +62,20 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
             : await OpenFallbackConnectionAsync(cancellationToken);
 
         await using var command = connection.CreateCommand();
-        command.CommandText = accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite"
-            ? """
-              UPDATE Sessions
-              SET PreviousRefreshTokenJti = RefreshTokenJti,
-                  RefreshTokenJti = @newJti,
-                  RefreshTokenVersion = RefreshTokenVersion + 1,
-                  ModifiedAt = @now
-              WHERE Id = @sessionId
-                AND RefreshTokenJti = @currentJti
-                AND RefreshTokenVersion = @currentVersion
-              """
-            : """
-              UPDATE sessions
-              SET previous_refresh_token_jti = refresh_token_jti,
-                  refresh_token_jti = @newJti,
-                  refresh_token_version = refresh_token_version + 1,
-                  modified_at = @now
-              WHERE id = @sessionId
-                AND refresh_token_jti = @currentJti
-                AND refresh_token_version = @currentVersion
-              """;
+        command.CommandText = """
+                              UPDATE sessions
+                              SET previous_refresh_token_jti = refresh_token_jti,
+                                  refresh_token_jti = @newJti,
+                                  refresh_token_version = refresh_token_version + 1,
+                                  modified_at = @now
+                              WHERE id = @sessionId
+                                AND refresh_token_jti = @currentJti
+                                AND refresh_token_version = @currentVersion
+                              """;
 
+        var isSqlite = accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite";
         AddParameter(command, "@newJti", newJti.Value);
-        AddParameter(command, "@now", accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite" ? now.ToString("O") : now);
+        AddParameter(command, "@now", isSqlite ? now.ToString("O") : now);
         AddParameter(command, "@sessionId", sessionId.Value);
         AddParameter(command, "@currentJti", currentJti.Value);
         AddParameter(command, "@currentVersion", currentVersion);

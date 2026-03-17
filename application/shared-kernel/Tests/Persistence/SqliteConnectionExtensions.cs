@@ -31,13 +31,13 @@ public static class SqliteConnectionExtensions
         public bool RowExists(string tableName, string id)
         {
             object[] parameters = [new { id }];
-            return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", parameters) == 1;
+            return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE id = @id", parameters) == 1;
         }
 
         public bool RowExists(string tableName, long id)
         {
             object[] parameters = [new { id }];
-            return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE Id = @id", parameters) == 1;
+            return connection.ExecuteScalar<long>($"SELECT COUNT(*) FROM {tableName} WHERE id = @id", parameters) == 1;
         }
 
         public void Insert(string tableName, (string, object?)[] columns)
@@ -123,7 +123,7 @@ public static class SqliteConnectionExtensions
 
         public void Delete(string tableName, string id)
         {
-            using var command = new SqliteCommand($"DELETE FROM {tableName} WHERE Id = @id", connection);
+            using var command = new SqliteCommand($"DELETE FROM {tableName} WHERE id = @id", connection);
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
         }

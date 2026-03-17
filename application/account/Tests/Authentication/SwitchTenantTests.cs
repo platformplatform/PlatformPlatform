@@ -24,33 +24,33 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         var tenant2Name = Faker.Company.CompanyName();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", tenant2Name),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", tenant2Name),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
         InsertSubscription(tenant2Id);
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -67,7 +67,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         response.Headers.Count(h => h.Key == "x-access-token").Should().Be(1);
 
         var oldSessionRevokedReason = Connection.ExecuteScalar<string>(
-            "SELECT RevokedReason FROM Sessions WHERE Id = @Id",
+            "SELECT revoked_reason FROM sessions WHERE id = @Id",
             [new { Id = DatabaseSeeder.Tenant1MemberSession.Id.ToString() }]
         );
         oldSessionRevokedReason.Should().Be("SwitchTenant");
@@ -105,31 +105,31 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var tenant2Id = TenantId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Owner)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -166,33 +166,33 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         var tenant2Name = Faker.Company.CompanyName();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", tenant2Name),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", tenant2Name),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
         InsertSubscription(tenant2Id);
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false), // User's email is not confirmed
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false), // User's email is not confirmed
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -208,7 +208,7 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
 
         // Verify that the user's email is now confirmed
         var emailConfirmed = Connection.ExecuteScalar<long>(
-            "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
+            "SELECT email_confirmed FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
         emailConfirmed.Should().Be(1); // SQLite stores boolean as 0/1
@@ -229,42 +229,42 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         var currentLocale = "da-DK";
 
         // Update current user with profile data
-        Connection.Update("Users", "Id", DatabaseSeeder.Tenant1Member.Id.ToString(), [
-                ("FirstName", currentFirstName),
-                ("LastName", currentLastName),
-                ("Title", currentTitle),
-                ("Locale", currentLocale)
+        Connection.Update("users", "id", DatabaseSeeder.Tenant1Member.Id.ToString(), [
+                ("first_name", currentFirstName),
+                ("last_name", currentLastName),
+                ("title", currentTitle),
+                ("locale", currentLocale)
             ]
         );
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", tenant2Name),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", tenant2Name),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
         InsertSubscription(tenant2Id);
 
         // New user has no profile data and unconfirmed email
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false), // Unconfirmed - invitation pending
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", "Manager"), // Has a title that will be overwritten
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false), // Unconfirmed - invitation pending
+                ("first_name", null),
+                ("last_name", null),
+                ("title", "Manager"), // Has a title that will be overwritten
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -280,23 +280,23 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
 
         // Verify profile data was copied
         var firstName = Connection.ExecuteScalar<string>(
-            "SELECT FirstName FROM Users WHERE Id = @Id",
+            "SELECT first_name FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
         var lastName = Connection.ExecuteScalar<string>(
-            "SELECT LastName FROM Users WHERE Id = @Id",
+            "SELECT last_name FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
         var title = Connection.ExecuteScalar<string>(
-            "SELECT Title FROM Users WHERE Id = @Id",
+            "SELECT title FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
         var locale = Connection.ExecuteScalar<string>(
-            "SELECT Locale FROM Users WHERE Id = @Id",
+            "SELECT locale FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
         var emailConfirmed = Connection.ExecuteScalar<long>(
-            "SELECT EmailConfirmed FROM Users WHERE Id = @Id",
+            "SELECT email_confirmed FROM users WHERE id = @Id",
             [new { Id = user2Id.ToString() }]
         );
 
@@ -316,33 +316,33 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
         var tenant2Id = TenantId.NewId();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
         InsertSubscription(tenant2Id);
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -365,25 +365,25 @@ public sealed class SwitchTenantTests : EndpointBaseTest<AccountDbContext>
 
     private void InsertSubscription(TenantId tenantId)
     {
-        Connection.Insert("Subscriptions", [
-                ("TenantId", tenantId.Value),
-                ("Id", SubscriptionId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPriceAmount", null),
-                ("CurrentPriceCurrency", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("CancellationReason", null),
-                ("CancellationFeedback", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null),
-                ("BillingInfo", null)
+        Connection.Insert("subscriptions", [
+                ("tenant_id", tenantId.Value),
+                ("id", SubscriptionId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("scheduled_plan", null),
+                ("stripe_customer_id", null),
+                ("stripe_subscription_id", null),
+                ("current_price_amount", null),
+                ("current_price_currency", null),
+                ("current_period_end", null),
+                ("cancel_at_period_end", false),
+                ("first_payment_failed_at", null),
+                ("cancellation_reason", null),
+                ("cancellation_feedback", null),
+                ("payment_transactions", "[]"),
+                ("payment_method", null),
+                ("billing_info", null)
             ]
         );
     }

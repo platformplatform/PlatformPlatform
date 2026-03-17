@@ -24,31 +24,31 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
         var tenant2Name = Faker.Company.CompanyName();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", tenant2Name),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", tenant2Name),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Owner)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -99,31 +99,31 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
         var otherTenantId = TenantId.NewId();
         var otherUserId = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", otherTenantId.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", "Other Tenant"),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", otherTenantId.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", "Other Tenant"),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", otherTenantId.Value),
-                ("Id", otherUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", email),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", otherTenantId.Value),
+                ("id", otherUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", email),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -145,31 +145,31 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
         var otherUserTenantId = TenantId.NewId();
         var otherUserId = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", otherUserTenantId.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", "Other User Tenant"),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", otherUserTenantId.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", "Other User Tenant"),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", otherUserTenantId.Value),
-                ("Id", otherUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", otherUserEmail),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", otherUserTenantId.Value),
+                ("id", otherUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", otherUserEmail),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -192,31 +192,31 @@ public sealed class GetTenantsForUserTests : EndpointBaseTest<AccountDbContext>
         var tenant2Name = Faker.Company.CompanyName();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", tenant2Name),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", tenant2Name),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Member.Email),
-                ("EmailConfirmed", false), // User has not confirmed email in this tenant
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Member.Email),
+                ("email_confirmed", false), // User has not confirmed email in this tenant
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 

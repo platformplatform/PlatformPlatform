@@ -41,7 +41,7 @@ public sealed class UpdateCurrentTenantTests : EndpointBaseTest<AccountDbContext
         // Assert
         var expectedErrors = new[]
         {
-            new ErrorDetail("Name", "Name must be between 1 and 30 characters.")
+            new ErrorDetail("name", "Name must be between 1 and 30 characters.")
         };
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, expectedErrors);
 

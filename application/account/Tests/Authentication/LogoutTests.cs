@@ -16,9 +16,9 @@ public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var sessionId = DatabaseSeeder.Tenant1OwnerSession.Id.ToString();
-        Connection.RowExists("Sessions", sessionId).Should().BeTrue();
+        Connection.RowExists("sessions", sessionId).Should().BeTrue();
         object[] parameters = [new { id = sessionId }];
-        Connection.ExecuteScalar<string?>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().BeNull();
+        Connection.ExecuteScalar<string?>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().BeNull();
         var command = new LogoutCommand();
 
         // Act
@@ -26,8 +26,8 @@ public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.ExecuteScalar<string?>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().NotBeNull();
-        Connection.ExecuteScalar<string?>("SELECT RevokedReason FROM Sessions WHERE Id = @id", parameters).Should().Be("LoggedOut");
+        Connection.ExecuteScalar<string?>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().NotBeNull();
+        Connection.ExecuteScalar<string?>("SELECT revoked_reason FROM sessions WHERE id = @id", parameters).Should().Be("LoggedOut");
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRevoked");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.reason"].Should().Be("LoggedOut");
@@ -40,9 +40,9 @@ public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var sessionId = DatabaseSeeder.Tenant1MemberSession.Id.ToString();
-        Connection.RowExists("Sessions", sessionId).Should().BeTrue();
+        Connection.RowExists("sessions", sessionId).Should().BeTrue();
         object[] parameters = [new { id = sessionId }];
-        Connection.ExecuteScalar<string?>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().BeNull();
+        Connection.ExecuteScalar<string?>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().BeNull();
         var command = new LogoutCommand();
 
         // Act
@@ -50,8 +50,8 @@ public sealed class LogoutTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.ExecuteScalar<string?>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().NotBeNull();
-        Connection.ExecuteScalar<string?>("SELECT RevokedReason FROM Sessions WHERE Id = @id", parameters).Should().Be("LoggedOut");
+        Connection.ExecuteScalar<string?>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().NotBeNull();
+        Connection.ExecuteScalar<string?>("SELECT revoked_reason FROM sessions WHERE id = @id", parameters).Should().Be("LoggedOut");
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRevoked");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.reason"].Should().Be("LoggedOut");

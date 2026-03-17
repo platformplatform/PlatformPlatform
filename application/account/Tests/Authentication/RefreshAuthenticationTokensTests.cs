@@ -39,7 +39,7 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var updatedVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
+        var updatedVersion = Connection.ExecuteScalar<long>("SELECT refresh_token_version FROM sessions WHERE id = @id", [new { id = sessionId.ToString() }]);
         updatedVersion.Should().Be(2);
     }
 
@@ -62,7 +62,7 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var sessionVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
+        var sessionVersion = Connection.ExecuteScalar<long>("SELECT refresh_token_version FROM sessions WHERE id = @id", [new { id = sessionId.ToString() }]);
         sessionVersion.Should().Be(2);
     }
 
@@ -88,8 +88,8 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
         response.Headers.GetValues("x-unauthorized-reason").Single().Should().Be("ReplayAttackDetected");
 
         object[] parameters = [new { id = sessionId.ToString() }];
-        Connection.ExecuteScalar<string>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().NotBeNull();
-        Connection.ExecuteScalar<string>("SELECT RevokedReason FROM Sessions WHERE Id = @id", parameters).Should().Be("ReplayAttackDetected");
+        Connection.ExecuteScalar<string>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().NotBeNull();
+        Connection.ExecuteScalar<string>("SELECT revoked_reason FROM sessions WHERE id = @id", parameters).Should().Be("ReplayAttackDetected");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionReplayDetected");
@@ -158,7 +158,7 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
         response1.StatusCode.Should().Be(HttpStatusCode.OK);
         response2.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var sessionVersion = Connection.ExecuteScalar<long>("SELECT RefreshTokenVersion FROM Sessions WHERE Id = @id", [new { id = sessionId.ToString() }]);
+        var sessionVersion = Connection.ExecuteScalar<long>("SELECT refresh_token_version FROM sessions WHERE id = @id", [new { id = sessionId.ToString() }]);
         sessionVersion.Should().Be(2);
     }
 
@@ -181,21 +181,21 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
     {
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Sessions", [
-                ("TenantId", tenantId),
-                ("Id", sessionId.ToString()),
-                ("UserId", userId),
-                ("CreatedAt", now),
-                ("ModifiedAt", null),
-                ("RefreshTokenJti", jti.ToString()),
-                ("PreviousRefreshTokenJti", null),
-                ("RefreshTokenVersion", version),
-                ("LoginMethod", nameof(LoginMethod.OneTimePassword)),
-                ("DeviceType", nameof(DeviceType.Desktop)),
-                ("UserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
-                ("IpAddress", "127.0.0.1"),
-                ("RevokedAt", isRevoked ? now : null),
-                ("RevokedReason", null)
+        Connection.Insert("sessions", [
+                ("tenant_id", tenantId),
+                ("id", sessionId.ToString()),
+                ("user_id", userId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("refresh_token_jti", jti.ToString()),
+                ("previous_refresh_token_jti", null),
+                ("refresh_token_version", version),
+                ("login_method", nameof(LoginMethod.OneTimePassword)),
+                ("device_type", nameof(DeviceType.Desktop)),
+                ("user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
+                ("ip_address", "127.0.0.1"),
+                ("revoked_at", isRevoked ? now : null),
+                ("revoked_reason", null)
             ]
         );
     }
@@ -204,21 +204,21 @@ public sealed class RefreshAuthenticationTokensTests : EndpointBaseTest<AccountD
     {
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Sessions", [
-                ("TenantId", tenantId),
-                ("Id", sessionId.ToString()),
-                ("UserId", userId),
-                ("CreatedAt", now),
-                ("ModifiedAt", modifiedAt),
-                ("RefreshTokenJti", currentJti.ToString()),
-                ("PreviousRefreshTokenJti", previousJti?.ToString()),
-                ("RefreshTokenVersion", currentVersion),
-                ("LoginMethod", nameof(LoginMethod.OneTimePassword)),
-                ("DeviceType", nameof(DeviceType.Desktop)),
-                ("UserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
-                ("IpAddress", "127.0.0.1"),
-                ("RevokedAt", null),
-                ("RevokedReason", null)
+        Connection.Insert("sessions", [
+                ("tenant_id", tenantId),
+                ("id", sessionId.ToString()),
+                ("user_id", userId),
+                ("created_at", now),
+                ("modified_at", modifiedAt),
+                ("refresh_token_jti", currentJti.ToString()),
+                ("previous_refresh_token_jti", previousJti?.ToString()),
+                ("refresh_token_version", currentVersion),
+                ("login_method", nameof(LoginMethod.OneTimePassword)),
+                ("device_type", nameof(DeviceType.Desktop)),
+                ("user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
+                ("ip_address", "127.0.0.1"),
+                ("revoked_at", null),
+                ("revoked_reason", null)
             ]
         );
     }

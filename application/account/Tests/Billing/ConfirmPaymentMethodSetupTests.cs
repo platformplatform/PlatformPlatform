@@ -16,11 +16,11 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
     public async Task ConfirmPaymentMethodSetup_WhenValid_ShouldSucceed()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");
@@ -66,8 +66,8 @@ public sealed class ConfirmPaymentMethodSetupTests : EndpointBaseTest<AccountDbC
     public async Task ConfirmPaymentMethodSetup_WhenNoStripeSubscription_ShouldSetCustomerDefault()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123")
             ]
         );
         var command = new ConfirmPaymentMethodSetupCommand("seti_mock_12345");

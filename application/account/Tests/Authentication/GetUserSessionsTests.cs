@@ -129,14 +129,14 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
         var tenantId = TenantId.NewId().Value;
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenantId),
-                ("CreatedAt", now),
-                ("ModifiedAt", null),
-                ("Name", name),
-                ("State", "Active"),
-                ("Logo", """{"Url":null,"Version":0}"""),
-                ("Plan", nameof(SubscriptionPlan.Basis))
+        Connection.Insert("tenants", [
+                ("id", tenantId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("name", name),
+                ("state", "Active"),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
@@ -147,20 +147,20 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
     {
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Users", [
-                ("TenantId", tenantId),
-                ("Id", userId.ToString()),
-                ("CreatedAt", now),
-                ("ModifiedAt", null),
-                ("Email", email),
-                ("EmailConfirmed", true),
-                ("FirstName", "Test"),
-                ("LastName", "User"),
-                ("Title", null),
-                ("Avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
-                ("Role", "Owner"),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenantId),
+                ("id", userId.ToString()),
+                ("created_at", now),
+                ("modified_at", null),
+                ("email", email),
+                ("email_confirmed", true),
+                ("first_name", "Test"),
+                ("last_name", "User"),
+                ("title", null),
+                ("avatar", """{"Url":null,"Version":0,"IsGravatar":false}"""),
+                ("role", "Owner"),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
     }
@@ -171,21 +171,21 @@ public sealed class GetUserSessionsTests : EndpointBaseTest<AccountDbContext>
         var jti = RefreshTokenJti.NewId().ToString();
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Sessions", [
-                ("TenantId", tenantId),
-                ("Id", sessionId),
-                ("UserId", userId),
-                ("CreatedAt", now),
-                ("ModifiedAt", null),
-                ("RefreshTokenJti", jti),
-                ("PreviousRefreshTokenJti", null),
-                ("RefreshTokenVersion", 1),
-                ("LoginMethod", nameof(LoginMethod.OneTimePassword)),
-                ("DeviceType", nameof(DeviceType.Desktop)),
-                ("UserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
-                ("IpAddress", "127.0.0.1"),
-                ("RevokedAt", isRevoked ? now : null),
-                ("RevokedReason", null)
+        Connection.Insert("sessions", [
+                ("tenant_id", tenantId),
+                ("id", sessionId),
+                ("user_id", userId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("refresh_token_jti", jti),
+                ("previous_refresh_token_jti", null),
+                ("refresh_token_version", 1),
+                ("login_method", nameof(LoginMethod.OneTimePassword)),
+                ("device_type", nameof(DeviceType.Desktop)),
+                ("user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
+                ("ip_address", "127.0.0.1"),
+                ("revoked_at", isRevoked ? now : null),
+                ("revoked_reason", null)
             ]
         );
 

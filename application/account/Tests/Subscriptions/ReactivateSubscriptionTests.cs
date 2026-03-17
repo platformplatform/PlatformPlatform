@@ -16,12 +16,12 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
     public async Task ReactivateSubscription_WhenCancelled_ShouldSucceed()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", true)
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
+                ("cancel_at_period_end", true)
             ]
         );
         var command = new ReactivateSubscriptionCommand();
@@ -42,11 +42,11 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
     public async Task ReactivateSubscription_WhenNotCancelled_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new ReactivateSubscriptionCommand();
@@ -65,12 +65,12 @@ public sealed class ReactivateSubscriptionTests : EndpointBaseTest<AccountDbCont
     public async Task ReactivateSubscription_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("CancelAtPeriodEnd", true)
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
+                ("cancel_at_period_end", true)
             ]
         );
         var command = new ReactivateSubscriptionCommand();

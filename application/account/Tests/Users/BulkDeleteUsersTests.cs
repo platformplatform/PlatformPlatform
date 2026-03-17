@@ -24,21 +24,21 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         {
             var userId = UserId.NewId();
             userIds.Add(userId);
-            Connection.Insert("Users", [
-                    ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                    ("Id", userId.ToString()),
-                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                    ("ModifiedAt", null),
-                    ("DeletedAt", null),
-                    ("Email", Faker.Internet.UniqueEmail()),
-                    ("FirstName", Faker.Person.FirstName),
-                    ("LastName", Faker.Person.LastName),
-                    ("Title", "Test User"),
-                    ("Role", nameof(UserRole.Member)),
-                    ("EmailConfirmed", true),
-                    ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                    ("Locale", "en-US"),
-                    ("ExternalIdentities", "[]")
+            Connection.Insert("users", [
+                    ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                    ("id", userId.ToString()),
+                    ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                    ("modified_at", null),
+                    ("deleted_at", null),
+                    ("email", Faker.Internet.UniqueEmail()),
+                    ("first_name", Faker.Person.FirstName),
+                    ("last_name", Faker.Person.LastName),
+                    ("title", "Test User"),
+                    ("role", nameof(UserRole.Member)),
+                    ("email_confirmed", true),
+                    ("avatar", JsonSerializer.Serialize(new Avatar())),
+                    ("locale", "en-US"),
+                    ("external_identities", "[]")
                 ]
             );
         }
@@ -52,8 +52,8 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         foreach (var userId in userIds)
         {
-            Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
-            var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+            Connection.RowExists("users", userId.ToString()).Should().BeTrue();
+            var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
             deletedAt.Should().NotBeNullOrEmpty();
         }
 
@@ -135,39 +135,39 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         var confirmedUserId = UserId.NewId();
         var unconfirmedUserId = UserId.NewId();
 
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", confirmedUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Confirmed User"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", confirmedUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Confirmed User"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", unconfirmedUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", false),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", unconfirmedUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", false),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -179,12 +179,12 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
-        Connection.RowExists("Users", confirmedUserId.ToString()).Should().BeTrue();
-        var confirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = confirmedUserId.ToString() }]);
+        Connection.RowExists("users", confirmedUserId.ToString()).Should().BeTrue();
+        var confirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = confirmedUserId.ToString() }]);
         confirmedDeletedAt.Should().NotBeNullOrEmpty();
 
-        Connection.RowExists("Users", unconfirmedUserId.ToString()).Should().BeTrue();
-        var unconfirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = unconfirmedUserId.ToString() }]);
+        Connection.RowExists("users", unconfirmedUserId.ToString()).Should().BeTrue();
+        var unconfirmedDeletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = unconfirmedUserId.ToString() }]);
         unconfirmedDeletedAt.Should().NotBeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(3);

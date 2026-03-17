@@ -35,6 +35,6 @@ public sealed class SqliteInMemoryDbContextFactory<T> : IDisposable where T : Db
 
     private DbContextOptions<T> CreateOptions()
     {
-        return new DbContextOptionsBuilder<T>().UseSqlite(_sqliteConnection).Options;
+        return new DbContextOptionsBuilder<T>().UseSqlite(_sqliteConnection).UseSnakeCaseNamingConvention().Options;
     }
 }
