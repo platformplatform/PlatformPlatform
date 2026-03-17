@@ -45,14 +45,6 @@ resource existingLogAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces
   name: resourceNamePrefix
 }
 
-var subnetId = resourceId(
-  subscription().subscriptionId,
-  clusterResourceGroupName,
-  'Microsoft.Network/virtualNetworks/subnets',
-  clusterResourceGroupName,
-  'subnet'
-)
-
 var diagnosticStorageAccountName = '${storageAccountUniquePrefix}diagnostic'
 module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   scope: clusterResourceGroup
@@ -83,11 +75,10 @@ module containerAppsEnvironment '../modules/container-apps-environment.bicep' = 
     location: location
     name: clusterResourceGroupName
     tags: tags
-    subnetId: subnetId
+    subnetId: virtualNetwork.outputs.subnetId
     globalResourceGroupName: globalResourceGroupName
     logAnalyticsWorkspaceName: resourceNamePrefix
   }
-  dependsOn: [virtualNetwork]
 }
 
 module keyVault '../modules/key-vault.bicep' = {
@@ -98,11 +89,10 @@ module keyVault '../modules/key-vault.bicep' = {
     name: clusterResourceGroupName
     tags: tags
     tenantId: subscription().tenantId
-    subnetId: subnetId
+    subnetId: virtualNetwork.outputs.subnetId
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
     workspaceId: existingLogAnalyticsWorkspace.id
   }
-  dependsOn: [virtualNetwork]
 }
 
 module googleOAuthSecrets '../modules/key-vault-secrets.bicep' = if (!empty(googleOAuthClientId) && !empty(googleOAuthClientSecret)) {
@@ -150,7 +140,7 @@ module postgresServer '../modules/postgresql-flexible-server.bicep' = {
     name: clusterResourceGroupName
     tags: tags
     tenantId: subscription().tenantId
-    subnetId: subnetId
+    subnetId: virtualNetwork.outputs.subnetId
     virtualNetworkId: virtualNetwork.outputs.virtualNetworkId
     isProduction: environment == 'prod'
   }
@@ -183,10 +173,9 @@ module accountDatabase '../modules/postgresql-flexible-database.bicep' = {
   name: '${clusterResourceGroupName}-account-postgres-database'
   scope: clusterResourceGroup
   params: {
-    serverName: clusterResourceGroupName
+    serverName: postgresServer.outputs.serverName
     databaseName: 'account'
   }
-  dependsOn: [postgresServer]
 }
 
 var accountStorageAccountName = '${storageAccountUniquePrefix}account'
@@ -198,7 +187,7 @@ module accountStorageAccount '../modules/storage-account.bicep' = {
     name: accountStorageAccountName
     tags: tags
     sku: 'Standard_GRS'
-    userAssignedIdentityName: accountIdentityName
+    userAssignedIdentityName: accountIdentity.outputs.name
     containers: [
       {
         name: 'avatars'
@@ -210,7 +199,6 @@ module accountStorageAccount '../modules/storage-account.bicep' = {
       }
     ]
   }
-  dependsOn: [accountIdentity]
 }
 
 var accountEnvironmentVariables = [
@@ -327,10 +315,9 @@ module backOfficeDatabase '../modules/postgresql-flexible-database.bicep' = {
   name: '${clusterResourceGroupName}-back-office-postgres-database'
   scope: clusterResourceGroup
   params: {
-    serverName: clusterResourceGroupName
+    serverName: postgresServer.outputs.serverName
     databaseName: 'back-office'
   }
-  dependsOn: [postgresServer]
 }
 
 var backOfficeStorageAccountName = '${storageAccountUniquePrefix}backoffice'
@@ -342,9 +329,8 @@ module backOfficeStorageAccount '../modules/storage-account.bicep' = {
     name: backOfficeStorageAccountName
     tags: tags
     sku: 'Standard_GRS'
-    userAssignedIdentityName: backOfficeIdentityName
+    userAssignedIdentityName: backOfficeIdentity.outputs.name
   }
-  dependsOn: [backOfficeIdentity]
 }
 
 var backOfficeEnvironmentVariables = [
@@ -453,10 +439,9 @@ module mainDatabase '../modules/postgresql-flexible-database.bicep' = {
   name: '${clusterResourceGroupName}-main-postgres-database'
   scope: clusterResourceGroup
   params: {
-    serverName: clusterResourceGroupName
+    serverName: postgresServer.outputs.serverName
     databaseName: 'main'
   }
-  dependsOn: [postgresServer]
 }
 
 var mainStorageAccountName = '${storageAccountUniquePrefix}main'
@@ -468,9 +453,8 @@ module mainStorageAccount '../modules/storage-account.bicep' = {
     name: mainStorageAccountName
     tags: tags
     sku: 'Standard_GRS'
-    userAssignedIdentityName: mainIdentityName
+    userAssignedIdentityName: mainIdentity.outputs.name
   }
-  dependsOn: [mainIdentity]
 }
 
 var mainEnvironmentVariables = [
@@ -644,10 +628,9 @@ module appGatewayAccountStorageBlobDataReaderRoleAssignment '../modules/role-ass
   scope: clusterResourceGroup
   name: '${clusterResourceGroupName}-app-gateway-account-blob-reader'
   params: {
-    storageAccountName: accountStorageAccountName
-    userAssignedIdentityName: appGatewayIdentityName
+    storageAccountName: accountStorageAccount.outputs.name
+    userAssignedIdentityName: appGatewayIdentity.outputs.name
   }
-  dependsOn: [appGateway, accountStorageAccount]
 }
 
 output accountIdentityClientId string = accountIdentity.outputs.clientId
