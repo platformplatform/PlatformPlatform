@@ -31,7 +31,7 @@ Built to demonstrate seamless flow: backend contracts feed a fully-typed React U
 * **Backend** - .NET 10 and C# 14 adhering to the principles of vertical slice architecture, DDD, CQRS, and clean code
 * **Frontend** - React 19, TypeScript, TanStack Router & Query, ShadCN 2.0 with Base UI for accessible UI
 * **CI/CD** - GitHub actions for fast passwordless deployments of docker containers and infrastructure (Bicep)
-* **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure SQL, etc.
+* **Infrastructure** - Cost efficient and scalable Azure PaaS services like Azure Container Apps, Azure PostgreSQL, etc.
 * **Developer CLI** - Extendable .NET CLI for DevEx - set up CI/CD is one command and a couple of questions
 * **AI rules** - 30+ rules & workflows for Claude Code - sync to other editors can be enabled via `.gitignore`
 * **Multi-agent workflow** (Experimental) - Specialized autonomous AI agents expert in PlatformPlatform's architecture
@@ -178,7 +178,7 @@ Restart your terminal to make the `pp` command available.
 
 ## 3. Run the Aspire AppHost to spin up everything on localhost
 
-Using Aspire, docker images with SQL Server, Blob Storage emulator, and development mail server will be downloaded and started. No need to install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
+Using Aspire, docker images with PostgreSQL, Blob Storage emulator, and development mail server will be downloaded and started. No need to install anything, or learn complicated commands. Simply run this command, and everything just works 🎉
 
 With the CLI installed:
 
@@ -447,7 +447,7 @@ PlatformPlatform is a [monorepo](https://en.wikipedia.org/wiki/Monorepo) contain
 ├─ cloud-infrastructure  # Contains Bash and Bicep scripts (IaC) for Azure resources
 │  ├─ cluster            # Scale units like production-west-eu, production-east-us, etc.
 │  ├─ environment        # Shared resources like App Insights, Container Registry, etc.
-│  └─ modules            # Reusable Bicep modules like Container App, SQL Server, etc.
+│  └─ modules            # Reusable Bicep modules like Container App, PostgreSQL, etc.
 └─ developer-cli         # A .NET CLI tool for automating common developer tasks
 ```
 
@@ -504,7 +504,7 @@ The frontend is built with these technologies:
 PlatformPlatform's cloud infrastructure is built using the latest Azure Platform as a Service (PaaS) technologies:
 
 - [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/overview)
-- [Azure SQL](https://azure.microsoft.com/en-us/products/azure-sql)
+- [Azure Database for PostgreSQL](https://azure.microsoft.com/en-us/products/postgresql)
 - [Azure Blob Storage](https://azure.microsoft.com/en-us/services/storage/blobs)
 - [Azure Service Bus](https://azure.microsoft.com/en-us/services/service-bus)
 - [Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault)
@@ -531,7 +531,7 @@ PlatformPlatform's cloud infrastructure is built using the latest Azure Platform
 - **Multi-region**: Spinning up a cluster in a new region is a matter of adding one extra deployment job to the GitHub workflow. This allows customers to select a region where their data is close to the user and local data protection laws like GDPR, CCPA, etc. are followed.
 - **Azure Container Apps**: The application is hosted using Azure Container Apps, which is a new service from Azure that provides a fully managed Kubernetes environment for running containerized applications. You don't need to be a Kubernetes expert to run your application in a scalable and secure environment.
 - **Scaling from zero to millions of users**: The Azure Container App Environment is configured to scale from zero to millions of users, and the infrastructure is configured to scale automatically based on load. This means the starting costs are very low, and the solution can scale to millions of users without any manual intervention. This enables having Development and Staging environments running with very low costs.
-- **Azure SQL**: The database is hosted using Azure SQL Database, which is a fully managed SQL Server instance. SQL Server is known for its high performance, stability, scalability, and security. The server will easily handle millions of users with single-digit millisecond response times.
+- **Azure PostgreSQL**: The database is hosted using Azure Database for PostgreSQL Flexible Server, which is a fully managed PostgreSQL database. PostgreSQL is known for its high performance, stability, scalability, and security. The server will easily handle millions of users with single-digit millisecond response times.
 
 </details>
 
