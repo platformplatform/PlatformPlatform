@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -9,7 +11,7 @@ namespace SharedKernel.Database;
 public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServiceProvider serviceProvider, ILogger<DataMigrationRunner<TContext>> logger)
     where TContext : DbContext
 {
-    private static readonly long LockKey = typeof(TContext).FullName!.GetHashCode();
+    private static readonly long LockKey = BitConverter.ToInt64(SHA256.HashData(Encoding.UTF8.GetBytes(typeof(TContext).FullName!)));
 
     public async Task RunMigrationsAsync(CancellationToken cancellationToken)
     {
@@ -21,8 +23,10 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
 
         logger.LogInformation("Acquiring an exclusive lock for data migration application. This may take a while if data migrations are already being applied");
 
-        await using var connection = (NpgsqlConnection)dbContext.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = serviceProvider.GetService(typeof(NpgsqlDataSource)) is NpgsqlDataSource npgsqlDataSource
+            ? await npgsqlDataSource.OpenConnectionAsync(cancellationToken)
+            : (NpgsqlConnection)dbContext.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open) await connection.OpenAsync(cancellationToken);
 
         await using var lockCommand = connection.CreateCommand();
         lockCommand.CommandText = "SELECT pg_advisory_lock(@key)";
@@ -57,10 +61,21 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
         }
         finally
         {
-            await using var releaseLockCommand = connection.CreateCommand();
-            releaseLockCommand.CommandText = "SELECT pg_advisory_unlock(@key)";
-            releaseLockCommand.Parameters.AddWithValue("key", LockKey);
-            await releaseLockCommand.ExecuteNonQueryAsync(cancellationToken);
+            try
+            {
+                await using var releaseLockCommand = connection.CreateCommand();
+                releaseLockCommand.CommandText = "SELECT pg_advisory_unlock(@key)";
+                releaseLockCommand.Parameters.AddWithValue("key", LockKey);
+                var unlocked = (bool)(await releaseLockCommand.ExecuteScalarAsync(CancellationToken.None))!;
+                if (!unlocked)
+                {
+                    logger.LogWarning("Advisory lock {LockKey} was not held when attempting to release", LockKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to release advisory lock {LockKey}", LockKey);
+            }
         }
     }
 
@@ -83,6 +98,11 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
             if (!actualClassName.Equals(expectedClassName, StringComparison.Ordinal))
             {
                 throw new InvalidOperationException($"Data migration class name '{actualClassName}' must match ID suffix '{expectedClassName}'");
+            }
+
+            if (migration.Timeout <= TimeSpan.Zero || migration.Timeout > TimeSpan.FromMinutes(20))
+            {
+                throw new InvalidOperationException($"Data migration '{migration.Id}' timeout {migration.Timeout} must be between 1 second and 20 minutes.");
             }
         }
 
@@ -137,27 +157,47 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
 
     private async Task ExecuteMigrationAsync(IDataMigration dataMigration, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Executing data migration: '{MigrationId}'", dataMigration.Id);
+        logger.LogInformation("Executing data migration: '{MigrationId}' with timeout {Timeout}", dataMigration.Id, dataMigration.Timeout);
 
         var stopwatch = Stopwatch.StartNew();
+        using var timeoutCancellationTokenSource = new CancellationTokenSource(dataMigration.Timeout);
+        using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+        var linkedCancellationToken = linkedCancellationTokenSource.Token;
+
+        if (dataMigration.ManagesOwnTransactions)
+        {
+            var summary = await dataMigration.ExecuteAsync(linkedCancellationToken);
+
+            await using var historyTransaction = await dbContext.Database.BeginTransactionAsync(linkedCancellationToken);
+            await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, linkedCancellationToken);
+            await historyTransaction.CommitAsync(linkedCancellationToken);
+
+            logger.LogInformation(
+                "Completed data migration: '{MigrationId}' in {ElapsedMs}ms - {Summary}",
+                dataMigration.Id,
+                stopwatch.ElapsedMilliseconds,
+                summary
+            );
+            return;
+        }
 
         var executionStrategy = dbContext.Database.CreateExecutionStrategy();
         await executionStrategy.ExecuteAsync(async () =>
             {
-                await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                await using var transaction = await dbContext.Database.BeginTransactionAsync(linkedCancellationToken);
 
                 try
                 {
-                    var summary = await dataMigration.ExecuteAsync(cancellationToken);
+                    var summary = await dataMigration.ExecuteAsync(linkedCancellationToken);
 
                     if (dbContext.ChangeTracker.HasChanges())
                     {
                         throw new InvalidOperationException($"Data migration '{dataMigration.Id}' has unsaved changes. Ensure you call dbContext.SaveChangesAsync() before returning from ExecuteAsync().");
                     }
 
-                    await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, cancellationToken);
+                    await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, linkedCancellationToken);
 
-                    await transaction.CommitAsync(cancellationToken);
+                    await transaction.CommitAsync(linkedCancellationToken);
 
                     logger.LogInformation(
                         "Completed data migration: '{MigrationId}' in {ElapsedMs}ms - {Summary}",
@@ -169,7 +209,7 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Failed to execute data migration: '{MigrationId}'", dataMigration.Id);
-                    await transaction.RollbackAsync(cancellationToken);
+                    await transaction.RollbackAsync(CancellationToken.None);
                     throw;
                 }
             }
@@ -188,7 +228,7 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
             [
                 new NpgsqlParameter("@MigrationId", migrationId),
                 new NpgsqlParameter("@ProductVersion", productVersion),
-                new NpgsqlParameter("@ExecutedAt", DateTimeOffset.UtcNow),
+                new NpgsqlParameter("@ExecutedAt", serviceProvider.GetRequiredService<TimeProvider>().GetUtcNow()),
                 new NpgsqlParameter("@ExecutionTimeMs", elapsedMs),
                 new NpgsqlParameter("@Summary", summary)
             ],
