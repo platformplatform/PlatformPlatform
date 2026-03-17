@@ -5,6 +5,7 @@ param tenantId string
 param subnetId string
 param virtualNetworkId string
 param isProduction bool
+param diagnosticStorageAccountId string
 
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' = {
   name: name
@@ -108,13 +109,38 @@ resource extensionsConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurati
   }
 }
 
+resource logStatementConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
+  parent: postgresServer
+  name: 'log_statement'
+  dependsOn: [extensionsConfig]
+  properties: {
+    value: 'mod'
+    source: 'user-override'
+  }
+}
+
 resource walLevelConfig 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2025-08-01' = {
   parent: postgresServer
   name: 'wal_level'
-  dependsOn: [extensionsConfig]
+  dependsOn: [logStatementConfig]
   properties: {
     value: 'logical'
     source: 'user-override'
+  }
+}
+
+resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+  name: '${name}-postgres-diagnostics'
+  scope: postgresServer
+  dependsOn: [walLevelConfig]
+  properties: {
+    storageAccountId: diagnosticStorageAccountId
+    logs: [
+      {
+        categoryGroup: 'allLogs'
+        enabled: true
+      }
+    ]
   }
 }
 

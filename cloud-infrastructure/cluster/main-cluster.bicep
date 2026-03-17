@@ -57,6 +57,15 @@ module diagnosticStorageAccount '../modules/storage-account.bicep' = {
   }
 }
 
+module diagnosticStorageRetention '../modules/storage-account-retention.bicep' = {
+  scope: clusterResourceGroup
+  name: '${clusterResourceGroupName}-diagnostic-storage-retention'
+  params: {
+    storageAccountName: diagnosticStorageAccount.outputs.name
+    retentionDays: 90
+  }
+}
+
 module virtualNetwork '../modules/virtual-network.bicep' = {
   scope: clusterResourceGroup
   name: '${clusterResourceGroupName}-virtual-network'
@@ -143,6 +152,7 @@ module postgresServer '../modules/postgresql-flexible-server.bicep' = {
     subnetId: virtualNetwork.outputs.privateEndpointSubnetId
     virtualNetworkId: virtualNetwork.outputs.virtualNetworkId
     isProduction: environment == 'prod'
+    diagnosticStorageAccountId: diagnosticStorageAccount.outputs.storageAccountId
   }
 }
 
