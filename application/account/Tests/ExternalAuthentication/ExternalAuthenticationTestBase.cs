@@ -68,7 +68,7 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddTransient<DatabaseSeeder>();
-        services.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection); });
+        services.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
         services.AddAccountServices();
 
         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
@@ -104,7 +104,7 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
                 builder.ConfigureTestServices(testServices =>
                     {
                         testServices.Remove(testServices.Single(d => d.ServiceType == typeof(IDbContextOptionsConfiguration<AccountDbContext>)));
-                        testServices.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection); });
+                        testServices.AddDbContext<AccountDbContext>(options => { options.UseSqlite(Connection).UseSnakeCaseNamingConvention(); });
 
                         TelemetryEventsCollectorSpy = new TelemetryEventsCollectorSpy(new TelemetryEventsCollector());
                         testServices.AddScoped<ITelemetryEventsCollector>(_ => TelemetryEventsCollectorSpy);
@@ -206,32 +206,32 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
     protected void ExpireExternalLogin(string externalLoginId)
     {
         var expiredTime = TimeProvider.GetUtcNow().AddSeconds(-(ExternalLogin.ValidForSeconds + 1));
-        Connection.Update("ExternalLogins", "Id", externalLoginId, [("CreatedAt", expiredTime)]);
+        Connection.Update("external_logins", "id", externalLoginId, [("created_at", expiredTime)]);
     }
 
     protected void TamperWithNonce(string externalLoginId)
     {
-        Connection.Update("ExternalLogins", "Id", externalLoginId, [("Nonce", "tampered-nonce-value")]);
+        Connection.Update("external_logins", "id", externalLoginId, [("nonce", "tampered-nonce-value")]);
     }
 
     protected UserId InsertUserWithExternalIdentity(string email, ExternalProviderType providerType, string providerUserId)
     {
         var userId = UserId.NewId();
         var identities = JsonSerializer.Serialize(new[] { new { Provider = providerType.ToString(), ProviderUserId = providerUserId } });
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", email.ToLower()),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", identities)
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", email.ToLower()),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", identities)
             ]
         );
         return userId;

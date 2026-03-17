@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.Billing.Queries;
@@ -17,12 +18,12 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var transactionId = PaymentTransactionId.NewId().ToString();
         var transactionsJson = $$"""[{"Id":"{{transactionId}}","Amount":29.99,"Currency":"usd","Status":"Succeeded","Date":"2026-01-01T00:00:00+00:00","FailureReason":null,"InvoiceUrl":"https://invoice.stripe.com/test"}]""";
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30)),
-                ("PaymentTransactions", transactionsJson)
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30)),
+                ("payment_transactions", transactionsJson)
             ]
         );
 
@@ -37,5 +38,15 @@ public sealed class GetPaymentHistoryTests : EndpointBaseTest<AccountDbContext>
         result.Transactions[0].Amount.Should().Be(29.99m);
         result.Transactions[0].Currency.Should().Be("usd");
         result.Transactions[0].Status.Should().Be(PaymentTransactionStatus.Succeeded);
+    }
+
+    [Fact]
+    public async Task GetPaymentHistory_WhenNotOwner_ShouldReturnForbidden()
+    {
+        // Act
+        var response = await AuthenticatedMemberHttpClient.GetAsync("/api/account/billing/payment-history");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 }

@@ -8,7 +8,6 @@ public sealed class ExternalLoginConfiguration : IEntityTypeConfiguration<Extern
 {
     public void Configure(EntityTypeBuilder<ExternalLogin> builder)
     {
-        builder.ToTable("ExternalLogins");
         builder.MapStronglyTypedId<ExternalLogin, ExternalLoginId, string>(el => el.Id);
     }
 }

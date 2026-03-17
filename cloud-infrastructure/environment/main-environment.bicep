@@ -31,10 +31,9 @@ module productionServicePrincipalDataImporter '../modules/role-assignments-conta
   name: '${globalResourceGroupName}-production-sp-data-importer'
   scope: resourceGroup(globalResourceGroup.name)
   params: {
-    containerRegistryName: containerRegistryName
+    containerRegistryName: containerRegistry.outputs.name
     principalId: productionServicePrincipalObjectId
   }
-  dependsOn: [containerRegistry]
 }
 
 module logAnalyticsWorkspace '../modules/log-analytics-workspace.bicep' = {

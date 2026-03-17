@@ -16,11 +16,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenStandardToPremium_ShouldReturnPreview()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -49,11 +49,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenPlanNotHigher_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Premium)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Premium)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -68,11 +68,11 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -87,9 +87,9 @@ public sealed class GetUpgradePreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetUpgradePreview_WhenNoStripeSubscription_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123")
             ]
         );
 

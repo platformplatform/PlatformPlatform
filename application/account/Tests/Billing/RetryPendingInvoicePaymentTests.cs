@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Billing;
 
+[Collection("StripeTests")]
 public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDbContext>
 {
     protected override void Dispose(bool disposing)
@@ -23,11 +24,11 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
     public async Task RetryPendingInvoicePayment_WhenOpenInvoicePaid_ShouldReturnPaid()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         MockStripeClient.SimulateOpenInvoice = true;
@@ -49,11 +50,11 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
     public async Task RetryPendingInvoicePayment_WhenNoOpenInvoice_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 
@@ -78,8 +79,8 @@ public sealed class RetryPendingInvoicePaymentTests : EndpointBaseTest<AccountDb
     public async Task RetryPendingInvoicePayment_WhenNoStripeSubscription_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123")
             ]
         );
 

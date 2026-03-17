@@ -37,7 +37,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var tenantName = "Test Company";
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", tenantName)]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.ToString(), [("name", tenantName)]);
 
         var email = Faker.Internet.UniqueEmail();
         var command = new InviteUserCommand(email);
@@ -50,7 +50,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
 
         // Verify user was created
         Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 0",
+            "SELECT COUNT(*) FROM users WHERE tenant_id = @tenantId AND email = @email AND email_confirmed = 0",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
         ).Should().Be(1);
 
@@ -91,7 +91,7 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
     public async Task InviteUser_WhenUserExists_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.ToString(), [("name", "Test Company")]);
 
         var existingUserEmail = DatabaseSeeder.Tenant1Owner.Email;
         var command = new InviteUserCommand(existingUserEmail);
@@ -109,25 +109,25 @@ public sealed class InviteUserTests : EndpointBaseTest<AccountDbContext>
     public async Task InviteUser_WhenDeletedUserExists_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.ToString(), [("name", "Test Company")]);
 
         var deletedUserEmail = Faker.Internet.UniqueEmail().ToLower();
         var deletedUserId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", deletedUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-10)),
-                ("ModifiedAt", TimeProvider.GetUtcNow().AddDays(-1)),
-                ("DeletedAt", TimeProvider.GetUtcNow().AddDays(-1)),
-                ("Email", deletedUserEmail),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Former Employee"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", deletedUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddDays(-10)),
+                ("modified_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("deleted_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("email", deletedUserEmail),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Former Employee"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 

@@ -16,8 +16,8 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetCheckoutPreview_WhenStandardPlan_ShouldReturnPreview()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123")
             ]
         );
 
@@ -47,8 +47,8 @@ public sealed class GetCheckoutPreviewTests : EndpointBaseTest<AccountDbContext>
     public async Task GetCheckoutPreview_WhenNonOwner_ShouldReturnForbidden()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123")
             ]
         );
 

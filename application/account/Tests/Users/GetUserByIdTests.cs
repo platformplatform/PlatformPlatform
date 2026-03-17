@@ -17,20 +17,20 @@ public sealed class GetUserByIdTests : EndpointBaseTest<AccountDbContext>
 
     public GetUserByIdTests()
     {
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", _userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", Faker.Name.JobTitle()),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", _userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", Faker.Name.JobTitle()),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
     }

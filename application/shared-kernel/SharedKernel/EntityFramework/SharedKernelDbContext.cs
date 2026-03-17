@@ -46,16 +46,13 @@ public abstract class SharedKernelDbContext<TContext>(DbContextOptions<TContext>
         // Set pluralized table names for all aggregates
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            var tableNameAnnotation = entityType.GetAnnotations().FirstOrDefault(a => a.Name == "Relational:TableName");
-            if (tableNameAnnotation?.Value is not null)
+            if (entityType.IsOwned())
             {
-                entityType.SetTableName(tableNameAnnotation.Value.ToString());
+                continue;
             }
-            else
-            {
-                var tableName = entityType.GetTableName()!.Pluralize();
-                entityType.SetTableName(tableName);
-            }
+
+            var tableName = entityType.GetTableName()!.Pluralize();
+            entityType.SetTableName(tableName);
         }
 
         // Ensures that all enum properties are stored as strings in the database.

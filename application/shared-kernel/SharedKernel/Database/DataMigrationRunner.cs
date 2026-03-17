@@ -1,17 +1,18 @@
 using System.Data;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace SharedKernel.Database;
 
 public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServiceProvider serviceProvider, ILogger<DataMigrationRunner<TContext>> logger)
     where TContext : DbContext
 {
-    private const int LockTimeoutSeconds = 300;
-    private static readonly string LockName = $"DataMigrationLock_{typeof(TContext).Name}";
+    private static readonly long LockKey = BitConverter.ToInt64(SHA256.HashData(Encoding.UTF8.GetBytes(typeof(TContext).FullName!)));
 
     public async Task RunMigrationsAsync(CancellationToken cancellationToken)
     {
@@ -21,36 +22,17 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
             return;
         }
 
-        logger.LogInformation("Acquiring an exclusive lock for data migration application. This may take a while if data migrations are already being applied.");
+        logger.LogInformation("Acquiring an exclusive lock for data migration application. This may take a while if data migrations are already being applied");
 
-        await using var connection = (SqlConnection)dbContext.Database.GetDbConnection();
-        await connection.OpenAsync(cancellationToken);
+        await using var connection = serviceProvider.GetService(typeof(NpgsqlDataSource)) is NpgsqlDataSource npgsqlDataSource
+            ? await npgsqlDataSource.OpenConnectionAsync(cancellationToken)
+            : (NpgsqlConnection)dbContext.Database.GetDbConnection();
+        if (connection.State != ConnectionState.Open) await connection.OpenAsync(cancellationToken);
 
         await using var lockCommand = connection.CreateCommand();
-        lockCommand.CommandText = "sp_getapplock";
-        lockCommand.CommandType = CommandType.StoredProcedure;
-        lockCommand.Parameters.AddWithValue("@Resource", LockName);
-        lockCommand.Parameters.AddWithValue("@LockMode", "Exclusive");
-        lockCommand.Parameters.AddWithValue("@LockOwner", "Session");
-        lockCommand.Parameters.AddWithValue("@LockTimeout", LockTimeoutSeconds * 1000);
-
-        var returnParam = new SqlParameter("@ReturnValue", SqlDbType.Int) { Direction = ParameterDirection.ReturnValue };
-        lockCommand.Parameters.Add(returnParam);
-
+        lockCommand.CommandText = "SELECT pg_advisory_lock(@key)";
+        lockCommand.Parameters.AddWithValue("key", LockKey);
         await lockCommand.ExecuteNonQueryAsync(cancellationToken);
-        var lockResult = (int)returnParam.Value!;
-
-        if (lockResult < 0)
-        {
-            var message = lockResult switch
-            {
-                -1 => "Timeout waiting for data migration lock after 5 minutes. This may indicate migrations are taking too long or multiple workers are queued.",
-                -2 => "Data migration lock request was canceled.",
-                -3 => "Data migration lock request was chosen as deadlock victim.",
-                _ => $"Failed to acquire data migration lock with error code {lockResult}."
-            };
-            throw new InvalidOperationException(message);
-        }
 
         try
         {
@@ -80,12 +62,21 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
         }
         finally
         {
-            await using var releaseLockCommand = connection.CreateCommand();
-            releaseLockCommand.CommandText = "sp_releaseapplock";
-            releaseLockCommand.CommandType = CommandType.StoredProcedure;
-            releaseLockCommand.Parameters.AddWithValue("@Resource", LockName);
-            releaseLockCommand.Parameters.AddWithValue("@LockOwner", "Session");
-            await releaseLockCommand.ExecuteNonQueryAsync(cancellationToken);
+            try
+            {
+                await using var releaseLockCommand = connection.CreateCommand();
+                releaseLockCommand.CommandText = "SELECT pg_advisory_unlock(@key)";
+                releaseLockCommand.Parameters.AddWithValue("key", LockKey);
+                var unlocked = (bool)(await releaseLockCommand.ExecuteScalarAsync(CancellationToken.None))!;
+                if (!unlocked)
+                {
+                    logger.LogWarning("Advisory lock {LockKey} was not held when attempting to release", LockKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to release advisory lock {LockKey}", LockKey);
+            }
         }
     }
 
@@ -109,6 +100,11 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
             {
                 throw new InvalidOperationException($"Data migration class name '{actualClassName}' must match ID suffix '{expectedClassName}'");
             }
+
+            if (migration.Timeout <= TimeSpan.Zero || migration.Timeout > TimeSpan.FromMinutes(20))
+            {
+                throw new InvalidOperationException($"Data migration '{migration.Id}' timeout {migration.Timeout} must be between 1 second and 20 minutes.");
+            }
         }
 
         return migrations;
@@ -117,17 +113,27 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
     private async Task EnsureDataMigrationHistoryTableExistsAsync(CancellationToken cancellationToken)
     {
         var sql = """
-                  IF OBJECT_ID(N'[__DataMigrationsHistory]') IS NULL
+                  DO $$
                   BEGIN
-                      CREATE TABLE [__DataMigrationsHistory] (
-                          [MigrationId] nvarchar(150) NOT NULL,
-                          [ProductVersion] nvarchar(32) NOT NULL,
-                          [ExecutedAt] datetimeoffset NOT NULL,
-                          [ExecutionTimeMs] bigint NOT NULL,
-                          [Summary] nvarchar(max) NOT NULL,
-                          CONSTRAINT [PK___DataMigrationsHistory] PRIMARY KEY ([MigrationId])
-                      );
-                  END;
+                      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '__DataMigrationsHistory') THEN
+                          ALTER TABLE "__DataMigrationsHistory" RENAME TO __data_migrations_history;
+                          ALTER TABLE __data_migrations_history RENAME COLUMN "MigrationId" TO migration_id;
+                          ALTER TABLE __data_migrations_history RENAME COLUMN "ProductVersion" TO product_version;
+                          ALTER TABLE __data_migrations_history RENAME COLUMN "ExecutedAt" TO executed_at;
+                          ALTER TABLE __data_migrations_history RENAME COLUMN "ExecutionTimeMs" TO execution_time_ms;
+                          ALTER TABLE __data_migrations_history RENAME COLUMN "Summary" TO summary;
+                          ALTER TABLE __data_migrations_history RENAME CONSTRAINT "PK___DataMigrationsHistory" TO pk___data_migrations_history;
+                      END IF;
+                  END $$;
+
+                  CREATE TABLE IF NOT EXISTS __data_migrations_history (
+                      migration_id text NOT NULL,
+                      product_version text NOT NULL,
+                      executed_at timestamptz NOT NULL,
+                      execution_time_ms bigint NOT NULL,
+                      summary text NOT NULL,
+                      CONSTRAINT pk___data_migrations_history PRIMARY KEY (migration_id)
+                  );
                   """;
 
         await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
@@ -136,7 +142,7 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
     private async Task<HashSet<string>> GetExecutedDataMigrationsAsync(CancellationToken cancellationToken)
     {
         await using var command = dbContext.Database.GetDbConnection().CreateCommand();
-        command.CommandText = "SELECT [MigrationId] FROM [__DataMigrationsHistory]";
+        command.CommandText = "SELECT migration_id FROM __data_migrations_history";
         command.Transaction = dbContext.Database.CurrentTransaction?.GetDbTransaction();
 
         var executedDataMigrations = new HashSet<string>();
@@ -152,27 +158,47 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
 
     private async Task ExecuteMigrationAsync(IDataMigration dataMigration, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Executing data migration: '{MigrationId}'", dataMigration.Id);
+        logger.LogInformation("Executing data migration: '{MigrationId}' with timeout {Timeout}", dataMigration.Id, dataMigration.Timeout);
 
         var stopwatch = Stopwatch.StartNew();
+        using var timeoutCancellationTokenSource = new CancellationTokenSource(dataMigration.Timeout);
+        using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
+        var linkedCancellationToken = linkedCancellationTokenSource.Token;
+
+        if (dataMigration.ManagesOwnTransactions)
+        {
+            var summary = await dataMigration.ExecuteAsync(linkedCancellationToken);
+
+            await using var historyTransaction = await dbContext.Database.BeginTransactionAsync(linkedCancellationToken);
+            await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, linkedCancellationToken);
+            await historyTransaction.CommitAsync(linkedCancellationToken);
+
+            logger.LogInformation(
+                "Completed data migration: '{MigrationId}' in {ElapsedMs}ms - {Summary}",
+                dataMigration.Id,
+                stopwatch.ElapsedMilliseconds,
+                summary
+            );
+            return;
+        }
 
         var executionStrategy = dbContext.Database.CreateExecutionStrategy();
         await executionStrategy.ExecuteAsync(async () =>
             {
-                await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                await using var transaction = await dbContext.Database.BeginTransactionAsync(linkedCancellationToken);
 
                 try
                 {
-                    var summary = await dataMigration.ExecuteAsync(cancellationToken);
+                    var summary = await dataMigration.ExecuteAsync(linkedCancellationToken);
 
                     if (dbContext.ChangeTracker.HasChanges())
                     {
                         throw new InvalidOperationException($"Data migration '{dataMigration.Id}' has unsaved changes. Ensure you call dbContext.SaveChangesAsync() before returning from ExecuteAsync().");
                     }
 
-                    await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, cancellationToken);
+                    await RecordDataMigrationAsync(dataMigration.Id, stopwatch.ElapsedMilliseconds, summary, linkedCancellationToken);
 
-                    await transaction.CommitAsync(cancellationToken);
+                    await transaction.CommitAsync(linkedCancellationToken);
 
                     logger.LogInformation(
                         "Completed data migration: '{MigrationId}' in {ElapsedMs}ms - {Summary}",
@@ -184,7 +210,7 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "Failed to execute data migration: '{MigrationId}'", dataMigration.Id);
-                    await transaction.RollbackAsync(cancellationToken);
+                    await transaction.RollbackAsync(CancellationToken.None);
                     throw;
                 }
             }
@@ -197,15 +223,15 @@ public sealed class DataMigrationRunner<TContext>(TContext dbContext, IServicePr
 
         await dbContext.Database.ExecuteSqlRawAsync(
             """
-            INSERT INTO [__DataMigrationsHistory] ([MigrationId], [ProductVersion], [ExecutedAt], [ExecutionTimeMs], [Summary])
+            INSERT INTO __data_migrations_history (migration_id, product_version, executed_at, execution_time_ms, summary)
             VALUES (@MigrationId, @ProductVersion, @ExecutedAt, @ExecutionTimeMs, @Summary);
             """,
             [
-                new SqlParameter("@MigrationId", migrationId),
-                new SqlParameter("@ProductVersion", productVersion),
-                new SqlParameter("@ExecutedAt", DateTimeOffset.UtcNow),
-                new SqlParameter("@ExecutionTimeMs", elapsedMs),
-                new SqlParameter("@Summary", summary)
+                new NpgsqlParameter("@MigrationId", migrationId),
+                new NpgsqlParameter("@ProductVersion", productVersion),
+                new NpgsqlParameter("@ExecutedAt", serviceProvider.GetRequiredService<TimeProvider>().GetUtcNow()),
+                new NpgsqlParameter("@ExecutionTimeMs", elapsedMs),
+                new NpgsqlParameter("@Summary", summary)
             ],
             cancellationToken
         );

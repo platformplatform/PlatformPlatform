@@ -34,7 +34,7 @@ Guidelines for C# backend development, including code style, naming, exceptions,
 
     // ✅ DO: Wrap to 2 lines when needed, but never 3, 4, or 5 lines
     var updatedLocale = Connection.ExecuteScalar<string>(
-        "SELECT Locale FROM Users WHERE Id = @id", new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }
+        "SELECT locale FROM users WHERE id = @id", new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }
     );
 
     // ❌ DON'T: Split method parameters across multiple lines when they fit before 120 chars

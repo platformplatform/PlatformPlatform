@@ -76,16 +76,16 @@ public sealed class StartEmailSignupTests : EndpointBaseTest<AccountDbContext>
         for (var i = 1; i <= 4; i++)
         {
             var oneTimePasswordHash = new PasswordHasher<object>().HashPassword(this, OneTimePasswordHelper.GenerateOneTimePassword(6));
-            Connection.Insert("EmailLogins", [
-                    ("Id", EmailLoginId.NewId().ToString()),
-                    ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                    ("ModifiedAt", null),
-                    ("Email", email),
-                    ("Type", nameof(EmailLoginType.Signup)),
-                    ("OneTimePasswordHash", oneTimePasswordHash),
-                    ("RetryCount", 0),
-                    ("ResendCount", 0),
-                    ("Completed", false)
+            Connection.Insert("email_logins", [
+                    ("id", EmailLoginId.NewId().ToString()),
+                    ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                    ("modified_at", null),
+                    ("email", email),
+                    ("type", nameof(EmailLoginType.Signup)),
+                    ("one_time_password_hash", oneTimePasswordHash),
+                    ("retry_count", 0),
+                    ("resend_count", 0),
+                    ("completed", false)
                 ]
             );
         }

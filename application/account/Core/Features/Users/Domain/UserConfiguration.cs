@@ -25,7 +25,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasPrincipalKey(t => t.Id);
 
         builder.Property(u => u.ExternalIdentities)
-            .HasColumnName("ExternalIdentities")
+            .HasColumnType("jsonb")
             .HasConversion(
                 v => JsonSerializer.Serialize(v.ToArray(), JsonSerializerOptions),
                 v => JsonSerializer.Deserialize<ImmutableArray<ExternalIdentity>>(v, JsonSerializerOptions)

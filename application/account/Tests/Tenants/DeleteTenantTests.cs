@@ -37,13 +37,13 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Tenants", existingTenantId).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Tenants WHERE Id = @id", [new { id = existingTenantId.ToString() }]);
+        Connection.RowExists("tenants", existingTenantId).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM tenants WHERE id = @id", [new { id = existingTenantId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
 
-        var ownerDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]);
+        var ownerDeletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]);
         ownerDeletedAt.Should().BeNull();
-        var memberDeletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]);
+        var memberDeletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]);
         memberDeletedAt.Should().BeNull();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -55,11 +55,11 @@ public sealed class DeleteTenantTests : EndpointBaseTest<AccountDbContext>
     public async Task DeleteTenant_WhenActiveSubscription_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
 

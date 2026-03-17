@@ -19,10 +19,11 @@ var (googleOAuthConfigured, googleOAuthClientId, googleOAuthClientSecret) = Conf
 var (stripeConfigured, stripePublishableKey, stripeApiKey, stripeWebhookSecret) = ConfigureStripeParameters();
 var stripeFullyConfigured = stripeConfigured && builder.Configuration["Parameters:stripe-webhook-secret"] is not null and not "not-configured";
 
-var sqlPassword = builder.CreateStablePassword("sql-server-password");
-var sqlServer = builder.AddSqlServer("sql-server", sqlPassword, 9002)
-    .WithDataVolume("platform-platform-sql-server-data")
-    .WithLifetime(ContainerLifetime.Persistent);
+var postgresPassword = builder.CreateStablePassword("postgres-password");
+var postgres = builder.AddPostgres("postgres", password: postgresPassword, port: 9002)
+    .WithDataVolume("platform-platform-postgres-data")
+    .WithLifetime(ContainerLifetime.Persistent)
+    .WithArgs("-c", "wal_level=logical");
 
 var azureStorage = builder
     .AddAzureStorage("azure-storage")
@@ -56,7 +57,7 @@ var frontendBuild = builder
     .AddJavaScriptApp("frontend-build", "../")
     .WithEnvironment("CERTIFICATE_PASSWORD", certificatePassword);
 
-var accountDatabase = sqlServer
+var accountDatabase = postgres
     .AddDatabase("account-database", "account");
 
 var accountWorkers = builder
@@ -80,7 +81,7 @@ var accountApi = builder
     .WithEnvironment("Stripe__AllowMockProvider", "true")
     .WaitFor(accountWorkers);
 
-var backOfficeDatabase = sqlServer
+var backOfficeDatabase = postgres
     .AddDatabase("back-office-database", "back-office");
 
 var backOfficeWorkers = builder
@@ -96,7 +97,7 @@ var backOfficeApi = builder
     .WithReference(azureStorage)
     .WaitFor(backOfficeWorkers);
 
-var mainDatabase = sqlServer
+var mainDatabase = postgres
     .AddDatabase("main-database", "main");
 
 var mainWorkers = builder

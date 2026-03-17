@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Account.Tests.Subscriptions;
 
+[Collection("StripeTests")]
 public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbContext>
 {
     private const string WebhookUrl = "/api/account/subscriptions/stripe-webhook";
@@ -24,15 +25,15 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     private void SetupSubscription(string? stripeCustomerId = MockStripeClient.MockCustomerId, string? stripeSubscriptionId = MockStripeClient.MockSubscriptionId, string plan = nameof(SubscriptionPlan.Standard), DateTimeOffset? firstPaymentFailedAt = null, string? cancellationReason = null)
     {
         var hasStripeSubscription = stripeSubscriptionId is not null;
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", plan),
-                ("StripeCustomerId", stripeCustomerId),
-                ("StripeSubscriptionId", stripeSubscriptionId),
-                ("CurrentPriceAmount", hasStripeSubscription ? 29.99m : null),
-                ("CurrentPriceCurrency", hasStripeSubscription ? "USD" : null),
-                ("CurrentPeriodEnd", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
-                ("FirstPaymentFailedAt", firstPaymentFailedAt),
-                ("CancellationReason", cancellationReason)
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", plan),
+                ("stripe_customer_id", stripeCustomerId),
+                ("stripe_subscription_id", stripeSubscriptionId),
+                ("current_price_amount", hasStripeSubscription ? 29.99m : null),
+                ("current_price_currency", hasStripeSubscription ? "USD" : null),
+                ("current_period_end", hasStripeSubscription ? TimeProvider.GetUtcNow().AddDays(30) : null),
+                ("first_payment_failed_at", firstPaymentFailedAt),
+                ("cancellation_reason", cancellationReason)
             ]
         );
     }
@@ -63,18 +64,18 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange
         SetupSubscription();
         var eventId = $"{MockStripeClient.MockWebhookEventId}_duplicate";
-        Connection.Insert("StripeEvents", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.Value),
-                ("Id", eventId),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("EventType", "checkout.session.completed"),
-                ("Status", nameof(StripeEventStatus.Processed)),
-                ("ProcessedAt", TimeProvider.GetUtcNow()),
-                ("StripeCustomerId", MockStripeClient.MockCustomerId),
-                ("StripeSubscriptionId", MockStripeClient.MockSubscriptionId),
-                ("Payload", null),
-                ("Error", null)
+        Connection.Insert("stripe_events", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.Value),
+                ("id", eventId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("event_type", "checkout.session.completed"),
+                ("status", nameof(StripeEventStatus.Processed)),
+                ("processed_at", TimeProvider.GetUtcNow()),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", MockStripeClient.MockSubscriptionId),
+                ("payload", null),
+                ("error", null)
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -130,7 +131,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT first_payment_failed_at FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().BeNullOrEmpty();
     }
 
@@ -153,10 +154,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT first_payment_failed_at FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().NotBeNullOrEmpty();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Active));
     }
 
@@ -180,7 +181,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT FirstPaymentFailedAt FROM Subscriptions WHERE TenantId = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
+        var firstPaymentFailed = Connection.ExecuteScalar<string>("SELECT first_payment_failed_at FROM subscriptions WHERE tenant_id = @tenantId", [new { tenantId = DatabaseSeeder.Tenant1.Id.Value }]);
         firstPaymentFailed.Should().NotBeNullOrEmpty();
     }
 
@@ -204,10 +205,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
 
-        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT suspension_reason FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         suspensionReason.Should().Be(nameof(SuspensionReason.PaymentFailed));
     }
 
@@ -230,7 +231,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Active));
     }
 
@@ -239,7 +240,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
     {
         // Arrange
         SetupSubscription(stripeSubscriptionId: null, plan: nameof(SubscriptionPlan.Basis));
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.PaymentFailed))]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.Value, [("state", nameof(TenantState.Suspended)), ("suspension_reason", nameof(SuspensionReason.PaymentFailed))]);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -253,10 +254,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Active));
 
-        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT suspension_reason FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         suspensionReason.Should().BeNullOrEmpty();
     }
 
@@ -279,10 +280,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
 
-        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT suspension_reason FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
     }
 
@@ -292,7 +293,7 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange - tenant already suspended with CustomerDeleted (e.g., customer.deleted processed in previous batch)
         MockStripeClient.SimulateSubscriptionDeleted = true;
         SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.Value, [("State", nameof(TenantState.Suspended)), ("SuspensionReason", nameof(SuspensionReason.CustomerDeleted))]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.Value, [("state", nameof(TenantState.Suspended)), ("suspension_reason", nameof(SuspensionReason.CustomerDeleted))]);
         TelemetryEventsCollectorSpy.Reset();
 
         // Act
@@ -306,10 +307,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert - tenant should remain Suspended with CustomerDeleted, not overridden to Active or PaymentFailed
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
 
-        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT suspension_reason FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
     }
 
@@ -319,18 +320,18 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Arrange - pre-insert a pending customer.deleted event so both events process in the same batch
         MockStripeClient.SimulateCustomerDeleted = true;
         SetupSubscription(cancellationReason: nameof(CancellationReason.NoLongerNeeded));
-        Connection.Insert("StripeEvents", [
-                ("TenantId", null),
-                ("Id", $"{MockStripeClient.MockWebhookEventId}_customer_deleted"),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("EventType", "customer.deleted"),
-                ("Status", nameof(StripeEventStatus.Pending)),
-                ("ProcessedAt", null),
-                ("StripeCustomerId", MockStripeClient.MockCustomerId),
-                ("StripeSubscriptionId", null),
-                ("Payload", null),
-                ("Error", null)
+        Connection.Insert("stripe_events", [
+                ("tenant_id", null),
+                ("id", $"{MockStripeClient.MockWebhookEventId}_customer_deleted"),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("event_type", "customer.deleted"),
+                ("status", nameof(StripeEventStatus.Pending)),
+                ("processed_at", null),
+                ("stripe_customer_id", MockStripeClient.MockCustomerId),
+                ("stripe_subscription_id", null),
+                ("payload", null),
+                ("error", null)
             ]
         );
         TelemetryEventsCollectorSpy.Reset();
@@ -346,10 +347,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert - customer.deleted should take priority, tenant suspended with CustomerDeleted
         response.EnsureSuccessStatusCode();
 
-        var tenantState = Connection.ExecuteScalar<string>("SELECT State FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var tenantState = Connection.ExecuteScalar<string>("SELECT state FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         tenantState.Should().Be(nameof(TenantState.Suspended));
 
-        var suspensionReason = Connection.ExecuteScalar<string>("SELECT SuspensionReason FROM Tenants WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
+        var suspensionReason = Connection.ExecuteScalar<string>("SELECT suspension_reason FROM tenants WHERE id = @id", [new { id = DatabaseSeeder.Tenant1.Id.Value }]);
         suspensionReason.Should().Be(nameof(SuspensionReason.CustomerDeleted));
     }
 
@@ -367,10 +368,10 @@ public sealed class AcknowledgeStripeWebhookTests : EndpointBaseTest<AccountDbCo
         // Assert
         response.EnsureSuccessStatusCode();
 
-        var eventCount = Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM StripeEvents WHERE StripeCustomerId = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
+        var eventCount = Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM stripe_events WHERE stripe_customer_id = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
         eventCount.Should().Be(1);
 
-        var eventStatus = Connection.ExecuteScalar<string>("SELECT Status FROM StripeEvents WHERE StripeCustomerId = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
+        var eventStatus = Connection.ExecuteScalar<string>("SELECT status FROM stripe_events WHERE stripe_customer_id = @customerId", [new { customerId = MockStripeClient.MockCustomerId }]);
         eventStatus.Should().Be(nameof(StripeEventStatus.Pending));
     }
 

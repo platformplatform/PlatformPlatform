@@ -164,7 +164,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Contain("/error?error=session_expired");
 
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.LoginExpired));
 
@@ -191,7 +191,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Contain("/error?error=authentication_failed");
 
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.NonceMismatch));
 
@@ -204,20 +204,20 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
     public async Task CompleteExternalLogin_WhenUserHasNoExternalIdentity_ShouldLinkIdentityAndCreateSession()
     {
         // Arrange
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", MockOAuthProvider.MockEmail),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", MockOAuthProvider.MockEmail),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -231,7 +231,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Be("/");
 
         var externalIdentities = Connection.ExecuteScalar<string>(
-            "SELECT ExternalIdentities FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT external_identities FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         externalIdentities.Should().Contain(MockOAuthProvider.MockProviderUserId);
 
@@ -245,20 +245,20 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
     public async Task CompleteExternalLogin_WhenInvitedUserHasNoName_ShouldUpdateNameFromGoogleProfile()
     {
         // Arrange
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", MockOAuthProvider.MockEmail),
-                ("EmailConfirmed", false),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", MockOAuthProvider.MockEmail),
+                ("email_confirmed", false),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -272,10 +272,10 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Be("/");
 
         var firstName = Connection.ExecuteScalar<string>(
-            "SELECT FirstName FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT first_name FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         var lastName = Connection.ExecuteScalar<string>(
-            "SELECT LastName FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT last_name FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         firstName.Should().Be(MockOAuthProvider.MockFirstName);
         lastName.Should().Be(MockOAuthProvider.MockLastName);
@@ -287,20 +287,20 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         // Arrange
         var existingFirstName = Faker.Name.FirstName();
         var existingLastName = Faker.Name.LastName();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", MockOAuthProvider.MockEmail),
-                ("EmailConfirmed", true),
-                ("FirstName", existingFirstName),
-                ("LastName", existingLastName),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", MockOAuthProvider.MockEmail),
+                ("email_confirmed", true),
+                ("first_name", existingFirstName),
+                ("last_name", existingLastName),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
         var (callbackUrl, cookies) = await StartLoginFlow();
@@ -314,10 +314,10 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Be("/");
 
         var firstName = Connection.ExecuteScalar<string>(
-            "SELECT FirstName FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT first_name FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         var lastName = Connection.ExecuteScalar<string>(
-            "SELECT LastName FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT last_name FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         firstName.Should().Be(existingFirstName);
         lastName.Should().Be(existingLastName);
@@ -371,7 +371,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
 
         // Assert
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.Success));
     }
@@ -389,7 +389,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
 
         // Assert
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.UserNotFound));
     }
@@ -401,70 +401,71 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         var tenant2Id = TenantId.NewId();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Subscriptions", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", SubscriptionId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPriceAmount", null),
-                ("CurrentPriceCurrency", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("CancellationReason", null),
-                ("CancellationFeedback", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null),
-                ("BillingInfo", null)
+        Connection.Insert("subscriptions", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", SubscriptionId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("scheduled_plan", null),
+                ("stripe_customer_id", null),
+                ("stripe_subscription_id", null),
+                ("current_price_amount", null),
+                ("current_price_currency", null),
+                ("current_period_end", null),
+                ("cancel_at_period_end", false),
+                ("first_payment_failed_at", null),
+                ("cancellation_reason", null),
+                ("cancellation_feedback", null),
+                ("payment_transactions", "[]"),
+                ("payment_method", null),
+                ("billing_info", null)
             ]
         );
 
         var identities = JsonSerializer.Serialize(new[] { new { Provider = nameof(ExternalProviderType.Google), ProviderUserId = MockOAuthProvider.MockProviderUserId } });
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", MockOAuthProvider.MockEmail),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Member)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", identities)
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", MockOAuthProvider.MockEmail),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Member)),
+                ("locale", "en-US"),
+                ("external_identities", identities)
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", MockOAuthProvider.MockEmail),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", identities)
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", MockOAuthProvider.MockEmail),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Owner)),
+                ("locale", "en-US"),
+                ("external_identities", identities)
             ]
         );
 
@@ -479,7 +480,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Be("/");
 
         var sessionTenantId = Connection.ExecuteScalar<long>(
-            "SELECT TenantId FROM Sessions WHERE UserId = @userId ORDER BY CreatedAt DESC LIMIT 1", [new { userId = user2Id.ToString() }]
+            "SELECT tenant_id FROM sessions WHERE user_id = @userId ORDER BY created_at DESC LIMIT 1", [new { userId = user2Id.ToString() }]
         );
         sessionTenantId.Should().Be(tenant2Id.Value);
 
@@ -524,7 +525,7 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
 
         var externalLoginId = GetExternalLoginIdFromUrl(callbackUrl1);
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.FlowIdMismatch));
 
@@ -578,13 +579,14 @@ public sealed class CompleteExternalLoginTests : ExternalAuthenticationTestBase
         // Arrange
         var tenant2Id = TenantId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 

@@ -40,7 +40,7 @@ public sealed class MapStronglyTypedStringTests : IDisposable
 
         // Assert
         var result = _connection.ExecuteScalar<string>(
-            "SELECT ExternalId FROM TestAggregates WHERE Id = @id",
+            "SELECT external_id FROM test_aggregates WHERE id = @id",
             [new { id = testAggregate.Id }]
         );
         result.Should().Be("ext_abc123");
@@ -51,13 +51,13 @@ public sealed class MapStronglyTypedStringTests : IDisposable
     {
         // Arrange
         const long id = 123;
-        _connection.Insert("TestAggregates",
+        _connection.Insert("test_aggregates",
             [
-                ("Id", id),
-                ("Name", "Test"),
-                ("Status", "Pending"),
-                ("ExternalId", "ext_xyz789"),
-                ("CreatedAt", DateTime.UtcNow.ToString("O"))
+                ("id", id),
+                ("name", "Test"),
+                ("status", "Pending"),
+                ("external_id", "ext_xyz789"),
+                ("created_at", DateTime.UtcNow.ToString("O"))
             ]
         );
 
@@ -77,13 +77,13 @@ public sealed class MapStronglyTypedStringTests : IDisposable
     {
         // Arrange
         var externalId = ExternalId.NewId("ext_findme");
-        _connection.Insert("TestAggregates",
+        _connection.Insert("test_aggregates",
             [
-                ("Id", 456L),
-                ("Name", "Test"),
-                ("Status", "Pending"),
-                ("ExternalId", externalId.Value),
-                ("CreatedAt", DateTime.UtcNow.ToString("O"))
+                ("id", 456L),
+                ("name", "Test"),
+                ("status", "Pending"),
+                ("external_id", externalId.Value),
+                ("created_at", DateTime.UtcNow.ToString("O"))
             ]
         );
 

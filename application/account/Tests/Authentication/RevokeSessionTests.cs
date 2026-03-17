@@ -23,8 +23,8 @@ public sealed class RevokeSessionTests : EndpointBaseTest<AccountDbContext>
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
         object[] parameters = [new { id = sessionId }];
-        Connection.ExecuteScalar<string>("SELECT RevokedAt FROM Sessions WHERE Id = @id", parameters).Should().NotBeNull();
-        Connection.ExecuteScalar<string>("SELECT RevokedReason FROM Sessions WHERE Id = @id", parameters).Should().Be("Revoked");
+        Connection.ExecuteScalar<string>("SELECT revoked_at FROM sessions WHERE id = @id", parameters).Should().NotBeNull();
+        Connection.ExecuteScalar<string>("SELECT revoked_reason FROM sessions WHERE id = @id", parameters).Should().Be("Revoked");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SessionRevoked");
@@ -96,21 +96,21 @@ public sealed class RevokeSessionTests : EndpointBaseTest<AccountDbContext>
         var jti = RefreshTokenJti.NewId().ToString();
         var now = TimeProvider.System.GetUtcNow();
 
-        Connection.Insert("Sessions", [
-                ("TenantId", tenantId),
-                ("Id", sessionId),
-                ("UserId", userId),
-                ("CreatedAt", now),
-                ("ModifiedAt", null),
-                ("RefreshTokenJti", jti),
-                ("PreviousRefreshTokenJti", null),
-                ("RefreshTokenVersion", 1),
-                ("LoginMethod", nameof(LoginMethod.OneTimePassword)),
-                ("DeviceType", nameof(DeviceType.Desktop)),
-                ("UserAgent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
-                ("IpAddress", "127.0.0.1"),
-                ("RevokedAt", isRevoked ? now : null),
-                ("RevokedReason", null)
+        Connection.Insert("sessions", [
+                ("tenant_id", tenantId),
+                ("id", sessionId),
+                ("user_id", userId),
+                ("created_at", now),
+                ("modified_at", null),
+                ("refresh_token_jti", jti),
+                ("previous_refresh_token_jti", null),
+                ("refresh_token_version", 1),
+                ("login_method", nameof(LoginMethod.OneTimePassword)),
+                ("device_type", nameof(DeviceType.Desktop)),
+                ("user_agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"),
+                ("ip_address", "127.0.0.1"),
+                ("revoked_at", isRevoked ? now : null),
+                ("revoked_reason", null)
             ]
         );
 

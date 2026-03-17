@@ -292,14 +292,12 @@ When used generically (not as defined term), use lowercase: "your account settin
 
 **We HAVE (describe in DPA Schedule 3):**
 
-- Encryption in transit: HTTPS/TLS 1.2+ (Azure SQL Server enforced)
+- Encryption in transit: HTTPS/TLS 1.2+ (PostgreSQL Flexible Server enforced, Ssl Mode=VerifyFull)
 - Encryption at rest: Azure platform encryption
-- RBAC: Azure Active Directory authentication only (azureADOnlyAuthentication: true)
-- SQL Server auditing: 90-day retention (authentication, batch operations)
-- SQL Server vulnerability assessments: Recurring scans enabled
-- SQL Server security alerts: Enabled
-- Virtual network isolation: Subnet-based access control
-- Restricted outbound network access: Enabled on SQL Server
+- RBAC: Entra ID authentication
+- PostgreSQL audit logging: log_statement=mod with 90-day retention to diagnostic storage account
+- Virtual network isolation: Private Endpoint with Private DNS Zone
+- Restricted outbound network access: No permanent firewall rules, temporary CI/CD access only
 - Application Insights: Monitoring and logging (may be sampled)
 - Telemetry events: Activity logging for mutations (not comprehensive audit)
 

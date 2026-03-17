@@ -24,10 +24,10 @@ public sealed class StartExternalLoginTests : ExternalAuthenticationTestBase
         location.Should().Contain("state=");
 
         var externalLoginId = GetExternalLoginIdFromResponse(response);
-        Connection.RowExists("ExternalLogins", externalLoginId).Should().BeTrue();
+        Connection.RowExists("external_logins", externalLoginId).Should().BeTrue();
 
         var loginType = Connection.ExecuteScalar<string>(
-            "SELECT Type FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT type FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginType.Should().Be(nameof(ExternalLoginType.Login));
 

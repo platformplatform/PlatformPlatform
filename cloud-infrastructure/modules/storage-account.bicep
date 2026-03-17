@@ -65,5 +65,6 @@ module storageBlobDataContributorRoleAssignment 'role-assignments-storage-blob-d
   dependsOn: [storageAccount]
 }
 
+output name string = storageAccount.name
 output blobEndpoint string = storageAccount.properties.primaryEndpoints.blob
 output storageAccountId string = storageAccount.id

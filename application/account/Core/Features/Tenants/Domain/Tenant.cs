@@ -1,3 +1,4 @@
+using Account.Features.Subscriptions.Domain;
 using SharedKernel.Domain;
 
 namespace Account.Features.Tenants.Domain;
@@ -7,12 +8,15 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     private Tenant() : base(TenantId.NewId())
     {
         State = TenantState.Active;
+        Plan = SubscriptionPlan.Basis;
         Logo = new Logo();
     }
 
     public string Name { get; private set; } = string.Empty;
 
     public TenantState State { get; private set; }
+
+    public SubscriptionPlan Plan { get; private set; }
 
     public SuspensionReason? SuspensionReason { get; private set; }
 
@@ -54,6 +58,11 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
     public void RemoveLogo()
     {
         Logo = new Logo(Version: Logo.Version);
+    }
+
+    public void UpdatePlan(SubscriptionPlan plan)
+    {
+        Plan = plan;
     }
 }
 

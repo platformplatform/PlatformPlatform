@@ -11,7 +11,7 @@ Please follow the simple instructions in [Getting started](/README.md#setting-up
 ## Folder structure
 
 - `environment`: Each environment (like `Staging` and `Production`) has resources that are shared between clusters, e.g., Azure Log Analytics workspace and Application Insights. This allows for central tracking and monitoring across clusters. No Personally Identifiable Information (PII) is tracked, which ensures compliance with data protection laws. See the [`environment/main-environment.bicep`](/cloud-infrastructure/environment/main-environment.bicep).
-- `cluster`: Scripts to deploy a cluster into clearly named resource groups like `ppdemo-stage-weu`, `ppdemo-prod-weu`, and `ppdemo-prod-eus2`. A cluster has its own Azure Container Apps environment (managed Kubernetes), SQL Server, Azure Blob Storage, etc. Tenants (a.k.a. a customer) are created in a dedicated cluster that contains all data belonging to that tenant. This ensures compliance with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc., through geo-isolation. See the [`cluster/main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep).
+- `cluster`: Scripts to deploy a cluster into clearly named resource groups like `ppdemo-stage-weu`, `ppdemo-prod-weu`, and `ppdemo-prod-eus2`. A cluster has its own Azure Container Apps environment (managed Kubernetes), PostgreSQL, Azure Blob Storage, etc. Tenants (a.k.a. a customer) are created in a dedicated cluster that contains all data belonging to that tenant. This ensures compliance with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc., through geo-isolation. See the [`cluster/main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep).
 
 - `modules`: Each Azure Resource is created by a separate Bicep module file, ensuring a modular, reusable, and manageable infrastructure.
 
@@ -29,7 +29,7 @@ Please follow the simple instructions in [Getting started](/README.md#setting-up
 ## Folder structure
 
 - `environment`: Each environment (like `Staging` and `Production`) has resources that are shared between clusters, e.g., Azure Log Analytics workspace and Application Insights. This allows for central tracking and monitoring across clusters. No Personally Identifiable Information (PII) is tracked, which ensures compliance with data protection laws. See the [`environment/main-environment.bicep`](/cloud-infrastructure/environment/main-environment.bicep).
-- `cluster`: Scripts to deploy a cluster into clearly named resource groups like `ppdemo-stage-weu`, `ppdemo-prod-weu`, and `ppdemo-prod-eus2`. A cluster has its own Azure Container Apps environment (managed Kubernetes), SQL Server, Azure Blob Storage, etc. Tenants (a.k.a. a customer) are created in a dedicated cluster that contains all data belonging to that tenant. This ensures compliance with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc., through geo-isolation. See the [`cluster/main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep).
+- `cluster`: Scripts to deploy a cluster into clearly named resource groups like `ppdemo-stage-weu`, `ppdemo-prod-weu`, and `ppdemo-prod-eus2`. A cluster has its own Azure Container Apps environment (managed Kubernetes), PostgreSQL, Azure Blob Storage, etc. Tenants (a.k.a. a customer) are created in a dedicated cluster that contains all data belonging to that tenant. This ensures compliance with data protection laws like GDPR, CCPA, PIPEDA, APPs, etc., through geo-isolation. See the [`cluster/main-cluster.bicep`](/cloud-infrastructure/cluster/main-cluster.bicep).
 
 - `modules`: Each Azure Resource is created by a separate Bicep module file, ensuring a modular, reusable, and manageable infrastructure.
 
@@ -48,8 +48,8 @@ There are a couple of exceptions:
 
 Examples of cluster-specific resources:
 - Resource Group: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
-- SQL Server: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
-- SQL Server database: `main`, `account`, `back-office`
+- PostgreSQL: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
+- PostgreSQL database: `main`, `account`, `back-office`
 - Azure Container App Environment: `ppdemo-stage-weu`, `ppdemo-prod-eus2`
 - Azure Container Apps: `main-api`, `account-api`, `back-office-worker`
 - Managed Identity: `ppdemo-stage-weu-main`, `ppdemo-stage-weu-account`, `ppdemo-prod-eus2-back-office`

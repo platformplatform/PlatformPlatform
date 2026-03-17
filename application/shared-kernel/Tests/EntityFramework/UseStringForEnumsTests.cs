@@ -40,7 +40,7 @@ public sealed class UseStringForEnumsTests : IDisposable
 
         // Assert - Query the raw database to verify enum is stored as string
         var result = _connection.ExecuteScalar<string>(
-            "SELECT Status FROM TestAggregates WHERE Id = @id",
+            "SELECT status FROM test_aggregates WHERE id = @id",
             [new { id = testAggregate.Id }]
         );
         result.Should().Be("Active");
@@ -59,7 +59,7 @@ public sealed class UseStringForEnumsTests : IDisposable
 
         // Assert - Query the raw database to verify nullable enum is stored as string
         var result = _connection.ExecuteScalar<string>(
-            "SELECT NullableStatus FROM TestAggregates WHERE Id = @id",
+            "SELECT nullable_status FROM test_aggregates WHERE id = @id",
             [new { id = testAggregate.Id }]
         );
         result.Should().Be("Completed");
@@ -78,7 +78,7 @@ public sealed class UseStringForEnumsTests : IDisposable
 
         // Assert - Query the raw database to verify null is stored
         var result = _connection.ExecuteScalar<string?>(
-            "SELECT NullableStatus FROM TestAggregates WHERE Id = @id",
+            "SELECT nullable_status FROM test_aggregates WHERE id = @id",
             [new { id = testAggregate.Id }]
         );
         result.Should().BeNull();

@@ -28,7 +28,7 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedRole = Connection.ExecuteScalar<string>(
-            "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
+            "SELECT role FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
         );
         updatedRole.Should().Be(nameof(UserRole.Owner));
 
@@ -44,7 +44,7 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
     public async Task ChangeUserRole_WhenOwnerChangesRoleFromOwnerToMember_ShouldSucceed()
     {
         // Arrange
-        Connection.Update("Users", "Id", DatabaseSeeder.Tenant1Member.Id.ToString(), [("Role", nameof(UserRole.Owner))]);
+        Connection.Update("users", "id", DatabaseSeeder.Tenant1Member.Id.ToString(), [("role", nameof(UserRole.Owner))]);
         var command = new ChangeUserRoleCommand { UserRole = UserRole.Member };
 
         // Act
@@ -56,7 +56,7 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedRole = Connection.ExecuteScalar<string>(
-            "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
+            "SELECT role FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
         );
         updatedRole.Should().Be(nameof(UserRole.Member));
 
@@ -81,7 +81,7 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "You cannot change your own user role.");
 
         var roleUnchanged = Connection.ExecuteScalar<string>(
-            "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
+            "SELECT role FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
         );
         roleUnchanged.Should().Be(nameof(UserRole.Owner));
 
@@ -106,7 +106,7 @@ public sealed class ChangeUserRoleTests : EndpointBaseTest<AccountDbContext>
         );
 
         var roleUnchanged = Connection.ExecuteScalar<string>(
-            "SELECT Role FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
+            "SELECT role FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
         );
         roleUnchanged.Should().Be(nameof(UserRole.Owner));
 

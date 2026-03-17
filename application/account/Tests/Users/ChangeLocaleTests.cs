@@ -26,7 +26,7 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
-            "SELECT Locale FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
+            "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
         );
         updatedLocale.Should().Be(newLocale);
 
@@ -51,7 +51,7 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
-            "SELECT Locale FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
+            "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Member.Id.ToString() }]
         );
         updatedLocale.Should().Be(newLocale);
 
@@ -102,7 +102,7 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var locale = "en-US";
-        Connection.Update("Users", "Id", DatabaseSeeder.Tenant1Owner.Id.ToString(), [("Locale", locale)]);
+        Connection.Update("users", "id", DatabaseSeeder.Tenant1Owner.Id.ToString(), [("locale", locale)]);
         var command = new ChangeLocaleCommand(locale);
 
         // Act
@@ -112,7 +112,7 @@ public sealed class ChangeLocaleTests : EndpointBaseTest<AccountDbContext>
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
 
         var updatedLocale = Connection.ExecuteScalar<string>(
-            "SELECT Locale FROM Users WHERE Id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
+            "SELECT locale FROM users WHERE id = @id", [new { id = DatabaseSeeder.Tenant1Owner.Id.ToString() }]
         );
         updatedLocale.Should().Be(locale);
 

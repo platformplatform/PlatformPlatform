@@ -11,7 +11,7 @@ public interface ISubscriptionRepository : ICrudRepository<Subscription, Subscri
     Task<Subscription> GetCurrentAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (UPDLOCK).
+    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (FOR UPDATE).
     ///     This method should only be used in webhook processing to serialize with user-action commands.
     ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
@@ -34,19 +34,19 @@ internal sealed class SubscriptionRepository(AccountDbContext accountDbContext, 
     }
 
     /// <summary>
-    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (UPDLOCK).
+    ///     Retrieves a subscription by Stripe customer ID with pessimistic locking (FOR UPDATE).
     ///     This method should only be used in webhook processing to serialize with user-action commands.
     ///     This method bypasses tenant query filters since webhooks have no tenant context.
     /// </summary>
     public async Task<Subscription?> GetByStripeCustomerIdWithLockUnfilteredAsync(StripeCustomerId stripeCustomerId, CancellationToken cancellationToken)
     {
-        if (accountDbContext.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
         {
             return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.StripeCustomerId == stripeCustomerId, cancellationToken);
         }
 
         return await DbSet
-            .FromSqlInterpolated($"SELECT * FROM Subscriptions WITH (UPDLOCK, ROWLOCK) WHERE StripeCustomerId = {stripeCustomerId.Value}")
+            .FromSqlInterpolated($"SELECT * FROM subscriptions WHERE stripe_customer_id = {stripeCustomerId.Value} FOR UPDATE")
             .IgnoreQueryFilters()
             .SingleOrDefaultAsync(cancellationToken);
     }

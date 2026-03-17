@@ -67,6 +67,7 @@ resource signKeyVaultKeysRoleAssignment 'Microsoft.Authorization/roleAssignments
   }
 }
 
+output name string = userAssignedIdentity.name
 output id string = userAssignedIdentity.id
 output clientId string = userAssignedIdentity.properties.clientId
 output principalId string = userAssignedIdentity.properties.principalId

@@ -62,7 +62,7 @@ public class DeployCommand : Command
 
         ConfirmReuseIfAppRegistrationsExist();
 
-        ConfirmReuseIfSqlAdminSecurityGroupExists();
+        ConfirmReuseIfPostgresAdminSecurityGroupExists();
 
         CollectAdditionalInfo();
 
@@ -82,7 +82,7 @@ public class DeployCommand : Command
 
         GrantSubscriptionPermissionsToServicePrincipals();
 
-        CreateAzureSqlServerSecurityGroups();
+        CreateAzurePostgresAdminSecurityGroups();
 
         CreateGithubEnvironments();
 
@@ -298,7 +298,7 @@ public class DeployCommand : Command
         var uniquePrefix = Config.GithubVariables.GetValueOrDefault(nameof(VariableNames.UNIQUE_PREFIX));
 
         AnsiConsole.MarkupLine(
-            "When creating Azure resources like Azure Container Registry, SQL Server, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production SQL Server in West Europe will be named 'acme-prod-euw'."
+            "When creating Azure resources like Azure Container Registry, PostgreSQL, Blob storage, Service Bus, Key Vaults, etc., a global unique name is required. To do this we use a prefix of 2-6 characters, which allows for flexibility for the rest of the name. E.g. if you select 'acme' the production PostgreSQL server in West Europe will be named 'acme-prod-euw'."
         );
 
         if (uniquePrefix is not null)
@@ -403,24 +403,24 @@ public class DeployCommand : Command
         }
     }
 
-    private void ConfirmReuseIfSqlAdminSecurityGroupExists()
+    private void ConfirmReuseIfPostgresAdminSecurityGroupExists()
     {
-        Config.StagingSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.StagingSubscription.SqlAdminsGroup.Name);
-        Config.ProductionSubscription.SqlAdminsGroup.ObjectId = ConfirmReuseIfSqlAdminSecurityGroupExist(Config.ProductionSubscription.SqlAdminsGroup.Name);
+        Config.StagingSubscription.PostgresAdminsGroup.ObjectId = ConfirmReuseIfPostgresAdminSecurityGroupExist(Config.StagingSubscription.PostgresAdminsGroup.Name);
+        Config.ProductionSubscription.PostgresAdminsGroup.ObjectId = ConfirmReuseIfPostgresAdminSecurityGroupExist(Config.ProductionSubscription.PostgresAdminsGroup.Name);
 
-        string? ConfirmReuseIfSqlAdminSecurityGroupExist(string sqlAdminsSecurityGroupName)
+        string? ConfirmReuseIfPostgresAdminSecurityGroupExist(string dbAdminsSecurityGroupName)
         {
-            var sqlAdminsObjectId = RunAzureCliCommand(
-                $"""ad group list --display-name "{sqlAdminsSecurityGroupName}" --query "[].id" -o tsv"""
+            var dbAdminsObjectId = RunAzureCliCommand(
+                $"""ad group list --display-name "{dbAdminsSecurityGroupName}" --query "[].id" -o tsv"""
             ).Trim();
 
-            if (sqlAdminsObjectId == string.Empty)
+            if (dbAdminsObjectId == string.Empty)
             {
                 return null;
             }
 
             AnsiConsole.MarkupLine(
-                $"[yellow]The AD Security Group '{sqlAdminsSecurityGroupName}' already exists with ID: {sqlAdminsObjectId}[/]"
+                $"[yellow]The AD Security Group '{dbAdminsSecurityGroupName}' already exists with ID: {dbAdminsObjectId}[/]"
             );
 
             if (!AnsiConsole.Confirm("The existing AD Security Group will be reused. Do you want to continue?"))
@@ -431,7 +431,7 @@ public class DeployCommand : Command
 
             AnsiConsole.WriteLine();
 
-            return sqlAdminsObjectId;
+            return dbAdminsObjectId;
         }
     }
 
@@ -452,11 +452,11 @@ public class DeployCommand : Command
         var productionServicePrincipal = Config.ProductionSubscription.AppRegistration.Exists
             ? Config.ProductionSubscription.AppRegistration.ServicePrincipalId
             : "Will be generated";
-        var stagingSqlAdminObject = Config.StagingSubscription.SqlAdminsGroup.Exists
-            ? Config.StagingSubscription.SqlAdminsGroup.ObjectId
+        var stagingPostgresAdminObject = Config.StagingSubscription.PostgresAdminsGroup.Exists
+            ? Config.StagingSubscription.PostgresAdminsGroup.ObjectId
             : "Will be generated";
-        var productionSqlAdminObject = Config.ProductionSubscription.SqlAdminsGroup.Exists
-            ? Config.ProductionSubscription.SqlAdminsGroup.ObjectId
+        var productionPostgresAdminObject = Config.ProductionSubscription.PostgresAdminsGroup.Exists
+            ? Config.ProductionSubscription.PostgresAdminsGroup.ObjectId
             : "Will be generated";
 
         var setupConfirmPrompt =
@@ -472,10 +472,10 @@ public class DeployCommand : Command
                 [yellow]** The Service Principals will get 'Contributor' and 'User Access Administrator' role on the Azure Subscriptions.[/]
 
                 [bold]Active Directory Security Groups:[/]
-                * [blue]{Config.StagingSubscription.SqlAdminsGroup.Name}[/]
-                * [blue]{Config.ProductionSubscription.SqlAdminsGroup.Name}[/]
+                * [blue]{Config.StagingSubscription.PostgresAdminsGroup.Name}[/]
+                * [blue]{Config.ProductionSubscription.PostgresAdminsGroup.Name}[/]
 
-                [yellow]** The SQL Admins Security Groups are used to grant Managed Identities and CI/CD permissions to SQL Databases.[/]
+                [yellow]** The PostgreSQL Admins Security Groups are used to grant Managed Identities and CI/CD permissions to PostgreSQL databases.[/]
 
              2. The following GitHub environments will be created if not exists:
                 * [blue]staging[/]
@@ -493,7 +493,7 @@ public class DeployCommand : Command
                 * STAGING_SUBSCRIPTION_ID: [blue]{Config.StagingSubscription.Id}[/]
                 * STAGING_SHARED_LOCATION: [blue]{Config.StagingLocation.SharedLocation}[/]
                 * STAGING_SERVICE_PRINCIPAL_ID: [blue]{stagingServicePrincipal}[/]
-                * STAGING_SQL_ADMIN_OBJECT_ID: [blue]{stagingSqlAdminObject}[/]
+                * STAGING_POSTGRES_ADMIN_OBJECT_ID: [blue]{stagingPostgresAdminObject}[/]
                 * STAGING_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
 
                 [bold]Staging Cluster Variables:[/]
@@ -506,7 +506,7 @@ public class DeployCommand : Command
                 * PRODUCTION_SHARED_LOCATION: [blue]{Config.ProductionLocation.SharedLocation}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_ID: [blue]{productionServicePrincipal}[/]
                 * PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID: [blue]{Config.ProductionSubscription.AppRegistration.ServicePrincipalObjectId}[/]
-                * PRODUCTION_SQL_ADMIN_OBJECT_ID: [blue]{productionSqlAdminObject}[/]
+                * PRODUCTION_POSTGRES_ADMIN_OBJECT_ID: [blue]{productionPostgresAdminObject}[/]
                 * PRODUCTION_DOMAIN_NAME: [blue]-[/] ([yellow]Manually changed this and triggered deployment to set up the domain[/])
 
                 [bold]Production Cluster 1 Variables:[/]
@@ -662,27 +662,27 @@ public class DeployCommand : Command
         }
     }
 
-    private void CreateAzureSqlServerSecurityGroups()
+    private void CreateAzurePostgresAdminSecurityGroups()
     {
-        CreateAzureSqlServerSecurityGroup(Config.StagingSubscription.SqlAdminsGroup, Config.StagingSubscription.AppRegistration);
-        CreateAzureSqlServerSecurityGroup(Config.ProductionSubscription.SqlAdminsGroup, Config.ProductionSubscription.AppRegistration);
+        CreateAzurePostgresAdminSecurityGroup(Config.StagingSubscription.PostgresAdminsGroup, Config.StagingSubscription.AppRegistration);
+        CreateAzurePostgresAdminSecurityGroup(Config.ProductionSubscription.PostgresAdminsGroup, Config.ProductionSubscription.AppRegistration);
 
-        void CreateAzureSqlServerSecurityGroup(SqlAdminsGroup sqlAdminGroup, AppRegistration appRegistration)
+        void CreateAzurePostgresAdminSecurityGroup(PostgresAdminsGroup dbAdminGroup, AppRegistration appRegistration)
         {
-            if (!sqlAdminGroup.Exists)
+            if (!dbAdminGroup.Exists)
             {
-                sqlAdminGroup.ObjectId = RunAzureCliCommand(
-                    $"""ad group create --display-name "{sqlAdminGroup.Name}" --mail-nickname "{sqlAdminGroup.NickName}" --query "id" -o tsv"""
+                dbAdminGroup.ObjectId = RunAzureCliCommand(
+                    $"""ad group create --display-name "{dbAdminGroup.Name}" --mail-nickname "{dbAdminGroup.NickName}" --query "id" -o tsv"""
                 ).Trim();
             }
 
             RunAzureCliCommand(
-                $"ad group member add --group {sqlAdminGroup.ObjectId} --member-id {appRegistration.ServicePrincipalObjectId}",
+                $"ad group member add --group {dbAdminGroup.ObjectId} --member-id {appRegistration.ServicePrincipalObjectId}",
                 !Configuration.TraceEnabled
             );
 
             AnsiConsole.MarkupLine(
-                $"[green]Successfully created AD Security Group '{sqlAdminGroup.Name}' and assigned the App Registration '{appRegistration.Name}' owner role.[/]"
+                $"[green]Successfully created AD Security Group '{dbAdminGroup.Name}' and assigned the App Registration '{appRegistration.Name}' owner role.[/]"
             );
         }
     }
@@ -723,7 +723,7 @@ public class DeployCommand : Command
         SetGithubVariable(VariableNames.STAGING_SUBSCRIPTION_ID, Config.StagingSubscription.Id);
         SetGithubVariable(VariableNames.STAGING_SERVICE_PRINCIPAL_ID, Config.StagingSubscription.AppRegistration.ServicePrincipalId!);
         SetGithubVariable(VariableNames.STAGING_SHARED_LOCATION, Config.StagingLocation.SharedLocation);
-        SetGithubVariable(VariableNames.STAGING_SQL_ADMIN_OBJECT_ID, Config.StagingSubscription.SqlAdminsGroup.ObjectId!);
+        SetGithubVariable(VariableNames.STAGING_POSTGRES_ADMIN_OBJECT_ID, Config.StagingSubscription.PostgresAdminsGroup.ObjectId!);
         SetGithubVariable(VariableNames.STAGING_DOMAIN_NAME, "-");
 
         SetGithubVariable(VariableNames.STAGING_CLUSTER_ENABLED, "true");
@@ -734,7 +734,7 @@ public class DeployCommand : Command
         SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalId!);
         SetGithubVariable(VariableNames.PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID, Config.ProductionSubscription.AppRegistration.ServicePrincipalObjectId!);
         SetGithubVariable(VariableNames.PRODUCTION_SHARED_LOCATION, Config.ProductionLocation.SharedLocation);
-        SetGithubVariable(VariableNames.PRODUCTION_SQL_ADMIN_OBJECT_ID, Config.ProductionSubscription.SqlAdminsGroup.ObjectId!);
+        SetGithubVariable(VariableNames.PRODUCTION_POSTGRES_ADMIN_OBJECT_ID, Config.ProductionSubscription.PostgresAdminsGroup.ObjectId!);
         SetGithubVariable(VariableNames.PRODUCTION_DOMAIN_NAME, "-");
 
         SetGithubVariable(VariableNames.PRODUCTION_CLUSTER1_ENABLED, "false");
@@ -1028,7 +1028,7 @@ public class Subscription(string id, string name, string tenantId, GithubInfo gi
 
     public AppRegistration AppRegistration { get; } = new(githubInfo, environmentName);
 
-    public SqlAdminsGroup SqlAdminsGroup { get; } = new(githubInfo, environmentName);
+    public PostgresAdminsGroup PostgresAdminsGroup { get; } = new(githubInfo, environmentName);
 }
 
 public class AppRegistration(GithubInfo githubInfo, string environmentName)
@@ -1044,11 +1044,11 @@ public class AppRegistration(GithubInfo githubInfo, string environmentName)
     public string? ServicePrincipalObjectId { get; set; }
 }
 
-public class SqlAdminsGroup(GithubInfo githubInfo, string environmentName)
+public class PostgresAdminsGroup(GithubInfo githubInfo, string environmentName)
 {
-    public string Name => $"SQL Admins - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
+    public string Name => $"PostgreSQL Admins - {environmentName} - {githubInfo.OrganizationName}/{githubInfo.RepositoryName}";
 
-    public string NickName => $"SQLServerAdmins{environmentName}{githubInfo.OrganizationName}{githubInfo.RepositoryName}";
+    public string NickName => $"PostgreSQLAdmins{environmentName}{githubInfo.OrganizationName}{githubInfo.RepositoryName}";
 
     public bool Exists => !string.IsNullOrEmpty(ObjectId);
 
@@ -1066,7 +1066,7 @@ public enum VariableNames
     STAGING_SUBSCRIPTION_ID,
     STAGING_SERVICE_PRINCIPAL_ID,
     STAGING_SHARED_LOCATION,
-    STAGING_SQL_ADMIN_OBJECT_ID,
+    STAGING_POSTGRES_ADMIN_OBJECT_ID,
     STAGING_DOMAIN_NAME,
 
     STAGING_CLUSTER_ENABLED,
@@ -1077,7 +1077,7 @@ public enum VariableNames
     PRODUCTION_SERVICE_PRINCIPAL_ID,
     PRODUCTION_SERVICE_PRINCIPAL_OBJECT_ID,
     PRODUCTION_SHARED_LOCATION,
-    PRODUCTION_SQL_ADMIN_OBJECT_ID,
+    PRODUCTION_POSTGRES_ADMIN_OBJECT_ID,
     PRODUCTION_DOMAIN_NAME,
 
     PRODUCTION_CLUSTER1_ENABLED,

@@ -40,7 +40,7 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountDbContext
 
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
-        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM Users WHERE Email = @email", [new { email = email.ToLower() }]).Should().Be(1);
+        Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM users WHERE email = @email", [new { email = email.ToLower() }]).Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(5);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("SignupStarted");
@@ -141,16 +141,16 @@ public sealed class CompleteEmailSignupTests : EndpointBaseTest<AccountDbContext
         var email = Faker.Internet.UniqueEmail();
 
         var emailLoginId = EmailLoginId.NewId();
-        Connection.Insert("EmailLogins", [
-                ("Id", emailLoginId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", email),
-                ("Type", nameof(EmailLoginType.Signup)),
-                ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("RetryCount", 0),
-                ("ResendCount", 0),
-                ("Completed", false)
+        Connection.Insert("email_logins", [
+                ("id", emailLoginId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", email),
+                ("type", nameof(EmailLoginType.Signup)),
+                ("one_time_password_hash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
+                ("retry_count", 0),
+                ("resend_count", 0),
+                ("completed", false)
             ]
         );
 

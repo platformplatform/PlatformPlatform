@@ -17,9 +17,9 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenNoSavedPaymentMethod_ShouldReturnCheckoutSession()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123"),
-                ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123"),
+                ("billing_info", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
         );
         var command = new StartSubscriptionCheckoutCommand(SubscriptionPlan.Standard);
@@ -44,10 +44,10 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenSavedPaymentMethod_ShouldSubscribeDirectly()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("StripeCustomerId", "cus_test_123"),
-                ("PaymentMethod", """{"Brand":"visa","Last4":"4242","ExpMonth":12,"ExpYear":2026}"""),
-                ("BillingInfo", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("stripe_customer_id", "cus_test_123"),
+                ("payment_method", """{"Brand":"visa","Last4":"4242","ExpMonth":12,"ExpYear":2026}"""),
+                ("billing_info", """{"Name":"Test Organization","Address":{"Line1":"Vestergade 12","PostalCode":"1456","City":"Copenhagen","Country":"DK"},"Email":"billing@example.com"}""")
             ]
         );
         var command = new StartSubscriptionCheckoutCommand(SubscriptionPlan.Standard);
@@ -70,11 +70,11 @@ public sealed class StartSubscriptionCheckoutTests : EndpointBaseTest<AccountDbC
     public async Task StartSubscriptionCheckout_WhenActiveSubscriptionExists_ShouldReturnBadRequest()
     {
         // Arrange
-        Connection.Update("Subscriptions", "TenantId", DatabaseSeeder.Tenant1.Id.Value, [
-                ("Plan", nameof(SubscriptionPlan.Standard)),
-                ("StripeCustomerId", "cus_test_123"),
-                ("StripeSubscriptionId", "sub_test_123"),
-                ("CurrentPeriodEnd", TimeProvider.GetUtcNow().AddDays(30))
+        Connection.Update("subscriptions", "tenant_id", DatabaseSeeder.Tenant1.Id.Value, [
+                ("plan", nameof(SubscriptionPlan.Standard)),
+                ("stripe_customer_id", "cus_test_123"),
+                ("stripe_subscription_id", "sub_test_123"),
+                ("current_period_end", TimeProvider.GetUtcNow().AddDays(30))
             ]
         );
         var command = new StartSubscriptionCheckoutCommand(SubscriptionPlan.Premium);

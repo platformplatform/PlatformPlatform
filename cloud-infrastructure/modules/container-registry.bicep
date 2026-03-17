@@ -28,3 +28,5 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2025-11-01' =
     }
   }
 }
+
+output name string = containerRegistry.name

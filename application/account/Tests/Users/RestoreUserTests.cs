@@ -17,21 +17,21 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var deletedUserId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", deletedUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-10)),
-                ("ModifiedAt", TimeProvider.GetUtcNow().AddDays(-1)),
-                ("DeletedAt", TimeProvider.GetUtcNow().AddDays(-1)),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Former Employee"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", deletedUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddDays(-10)),
+                ("modified_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("deleted_at", TimeProvider.GetUtcNow().AddDays(-1)),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Former Employee"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -40,7 +40,7 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = deletedUserId.ToString() }]);
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = deletedUserId.ToString() }]);
         deletedAt.Should().BeNullOrEmpty();
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -78,21 +78,21 @@ public sealed class RestoreUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var activeUserId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", activeUserId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddDays(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Active Employee"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", activeUserId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddDays(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Active Employee"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 

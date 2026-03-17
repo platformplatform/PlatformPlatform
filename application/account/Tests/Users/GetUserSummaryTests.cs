@@ -20,62 +20,62 @@ public sealed class GetUserSummaryTests : EndpointBaseTest<AccountDbContext>
         var thirtyOneDaysAgo = now.AddDays(-31);
 
         // Set the seeded owner user as active (LastSeenAt within 30 days)
-        Connection.Update("Users", "Id", DatabaseSeeder.Tenant1Owner.Id.ToString(), [("LastSeenAt", now)]);
+        Connection.Update("users", "id", DatabaseSeeder.Tenant1Owner.Id.ToString(), [("last_seen_at", now)]);
 
         // Insert an active user (LastSeenAt within 30 days, confirmed)
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", now.AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", "active@example.com"),
-                ("FirstName", "Active"),
-                ("LastName", "User"),
-                ("Title", null),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("LastSeenAt", now.AddDays(-5)),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", now.AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", "active@example.com"),
+                ("first_name", "Active"),
+                ("last_name", "User"),
+                ("title", null),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("last_seen_at", now.AddDays(-5)),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
         // Insert an inactive user (LastSeenAt older than 30 days, confirmed)
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", now.AddDays(-60)),
-                ("ModifiedAt", null),
-                ("Email", "inactive@example.com"),
-                ("FirstName", "Inactive"),
-                ("LastName", "User"),
-                ("Title", null),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("LastSeenAt", thirtyOneDaysAgo),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", now.AddDays(-60)),
+                ("modified_at", null),
+                ("email", "inactive@example.com"),
+                ("first_name", "Inactive"),
+                ("last_name", "User"),
+                ("title", null),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("last_seen_at", thirtyOneDaysAgo),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
         // Insert a pending user (not confirmed, no LastSeenAt)
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", now.AddMinutes(-5)),
-                ("ModifiedAt", null),
-                ("Email", "pending@example.com"),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", false),
-                ("LastSeenAt", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", now.AddMinutes(-5)),
+                ("modified_at", null),
+                ("email", "pending@example.com"),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", false),
+                ("last_seen_at", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 

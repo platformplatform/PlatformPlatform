@@ -19,36 +19,36 @@ public sealed class GetUsersTests : EndpointBaseTest<AccountDbContext>
 
     public GetUsersTests()
     {
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", Email),
-                ("FirstName", FirstName),
-                ("LastName", LastName),
-                ("Title", "Philanthropist & Innovator"),
-                ("Role", UserRole.ToString()),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", Email),
+                ("first_name", FirstName),
+                ("last_name", LastName),
+                ("title", "Philanthropist & Innovator"),
+                ("role", UserRole.ToString()),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", UserId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", "ada@lovelace.com"),
-                ("FirstName", "Ada"),
-                ("LastName", "Lovelace"),
-                ("Title", "Mathematician & Writer"),
-                ("Role", UserRole.ToString()),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", UserId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", "ada@lovelace.com"),
+                ("first_name", "Ada"),
+                ("last_name", "Lovelace"),
+                ("title", "Mathematician & Writer"),
+                ("role", UserRole.ToString()),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
     }

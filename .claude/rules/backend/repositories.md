@@ -32,6 +32,7 @@ Guidelines for implementing DDD repositories in the backend, including structure
 14. Never do N+1 queries
 15. Don't register repositories in DI—SharedKernel registers them automatically
 16. Don't add DbSets to DbContext—RepositoryBase handles this automatically
+17. Add `.OrderBy(e => e.Id)` when caller depends on order (`[0]`, `.First()`, pagination)—ULIDs are chronological
 
 ## Examples
 

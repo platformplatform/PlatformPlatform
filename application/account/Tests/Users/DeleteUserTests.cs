@@ -31,21 +31,21 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var userId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Philanthropist & Innovator"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Philanthropist & Innovator"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -54,8 +54,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        Connection.RowExists("users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
     }
 
@@ -77,36 +77,36 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var userId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", Faker.Person.FirstName),
-                ("LastName", Faker.Person.LastName),
-                ("Title", "Philanthropist & Innovator"),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", true),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", Faker.Person.FirstName),
+                ("last_name", Faker.Person.LastName),
+                ("title", "Philanthropist & Innovator"),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", true),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
-        var email = Connection.ExecuteScalar<string>("SELECT Email FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        var email = Connection.ExecuteScalar<string>("SELECT email FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         var emailLoginId = EmailLoginId.NewId();
-        Connection.Insert("EmailLogins", [
-                ("Id", emailLoginId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-5)),
-                ("ModifiedAt", null),
-                ("Email", email),
-                ("Type", nameof(EmailLoginType.Login)),
-                ("OneTimePasswordHash", "hash"),
-                ("RetryCount", 0),
-                ("ResendCount", 0),
-                ("Completed", true)
+        Connection.Insert("email_logins", [
+                ("id", emailLoginId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-5)),
+                ("modified_at", null),
+                ("email", email),
+                ("type", nameof(EmailLoginType.Login)),
+                ("one_time_password_hash", "hash"),
+                ("retry_count", 0),
+                ("resend_count", 0),
+                ("completed", true)
             ]
         );
 
@@ -115,10 +115,10 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        Connection.RowExists("users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
-        Connection.RowExists("EmailLogins", emailLoginId.ToString()).Should().BeTrue();
+        Connection.RowExists("email_logins", emailLoginId.ToString()).Should().BeTrue();
     }
 
     [Fact]
@@ -126,21 +126,21 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
     {
         // Arrange
         var userId = UserId.NewId();
-        Connection.Insert("Users", [
-                ("TenantId", DatabaseSeeder.Tenant1.Id.ToString()),
-                ("Id", userId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("DeletedAt", null),
-                ("Email", Faker.Internet.UniqueEmail()),
-                ("FirstName", null),
-                ("LastName", null),
-                ("Title", null),
-                ("Role", nameof(UserRole.Member)),
-                ("EmailConfirmed", false),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", DatabaseSeeder.Tenant1.Id.ToString()),
+                ("id", userId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("deleted_at", null),
+                ("email", Faker.Internet.UniqueEmail()),
+                ("first_name", null),
+                ("last_name", null),
+                ("title", null),
+                ("role", nameof(UserRole.Member)),
+                ("email_confirmed", false),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -149,8 +149,8 @@ public sealed class DeleteUserTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
-        Connection.RowExists("Users", userId.ToString()).Should().BeTrue();
-        var deletedAt = Connection.ExecuteScalar<string>("SELECT DeletedAt FROM Users WHERE Id = @id", [new { id = userId.ToString() }]);
+        Connection.RowExists("users", userId.ToString()).Should().BeTrue();
+        var deletedAt = Connection.ExecuteScalar<string>("SELECT deleted_at FROM users WHERE id = @id", [new { id = userId.ToString() }]);
         deletedAt.Should().NotBeNullOrEmpty();
     }
 }

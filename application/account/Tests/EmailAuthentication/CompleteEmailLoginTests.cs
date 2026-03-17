@@ -36,7 +36,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         var updatedEmailLoginCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM EmailLogins WHERE Id = @id AND Completed = 1", [new { id = emailLoginId.ToString() }]
+            "SELECT COUNT(*) FROM email_logins WHERE id = @id AND completed = 1", [new { id = emailLoginId.ToString() }]
         );
         updatedEmailLoginCount.Should().Be(1);
 
@@ -82,7 +82,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         // Assert
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.BadRequest, "The code is wrong or no longer valid.");
 
-        var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT RetryCount FROM EmailLogins WHERE Id = @id", [new { id = emailLoginId.ToString() }]);
+        var updatedRetryCount = Connection.ExecuteScalar<long>("SELECT retry_count FROM email_logins WHERE id = @id", [new { id = emailLoginId.ToString() }]);
         updatedRetryCount.Should().Be(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(2);
@@ -127,7 +127,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         await response.ShouldHaveErrorStatusCode(HttpStatusCode.Forbidden, "Too many attempts, please request a new code.");
 
         var updatedRetryCount = Connection.ExecuteScalar<long>(
-            "SELECT RetryCount FROM EmailLogins WHERE Id = @id", [new { id = emailLoginId.ToString() }]
+            "SELECT retry_count FROM email_logins WHERE id = @id", [new { id = emailLoginId.ToString() }]
         );
         updatedRetryCount.Should().Be(4);
 
@@ -146,16 +146,16 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var emailLoginId = EmailLoginId.NewId();
 
-        Connection.Insert("EmailLogins", [
-                ("Id", emailLoginId.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow().AddMinutes(-10)),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Owner.Email),
-                ("Type", nameof(EmailLoginType.Login)),
-                ("OneTimePasswordHash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
-                ("RetryCount", 0),
-                ("ResendCount", 0),
-                ("Completed", false)
+        Connection.Insert("email_logins", [
+                ("id", emailLoginId.ToString()),
+                ("created_at", TimeProvider.GetUtcNow().AddMinutes(-10)),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Owner.Email),
+                ("type", nameof(EmailLoginType.Login)),
+                ("one_time_password_hash", new PasswordHasher<object>().HashPassword(this, CorrectOneTimePassword)),
+                ("retry_count", 0),
+                ("resend_count", 0),
+                ("completed", false)
             ]
         );
 
@@ -176,7 +176,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
     public async Task CompleteEmailLogin_WhenUserInviteCompleted_ShouldTrackUserInviteAcceptedEvent()
     {
         // Arrange
-        Connection.Update("Tenants", "Id", DatabaseSeeder.Tenant1.Id.ToString(), [("Name", "Test Company")]);
+        Connection.Update("tenants", "id", DatabaseSeeder.Tenant1.Id.ToString(), [("name", "Test Company")]);
 
         var email = Faker.Internet.UniqueEmail();
         var inviteUserCommand = new InviteUserCommand(email);
@@ -193,7 +193,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         // Assert
         await response.ShouldBeSuccessfulPostRequest(hasLocation: false);
         Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE TenantId = @tenantId AND Email = @email AND EmailConfirmed = 1",
+            "SELECT COUNT(*) FROM users WHERE tenant_id = @tenantId AND email = @email AND email_confirmed = 1",
             [new { tenantId = DatabaseSeeder.Tenant1.Id.ToString(), email = email.ToLower() }]
         ).Should().Be(1);
 
@@ -212,52 +212,53 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         var tenant2Id = TenantId.NewId();
         var user2Id = UserId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 
-        Connection.Insert("Subscriptions", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", SubscriptionId.NewId().ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Plan", nameof(SubscriptionPlan.Basis)),
-                ("ScheduledPlan", null),
-                ("StripeCustomerId", null),
-                ("StripeSubscriptionId", null),
-                ("CurrentPriceAmount", null),
-                ("CurrentPriceCurrency", null),
-                ("CurrentPeriodEnd", null),
-                ("CancelAtPeriodEnd", false),
-                ("FirstPaymentFailedAt", null),
-                ("CancellationReason", null),
-                ("CancellationFeedback", null),
-                ("PaymentTransactions", "[]"),
-                ("PaymentMethod", null),
-                ("BillingInfo", null)
+        Connection.Insert("subscriptions", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", SubscriptionId.NewId().ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("plan", nameof(SubscriptionPlan.Basis)),
+                ("scheduled_plan", null),
+                ("stripe_customer_id", null),
+                ("stripe_subscription_id", null),
+                ("current_price_amount", null),
+                ("current_price_currency", null),
+                ("current_period_end", null),
+                ("cancel_at_period_end", false),
+                ("first_payment_failed_at", null),
+                ("cancellation_reason", null),
+                ("cancellation_feedback", null),
+                ("payment_transactions", "[]"),
+                ("payment_method", null),
+                ("billing_info", null)
             ]
         );
 
-        Connection.Insert("Users", [
-                ("TenantId", tenant2Id.Value),
-                ("Id", user2Id.ToString()),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Email", DatabaseSeeder.Tenant1Owner.Email),
-                ("EmailConfirmed", true),
-                ("FirstName", Faker.Name.FirstName()),
-                ("LastName", Faker.Name.LastName()),
-                ("Title", null),
-                ("Avatar", JsonSerializer.Serialize(new Avatar())),
-                ("Role", nameof(UserRole.Owner)),
-                ("Locale", "en-US"),
-                ("ExternalIdentities", "[]")
+        Connection.Insert("users", [
+                ("tenant_id", tenant2Id.Value),
+                ("id", user2Id.ToString()),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("email", DatabaseSeeder.Tenant1Owner.Email),
+                ("email_confirmed", true),
+                ("first_name", Faker.Name.FirstName()),
+                ("last_name", Faker.Name.LastName()),
+                ("title", null),
+                ("avatar", JsonSerializer.Serialize(new Avatar())),
+                ("role", nameof(UserRole.Owner)),
+                ("locale", "en-US"),
+                ("external_identities", "[]")
             ]
         );
 
@@ -310,13 +311,14 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
         // Arrange
         var tenant2Id = TenantId.NewId();
 
-        Connection.Insert("Tenants", [
-                ("Id", tenant2Id.Value),
-                ("CreatedAt", TimeProvider.GetUtcNow()),
-                ("ModifiedAt", null),
-                ("Name", Faker.Company.CompanyName()),
-                ("State", nameof(TenantState.Active)),
-                ("Logo", """{"Url":null,"Version":0}""")
+        Connection.Insert("tenants", [
+                ("id", tenant2Id.Value),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("name", Faker.Company.CompanyName()),
+                ("state", nameof(TenantState.Active)),
+                ("logo", """{"Url":null,"Version":0}"""),
+                ("plan", nameof(SubscriptionPlan.Basis))
             ]
         );
 

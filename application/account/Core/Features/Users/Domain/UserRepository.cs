@@ -116,23 +116,38 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
 
     public async Task<(int TotalUsers, int ActiveUsers, int PendingUsers)> GetUserSummaryAsync(CancellationToken cancellationToken)
     {
-        var thirtyDaysAgo = timeProvider.GetUtcNow().AddDays(-30).ToString("O");
-        var tenantId = executionContext.TenantId!.Value.ToString();
+        var thirtyDaysAgo = timeProvider.GetUtcNow().AddDays(-30);
 
-        var sql = """
-                  SELECT
-                      COUNT(*) AS TotalUsers,
-                      SUM(CASE WHEN EmailConfirmed = 1 AND LastSeenAt >= {0} THEN 1 ELSE 0 END) AS ActiveUsers,
-                      SUM(CASE WHEN EmailConfirmed = 0 THEN 1 ELSE 0 END) AS PendingUsers
-                  FROM Users
-                  WHERE TenantId = {1} AND DeletedAt IS NULL
-                  """;
+        if (accountDbContext.Database.ProviderName is "Microsoft.EntityFrameworkCore.Sqlite")
+        {
+            var sql = """
+                      SELECT
+                          COUNT(*) AS total_users,
+                          SUM(CASE WHEN email_confirmed = 1 AND last_seen_at >= {0} THEN 1 ELSE 0 END) AS active_users,
+                          SUM(CASE WHEN email_confirmed = 0 THEN 1 ELSE 0 END) AS pending_users
+                      FROM users
+                      WHERE tenant_id = {1} AND deleted_at IS NULL
+                      """;
 
-        var result = await accountDbContext.Database
-            .SqlQueryRaw<UserSummaryResult>(sql, thirtyDaysAgo, tenantId)
-            .SingleAsync(cancellationToken);
+            var result = await accountDbContext.Database
+                .SqlQueryRaw<UserSummaryResult>(sql, thirtyDaysAgo.ToString("O"), executionContext.TenantId!.Value.ToString())
+                .SingleAsync(cancellationToken);
 
-        return (result.TotalUsers, result.ActiveUsers, result.PendingUsers);
+            return (result.TotalUsers, result.ActiveUsers, result.PendingUsers);
+        }
+
+        var totalUsers = await DbSet.CountAsync(cancellationToken);
+
+        var activeUsers = await DbSet
+            .Where(u => u.EmailConfirmed)
+            .Where(u => u.LastSeenAt >= thirtyDaysAgo)
+            .CountAsync(cancellationToken);
+
+        var pendingUsers = await DbSet
+            .Where(u => !u.EmailConfirmed)
+            .CountAsync(cancellationToken);
+
+        return (totalUsers, activeUsers, pendingUsers);
     }
 
     public async Task<(User[] Users, int TotalItems, int TotalPages)> Search(
@@ -241,6 +256,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
         return await DbSet
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(u => u.Email == email.ToLowerInvariant())
+            .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
     }
 

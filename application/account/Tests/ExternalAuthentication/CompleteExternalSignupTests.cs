@@ -24,11 +24,11 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Be("/onboarding");
 
         var userCount = Connection.ExecuteScalar<long>(
-            "SELECT COUNT(*) FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT COUNT(*) FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         userCount.Should().Be(1);
 
-        var tenantCount = Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM Tenants", []);
+        var tenantCount = Connection.ExecuteScalar<long>("SELECT COUNT(*) FROM tenants", []);
         tenantCount.Should().BeGreaterThan(1);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Should().Contain(e => e.GetType().Name == "TenantCreated");
@@ -55,7 +55,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
 
         var externalLoginId = GetExternalLoginIdFromUrl(callbackUrl);
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.AccountAlreadyExists));
 
@@ -133,7 +133,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Contain("/error?error=session_expired");
 
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.LoginExpired));
 
@@ -159,7 +159,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
         response.Headers.Location!.ToString().Should().Contain("/error?error=authentication_failed");
 
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.NonceMismatch));
 
@@ -203,7 +203,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
 
         var externalLoginId = GetExternalLoginIdFromUrl(callbackUrl1);
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.FlowIdMismatch));
 
@@ -280,7 +280,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
 
         // Assert
         var loginResult = Connection.ExecuteScalar<string>(
-            "SELECT LoginResult FROM ExternalLogins WHERE Id = @id", [new { id = externalLoginId }]
+            "SELECT login_result FROM external_logins WHERE id = @id", [new { id = externalLoginId }]
         );
         loginResult.Should().Be(nameof(ExternalLoginResult.Success));
     }
@@ -297,7 +297,7 @@ public sealed class CompleteExternalSignupTests : ExternalAuthenticationTestBase
 
         // Assert
         var externalIdentities = Connection.ExecuteScalar<string>(
-            "SELECT ExternalIdentities FROM Users WHERE Email = @email", [new { email = MockOAuthProvider.MockEmail }]
+            "SELECT external_identities FROM users WHERE email = @email", [new { email = MockOAuthProvider.MockEmail }]
         );
         externalIdentities.Should().Contain(MockOAuthProvider.MockProviderUserId);
     }

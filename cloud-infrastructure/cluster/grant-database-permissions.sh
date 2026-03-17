@@ -1,41 +1,37 @@
+set -e
+
 UNIQUE_PREFIX=$1
 ENVIRONMENT=$2
 CLUSTER_LOCATION_ACRONYM=$3
-SQL_DATABASE_NAME=$4
+DATABASE_NAME=$4
 MANAGED_IDENTITY_CLIENT_ID=$5
 
 CLUSTER_RESOURCE_GROUP_NAME=$UNIQUE_PREFIX-$ENVIRONMENT-$CLUSTER_LOCATION_ACRONYM
 MANAGED_IDENTITY_NAME=$CLUSTER_RESOURCE_GROUP_NAME-$4
-SQL_SERVER_NAME=$CLUSTER_RESOURCE_GROUP_NAME
-SQL_SERVER=$SQL_SERVER_NAME.database.windows.net
+POSTGRES_SERVER_NAME=$CLUSTER_RESOURCE_GROUP_NAME
+POSTGRES_HOST=$POSTGRES_SERVER_NAME.postgres.database.azure.com
 
-cd "$(dirname "${BASH_SOURCE[0]}")"
-# Export SQL_DATABASE_NAME for firewall.sh to use
-export SQL_DATABASE_NAME=$SQL_DATABASE_NAME
-trap '. ./firewall.sh close' EXIT # Ensure that the firewall is closed no matter if other commands fail
-. ./firewall.sh open
+ACCESS_TOKEN=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv)
+ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group $CLUSTER_RESOURCE_GROUP_NAME --server-name $POSTGRES_SERVER_NAME --query "[0].principalName" --output tsv)
 
-# Convert the ClientId of the Managed Identity to the binary version. The following bash script is equivalent to this PowerShell:
-#   $SID = "0x" + [System.BitConverter]::ToString(([guid]$SID).ToByteArray()).Replace("-", "")
-SID=$(echo $MANAGED_IDENTITY_CLIENT_ID | tr 'a-f' 'A-F' | tr -d '-') # Convert to uppercase and remove hyphens
-SID=$(awk -v id="$SID" 'BEGIN {
-  printf "0x%s%s%s%s\n",
-    substr(id,7,2) substr(id,5,2) substr(id,3,2) substr(id,1,2),
-    substr(id,11,2) substr(id,9,2),
-    substr(id,15,2) substr(id,13,2),
-    substr(id,17)
-}') # Reverse the byte order for the first three sections of the GUID and concatenate
+echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY_NAME permissions on $POSTGRES_HOST/$DATABASE_NAME"
 
-echo "$(date +"%Y-%m-%dT%H:%M:%S") Granting $MANAGED_IDENTITY_NAME (ID: $SID) in Resource group $CLUSTER_RESOURCE_GROUP_NAME permissions on $SQL_SERVER/$SQL_DATABASE_NAME database"
-
-# Execute the SQL script using mssql-scripter. Pass the script as a heredoc to sqlcmd to allow for complex SQL.
-sqlcmd -S $SQL_SERVER -d $SQL_DATABASE_NAME --authentication-method=ActiveDirectoryDefault --exit-on-error << EOF
-IF NOT EXISTS (SELECT [name] FROM [sys].[database_principals] WHERE [name] = '$MANAGED_IDENTITY_NAME' AND [type] = 'E')
+PGPASSWORD=$ACCESS_TOKEN psql -v ON_ERROR_STOP=1 "host=$POSTGRES_HOST dbname=postgres user='$ENTRA_USER' sslmode=verify-full sslrootcert=system" << EOF
+DO \$\$
 BEGIN
-    CREATE USER [$MANAGED_IDENTITY_NAME] WITH SID = $SID, TYPE = E;
-    ALTER ROLE db_datareader ADD MEMBER [$MANAGED_IDENTITY_NAME];
-    ALTER ROLE db_datawriter ADD MEMBER [$MANAGED_IDENTITY_NAME];
-    ALTER ROLE db_ddladmin ADD MEMBER [$MANAGED_IDENTITY_NAME];
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '$MANAGED_IDENTITY_NAME') THEN
+        PERFORM pgaadauth_create_principal('$MANAGED_IDENTITY_NAME', false, false);
+    END IF;
 END
-GO
+\$\$;
+EOF
+
+PGPASSWORD=$ACCESS_TOKEN psql -v ON_ERROR_STOP=1 "host=$POSTGRES_HOST dbname=$DATABASE_NAME user='$ENTRA_USER' sslmode=verify-full sslrootcert=system" << EOF
+CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+GRANT CONNECT ON DATABASE "$DATABASE_NAME" TO "$MANAGED_IDENTITY_NAME";
+GRANT USAGE ON SCHEMA public TO "$MANAGED_IDENTITY_NAME";
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO "$MANAGED_IDENTITY_NAME";
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO "$MANAGED_IDENTITY_NAME";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "$MANAGED_IDENTITY_NAME";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO "$MANAGED_IDENTITY_NAME";
 EOF
