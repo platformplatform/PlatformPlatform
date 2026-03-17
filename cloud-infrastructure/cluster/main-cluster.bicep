@@ -75,7 +75,7 @@ module containerAppsEnvironment '../modules/container-apps-environment.bicep' = 
     location: location
     name: clusterResourceGroupName
     tags: tags
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: virtualNetwork.outputs.containerAppsSubnetId
     globalResourceGroupName: globalResourceGroupName
     logAnalyticsWorkspaceName: resourceNamePrefix
   }
@@ -89,7 +89,7 @@ module keyVault '../modules/key-vault.bicep' = {
     name: clusterResourceGroupName
     tags: tags
     tenantId: subscription().tenantId
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: virtualNetwork.outputs.containerAppsSubnetId
     storageAccountId: diagnosticStorageAccount.outputs.storageAccountId
     workspaceId: existingLogAnalyticsWorkspace.id
   }
@@ -140,7 +140,7 @@ module postgresServer '../modules/postgresql-flexible-server.bicep' = {
     name: clusterResourceGroupName
     tags: tags
     tenantId: subscription().tenantId
-    subnetId: virtualNetwork.outputs.subnetId
+    subnetId: virtualNetwork.outputs.privateEndpointSubnetId
     virtualNetworkId: virtualNetwork.outputs.virtualNetworkId
     isProduction: environment == 'prod'
   }

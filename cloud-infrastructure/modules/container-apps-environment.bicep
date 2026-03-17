@@ -21,10 +21,13 @@ resource containerAppsEnvironment 'Microsoft.App/managedEnvironments@2025-07-01'
     vnetConfiguration: {
       internal: false
       infrastructureSubnetId: subnetId
-      dockerBridgeCidr: '10.2.0.1/16'
-      platformReservedCidr: '10.1.0.0/16'
-      platformReservedDnsIP: '10.1.0.2'
     }
+    workloadProfiles: [
+      {
+        name: 'Consumption'
+        workloadProfileType: 'Consumption'
+      }
+    ]
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
