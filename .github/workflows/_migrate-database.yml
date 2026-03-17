@@ -92,7 +92,7 @@ jobs:
         working-directory: application
         run: |
           ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group ${{ env.CLUSTER_RESOURCE_GROUP_NAME }} --server-name ${{ env.POSTGRES_SERVER_NAME }} --query "[0].principalName" --output tsv)
-          CONNECTION_STRING="Host=${{ env.POSTGRES_HOST }};Database=${{ inputs.database_name }};Username=$ENTRA_USER;Password=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv);Ssl Mode=Require;"
+          CONNECTION_STRING="Host=${{ env.POSTGRES_HOST }};Database=${{ inputs.database_name }};Username=$ENTRA_USER;Password=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv);Ssl Mode=VerifyFull;"
           
           echo "Checking for pending migrations..."
           MIGRATION_INFO=$(dotnet ef migrations list \
@@ -276,7 +276,7 @@ jobs:
           echo "Applying migrations to ${{ inputs.database_name }} database on ${{ env.POSTGRES_HOST }}..."
           ACCESS_TOKEN=$(az account get-access-token --resource-type oss-rdbms --query accessToken --output tsv)
           ENTRA_USER=$(az postgres flexible-server microsoft-entra-admin list --resource-group ${{ env.CLUSTER_RESOURCE_GROUP_NAME }} --server-name ${{ env.POSTGRES_SERVER_NAME }} --query "[0].principalName" --output tsv)
-          PGPASSWORD=$ACCESS_TOKEN psql "host=${{ env.POSTGRES_HOST }} dbname=${{ inputs.database_name }} user='$ENTRA_USER' sslmode=require" -f migration.sql
+          PGPASSWORD=$ACCESS_TOKEN psql -v ON_ERROR_STOP=1 "host=${{ env.POSTGRES_HOST }} dbname=${{ inputs.database_name }} user='$ENTRA_USER' sslmode=verify-full sslrootcert=system" -f migration.sql
           echo "Migrations applied successfully!"
 
       - name: Display Migration Summary

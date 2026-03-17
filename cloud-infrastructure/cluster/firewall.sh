@@ -1,4 +1,8 @@
-IP_ADDRESS=$(curl -s https://api.ipify.org)
+IP_ADDRESS=$(curl -sf https://api.ipify.org)
+if [[ -z "$IP_ADDRESS" ]] || ! [[ "$IP_ADDRESS" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "ERROR: Failed to resolve public IP address"
+    exit 1
+fi
 FIREWALL_RULE_NAME="github-action-${DATABASE_NAME}"
 
 if [[ "$1" == "open" ]]

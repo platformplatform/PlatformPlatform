@@ -30,11 +30,14 @@ resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2025-08-01' =
       geoRedundantBackup: isProduction ? 'Enabled' : 'Disabled'
     }
     highAvailability: {
-      mode: isProduction ? 'Disabled' : 'Disabled' // Change to 'ZoneRedundant' for high availability
+      // Zone-redundant HA provides automatic failover (<120s) with zero data loss and 99.99% SLA,
+      // but doubles the PostgreSQL cost. Requires General Purpose SKU (already used for production).
+      mode: isProduction ? 'Disabled' : 'Disabled'
     }
     network: {
-      // No firewall rules by default, so no public traffic is accepted. During CI/CD migrations, the trusted
-      // GitHub Actions runner's IP is temporarily added and removed. Container Apps use the private endpoint.
+      // Public access is enabled because GitHub-hosted Actions runners cannot reach VNet resources. No permanent
+      // firewall rules exist -- runner IPs are added temporarily during CI/CD and removed immediately after.
+      // Runtime traffic from Container Apps flows exclusively through the private endpoint.
       publicNetworkAccess: 'Enabled'
     }
   }

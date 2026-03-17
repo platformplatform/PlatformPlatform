@@ -9,4 +9,4 @@ resource postgresDatabase 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2
   }
 }
 
-output connectionString string = 'Host=${serverName}.postgres.database.azure.com;Database=${databaseName}'
+output connectionString string = 'Host=${serverName}.postgres.database.azure.com;Database=${databaseName};Ssl Mode=VerifyFull'
