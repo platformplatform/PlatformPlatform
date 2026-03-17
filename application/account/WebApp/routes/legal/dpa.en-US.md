@@ -1,6 +1,6 @@
 # Data Processing Agreement
 
-**Effective date:** 1 Jan, 2026
+**Effective date:** 17 March, 2026
 
 ---
 
@@ -280,9 +280,9 @@ We will provide 14 days advance notice before engaging additional Sub-Processors
 
 **Database Security:**
 
-- SQL Server auditing (90-day retention)
-- SQL Server vulnerability assessments
-- SQL Server security alerts
+- Database audit logging (90-day retention)
+- Encrypted connections with certificate verification
+- Private network isolation
 
 **Monitoring and Logging:**
 
