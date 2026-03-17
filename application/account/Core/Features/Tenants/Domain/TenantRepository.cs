@@ -41,6 +41,6 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     /// </summary>
     public async Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 }

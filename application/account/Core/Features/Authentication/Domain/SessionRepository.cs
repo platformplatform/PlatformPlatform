@@ -44,7 +44,7 @@ public sealed class SessionRepository(AccountDbContext accountDbContext, IServic
 {
     public async Task<Session?> GetByIdUnfilteredAsync(SessionId sessionId, CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
+        return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(s => s.Id == sessionId, cancellationToken);
     }
 
     /// <summary>

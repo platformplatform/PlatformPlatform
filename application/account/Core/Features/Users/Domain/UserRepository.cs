@@ -256,6 +256,7 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
         return await DbSet
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(u => u.Email == email.ToLowerInvariant())
+            .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
     }
 
