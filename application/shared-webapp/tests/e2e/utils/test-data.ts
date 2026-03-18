@@ -174,6 +174,9 @@ export async function completeSignupFlow(
 
   // Step 6: Logout if requested (useful for login flow tests)
   if (!keepUserLoggedIn) {
+    // Mark 401 as expected during logout transition (Electric SQL shapes may have in-flight requests)
+    context.monitoring.expectedStatusCodes.push(401);
+
     // Click trigger with JavaScript evaluate to ensure reliable opening on Firefox
     const triggerButton = page.getByRole("button", { name: "User menu" });
     await triggerButton.evaluate((el: HTMLElement) => el.click());
