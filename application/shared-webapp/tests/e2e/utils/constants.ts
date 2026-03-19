@@ -7,6 +7,7 @@
 const DEFAULT_BASE_URL = "https://localhost:9000";
 
 export const isWindows = process.platform === "win32";
+export const isLinux = process.platform === "linux";
 
 /**
  * Get the base URL for tests

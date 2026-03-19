@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { defineConfig, devices } from "@playwright/test";
-import { getBaseUrl, isWindows } from "./utils/constants";
+import { getBaseUrl, isLinux, isWindows } from "./utils/constants";
 
 let workers: number | undefined;
 if (process.env.CI) {
@@ -37,6 +37,9 @@ export default defineConfig({
   use: {
     // Base URL to use in actions like `await page.goto('/')`.
     baseURL: getBaseUrl(),
+
+    // Ignore HTTPS errors on Windows and Linux where Playwright's bundled browsers don't trust the dev certificate
+    ignoreHTTPSErrors: isWindows || isLinux,
 
     // Default timeout for actions like click(), fill(), etc.
     actionTimeout: 10000,
@@ -84,11 +87,7 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        ignoreHTTPSErrors: isWindows
-      },
+      use: { ...devices["Desktop Safari"] },
       grep: /@smoke/
     },
 
@@ -105,11 +104,7 @@ export default defineConfig({
     },
     {
       name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-        // Ignore HTTPS errors only for WebKit on Windows, as it's stricter than other browsers
-        ignoreHTTPSErrors: isWindows
-      },
+      use: { ...devices["Desktop Safari"] },
       grepInvert: /@smoke/
     }
   ]
