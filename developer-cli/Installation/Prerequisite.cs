@@ -118,37 +118,22 @@ file sealed record NodePrerequisite : Prerequisite
     protected override bool IsValid()
     {
         var requiredVersion = File.ReadAllText(Path.Combine(Configuration.ApplicationFolder, ".node-version")).Trim();
-        var nodeDir = FindNodeBinDirectory(requiredVersion);
 
-        if (nodeDir is null)
-        {
-            AnsiConsole.MarkupLine($"[red]NodeJS [bold]{requiredVersion}[/] not found. Install it to match .node-version.[/]");
-            return false;
-        }
-
-        var separator = Configuration.IsWindows ? ";" : ":";
-        Environment.SetEnvironmentVariable("PATH", $"{nodeDir}{separator}{Environment.GetEnvironmentVariable("PATH")}");
-        return true;
-    }
-
-    private static string? FindNodeBinDirectory(string version)
-    {
-        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var candidates = Configuration.IsWindows
-            ? new[]
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
             {
-                Path.Combine(home, "AppData", "Roaming", "fnm", "node-versions", $"v{version}", "installation"),
-                Path.Combine(home, "AppData", "Roaming", "nvm", $"v{version}"),
-                Path.Combine(home, ".volta", "tools", "image", "node", version)
-            }
-            : new[]
-            {
-                Path.Combine(home, ".local", "share", "fnm", "node-versions", $"v{version}", "installation", "bin"),
-                Path.Combine(home, ".nvm", "versions", "node", $"v{version}", "bin"),
-                Path.Combine(home, ".volta", "tools", "image", "node", version, "bin")
-            };
+                FileName = Configuration.IsWindows ? "cmd.exe" : "/bin/bash",
+                Arguments = Configuration.IsWindows ? "/c node --version" : "-c \"node --version\"",
+                WorkingDirectory = Configuration.ApplicationFolder,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            },
+            exitOnError: false
+        ).Trim();
 
-        return candidates.FirstOrDefault(Directory.Exists);
+        if (output == $"v{requiredVersion}") return true;
+
+        AnsiConsole.MarkupLine($"[red]NodeJS [bold]{requiredVersion}[/] not found. Install it to match .node-version.[/]");
+        return false;
     }
 
     protected override bool CheckExists()
