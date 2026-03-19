@@ -66,9 +66,18 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
     winget install Microsoft.DotNet.SDK.10
     winget install Git.Git
     winget install Docker.DockerDesktop
-    winget install OpenJS.NodeJS
     winget install Microsoft.AzureCLI
     winget install GitHub.cli
+    ```
+
+3. Install Node.js — the version must match [`.node-version`](./application/.node-version). We recommend [fnm](https://github.com/Schniz/fnm) which auto-installs the exact version via the Developer CLI. When using an IDE like Rider, ensure the active fnm version matches [`.node-version`](./application/.node-version).
+
+    ```powershell
+    # Option A: fnm (recommended)
+    winget install Schniz.fnm
+
+    # Option B: Node.js directly
+    winget install OpenJS.NodeJS
     ```
 
 </details>
@@ -79,93 +88,119 @@ For development, you need .NET, Docker, and Node. And GitHub and Azure CLI for s
 
 Open a terminal and run the following commands (if not installed):
 
-- Install [Homebrew](https://brew.sh/), a package manager for Mac
-- `brew install --cask dotnet-sdk`
-- `brew install --cask docker`
-- `brew install git node azure-cli gh`
+1. Install [Homebrew](https://brew.sh/), a package manager for Mac
+
+2. Install packages
+
+   ```bash
+   brew install --cask dotnet-sdk
+   brew install --cask docker
+   brew install git azure-cli gh
+   ```
+
+3. Install Node.js — the version must match [`.node-version`](./application/.node-version). We recommend [fnm](https://github.com/Schniz/fnm) which auto-installs the exact version via the Developer CLI. When using an IDE like Rider, ensure the active fnm version matches [`.node-version`](./application/.node-version).
+
+   ```bash
+   # Option A: fnm (recommended)
+   brew install fnm
+
+   # Option B: Node.js directly
+   brew install node
+   ```
 
 </details>
 
 <details>
 
-<summary>Install prerequisites for Linux/WSL2</summary>
+<summary>Install prerequisites for Linux (Ubuntu/Debian)</summary>
 
 Open a terminal and run the following commands (if not installed):
 
-- Install Wget
+1. Install basic tools
 
-  ```bash
-  sudo apt update && sudo apt-get install wget -y
-  ```
+   ```bash
+   sudo apt update && sudo apt install -y git wget curl libnss3-tools
+   ```
 
-- Install Microsoft repository
+2. Add Microsoft package repository
 
-  ```bash
-  source /etc/os-release
-  wget https://packages.microsoft.com/config/$ID/$VERSION_ID/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
-  sudo dpkg -i packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  ```
+   ```bash
+   source /etc/os-release
+   wget https://packages.microsoft.com/config/$ID/$VERSION_ID/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+   sudo dpkg -i packages-microsoft-prod.deb
+   rm packages-microsoft-prod.deb
+   ```
 
-- Install Node repository
+3. Install .NET SDK and Docker
 
-  ```bash
-  curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-  ```
+   ```bash
+   sudo apt-get update && sudo apt-get install -y dotnet-sdk-10.0 docker.io docker-compose-v2
+   ```
 
-- Install GitHub Package repository
+   ```bash
+   sudo systemctl enable --now docker
+   sudo usermod -aG docker $USER
+   ```
 
-  ```bash
-  (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
-  && sudo mkdir -p -m 755 /etc/apt/keyrings \
-  && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-  ```
+4. Install Node.js — the version must match [`.node-version`](./application/.node-version). We recommend [fnm](https://github.com/Schniz/fnm) which auto-installs the exact version via the Developer CLI. When using an IDE like Rider, ensure the active fnm version matches [`.node-version`](./application/.node-version).
 
-- Update packages
+   ```bash
+   # Option A: fnm (recommended)
+   curl -fsSL https://fnm.vercel.app/install | bash
 
-  ```bash
-  sudo apt-get update
-  ```
+   # Option B: Node.js directly
+   curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   ```
 
-- Install .NET SDK 10.0, Node, GitHub CLI
+5. Trust the HTTPS development certificate
 
-  ```bash
-  sudo apt-get install -y dotnet-sdk-10.0 nodejs gh
-  ```
+   ```bash
+   echo 'export SSL_CERT_DIR="$HOME/.aspnet/dev-certs/trust:${SSL_CERT_DIR:-/usr/lib/ssl/certs}"' >> ~/.bashrc
+   ```
 
-- Install Azure CLI
+   ```bash
+   source ~/.bashrc
+   ```
 
-  ```bash
-  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-  ```
+   ```bash
+   dotnet dev-certs https --trust
+   ```
 
-- Install Certificate
-  ```bash
-  dotnet tool update -g linux-dev-certs
-  dotnet linux-dev-certs install
-  ```
+6. **Log out and log back in** to apply Docker group and shell configuration changes.
 
-- Trust Certificates
+7. (Optional) If using Snap Chromium, trust the certificate in its sandbox
 
-  ```bash
-  cd /usr/local/share/ca-certificates/aspnet-dev-{Environment.UserName}.crt && explorer.exe .
-  # Install self signed root certificate
+   ```bash
+   certutil -d sql:$HOME/snap/chromium/current/.pki/nssdb -L >/dev/null 2>&1 || (mkdir -p $HOME/snap/chromium/current/.pki/nssdb && certutil -d sql:$HOME/snap/chromium/current/.pki/nssdb -N --empty-password)
+   dotnet dev-certs https --trust
+   ```
 
-  # Open the windows certificate manager and import root certificate
-  # "\\wsl.localhost\Ubuntu-20.04\home\maximus\.aspnet\dev-certs\https\platformplatform.pfx"
-  ```
+8. (Optional) Install GitHub CLI and Azure CLI (needed for CI/CD setup)
+
+   ```bash
+   (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+   && sudo mkdir -p -m 755 /etc/apt/keyrings \
+   && wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+   && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+   sudo apt-get update && sudo apt-get install -y gh
+   curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+   ```
 
 </details>
 
 ## 1. Clone the repository
 
+```bash
+git clone https://github.com/platformplatform/PlatformPlatform.git
+```
+
 We recommend you keep the commit history, which serves as a great learning and troubleshooting resource. 😃
 
 ## 2. (Optional) Install the Developer CLI
 
-The PlatformPlatform CLI provides convenient commands for common tasks. Install it globally to use the `pp` command from anywhere in your terminal.
+The PlatformPlatform CLI provides convenient commands for common tasks. From the cloned repository, install it globally to use the `pp` command from anywhere in your terminal.
 
 ```bash
 cd developer-cli
