@@ -867,7 +867,6 @@ public sealed class UpdatePackagesCommand : Command
             // Show wanted version (from package.json) in the table
             table.AddRow(packageName, wantedVersion, latestVersion, statusColor);
             npmPackageUpdatesToApply.Add($"{packageName}@{latestVersion}");
-
         }
 
         if (table.Rows.Count > 0)

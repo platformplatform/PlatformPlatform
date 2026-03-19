@@ -117,8 +117,46 @@ file sealed record NodePrerequisite : Prerequisite
 {
     protected override bool IsValid()
     {
-        var requiredVersion = File.ReadAllText(Path.Combine(Configuration.ApplicationFolder, ".node-version")).Trim();
+        var requiredVersionText = File.ReadAllText(Path.Combine(Configuration.ApplicationFolder, ".node-version")).Trim();
+        var requiredVersion = Version.Parse(requiredVersionText);
 
+        if (IsCompatibleVersion(requiredVersion)) return true;
+
+        if (IsFnmInstalled())
+        {
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var nodeDir = Configuration.IsWindows
+                ? Path.Combine(home, "AppData", "Roaming", "fnm", "node-versions", $"v{requiredVersionText}", "installation")
+                : Path.Combine(home, ".local", "share", "fnm", "node-versions", $"v{requiredVersionText}", "installation", "bin");
+
+            if (!Directory.Exists(nodeDir))
+            {
+                AnsiConsole.MarkupLine($"[yellow]NodeJS [bold]{requiredVersionText}[/] not found. Installing with fnm...[/]");
+                ProcessHelper.StartProcess(new ProcessStartInfo
+                    {
+                        FileName = Configuration.IsWindows ? "cmd.exe" : "/bin/bash",
+                        Arguments = Configuration.IsWindows ? $"/c fnm install {requiredVersionText}" : $"-c \"fnm install {requiredVersionText}\"",
+                        RedirectStandardOutput = false,
+                        RedirectStandardError = false
+                    }
+                );
+            }
+
+            if (Directory.Exists(nodeDir))
+            {
+                var separator = Configuration.IsWindows ? ";" : ":";
+                Environment.SetEnvironmentVariable("PATH", $"{nodeDir}{separator}{Environment.GetEnvironmentVariable("PATH")}");
+            }
+
+            if (IsCompatibleVersion(requiredVersion)) return true;
+        }
+
+        AnsiConsole.MarkupLine($"[red]NodeJS [bold]{requiredVersion.Major}.x[/] (>= {requiredVersionText}) not found. Install it to match .node-version.[/]");
+        return false;
+    }
+
+    private static bool IsCompatibleVersion(Version requiredVersion)
+    {
         var output = ProcessHelper.StartProcess(new ProcessStartInfo
             {
                 FileName = Configuration.IsWindows ? "cmd.exe" : "/bin/bash",
@@ -130,10 +168,27 @@ file sealed record NodePrerequisite : Prerequisite
             exitOnError: false
         ).Trim();
 
-        if (output == $"v{requiredVersion}") return true;
+        var versionRegex = new Regex(@"\d+\.\d+\.\d+");
+        var match = versionRegex.Match(output);
+        if (!match.Success) return false;
 
-        AnsiConsole.MarkupLine($"[red]NodeJS [bold]{requiredVersion}[/] not found. Install it to match .node-version.[/]");
-        return false;
+        var installedVersion = Version.Parse(match.Value);
+        return installedVersion.Major == requiredVersion.Major && installedVersion >= requiredVersion;
+    }
+
+    private static bool IsFnmInstalled()
+    {
+        var output = ProcessHelper.StartProcess(new ProcessStartInfo
+            {
+                FileName = Configuration.IsWindows ? "cmd.exe" : "/bin/bash",
+                Arguments = Configuration.IsWindows ? "/c fnm --version" : "-c \"fnm --version\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            },
+            exitOnError: false
+        ).Trim();
+
+        return !string.IsNullOrEmpty(output) && !output.Contains("not found");
     }
 
     protected override bool CheckExists()
