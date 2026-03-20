@@ -73,7 +73,7 @@ jobs:
         run: dotnet build ${{ inputs.relative_startup_project }}
 
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ inputs.service_principal_id }}
           tenant-id: ${{ env.TENANT_ID }}
@@ -248,7 +248,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ inputs.service_principal_id }}
           tenant-id: ${{ env.TENANT_ID }}
