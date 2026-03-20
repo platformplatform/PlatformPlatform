@@ -162,49 +162,22 @@ public class RunCommand : Command
         }
         else
         {
-            // First, find all process command names running on SCS ports (9100, 9200, 9300, etc.)
-            var scsCommandNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            for (var port = 9100; port <= 9900; port += 100)
-            {
-                var pids = ProcessHelper.StartProcess($"lsof -i :{port} -sTCP:LISTEN -t", redirectOutput: true, exitOnError: false);
-                if (!string.IsNullOrWhiteSpace(pids))
-                {
-                    foreach (var pid in pids.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-                    {
-                        var commandName = ProcessHelper.StartProcess($"ps -p {pid} -o comm=", redirectOutput: true, exitOnError: false).Trim();
-                        if (!string.IsNullOrWhiteSpace(commandName))
-                        {
-                            scsCommandNames.Add(commandName);
-                        }
-                    }
-                }
-            }
-
-            // Now kill all processes on ports 9000-9999 that match SCS commands or known Aspire processes
+            // Kill all processes on ports 9000-9999 that belong to our application
             var pidsOutput = ProcessHelper.StartProcess("lsof -i :9000-9999 -sTCP:LISTEN -t", redirectOutput: true, exitOnError: false);
             if (!string.IsNullOrWhiteSpace(pidsOutput))
             {
                 foreach (var pid in pidsOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 {
-                    var commandName = ProcessHelper.StartProcess($"ps -p {pid} -o comm=", redirectOutput: true, exitOnError: false).Trim();
-                    if (string.IsNullOrWhiteSpace(commandName)) continue;
+                    // Use full command line (args) since comm= truncates names on Linux
+                    var commandLine = ProcessHelper.StartProcess($"ps -p {pid} -o args=", redirectOutput: true, exitOnError: false).Trim();
+                    if (string.IsNullOrWhiteSpace(commandLine)) continue;
 
-                    var shouldKill = scsCommandNames.Contains(commandName) ||
-                                     commandName.Contains("AppHost", StringComparison.OrdinalIgnoreCase) ||
-                                     commandName.Contains("dcp", StringComparison.OrdinalIgnoreCase) ||
-                                     commandName.Contains("PlatformP", StringComparison.OrdinalIgnoreCase) ||
-                                     commandName.Contains("rsbuild-node", StringComparison.OrdinalIgnoreCase);
-
-                    if (shouldKill)
+                    if (commandLine.Contains(Configuration.SourceCodeFolder, StringComparison.OrdinalIgnoreCase))
                     {
                         ProcessHelper.StartProcess($"kill -9 {pid}", redirectOutput: true, exitOnError: false);
                     }
                 }
             }
-
-            // Kill Aspire-specific processes
-            ProcessHelper.StartProcess("pkill -9 -if aspire", redirectOutput: true, exitOnError: false);
-            ProcessHelper.StartProcess("pkill -9 -f dcp", redirectOutput: true, exitOnError: false);
         }
 
         // Wait a moment for processes to terminate
