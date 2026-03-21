@@ -10,10 +10,17 @@ public static class PlaywrightInstaller
     {
         AnsiConsole.MarkupLine("[blue]Ensuring Playwright browsers are installed...[/]");
 
+        var command = Configuration.IsWindows
+            ? "cmd.exe"
+            : Configuration.IsLinux ? "sudo" : "npx";
+        var arguments = Configuration.IsWindows
+            ? "/C npx --yes playwright install --with-deps"
+            : Configuration.IsLinux ? "npx --yes playwright install --with-deps" : "--yes playwright install --with-deps";
+
         var processStartInfo = new ProcessStartInfo
         {
-            FileName = Configuration.IsWindows ? "cmd.exe" : "npx",
-            Arguments = $"{(Configuration.IsWindows ? "/C npx" : string.Empty)} --yes playwright install --with-deps",
+            FileName = command,
+            Arguments = arguments,
             WorkingDirectory = Configuration.ApplicationFolder,
             UseShellExecute = false
         };
