@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Generate Version
         id: generate_version
@@ -57,7 +57,7 @@ jobs:
           echo "deploy_production=$deploy_production" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -66,7 +66,7 @@ jobs:
         run: npm ci
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: application/global.json
 
@@ -92,7 +92,7 @@ jobs:
 
       - name: Save Artifacts
         if: ${{ steps.determine_deployment.outputs.deploy_staging == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: app-gateway
           path: application/AppGateway/publish/**/*
@@ -104,10 +104,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
 
@@ -116,7 +116,7 @@ jobs:
         run: npm ci
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: application/global.json
 

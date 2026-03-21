@@ -49,16 +49,16 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.artifacts_name }}
           path: ${{ inputs.artifacts_path }}
 
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@v3
         with:
           client-id: ${{ env.SERVICE_PRINCIPAL_ID }}
           tenant-id: ${{ env.TENANT_ID }}
@@ -83,7 +83,7 @@ jobs:
       # For staging, build and push the image
       - name: Setup Docker Buildx
         if: inputs.azure_environment == 'stage'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build and Push Container Image
         if: inputs.azure_environment == 'stage'
