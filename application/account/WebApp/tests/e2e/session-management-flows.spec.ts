@@ -314,8 +314,8 @@ test.describe("@comprehensive", () => {
     await step("Attacker browser detects replay & shows replay_attack error page")(async () => {
       const secondPageContext = createTestContext(secondPage);
       secondPageContext.monitoring.expectedStatusCodes.push(401);
-      await deleteAccessTokenCookie(secondPage);
       await secondPage.unroute("**/api/**");
+      await deleteAccessTokenCookie(secondPage);
 
       await secondPage.evaluate(() => {
         window.dispatchEvent(new Event("offline"));

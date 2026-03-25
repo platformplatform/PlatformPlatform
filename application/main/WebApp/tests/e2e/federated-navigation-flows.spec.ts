@@ -139,8 +139,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(member.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog")).not.toBeVisible();
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.locator("tbody").first()).toContainText(member.email);
     })();
 

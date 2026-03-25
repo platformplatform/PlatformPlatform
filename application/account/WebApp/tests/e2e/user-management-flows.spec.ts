@@ -78,8 +78,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(memberUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.locator("tbody").first().first()).toContainText(memberUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
     })();
@@ -90,8 +90,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(adminUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.locator("tbody").first().first()).toContainText(adminUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(memberUser.email);
       await expect(page.locator("tbody").first().first()).toContainText(owner.email);
@@ -103,8 +103,8 @@ test.describe("@smoke", () => {
       await page.getByRole("textbox", { name: "Email" }).fill(deletableUser.email);
       await page.getByRole("button", { name: "Send invite" }).click();
 
-      await expectToastMessage(context, "User invited successfully");
       await expect(page.getByRole("dialog", { name: "Invite user" })).not.toBeVisible();
+      await expectToastMessage(context, "User invited successfully");
       await expect(page.locator("tbody").first().first()).toContainText(deletableUser.email);
     })();
 
@@ -157,10 +157,8 @@ test.describe("@smoke", () => {
       await page.getByRole("radio", { name: "Admin" }).check({ force: true });
       await page.getByRole("button", { name: "Save changes" }).click();
 
-      await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
-
-      // Wait for dialog to close
       await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
+      await expectToastMessage(context, `User role updated successfully for ${adminUser.email}`);
       await expect(adminUserRow.first()).toContainText("Admin");
     })();
 
@@ -326,8 +324,8 @@ test.describe("@smoke", () => {
       await expect(deleteButton).toBeEnabled();
       await deleteButton.click();
 
-      await expectToastMessage(context, `User deleted successfully: ${deletableFullName}`);
       await expect(deleteDialog).not.toBeVisible();
+      await expectToastMessage(context, `User deleted successfully: ${deletableFullName}`);
       await expect(page.locator("tbody").first()).not.toContainText(deletableUser.email);
       await expect(page.locator("tbody").first().locator("tr")).toHaveCount(3);
     })();
@@ -503,8 +501,8 @@ test.describe("@comprehensive", () => {
         await page.getByRole("textbox", { name: "Email" }).fill(user.email);
         await page.getByRole("button", { name: "Send invite" }).click();
 
-        await expectToastMessage(context, "User invited successfully");
         await expect(page.getByRole("dialog")).not.toBeVisible();
+        await expectToastMessage(context, "User invited successfully");
       }
 
       await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(3); // owner + 2 invited users
@@ -709,8 +707,8 @@ test.describe("@comprehensive", () => {
       await page.getByRole("button", { name: "Save changes" }).click();
 
       const user1FullName = `${user1.firstName} ${user1.lastName}`;
-      await expectToastMessage(context, `User role updated successfully for ${user1FullName}`);
       await expect(page.getByRole("dialog", { name: "Change user role" })).not.toBeVisible();
+      await expectToastMessage(context, `User role updated successfully for ${user1FullName}`);
 
       await expect(user1Row.locator("td").nth(3)).toHaveText(user1LastSeenAtBefore);
       await expect(user1Row).toContainText("Admin");
@@ -741,10 +739,10 @@ test.describe("@comprehensive", () => {
       await expect(deleteButton).toBeEnabled();
       await deleteButton.click();
 
-      await expectToastMessage(context, `User deleted successfully: ${user1FullName}`);
       await expect(deleteDialog).not.toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
+      await expectToastMessage(context, `User deleted successfully: ${user1FullName}`);
       await expect(page.getByText(user1.email)).not.toBeVisible();
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(2);
       await expect(page.locator("tbody").first()).toContainText(owner.email);
       await expect(page.locator("tbody").first()).toContainText(user2.email);
     })();
@@ -769,10 +767,10 @@ test.describe("@comprehensive", () => {
       await expect(deleteButton).toBeEnabled();
       await deleteButton.click();
 
-      await expectToastMessage(context, `User deleted successfully: ${user2FullName}`);
       await expect(deleteDialog).not.toBeVisible();
-      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
+      await expectToastMessage(context, `User deleted successfully: ${user2FullName}`);
       await expect(page.getByText(user2.email)).not.toBeVisible();
+      await expect(page.locator("tbody").first().first().locator("tr")).toHaveCount(1);
       await expect(page.locator("tbody").first()).toContainText(owner.email);
     })();
 
@@ -829,9 +827,9 @@ test.describe("@comprehensive", () => {
       await confirmDeleteButton.click();
 
       const user2FullName = `${user2.firstName} ${user2.lastName}`;
-      await expectToastMessage(context, `User permanently deleted: ${user2FullName}`);
 
       await expect(deleteDialog).not.toBeVisible();
+      await expectToastMessage(context, `User permanently deleted: ${user2FullName}`);
       await expect(page).toHaveURL("/account/users/recycle-bin");
       await expect(page.getByRole("table", { name: "Deleted users" })).not.toBeVisible();
       await expect(page.getByRole("main").getByText("Recycle bin is empty")).toBeVisible();

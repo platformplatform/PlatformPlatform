@@ -161,6 +161,7 @@ test.describe("@comprehensive", () => {
       await expect(page1).toHaveURL(/\/welcome/);
 
       // Complete welcome flow in Danish
+      await expect(page1.getByRole("textbox", { name: "Kontonavn" })).toBeVisible();
       await page1.getByRole("textbox", { name: "Kontonavn" }).fill("Test Organization");
       await page1.getByRole("button", { name: "Fortsæt" }).click();
 
