@@ -21,6 +21,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
+    DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
     int? BucketStart,
@@ -46,12 +47,13 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                         definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser,
-                        null, null, null, null, null, isSystemFlagActive
+                        null, null, null, null, null, null, isSystemFlagActive
                     );
                 }
 
                 baseRowsByKey.TryGetValue(definition.Key, out var baseRow);
 
+                var createdAt = baseRow?.CreatedAt;
                 var enabledAt = baseRow?.EnabledAt;
                 var disabledAt = baseRow?.DisabledAt;
                 var bucketStart = baseRow?.BucketStart;
@@ -62,7 +64,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
                     definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser,
-                    enabledAt, disabledAt, bucketStart, bucketEnd, rolloutPercentage, isActive
+                    createdAt, enabledAt, disabledAt, bucketStart, bucketEnd, rolloutPercentage, isActive
                 );
             }
         ).ToArray();
@@ -84,12 +86,15 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
     {
         if (bucketStart is null || bucketEnd is null) return null;
 
+        // 100% rollout uses reserved range 0-100
+        if (bucketStart == 0 && bucketEnd == 100) return 100;
+
         if (bucketStart <= bucketEnd)
         {
             return bucketEnd.Value - bucketStart.Value + 1;
         }
 
-        // Wrap-around case
-        return 100 - bucketStart.Value + 1 + bucketEnd.Value;
+        // Wrap-around case within 1-99 range
+        return 99 - bucketStart.Value + 1 + bucketEnd.Value;
     }
 }
