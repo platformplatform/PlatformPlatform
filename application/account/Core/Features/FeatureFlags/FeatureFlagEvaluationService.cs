@@ -85,12 +85,18 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
     private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
     {
+        // Bucket 0 = always opt-in (internal testers), included in any rollout
+        if (bucket == 0) return true;
+
+        // Bucket 100 = always opt-out (VIP customers), only included at 100% rollout
+        if (bucket == 100) return bucketStart == 0 && bucketEnd == 100;
+
         if (bucketStart <= bucketEnd)
         {
             return bucket >= bucketStart && bucket <= bucketEnd;
         }
 
-        // Wrap-around case (e.g., start=90, end=10 means 90-100 and 1-10)
+        // Wrap-around case (e.g., start=90, end=10 means 90-99 and 1-10)
         return bucket >= bucketStart || bucket <= bucketEnd;
     }
 
