@@ -31,8 +31,7 @@ export function TenantOverridesSection({
     const lowerSearch = search.toLowerCase();
     const filtered = search
       ? tenants.filter(
-          (tenant) =>
-            tenant.tenantName.toLowerCase().includes(lowerSearch) || String(tenant.tenantId).includes(lowerSearch)
+          (tenant) => tenant.tenantName.toLowerCase().includes(lowerSearch) || tenant.tenantId.includes(lowerSearch)
         )
       : tenants;
 
