@@ -47,6 +47,7 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     /// <summary>
     ///     Returns every tenant without applying tenant query filters.
     ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    ///     Also used by internal API endpoints where tenant context is not established.
     /// </summary>
     Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 
@@ -146,10 +147,11 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     /// <summary>
     ///     Returns every tenant without applying tenant query filters.
     ///     Used by the back-office dashboard KPI snapshot to count tenants by state and plan across all tenants.
+    ///     Also used by internal API endpoints where tenant context is not established.
     /// </summary>
     public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).OrderBy(t => t.Id).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>

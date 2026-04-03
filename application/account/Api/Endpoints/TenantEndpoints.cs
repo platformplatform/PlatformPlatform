@@ -37,6 +37,10 @@ public sealed class TenantEndpoints : IEndpoints
 
         // Internal-only endpoint reachable backend-to-backend via the cluster's localhost address.
         // BlockInternalApiTransform in AppGateway rejects external callers.
+        routes.MapGet("/internal-api/account/tenants", async Task<ApiResult<GetTenantsResponse>> (IMediator mediator)
+            => await mediator.Send(new GetTenantsQuery())
+        ).Produces<GetTenantsResponse>().WithGroupName(OpenApiDocumentNames.Account);
+
         routes.MapDelete("/internal-api/account/tenants/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new DeleteTenantCommand(id))
         ).WithGroupName(OpenApiDocumentNames.Account);
