@@ -317,12 +317,39 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
         bucketStart.Should().NotBeNull();
         bucketEnd.Should().NotBeNull();
+        CountBucketsInRange((int)bucketStart.Value, (int)bucketEnd.Value).Should().Be(50);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.flag_key"].Should().Be(flagKey);
         TelemetryEventsCollectorSpy.CollectedEvents[0].Properties["event.rollout_percentage"].Should().Be("50");
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(99)]
+    public async Task SetFeatureFlagRolloutPercentage_WhenSetToNPercent_ShouldIncludeExactlyNBuckets(int percentage)
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = percentage };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var bucketStart = Connection.ExecuteScalar<long?>(
+            "SELECT bucket_start FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        var bucketEnd = Connection.ExecuteScalar<long?>(
+            "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        bucketStart.Should().NotBeNull();
+        bucketEnd.Should().NotBeNull();
+        CountBucketsInRange((int)bucketStart.Value, (int)bucketEnd.Value).Should().Be(percentage);
     }
 
     [Fact]
@@ -408,7 +435,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var bucketEnd = Connection.ExecuteScalar<long?>(
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
-        bucketStart.Should().Be(1);
+        bucketStart.Should().Be(0);
         bucketEnd.Should().Be(100);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
@@ -484,7 +511,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
             "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         Connection.Update("feature_flags", "id", baseRowId, [
-                ("bucket_start", 1),
+                ("bucket_start", 0),
                 ("bucket_end", 100)
             ]
         );
@@ -581,7 +608,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     [Fact]
     public void BucketRange_WhenWrapAround_ShouldMatchCorrectly()
     {
-        // Arrange & Act & Assert
+        // Arrange & Act & Assert (wrap-around within 1-99 range)
         IsInBucketRange(95, 90, 10).Should().BeTrue();
         IsInBucketRange(5, 90, 10).Should().BeTrue();
         IsInBucketRange(50, 90, 10).Should().BeFalse();
@@ -589,6 +616,26 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         IsInBucketRange(10, 90, 10).Should().BeTrue();
         IsInBucketRange(11, 90, 10).Should().BeFalse();
         IsInBucketRange(89, 90, 10).Should().BeFalse();
+    }
+
+    [Fact]
+    public void BucketRange_WhenBucketZero_ShouldAlwaysBeIncluded()
+    {
+        // Bucket 0 = always opt-in, included in any rollout range
+        IsInBucketRange(0, 1, 50).Should().BeTrue();
+        IsInBucketRange(0, 50, 99).Should().BeTrue();
+        IsInBucketRange(0, 90, 10).Should().BeTrue();
+        IsInBucketRange(0, 0, 100).Should().BeTrue();
+    }
+
+    [Fact]
+    public void BucketRange_WhenBucketHundred_ShouldOnlyBeIncludedAtFullRollout()
+    {
+        // Bucket 100 = always opt-out, only included when range covers all (0-100 = 100% rollout)
+        IsInBucketRange(100, 0, 100).Should().BeTrue();
+        IsInBucketRange(100, 1, 99).Should().BeFalse();
+        IsInBucketRange(100, 1, 50).Should().BeFalse();
+        IsInBucketRange(100, 90, 10).Should().BeFalse();
     }
 
     [Fact]
@@ -603,7 +650,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
         // Assert
         bucket1.Should().Be(bucket2);
-        bucket1.Should().BeInRange(1, 100);
+        bucket1.Should().BeInRange(1, 99);
     }
 
     // JWT invalidation tests
@@ -746,11 +793,25 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
     private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
     {
+        if (bucket == 0) return true;
+        if (bucket == 100) return bucketStart == 0 && bucketEnd == 100;
+
         if (bucketStart <= bucketEnd)
         {
             return bucket >= bucketStart && bucket <= bucketEnd;
         }
 
         return bucket >= bucketStart || bucket <= bucketEnd;
+    }
+
+    private static int CountBucketsInRange(int bucketStart, int bucketEnd)
+    {
+        // For normal rollout (1-99 range), count only the normal buckets
+        if (bucketStart <= bucketEnd)
+        {
+            return bucketEnd - bucketStart + 1;
+        }
+
+        return 99 - bucketStart + 1 + bucketEnd;
     }
 }

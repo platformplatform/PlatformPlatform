@@ -49,13 +49,14 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         }
         else if (command.RolloutPercentage == 100)
         {
-            bucketStart = 1;
+            bucketStart = 0;
             bucketEnd = 100;
         }
         else
         {
+            // Normal rollout uses buckets 1-99. Bucket 0 (always opt-in) and 100 (always opt-out) are reserved.
             bucketStart = RolloutBucketHasher.ComputeBucket(command.FlagKey);
-            bucketEnd = (bucketStart - 1 + command.RolloutPercentage) % 100 + 1;
+            bucketEnd = (bucketStart - 1 + command.RolloutPercentage - 1) % 99 + 1;
         }
 
         flag.SetRolloutRange(bucketStart, bucketEnd);

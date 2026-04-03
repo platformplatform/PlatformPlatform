@@ -16,7 +16,7 @@ public static class RolloutBucketHasher
                 hash *= FnvPrime;
             }
 
-            return (int)(hash % 100 + 1);
+            return (int)(hash % 99 + 1);
         }
     }
 }
