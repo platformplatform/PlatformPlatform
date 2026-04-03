@@ -216,6 +216,62 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
+    // Remove tenant override tests (internal API)
+
+    [Fact]
+    public async Task RemoveTenantFeatureFlagOverride_WhenOverrideExists_ShouldDeleteRow()
+    {
+        // Arrange - create an override row first
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var overrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId }]
+        );
+        rowCount.Should().Be(0);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagTenantOverrideRemoved");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveTenantFeatureFlagOverride_WhenNoOverrideExists_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     // Tenant override tests (owner API)
 
     [Fact]

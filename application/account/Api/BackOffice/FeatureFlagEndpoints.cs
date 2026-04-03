@@ -46,5 +46,9 @@ public sealed class FeatureFlagEndpoints : IEndpoints
         group.MapPut("/{flagKey}/rollout-percentage", async Task<ApiResult> (string flagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
         ).DisableAntiforgery();
+
+        group.MapDelete("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, long tenantId, IMediator mediator)
+            => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
+        ).DisableAntiforgery();
     }
 }
