@@ -33,18 +33,18 @@ public sealed class FeatureFlagEndpoints : IEndpoints
 
         group.MapPut("/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(flagKey))
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/deactivate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new DeactivateFeatureFlagCommand(flagKey))
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/rollout-percentage", async Task<ApiResult> (string flagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).DisableAntiforgery();
     }
 }
