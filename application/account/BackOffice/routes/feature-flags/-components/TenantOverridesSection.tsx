@@ -1,15 +1,12 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Badge } from "@repo/ui/components/Badge";
-import { Switch } from "@repo/ui/components/Switch";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
-
-import { api, queryClient } from "@/shared/lib/api/client";
+import { useMemo, useState } from "react";
 
 import type { FlagTenantInfo } from "./types";
+
+import { TenantOverrideRow } from "./TenantOverrideRow";
 
 type SortColumn = "tenantName" | "isEnabled";
 type SortDirection = "ascending" | "descending";
@@ -114,85 +111,4 @@ export function TenantOverridesSection({
 
 function SortIndicator({ direction }: Readonly<{ direction: SortDirection }>) {
   return <span className="ml-1">{direction === "ascending" ? "\u25B2" : "\u25BC"}</span>;
-}
-
-function TenantOverrideRow({
-  flagKey,
-  flagDescription,
-  tenant
-}: Readonly<{
-  flagKey: string;
-  flagDescription: string;
-  tenant: FlagTenantInfo;
-}>) {
-  const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
-  const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
-
-  useEffect(() => {
-    if (!overrideMutation.isPending) {
-      setOptimisticEnabled(tenant.isEnabled);
-    }
-  }, [tenant.isEnabled, overrideMutation.isPending]);
-
-  const handleToggle = (checked: boolean) => {
-    setOptimisticEnabled(checked);
-    overrideMutation.mutate(
-      {
-        params: { path: { flagKey } },
-        body: { tenantId: Number(tenant.tenantId), enabled: checked }
-      },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/tenants"]
-          });
-          const message = checked
-            ? t`${flagDescription} enabled for ${tenant.tenantName}`
-            : t`${flagDescription} disabled for ${tenant.tenantName}`;
-          toast.success(message);
-        },
-        onError: () => {
-          setOptimisticEnabled(tenant.isEnabled);
-        }
-      }
-    );
-  };
-
-  const sourceLabel = getSourceLabel(tenant.source);
-
-  return (
-    <TableRow>
-      <TableCell className="text-muted-foreground">{tenant.tenantId}</TableCell>
-      <TableCell className="font-medium">{tenant.tenantName}</TableCell>
-      <TableCell>
-        <Badge variant={optimisticEnabled ? "default" : "outline"}>
-          {optimisticEnabled ? t`Enabled` : t`Disabled`}
-        </Badge>
-      </TableCell>
-      <TableCell>
-        <span className="text-sm text-muted-foreground">{sourceLabel}</span>
-      </TableCell>
-      <TableCell className="text-right">
-        <Switch
-          checked={optimisticEnabled}
-          onCheckedChange={handleToggle}
-          disabled={overrideMutation.isPending}
-          aria-label={t`Override for ${tenant.tenantName}`}
-        />
-      </TableCell>
-    </TableRow>
-  );
-}
-
-function getSourceLabel(source: string): string {
-  switch (source) {
-    case "manual_override":
-      return t`Manual override`;
-    case "ab_rollout":
-      return t`A/B rollout`;
-    case "default":
-      return t`Default`;
-    default:
-      return source;
-  }
 }

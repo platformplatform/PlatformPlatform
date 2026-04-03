@@ -658,6 +658,10 @@ msgstr "Tilsidesættelse"
 msgid "Override for {0}"
 msgstr "Tilsidesættelse for {0}"
 
+#. placeholder {0}: tenant.tenantName
+msgid "Override removed for {0}"
+msgstr "Tilsidesættelse fjernet for {0}"
+
 msgid "Overview"
 msgstr "Overblik"
 
@@ -785,7 +789,6 @@ msgid "Remove override"
 msgstr "Fjern tilsidesættelse"
 
 #. placeholder {0}: tenant.tenantName
-#. placeholder {0}: user.email
 msgid "Remove override for {0}"
 msgstr "Fjern tilsidesættelse for {0}"
 
