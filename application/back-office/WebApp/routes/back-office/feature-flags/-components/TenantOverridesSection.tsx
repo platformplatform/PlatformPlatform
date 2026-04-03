@@ -4,7 +4,7 @@ import { Badge } from "@repo/ui/components/Badge";
 import { Switch } from "@repo/ui/components/Switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { api, queryClient } from "@/shared/lib/api/client";
@@ -126,9 +126,17 @@ function TenantOverrideRow({
   flagDescription: string;
   tenant: FlagTenantInfo;
 }>) {
+  const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
   const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
 
+  useEffect(() => {
+    if (!overrideMutation.isPending) {
+      setOptimisticEnabled(tenant.isEnabled);
+    }
+  }, [tenant.isEnabled, overrideMutation.isPending]);
+
   const handleToggle = (checked: boolean) => {
+    setOptimisticEnabled(checked);
     overrideMutation.mutate(
       {
         params: { path: { flagKey } },
@@ -136,11 +144,16 @@ function TenantOverrideRow({
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries();
+          queryClient.invalidateQueries({
+            queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/tenants"]
+          });
           const message = checked
             ? t`${flagDescription} enabled for ${tenant.tenantName}`
             : t`${flagDescription} disabled for ${tenant.tenantName}`;
           toast.success(message);
+        },
+        onError: () => {
+          setOptimisticEnabled(tenant.isEnabled);
         }
       }
     );
@@ -153,14 +166,16 @@ function TenantOverrideRow({
       <TableCell className="text-muted-foreground">{tenant.tenantId}</TableCell>
       <TableCell className="font-medium">{tenant.tenantName}</TableCell>
       <TableCell>
-        <Badge variant={tenant.isEnabled ? "default" : "outline"}>{tenant.isEnabled ? t`Enabled` : t`Disabled`}</Badge>
+        <Badge variant={optimisticEnabled ? "default" : "outline"}>
+          {optimisticEnabled ? t`Enabled` : t`Disabled`}
+        </Badge>
       </TableCell>
       <TableCell>
         <span className="text-sm text-muted-foreground">{sourceLabel}</span>
       </TableCell>
       <TableCell className="text-right">
         <Switch
-          checked={tenant.isEnabled}
+          checked={optimisticEnabled}
           onCheckedChange={handleToggle}
           disabled={overrideMutation.isPending}
           aria-label={t`Override for ${tenant.tenantName}`}
