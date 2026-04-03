@@ -61,6 +61,8 @@ public class UserInfo
 
     public IReadOnlySet<string> FeatureFlags { get; init; } = EmptyFeatureFlags;
 
+    public int FeatureFlagVersion { get; init; }
+
     public int TenantRolloutBucket { get; init; }
 
     public int? UserRolloutBucket { get; init; }
@@ -88,6 +90,7 @@ public class UserInfo
         var sessionId = user.FindFirstValue("session_id");
         var email = user.FindFirstValue(ClaimTypes.Email);
         var featureFlagsClaim = user.FindFirstValue("feature_flags");
+        var featureFlagVersionClaim = user.FindFirstValue("feature_flag_version");
         var tenantRolloutBucketClaim = user.FindFirstValue("tenant_rollout_bucket");
         var userRolloutBucketClaim = user.FindFirstValue("user_rollout_bucket");
         return new UserInfo
@@ -110,6 +113,7 @@ public class UserInfo
             Theme = theme,
             IsInternalUser = IsInternalUserEmail(email),
             FeatureFlags = ParseFeatureFlags(featureFlagsClaim),
+            FeatureFlagVersion = !string.IsNullOrEmpty(featureFlagVersionClaim) ? int.Parse(featureFlagVersionClaim) : 0,
             TenantRolloutBucket = !string.IsNullOrEmpty(tenantRolloutBucketClaim) ? int.Parse(tenantRolloutBucketClaim) : 0,
             UserRolloutBucket = !string.IsNullOrEmpty(userRolloutBucketClaim) ? int.Parse(userRolloutBucketClaim) : null
         };

@@ -127,7 +127,8 @@ public sealed class GetBackOfficeUserDetailTests : BackOfficeEndpointBaseTest
                 ("state", nameof(TenantState.Active)),
                 ("plan", nameof(SubscriptionPlan.Basis)),
                 ("logo", """{"Url":null,"Version":0}"""),
-                ("rollout_bucket", 50)
+                ("rollout_bucket", 50),
+                ("feature_flag_version", 0)
             ]
         );
 

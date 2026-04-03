@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Account;
 using Account.Api;
+using Account.Api.Middleware;
 using Microsoft.Extensions.Options;
 using SharedKernel.Authentication;
 using SharedKernel.Authentication.BackOfficeIdentity;
@@ -22,7 +23,8 @@ builder
 builder.Services
     .AddApiServices([Assembly.GetExecutingAssembly(), Configuration.Assembly], ApiDocumentLayout.AccountAndBackOffice)
     .AddAccountServices()
-    .AddBackOfficeDevStaticProxy();
+    .AddBackOfficeDevStaticProxy()
+    .AddScoped<FeatureFlagVersionMiddleware>();
 
 var app = builder.Build();
 
@@ -138,6 +140,8 @@ else
         )
     );
 }
+
+app.UseMiddleware<FeatureFlagVersionMiddleware>();
 
 await app.RunAsync();
 return;

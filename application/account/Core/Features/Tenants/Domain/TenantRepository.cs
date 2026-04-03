@@ -55,6 +55,10 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     Used by the back-office dashboard "Recent signups" list.
     /// </summary>
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
+
+    Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken);
+
+    Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken);
 }
 
 public sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -158,5 +162,15 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     {
         var tenants = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return tenants.OrderByDescending(t => t.CreatedAt).Take(limit).ToArray();
+    }
+
+    public async Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(t => t.Id == tenantId).Select(t => t.FeatureFlagVersion).SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken)
+    {
+        await accountDbContext.Database.ExecuteSqlRawAsync("UPDATE tenants SET feature_flag_version = feature_flag_version + 1", cancellationToken);
     }
 }
