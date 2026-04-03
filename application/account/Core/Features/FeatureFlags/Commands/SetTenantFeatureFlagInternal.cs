@@ -58,12 +58,19 @@ public sealed class SetTenantFeatureFlagInternalHandler(IFeatureFlagRepository f
         else
         {
             var tenantOverride = await featureFlagRepository.GetByKeyAndScopeAsync(command.FlagKey, command.TenantId, null, cancellationToken);
-            if (tenantOverride is not null)
+            if (tenantOverride is null)
+            {
+                tenantOverride = FeatureFlag.CreateTenantOverride(command.FlagKey, command.TenantId);
+                tenantOverride.Deactivate(now);
+                await featureFlagRepository.AddAsync(tenantOverride, cancellationToken);
+            }
+            else
             {
                 tenantOverride.Deactivate(now);
                 featureFlagRepository.Update(tenantOverride);
-                events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
             }
+
+            events.CollectEvent(new FeatureFlagTenantOverrideRemoved(command.FlagKey, command.TenantId.ToString()));
         }
 
         var tenant = await tenantRepository.GetByIdUnfilteredAsync(new TenantId(command.TenantId), cancellationToken);
