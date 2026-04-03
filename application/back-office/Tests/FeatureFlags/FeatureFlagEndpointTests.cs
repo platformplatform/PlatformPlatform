@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using BackOffice.Api.Endpoints;
 using BackOffice.Database;
 using FluentAssertions;
+using SharedKernel.Domain;
 using Xunit;
 
 namespace BackOffice.Tests.FeatureFlags;
@@ -124,7 +125,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     {
         // Arrange
         const string flagKey = "test-flag";
-        var request = new SetTenantOverrideRequest(123, true);
+        var request = new SetTenantOverrideRequest(new TenantId(123), true);
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override", request);
@@ -139,7 +140,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     public async Task SetTenantOverride_WhenExternalUser_ShouldReturnForbidden()
     {
         // Act
-        var response = await AuthenticatedExternalHttpClient.PutAsJsonAsync("/api/back-office/feature-flags/test-flag/tenant-override", new SetTenantOverrideRequest(123, true));
+        var response = await AuthenticatedExternalHttpClient.PutAsJsonAsync("/api/back-office/feature-flags/test-flag/tenant-override", new SetTenantOverrideRequest(new TenantId(123), true));
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);

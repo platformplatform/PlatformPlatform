@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using SharedKernel.Domain;
 using SharedKernel.FeatureFlags;
 
 namespace BackOffice.Features.FeatureFlags;
@@ -28,4 +29,4 @@ public sealed record FeatureFlagInfo(
 public sealed record GetFlagTenantsResponse(FlagTenantInfo[] Tenants);
 
 [PublicAPI]
-public sealed record FlagTenantInfo(long TenantId, string TenantName, bool IsEnabled, string Source);
+public sealed record FlagTenantInfo(TenantId TenantId, string TenantName, bool IsEnabled, string Source);

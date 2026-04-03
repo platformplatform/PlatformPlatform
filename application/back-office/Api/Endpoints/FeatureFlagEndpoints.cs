@@ -1,4 +1,5 @@
 using BackOffice.Features.FeatureFlags;
+using SharedKernel.Domain;
 using SharedKernel.Endpoints;
 using SharedKernel.ExecutionContext;
 
@@ -43,7 +44,7 @@ public sealed class FeatureFlagEndpoints : IEndpoints
         group.MapPut("/{flagKey}/tenant-override", async (string flagKey, SetTenantOverrideRequest request, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
-                return await ProxyResponse(accountApiClient.SetTenantOverrideAsync(flagKey, request.TenantId, request.Enabled, cancellationToken));
+                return await ProxyResponse(accountApiClient.SetTenantOverrideAsync(flagKey, request.TenantId.Value, request.Enabled, cancellationToken));
             }
         ).DisableAntiforgery();
 
@@ -64,6 +65,6 @@ public sealed class FeatureFlagEndpoints : IEndpoints
     }
 }
 
-public sealed record SetTenantOverrideRequest(long TenantId, bool Enabled);
+public sealed record SetTenantOverrideRequest(TenantId TenantId, bool Enabled);
 
 public sealed record SetRolloutPercentageRequest(int RolloutPercentage);
