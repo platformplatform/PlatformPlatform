@@ -20,6 +20,14 @@ msgstr "{0, plural, one {# day ago} other {# days ago}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {In # day} other {In # days}}"
 
+#. placeholder {0}: tenant.tenantName
+msgid "{flagDescription} disabled for {0}"
+msgstr "{flagDescription} disabled for {0}"
+
+#. placeholder {0}: tenant.tenantName
+msgid "{flagDescription} enabled for {0}"
+msgstr "{flagDescription} enabled for {0}"
+
 msgid "A/B rollout"
 msgstr "A/B rollout"
 
@@ -204,6 +212,9 @@ msgstr "Save"
 msgid "Saving..."
 msgstr "Saving..."
 
+msgid "Search by tenant name or ID"
+msgstr "Search by tenant name or ID"
+
 msgid "Select dates"
 msgstr "Select dates"
 
@@ -237,8 +248,8 @@ msgstr "System"
 msgid "Tenant"
 msgstr "Tenant"
 
-msgid "Tenant override updated"
-msgstr "Tenant override updated"
+msgid "Tenant ID"
+msgstr "Tenant ID"
 
 msgid "Tenant overrides"
 msgstr "Tenant overrides"

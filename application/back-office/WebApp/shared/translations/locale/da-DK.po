@@ -20,6 +20,14 @@ msgstr "{0, plural, one {for # dag siden} other {for # dage siden}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {Om # dag} other {Om # dage}}"
 
+#. placeholder {0}: tenant.tenantName
+msgid "{flagDescription} disabled for {0}"
+msgstr "{flagDescription} deaktiveret for {0}"
+
+#. placeholder {0}: tenant.tenantName
+msgid "{flagDescription} enabled for {0}"
+msgstr "{flagDescription} aktiveret for {0}"
+
 msgid "A/B rollout"
 msgstr "A/B-udrulning"
 
@@ -204,6 +212,9 @@ msgstr "Gem"
 msgid "Saving..."
 msgstr "Gemmer..."
 
+msgid "Search by tenant name or ID"
+msgstr "Søg efter lejernavn eller ID"
+
 msgid "Select dates"
 msgstr "Vælg datoer"
 
@@ -237,8 +248,8 @@ msgstr "System"
 msgid "Tenant"
 msgstr "Lejer"
 
-msgid "Tenant override updated"
-msgstr "Lejertilsidesættelse opdateret"
+msgid "Tenant ID"
+msgstr "Lejer-ID"
 
 msgid "Tenant overrides"
 msgstr "Lejertilsidesættelser"
