@@ -168,6 +168,36 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
+    public async Task SetTenantFeatureFlagInternal_WhenDisabledWithNoExistingOverride_ShouldCreateDisabledOverrideRow()
+    {
+        // Arrange - tenant has no override row (enabled via A/B rollout or default)
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = false };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId }]
+        );
+        rowCount.Should().Be(1);
+        var disabledAt = Connection.ExecuteScalar<string>(
+            "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id = @tenantId AND user_id IS NULL",
+            [new { flagKey, tenantId }]
+        );
+        disabledAt.Should().NotBeNullOrEmpty();
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagTenantOverrideRemoved");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task SetTenantFeatureFlagInternal_WhenCalledWithoutAuthContext_ShouldSucceed()
     {
         // Arrange
@@ -529,6 +559,51 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 t.IsEnabled.Should().BeTrue();
             }
         );
+    }
+
+    [Fact]
+    public async Task GetFlagTenants_WhenTenantDisabledViaOverrideWhileAbRolloutActive_ShouldReturnManualOverrideDisabled()
+    {
+        // Arrange - set up A/B rollout at 100% so all tenants are enabled
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [
+                ("bucket_start", 0),
+                ("bucket_end", 100)
+            ]
+        );
+
+        // Create a disabled override for the tenant (simulating admin toggling OFF)
+        var overrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId),
+                ("user_id", null),
+                ("enabled_at", null),
+                ("disabled_at", TimeProvider.GetUtcNow()),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert - manual override should take precedence over A/B rollout
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
+        tenantResult.IsEnabled.Should().BeFalse();
+        tenantResult.Source.Should().Be("manual_override");
     }
 
     [Fact]
