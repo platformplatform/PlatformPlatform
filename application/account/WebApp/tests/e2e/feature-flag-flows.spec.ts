@@ -12,7 +12,7 @@ test.describe("@smoke", () => {
    *
    * Tests the full feature flag management flow:
    * - Back-office flag list: view flags, filter by scope tabs, toggle a flag via switch
-   * - Back-office flag detail: navigate into tenant-scoped flag, toggle tenant override, set A/B rollout percentage
+   * - Back-office flag detail: navigate into tenant-scoped flag, toggle tenant override twice, set A/B rollout percentage
    * - Account settings: verify Features section, toggle tenant-scoped custom branding flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
    */
@@ -88,12 +88,22 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Tenant overrides" })).toBeVisible();
     })();
 
-    await step("Toggle tenant override & verify success toast")(async () => {
+    await step("Toggle tenant override & verify toast confirms state change")(async () => {
       const overridesTable = page.getByRole("table", { name: "Tenant overrides" });
       await expect(overridesTable).toBeVisible();
 
-      const firstOverrideSwitch = overridesTable.getByRole("switch").first();
-      await firstOverrideSwitch.click();
+      const firstRow = overridesTable.locator("tbody tr").first();
+      const overrideSwitch = firstRow.getByRole("switch");
+      await overrideSwitch.click();
+
+      await expectToastMessage(context, "beta features for tenants");
+    })();
+
+    await step("Toggle tenant override back & verify toast confirms state change")(async () => {
+      const overridesTable = page.getByRole("table", { name: "Tenant overrides" });
+      const firstRow = overridesTable.locator("tbody tr").first();
+      const overrideSwitch = firstRow.getByRole("switch");
+      await overrideSwitch.click();
 
       await expectToastMessage(context, "beta features for tenants");
     })();
