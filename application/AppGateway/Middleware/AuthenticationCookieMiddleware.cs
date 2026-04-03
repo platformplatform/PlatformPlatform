@@ -21,8 +21,10 @@ public class AuthenticationCookieMiddleware(
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
-        if (context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenCookieValue))
+        string? refreshTokenCookieValue = null;
+        if (context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenCookieName, out var refreshTokenFromCookie))
         {
+            refreshTokenCookieValue = refreshTokenFromCookie;
             context.Request.Cookies.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenCookieName, out var accessTokenCookieValue);
             await ValidateAuthenticationCookieAndConvertToHttpBearerHeader(context, refreshTokenCookieValue, accessTokenCookieValue);
         }
@@ -45,20 +47,43 @@ public class AuthenticationCookieMiddleware(
             context.Response.Cookies.Delete(AuthenticationTokenHttpKeys.AccessTokenCookieName, hostCookieOptions);
         }
 
+        var refreshHandled = false;
+
+        async Task HandleRefreshAsync()
+        {
+            if (refreshHandled) return;
+            refreshHandled = true;
+
+            if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+            {
+                if (refreshTokenCookieValue is not null)
+                {
+                    logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
+                    var (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue);
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken, accessToken);
+                }
+
+                context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+            }
+            else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshToken) &&
+                     context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessToken))
+            {
+                await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken.Single()!, accessToken.Single()!);
+            }
+        }
+
+        // Register OnStarting BEFORE next(context). YARP streams responses back, so by the time control
+        // returns from next(context) the response headers have already been flushed and Set-Cookie can
+        // no longer be appended. OnStarting fires while headers are still mutable. The fallback call
+        // after next(context) handles direct invocation paths (e.g. unit tests) where OnStarting is
+        // never triggered because the response is never sent.
+        context.Response.OnStarting(HandleRefreshAsync);
+
         await next(context);
 
-
-        if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+        if (!context.Response.HasStarted)
         {
-            logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
-            var (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshTokenCookieValue!);
-            await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken, accessToken);
-            context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
-        }
-        else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var refreshToken) &&
-                 context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var accessToken))
-        {
-            await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken.Single()!, accessToken.Single()!);
+            await HandleRefreshAsync();
         }
     }
 

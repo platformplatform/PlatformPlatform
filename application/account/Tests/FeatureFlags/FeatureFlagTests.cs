@@ -443,6 +443,34 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
+    // Tenant configurable flags query tests
+
+    [Fact]
+    public async Task GetTenantConfigurableFlags_WhenCalled_ShouldReturnConfigurableFlagsWithCurrentOverrideState()
+    {
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/feature-flags/tenant-configurable");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<TenantConfigurableFeatureFlagsResponse>();
+        result.Should().NotBeNull();
+        result.Flags.Should().Contain(f => f.FlagKey == "custom-branding" && f.Enabled == false);
+    }
+
+    [Fact]
+    public async Task GetUserConfigurableFlags_WhenCalled_ShouldReturnConfigurableUserFlagsWithCurrentOverrideState()
+    {
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/api/account/feature-flags/user-configurable");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<UserConfigurableFeatureFlagsResponse>();
+        result.Should().NotBeNull();
+        result.Flags.Should().Contain(f => f.FlagKey == "compact-view" && f.Enabled == false);
+    }
+
     // Flag tenants query tests
 
     [Fact]

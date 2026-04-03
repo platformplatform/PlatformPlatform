@@ -27,11 +27,9 @@ public sealed class GetTenantConfigurableFeatureFlagsHandler(IFeatureFlagReposit
             .ToArray();
 
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, string.Empty, cancellationToken);
-        var baseRows = allRows.Where(r => r.TenantId is null && r.UserId is null).ToDictionary(r => r.FlagKey);
         var tenantOverrides = allRows.Where(r => r.TenantId == tenantId && r.UserId is null).ToDictionary(r => r.FlagKey);
 
         var flags = configurableDefinitions
-            .Where(definition => baseRows.TryGetValue(definition.Key, out var baseRow) && IsActive(baseRow))
             .Select(definition =>
                 {
                     tenantOverrides.TryGetValue(definition.Key, out var tenantOverride);
