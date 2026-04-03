@@ -20,19 +20,19 @@ public sealed class FeatureFlagEndpoints : IEndpoints
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(flagKey))
-        );
+        ).DisableAntiforgery();
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/deactivate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new DeactivateFeatureFlagCommand(flagKey))
-        );
+        ).DisableAntiforgery();
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, SetTenantFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).DisableAntiforgery();
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/rollout-percentage", async Task<ApiResult> (string flagKey, SetFeatureFlagRolloutPercentageCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })
-        );
+        ).DisableAntiforgery();
 
         // Authenticated API endpoints (tenant owner and user operations)
         var group = routes.MapGroup("/api/account/feature-flags").WithTags("FeatureFlags").RequireAuthorization().ProducesValidationProblem();

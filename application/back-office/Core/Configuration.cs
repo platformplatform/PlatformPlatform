@@ -23,7 +23,7 @@ public static class Configuration
     {
         public IServiceCollection AddBackOfficeServices()
         {
-            services.AddHttpClient<AccountApiClient>(accountApiHttpClient => { accountApiHttpClient.BaseAddress = new Uri("http://account-api"); }
+            services.AddHttpClient<AccountApiClient>(accountApiHttpClient => { accountApiHttpClient.BaseAddress = new Uri(Environment.GetEnvironmentVariable("ACCOUNT_API_URL") ?? "https://localhost:9100"); }
             );
 
             return services.AddSharedServices<BackOfficeDbContext>([Assembly]);

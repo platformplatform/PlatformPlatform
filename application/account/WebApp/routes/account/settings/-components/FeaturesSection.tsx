@@ -27,7 +27,7 @@ export function FeaturesSection() {
 
   const tenantFlags = useMemo(() => {
     const baseFlags = featureFlags.filter(
-      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByTenant === "true"
+      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByTenant
     );
 
     return baseFlags.map((baseFlag): TenantFlag => {

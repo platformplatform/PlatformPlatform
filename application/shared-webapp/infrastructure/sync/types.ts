@@ -36,8 +36,8 @@ export type FeatureFlagRow = Row & {
   disabledAt: string | null;
   bucketStart: string | null;
   bucketEnd: string | null;
-  configurableByTenant: string;
-  configurableByUser: string;
+  configurableByTenant: boolean;
+  configurableByUser: boolean;
 };
 
 export type SubscriptionRow = Row & {

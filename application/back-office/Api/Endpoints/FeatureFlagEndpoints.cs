@@ -17,42 +17,42 @@ public sealed class FeatureFlagEndpoints : IEndpoints
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.GetFeatureFlagsAsync(cancellationToken));
             }
-        );
+        ).Produces<GetFeatureFlagsResponse>();
 
         group.MapGet("/{flagKey}/tenants", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.GetFlagTenantsAsync(flagKey, cancellationToken));
             }
-        );
+        ).Produces<GetFlagTenantsResponse>();
 
         group.MapPut("/{flagKey}/activate", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.ActivateFlagAsync(flagKey, cancellationToken));
             }
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/deactivate", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.DeactivateFlagAsync(flagKey, cancellationToken));
             }
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/tenant-override", async (string flagKey, SetTenantOverrideRequest request, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.SetTenantOverrideAsync(flagKey, request.TenantId, request.Enabled, cancellationToken));
             }
-        );
+        ).DisableAntiforgery();
 
         group.MapPut("/{flagKey}/rollout-percentage", async (string flagKey, SetRolloutPercentageRequest request, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
                 return await ProxyResponse(accountApiClient.SetRolloutPercentageAsync(flagKey, request.RolloutPercentage, cancellationToken));
             }
-        );
+        ).DisableAntiforgery();
     }
 
     private static async Task<IResult> ProxyResponse(Task<HttpResponseMessage> responseTask)
