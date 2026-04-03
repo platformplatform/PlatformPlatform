@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Account.Database;
 using Account.Features.FeatureFlags.Commands;
+using Account.Features.FeatureFlags.Domain;
 using Account.Features.FeatureFlags.Queries;
 using FluentAssertions;
 using SharedKernel.FeatureFlags;
@@ -415,6 +416,114 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
     }
 
+    // Flag tenants query tests
+
+    [Fact]
+    public async Task GetFlagTenants_WhenTenantScopedFlag_ShouldReturnAllTenantsWithDefaultSource()
+    {
+        // Arrange
+        var flagKey = "sso";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().NotBeEmpty();
+        result.Tenants.Should().AllSatisfy(t =>
+            {
+                t.Source.Should().Be("default");
+                t.IsEnabled.Should().BeFalse();
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetFlagTenants_WhenTenantHasOverride_ShouldReturnManualOverrideSource()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var overrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId),
+                ("user_id", null),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        var tenantResult = result.Tenants.Single(t => t.TenantId == tenantId);
+        tenantResult.IsEnabled.Should().BeTrue();
+        tenantResult.Source.Should().Be("manual_override");
+    }
+
+    [Fact]
+    public async Task GetFlagTenants_WhenFlagHasRollout_ShouldReturnAbRolloutSource()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var baseRowId = Connection.ExecuteScalar<string>(
+            "SELECT id FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
+        Connection.Update("feature_flags", "id", baseRowId, [
+                ("bucket_start", 1),
+                ("bucket_end", 100)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
+        result.Should().NotBeNull();
+        result.Tenants.Should().AllSatisfy(t =>
+            {
+                t.Source.Should().Be("ab_rollout");
+                t.IsEnabled.Should().BeTrue();
+            }
+        );
+    }
+
+    [Fact]
+    public async Task GetFlagTenants_WhenNonExistentFlag_ShouldReturnBadRequest()
+    {
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/non-existent/tenants");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetFlagTenants_WhenSystemScopedFlag_ShouldReturnBadRequest()
+    {
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/google-oauth/tenants");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     // Query tests
 
     [Fact]
@@ -495,6 +604,144 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         // Assert
         bucket1.Should().Be(bucket2);
         bucket1.Should().BeInRange(1, 100);
+    }
+
+    // JWT invalidation tests
+
+    [Fact]
+    public async Task ActivateFeatureFlag_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/activate", null);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
+    }
+
+    [Fact]
+    public async Task DeactivateFeatureFlag_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsync($"/internal-api/account/feature-flags/{flagKey}/deactivate", null);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
+    }
+
+    [Fact]
+    public async Task SetTenantFeatureFlagInternal_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "sso";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        var command = new SetTenantFeatureFlagInternalCommand { TenantId = tenantId, Enabled = true };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
+    }
+
+    [Fact]
+    public async Task SetTenantFeatureFlagOwner_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "custom-branding";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        var command = new SetTenantFeatureFlagOwnerCommand { Enabled = true };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/tenant-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
+    }
+
+    [Fact]
+    public async Task SetUserFeatureFlag_WhenCalled_ShouldIncrementTenantFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        var command = new SetUserFeatureFlagCommand { Enabled = true };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/account/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
+    }
+
+    [Fact]
+    public async Task SetFeatureFlagRolloutPercentage_WhenCalled_ShouldIncrementAllTenantsFeatureFlagVersion()
+    {
+        // Arrange
+        var flagKey = "beta-features";
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var originalVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        var command = new SetFeatureFlagRolloutPercentageCommand { RolloutPercentage = 50 };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var updatedVersion = Connection.ExecuteScalar<long>(
+            "SELECT feature_flag_version FROM tenants WHERE id = @tenantId", [new { tenantId }]
+        );
+        updatedVersion.Should().Be(originalVersion + 1);
     }
 
     private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)

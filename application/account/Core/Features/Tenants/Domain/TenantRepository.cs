@@ -19,6 +19,16 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     This method should only be used in webhook processing where tenant context is not established.
     /// </summary>
     Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves all active tenants without applying tenant query filters.
+    ///     This method should only be used by internal API endpoints where tenant context is not established.
+    /// </summary>
+    Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
+
+    Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken);
+
+    Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -42,5 +52,24 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     public async Task<Tenant?> GetByIdUnfilteredAsync(TenantId id, CancellationToken cancellationToken)
     {
         return await DbSet.IgnoreQueryFilters().SingleOrDefaultAsync(t => t.Id == id, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves all active tenants without applying tenant query filters.
+    ///     This method should only be used by internal API endpoints where tenant context is not established.
+    /// </summary>
+    public async Task<Tenant[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().OrderBy(t => t.Id).ToArrayAsync(cancellationToken);
+    }
+
+    public async Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken)
+    {
+        return await DbSet.Where(t => t.Id == tenantId).Select(t => t.FeatureFlagVersion).SingleOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken)
+    {
+        await accountDbContext.Database.ExecuteSqlRawAsync("UPDATE tenants SET feature_flag_version = feature_flag_version + 1", cancellationToken);
     }
 }

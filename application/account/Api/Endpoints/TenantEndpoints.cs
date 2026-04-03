@@ -31,6 +31,10 @@ public sealed class TenantEndpoints : IEndpoints
             => await mediator.Send(new RemoveTenantLogoCommand())
         ).Produces<TenantResponse>();
 
+        routes.MapGet("/internal-api/account/tenants", async Task<ApiResult<GetTenantsResponse>> (IMediator mediator)
+            => await mediator.Send(new GetTenantsQuery())
+        ).Produces<GetTenantsResponse>();
+
         routes.MapDelete("/internal-api/account/tenants/{id}", async Task<ApiResult> (TenantId id, IMediator mediator)
             => await mediator.Send(new DeleteTenantCommand(id))
         );

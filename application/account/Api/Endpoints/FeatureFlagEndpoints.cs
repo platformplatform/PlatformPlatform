@@ -14,6 +14,10 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new GetFeatureFlagsQuery())
         ).Produces<GetFeatureFlagsResponse>();
 
+        routes.MapGet("/internal-api/account/feature-flags/{flagKey}/tenants", async Task<ApiResult<GetFlagTenantsResponse>> (string flagKey, IMediator mediator)
+            => await mediator.Send(new GetFlagTenantsQuery { FlagKey = flagKey })
+        ).Produces<GetFlagTenantsResponse>();
+
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(flagKey))
         );
