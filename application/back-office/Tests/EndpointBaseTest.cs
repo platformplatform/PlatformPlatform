@@ -1,4 +1,7 @@
+using System.Net;
 using System.Net.Http.Headers;
+using System.Text;
+using BackOffice.Features.FeatureFlags;
 using Bogus;
 using JetBrains.Annotations;
 using Mapster;
@@ -28,6 +31,7 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
     protected readonly AccessTokenGenerator AccessTokenGenerator;
     protected readonly IEmailClient EmailClient;
     protected readonly Faker Faker = new();
+    protected readonly MockAccountApiHandler MockAccountApiHandler = new();
     protected readonly ServiceCollection Services;
     [UsedImplicitly] protected readonly TimeProvider TimeProvider;
     private readonly WebApplicationFactory<Program> _webApplicationFactory;
@@ -114,6 +118,9 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
                         services.Remove(services.Single(d => d.ServiceType == typeof(IEmailClient)));
                         services.AddTransient<IEmailClient>(_ => EmailClient);
 
+                        // Replace the AccountApiClient's HttpClient with a mock handler for testing
+                        services.AddHttpClient<AccountApiClient>().ConfigurePrimaryHttpMessageHandler(() => MockAccountApiHandler);
+
                         RegisterMockLoggers(services);
 
                         services.AddScoped<IExecutionContext, HttpExecutionContext>();
@@ -131,6 +138,10 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         var memberAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.Tenant1Member.Adapt<UserInfo>());
         AuthenticatedMemberHttpClient = _webApplicationFactory.CreateClient();
         AuthenticatedMemberHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", memberAccessToken);
+
+        var externalAccessToken = AccessTokenGenerator.Generate(DatabaseSeeder.ExternalUser.Adapt<UserInfo>());
+        AuthenticatedExternalHttpClient = _webApplicationFactory.CreateClient();
+        AuthenticatedExternalHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", externalAccessToken);
 
         // Set the environment variable to bypass antiforgery validation on the server. ASP.NET uses a cryptographic
         // double-submit pattern that encrypts the user's ClaimUid in the token, which is complex to replicate in tests
@@ -157,13 +168,15 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
 
     protected HttpClient AuthenticatedMemberHttpClient { get; }
 
+    protected HttpClient AuthenticatedExternalHttpClient { get; }
+
     public void Dispose()
     {
         Dispose(true);
         GC.SuppressFinalize(this);
     }
 
-    protected virtual void RegisterMockLoggers(IServiceCollection services)
+    protected void RegisterMockLoggers(IServiceCollection services)
     {
     }
 
@@ -175,5 +188,20 @@ public abstract class EndpointBaseTest<TContext> : IDisposable where TContext : 
         Provider.Dispose();
         Connection.Close();
         _webApplicationFactory.Dispose();
+    }
+}
+
+public sealed class MockAccountApiHandler : HttpMessageHandler
+{
+    public HttpStatusCode ResponseStatusCode { get; set; } = HttpStatusCode.OK;
+
+    public string ResponseContent { get; set; } = "{}";
+
+    public HttpRequestMessage? LastRequest { get; private set; }
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        LastRequest = request;
+        return Task.FromResult(new HttpResponseMessage(ResponseStatusCode) { Content = new StringContent(ResponseContent, Encoding.UTF8, "application/json") });
     }
 }

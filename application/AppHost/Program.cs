@@ -109,6 +109,7 @@ var backOfficeApi = builder
     .WithUrlConfiguration("/back-office")
     .WithReference(backOfficeDatabase)
     .WithReference(azureStorage)
+    .WithReference(accountApi)
     .WaitFor(backOfficeWorkers);
 
 var mainDatabase = postgres

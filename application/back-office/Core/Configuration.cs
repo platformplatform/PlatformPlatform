@@ -1,4 +1,5 @@
 using BackOffice.Database;
+using BackOffice.Features.FeatureFlags;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SharedKernel.Configuration;
@@ -22,6 +23,9 @@ public static class Configuration
     {
         public IServiceCollection AddBackOfficeServices()
         {
+            services.AddHttpClient<AccountApiClient>(accountApiHttpClient => { accountApiHttpClient.BaseAddress = new Uri("http://account-api"); }
+            );
+
             return services.AddSharedServices<BackOfficeDbContext>([Assembly]);
         }
     }
