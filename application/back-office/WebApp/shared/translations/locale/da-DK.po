@@ -20,11 +20,23 @@ msgstr "{0, plural, one {for # dag siden} other {for # dage siden}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {Om # dag} other {Om # dage}}"
 
+msgid "A/B rollout"
+msgstr "A/B-udrulning"
+
 msgid "Access denied"
 msgstr "Adgang nægtet"
 
+msgid "Active"
+msgstr "Aktiv"
+
+msgid "All"
+msgstr "Alle"
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "Der opstod en uventet fejl ved behandlingen."
+
+msgid "Back to feature flags"
+msgstr "Tilbage til funktionsflag"
 
 msgid "Breadcrumb"
 msgstr "Brødkrumme"
@@ -56,8 +68,35 @@ msgstr "Dashboard"
 msgid "Decrease"
 msgstr "Formindsk"
 
+msgid "Default"
+msgstr "Standard"
+
+msgid "Disabled"
+msgstr "Deaktiveret"
+
 msgid "Drop files here, or click to browse"
 msgstr ""
+
+msgid "Enabled"
+msgstr "Aktiveret"
+
+msgid "Feature flag activated"
+msgstr "Funktionsflag aktiveret"
+
+msgid "Feature flag deactivated"
+msgstr "Funktionsflag deaktiveret"
+
+msgid "Feature flag detail"
+msgstr "Funktionsflagdetalje"
+
+msgid "Feature flags"
+msgstr "Funktionsflag"
+
+msgid "Filter by flag type"
+msgstr "Filtrer efter flagtype"
+
+msgid "Flag name"
+msgstr "Flagnavn"
 
 msgid "Go to home"
 msgstr "Gå til forsiden"
@@ -70,6 +109,9 @@ msgstr "Gå til forrige side"
 
 msgid "Hide details"
 msgstr "Skjul detaljer"
+
+msgid "Inactive"
+msgstr "Inaktiv"
 
 msgid "Increase"
 msgstr "Forøg"
@@ -89,8 +131,14 @@ msgstr "Hovedindhold"
 msgid "Main navigation"
 msgstr "Hovednavigation"
 
+msgid "Manage feature flags across the platform."
+msgstr "Administrer funktionsflag på tværs af platformen."
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Administrer lejere, se systemdata, se undtagelser og udfør forskellige opgaver for drifts- og supportteams."
+
+msgid "Manual override"
+msgstr "Manuel tilsidesættelse"
 
 msgid "Mobile navigation menu"
 msgstr "Mobilnavigationsmenu"
@@ -113,6 +161,13 @@ msgstr ""
 msgid "Open navigation menu"
 msgstr "Åbn navigationsmenu"
 
+msgid "Override"
+msgstr "Tilsidesættelse"
+
+#. placeholder {0}: tenant.tenantName
+msgid "Override for {0}"
+msgstr "Tilsidesættelse for {0}"
+
 msgid "Page not found"
 msgstr "Siden blev ikke fundet"
 
@@ -134,6 +189,21 @@ msgstr "Forrige"
 msgid "Resize sidebar"
 msgstr "Ændr bredde på sidepanel"
 
+msgid "Rollout"
+msgstr "Udrulning"
+
+msgid "Rollout percentage"
+msgstr "Udrulningsprocent"
+
+msgid "Rollout percentage updated"
+msgstr "Udrulningsprocent opdateret"
+
+msgid "Save"
+msgstr "Gem"
+
+msgid "Saving..."
+msgstr "Gemmer..."
+
 msgid "Select dates"
 msgstr "Vælg datoer"
 
@@ -152,14 +222,36 @@ msgstr "Spring til hovedindhold"
 msgid "Something went wrong"
 msgstr "Noget gik galt"
 
+msgid "Source"
+msgstr "Kilde"
+
+msgid "Status"
+msgstr "Status"
+
 msgid "Stay"
 msgstr "Bliv"
+
+msgid "System"
+msgstr "System"
+
+msgid "Tenant"
+msgstr "Lejer"
+
+msgid "Tenant override updated"
+msgstr "Lejertilsidesættelse opdateret"
+
+msgid "Tenant overrides"
+msgstr "Lejertilsidesættelser"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
 
 msgid "Today"
 msgstr "I dag"
+
+#. placeholder {0}: flag.description
+msgid "Toggle {0}"
+msgstr "Skift {0}"
 
 msgid "Toggle sidebar"
 msgstr "Vis/skjul sidepanel"
@@ -170,8 +262,14 @@ msgstr "I morgen"
 msgid "Try again"
 msgstr "Prøv igen"
 
+msgid "Type"
+msgstr "Type"
+
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"
+
+msgid "User"
+msgstr "Bruger"
 
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"

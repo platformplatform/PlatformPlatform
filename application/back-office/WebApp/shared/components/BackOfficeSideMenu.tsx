@@ -13,7 +13,7 @@ import {
   SidebarRail
 } from "@repo/ui/components/Sidebar";
 import { Link as RouterLink, useRouter } from "@tanstack/react-router";
-import { BoxIcon } from "lucide-react";
+import { BoxIcon, FlagIcon } from "lucide-react";
 
 import logoMark from "@/shared/images/logo-mark.svg";
 
@@ -22,6 +22,10 @@ const normalizePath = (path: string): string => path.replace(/\/$/, "") || "/";
 export function BackOfficeSideMenu() {
   const router = useRouter();
   const currentPath = normalizePath(router.state.location.pathname);
+  const isActive = (target: string, matchPrefix = false) => {
+    const normalized = normalizePath(target);
+    return matchPrefix ? currentPath.startsWith(normalized) : currentPath === normalized;
+  };
 
   return (
     <Sidebar collapsible="icon">
@@ -40,11 +44,25 @@ export function BackOfficeSideMenu() {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild={true} isActive={currentPath === "/back-office"} tooltip={t`Dashboard`}>
+                  <SidebarMenuButton asChild={true} isActive={isActive("/back-office")} tooltip={t`Dashboard`}>
                     <RouterLink to="/back-office">
                       <BoxIcon />
                       <span>
                         <Trans>Dashboard</Trans>
+                      </span>
+                    </RouterLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild={true}
+                    isActive={isActive("/back-office/feature-flags", true)}
+                    tooltip={t`Feature flags`}
+                  >
+                    <RouterLink to="/back-office/feature-flags">
+                      <FlagIcon />
+                      <span>
+                        <Trans>Feature flags</Trans>
                       </span>
                     </RouterLink>
                   </SidebarMenuButton>

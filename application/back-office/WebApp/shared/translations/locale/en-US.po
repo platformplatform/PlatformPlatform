@@ -20,11 +20,23 @@ msgstr "{0, plural, one {# day ago} other {# days ago}}"
 msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {In # day} other {In # days}}"
 
+msgid "A/B rollout"
+msgstr "A/B rollout"
+
 msgid "Access denied"
 msgstr "Access denied"
 
+msgid "Active"
+msgstr "Active"
+
+msgid "All"
+msgstr "All"
+
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
+
+msgid "Back to feature flags"
+msgstr "Back to feature flags"
 
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
@@ -56,8 +68,35 @@ msgstr "Dashboard"
 msgid "Decrease"
 msgstr "Decrease"
 
+msgid "Default"
+msgstr "Default"
+
+msgid "Disabled"
+msgstr "Disabled"
+
 msgid "Drop files here, or click to browse"
 msgstr "Drop files here, or click to browse"
+
+msgid "Enabled"
+msgstr "Enabled"
+
+msgid "Feature flag activated"
+msgstr "Feature flag activated"
+
+msgid "Feature flag deactivated"
+msgstr "Feature flag deactivated"
+
+msgid "Feature flag detail"
+msgstr "Feature flag detail"
+
+msgid "Feature flags"
+msgstr "Feature flags"
+
+msgid "Filter by flag type"
+msgstr "Filter by flag type"
+
+msgid "Flag name"
+msgstr "Flag name"
 
 msgid "Go to home"
 msgstr "Go to home"
@@ -70,6 +109,9 @@ msgstr "Go to previous page"
 
 msgid "Hide details"
 msgstr "Hide details"
+
+msgid "Inactive"
+msgstr "Inactive"
 
 msgid "Increase"
 msgstr "Increase"
@@ -89,8 +131,14 @@ msgstr "Main content"
 msgid "Main navigation"
 msgstr "Main navigation"
 
+msgid "Manage feature flags across the platform."
+msgstr "Manage feature flags across the platform."
+
 msgid "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
 msgstr "Manage tenants, view system data, see exceptions, and perform various tasks for operational and support teams."
+
+msgid "Manual override"
+msgstr "Manual override"
 
 msgid "Mobile navigation menu"
 msgstr "Mobile navigation menu"
@@ -113,6 +161,13 @@ msgstr "Open calendar"
 msgid "Open navigation menu"
 msgstr "Open navigation menu"
 
+msgid "Override"
+msgstr "Override"
+
+#. placeholder {0}: tenant.tenantName
+msgid "Override for {0}"
+msgstr "Override for {0}"
+
 msgid "Page not found"
 msgstr "Page not found"
 
@@ -134,6 +189,21 @@ msgstr "Previous"
 msgid "Resize sidebar"
 msgstr "Resize sidebar"
 
+msgid "Rollout"
+msgstr "Rollout"
+
+msgid "Rollout percentage"
+msgstr "Rollout percentage"
+
+msgid "Rollout percentage updated"
+msgstr "Rollout percentage updated"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Saving..."
+msgstr "Saving..."
+
 msgid "Select dates"
 msgstr "Select dates"
 
@@ -152,14 +222,36 @@ msgstr "Skip to main content"
 msgid "Something went wrong"
 msgstr "Something went wrong"
 
+msgid "Source"
+msgstr "Source"
+
+msgid "Status"
+msgstr "Status"
+
 msgid "Stay"
 msgstr "Stay"
+
+msgid "System"
+msgstr "System"
+
+msgid "Tenant"
+msgstr "Tenant"
+
+msgid "Tenant override updated"
+msgstr "Tenant override updated"
+
+msgid "Tenant overrides"
+msgstr "Tenant overrides"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
 
 msgid "Today"
 msgstr "Today"
+
+#. placeholder {0}: flag.description
+msgid "Toggle {0}"
+msgstr "Toggle {0}"
 
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
@@ -170,8 +262,14 @@ msgstr "Tomorrow"
 msgid "Try again"
 msgstr "Try again"
 
+msgid "Type"
+msgstr "Type"
+
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
+
+msgid "User"
+msgstr "User"
 
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"
