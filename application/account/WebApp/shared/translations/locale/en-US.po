@@ -423,6 +423,9 @@ msgstr "Basic support"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Beta features"
+msgstr "Beta features"
+
 msgid "Bill to"
 msgstr "Bill to"
 
@@ -714,6 +717,9 @@ msgstr "Command"
 msgid "Command palette"
 msgstr "Command palette"
 
+msgid "Compact view"
+msgstr "Compact view"
+
 msgid "Complete your payment to activate your subscription."
 msgstr "Complete your payment to activate your subscription."
 
@@ -809,6 +815,9 @@ msgstr "Current page"
 
 msgid "Current plan"
 msgstr "Current plan"
+
+msgid "Custom branding"
+msgstr "Custom branding"
 
 msgid "Customer deleted"
 msgstr "Customer deleted"
@@ -1075,6 +1084,9 @@ msgstr "Empty"
 msgid "Empty recycle bin"
 msgstr "Empty recycle bin"
 
+msgid "Enable branded login page"
+msgstr "Enable branded login page"
+
 msgid "Enabled"
 msgstr "Enabled"
 
@@ -1152,6 +1164,9 @@ msgstr "Failed"
 
 msgid "Failed to load payment processor."
 msgstr "Failed to load payment processor."
+
+msgid "Feature updated"
+msgstr "Feature updated"
 
 msgid "Features"
 msgstr "Features"
@@ -1783,6 +1798,9 @@ msgstr "Open side pane"
 msgid "Opened documentation"
 msgstr "Opened documentation"
 
+msgid "Opt in to try new features before they are available to everyone."
+msgstr "Opt in to try new features before they are available to everyone."
+
 msgid "Option A"
 msgstr "Option A"
 
@@ -1954,6 +1972,9 @@ msgstr "Powered by"
 
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
+
+msgid "Preference updated"
+msgstr "Preference updated"
 
 msgid "Preferences"
 msgstr "Preferences"
@@ -2666,6 +2687,9 @@ msgstr "Toggle bold"
 msgid "Toggle buttons"
 msgstr "Toggle buttons"
 
+msgid "Toggle features available to your account."
+msgstr "Toggle features available to your account."
+
 msgid "Toggle group"
 msgstr "Toggle group"
 
@@ -2819,6 +2843,9 @@ msgstr "Upload profile picture"
 
 msgid "Use a horizontal separator to group related sections in a column layout."
 msgstr "Use a horizontal separator to group related sections in a column layout."
+
+msgid "Use a more compact layout"
+msgstr "Use a more compact layout"
 
 msgid "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
 msgstr "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
