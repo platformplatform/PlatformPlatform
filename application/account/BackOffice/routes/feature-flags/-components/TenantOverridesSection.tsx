@@ -31,8 +31,7 @@ export function TenantOverridesSection({
     const lowerSearch = search.toLowerCase();
     const filtered = search
       ? tenants.filter(
-          (tenant) =>
-            tenant.tenantName.toLowerCase().includes(lowerSearch) || String(tenant.tenantId).includes(lowerSearch)
+          (tenant) => tenant.tenantName.toLowerCase().includes(lowerSearch) || tenant.tenantId.includes(lowerSearch)
         )
       : tenants;
 
@@ -140,7 +139,7 @@ function TenantOverrideRow({
     overrideMutation.mutate(
       {
         params: { path: { flagKey } },
-        body: { tenantId: tenant.tenantId, enabled: checked }
+        body: { tenantId: Number(tenant.tenantId), enabled: checked }
       },
       {
         onSuccess: () => {

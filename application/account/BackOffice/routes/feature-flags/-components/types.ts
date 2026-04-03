@@ -21,7 +21,7 @@ export interface GetFeatureFlagsResponse {
 }
 
 export interface FlagTenantInfo {
-  tenantId: number;
+  tenantId: string;
   tenantName: string;
   isEnabled: boolean;
   source: "manual_override" | "ab_rollout" | "default";
