@@ -58,6 +58,7 @@ export default function FlagDetailPage() {
               <span>{flag?.description ?? flagKey}</span>
             </div>
           }
+          subtitle={flag?.key}
         >
           {isLoading ? (
             <FlagDetailSkeleton />
@@ -65,7 +66,11 @@ export default function FlagDetailPage() {
             <div className="flex flex-col gap-8">
               <FlagInfoSection flag={flag} />
               {flag.scope === "Tenant" && (
-                <TenantOverridesSection flagKey={flag.key} tenants={tenantsData?.tenants ?? []} />
+                <TenantOverridesSection
+                  flagKey={flag.key}
+                  flagDescription={flag.description}
+                  tenants={tenantsData?.tenants ?? []}
+                />
               )}
             </div>
           ) : null}
@@ -111,11 +116,31 @@ function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
           />
         </div>
       </div>
+      <FlagTimestamps flag={flag} />
       {flag.isAbTestEligible && (
         <RolloutPercentageInput flagKey={flag.key} currentPercentage={flag.rolloutPercentage} />
       )}
     </div>
   );
+}
+
+function FlagTimestamps({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
+  const timestamps = [];
+  if (flag.enabledAt) {
+    timestamps.push(`${t`Enabled`}: ${formatTimestamp(flag.enabledAt)}`);
+  }
+  if (flag.disabledAt) {
+    timestamps.push(`${t`Disabled`}: ${formatTimestamp(flag.disabledAt)}`);
+  }
+
+  if (timestamps.length === 0) return null;
+
+  return <span className="text-sm text-muted-foreground">{timestamps.join(" | ")}</span>;
+}
+
+function formatTimestamp(isoDate: string): string {
+  const date = new Date(isoDate);
+  return new Intl.DateTimeFormat(navigator.language, { year: "numeric", month: "short", day: "numeric" }).format(date);
 }
 
 function RolloutPercentageInput({

@@ -95,7 +95,7 @@ test.describe("@smoke", () => {
       const firstOverrideSwitch = overridesTable.getByRole("switch").first();
       await firstOverrideSwitch.click();
 
-      await expectToastMessage(context, "Tenant override updated");
+      await expectToastMessage(context, "beta features for tenants");
     })();
 
     await step("Set A/B rollout percentage & verify success toast")(async () => {
