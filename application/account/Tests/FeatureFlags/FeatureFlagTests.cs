@@ -525,7 +525,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFlagTenantsResponse>();
         result.Should().NotBeNull();
-        var tenantResult = result.Tenants.Single(t => t.TenantId == tenantId);
+        var tenantResult = result.Tenants.Single(t => t.TenantId.Value == tenantId);
         tenantResult.IsEnabled.Should().BeTrue();
         tenantResult.Source.Should().Be("manual_override");
     }
