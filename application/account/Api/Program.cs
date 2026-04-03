@@ -1,4 +1,5 @@
 using Account;
+using Account.Api.Middleware;
 using SharedKernel.Configuration;
 using SharedKernel.SinglePageApp;
 
@@ -13,12 +14,15 @@ builder
 // Configure dependency injection services like Repositories, MediatR, Pipelines, FluentValidation validators, etc.
 builder.Services
     .AddApiServices([Assembly.GetExecutingAssembly(), Configuration.Assembly])
-    .AddAccountServices();
+    .AddAccountServices()
+    .AddScoped<FeatureFlagVersionMiddleware>();
 
 var app = builder.Build();
 
 app
     .UseApiServices() // Add common configuration for all APIs like Swagger, HSTS, and DeveloperExceptionPage.
-    .UseFederatedModuleStaticFiles(); // Serve federated module files (remoteEntry.js, JS/CSS bundles)
+    .UseMiddleware<FeatureFlagVersionMiddleware>();
+
+app.UseFederatedModuleStaticFiles(); // Serve federated module files (remoteEntry.js, JS/CSS bundles)
 
 await app.RunAsync();

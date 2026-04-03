@@ -45,6 +45,7 @@ public sealed class UserInfoFactory(ITenantRepository tenantRepository, ISubscri
             Locale = user.Locale,
             IsInternalUser = user.IsInternalUser,
             FeatureFlags = new HashSet<string>(enabledFlags),
+            FeatureFlagVersion = tenant.FeatureFlagVersion,
             TenantRolloutBucket = tenant.RolloutBucket,
             UserRolloutBucket = user.RolloutBucket
         };

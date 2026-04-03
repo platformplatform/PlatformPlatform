@@ -1,4 +1,5 @@
 using Account.Features.FeatureFlags.Domain;
+using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
@@ -30,7 +31,7 @@ public sealed class SetFeatureFlagRolloutPercentageValidator : AbstractValidator
     }
 }
 
-public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepository featureFlagRepository, ITelemetryEventsCollector events)
+public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepository featureFlagRepository, ITenantRepository tenantRepository, ITelemetryEventsCollector events)
     : IRequestHandler<SetFeatureFlagRolloutPercentageCommand, Result>
 {
     public async Task<Result> Handle(SetFeatureFlagRolloutPercentageCommand command, CancellationToken cancellationToken)
@@ -59,6 +60,8 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
 
         flag.SetRolloutRange(bucketStart, bucketEnd);
         featureFlagRepository.Update(flag);
+
+        await tenantRepository.IncrementAllFeatureFlagVersionsAsync(cancellationToken);
 
         events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, command.RolloutPercentage));
 
