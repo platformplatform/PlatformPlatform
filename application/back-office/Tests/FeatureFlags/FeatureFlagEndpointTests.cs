@@ -173,6 +173,32 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
+    public async Task RemoveTenantOverride_WhenInternalUser_ShouldProxyToAccountApi()
+    {
+        // Arrange
+        const string flagKey = "test-flag";
+        var tenantId = new TenantId(123);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/tenant-override?tenantId={tenantId.Value}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId.Value}");
+        MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Delete);
+    }
+
+    [Fact]
+    public async Task RemoveTenantOverride_WhenExternalUser_ShouldReturnForbidden()
+    {
+        // Act
+        var response = await AuthenticatedExternalHttpClient.DeleteAsync("/api/back-office/feature-flags/test-flag/tenant-override?tenantId=123");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
     public async Task GetFeatureFlags_WhenAccountApiReturnsError_ShouldForwardStatusCode()
     {
         // Arrange

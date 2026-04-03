@@ -34,6 +34,10 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(command with { FlagKey = flagKey })
         ).DisableAntiforgery();
 
+        routes.MapDelete("/internal-api/account/feature-flags/{flagKey}/tenant-override", async Task<ApiResult> (string flagKey, long tenantId, IMediator mediator)
+            => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
+        ).DisableAntiforgery();
+
         // Authenticated API endpoints (tenant owner and user operations)
         var group = routes.MapGroup("/api/account/feature-flags").WithTags("FeatureFlags").RequireAuthorization().ProducesValidationProblem();
 

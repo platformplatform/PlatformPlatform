@@ -54,6 +54,13 @@ public sealed class FeatureFlagEndpoints : IEndpoints
                 return await ProxyResponse(accountApiClient.SetRolloutPercentageAsync(flagKey, request.RolloutPercentage, cancellationToken));
             }
         ).DisableAntiforgery();
+
+        group.MapDelete("/{flagKey}/tenant-override", async (string flagKey, TenantId tenantId, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
+            {
+                if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
+                return await ProxyResponse(accountApiClient.RemoveTenantOverrideAsync(flagKey, tenantId.Value, cancellationToken));
+            }
+        ).DisableAntiforgery();
     }
 
     private static async Task<IResult> ProxyResponse(Task<HttpResponseMessage> responseTask)

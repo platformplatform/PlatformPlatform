@@ -37,4 +37,9 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
             $"/internal-api/account/feature-flags/{flagKey}/rollout-percentage", new { RolloutPercentage = rolloutPercentage }, cancellationToken
         );
     }
+
+    public async Task<HttpResponseMessage> RemoveTenantOverrideAsync(string flagKey, long tenantId, CancellationToken cancellationToken)
+    {
+        return await accountApiHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}", cancellationToken);
+    }
 }
