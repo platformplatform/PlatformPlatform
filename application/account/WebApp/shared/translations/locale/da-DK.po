@@ -428,6 +428,9 @@ msgstr "Basal support"
 msgid "Basis"
 msgstr "Basis"
 
+msgid "Beta features"
+msgstr "Betafunktioner"
+
 msgid "Bill to"
 msgstr "Faktureres til"
 
@@ -734,6 +737,9 @@ msgstr "Command"
 msgid "Command palette"
 msgstr "Kommandopalette"
 
+msgid "Compact view"
+msgstr "Kompakt visning"
+
 msgid "Complete your payment to activate your subscription."
 msgstr "Gennemfør din betaling for at aktivere dit abonnement."
 
@@ -832,6 +838,9 @@ msgstr "Nuværende side"
 
 msgid "Current plan"
 msgstr "Nuværende plan"
+
+msgid "Custom branding"
+msgstr "Brugerdefineret branding"
 
 msgid "Customer deleted"
 msgstr "Kunde slettet"
@@ -943,7 +952,7 @@ msgid "Deleted users"
 msgstr "Slettede brugere"
 
 msgid "Deleted users loading"
-msgstr ""
+msgstr "Slettede brugere indlæses"
 
 msgid "Deleted users will appear here for recovery"
 msgstr "Slettede brugere vil blive vist her til gendannelse"
@@ -1101,6 +1110,9 @@ msgstr "Tom"
 msgid "Empty recycle bin"
 msgstr "Tøm papirkurv"
 
+msgid "Enable branded login page"
+msgstr "Aktivér branded loginside"
+
 msgid "Enabled"
 msgstr "Aktiveret"
 
@@ -1178,6 +1190,9 @@ msgstr "Mislykket"
 
 msgid "Failed to load payment processor."
 msgstr "Kunne ikke indlæse betalingsprocessor."
+
+msgid "Feature updated"
+msgstr "Funktion opdateret"
 
 msgid "Features"
 msgstr "Funktioner"
@@ -1827,6 +1842,9 @@ msgstr "Åbn sidepanel"
 msgid "Opened documentation"
 msgstr "Åbnet dokumentation"
 
+msgid "Opt in to try new features before they are available to everyone."
+msgstr "Tilmeld dig for at prøve nye funktioner, før de er tilgængelige for alle."
+
 msgid "Option A"
 msgstr "Mulighed A"
 
@@ -2002,6 +2020,9 @@ msgstr "Powered by"
 msgid "Pozole rojo"
 msgstr "Pozole rojo"
 
+msgid "Preference updated"
+msgstr "Præference opdateret"
+
 msgid "Preferences"
 msgstr "Præferencer"
 
@@ -2018,7 +2039,7 @@ msgid "Preview settings"
 msgstr "Forhåndsvisningsindstillinger"
 
 msgid "Previous"
-msgstr ""
+msgstr "Forrige"
 
 msgid "Pricing"
 msgstr "Priser"
@@ -2731,6 +2752,9 @@ msgstr "Skift fed"
 msgid "Toggle buttons"
 msgstr "Skifteknapper"
 
+msgid "Toggle features available to your account."
+msgstr "Slå funktioner til og fra for din konto."
+
 msgid "Toggle group"
 msgstr "Skiftegruppe"
 
@@ -2888,6 +2912,9 @@ msgstr "Upload profilbillede"
 msgid "Use a horizontal separator to group related sections in a column layout."
 msgstr "Brug en vandret separator til at gruppere relaterede sektioner i en kolonnelayout."
 
+msgid "Use a more compact layout"
+msgstr "Brug et mere kompakt layout"
+
 msgid "Use Accordion to stack multiple related disclosable sections. Good for FAQs, settings groups, or any list where users scan items and expand a few."
 msgstr "Brug Accordion til at stable flere relaterede sektioner. God til FAQs, indstillingsgrupper eller lister hvor brugere scanner elementer og udvider et par stykker."
 
@@ -2946,7 +2973,7 @@ msgid "Users"
 msgstr "Brugere"
 
 msgid "Users loading"
-msgstr ""
+msgstr "Brugere indlæses"
 
 msgid "Users who haven't confirmed their email"
 msgstr "Brugere, der ikke har bekræftet deres e-mail"

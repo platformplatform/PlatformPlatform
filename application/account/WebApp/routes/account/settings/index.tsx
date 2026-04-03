@@ -21,6 +21,7 @@ import { apiClient, UserRole } from "@/shared/lib/api/client";
 
 import { AccountInfoFields } from "./-components/AccountInfoFields";
 import DeleteAccountConfirmation from "./-components/DeleteAccountConfirmation";
+import { FeaturesSection } from "./-components/FeaturesSection";
 
 export const Route = createFileRoute("/account/settings/")({
   staticData: { trackingTitle: "Account settings" },
@@ -177,6 +178,7 @@ export function AccountSettings() {
           </Form>
         )}
 
+        {isOwner && <FeaturesSection />}
         {isOwner && <DangerZone setIsDeleteModalOpen={setIsDeleteModalOpen} />}
       </AppLayout>
 

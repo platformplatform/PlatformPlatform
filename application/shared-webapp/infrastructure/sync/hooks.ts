@@ -1,7 +1,7 @@
 import { eq, isNull, not, useLiveQuery } from "@tanstack/react-db";
 import { useMemo } from "react";
 
-import { subscriptionCollection, tenantCollection, userCollection } from "./collections";
+import { featureFlagCollection, subscriptionCollection, tenantCollection, userCollection } from "./collections";
 import { type BillingInfo, castParsed, extractUrl, type PaymentMethod, type PaymentTransaction } from "./hookHelpers";
 
 export type { BillingAddress, BillingInfo, PaymentMethod, PaymentTransaction } from "./hookHelpers";
@@ -178,4 +178,19 @@ export function useSubscription() {
   }, [rawData]);
 
   return { ...rest, data };
+}
+
+export function useFeatureFlags() {
+  return useLiveQuery((q) =>
+    q.from({ featureFlags: featureFlagCollection }).select(({ featureFlags }) => ({
+      id: featureFlags.id,
+      flagKey: featureFlags.flagKey,
+      tenantId: featureFlags.tenantId,
+      userId: featureFlags.userId,
+      enabledAt: featureFlags.enabledAt,
+      disabledAt: featureFlags.disabledAt,
+      configurableByTenant: featureFlags.configurableByTenant,
+      configurableByUser: featureFlags.configurableByUser
+    }))
+  );
 }
