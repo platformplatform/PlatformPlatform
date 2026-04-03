@@ -7,7 +7,7 @@ import { TextField } from "@repo/ui/components/TextField";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { api } from "@/shared/lib/api/client";
+import { api, queryClient } from "@/shared/lib/api/client";
 
 import type { FlagTenantInfo } from "./types";
 
@@ -136,6 +136,7 @@ function TenantOverrideRow({
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries();
           const message = checked
             ? t`${flagDescription} enabled for ${tenant.tenantName}`
             : t`${flagDescription} disabled for ${tenant.tenantName}`;
