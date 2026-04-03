@@ -7,11 +7,13 @@ test.describe("@smoke", () => {
   /**
    * FEATURE FLAG SYSTEM E2E TEST
    *
-   * Tests the back-office feature flag management flow:
-   * - Flag list: view flags, filter by scope tabs, toggle a flag via switch
-   * - Flag detail: navigate into tenant-scoped flag, toggle tenant override, set A/B rollout percentage
+   * Tests the full feature flag management flow:
+   * - Back-office flag list: view flags, filter by scope tabs, toggle a flag via switch
+   * - Back-office flag detail: navigate into tenant-scoped flag, toggle tenant override, set A/B rollout percentage
+   * - Account settings: verify Features section, toggle tenant-scoped custom branding flag
+   * - User preferences: verify Beta features section, toggle user-scoped compact view flag
    */
-  test("should manage feature flags across back-office flag list & detail views", async ({ ownerPage }) => {
+  test("should manage feature flags across back-office, account settings & user preferences", async ({ ownerPage }) => {
     const context = createTestContext(ownerPage);
 
     // === BACK-OFFICE FLAG LIST ===
@@ -92,6 +94,38 @@ test.describe("@smoke", () => {
 
       await expect(ownerPage).toHaveURL("/back-office/feature-flags");
       await expect(ownerPage.getByRole("heading", { name: "Feature flags" })).toBeVisible();
+    })();
+
+    // === ACCOUNT SETTINGS: TENANT FEATURE FLAGS ===
+
+    await step("Navigate to account settings & verify Features section with tenant flags")(async () => {
+      await ownerPage.goto("/account/settings");
+
+      await expect(ownerPage.getByRole("heading", { name: "Features" })).toBeVisible();
+      await expect(ownerPage.getByText("Custom branding")).toBeVisible();
+    })();
+
+    await step("Toggle custom branding flag & verify success toast")(async () => {
+      const toggle = ownerPage.getByRole("switch", { name: "Custom branding" });
+      await toggle.click();
+
+      await expectToastMessage(context, "Feature updated");
+    })();
+
+    // === USER PREFERENCES: USER FEATURE FLAGS ===
+
+    await step("Navigate to user preferences & verify Beta features section with user flags")(async () => {
+      await ownerPage.goto("/user/preferences");
+
+      await expect(ownerPage.getByRole("heading", { name: "Beta features" })).toBeVisible();
+      await expect(ownerPage.getByText("Compact view")).toBeVisible();
+    })();
+
+    await step("Toggle compact view user flag & verify success toast")(async () => {
+      const toggle = ownerPage.getByRole("switch", { name: "Compact view" });
+      await toggle.click();
+
+      await expectToastMessage(context, "Preference updated");
     })();
   });
 });
