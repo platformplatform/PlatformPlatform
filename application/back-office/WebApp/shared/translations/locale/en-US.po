@@ -176,6 +176,10 @@ msgstr "Override"
 msgid "Override for {0}"
 msgstr "Override for {0}"
 
+#. placeholder {0}: tenant.tenantName
+msgid "Override removed for {0}"
+msgstr "Override removed for {0}"
+
 msgid "Page not found"
 msgstr "Page not found"
 
@@ -193,6 +197,13 @@ msgstr "Please try again or return to the home page."
 
 msgid "Previous"
 msgstr "Previous"
+
+msgid "Remove override"
+msgstr "Remove override"
+
+#. placeholder {0}: tenant.tenantName
+msgid "Remove override for {0}"
+msgstr "Remove override for {0}"
 
 msgid "Resize sidebar"
 msgstr "Resize sidebar"

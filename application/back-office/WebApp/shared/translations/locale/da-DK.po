@@ -176,6 +176,10 @@ msgstr "Tilsidesættelse"
 msgid "Override for {0}"
 msgstr "Tilsidesættelse for {0}"
 
+#. placeholder {0}: tenant.tenantName
+msgid "Override removed for {0}"
+msgstr "Tilsidesættelse fjernet for {0}"
+
 msgid "Page not found"
 msgstr "Siden blev ikke fundet"
 
@@ -193,6 +197,13 @@ msgstr "Prøv venligst igen eller vend tilbage til forsiden."
 
 msgid "Previous"
 msgstr "Forrige"
+
+msgid "Remove override"
+msgstr "Fjern tilsidesættelse"
+
+#. placeholder {0}: tenant.tenantName
+msgid "Remove override for {0}"
+msgstr "Fjern tilsidesættelse for {0}"
 
 msgid "Resize sidebar"
 msgstr "Ændr bredde på sidepanel"
