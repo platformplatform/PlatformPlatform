@@ -45,6 +45,10 @@ test.describe("@comprehensive", () => {
     const secondaryTenantName = `Secondary-${timestamp}`;
     const tertiaryTenantName = `Tertiary-${timestamp}`;
 
+    // The last accepted invitation tenant (set after both invitations are accepted)
+    // Invitation order is non-deterministic, so we capture which tenant was accepted last
+    let lastAcceptedTenantName = "";
+
     // === SINGLE TENANT DISPLAY ===
     await step("Create single tenant & verify dropdown is hidden")(async () => {
       await completeSignupFlow(page1, expect, user, testContext1);
@@ -187,12 +191,12 @@ test.describe("@comprehensive", () => {
       await expect(accountMenuButton).toBeVisible();
     })();
 
-    // === TERTIARY TENANT INVITATION ACCEPTANCE ===
-    await step("Accept invitation for tertiary tenant & verify successful tenant switch")(async () => {
+    // === REMAINING INVITATION ACCEPTANCE ===
+    await step("Accept remaining invitation & verify successful tenant switch")(async () => {
       // Remaining pending invitation shows in banner
       await expect(page1.getByText("You have been invited to join")).toBeVisible();
 
-      // Click View invitation to accept the tertiary tenant invitation
+      // Click View invitation to accept the remaining invitation
       await page1.getByRole("button", { name: "View invitation" }).click();
 
       // Accept invitation dialog should appear for this tenant
@@ -205,9 +209,11 @@ test.describe("@comprehensive", () => {
       // Wait for navigation to complete after accepting invitation
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Account menu now shows the tertiary tenant name
+      // Capture which tenant the user ended up on (invitation order is non-deterministic)
       const accountMenuButton = page1.getByRole("button", { name: "User menu" });
-      await expect(accountMenuButton).toContainText(tertiaryTenantName);
+      const menuText = await accountMenuButton.textContent();
+      lastAcceptedTenantName = [secondaryTenantName, tertiaryTenantName].find((name) => menuText?.includes(name)) ?? "";
+      expect(lastAcceptedTenantName).not.toBe("");
     })();
 
     // === OPEN SECOND TAB ===
@@ -220,19 +226,19 @@ test.describe("@comprehensive", () => {
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Both tabs should show the same tenant (tertiary)
-      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(tertiaryTenantName);
-      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(tertiaryTenantName);
+      // Both tabs should show the same tenant (last accepted)
+      await expect(page1.locator('nav[aria-label="Main navigation"]')).toContainText(lastAcceptedTenantName);
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(lastAcceptedTenantName);
     })();
 
     // === TENANT PREFERENCE PERSISTENCE ===
     await step("Logout and login again & verify tenant preference persists")(async () => {
       // Reuse the existing tenant button reference
       const navElement = page1.locator("nav").first();
-      const tenantButton = navElement.locator("button").filter({ hasText: tertiaryTenantName });
+      const tenantButton = navElement.locator("button").filter({ hasText: lastAcceptedTenantName });
 
-      // Should still be on tertiary tenant
-      await expect(tenantButton).toContainText(tertiaryTenantName);
+      // Should still be on last accepted tenant
+      await expect(tenantButton).toContainText(lastAcceptedTenantName);
 
       // Logout
       testContext1.monitoring.expectedStatusCodes.push(401);
@@ -260,30 +266,30 @@ test.describe("@comprehensive", () => {
       // Wait for navigation to complete - no auth sync dialog since it's the same user
       await expect(page1.locator('nav[aria-label="Main navigation"]')).toBeVisible();
 
-      // Should login to tertiary tenant (last selected)
+      // Should login to last accepted tenant (last selected)
       const navElementAfter = page1.locator("nav").first();
-      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: tertiaryTenantName });
-      await expect(tenantButtonAfter).toContainText(tertiaryTenantName);
+      const tenantButtonAfter = navElementAfter.locator("button").filter({ hasText: lastAcceptedTenantName });
+      await expect(tenantButtonAfter).toContainText(lastAcceptedTenantName);
 
-      // page2 also shows tertiary tenant when navigated
+      // page2 also shows last accepted tenant when navigated
       await page2.goto("/account");
       await expect(page2.locator('nav[aria-label="Main navigation"]')).toBeVisible();
-      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(tertiaryTenantName);
+      await expect(page2.locator('nav[aria-label="Main navigation"]')).toContainText(lastAcceptedTenantName);
     })();
 
     // === TENANT CONTEXT ACROSS NAVIGATION ===
     await step("Navigate across pages & verify tenant context remains consistent")(async () => {
       const accountMenuButton = page1.getByRole("button", { name: "User menu" });
 
-      // We're on tertiary tenant at this point
-      await expect(accountMenuButton).toContainText(tertiaryTenantName);
+      // We're on last accepted tenant at this point
+      await expect(accountMenuButton).toContainText(lastAcceptedTenantName);
 
       // Navigate to Users page
       await page1.goto("/account/users");
       await expect(page1.getByRole("heading", { name: "Users" })).toBeVisible();
 
       // Tenant should still be visible
-      await expect(accountMenuButton).toContainText(tertiaryTenantName);
+      await expect(accountMenuButton).toContainText(lastAcceptedTenantName);
 
       // Navigate to Account settings page
       await page1.goto("/account/settings");
@@ -291,7 +297,7 @@ test.describe("@comprehensive", () => {
 
       // Should show correct tenant name in account settings
       const accountNameInput = page1.getByRole("textbox", { name: "Account name" });
-      await expect(accountNameInput).toHaveValue(tertiaryTenantName);
+      await expect(accountNameInput).toHaveValue(lastAcceptedTenantName);
 
       // Switch to primary tenant via Account menu > Switch account submenu
       await accountMenuButton.dispatchEvent("click");
