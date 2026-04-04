@@ -37,6 +37,7 @@ public sealed record GetFlagUsersResponse(FlagUserInfo[] Users);
 [PublicAPI]
 public sealed record FlagUserInfo(
     UserId UserId,
+    TenantId TenantId,
     string Email,
     string TenantName,
     int RolloutBucket,

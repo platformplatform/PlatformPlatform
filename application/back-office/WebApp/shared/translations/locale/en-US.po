@@ -21,10 +21,12 @@ msgid "{diffDays, plural, one {In # day} other {In # days}}"
 msgstr "{diffDays, plural, one {In # day} other {In # days}}"
 
 #. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
 msgid "{flagDescription} disabled for {0}"
 msgstr "{flagDescription} disabled for {0}"
 
 #. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
 msgid "{flagDescription} enabled for {0}"
 msgstr "{flagDescription} enabled for {0}"
 
@@ -34,11 +36,23 @@ msgstr "A/B rollout"
 msgid "Access denied"
 msgstr "Access denied"
 
+msgid "Account"
+msgstr "Account"
+
+msgid "Account flags"
+msgstr "Account flags"
+
+msgid "Account ID"
+msgstr "Account ID"
+
+msgid "Account status"
+msgstr "Account status"
+
 msgid "Active"
 msgstr "Active"
 
-msgid "All"
-msgstr "All"
+msgid "Allow users to authenticate using enterprise identity providers"
+msgstr "Allow users to authenticate using enterprise identity providers"
 
 msgid "An unexpected error occurred while processing your request."
 msgstr "An unexpected error occurred while processing your request."
@@ -46,8 +60,17 @@ msgstr "An unexpected error occurred while processing your request."
 msgid "Back to feature flags"
 msgstr "Back to feature flags"
 
+msgid "Beta features"
+msgstr "Beta features"
+
 msgid "Breadcrumb"
 msgstr "Breadcrumb"
+
+msgid "Bucket"
+msgstr "Bucket"
+
+msgid "Bucket information"
+msgstr "Bucket information"
 
 msgid "Clear date"
 msgstr "Clear date"
@@ -64,11 +87,20 @@ msgstr "Close menu"
 msgid "Close sidebar"
 msgstr "Close sidebar"
 
+msgid "Compact view"
+msgstr "Compact view"
+
 msgid "Contact your administrator if you believe this is a mistake."
 msgstr "Contact your administrator if you believe this is a mistake."
 
 msgid "Create <0>{search}</0>"
 msgstr "Create <0>{search}</0>"
+
+msgid "Custom branding"
+msgstr "Custom branding"
+
+msgid "Customize the login page with your organization's logo and colors"
+msgstr "Customize the login page with your organization's logo and colors"
 
 msgid "Dashboard"
 msgstr "Dashboard"
@@ -82,11 +114,30 @@ msgstr "Default"
 msgid "Disabled"
 msgstr "Disabled"
 
+#. placeholder {0}: disabledTenants.length
+#. placeholder {0}: disabledUsers.length
+msgid "Disabled ({0})"
+msgstr "Disabled ({0})"
+
 msgid "Drop files here, or click to browse"
 msgstr "Drop files here, or click to browse"
 
+msgid "Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgstr "Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+
+msgid "Early access to experimental features before general availability"
+msgstr "Early access to experimental features before general availability"
+
+msgid "Email"
+msgstr "Email"
+
 msgid "Enabled"
 msgstr "Enabled"
+
+#. placeholder {0}: enabledTenants.length
+#. placeholder {0}: enabledUsers.length
+msgid "Enabled ({0})"
+msgstr "Enabled ({0})"
 
 msgid "Feature flag activated"
 msgstr "Feature flag activated"
@@ -94,17 +145,8 @@ msgstr "Feature flag activated"
 msgid "Feature flag deactivated"
 msgstr "Feature flag deactivated"
 
-msgid "Feature flag detail"
-msgstr "Feature flag detail"
-
 msgid "Feature flags"
 msgstr "Feature flags"
-
-msgid "Filter by flag type"
-msgstr "Filter by flag type"
-
-msgid "Flag name"
-msgstr "Flag name"
 
 msgid "Go to home"
 msgstr "Go to home"
@@ -114,6 +156,9 @@ msgstr "Go to next page"
 
 msgid "Go to previous page"
 msgstr "Go to previous page"
+
+msgid "Google OAuth"
+msgstr "Google OAuth"
 
 msgid "Hide details"
 msgstr "Hide details"
@@ -154,6 +199,9 @@ msgstr "Mobile navigation menu"
 msgid "More pages"
 msgstr "More pages"
 
+msgid "Name"
+msgstr "Name"
+
 msgid "Navigation"
 msgstr "Navigation"
 
@@ -173,10 +221,12 @@ msgid "Override"
 msgstr "Override"
 
 #. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
 msgid "Override for {0}"
 msgstr "Override for {0}"
 
 #. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
 msgid "Override removed for {0}"
 msgstr "Override removed for {0}"
 
@@ -198,10 +248,14 @@ msgstr "Please try again or return to the home page."
 msgid "Previous"
 msgstr "Previous"
 
+msgid "Reduce spacing between UI elements for a denser layout"
+msgstr "Reduce spacing between UI elements for a denser layout"
+
 msgid "Remove override"
 msgstr "Remove override"
 
 #. placeholder {0}: tenant.tenantName
+#. placeholder {0}: user.email
 msgid "Remove override for {0}"
 msgstr "Remove override for {0}"
 
@@ -211,20 +265,26 @@ msgstr "Resize sidebar"
 msgid "Rollout"
 msgstr "Rollout"
 
+msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
+
 msgid "Rollout percentage"
 msgstr "Rollout percentage"
 
 msgid "Rollout percentage updated"
 msgstr "Rollout percentage updated"
 
-msgid "Save"
-msgstr "Save"
+msgid "Search by account name or ID"
+msgstr "Search by account name or ID"
 
-msgid "Saving..."
-msgstr "Saving..."
+msgid "Search by email or account name"
+msgstr "Search by email or account name"
 
-msgid "Search by tenant name or ID"
-msgstr "Search by tenant name or ID"
+msgid "Search results"
+msgstr "Search results"
 
 msgid "Select dates"
 msgstr "Select dates"
@@ -237,6 +297,12 @@ msgstr "Show details"
 
 msgid "Show more"
 msgstr "Show more"
+
+msgid "Sign in with Google using OpenID Connect"
+msgstr "Sign in with Google using OpenID Connect"
+
+msgid "Single sign-on"
+msgstr "Single sign-on"
 
 msgid "Skip to main content"
 msgstr "Skip to main content"
@@ -253,17 +319,17 @@ msgstr "Status"
 msgid "Stay"
 msgstr "Stay"
 
+msgid "Stripe-powered subscription billing and plan management"
+msgstr "Stripe-powered subscription billing and plan management"
+
+msgid "Subscriptions"
+msgstr "Subscriptions"
+
 msgid "System"
 msgstr "System"
 
-msgid "Tenant"
-msgstr "Tenant"
-
-msgid "Tenant ID"
-msgstr "Tenant ID"
-
-msgid "Tenant overrides"
-msgstr "Tenant overrides"
+msgid "System flags"
+msgstr "System flags"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
@@ -271,7 +337,7 @@ msgstr "The page you are looking for does not exist or was moved."
 msgid "Today"
 msgstr "Today"
 
-#. placeholder {0}: flag.description
+#. placeholder {0}: getFlagName(flag.key)
 msgid "Toggle {0}"
 msgstr "Toggle {0}"
 
@@ -292,6 +358,12 @@ msgstr "Unsaved changes"
 
 msgid "User"
 msgstr "User"
+
+msgid "User flags"
+msgstr "User flags"
+
+msgid "User status"
+msgstr "User status"
 
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"

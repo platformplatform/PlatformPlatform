@@ -22,6 +22,7 @@ public sealed record GetFlagUsersResponse(FlagUserInfo[] Users);
 [PublicAPI]
 public sealed record FlagUserInfo(
     UserId UserId,
+    TenantId TenantId,
     string Email,
     string TenantName,
     int RolloutBucket,
@@ -65,8 +66,9 @@ public sealed class GetFlagUsersHandler(IFeatureFlagRepository featureFlagReposi
                 var user = usersById.GetValueOrDefault(userId.Value);
                 var tenantName = user is not null && tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
                 var isEnabled = overrideRow.EnabledAt is not null && (overrideRow.DisabledAt is null || overrideRow.EnabledAt > overrideRow.DisabledAt);
+                var tenantId = user?.TenantId ?? new TenantId(0);
                 var rolloutBucket = user?.RolloutBucket ?? 0;
-                return new FlagUserInfo(userId, user?.Email ?? "Unknown", tenantName, rolloutBucket, isEnabled, "manual_override");
+                return new FlagUserInfo(userId, tenantId, user?.Email ?? "Unknown", tenantName, rolloutBucket, isEnabled, "manual_override");
             }
         ).ToArray();
 

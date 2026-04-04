@@ -30,3 +30,15 @@ export interface FlagTenantInfo {
 export interface GetFlagTenantsResponse {
   tenants: FlagTenantInfo[];
 }
+
+export interface FlagUserInfo {
+  userId: string;
+  email: string;
+  tenantName: string;
+  isEnabled: boolean;
+  source: "manual_override" | "default";
+}
+
+export interface GetFlagUsersResponse {
+  users: FlagUserInfo[];
+}

@@ -6,21 +6,21 @@ import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import type { BucketRange } from "./rolloutBucket";
-import type { FlagTenantInfo } from "./types";
+import type { FlagUserInfo } from "./types";
 
 import { sortBySourceThenBucket } from "./rolloutBucket";
-import { TenantOverrideRow } from "./TenantOverrideRow";
+import { UserOverrideRow } from "./UserOverrideRow";
 
-export function TenantOverridesSection({
+export function UserOverridesSection({
   flagKey,
   flagDescription,
-  tenants,
+  users,
   showBucket,
   bucketRange
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
-  tenants: FlagTenantInfo[];
+  users: FlagUserInfo[];
   showBucket: boolean;
   bucketRange: BucketRange | null;
 }>) {
@@ -29,30 +29,31 @@ export function TenantOverridesSection({
   const filtered = useMemo(() => {
     const lowerSearch = search.toLowerCase();
     return search
-      ? tenants.filter(
-          (tenant) => tenant.tenantName.toLowerCase().includes(lowerSearch) || tenant.tenantId.includes(lowerSearch)
+      ? users.filter(
+          (user) =>
+            user.email.toLowerCase().includes(lowerSearch) || user.tenantName.toLowerCase().includes(lowerSearch)
         )
-      : tenants;
-  }, [tenants, search]);
+      : users;
+  }, [users, search]);
 
-  const enabledTenants = useMemo(
+  const enabledUsers = useMemo(
     () =>
       sortBySourceThenBucket(
-        filtered.filter((t) => t.isEnabled),
-        (t) => t.source,
-        (t) => t.tenantId,
+        filtered.filter((u) => u.isEnabled),
+        (u) => u.source,
+        (u) => u.userId,
         "enabled",
         bucketRange
       ),
     [filtered, bucketRange]
   );
 
-  const disabledTenants = useMemo(
+  const disabledUsers = useMemo(
     () =>
       sortBySourceThenBucket(
-        filtered.filter((t) => !t.isEnabled),
-        (t) => t.source,
-        (t) => t.tenantId,
+        filtered.filter((u) => !u.isEnabled),
+        (u) => u.source,
+        (u) => u.userId,
         "disabled",
         bucketRange
       ),
@@ -64,35 +65,35 @@ export function TenantOverridesSection({
   return (
     <div className="flex flex-col gap-4">
       <h3>
-        <Trans>Account status</Trans>
+        <Trans>User status</Trans>
       </h3>
       <TextField
         name="search"
-        placeholder={t`Search by account name or ID`}
+        placeholder={t`Search by email or account name`}
         value={search}
         onChange={(value) => setSearch(value)}
         className="max-w-[20rem]"
       />
       {isSearching ? (
-        <TenantTable
+        <UserTable
           ariaLabel={t`Search results`}
-          tenants={[...enabledTenants, ...disabledTenants]}
+          users={[...enabledUsers, ...disabledUsers]}
           flagKey={flagKey}
           flagDescription={flagDescription}
           showBucket={showBucket}
         />
       ) : (
         <>
-          <CollapsibleTenantGroup
-            label={t`Enabled (${enabledTenants.length})`}
-            tenants={enabledTenants}
+          <CollapsibleUserGroup
+            label={t`Enabled (${enabledUsers.length})`}
+            users={enabledUsers}
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
           />
-          <CollapsibleTenantGroup
-            label={t`Disabled (${disabledTenants.length})`}
-            tenants={disabledTenants}
+          <CollapsibleUserGroup
+            label={t`Disabled (${disabledUsers.length})`}
+            users={disabledUsers}
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
@@ -103,21 +104,21 @@ export function TenantOverridesSection({
   );
 }
 
-interface TenantTableProps {
+interface UserTableProps {
   ariaLabel: string;
-  tenants: FlagTenantInfo[];
+  users: FlagUserInfo[];
   flagKey: string;
   flagDescription: string;
   showBucket: boolean;
 }
 
-function TenantTable({ ariaLabel, tenants, flagKey, flagDescription, showBucket }: Readonly<TenantTableProps>) {
+function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket }: Readonly<UserTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[12rem]">
-            <Trans>Account ID</Trans>
+          <TableHead>
+            <Trans>Email</Trans>
           </TableHead>
           <TableHead>
             <Trans>Account</Trans>
@@ -136,12 +137,12 @@ function TenantTable({ ariaLabel, tenants, flagKey, flagDescription, showBucket 
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tenants.map((tenant) => (
-          <TenantOverrideRow
-            key={tenant.tenantId}
+        {users.map((user) => (
+          <UserOverrideRow
+            key={user.userId}
             flagKey={flagKey}
             flagDescription={flagDescription}
-            tenant={tenant}
+            user={user}
             showBucket={showBucket}
           />
         ))}
@@ -150,10 +151,10 @@ function TenantTable({ ariaLabel, tenants, flagKey, flagDescription, showBucket 
   );
 }
 
-function CollapsibleTenantGroup({
+function CollapsibleUserGroup({
   label,
   ...tableProps
-}: Readonly<{ label: string } & Omit<TenantTableProps, "ariaLabel">>) {
+}: Readonly<{ label: string } & Omit<UserTableProps, "ariaLabel">>) {
   const [isOpen, setIsOpen] = useState(true);
 
   return (
@@ -170,7 +171,7 @@ function CollapsibleTenantGroup({
         />
         <h4 className="text-muted-foreground">{label}</h4>
       </button>
-      {isOpen && <TenantTable ariaLabel={label} {...tableProps} />}
+      {isOpen && <UserTable ariaLabel={label} {...tableProps} />}
     </div>
   );
 }
