@@ -14,7 +14,6 @@ import type { FeatureFlagInfo } from "./types";
 
 import { getFlagName } from "./flagLabels";
 import { formatBucketRange } from "./rolloutBucket";
-import { ScopeIcon } from "./ScopeIcon";
 
 export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
@@ -35,9 +34,9 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <FlagMetadata flag={flag} />
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-4">
           {flag.isAbTestEligible && (
             <RolloutPercentageInput flagKey={flag.key} currentPercentage={flag.rolloutPercentage} />
           )}
@@ -50,12 +49,35 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
           />
         </div>
       </div>
-      {flag.bucketStart != null && flag.bucketEnd != null && flag.rolloutPercentage != null && (
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-          <span>{formatBucketRange(flag.bucketStart, flag.bucketEnd, flag.rolloutPercentage)}</span>
+    </div>
+  );
+}
+
+function FlagMetadata({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
+  const enabledLine =
+    flag.enabledAt && flag.disabledAt
+      ? t`Enabled period: ${formatTimestamp(flag.enabledAt)} - ${formatTimestamp(flag.disabledAt)}`
+      : flag.enabledAt
+        ? t`Enabled: ${formatTimestamp(flag.enabledAt)}`
+        : null;
+
+  const bucketLine =
+    flag.isAbTestEligible && flag.bucketStart != null && flag.bucketEnd != null && flag.rolloutPercentage != null
+      ? formatBucketRange(flag.bucketStart, flag.bucketEnd, flag.rolloutPercentage)
+      : null;
+
+  return (
+    <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+      <span>
+        <Trans>Name:</Trans> <span className="font-mono">{flag.key}</span>
+      </span>
+      {enabledLine && <span>{enabledLine}</span>}
+      {bucketLine && (
+        <span className="flex items-center gap-1">
+          {bucketLine}
           <Tooltip>
             <TooltipTrigger>
-              <InfoIcon className="size-4" aria-label={t`Bucket information`} />
+              <InfoIcon className="size-3.5" aria-label={t`Bucket information`} />
             </TooltipTrigger>
             <TooltipContent className="max-w-[20rem]">
               <Trans>
@@ -64,34 +86,21 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
               </Trans>
             </TooltipContent>
           </Tooltip>
-        </div>
+        </span>
       )}
     </div>
   );
 }
 
-function FlagMetadata({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
-  return (
-    <span className="flex items-center gap-2 text-sm text-muted-foreground">
-      <ScopeIcon scope={flag.scope} />
-      {flag.enabledAt && (
-        <span>
-          {t`Enabled`}: {formatTimestamp(flag.enabledAt)}
-        </span>
-      )}
-      {flag.enabledAt && flag.disabledAt && <span>{"\u00B7"}</span>}
-      {flag.disabledAt && (
-        <span>
-          {t`Disabled`}: {formatTimestamp(flag.disabledAt)}
-        </span>
-      )}
-    </span>
-  );
-}
-
 function formatTimestamp(isoDate: string): string {
   const date = new Date(isoDate);
-  return new Intl.DateTimeFormat(navigator.language, { year: "numeric", month: "long", day: "numeric" }).format(date);
+  return new Intl.DateTimeFormat(navigator.language, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
 }
 
 function RolloutPercentageInput({
@@ -133,7 +142,7 @@ function RolloutPercentageInput({
 
   return (
     <TextField
-      label={t`Rollout percentage`}
+      label={t`Rollout %`}
       name="rolloutPercentage"
       type="number"
       value={percentage}

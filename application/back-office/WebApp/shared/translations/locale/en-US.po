@@ -111,9 +111,6 @@ msgstr "Decrease"
 msgid "Default"
 msgstr "Default"
 
-msgid "Disabled"
-msgstr "Disabled"
-
 #. placeholder {0}: disabledTenants.length
 #. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
@@ -131,13 +128,19 @@ msgstr "Early access to experimental features before general availability"
 msgid "Email"
 msgstr "Email"
 
-msgid "Enabled"
-msgstr "Enabled"
-
 #. placeholder {0}: enabledTenants.length
 #. placeholder {0}: enabledUsers.length
 msgid "Enabled ({0})"
 msgstr "Enabled ({0})"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+#. placeholder {1}: formatTimestamp(flag.disabledAt)
+msgid "Enabled period: {0} - {1}"
+msgstr "Enabled period: {0} - {1}"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+msgid "Enabled: {0}"
+msgstr "Enabled: {0}"
 
 msgid "Experimental UI"
 msgstr "Experimental UI"
@@ -204,6 +207,9 @@ msgstr "More pages"
 
 msgid "Name"
 msgstr "Name"
+
+msgid "Name:"
+msgstr "Name:"
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -277,14 +283,14 @@ msgstr "Resize sidebar"
 msgid "Rollout"
 msgstr "Rollout"
 
+msgid "Rollout %"
+msgstr "Rollout %"
+
 msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
-
-msgid "Rollout percentage"
-msgstr "Rollout percentage"
 
 msgid "Rollout percentage updated"
 msgstr "Rollout percentage updated"

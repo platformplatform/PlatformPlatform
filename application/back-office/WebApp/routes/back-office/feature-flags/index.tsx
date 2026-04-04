@@ -65,7 +65,10 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
         const showRollout = group.scope !== "System";
         return (
           <div key={group.scope} className="flex flex-col gap-2">
-            <h3>{group.label}</h3>
+            <h3 className="flex items-center gap-2">
+              <ScopeIcon scope={group.scope} />
+              {group.label}
+            </h3>
             <Table rowSize="compact" aria-label={group.label}>
               <TableHeader>
                 <TableRow>
@@ -73,11 +76,11 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                     <Trans>Name</Trans>
                   </TableHead>
                   {showRollout && (
-                    <TableHead className="w-[5rem]">
+                    <TableHead className="hidden w-[5rem] sm:table-cell">
                       <Trans>Rollout</Trans>
                     </TableHead>
                   )}
-                  <TableHead className="w-[6rem] text-right">
+                  <TableHead className="hidden w-[6rem] text-right sm:table-cell">
                     <Trans>Status</Trans>
                   </TableHead>
                 </TableRow>
@@ -95,17 +98,14 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                   >
                     <TableCell>
                       <div className="flex min-w-0 flex-col">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <ScopeIcon scope={flag.scope} />
-                          {getFlagName(flag.key)}
-                        </span>
+                        <span className="font-medium">{getFlagName(flag.key)}</span>
                         <span className="truncate text-sm text-muted-foreground">
                           {getFlagDescription(flag.key) || flag.description}
                         </span>
                       </div>
                     </TableCell>
                     {showRollout && (
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         {flag.rolloutPercentage !== null ? (
                           `${flag.rolloutPercentage}%`
                         ) : (
@@ -113,7 +113,7 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                         )}
                       </TableCell>
                     )}
-                    <TableCell className="text-right">
+                    <TableCell className="hidden text-right sm:table-cell">
                       <Badge variant={flag.isActive ? "default" : "outline"}>
                         {flag.isActive ? t`Active` : t`Inactive`}
                       </Badge>

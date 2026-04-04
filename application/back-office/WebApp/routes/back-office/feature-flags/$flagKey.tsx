@@ -11,6 +11,7 @@ import type { GetFeatureFlagsResponse, GetFlagTenantsResponse, GetFlagUsersRespo
 
 import { FlagInfoSection } from "./-components/FlagInfoSection";
 import { getFlagDescription, getFlagName } from "./-components/flagLabels";
+import { ScopeIcon } from "./-components/ScopeIcon";
 import { TenantOverridesSection } from "./-components/TenantOverridesSection";
 import { UserOverridesSection } from "./-components/UserOverridesSection";
 
@@ -64,18 +65,11 @@ export default function FlagDetailPage() {
           <Link to="/back-office/feature-flags" className="text-muted-foreground hover:text-foreground">
             <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
           </Link>
+          {flag && <ScopeIcon scope={flag.scope} />}
           <span>{flagName}</span>
         </div>
       }
-      subtitle={
-        flag ? (
-          <span>
-            {description}
-            <br />
-            <span className="font-mono text-sm text-muted-foreground">{flag.key}</span>
-          </span>
-        ) : undefined
-      }
+      subtitle={flag ? description : undefined}
     >
       {isLoading ? (
         <FlagDetailSkeleton />

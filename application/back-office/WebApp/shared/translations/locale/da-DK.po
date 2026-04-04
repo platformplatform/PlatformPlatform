@@ -111,9 +111,6 @@ msgstr "Formindsk"
 msgid "Default"
 msgstr "Standard"
 
-msgid "Disabled"
-msgstr "Deaktiveret"
-
 #. placeholder {0}: disabledTenants.length
 #. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
@@ -131,13 +128,19 @@ msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighe
 msgid "Email"
 msgstr "E-mail"
 
-msgid "Enabled"
-msgstr "Aktiveret"
-
 #. placeholder {0}: enabledTenants.length
 #. placeholder {0}: enabledUsers.length
 msgid "Enabled ({0})"
 msgstr "Aktiveret ({0})"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+#. placeholder {1}: formatTimestamp(flag.disabledAt)
+msgid "Enabled period: {0} - {1}"
+msgstr "Aktiveringsperiode: {0} - {1}"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+msgid "Enabled: {0}"
+msgstr "Aktiveret: {0}"
 
 msgid "Experimental UI"
 msgstr "Eksperimentel brugerflade"
@@ -204,6 +207,9 @@ msgstr "Flere sider"
 
 msgid "Name"
 msgstr "Navn"
+
+msgid "Name:"
+msgstr "Navn:"
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -277,14 +283,14 @@ msgstr "Ændr bredde på sidepanel"
 msgid "Rollout"
 msgstr "Udrulning"
 
+msgid "Rollout %"
+msgstr "Udrulning %"
+
 msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {bucketStart}-100 og 1-{bucketEnd} ({rolloutPercentage}%)"
-
-msgid "Rollout percentage"
-msgstr "Udrulningsprocent"
 
 msgid "Rollout percentage updated"
 msgstr "Udrulningsprocent opdateret"
