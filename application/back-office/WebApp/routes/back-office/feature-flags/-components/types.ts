@@ -14,6 +14,7 @@ export interface FeatureFlagInfo {
   bucketEnd: number | null;
   rolloutPercentage: number | null;
   isActive: boolean;
+  createdAt: string | null;
 }
 
 export interface GetFeatureFlagsResponse {
@@ -25,6 +26,7 @@ export interface FlagTenantInfo {
   tenantName: string;
   isEnabled: boolean;
   source: "manual_override" | "ab_rollout" | "default";
+  rolloutBucket: number;
 }
 
 export interface GetFlagTenantsResponse {
@@ -33,10 +35,12 @@ export interface GetFlagTenantsResponse {
 
 export interface FlagUserInfo {
   userId: string;
+  tenantId: string;
   email: string;
   tenantName: string;
   isEnabled: boolean;
   source: "manual_override" | "default";
+  rolloutBucket: number;
 }
 
 export interface GetFlagUsersResponse {

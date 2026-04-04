@@ -93,6 +93,7 @@ export default function FlagDetailPage() {
                   ? { bucketStart: flag.bucketStart, bucketEnd: flag.bucketEnd }
                   : null
               }
+              isFlagActive={flag.isActive}
             />
           )}
           {flag.scope === "User" && (
@@ -106,6 +107,7 @@ export default function FlagDetailPage() {
                   ? { bucketStart: flag.bucketStart, bucketEnd: flag.bucketEnd }
                   : null
               }
+              isFlagActive={flag.isActive}
             />
           )}
         </div>

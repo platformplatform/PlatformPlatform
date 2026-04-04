@@ -13,8 +13,6 @@ import { apiClient, queryClient } from "@/shared/lib/api/client";
 
 import type { FlagUserInfo } from "./types";
 
-import { computeBucket } from "./rolloutBucket";
-
 function getSourceLabel(source: string): string {
   switch (source) {
     case "manual_override":
@@ -30,12 +28,14 @@ export function UserOverrideRow({
   flagKey,
   flagDescription,
   user,
-  showBucket
+  showBucket,
+  isFlagActive
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
   user: FlagUserInfo;
   showBucket: boolean;
+  isFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(user.isEnabled);
 
@@ -44,7 +44,7 @@ export function UserOverrideRow({
       // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
       const { error } = await apiClient.PUT("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
         params: { path: { flagKey } },
-        body: { userId: user.userId, enabled: vars.enabled }
+        body: { userId: user.userId, tenantId: user.tenantId, enabled: vars.enabled }
       });
       if (error) throw error;
     }
@@ -54,7 +54,7 @@ export function UserOverrideRow({
     mutationFn: async () => {
       // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
       const { error } = await apiClient.DELETE("/api/back-office/feature-flags/{flagKey}/user-override" as any, {
-        params: { path: { flagKey }, query: { userId: user.userId } }
+        params: { path: { flagKey }, query: { userId: user.userId, tenantId: user.tenantId } }
       });
       if (error) throw error;
     }
@@ -107,7 +107,7 @@ export function UserOverrideRow({
       <TableCell>
         <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
       </TableCell>
-      {showBucket && <TableCell className="text-muted-foreground">{computeBucket(user.userId)}</TableCell>}
+      {showBucket && <TableCell className="text-muted-foreground">{user.rolloutBucket}</TableCell>}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {user.source === "manual_override" && (
@@ -135,6 +135,7 @@ export function UserOverrideRow({
             checked={optimisticEnabled}
             onCheckedChange={handleToggle}
             disabled={isPending}
+            className={!isFlagActive && optimisticEnabled ? "opacity-50" : ""}
             aria-label={t`Override for ${user.email}`}
           />
         </div>

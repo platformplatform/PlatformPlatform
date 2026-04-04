@@ -16,13 +16,15 @@ export function TenantOverridesSection({
   flagDescription,
   tenants,
   showBucket,
-  bucketRange
+  bucketRange,
+  isFlagActive
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
   tenants: FlagTenantInfo[];
   showBucket: boolean;
   bucketRange: BucketRange | null;
+  isFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
 
@@ -80,6 +82,7 @@ export function TenantOverridesSection({
           flagKey={flagKey}
           flagDescription={flagDescription}
           showBucket={showBucket}
+          isFlagActive={isFlagActive}
         />
       ) : (
         <>
@@ -89,6 +92,7 @@ export function TenantOverridesSection({
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
           <CollapsibleTenantGroup
             label={t`Disabled (${disabledTenants.length})`}
@@ -96,6 +100,7 @@ export function TenantOverridesSection({
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
         </>
       )}
@@ -109,9 +114,17 @@ interface TenantTableProps {
   flagKey: string;
   flagDescription: string;
   showBucket: boolean;
+  isFlagActive: boolean;
 }
 
-function TenantTable({ ariaLabel, tenants, flagKey, flagDescription, showBucket }: Readonly<TenantTableProps>) {
+function TenantTable({
+  ariaLabel,
+  tenants,
+  flagKey,
+  flagDescription,
+  showBucket,
+  isFlagActive
+}: Readonly<TenantTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
@@ -143,6 +156,7 @@ function TenantTable({ ariaLabel, tenants, flagKey, flagDescription, showBucket 
             flagDescription={flagDescription}
             tenant={tenant}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
         ))}
       </TableBody>

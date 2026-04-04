@@ -12,8 +12,6 @@ import { api, queryClient } from "@/shared/lib/api/client";
 
 import type { FlagTenantInfo } from "./types";
 
-import { computeBucket } from "./rolloutBucket";
-
 function getSourceLabel(source: string): string {
   switch (source) {
     case "manual_override":
@@ -31,12 +29,14 @@ export function TenantOverrideRow({
   flagKey,
   flagDescription,
   tenant,
-  showBucket
+  showBucket,
+  isFlagActive
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
   tenant: FlagTenantInfo;
   showBucket: boolean;
+  isFlagActive: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
   const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
@@ -97,7 +97,7 @@ export function TenantOverrideRow({
       <TableCell>
         <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
       </TableCell>
-      {showBucket && <TableCell className="text-muted-foreground">{computeBucket(tenant.tenantId)}</TableCell>}
+      {showBucket && <TableCell className="text-muted-foreground">{tenant.rolloutBucket}</TableCell>}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {tenant.source === "manual_override" && (
@@ -125,6 +125,7 @@ export function TenantOverrideRow({
             checked={optimisticEnabled}
             onCheckedChange={handleToggle}
             disabled={isPending}
+            className={!isFlagActive && optimisticEnabled ? "opacity-50" : ""}
             aria-label={t`Override for ${tenant.tenantName}`}
           />
         </div>

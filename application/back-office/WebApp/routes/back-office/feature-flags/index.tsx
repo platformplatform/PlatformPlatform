@@ -93,9 +93,9 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                     }
                   >
                     <TableCell>
-                      <div className="flex flex-col">
+                      <div className="flex min-w-0 flex-col">
                         <span className="font-medium">{getFlagName(flag.key)}</span>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="truncate text-sm text-muted-foreground">
                           {getFlagDescription(flag.key) || flag.description}
                         </span>
                       </div>

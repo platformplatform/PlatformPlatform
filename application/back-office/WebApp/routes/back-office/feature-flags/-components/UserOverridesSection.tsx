@@ -16,13 +16,15 @@ export function UserOverridesSection({
   flagDescription,
   users,
   showBucket,
-  bucketRange
+  bucketRange,
+  isFlagActive
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
   users: FlagUserInfo[];
   showBucket: boolean;
   bucketRange: BucketRange | null;
+  isFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
 
@@ -81,6 +83,7 @@ export function UserOverridesSection({
           flagKey={flagKey}
           flagDescription={flagDescription}
           showBucket={showBucket}
+          isFlagActive={isFlagActive}
         />
       ) : (
         <>
@@ -90,6 +93,7 @@ export function UserOverridesSection({
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
           <CollapsibleUserGroup
             label={t`Disabled (${disabledUsers.length})`}
@@ -97,6 +101,7 @@ export function UserOverridesSection({
             flagKey={flagKey}
             flagDescription={flagDescription}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
         </>
       )}
@@ -110,9 +115,10 @@ interface UserTableProps {
   flagKey: string;
   flagDescription: string;
   showBucket: boolean;
+  isFlagActive: boolean;
 }
 
-function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket }: Readonly<UserTableProps>) {
+function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket, isFlagActive }: Readonly<UserTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
@@ -144,6 +150,7 @@ function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket }: R
             flagDescription={flagDescription}
             user={user}
             showBucket={showBucket}
+            isFlagActive={isFlagActive}
           />
         ))}
       </TableBody>
