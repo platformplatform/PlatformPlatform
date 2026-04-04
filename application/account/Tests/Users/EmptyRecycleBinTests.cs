@@ -34,8 +34,7 @@ public sealed class EmptyRecycleBinTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 42)
             ]
         );
         Connection.Insert("users", [
@@ -53,8 +52,7 @@ public sealed class EmptyRecycleBinTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 42)
             ]
         );
 

@@ -40,10 +40,10 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
-    ///     This method must query across all users to ensure globally unique sequence numbers.
+    ///     Retrieves the total count of users without applying query filters.
+    ///     This method is used to compute rollout buckets for new users.
     /// </summary>
-    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
+    Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -155,12 +155,11 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
-    ///     This method must query across all users to ensure globally unique sequence numbers.
+    ///     Retrieves the total count of users without applying query filters.
+    ///     This method is used to compute rollout buckets for new users.
     /// </summary>
-    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
-        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(u => (int?)u.RolloutBucketSequence, cancellationToken);
-        return (maxSequence ?? -1) + 1;
+        return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
     }
 }

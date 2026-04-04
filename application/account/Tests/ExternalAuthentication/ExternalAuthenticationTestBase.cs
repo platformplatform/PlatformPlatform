@@ -232,8 +232,7 @@ public abstract class ExternalAuthenticationTestBase : IDisposable
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
                 ("external_identities", identities),
-                ("rollout_bucket", 42),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 42)
             ]
         );
         return userId;
