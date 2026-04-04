@@ -31,7 +31,6 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Premium)),
                 ("logo", """{"Url":"https://example.com/logo.png","Version":1}"""),
                 ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );
@@ -105,7 +104,6 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Basis)),
                 ("logo", """{"Url":null,"Version":1}"""),
                 ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );
@@ -138,7 +136,6 @@ public sealed class GetTenantDetailTests : BackOfficeEndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Premium)),
                 ("logo", """{"Url":null,"Version":1}"""),
                 ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );

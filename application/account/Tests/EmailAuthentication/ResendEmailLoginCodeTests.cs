@@ -76,8 +76,7 @@ public sealed class ResendEmailLoginCodeTests : EndpointBaseTest<AccountDbContex
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "da-DK"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 50)
             ]
         );
         var emailLoginId = await StartEmailLogin(email);

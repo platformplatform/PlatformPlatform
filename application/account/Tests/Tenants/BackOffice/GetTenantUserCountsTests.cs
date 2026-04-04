@@ -94,8 +94,7 @@ public sealed class GetTenantUserCountsTests : BackOfficeEndpointBaseTest
                 ("role", nameof(UserRole.Member)),
                 ("locale", "en-US"),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
-                ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 50)
             ]
         );
     }

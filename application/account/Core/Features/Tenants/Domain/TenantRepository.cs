@@ -57,10 +57,10 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all tenants without applying query filters.
-    ///     This method must query across all tenants to ensure globally unique sequence numbers.
+    ///     Retrieves the total count of tenants without applying query filters.
+    ///     This method is used to compute rollout buckets for new tenants.
     /// </summary>
-    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
+    Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
 
     Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken);
 
@@ -169,13 +169,12 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     }
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all tenants without applying query filters.
-    ///     This method must query across all tenants to ensure globally unique sequence numbers.
+    ///     Retrieves the total count of tenants without applying query filters.
+    ///     This method is used to compute rollout buckets for new tenants.
     /// </summary>
-    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
-        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(t => (int?)t.RolloutBucketSequence, cancellationToken);
-        return (maxSequence ?? -1) + 1;
+        return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
     }
 
     public async Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken)

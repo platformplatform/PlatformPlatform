@@ -32,7 +32,6 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
                 ("plan", "Basis"),
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );
@@ -156,8 +155,7 @@ public sealed class GetTenantUsersTests : BackOfficeEndpointBaseTest
                 ("role", role.ToString()),
                 ("locale", "en-US"),
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
-                ("rollout_bucket", 50),
-                ("rollout_bucket_sequence", 0)
+                ("rollout_bucket", 50)
             ]
         );
     }

@@ -104,12 +104,6 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
-    ///     This method must query across all users to ensure globally unique sequence numbers.
-    /// </summary>
-    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
-
-    /// <summary>
     ///     Returns the earliest-created Owner for each of the given tenants without applying tenant query filters.
     ///     Used by the back-office recent signups dashboard to attribute each new tenant to the user who signed up.
     /// </summary>
@@ -122,6 +116,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     ///     so the time filter runs in memory; the user count is bounded by the dashboard's audience.
     /// </summary>
     Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves the total count of users without applying query filters.
+    ///     This method is used to compute rollout buckets for new users.
+    /// </summary>
+    Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 public sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext, TimeProvider timeProvider)
@@ -559,13 +559,12 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     }
 
     /// <summary>
-    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
-    ///     This method must query across all users to ensure globally unique sequence numbers.
+    ///     Retrieves the total count of users without applying query filters.
+    ///     This method is used to compute rollout buckets for new users.
     /// </summary>
-    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    public async Task<int> GetCountUnfilteredAsync(CancellationToken cancellationToken)
     {
-        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(u => (int?)u.RolloutBucketSequence, cancellationToken);
-        return (maxSequence ?? -1) + 1;
+        return await DbSet.IgnoreQueryFilters().CountAsync(cancellationToken);
     }
 
     /// <summary>
