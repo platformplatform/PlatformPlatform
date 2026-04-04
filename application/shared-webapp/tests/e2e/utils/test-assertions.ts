@@ -87,6 +87,10 @@ function startMonitoring(page: Page): MonitoringResults {
   // Monitor network errors with filtering for expected errors
   page.on("response", (response) => {
     if (response.status() >= 400) {
+      // Electric SSE shape connections naturally get 401 during auth transitions (login, logout, signup, session revocation)
+      if (response.status() === 401 && response.url().includes("/v1/shape")) {
+        return;
+      }
       results.networkErrors.push(`${response.request().method()} ${response.url()} - HTTP ${response.status()}`);
     }
   });

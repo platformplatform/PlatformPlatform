@@ -56,7 +56,7 @@ export function createShapeOptions(table: ElectricTable): ShapeStreamOptions {
       multiplier: 2
     },
     onError: (error) => {
-      if (error instanceof FetchError && error.status === 403) {
+      if (error instanceof FetchError && (error.status === 401 || error.status === 403)) {
         return;
       }
       if (staleShapes.has(table)) {
