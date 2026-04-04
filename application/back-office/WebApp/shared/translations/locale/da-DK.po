@@ -220,9 +220,6 @@ msgstr "Næste"
 msgid "No results found"
 msgstr "Ingen resultater fundet"
 
-msgid "No user overrides"
-msgstr "Ingen brugertilsidesættelser"
-
 msgid "No users found"
 msgstr "Ingen brugere fundet"
 
@@ -298,8 +295,11 @@ msgstr "Udrulningsprocent opdateret"
 msgid "Search by account name or ID"
 msgstr "Søg efter kontonavn eller ID"
 
-msgid "Search by email or account name"
-msgstr "Søg efter e-mail eller kontonavn"
+msgid "Search by email"
+msgstr "Søg efter e-mail"
+
+msgid "Search for users"
+msgstr "Søg efter brugere"
 
 msgid "Search results"
 msgstr "Søgeresultater"
@@ -374,11 +374,11 @@ msgstr "Prøv igen"
 msgid "Try out experimental user interface components"
 msgstr "Prøv eksperimentelle brugerfladekomponenter"
 
+msgid "Type an email address above to find users and manage their overrides"
+msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og administrere deres tilsidesættelser"
+
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"
-
-msgid "Use the search above to find users and manage their overrides"
-msgstr "Brug søgningen ovenfor til at finde brugere og administrere deres tilsidesættelser"
 
 msgid "User"
 msgstr "Bruger"

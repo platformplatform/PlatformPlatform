@@ -126,16 +126,16 @@ function TenantTable({
   isFlagActive
 }: Readonly<TenantTableProps>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel}>
+    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead className="hidden w-[12rem] sm:table-cell">
+          <TableHead className="hidden w-[10rem] lg:table-cell">
             <Trans>Account ID</Trans>
           </TableHead>
-          <TableHead>
+          <TableHead className="w-auto">
             <Trans>Account</Trans>
           </TableHead>
-          <TableHead className="w-[6rem]">
+          <TableHead className="w-[5rem]">
             <Trans>Plan</Trans>
           </TableHead>
           <TableHead className="hidden w-[8rem] sm:table-cell">

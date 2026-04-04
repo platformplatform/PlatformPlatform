@@ -220,9 +220,6 @@ msgstr "Next"
 msgid "No results found"
 msgstr "No results found"
 
-msgid "No user overrides"
-msgstr "No user overrides"
-
 msgid "No users found"
 msgstr "No users found"
 
@@ -298,8 +295,11 @@ msgstr "Rollout percentage updated"
 msgid "Search by account name or ID"
 msgstr "Search by account name or ID"
 
-msgid "Search by email or account name"
-msgstr "Search by email or account name"
+msgid "Search by email"
+msgstr "Search by email"
+
+msgid "Search for users"
+msgstr "Search for users"
 
 msgid "Search results"
 msgstr "Search results"
@@ -374,11 +374,11 @@ msgstr "Try again"
 msgid "Try out experimental user interface components"
 msgstr "Try out experimental user interface components"
 
+msgid "Type an email address above to find users and manage their overrides"
+msgstr "Type an email address above to find users and manage their overrides"
+
 msgid "Unsaved changes"
 msgstr "Unsaved changes"
-
-msgid "Use the search above to find users and manage their overrides"
-msgstr "Use the search above to find users and manage their overrides"
 
 msgid "User"
 msgstr "User"

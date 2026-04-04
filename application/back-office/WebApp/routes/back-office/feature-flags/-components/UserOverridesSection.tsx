@@ -2,11 +2,14 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@repo/ui/components/Table";
 import { TextField } from "@repo/ui/components/TextField";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDown } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { apiClient } from "@/shared/lib/api/client";
 
 import type { BucketRange } from "./rolloutBucket";
-import type { FlagUserInfo } from "./types";
+import type { FlagUserInfo, GetFlagUsersResponse } from "./types";
 
 import { sortBySourceThenBucket } from "./rolloutBucket";
 import { UserEmptyState } from "./UserEmptyState";
@@ -15,33 +18,40 @@ import { UserOverrideRow } from "./UserOverrideRow";
 export function UserOverridesSection({
   flagKey,
   flagDescription,
-  users,
   showBucket,
   bucketRange,
   isFlagActive
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
-  users: FlagUserInfo[];
   showBucket: boolean;
   bucketRange: BucketRange | null;
   isFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const filtered = useMemo(() => {
-    const lowerSearch = search.toLowerCase();
-    return search
-      ? users.filter(
-          (user) =>
-            user.email.toLowerCase().includes(lowerSearch) || user.tenantName.toLowerCase().includes(lowerSearch)
-        )
-      : users;
-  }, [users, search]);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data: usersData, isLoading } = useQuery({
+    queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users", { flagKey, search: debouncedSearch }],
+    queryFn: async () => {
+      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
+      const { data } = await apiClient.GET("/api/back-office/feature-flags/{flagKey}/users" as any, {
+        params: { path: { flagKey }, query: { search: debouncedSearch } }
+      });
+      return data as GetFlagUsersResponse | undefined;
+    },
+    enabled: debouncedSearch.length > 0
+  });
 
   const { enabledUsers, disabledUsers } = useMemo(() => {
-    const enabled = filtered.filter((u) => u.isEnabled);
-    const disabled = filtered.filter((u) => !u.isEnabled);
+    const all = usersData?.users ?? [];
+    const enabled = all.filter((u) => u.isEnabled);
+    const disabled = all.filter((u) => !u.isEnabled);
     return {
       enabledUsers: sortBySourceThenBucket(
         enabled,
@@ -58,9 +68,9 @@ export function UserOverridesSection({
         bucketRange
       )
     };
-  }, [filtered, bucketRange]);
+  }, [usersData?.users, bucketRange]);
 
-  const isSearching = search.length > 0;
+  const hasSearched = debouncedSearch.length > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -69,25 +79,16 @@ export function UserOverridesSection({
       </h3>
       <TextField
         name="search"
-        placeholder={t`Search by email or account name`}
+        placeholder={t`Search by email`}
         value={search}
         onChange={(value) => setSearch(value)}
         className="max-w-[20rem]"
       />
-      {isSearching ? (
-        filtered.length > 0 ? (
-          <UserTable
-            ariaLabel={t`Search results`}
-            users={[...enabledUsers, ...disabledUsers]}
-            flagKey={flagKey}
-            flagDescription={flagDescription}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
-          />
-        ) : (
-          <UserEmptyState variant="no-results" />
-        )
-      ) : users.length > 0 ? (
+      {!hasSearched ? (
+        <UserEmptyState variant="no-users" />
+      ) : isLoading ? (
+        <UserEmptyState variant="loading" />
+      ) : enabledUsers.length + disabledUsers.length > 0 ? (
         <>
           <CollapsibleUserGroup
             label={t`Enabled (${enabledUsers.length})`}
@@ -107,7 +108,7 @@ export function UserOverridesSection({
           />
         </>
       ) : (
-        <UserEmptyState variant="no-users" />
+        <UserEmptyState variant="no-results" />
       )}
     </div>
   );
@@ -124,13 +125,13 @@ interface UserTableProps {
 
 function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket, isFlagActive }: Readonly<UserTableProps>) {
   return (
-    <Table rowSize="compact" aria-label={ariaLabel}>
+    <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead>
+          <TableHead className="w-auto">
             <Trans>Email</Trans>
           </TableHead>
-          <TableHead>
+          <TableHead className="w-[10rem]">
             <Trans>Account</Trans>
           </TableHead>
           <TableHead className="hidden w-[8rem] sm:table-cell">

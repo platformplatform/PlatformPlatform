@@ -1,13 +1,12 @@
 import { t } from "@lingui/core/macro";
 import { AppLayout } from "@repo/ui/components/AppLayout";
 import { Skeleton } from "@repo/ui/components/Skeleton";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "lucide-react";
 
-import { api, apiClient } from "@/shared/lib/api/client";
+import { api } from "@/shared/lib/api/client";
 
-import type { GetFeatureFlagsResponse, GetFlagTenantsResponse, GetFlagUsersResponse } from "./-components/types";
+import type { GetFeatureFlagsResponse, GetFlagTenantsResponse } from "./-components/types";
 
 import { FlagInfoSection } from "./-components/FlagInfoSection";
 import { getFlagDescription, getFlagName } from "./-components/flagLabels";
@@ -40,32 +39,20 @@ export default function FlagDetailPage() {
     isLoading: boolean;
   };
 
-  const { data: usersData, isLoading: isLoadingUsers } = useQuery({
-    queryKey: ["get", "/api/back-office/feature-flags/{flagKey}/users", { params: { path: { flagKey } } }],
-    queryFn: async () => {
-      // oxlint-disable-next-line typescript-eslint/no-explicit-any -- endpoint not yet in OpenAPI spec
-      const { data } = await apiClient.GET("/api/back-office/feature-flags/{flagKey}/users" as any, {
-        params: { path: { flagKey } }
-      });
-      return data as GetFlagUsersResponse | undefined;
-    },
-    enabled: flag?.scope === "User"
-  });
-
-  const isLoading =
-    isLoadingFlags || (flag?.scope === "Tenant" && isLoadingTenants) || (flag?.scope === "User" && isLoadingUsers);
+  const isLoading = isLoadingFlags || (flag?.scope === "Tenant" && isLoadingTenants);
   const flagName = flag ? getFlagName(flag.key) : flagKey;
   const description = flag ? getFlagDescription(flag.key) || flag.description : "";
 
   return (
     <AppLayout
+      maxWidth="64rem"
       browserTitle={flagName}
       title={
         <div className="flex items-center gap-3">
           <Link to="/back-office/feature-flags" className="text-muted-foreground hover:text-foreground">
             <ArrowLeftIcon className="size-5" aria-label={t`Back to feature flags`} />
           </Link>
-          {flag && <ScopeIcon scope={flag.scope} />}
+          {flag && <ScopeIcon scope={flag.scope} className="size-6 stroke-[2.5] text-foreground" />}
           <span>{flagName}</span>
         </div>
       }
@@ -94,7 +81,6 @@ export default function FlagDetailPage() {
             <UserOverridesSection
               flagKey={flag.key}
               flagDescription={flagName}
-              users={usersData?.users ?? []}
               showBucket={flag.isAbTestEligible}
               bucketRange={
                 flag.bucketStart != null && flag.bucketEnd != null
