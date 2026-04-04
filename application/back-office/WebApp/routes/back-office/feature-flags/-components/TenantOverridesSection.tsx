@@ -42,7 +42,7 @@ export function TenantOverridesSection({
       sortBySourceThenBucket(
         filtered.filter((t) => t.isEnabled),
         (t) => t.source,
-        (t) => t.tenantId,
+        (t) => t.rolloutBucket,
         "enabled",
         bucketRange
       ),
@@ -54,7 +54,7 @@ export function TenantOverridesSection({
       sortBySourceThenBucket(
         filtered.filter((t) => !t.isEnabled),
         (t) => t.source,
-        (t) => t.tenantId,
+        (t) => t.rolloutBucket,
         "disabled",
         bucketRange
       ),

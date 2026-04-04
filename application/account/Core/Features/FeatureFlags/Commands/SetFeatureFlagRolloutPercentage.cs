@@ -3,7 +3,6 @@ using Account.Features.Tenants.Domain;
 using FluentValidation;
 using JetBrains.Annotations;
 using SharedKernel.Cqrs;
-using SharedKernel.FeatureFlags;
 using SharedKernel.Telemetry;
 
 namespace Account.Features.FeatureFlags.Commands;
@@ -50,13 +49,12 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         else if (command.RolloutPercentage == 100)
         {
             bucketStart = 0;
-            bucketEnd = 100;
+            bucketEnd = 99;
         }
         else
         {
-            // Normal rollout uses buckets 1-99. Bucket 0 (always opt-in) and 100 (always opt-out) are reserved.
-            bucketStart = RolloutBucketHasher.ComputeBucket(command.FlagKey);
-            bucketEnd = (bucketStart - 1 + command.RolloutPercentage - 1) % 99 + 1;
+            bucketStart = ComputeStartingBucket(command.FlagKey);
+            bucketEnd = (bucketStart.Value + command.RolloutPercentage - 1) % 100;
         }
 
         flag.SetRolloutRange(bucketStart, bucketEnd);
@@ -67,5 +65,20 @@ public sealed class SetFeatureFlagRolloutPercentageHandler(IFeatureFlagRepositor
         events.CollectEvent(new FeatureFlagRolloutPercentageUpdated(command.FlagKey, command.RolloutPercentage));
 
         return Result.Success();
+    }
+
+    private static int ComputeStartingBucket(string flagKey)
+    {
+        unchecked
+        {
+            var hash = 2166136261u;
+            foreach (var c in flagKey)
+            {
+                hash ^= c;
+                hash *= 16777619u;
+            }
+
+            return (int)(hash % 100);
+        }
     }
 }

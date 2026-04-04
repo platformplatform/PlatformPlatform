@@ -18,7 +18,8 @@ internal sealed class CreateTenantHandler(ITenantRepository tenantRepository, IS
 {
     public async Task<Result<CreateTenantResponse>> Handle(CreateTenantCommand command, CancellationToken cancellationToken)
     {
-        var tenant = Tenant.Create(command.OwnerEmail);
+        var rolloutBucketSequence = await tenantRepository.GetNextRolloutBucketSequenceUnfilteredAsync(cancellationToken);
+        var tenant = Tenant.Create(command.OwnerEmail, rolloutBucketSequence);
         await tenantRepository.AddAsync(tenant, cancellationToken);
 
         var subscription = Subscription.Create(tenant.Id);

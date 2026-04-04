@@ -21,7 +21,7 @@ function isInBucketRange(bucket: number, bucketStart: number, bucketEnd: number)
   if (bucketStart <= bucketEnd) {
     return bucket >= bucketStart && bucket <= bucketEnd;
   }
-  // Wrap-around range (e.g., 90-10 means 90-100 and 1-10)
+  // Wrap-around range (e.g., 90-10 means 90-99 and 0-10)
   return bucket >= bucketStart || bucket <= bucketEnd;
 }
 

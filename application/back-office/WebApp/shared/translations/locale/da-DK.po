@@ -122,8 +122,8 @@ msgstr "Deaktiveret ({0})"
 msgid "Drop files here, or click to browse"
 msgstr ""
 
-msgid "Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
-msgstr "Hver konto eller bruger tildeles en fast bucket (1-100) baseret på deres ID. Udrulningen rammer et bestemt interval af buckets, hvilket sikrer konsistent og forudsigelig funktionsudrulning."
+msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen målretter et specifikt interval af buckets, hvilket sikrer konsistent og forudsigelig funktionsudrulning."
 
 msgid "Early access to experimental features before general availability"
 msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
@@ -292,8 +292,8 @@ msgstr "Udrulning %"
 msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 
-msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsbuckets: {bucketStart}-100 og 1-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {bucketStart}-99 og 0-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage updated"
 msgstr "Udrulningsprocent opdateret"

@@ -26,7 +26,7 @@ public sealed class UserTests
         foreach (var email in internalEmails)
         {
             // Arrange
-            var user = User.Create(_tenantId, email, UserRole.Member, true, "en-US");
+            var user = User.Create(_tenantId, email, UserRole.Member, true, "en-US", 0);
 
             // Act
             var isInternal = user.IsInternalUser;
@@ -51,7 +51,7 @@ public sealed class UserTests
         foreach (var email in externalEmails)
         {
             // Arrange
-            var user = User.Create(_tenantId, email, UserRole.Member, true, "en-US");
+            var user = User.Create(_tenantId, email, UserRole.Member, true, "en-US", 0);
 
             // Act
             var isInternal = user.IsInternalUser;

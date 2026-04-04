@@ -81,8 +81,8 @@ function FlagMetadata({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
             </TooltipTrigger>
             <TooltipContent className="max-w-[20rem]">
               <Trans>
-                Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a
-                specific range of buckets, ensuring consistent and predictable feature rollout.
+                Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout
+                targets a specific range of buckets, ensuring consistent and predictable feature rollout.
               </Trans>
             </TooltipContent>
           </Tooltip>

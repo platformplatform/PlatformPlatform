@@ -691,7 +691,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
             "SELECT bucket_end FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         bucketStart.Should().Be(0);
-        bucketEnd.Should().Be(100);
+        bucketEnd.Should().Be(99);
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagRolloutPercentageUpdated");
@@ -767,7 +767,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
         Connection.Update("feature_flags", "id", baseRowId, [
                 ("bucket_start", 0),
-                ("bucket_end", 100)
+                ("bucket_end", 99)
             ]
         );
 
@@ -797,7 +797,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
         Connection.Update("feature_flags", "id", baseRowId, [
                 ("bucket_start", 0),
-                ("bucket_end", 100)
+                ("bucket_end", 99)
             ]
         );
 
@@ -908,7 +908,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     [Fact]
     public void BucketRange_WhenWrapAround_ShouldMatchCorrectly()
     {
-        // Arrange & Act & Assert (wrap-around within 1-99 range)
+        // Arrange & Act & Assert (wrap-around within 0-99 range)
         IsInBucketRange(95, 90, 10).Should().BeTrue();
         IsInBucketRange(5, 90, 10).Should().BeTrue();
         IsInBucketRange(50, 90, 10).Should().BeFalse();
@@ -916,41 +916,43 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         IsInBucketRange(10, 90, 10).Should().BeTrue();
         IsInBucketRange(11, 90, 10).Should().BeFalse();
         IsInBucketRange(89, 90, 10).Should().BeFalse();
-    }
-
-    [Fact]
-    public void BucketRange_WhenBucketZero_ShouldAlwaysBeIncluded()
-    {
-        // Bucket 0 = always opt-in, included in any rollout range
-        IsInBucketRange(0, 1, 50).Should().BeTrue();
-        IsInBucketRange(0, 50, 99).Should().BeTrue();
         IsInBucketRange(0, 90, 10).Should().BeTrue();
-        IsInBucketRange(0, 0, 100).Should().BeTrue();
-    }
-
-    [Fact]
-    public void BucketRange_WhenBucketHundred_ShouldOnlyBeIncludedAtFullRollout()
-    {
-        // Bucket 100 = always opt-out, only included when range covers all (0-100 = 100% rollout)
-        IsInBucketRange(100, 0, 100).Should().BeTrue();
-        IsInBucketRange(100, 1, 99).Should().BeFalse();
-        IsInBucketRange(100, 1, 50).Should().BeFalse();
-        IsInBucketRange(100, 90, 10).Should().BeFalse();
     }
 
     [Fact]
     public void RolloutBucket_ShouldBeDeterministic()
     {
         // Arrange
-        var entityId = "test-entity-123";
+        var sequenceNumber = 42;
 
         // Act
-        var bucket1 = RolloutBucketHasher.ComputeBucket(entityId);
-        var bucket2 = RolloutBucketHasher.ComputeBucket(entityId);
+        var bucket1 = RolloutBucketHasher.ComputeBucket(sequenceNumber);
+        var bucket2 = RolloutBucketHasher.ComputeBucket(sequenceNumber);
 
         // Assert
         bucket1.Should().Be(bucket2);
-        bucket1.Should().BeInRange(1, 99);
+        bucket1.Should().BeInRange(0, 99);
+    }
+
+    [Fact]
+    public void VanDerCorput_ShouldDistributeEvenly()
+    {
+        // Arrange
+        var bucketCounts = new int[100];
+
+        // Act
+        for (var i = 0; i < 1000; i++)
+        {
+            var bucket = RolloutBucketHasher.ComputeBucket(i);
+            bucket.Should().BeInRange(0, 99);
+            bucketCounts[bucket]++;
+        }
+
+        // Assert
+        foreach (var count in bucketCounts)
+        {
+            count.Should().BeInRange(9, 11, "van der Corput should distribute within +/-1 of ideal");
+        }
     }
 
     // JWT invalidation tests
@@ -1098,12 +1100,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
     private static int CountBucketsInRange(int bucketStart, int bucketEnd)
     {
-        // For normal rollout (1-99 range), count only the normal buckets
         if (bucketStart <= bucketEnd)
         {
             return bucketEnd - bucketStart + 1;
         }
 
-        return 99 - bucketStart + 1 + bucketEnd;
+        return 100 - bucketStart + bucketEnd + 1;
     }
 }

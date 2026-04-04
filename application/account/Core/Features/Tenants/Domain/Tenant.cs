@@ -6,12 +6,13 @@ namespace Account.Features.Tenants.Domain;
 
 public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 {
-    private Tenant() : base(TenantId.NewId())
+    private Tenant(int rolloutBucketSequence) : base(TenantId.NewId())
     {
         State = TenantState.Active;
         Plan = SubscriptionPlan.Basis;
         Logo = new Logo();
-        RolloutBucket = RolloutBucketHasher.ComputeBucket(Id.Value.ToString());
+        RolloutBucketSequence = rolloutBucketSequence;
+        RolloutBucket = RolloutBucketHasher.ComputeBucket(rolloutBucketSequence);
     }
 
     public string Name { get; private set; } = string.Empty;
@@ -26,13 +27,15 @@ public sealed class Tenant : SoftDeletableAggregateRoot<TenantId>
 
     public Logo Logo { get; private set; }
 
+    public int RolloutBucketSequence { get; private set; }
+
     public int RolloutBucket { get; private set; }
 
     public int FeatureFlagVersion { get; private set; }
 
-    public static Tenant Create(string email)
+    public static Tenant Create(string email, int rolloutBucketSequence)
     {
-        var tenant = new Tenant();
+        var tenant = new Tenant(rolloutBucketSequence);
         tenant.AddDomainEvent(new TenantCreatedEvent(tenant.Id, email));
         return tenant;
     }

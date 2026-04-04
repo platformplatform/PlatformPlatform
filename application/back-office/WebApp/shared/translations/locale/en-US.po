@@ -122,8 +122,8 @@ msgstr "Disabled ({0})"
 msgid "Drop files here, or click to browse"
 msgstr "Drop files here, or click to browse"
 
-msgid "Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
-msgstr "Each account or user is assigned a fixed bucket (1-100) based on their ID. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgstr "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
 
 msgid "Early access to experimental features before general availability"
 msgstr "Early access to experimental features before general availability"
@@ -292,8 +292,8 @@ msgstr "Rollout %"
 msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 
-msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage updated"
 msgstr "Rollout percentage updated"

@@ -8,7 +8,7 @@ namespace Account.Features.Users.Domain;
 
 public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEntity
 {
-    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
+    private User(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucketSequence)
         : base(UserId.NewId())
     {
         Email = email;
@@ -18,7 +18,8 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
         Locale = locale ?? string.Empty;
         Avatar = new Avatar();
         ExternalIdentities = [];
-        RolloutBucket = RolloutBucketHasher.ComputeBucket(Id.Value);
+        RolloutBucketSequence = rolloutBucketSequence;
+        RolloutBucket = RolloutBucketHasher.ComputeBucket(rolloutBucketSequence);
     }
 
     public string Email
@@ -47,13 +48,15 @@ public sealed class User : SoftDeletableAggregateRoot<UserId>, ITenantScopedEnti
 
     public ImmutableArray<ExternalIdentity> ExternalIdentities { get; private set; }
 
+    public int RolloutBucketSequence { get; private set; }
+
     public int RolloutBucket { get; private set; }
 
     public TenantId TenantId { get; }
 
-    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale)
+    public static User Create(TenantId tenantId, string email, UserRole role, bool emailConfirmed, string? locale, int rolloutBucketSequence)
     {
-        return new User(tenantId, email, role, emailConfirmed, locale);
+        return new User(tenantId, email, role, emailConfirmed, locale, rolloutBucketSequence);
     }
 
     public void Update(string firstName, string lastName, string title)

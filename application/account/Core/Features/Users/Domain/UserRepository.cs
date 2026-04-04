@@ -38,6 +38,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
+    ///     This method must query across all users to ensure globally unique sequence numbers.
+    /// </summary>
+    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
 }
 
 internal sealed class UserRepository(AccountDbContext accountDbContext, IExecutionContext executionContext)
@@ -146,5 +152,15 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
             .Where(u => u.Email == email.ToLowerInvariant())
             .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
+    ///     This method must query across all users to ensure globally unique sequence numbers.
+    /// </summary>
+    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(u => (int?)u.RolloutBucketSequence, cancellationToken);
+        return (maxSequence ?? -1) + 1;
     }
 }
