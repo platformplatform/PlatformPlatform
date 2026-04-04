@@ -14,6 +14,8 @@ public sealed record GetFlagUsersQuery : IRequest<Result<GetFlagUsersResponse>>
 {
     [JsonIgnore] // Removes from API contract
     public string FlagKey { get; init; } = null!;
+
+    public string? Search { get; init; }
 }
 
 [PublicAPI]
@@ -38,6 +40,8 @@ public sealed class GetFlagUsersValidator : AbstractValidator<GetFlagUsersQuery>
             .NotEmpty().WithMessage("Flag key must not be empty.")
             .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Flag key must exist in the registry.")
             .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Flag must have user scope.");
+
+        RuleFor(x => x.Search).MaximumLength(100).WithMessage("The search term must be at most 100 characters.");
     }
 }
 
@@ -49,7 +53,9 @@ public sealed class GetFlagUsersHandler(IFeatureFlagRepository featureFlagReposi
         var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
         if (definition is null) return Result<GetFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
-        var users = await userRepository.GetAllUnfilteredAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(query.Search)) return new GetFlagUsersResponse([]);
+
+        var users = await userRepository.SearchByEmailUnfilteredAsync(query.Search.Trim(), cancellationToken);
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
         var overridesByUserId = userOverrides.ToDictionary(f => f.UserId!);
 

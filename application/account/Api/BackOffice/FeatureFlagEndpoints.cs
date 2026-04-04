@@ -51,8 +51,8 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
         ).DisableAntiforgery();
 
-        group.MapGet("/{flagKey}/users", async Task<ApiResult<GetFlagUsersResponse>> (string flagKey, IMediator mediator)
-            => await mediator.Send(new GetFlagUsersQuery { FlagKey = flagKey })
+        group.MapGet("/{flagKey}/users", async Task<ApiResult<GetFlagUsersResponse>> (string flagKey, [AsParameters] GetFlagUsersQuery query, IMediator mediator)
+            => await mediator.Send(query with { FlagKey = flagKey })
         ).Produces<GetFlagUsersResponse>();
 
         group.MapPut("/{flagKey}/user-override", async Task<ApiResult> (string flagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)

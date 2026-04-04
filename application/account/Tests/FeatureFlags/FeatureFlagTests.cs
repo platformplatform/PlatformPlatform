@@ -81,7 +81,11 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         var disabledAt = Connection.ExecuteScalar<string>(
             "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
+        var enabledAt = Connection.ExecuteScalar<string>(
+            "SELECT enabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
+        );
         disabledAt.Should().NotBeNullOrEmpty();
+        enabledAt.Should().BeNull("EnabledAt should be cleared on deactivation");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagDeactivated");
@@ -127,8 +131,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
             "SELECT disabled_at FROM feature_flags WHERE flag_key = @flagKey AND tenant_id IS NULL AND user_id IS NULL", [new { flagKey }]
         );
         enabledAt.Should().NotBeNullOrEmpty();
-        disabledAt.Should().NotBeNullOrEmpty();
-        string.Compare(enabledAt, disabledAt, StringComparison.Ordinal).Should().BeGreaterThan(0, "EnabledAt should be after DisabledAt");
+        disabledAt.Should().BeNull("DisabledAt should be cleared on reactivation");
 
         TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
         TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagActivated");
@@ -465,13 +468,29 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenUserScopedFlag_ShouldReturnAllUsersWithDefaultSource()
+    public async Task GetFlagUsers_WhenNoSearchProvided_ShouldReturnEmptyArray()
     {
         // Arrange
         var flagKey = "compact-view";
 
         // Act
         var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetFlagUsers_WhenSearchMatchesEmail_ShouldReturnMatchingUsersWithDefaultSource()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?search=owner@tenant-1");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
@@ -506,7 +525,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         );
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users?search=owner@tenant-1");
 
         // Assert
         response.ShouldBeSuccessfulGetRequest();
