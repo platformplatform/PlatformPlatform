@@ -49,7 +49,16 @@ public static class FeatureFlags
         ConfigurableByUser: true
     );
 
-    private static readonly FeatureFlagDefinition[] AllFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView];
+    public static readonly FeatureFlagDefinition ExperimentalUi = new(
+        "experimental-ui",
+        FeatureFlagScope.User,
+        FeatureFlagAdminLevel.User,
+        "Enables experimental UI components for users",
+        IsAbTestEligible: true,
+        TrackInTelemetry: true
+    );
+
+    private static readonly FeatureFlagDefinition[] AllFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
 
     static FeatureFlags()
     {

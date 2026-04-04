@@ -19,7 +19,14 @@ public sealed record GetFlagTenantsQuery : IRequest<Result<GetFlagTenantsRespons
 public sealed record GetFlagTenantsResponse(FlagTenantInfo[] Tenants);
 
 [PublicAPI]
-public sealed record FlagTenantInfo(TenantId TenantId, string TenantName, int RolloutBucket, bool IsEnabled, string Source);
+public sealed record FlagTenantInfo(
+    TenantId TenantId,
+    string TenantName,
+    string Plan,
+    int RolloutBucket,
+    bool IsEnabled,
+    string Source
+);
 
 public sealed class GetFlagTenantsValidator : AbstractValidator<GetFlagTenantsQuery>
 {
@@ -51,16 +58,16 @@ public sealed class GetFlagTenantsHandler(IFeatureFlagRepository featureFlagRepo
                 if (overridesByTenantId.TryGetValue(tenant.Id.Value, out var tenantOverride))
                 {
                     var isEnabled = tenantOverride.EnabledAt is not null && (tenantOverride.DisabledAt is null || tenantOverride.EnabledAt > tenantOverride.DisabledAt);
-                    return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.RolloutBucket, isEnabled, "manual_override");
+                    return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isEnabled, "manual_override");
                 }
 
                 if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
                 {
                     var isInRange = IsInBucketRange(tenant.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
-                    return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.RolloutBucket, isInRange, "ab_rollout");
+                    return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, isInRange, "ab_rollout");
                 }
 
-                return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.RolloutBucket, false, "default");
+                return new FlagTenantInfo(tenant.Id, tenant.Name, tenant.Plan.ToString(), tenant.RolloutBucket, false, "default");
             }
         ).ToArray();
 
