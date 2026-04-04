@@ -49,26 +49,33 @@ public sealed class GetFlagUsersHandler(IFeatureFlagRepository featureFlagReposi
         var definition = SharedKernel.FeatureFlags.FeatureFlags.Get(query.FlagKey);
         if (definition is null) return Result<GetFlagUsersResponse>.NotFound($"Feature flag with key '{query.FlagKey}' not found.");
 
+        var users = await userRepository.GetAllUnfilteredAsync(cancellationToken);
         var userOverrides = await featureFlagRepository.GetUserOverridesForFlagAsync(query.FlagKey, cancellationToken);
-        if (userOverrides.Length == 0) return new GetFlagUsersResponse([]);
+        var overridesByUserId = userOverrides.ToDictionary(f => f.UserId!);
 
-        var userIds = userOverrides.Select(f => new UserId(f.UserId!)).ToArray();
-        var users = await userRepository.GetByIdsUnfilteredAsync(userIds, cancellationToken);
-        var usersById = users.ToDictionary(u => u.Id.Value);
+        var baseRow = await featureFlagRepository.GetByKeyAndScopeAsync(query.FlagKey, null, null, cancellationToken);
 
         var tenantIds = users.Select(u => u.TenantId).Distinct().ToArray();
         var tenants = await tenantRepository.GetByIdsUnfilteredAsync(tenantIds, cancellationToken);
         var tenantsById = tenants.ToDictionary(t => t.Id);
 
-        var flagUsers = userOverrides.Select(overrideRow =>
+        var flagUsers = users.Select(user =>
             {
-                var userId = new UserId(overrideRow.UserId!);
-                var user = usersById.GetValueOrDefault(userId.Value);
-                var tenantName = user is not null && tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
-                var isEnabled = overrideRow.EnabledAt is not null && (overrideRow.DisabledAt is null || overrideRow.EnabledAt > overrideRow.DisabledAt);
-                var tenantId = user?.TenantId ?? new TenantId(0);
-                var rolloutBucket = user?.RolloutBucket ?? 0;
-                return new FlagUserInfo(userId, tenantId, user?.Email ?? "Unknown", tenantName, rolloutBucket, isEnabled, "manual_override");
+                var tenantName = tenantsById.TryGetValue(user.TenantId, out var tenant) ? tenant.Name : "Unknown";
+
+                if (overridesByUserId.TryGetValue(user.Id.Value, out var userOverride))
+                {
+                    var isEnabled = userOverride.EnabledAt is not null && (userOverride.DisabledAt is null || userOverride.EnabledAt > userOverride.DisabledAt);
+                    return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isEnabled, "manual_override");
+                }
+
+                if (definition.IsAbTestEligible && baseRow?.BucketStart is not null && baseRow.BucketEnd is not null)
+                {
+                    var isInRange = RolloutBucketHasher.IsInBucketRange(user.RolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+                    return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, isInRange, "ab_rollout");
+                }
+
+                return new FlagUserInfo(user.Id, user.TenantId, user.Email, tenantName, user.RolloutBucket, false, "default");
             }
         ).ToArray();
 

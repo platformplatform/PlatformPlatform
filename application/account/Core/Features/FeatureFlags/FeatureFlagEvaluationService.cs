@@ -54,7 +54,7 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
         if (definition.IsAbTestEligible && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            return IsInBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
         }
 
         return false;
@@ -72,7 +72,7 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
         if (definition.IsAbTestEligible && userRolloutBucket is not null && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            return IsInBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
         }
 
         return false;
@@ -81,23 +81,6 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
     private static bool IsActive(FeatureFlag flag)
     {
         return flag.EnabledAt is not null && (flag.DisabledAt is null || flag.EnabledAt > flag.DisabledAt);
-    }
-
-    private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
-    {
-        // Bucket 0 = always opt-in (internal testers), included in any rollout
-        if (bucket == 0) return true;
-
-        // Bucket 100 = always opt-out (VIP customers), only included at 100% rollout
-        if (bucket == 100) return bucketStart == 0 && bucketEnd == 100;
-
-        if (bucketStart <= bucketEnd)
-        {
-            return bucket >= bucketStart && bucket <= bucketEnd;
-        }
-
-        // Wrap-around case (e.g., start=90, end=10 means 90-99 and 1-10)
-        return bucket >= bucketStart || bucket <= bucketEnd;
     }
 
     private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)

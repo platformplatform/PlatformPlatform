@@ -29,6 +29,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     /// </summary>
     Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Retrieves all active users without applying tenant query filters.
+    ///     This method should only be used by internal API endpoints where tenant context is not established.
+    /// </summary>
+    Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
+
     Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
@@ -102,6 +108,18 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
         return await DbSet
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(u => ids.AsEnumerable().Contains(u.Id))
+            .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves all active users without applying tenant query filters.
+    ///     This method should only be used by internal API endpoints where tenant context is not established.
+    /// </summary>
+    public async Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
     }
 
