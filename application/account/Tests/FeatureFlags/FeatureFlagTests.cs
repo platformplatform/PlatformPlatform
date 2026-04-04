@@ -465,7 +465,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenUserScopedFlag_ShouldReturnEmptyWhenNoOverrides()
+    public async Task GetFlagUsers_WhenUserScopedFlag_ShouldReturnAllUsersWithDefaultSource()
     {
         // Arrange
         var flagKey = "compact-view";
@@ -477,7 +477,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFlagUsersResponse>();
         result.Should().NotBeNull();
-        result.Users.Should().BeEmpty();
+        result.Users.Should().NotBeEmpty();
+        result.Users.Should().OnlyContain(u => u.Source == "default");
     }
 
     [Fact]
@@ -511,9 +512,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         response.ShouldBeSuccessfulGetRequest();
         var result = await response.DeserializeResponse<GetFlagUsersResponse>();
         result.Should().NotBeNull();
-        result.Users.Should().HaveCount(1);
-        var userResult = result.Users[0];
-        userResult.UserId.Value.Should().Be(userId);
+        result.Users.Should().NotBeEmpty();
+        var userResult = result.Users.Single(u => u.UserId.Value == userId);
         userResult.IsEnabled.Should().BeTrue();
         userResult.Source.Should().Be("manual_override");
         userResult.Email.Should().NotBe("Unknown");
@@ -1102,15 +1102,7 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
 
     private static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
     {
-        if (bucket == 0) return true;
-        if (bucket == 100) return bucketStart == 0 && bucketEnd == 100;
-
-        if (bucketStart <= bucketEnd)
-        {
-            return bucket >= bucketStart && bucket <= bucketEnd;
-        }
-
-        return bucket >= bucketStart || bucket <= bucketEnd;
+        return RolloutBucketHasher.IsInBucketRange(bucket, bucketStart, bucketEnd);
     }
 
     private static int CountBucketsInRange(int bucketStart, int bucketEnd)

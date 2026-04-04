@@ -526,7 +526,10 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     /// </summary>
     public async Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken)
     {
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .OrderBy(u => u.Id)
+            .ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
