@@ -104,6 +104,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     Task<User[]> GetCreatedSinceUnfilteredAsync(DateTimeOffset since, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
+    ///     This method must query across all users to ensure globally unique sequence numbers.
+    /// </summary>
+    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Returns the earliest-created Owner for each of the given tenants without applying tenant query filters.
     ///     Used by the back-office recent signups dashboard to attribute each new tenant to the user who signed up.
     /// </summary>
@@ -550,6 +556,16 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all users without applying query filters.
+    ///     This method must query across all users to ensure globally unique sequence numbers.
+    /// </summary>
+    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(u => (int?)u.RolloutBucketSequence, cancellationToken);
+        return (maxSequence ?? -1) + 1;
     }
 
     /// <summary>

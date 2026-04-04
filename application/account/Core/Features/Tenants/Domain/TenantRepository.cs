@@ -56,6 +56,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     /// </summary>
     Task<Tenant[]> GetMostRecentSignupsUnfilteredAsync(int limit, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all tenants without applying query filters.
+    ///     This method must query across all tenants to ensure globally unique sequence numbers.
+    /// </summary>
+    Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken);
+
     Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken);
 
     Task IncrementAllFeatureFlagVersionsAsync(CancellationToken cancellationToken);
@@ -160,6 +166,16 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     {
         var tenants = await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).ToArrayAsync(cancellationToken);
         return tenants.OrderByDescending(t => t.CreatedAt).Take(limit).ToArray();
+    }
+
+    /// <summary>
+    ///     Retrieves the next rollout bucket sequence number across all tenants without applying query filters.
+    ///     This method must query across all tenants to ensure globally unique sequence numbers.
+    /// </summary>
+    public async Task<int> GetNextRolloutBucketSequenceUnfilteredAsync(CancellationToken cancellationToken)
+    {
+        var maxSequence = await DbSet.IgnoreQueryFilters().MaxAsync(t => (int?)t.RolloutBucketSequence, cancellationToken);
+        return (maxSequence ?? -1) + 1;
     }
 
     public async Task<int> GetFeatureFlagVersionAsync(TenantId tenantId, CancellationToken cancellationToken)

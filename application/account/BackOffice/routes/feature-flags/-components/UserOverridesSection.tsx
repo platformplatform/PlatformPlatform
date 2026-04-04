@@ -56,14 +56,14 @@ export function UserOverridesSection({
       enabledUsers: sortBySourceThenBucket(
         enabled,
         (u) => u.source,
-        (u) => u.userId,
+        (u) => u.rolloutBucket,
         "enabled",
         bucketRange
       ),
       disabledUsers: sortBySourceThenBucket(
         disabled,
         (u) => u.source,
-        (u) => u.userId,
+        (u) => u.rolloutBucket,
         "disabled",
         bucketRange
       )

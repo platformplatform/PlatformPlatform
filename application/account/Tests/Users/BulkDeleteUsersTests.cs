@@ -39,7 +39,8 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
                     ("avatar", JsonSerializer.Serialize(new Avatar())),
                     ("locale", "en-US"),
                     ("external_identities", "[]"),
-                    ("rollout_bucket", 42)
+                    ("rollout_bucket", 42),
+                    ("rollout_bucket_sequence", 0)
                 ]
             );
         }
@@ -151,7 +152,8 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42)
+                ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0)
             ]
         );
 
@@ -170,7 +172,8 @@ public sealed class BulkDeleteUsersTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42)
+                ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0)
             ]
         );
 

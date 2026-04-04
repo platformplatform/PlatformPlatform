@@ -116,6 +116,7 @@ public sealed class GetDashboardMrrTrendTests : BackOfficeEndpointBaseTest
                 ("plan", nameof(SubscriptionPlan.Standard)),
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("rollout_bucket", 50),
+                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );

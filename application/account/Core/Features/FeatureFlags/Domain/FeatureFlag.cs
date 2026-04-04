@@ -74,14 +74,14 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
             throw new ArgumentException("Bucket start and bucket end must both be set or both be null.");
         }
 
-        if (bucketStart is not null && (bucketStart < 0 || bucketStart > 100))
+        if (bucketStart is not null && (bucketStart < 0 || bucketStart > 99))
         {
-            throw new ArgumentOutOfRangeException(nameof(bucketStart), "Bucket start must be between 0 and 100.");
+            throw new ArgumentOutOfRangeException(nameof(bucketStart), "Bucket start must be between 0 and 99.");
         }
 
-        if (bucketEnd is not null && (bucketEnd < 0 || bucketEnd > 100))
+        if (bucketEnd is not null && (bucketEnd < 0 || bucketEnd > 99))
         {
-            throw new ArgumentOutOfRangeException(nameof(bucketEnd), "Bucket end must be between 0 and 100.");
+            throw new ArgumentOutOfRangeException(nameof(bucketEnd), "Bucket end must be between 0 and 99.");
         }
 
         BucketStart = bucketStart;

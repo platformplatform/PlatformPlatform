@@ -339,6 +339,12 @@ msgstr "Nedgraderer"
 msgid "Drift detected"
 msgstr "Afvigelser fundet"
 
+msgid "Each account or user is assigned a fixed bucket (0-99) based on their sequence number. The rollout targets a specific range of buckets, ensuring consistent and predictable feature rollout."
+msgstr "Hver konto eller bruger tildeles en fast bucket (0-99) baseret på deres sekvensnummer. Udrulningen rammer et bestemt bucket-interval, så funktionsudrulningen bliver konsistent og forudsigelig."
+
+msgid "Early access to experimental features before general availability"
+msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighed"
+
 msgid "Email"
 msgstr "E-mail"
 
@@ -876,8 +882,8 @@ msgstr "Udrulnings-%"
 msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsbuckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
 
-msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Udrulningsbuckets: {bucketStart}-100 og 1-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {bucketStart}-99 og 0-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage"
 msgstr "Udrulningsprocent"

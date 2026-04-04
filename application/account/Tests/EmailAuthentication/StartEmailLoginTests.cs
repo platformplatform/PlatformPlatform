@@ -75,7 +75,8 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "da-DK"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 50)
+                ("rollout_bucket", 50),
+                ("rollout_bucket_sequence", 0)
             ]
         );
         var command = new StartEmailLoginCommand(email);
@@ -229,7 +230,8 @@ public sealed class StartEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("avatar", JsonSerializer.Serialize(new Avatar())),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42)
+                ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0)
             ]
         );
 

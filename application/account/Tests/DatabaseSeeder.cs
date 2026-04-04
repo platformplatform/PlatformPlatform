@@ -24,13 +24,13 @@ public sealed class DatabaseSeeder
 
     public DatabaseSeeder(AccountDbContext accountDbContext)
     {
-        Tenant1 = Tenant.Create("owner@tenant-1.com");
+        Tenant1 = Tenant.Create("owner@tenant-1.com", 0);
         accountDbContext.Set<Tenant>().AddRange(Tenant1);
 
-        Tenant1Owner = User.Create(Tenant1.Id, "owner@tenant-1.com", UserRole.Owner, true, null);
+        Tenant1Owner = User.Create(Tenant1.Id, "owner@tenant-1.com", UserRole.Owner, true, null, 0);
         accountDbContext.Set<User>().AddRange(Tenant1Owner);
 
-        Tenant1Member = User.Create(Tenant1.Id, "member1@tenant-1.com", UserRole.Member, true, null);
+        Tenant1Member = User.Create(Tenant1.Id, "member1@tenant-1.com", UserRole.Member, true, null, 1);
         accountDbContext.Set<User>().AddRange(Tenant1Member);
 
         Tenant1OwnerSession = Session.Create(Tenant1.Id, Tenant1Owner.Id, LoginMethod.OneTimePassword, "TestUserAgent", IPAddress.Loopback);

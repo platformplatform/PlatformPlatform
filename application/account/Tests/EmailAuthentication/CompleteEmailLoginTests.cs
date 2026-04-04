@@ -221,6 +221,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("plan", nameof(SubscriptionPlan.Basis)),
                 ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );
@@ -264,7 +265,8 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("role", nameof(UserRole.Owner)),
                 ("locale", "en-US"),
                 ("external_identities", "[]"),
-                ("rollout_bucket", 42)
+                ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0)
             ]
         );
 
@@ -326,6 +328,7 @@ public sealed class CompleteEmailLoginTests : EndpointBaseTest<AccountDbContext>
                 ("logo", """{"Url":null,"Version":0}"""),
                 ("plan", nameof(SubscriptionPlan.Basis)),
                 ("rollout_bucket", 42),
+                ("rollout_bucket_sequence", 0),
                 ("feature_flag_version", 0)
             ]
         );

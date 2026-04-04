@@ -197,7 +197,7 @@ public sealed class ExternalLoginTests
     public void AddExternalIdentity_WhenNewProvider_ShouldAddIdentity()
     {
         // Arrange
-        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US");
+        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US", 0);
 
         // Act
         user.AddExternalIdentity(ExternalProviderType.Google, "google-user-id-123");
@@ -212,7 +212,7 @@ public sealed class ExternalLoginTests
     public void AddExternalIdentity_WhenDuplicateProvider_ShouldThrowUnreachableException()
     {
         // Arrange
-        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US");
+        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US", 0);
         user.AddExternalIdentity(ExternalProviderType.Google, "google-user-id-123");
 
         // Act
@@ -227,7 +227,7 @@ public sealed class ExternalLoginTests
     public void GetExternalIdentity_WhenProviderExists_ShouldReturnIdentity()
     {
         // Arrange
-        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US");
+        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US", 0);
         user.AddExternalIdentity(ExternalProviderType.Google, "google-user-id-123");
 
         // Act
@@ -243,7 +243,7 @@ public sealed class ExternalLoginTests
     public void GetExternalIdentity_WhenProviderDoesNotExist_ShouldReturnNull()
     {
         // Arrange
-        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US");
+        var user = User.Create(TenantId.NewId(), "user@example.com", UserRole.Member, true, "en-US", 0);
 
         // Act
         var identity = user.GetExternalIdentity(ExternalProviderType.Google);
