@@ -35,6 +35,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
     /// </summary>
     Task<User[]> GetAllUnfilteredAsync(CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Searches users by email without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<User[]> SearchByEmailUnfilteredAsync(string search, CancellationToken cancellationToken);
+
     Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<User[]> GetUsersByEmailUnfilteredAsync(string email, CancellationToken cancellationToken);
@@ -119,6 +125,20 @@ internal sealed class UserRepository(AccountDbContext accountDbContext, IExecuti
     {
         return await DbSet
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .OrderBy(u => u.Id)
+            .ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Searches users by email without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<User[]> SearchByEmailUnfilteredAsync(string search, CancellationToken cancellationToken)
+    {
+        var lowerSearch = search.ToLowerInvariant();
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => u.Email.Contains(lowerSearch))
             .OrderBy(u => u.Id)
             .ToArrayAsync(cancellationToken);
     }
