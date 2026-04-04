@@ -1,6 +1,5 @@
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { Badge } from "@repo/ui/components/Badge";
 import { Button } from "@repo/ui/components/Button";
 import { Switch } from "@repo/ui/components/Switch";
 import { TableCell, TableRow } from "@repo/ui/components/Table";
@@ -12,6 +11,8 @@ import { toast } from "sonner";
 import { api, queryClient } from "@/shared/lib/api/client";
 
 import type { FlagTenantInfo } from "./types";
+
+import { computeBucket } from "./rolloutBucket";
 
 function getSourceLabel(source: string): string {
   switch (source) {
@@ -29,11 +30,13 @@ function getSourceLabel(source: string): string {
 export function TenantOverrideRow({
   flagKey,
   flagDescription,
-  tenant
+  tenant,
+  showBucket
 }: Readonly<{
   flagKey: string;
   flagDescription: string;
   tenant: FlagTenantInfo;
+  showBucket: boolean;
 }>) {
   const [optimisticEnabled, setOptimisticEnabled] = useState(tenant.isEnabled);
   const overrideMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/tenant-override");
@@ -92,13 +95,9 @@ export function TenantOverrideRow({
       <TableCell className="text-muted-foreground">{tenant.tenantId}</TableCell>
       <TableCell className="font-medium">{tenant.tenantName}</TableCell>
       <TableCell>
-        <Badge variant={optimisticEnabled ? "default" : "outline"}>
-          {optimisticEnabled ? t`Enabled` : t`Disabled`}
-        </Badge>
-      </TableCell>
-      <TableCell>
         <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
       </TableCell>
+      {showBucket && <TableCell className="text-muted-foreground">{computeBucket(tenant.tenantId)}</TableCell>}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {tenant.source === "manual_override" && (

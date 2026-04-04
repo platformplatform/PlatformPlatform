@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { test } from "@shared/e2e/fixtures/page-auth";
 import { getBackOfficeBaseUrl } from "@shared/e2e/utils/constants";
-import { createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
+import { blurActiveElement, createTestContext, expectToastMessage } from "@shared/e2e/utils/test-assertions";
 import { step } from "@shared/e2e/utils/test-step-wrapper";
 
 const BACK_OFFICE_BASE_URL = getBackOfficeBaseUrl();
@@ -11,7 +11,7 @@ test.describe("@smoke", () => {
    * FEATURE FLAG SYSTEM E2E TEST
    *
    * Tests the full feature flag management flow:
-   * - Back-office flag list: view flags, filter by scope tabs, toggle a flag via switch
+   * - Back-office flag list: view flags grouped by scope (Tenant, User, System)
    * - Back-office flag detail: navigate into tenant-scoped flag, toggle tenant override twice, set A/B rollout percentage
    * - Account settings: verify Features section, toggle tenant-scoped custom branding flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
@@ -37,86 +37,63 @@ test.describe("@smoke", () => {
 
     // === BACK-OFFICE FLAG LIST ===
 
-    await step("Load feature flags page & verify flag list renders with expected flags")(async () => {
+    await step("Load feature flags page & verify flags grouped by scope")(async () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
 
-      const table = page.getByRole("table", { name: "Feature flags" });
-      await expect(table.getByText("Google OAuth authentication")).toBeVisible();
-      await expect(table.getByText("Subscription billing via Stripe")).toBeVisible();
-      await expect(table.getByText("Enables beta features for tenants")).toBeVisible();
-      await expect(table.getByText("Enables single sign-on for tenants")).toBeVisible();
-      await expect(table.getByText("Enables custom branding options for tenants")).toBeVisible();
-      await expect(table.getByText("Enables compact view in the user interface")).toBeVisible();
-    })();
+      const tenantTable = page.getByRole("table", { name: "Account flags" });
+      await expect(tenantTable.getByText("Beta features")).toBeVisible();
+      await expect(tenantTable.getByText("Single sign-on")).toBeVisible();
+      await expect(tenantTable.getByText("Custom branding")).toBeVisible();
 
-    await step("Filter by Tenant tab & verify only tenant-scoped flags appear")(async () => {
-      await page.getByRole("tab", { name: "Tenant" }).click();
+      const userTable = page.getByRole("table", { name: "User flags" });
+      await expect(userTable.getByText("Compact view")).toBeVisible();
 
-      const table = page.getByRole("table", { name: "Feature flags" });
-      await expect(table.getByText("Enables beta features for tenants")).toBeVisible();
-      await expect(table.getByText("Enables single sign-on for tenants")).toBeVisible();
-      await expect(table.getByText("Enables custom branding options for tenants")).toBeVisible();
-      await expect(table.getByText("Google OAuth authentication")).not.toBeVisible();
-      await expect(table.getByText("Enables compact view in the user interface")).not.toBeVisible();
-    })();
-
-    await step("Switch back to All tab & verify all flags visible again")(async () => {
-      await page.getByRole("tab", { name: "All" }).click();
-
-      const table = page.getByRole("table", { name: "Feature flags" });
-      await expect(table.getByText("Google OAuth authentication")).toBeVisible();
-      await expect(table.getByText("Enables compact view in the user interface")).toBeVisible();
-    })();
-
-    await step("Toggle compact view flag & verify success toast")(async () => {
-      const toggle = page.getByRole("switch", {
-        name: "Toggle Enables compact view in the user interface"
-      });
-      await toggle.click();
-
-      await expectToastMessage(context, "Feature flag");
+      const systemTable = page.getByRole("table", { name: "System flags" });
+      await expect(systemTable.getByText("Google OAuth")).toBeVisible();
+      await expect(systemTable.getByText("Subscriptions")).toBeVisible();
     })();
 
     // === BACK-OFFICE FLAG DETAIL ===
 
     await step("Click into beta-features flag detail & verify detail page loads")(async () => {
-      const table = page.getByRole("table", { name: "Feature flags" });
-      const betaRow = table.locator("tr").filter({ hasText: "Enables beta features for tenants" });
+      const tenantTable = page.getByRole("table", { name: "Account flags" });
+      const betaRow = tenantTable.locator("tr").filter({ hasText: "Beta features" });
       await betaRow.click();
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
-      await expect(page.getByRole("heading", { name: "Tenant overrides" })).toBeVisible();
+      await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
+    })();
+
+    await step("Search for a tenant & verify search results table appears")(async () => {
+      await page.getByPlaceholder("Search by account name or ID").fill("test");
+
+      await expect(page.getByRole("table", { name: "Search results" })).toBeVisible();
     })();
 
     await step("Toggle tenant override & verify toast confirms state change")(async () => {
-      const overridesTable = page.getByRole("table", { name: "Tenant overrides" });
-      await expect(overridesTable).toBeVisible();
-
-      const firstRow = overridesTable.locator("tbody tr").first();
-      const overrideSwitch = firstRow.getByRole("switch");
+      const overrideSwitch = page.getByRole("table", { name: "Search results" }).getByRole("switch").first();
       await overrideSwitch.click();
 
-      await expectToastMessage(context, "beta features for tenants");
+      await expectToastMessage(context, "Beta features");
     })();
 
     await step("Toggle tenant override back & verify toast confirms state change")(async () => {
-      const overridesTable = page.getByRole("table", { name: "Tenant overrides" });
-      const firstRow = overridesTable.locator("tbody tr").first();
-      const overrideSwitch = firstRow.getByRole("switch");
+      const overrideSwitch = page.getByRole("table", { name: "Search results" }).getByRole("switch").first();
       await overrideSwitch.click();
 
-      await expectToastMessage(context, "beta features for tenants");
+      await expectToastMessage(context, "Beta features");
     })();
 
-    await step("Set A/B rollout percentage & verify success toast")(async () => {
+    await step("Set A/B rollout percentage & verify success toast on blur")(async () => {
       const percentageInput = page.getByRole("spinbutton", { name: "Rollout percentage" });
-      await percentageInput.fill("50");
-      await page.getByRole("button", { name: "Save" }).click();
+      const newValue = String(10 + (Date.now() % 80));
+      await percentageInput.fill(newValue);
+      await blurActiveElement(page);
 
       await expectToastMessage(context, "Rollout percentage updated");
     })();
 
-    await step("Click back link & verify return to flag list page")(async () => {
+    await step("Navigate back to flag list & verify return to list page")(async () => {
       await page.getByRole("link", { name: "Back to feature flags" }).click();
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags`);
