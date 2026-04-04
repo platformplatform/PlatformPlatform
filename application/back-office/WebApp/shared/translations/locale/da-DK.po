@@ -48,6 +48,9 @@ msgstr "Konto-ID"
 msgid "Account status"
 msgstr "Kontostatus"
 
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr "Konti inkluderes automatisk baseret på deres udrulnings-bucket. Brug tilsidesættelser til manuelt at inkludere eller ekskludere specifikke konti."
+
 msgid "Active"
 msgstr "Aktiv"
 
@@ -217,6 +220,9 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Næste"
 
+msgid "No accounts in this group."
+msgstr "Ingen konti i denne gruppe."
+
 msgid "No results found"
 msgstr "Ingen resultater fundet"
 
@@ -301,6 +307,9 @@ msgstr "Søg efter e-mail"
 msgid "Search for users"
 msgstr "Søg efter brugere"
 
+msgid "Search for users by email and toggle the override switch to enable this feature."
+msgstr "Søg efter brugere via e-mail og skift tilsidesættelseskontakten for at aktivere denne funktion."
+
 msgid "Search results"
 msgstr "Søgeresultater"
 
@@ -362,6 +371,9 @@ msgstr "Skift {0}"
 msgid "Toggle sidebar"
 msgstr "Vis/skjul sidepanel"
 
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr "Skift tilsidesættelseskontakten for at aktivere denne funktion for specifikke konti."
+
 msgid "Tomorrow"
 msgstr "I morgen"
 
@@ -388,6 +400,9 @@ msgstr "Brugerflag"
 
 msgid "User status"
 msgstr "Brugerstatus"
+
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr "Brugere inkluderes automatisk baseret på deres udrulnings-bucket. Brug tilsidesættelser til manuelt at inkludere eller ekskludere specifikke brugere."
 
 msgid "Welcome to the Back Office"
 msgstr "Velkommen til Back Office"

@@ -48,6 +48,9 @@ msgstr "Account ID"
 msgid "Account status"
 msgstr "Account status"
 
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+
 msgid "Active"
 msgstr "Active"
 
@@ -217,6 +220,9 @@ msgstr "Navigation"
 msgid "Next"
 msgstr "Next"
 
+msgid "No accounts in this group."
+msgstr "No accounts in this group."
+
 msgid "No results found"
 msgstr "No results found"
 
@@ -301,6 +307,9 @@ msgstr "Search by email"
 msgid "Search for users"
 msgstr "Search for users"
 
+msgid "Search for users by email and toggle the override switch to enable this feature."
+msgstr "Search for users by email and toggle the override switch to enable this feature."
+
 msgid "Search results"
 msgstr "Search results"
 
@@ -362,6 +371,9 @@ msgstr "Toggle {0}"
 msgid "Toggle sidebar"
 msgstr "Toggle sidebar"
 
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr "Toggle the override switch to enable this feature for specific accounts."
+
 msgid "Tomorrow"
 msgstr "Tomorrow"
 
@@ -388,6 +400,9 @@ msgstr "User flags"
 
 msgid "User status"
 msgstr "User status"
+
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
 
 msgid "Welcome to the Back Office"
 msgstr "Welcome to the Back Office"

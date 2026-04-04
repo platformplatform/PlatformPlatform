@@ -65,9 +65,21 @@ export function TenantOverridesSection({
 
   return (
     <div className="flex flex-col gap-4">
-      <h3>
-        <Trans>Account status</Trans>
-      </h3>
+      <div>
+        <h3>
+          <Trans>Account status</Trans>
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {showBucket ? (
+            <Trans>
+              Accounts are automatically included based on their rollout bucket. Use overrides to manually include or
+              exclude specific accounts.
+            </Trans>
+          ) : (
+            <Trans>Toggle the override switch to enable this feature for specific accounts.</Trans>
+          )}
+        </p>
+      </div>
       <TextField
         name="search"
         placeholder={t`Search by account name or ID`}
@@ -187,7 +199,14 @@ function CollapsibleTenantGroup({
         />
         <h4 className="text-muted-foreground">{label}</h4>
       </button>
-      {isOpen && <TenantTable ariaLabel={label} {...tableProps} />}
+      {isOpen &&
+        (tableProps.tenants.length > 0 ? (
+          <TenantTable ariaLabel={label} {...tableProps} />
+        ) : (
+          <p className="py-2 text-sm text-muted-foreground">
+            <Trans>No accounts in this group.</Trans>
+          </p>
+        ))}
     </div>
   );
 }

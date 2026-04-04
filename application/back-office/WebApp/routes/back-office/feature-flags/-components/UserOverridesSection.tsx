@@ -74,9 +74,21 @@ export function UserOverridesSection({
 
   return (
     <div className="flex flex-col gap-4">
-      <h3>
-        <Trans>User status</Trans>
-      </h3>
+      <div>
+        <h3>
+          <Trans>User status</Trans>
+        </h3>
+        <p className="text-sm text-muted-foreground">
+          {showBucket ? (
+            <Trans>
+              Users are automatically included based on their rollout bucket. Use overrides to manually include or
+              exclude specific users.
+            </Trans>
+          ) : (
+            <Trans>Search for users by email and toggle the override switch to enable this feature.</Trans>
+          )}
+        </p>
+      </div>
       <TextField
         name="search"
         placeholder={t`Search by email`}
