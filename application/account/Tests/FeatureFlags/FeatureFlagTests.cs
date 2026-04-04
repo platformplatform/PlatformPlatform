@@ -380,6 +380,156 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
         TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeFalse();
     }
 
+    // User override tests (internal API)
+
+    [Fact]
+    public async Task SetUserFeatureFlagInternal_WhenEnabled_ShouldCreateOverrideRow()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var command = new SetUserFeatureFlagInternalCommand { UserId = userId, TenantId = tenantId, Enabled = true };
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/internal-api/account/feature-flags/{flagKey}/user-override", command);
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId }]
+        );
+        rowCount.Should().Be(1);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagUserOverrideSet");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveUserFeatureFlagOverride_WhenOverrideExists_ShouldDeleteRow()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var overrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId),
+                ("user_id", userId),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
+
+        // Assert
+        response.ShouldHaveEmptyHeaderAndLocationOnSuccess();
+
+        var rowCount = Connection.ExecuteScalar<long>(
+            "SELECT COUNT(*) FROM feature_flags WHERE flag_key = @flagKey AND user_id = @userId",
+            [new { flagKey, userId }]
+        );
+        rowCount.Should().Be(0);
+
+        TelemetryEventsCollectorSpy.CollectedEvents.Count.Should().Be(1);
+        TelemetryEventsCollectorSpy.CollectedEvents[0].GetType().Name.Should().Be("FeatureFlagUserOverrideRemoved");
+        TelemetryEventsCollectorSpy.AreAllEventsDispatched.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task RemoveUserFeatureFlagOverride_WhenNoOverrideExists_ShouldReturnNotFound()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId={tenantId}");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetFlagUsers_WhenUserScopedFlag_ShouldReturnEmptyWhenNoOverrides()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetFlagUsers_WhenUserHasOverride_ShouldReturnUserWithManualOverrideSource()
+    {
+        // Arrange
+        var flagKey = "compact-view";
+        var userId = DatabaseSeeder.Tenant1Owner.Id.ToString();
+        var tenantId = DatabaseSeeder.Tenant1.Id.Value;
+        var overrideId = FeatureFlagId.NewId().ToString();
+        Connection.Insert("feature_flags", [
+                ("id", overrideId),
+                ("created_at", TimeProvider.GetUtcNow()),
+                ("modified_at", null),
+                ("flag_key", flagKey),
+                ("tenant_id", tenantId),
+                ("user_id", userId),
+                ("enabled_at", TimeProvider.GetUtcNow()),
+                ("disabled_at", null),
+                ("bucket_start", null),
+                ("bucket_end", null),
+                ("configurable_by_tenant", false),
+                ("configurable_by_user", false)
+            ]
+        );
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users");
+
+        // Assert
+        response.ShouldBeSuccessfulGetRequest();
+        var result = await response.DeserializeResponse<GetFlagUsersResponse>();
+        result.Should().NotBeNull();
+        result.Users.Should().HaveCount(1);
+        var userResult = result.Users[0];
+        userResult.UserId.Value.Should().Be(userId);
+        userResult.IsEnabled.Should().BeTrue();
+        userResult.Source.Should().Be("manual_override");
+        userResult.Email.Should().NotBe("Unknown");
+        userResult.TenantName.Should().NotBe("Unknown");
+    }
+
+    [Fact]
+    public async Task GetFlagUsers_WhenNonUserScopedFlag_ShouldReturnBadRequest()
+    {
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync("/internal-api/account/feature-flags/sso/users");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     // Rollout percentage tests
 
     [Fact]

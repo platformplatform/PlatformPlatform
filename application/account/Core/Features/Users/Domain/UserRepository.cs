@@ -28,6 +28,12 @@ public interface IUserRepository : ICrudRepository<User, UserId>, IBulkRemoveRep
 
     Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     Retrieves users by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken);
+
     Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken);
 
     Task<(User[] Users, int TotalItems, int TotalPages)> Search(
@@ -163,6 +169,18 @@ public sealed class UserRepository(AccountDbContext accountDbContext, IExecution
     public async Task<User[]> GetByIdsAsync(UserId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(u => ids.AsEnumerable().Contains(u.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves users by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<User[]> GetByIdsUnfilteredAsync(UserId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .IgnoreQueryFilters([QueryFilterNames.Tenant])
+            .Where(u => ids.AsEnumerable().Contains(u.Id))
+            .ToArrayAsync(cancellationToken);
     }
 
     public async Task<User[]> GetDeletedByIdsAsync(UserId[] ids, CancellationToken cancellationToken)

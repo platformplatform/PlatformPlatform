@@ -14,6 +14,8 @@ public interface IFeatureFlagRepository : ICrudRepository<FeatureFlag, FeatureFl
     Task<FeatureFlag[]> GetTenantOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
 
     Task<FeatureFlag?> GetByKeyAndScopeAsync(string flagKey, long? tenantId, string? userId, CancellationToken cancellationToken);
+
+    Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken);
 }
 
 internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
@@ -44,5 +46,12 @@ internal sealed class FeatureFlagRepository(AccountDbContext accountDbContext)
     {
         return await DbSet
             .FirstOrDefaultAsync(f => f.FlagKey == flagKey && f.TenantId == tenantId && f.UserId == userId, cancellationToken);
+    }
+
+    public async Task<FeatureFlag[]> GetUserOverridesForFlagAsync(string flagKey, CancellationToken cancellationToken)
+    {
+        return await DbSet
+            .Where(f => f.FlagKey == flagKey && f.UserId != null)
+            .ToArrayAsync(cancellationToken);
     }
 }

@@ -17,6 +17,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Retrieves a tenant by ID without applying tenant query filters.
     ///     This method should only be used in webhook processing where tenant context is not established.
     /// </summary>
@@ -30,13 +36,6 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     ///     to a list of records (users, sessions, ...) where tenant context is not established.
     /// </summary>
     Task<Dictionary<TenantId, string>> GetNamesByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
-
-    /// <summary>
-    ///     Loads tenants by id without applying tenant query filters.
-    ///     Used by back-office cross-tenant queries that need full tenant data (logo, plan, ...) where
-    ///     tenant context is not established.
-    /// </summary>
-    Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
 
     /// <summary>
     ///     Returns every tenant created at or after <paramref name="since" /> without applying tenant query filters.
@@ -74,6 +73,15 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
     public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
@@ -118,18 +126,6 @@ public sealed class TenantRepository(AccountDbContext accountDbContext, IExecuti
             .IgnoreQueryFilters([QueryFilterNames.Tenant])
             .Where(t => ids.AsEnumerable().Contains(t.Id))
             .ToDictionaryAsync(t => t.Id, t => t.Name, cancellationToken);
-    }
-
-    /// <summary>
-    ///     Loads tenants by id without applying tenant query filters.
-    ///     Used by back-office cross-tenant queries that need full tenant data (logo, plan, ...) where
-    ///     tenant context is not established.
-    /// </summary>
-    public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
-    {
-        if (ids.Length == 0) return [];
-
-        return await DbSet.IgnoreQueryFilters([QueryFilterNames.Tenant]).Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
