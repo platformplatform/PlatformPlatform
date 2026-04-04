@@ -206,11 +206,11 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
         MockAccountApiHandler.ResponseContent = """{"users":[]}""";
 
         // Act
-        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{flagKey}/users");
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{flagKey}/users?search=test@example.com");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/users");
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/users?search=test%40example.com");
     }
 
     [Fact]

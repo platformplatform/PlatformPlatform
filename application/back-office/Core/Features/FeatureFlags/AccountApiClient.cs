@@ -43,9 +43,11 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
         return await accountApiHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}", cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetFlagUsersAsync(string flagKey, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetFlagUsersAsync(string flagKey, string? search, CancellationToken cancellationToken)
     {
-        return await accountApiHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/users", cancellationToken);
+        var url = $"/internal-api/account/feature-flags/{flagKey}/users";
+        if (!string.IsNullOrWhiteSpace(search)) url += $"?search={Uri.EscapeDataString(search)}";
+        return await accountApiHttpClient.GetAsync(url, cancellationToken);
     }
 
     public async Task<HttpResponseMessage> SetUserOverrideAsync(string flagKey, string userId, long tenantId, bool enabled, CancellationToken cancellationToken)

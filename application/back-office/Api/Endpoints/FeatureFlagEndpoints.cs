@@ -62,10 +62,10 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             }
         ).DisableAntiforgery();
 
-        group.MapGet("/{flagKey}/users", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
+        group.MapGet("/{flagKey}/users", async (string flagKey, string? search, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
-                return await ProxyResponse(accountApiClient.GetFlagUsersAsync(flagKey, cancellationToken));
+                return await ProxyResponse(accountApiClient.GetFlagUsersAsync(flagKey, search, cancellationToken));
             }
         ).Produces<GetFlagUsersResponse>();
 
