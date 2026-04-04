@@ -127,6 +127,9 @@ msgstr "konti"
 msgid "Accounts"
 msgstr "Konti"
 
+msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+msgstr ""
+
 msgid "Accounts will appear here as they are created."
 msgstr "Konti vises her, når de oprettes."
 
@@ -548,6 +551,9 @@ msgstr "Næste"
 msgid "No account memberships"
 msgstr "Ingen kontomedlemskaber"
 
+msgid "No accounts in this group."
+msgstr ""
+
 msgid "No accounts match your filters"
 msgstr "Ingen konti matcher dine filtre"
 
@@ -921,6 +927,9 @@ msgstr "Søg efter lejernavn eller ID"
 msgid "Search for users"
 msgstr "Søg efter brugere"
 
+msgid "Search for users by email and toggle the override switch to enable this feature."
+msgstr ""
+
 msgid "Search results"
 msgstr "Søgeresultater"
 
@@ -1063,6 +1072,9 @@ msgstr "Denne bruger er ikke medlem af nogen konto."
 msgid "Toggle {0}"
 msgstr ""
 
+msgid "Toggle the override switch to enable this feature for specific accounts."
+msgstr ""
+
 msgid "Total"
 msgstr ""
 
@@ -1125,6 +1137,9 @@ msgstr "Brugere"
 
 msgid "Users active"
 msgstr "Aktive brugere"
+
+msgid "Users are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific users."
+msgstr ""
 
 msgid "Users will appear here as accounts are created."
 msgstr ""
