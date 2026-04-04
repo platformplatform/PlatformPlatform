@@ -199,6 +199,84 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
+    public async Task GetFlagUsers_WhenInternalUser_ShouldProxyToAccountApi()
+    {
+        // Arrange
+        const string flagKey = "test-flag";
+        MockAccountApiHandler.ResponseContent = """{"users":[]}""";
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.GetAsync($"/api/back-office/feature-flags/{flagKey}/users");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/users");
+    }
+
+    [Fact]
+    public async Task GetFlagUsers_WhenExternalUser_ShouldReturnForbidden()
+    {
+        // Act
+        var response = await AuthenticatedExternalHttpClient.GetAsync("/api/back-office/feature-flags/test-flag/users");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task SetUserOverride_WhenInternalUser_ShouldProxyToAccountApi()
+    {
+        // Arrange
+        const string flagKey = "test-flag";
+        var request = new SetUserOverrideRequest(UserId.NewId(), new TenantId(123), true);
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.PutAsJsonAsync($"/api/back-office/feature-flags/{flagKey}/user-override", request);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/user-override");
+        MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Put);
+    }
+
+    [Fact]
+    public async Task SetUserOverride_WhenExternalUser_ShouldReturnForbidden()
+    {
+        // Act
+        var response = await AuthenticatedExternalHttpClient.PutAsJsonAsync("/api/back-office/feature-flags/test-flag/user-override", new SetUserOverrideRequest(UserId.NewId(), new TenantId(123), true));
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task RemoveUserOverride_WhenInternalUser_ShouldProxyToAccountApi()
+    {
+        // Arrange
+        const string flagKey = "test-flag";
+        var userId = UserId.NewId();
+
+        // Act
+        var response = await AuthenticatedOwnerHttpClient.DeleteAsync($"/api/back-office/feature-flags/{flagKey}/user-override?userId={userId}&tenantId=123");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        MockAccountApiHandler.LastRequest!.RequestUri!.PathAndQuery.Should().Be($"/internal-api/account/feature-flags/{flagKey}/user-override?userId={userId}&tenantId=123");
+        MockAccountApiHandler.LastRequest.Method.Should().Be(HttpMethod.Delete);
+    }
+
+    [Fact]
+    public async Task RemoveUserOverride_WhenExternalUser_ShouldReturnForbidden()
+    {
+        // Act
+        var userId = UserId.NewId();
+        var response = await AuthenticatedExternalHttpClient.DeleteAsync($"/api/back-office/feature-flags/test-flag/user-override?userId={userId}&tenantId=123");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
     public async Task GetFeatureFlags_WhenAccountApiReturnsError_ShouldForwardStatusCode()
     {
         // Arrange

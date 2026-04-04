@@ -29,4 +29,17 @@ public sealed record FeatureFlagInfo(
 public sealed record GetFlagTenantsResponse(FlagTenantInfo[] Tenants);
 
 [PublicAPI]
-public sealed record FlagTenantInfo(TenantId TenantId, string TenantName, bool IsEnabled, string Source);
+public sealed record FlagTenantInfo(TenantId TenantId, string TenantName, int RolloutBucket, bool IsEnabled, string Source);
+
+[PublicAPI]
+public sealed record GetFlagUsersResponse(FlagUserInfo[] Users);
+
+[PublicAPI]
+public sealed record FlagUserInfo(
+    UserId UserId,
+    string Email,
+    string TenantName,
+    int RolloutBucket,
+    bool IsEnabled,
+    string Source
+);

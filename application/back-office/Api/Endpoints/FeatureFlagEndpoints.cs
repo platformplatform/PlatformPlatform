@@ -61,6 +61,27 @@ public sealed class FeatureFlagEndpoints : IEndpoints
                 return await ProxyResponse(accountApiClient.RemoveTenantOverrideAsync(flagKey, tenantId.Value, cancellationToken));
             }
         ).DisableAntiforgery();
+
+        group.MapGet("/{flagKey}/users", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
+            {
+                if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
+                return await ProxyResponse(accountApiClient.GetFlagUsersAsync(flagKey, cancellationToken));
+            }
+        ).Produces<GetFlagUsersResponse>();
+
+        group.MapPut("/{flagKey}/user-override", async (string flagKey, SetUserOverrideRequest request, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
+            {
+                if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
+                return await ProxyResponse(accountApiClient.SetUserOverrideAsync(flagKey, request.UserId.Value, request.TenantId.Value, request.Enabled, cancellationToken));
+            }
+        ).DisableAntiforgery();
+
+        group.MapDelete("/{flagKey}/user-override", async (string flagKey, UserId userId, TenantId tenantId, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
+            {
+                if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
+                return await ProxyResponse(accountApiClient.RemoveUserOverrideAsync(flagKey, userId.Value, tenantId.Value, cancellationToken));
+            }
+        ).DisableAntiforgery();
     }
 
     private static async Task<IResult> ProxyResponse(Task<HttpResponseMessage> responseTask)
@@ -73,5 +94,7 @@ public sealed class FeatureFlagEndpoints : IEndpoints
 }
 
 public sealed record SetTenantOverrideRequest(TenantId TenantId, bool Enabled);
+
+public sealed record SetUserOverrideRequest(UserId UserId, TenantId TenantId, bool Enabled);
 
 public sealed record SetRolloutPercentageRequest(int RolloutPercentage);

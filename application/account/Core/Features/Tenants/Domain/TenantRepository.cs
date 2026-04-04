@@ -15,6 +15,12 @@ public interface ITenantRepository : ICrudRepository<Tenant, TenantId>, ISoftDel
     Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken);
 
     /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken);
+
+    /// <summary>
     ///     Retrieves a tenant by ID without applying tenant query filters.
     ///     This method should only be used in webhook processing where tenant context is not established.
     /// </summary>
@@ -43,6 +49,15 @@ internal sealed class TenantRepository(AccountDbContext accountDbContext, IExecu
     public async Task<Tenant[]> GetByIdsAsync(TenantId[] ids, CancellationToken cancellationToken)
     {
         return await DbSet.Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves tenants by IDs without applying tenant query filters.
+    ///     This method should only be used for internal back-office operations that need cross-tenant access.
+    /// </summary>
+    public async Task<Tenant[]> GetByIdsUnfilteredAsync(TenantId[] ids, CancellationToken cancellationToken)
+    {
+        return await DbSet.IgnoreQueryFilters().Where(t => ids.AsEnumerable().Contains(t.Id)).ToArrayAsync(cancellationToken);
     }
 
     /// <summary>
