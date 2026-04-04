@@ -104,8 +104,8 @@ export function UserOverrideRow({
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{user.email}</TableCell>
-      <TableCell className="text-muted-foreground">{user.tenantName}</TableCell>
+      <TableCell className="truncate font-medium">{user.email}</TableCell>
+      <TableCell className="truncate text-muted-foreground">{user.tenantName}</TableCell>
       <TableCell className="hidden sm:table-cell">
         <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
       </TableCell>

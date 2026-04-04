@@ -34,7 +34,7 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <FlagMetadata flag={flag} />
         <div className="flex shrink-0 items-center gap-4">
           {flag.isAbTestEligible && (

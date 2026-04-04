@@ -629,9 +629,6 @@ msgstr "Ingen login-forsøg de seneste 30 dage."
 msgid "No transactions"
 msgstr ""
 
-msgid "No user overrides"
-msgstr ""
-
 msgid "No users"
 msgstr "Ingen brugere"
 
@@ -903,6 +900,12 @@ msgstr "Søg"
 msgid "Search by account name"
 msgstr ""
 
+msgid "Search by account name or ID"
+msgstr "Søg efter kontonavn eller ID"
+
+msgid "Search by email"
+msgstr "Søg efter e-mail"
+
 msgid "Search by email, name, or account"
 msgstr "Søg på e-mail, navn eller konto"
 
@@ -914,6 +917,12 @@ msgstr "Søg efter navn eller e-mail"
 
 msgid "Search by tenant name or ID"
 msgstr "Søg efter lejernavn eller ID"
+
+msgid "Search for users"
+msgstr "Søg efter brugere"
+
+msgid "Search results"
+msgstr "Søgeresultater"
 
 msgid "Search users"
 msgstr "Søg brugere"
@@ -1087,6 +1096,9 @@ msgstr "Type"
 msgid "Type an email address above to find users and manage their overrides"
 msgstr "Indtast en e-mailadresse ovenfor for at finde brugere og administrere deres tilsidesættelser"
 
+msgid "Type an email address above to find users and manage their overrides"
+msgstr ""
+
 msgid "Unclassified"
 msgstr "Uklassificeret"
 
@@ -1095,9 +1107,6 @@ msgstr "Ukendt"
 
 msgid "Upgraded"
 msgstr "Opgraderet"
-
-msgid "Use the search above to find users and manage their overrides"
-msgstr ""
 
 msgid "User"
 msgstr "Bruger"

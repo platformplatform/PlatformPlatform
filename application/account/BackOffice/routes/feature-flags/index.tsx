@@ -54,7 +54,7 @@ export default function FeatureFlagsPage() {
     <SidebarProvider>
       <BackOfficeSideMenu />
       <SidebarInset>
-        <AppLayout title={t`Feature flags`} subtitle={t`Manage feature flags across the platform.`}>
+        <AppLayout title={t`Feature flags`} subtitle={t`Manage feature flags across the platform.`} maxWidth="64rem">
           {isLoading ? <FeatureFlagsSkeleton /> : <FlagGroupList groups={groups} />}
         </AppLayout>
       </SidebarInset>
@@ -72,10 +72,7 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
         const showRollout = group.scope !== "System";
         return (
           <div key={group.scope} className="flex flex-col gap-2">
-            <h3 className="flex items-center gap-2">
-              <ScopeIcon scope={group.scope} />
-              {group.label}
-            </h3>
+            <h3>{group.label}</h3>
             <Table rowSize="compact" aria-label={group.label}>
               <TableHeader>
                 <TableRow>
@@ -105,7 +102,10 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                   >
                     <TableCell>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium">{getFlagName(flag.key)}</span>
+                        <span className="flex items-center gap-2 font-medium">
+                          <ScopeIcon scope={flag.scope} />
+                          {getFlagName(flag.key)}
+                        </span>
                         <span className="truncate text-sm text-muted-foreground">
                           {getFlagDescription(flag.key) || flag.description}
                         </span>
