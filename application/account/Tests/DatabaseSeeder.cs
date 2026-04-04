@@ -13,6 +13,7 @@ public sealed class DatabaseSeeder
     public readonly FeatureFlag BetaFeaturesFlag;
     public readonly FeatureFlag CompactViewFlag;
     public readonly FeatureFlag CustomBrandingFlag;
+    public readonly FeatureFlag ExperimentalUiFlag;
     public readonly FeatureFlag SsoFlag;
     public readonly Tenant Tenant1;
     public readonly User Tenant1Member;
@@ -57,6 +58,10 @@ public sealed class DatabaseSeeder
         CompactViewFlag = FeatureFlag.Create("compact-view");
         CompactViewFlag.Activate(now);
         accountDbContext.Set<FeatureFlag>().Add(CompactViewFlag);
+
+        ExperimentalUiFlag = FeatureFlag.Create("experimental-ui");
+        ExperimentalUiFlag.Activate(now);
+        accountDbContext.Set<FeatureFlag>().Add(ExperimentalUiFlag);
 
         accountDbContext.SaveChanges();
     }
