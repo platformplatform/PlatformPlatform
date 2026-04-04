@@ -1,3 +1,5 @@
+import type { ChangeMessage } from "@tanstack/react-db";
+
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 
@@ -5,6 +7,7 @@ import type { FeatureFlagRow, SubscriptionRow, TenantRow, UserRow } from "./type
 
 import { getLastElectricOffset } from "../http/queryClient";
 import { createShapeOptions } from "./electricConfig";
+import { markFeatureFlagChanged } from "./featureFlagChangeTracker";
 
 function txidHandler() {
   const offset = getLastElectricOffset();
@@ -55,6 +58,24 @@ export const featureFlagCollection = createCollection<FeatureFlagRow>(
     onDelete: async () => txidHandler()
   })
 );
+
+featureFlagCollection.subscribeChanges((changes: Array<ChangeMessage<FeatureFlagRow>>) => {
+  for (const change of changes) {
+    if (change.type === "insert" || change.type === "delete") {
+      markFeatureFlagChanged();
+      return;
+    }
+    if (change.type === "update" && change.previousValue) {
+      if (
+        change.value.enabledAt !== change.previousValue.enabledAt ||
+        change.value.disabledAt !== change.previousValue.disabledAt
+      ) {
+        markFeatureFlagChanged();
+        return;
+      }
+    }
+  }
+});
 
 declare global {
   interface Window {

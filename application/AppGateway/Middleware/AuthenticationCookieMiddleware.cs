@@ -73,6 +73,12 @@ public class AuthenticationCookieMiddleware(
                     await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshedRefreshToken, refreshedAccessToken);
                     context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
                 }
+                else if (currentRefreshToken is not null && context.Request.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+                {
+                    logger.LogDebug("Refreshing authentication tokens as requested by frontend");
+                    var (refreshedRefreshToken, refreshedAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken);
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshedRefreshToken, refreshedAccessToken);
+                }
             }
         );
 

@@ -16,6 +16,7 @@ import createClient from "openapi-react-query";
 
 import { createAuthenticationMiddleware } from "../auth/AuthenticationMiddleware";
 import { getHasPendingAuthSync } from "../auth/AuthSyncService";
+import { getAndClearFeatureFlagChanged } from "../sync/featureFlagChangeTracker";
 import { type HttpError, normalizeError } from "./errorHandler";
 import { DEFAULT_TIMEOUT } from "./httpClient";
 
@@ -57,6 +58,10 @@ function createHttpMiddleware() {
       request.headers.set("x-zoom-level", localStorage.getItem("zoom-level") ?? "1");
 
       request.headers.set("x-theme", document.documentElement.classList.contains("dark") ? "Dark" : "Light");
+
+      if (getAndClearFeatureFlagChanged()) {
+        request.headers.set("x-refresh-authentication-tokens-required", "true");
+      }
 
       // Handle request timeout with AbortController
       const abortController = new AbortController();
