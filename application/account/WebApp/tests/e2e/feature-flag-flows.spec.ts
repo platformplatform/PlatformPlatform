@@ -11,9 +11,9 @@ test.describe("@smoke", () => {
    * FEATURE FLAG SYSTEM E2E TEST
    *
    * Tests the full feature flag management flow:
-   * - Back-office flag list: view flags grouped by scope (Tenant, User, System)
-   * - Back-office flag detail: navigate into tenant-scoped flag, toggle tenant override twice, set A/B rollout percentage
-   * - Account settings: verify Features section, toggle tenant-scoped custom branding flag
+   * - Back-office flag list: view flags grouped by scope (Account, User, System)
+   * - Back-office flag detail: navigate into account-scoped flag, toggle account override twice, set A/B rollout percentage
+   * - Account settings: verify Features section, toggle account-scoped custom branding flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
    */
   test("should manage feature flags across back-office, account settings & user preferences", async ({
@@ -40,10 +40,10 @@ test.describe("@smoke", () => {
     await step("Load feature flags page & verify flags grouped by scope")(async () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
 
-      const tenantTable = page.getByRole("table", { name: "Account flags" });
-      await expect(tenantTable.getByText("Beta features")).toBeVisible();
-      await expect(tenantTable.getByText("Single sign-on")).toBeVisible();
-      await expect(tenantTable.getByText("Custom branding")).toBeVisible();
+      const accountTable = page.getByRole("table", { name: "Account flags" });
+      await expect(accountTable.getByText("Beta features")).toBeVisible();
+      await expect(accountTable.getByText("Single sign-on")).toBeVisible();
+      await expect(accountTable.getByText("Custom branding")).toBeVisible();
 
       const userTable = page.getByRole("table", { name: "User flags" });
       await expect(userTable.getByText("Compact view")).toBeVisible();
@@ -56,28 +56,28 @@ test.describe("@smoke", () => {
     // === BACK-OFFICE FLAG DETAIL ===
 
     await step("Click into beta-features flag detail & verify detail page loads")(async () => {
-      const tenantTable = page.getByRole("table", { name: "Account flags" });
-      const betaRow = tenantTable.locator("tr").filter({ hasText: "Beta features" });
+      const accountTable = page.getByRole("table", { name: "Account flags" });
+      const betaRow = accountTable.locator("tr").filter({ hasText: "Beta features" });
       await betaRow.click();
 
       await expect(page).toHaveURL(`${BACK_OFFICE_BASE_URL}/feature-flags/beta-features`);
       await expect(page.getByRole("heading", { name: "Account status" })).toBeVisible();
     })();
 
-    await step("Search for a tenant & verify search results table appears")(async () => {
+    await step("Search for an account & verify search results table appears")(async () => {
       await page.getByPlaceholder("Search by account name or ID").fill("test");
 
       await expect(page.getByRole("table", { name: "Search results" })).toBeVisible();
     })();
 
-    await step("Toggle tenant override & verify toast confirms state change")(async () => {
+    await step("Toggle account override & verify toast confirms state change")(async () => {
       const overrideSwitch = page.getByRole("table", { name: "Search results" }).getByRole("switch").first();
       await overrideSwitch.click();
 
       await expectToastMessage(context, "Beta features");
     })();
 
-    await step("Toggle tenant override back & verify toast confirms state change")(async () => {
+    await step("Toggle account override back & verify toast confirms state change")(async () => {
       const overrideSwitch = page.getByRole("table", { name: "Search results" }).getByRole("switch").first();
       await overrideSwitch.click();
 
@@ -118,9 +118,9 @@ test.describe("@smoke", () => {
 
     await backOfficeContext.close();
 
-    // === ACCOUNT SETTINGS: TENANT FEATURE FLAGS ===
+    // === ACCOUNT SETTINGS: ACCOUNT FEATURE FLAGS ===
 
-    await step("Navigate to account settings & verify Features section with tenant flags")(async () => {
+    await step("Navigate to account settings & verify Features section with account flags")(async () => {
       await ownerPage.goto("/account/settings");
 
       await expect(ownerPage.getByRole("heading", { name: "Features" })).toBeVisible();
