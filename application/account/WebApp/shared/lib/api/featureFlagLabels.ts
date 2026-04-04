@@ -14,6 +14,10 @@ function getKnownFlagLabels(): Record<string, FeatureFlagLabel> {
     "compact-view": {
       name: t`Compact view`,
       description: t`Use a more compact layout`
+    },
+    "experimental-ui": {
+      name: t`Experimental UI`,
+      description: t`Try experimental UI components`
     }
   };
 }

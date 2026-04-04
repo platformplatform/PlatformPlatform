@@ -1161,6 +1161,9 @@ msgstr "Fold Komponenter ud"
 msgid "Expand Examples"
 msgstr "Fold Eksempler ud"
 
+msgid "Experimental UI"
+msgstr "Eksperimentel brugerflade"
+
 msgid "expires"
 msgstr "udløber"
 
@@ -2829,6 +2832,9 @@ msgstr "Prøv at justere din søgning eller filtre"
 
 msgid "Try again"
 msgstr "Prøv igen"
+
+msgid "Try experimental UI components"
+msgstr "Prøv eksperimentelle brugerfladekomponenter"
 
 msgid "Two-factor authentication"
 msgstr ""

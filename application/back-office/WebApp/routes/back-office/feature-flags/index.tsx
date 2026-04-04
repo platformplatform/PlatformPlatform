@@ -12,6 +12,7 @@ import { api } from "@/shared/lib/api/client";
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
 import { getFlagDescription, getFlagName } from "./-components/flagLabels";
+import { ScopeIcon } from "./-components/ScopeIcon";
 
 export const Route = createFileRoute("/back-office/feature-flags/")({
   staticData: { trackingTitle: "Feature flags" },
@@ -94,7 +95,10 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                   >
                     <TableCell>
                       <div className="flex min-w-0 flex-col">
-                        <span className="font-medium">{getFlagName(flag.key)}</span>
+                        <span className="flex items-center gap-1.5 font-medium">
+                          <ScopeIcon scope={flag.scope} />
+                          {getFlagName(flag.key)}
+                        </span>
                         <span className="truncate text-sm text-muted-foreground">
                           {getFlagDescription(flag.key) || flag.description}
                         </span>

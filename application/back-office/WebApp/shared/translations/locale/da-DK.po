@@ -139,6 +139,9 @@ msgstr "Aktiveret"
 msgid "Enabled ({0})"
 msgstr "Aktiveret ({0})"
 
+msgid "Experimental UI"
+msgstr "Eksperimentel brugerflade"
+
 msgid "Feature flag activated"
 msgstr "Funktionsflag aktiveret"
 
@@ -211,6 +214,12 @@ msgstr "Næste"
 msgid "No results found"
 msgstr "Ingen resultater fundet"
 
+msgid "No user overrides"
+msgstr "Ingen brugertilsidesættelser"
+
+msgid "No users found"
+msgstr "Ingen brugere fundet"
+
 msgid "Open calendar"
 msgstr ""
 
@@ -235,6 +244,9 @@ msgstr "Siden blev ikke fundet"
 
 msgid "Pagination"
 msgstr "Paginering"
+
+msgid "Plan"
+msgstr "Plan"
 
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
@@ -347,14 +359,20 @@ msgstr "Vis/skjul sidepanel"
 msgid "Tomorrow"
 msgstr "I morgen"
 
+msgid "Try adjusting your search"
+msgstr "Prøv at justere din søgning"
+
 msgid "Try again"
 msgstr "Prøv igen"
 
-msgid "Type"
-msgstr "Type"
+msgid "Try out experimental user interface components"
+msgstr "Prøv eksperimentelle brugerfladekomponenter"
 
 msgid "Unsaved changes"
 msgstr "Ugemte ændringer"
+
+msgid "Use the search above to find users and manage their overrides"
+msgstr "Brug søgningen ovenfor til at finde brugere og administrere deres tilsidesættelser"
 
 msgid "User"
 msgstr "Bruger"

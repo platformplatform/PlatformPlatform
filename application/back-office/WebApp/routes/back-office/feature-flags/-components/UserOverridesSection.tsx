@@ -9,6 +9,7 @@ import type { BucketRange } from "./rolloutBucket";
 import type { FlagUserInfo } from "./types";
 
 import { sortBySourceThenBucket } from "./rolloutBucket";
+import { UserEmptyState } from "./UserEmptyState";
 import { UserOverrideRow } from "./UserOverrideRow";
 
 export function UserOverridesSection({
@@ -38,29 +39,26 @@ export function UserOverridesSection({
       : users;
   }, [users, search]);
 
-  const enabledUsers = useMemo(
-    () =>
-      sortBySourceThenBucket(
-        filtered.filter((u) => u.isEnabled),
+  const { enabledUsers, disabledUsers } = useMemo(() => {
+    const enabled = filtered.filter((u) => u.isEnabled);
+    const disabled = filtered.filter((u) => !u.isEnabled);
+    return {
+      enabledUsers: sortBySourceThenBucket(
+        enabled,
         (u) => u.source,
         (u) => u.userId,
         "enabled",
         bucketRange
       ),
-    [filtered, bucketRange]
-  );
-
-  const disabledUsers = useMemo(
-    () =>
-      sortBySourceThenBucket(
-        filtered.filter((u) => !u.isEnabled),
+      disabledUsers: sortBySourceThenBucket(
+        disabled,
         (u) => u.source,
         (u) => u.userId,
         "disabled",
         bucketRange
-      ),
-    [filtered, bucketRange]
-  );
+      )
+    };
+  }, [filtered, bucketRange]);
 
   const isSearching = search.length > 0;
 
@@ -77,15 +75,19 @@ export function UserOverridesSection({
         className="max-w-[20rem]"
       />
       {isSearching ? (
-        <UserTable
-          ariaLabel={t`Search results`}
-          users={[...enabledUsers, ...disabledUsers]}
-          flagKey={flagKey}
-          flagDescription={flagDescription}
-          showBucket={showBucket}
-          isFlagActive={isFlagActive}
-        />
-      ) : (
+        filtered.length > 0 ? (
+          <UserTable
+            ariaLabel={t`Search results`}
+            users={[...enabledUsers, ...disabledUsers]}
+            flagKey={flagKey}
+            flagDescription={flagDescription}
+            showBucket={showBucket}
+            isFlagActive={isFlagActive}
+          />
+        ) : (
+          <UserEmptyState variant="no-results" />
+        )
+      ) : users.length > 0 ? (
         <>
           <CollapsibleUserGroup
             label={t`Enabled (${enabledUsers.length})`}
@@ -104,6 +106,8 @@ export function UserOverridesSection({
             isFlagActive={isFlagActive}
           />
         </>
+      ) : (
+        <UserEmptyState variant="no-users" />
       )}
     </div>
   );

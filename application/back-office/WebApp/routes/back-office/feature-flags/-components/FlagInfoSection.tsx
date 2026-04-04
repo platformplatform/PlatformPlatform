@@ -14,6 +14,7 @@ import type { FeatureFlagInfo } from "./types";
 
 import { getFlagName } from "./flagLabels";
 import { formatBucketRange } from "./rolloutBucket";
+import { ScopeIcon } from "./ScopeIcon";
 
 export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   const activateMutation = api.useMutation("put", "/api/back-office/feature-flags/{flagKey}/activate");
@@ -69,26 +70,23 @@ export function FlagInfoSection({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
   );
 }
 
-function getScopeLabel(scope: string): string {
-  switch (scope) {
-    case "Tenant":
-      return t`Account`;
-    case "User":
-      return t`User`;
-    case "System":
-      return t`System`;
-    default:
-      return scope;
-  }
-}
-
 function FlagMetadata({ flag }: Readonly<{ flag: FeatureFlagInfo }>) {
-  const items: string[] = [];
-  items.push(`${t`Type`}: ${getScopeLabel(flag.scope)}`);
-  if (flag.enabledAt) items.push(`${t`Enabled`}: ${formatTimestamp(flag.enabledAt)}`);
-  if (flag.disabledAt) items.push(`${t`Disabled`}: ${formatTimestamp(flag.disabledAt)}`);
-
-  return <span className="text-sm text-muted-foreground">{items.join("  \u00B7  ")}</span>;
+  return (
+    <span className="flex items-center gap-2 text-sm text-muted-foreground">
+      <ScopeIcon scope={flag.scope} />
+      {flag.enabledAt && (
+        <span>
+          {t`Enabled`}: {formatTimestamp(flag.enabledAt)}
+        </span>
+      )}
+      {flag.enabledAt && flag.disabledAt && <span>{"\u00B7"}</span>}
+      {flag.disabledAt && (
+        <span>
+          {t`Disabled`}: {formatTimestamp(flag.disabledAt)}
+        </span>
+      )}
+    </span>
+  );
 }
 
 function formatTimestamp(isoDate: string): string {
@@ -141,7 +139,7 @@ function RolloutPercentageInput({
       value={percentage}
       onChange={(value) => setPercentage(value)}
       onBlur={handleBlur}
-      className="w-[6rem]"
+      className="w-[6rem] whitespace-nowrap"
     />
   );
 }

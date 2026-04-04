@@ -129,11 +129,14 @@ function TenantTable({
     <Table rowSize="compact" aria-label={ariaLabel}>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[12rem]">
+          <TableHead className="hidden w-[12rem] sm:table-cell">
             <Trans>Account ID</Trans>
           </TableHead>
           <TableHead>
             <Trans>Account</Trans>
+          </TableHead>
+          <TableHead className="w-[6rem]">
+            <Trans>Plan</Trans>
           </TableHead>
           <TableHead className="w-[8rem]">
             <Trans>Source</Trans>
