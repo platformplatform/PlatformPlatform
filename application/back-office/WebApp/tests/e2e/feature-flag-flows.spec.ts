@@ -48,35 +48,29 @@ test.describe("@smoke", () => {
     })();
 
     await step("Toggle account override & verify toast confirms state change")(async () => {
-      const accountSection = ownerPage.locator("div").filter({
-        has: ownerPage.getByRole("heading", { name: "Account status" })
-      });
-      const overrideSwitch = accountSection.getByRole("switch").first();
+      const overrideSwitch = ownerPage.locator("tbody tr").first().getByRole("switch");
       await overrideSwitch.click();
 
       await expectToastMessage(context, "Beta features");
     })();
 
     await step("Toggle account override back & verify toast confirms state change")(async () => {
-      const accountSection = ownerPage.locator("div").filter({
-        has: ownerPage.getByRole("heading", { name: "Account status" })
-      });
-      const overrideSwitch = accountSection.getByRole("switch").first();
+      const overrideSwitch = ownerPage.locator("tbody tr").first().getByRole("switch");
       await overrideSwitch.click();
 
       await expectToastMessage(context, "Beta features");
     })();
 
     await step("Set A/B rollout percentage & verify success toast on blur")(async () => {
-      const percentageInput = ownerPage.getByRole("spinbutton", { name: "Rollout percentage" });
-      await percentageInput.fill("50");
+      const percentageInput = ownerPage.getByRole("spinbutton", { name: "Rollout %" });
+      await percentageInput.fill(String((Date.now() % 99) + 1));
       await blurActiveElement(ownerPage);
 
       await expectToastMessage(context, "Rollout percentage updated");
     })();
 
     await step("Navigate back to flag list & verify return to list page")(async () => {
-      await ownerPage.getByLabel("Back to feature flags").click();
+      await ownerPage.getByRole("link", { name: "Back to feature flags" }).click();
 
       await expect(ownerPage).toHaveURL("/back-office/feature-flags");
       await expect(ownerPage.getByRole("heading", { name: "Feature flags" })).toBeVisible();
