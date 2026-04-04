@@ -76,6 +76,20 @@ test.describe("@smoke", () => {
       await expect(ownerPage.getByRole("heading", { name: "Feature flags" })).toBeVisible();
     })();
 
+    // === ACTIVATE FLAGS FOR ACCOUNT SETTINGS & USER PREFERENCES ===
+
+    await step("Activate custom-branding and compact-view flags via API")(async () => {
+      const customBrandingResponse = await ownerPage.evaluate(() =>
+        fetch("/api/back-office/feature-flags/custom-branding/activate", { method: "PUT" }).then((r) => r.ok)
+      );
+      expect(customBrandingResponse).toBe(true);
+
+      const compactViewResponse = await ownerPage.evaluate(() =>
+        fetch("/api/back-office/feature-flags/compact-view/activate", { method: "PUT" }).then((r) => r.ok)
+      );
+      expect(compactViewResponse).toBe(true);
+    })();
+
     // === ACCOUNT SETTINGS: ACCOUNT FEATURE FLAGS ===
 
     await step("Navigate to account settings & verify Features section with account flags")(async () => {
