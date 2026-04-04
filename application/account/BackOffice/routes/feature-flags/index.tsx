@@ -106,7 +106,7 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                           <ScopeIcon scope={flag.scope} />
                           {getFlagName(flag.key)}
                         </span>
-                        <span className="truncate text-sm text-muted-foreground">
+                        <span className="hidden truncate text-sm text-muted-foreground sm:block">
                           {getFlagDescription(flag.key) || flag.description}
                         </span>
                       </div>
