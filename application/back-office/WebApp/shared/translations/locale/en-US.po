@@ -48,8 +48,15 @@ msgstr "Account ID"
 msgid "Account status"
 msgstr "Account status"
 
+msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
+msgstr "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
+
 msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
 msgstr "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
+
+#. placeholder {0}: getFlagName(flagKey)
+msgid "Accounts for {0}"
+msgstr "Accounts for {0}"
 
 msgid "Active"
 msgstr "Active"
@@ -114,6 +121,9 @@ msgstr "Decrease"
 msgid "Default"
 msgstr "Default"
 
+msgid "Disabled"
+msgstr "Disabled"
+
 #. placeholder {0}: disabledTenants.length
 #. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
@@ -130,6 +140,9 @@ msgstr "Early access to experimental features before general availability"
 
 msgid "Email"
 msgstr "Email"
+
+msgid "Enabled"
+msgstr "Enabled"
 
 #. placeholder {0}: enabledTenants.length
 #. placeholder {0}: enabledUsers.length
@@ -257,6 +270,9 @@ msgstr "Pagination"
 msgid "Plan"
 msgstr "Plan"
 
+msgid "Plan flags"
+msgstr "Plan flags"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -279,6 +295,12 @@ msgstr "Remove override"
 #. placeholder {0}: user.email
 msgid "Remove override for {0}"
 msgstr "Remove override for {0}"
+
+msgid "Required plan"
+msgstr "Required plan"
+
+msgid "Required plan:"
+msgstr "Required plan:"
 
 msgid "Resize sidebar"
 msgstr "Resize sidebar"
@@ -360,6 +382,9 @@ msgstr "System flags"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "The page you are looking for does not exist or was moved."
+
+msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
+msgstr "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
 
 msgid "Today"
 msgstr "Today"

@@ -48,8 +48,15 @@ msgstr "Konto-ID"
 msgid "Account status"
 msgstr "Kontostatus"
 
+msgid "Accounts are automatically enabled or disabled based on their subscription plan. No manual overrides are available for plan-managed flags."
+msgstr "Konti aktiveres eller deaktiveres automatisk baseret på deres abonnementsplan. Manuelle tilsidesættelser er ikke tilgængelige for planstyrede flag."
+
 msgid "Accounts are automatically included based on their rollout bucket. Use overrides to manually include or exclude specific accounts."
 msgstr "Konti inkluderes automatisk baseret på deres udrulnings-bucket. Brug tilsidesættelser til manuelt at inkludere eller ekskludere specifikke konti."
+
+#. placeholder {0}: getFlagName(flagKey)
+msgid "Accounts for {0}"
+msgstr "Konti for {0}"
 
 msgid "Active"
 msgstr "Aktiv"
@@ -114,6 +121,9 @@ msgstr "Formindsk"
 msgid "Default"
 msgstr "Standard"
 
+msgid "Disabled"
+msgstr "Deaktiveret"
+
 #. placeholder {0}: disabledTenants.length
 #. placeholder {0}: disabledUsers.length
 msgid "Disabled ({0})"
@@ -130,6 +140,9 @@ msgstr "Tidlig adgang til eksperimentelle funktioner før generel tilgængelighe
 
 msgid "Email"
 msgstr "E-mail"
+
+msgid "Enabled"
+msgstr "Aktiveret"
 
 #. placeholder {0}: enabledTenants.length
 #. placeholder {0}: enabledUsers.length
@@ -257,6 +270,9 @@ msgstr "Paginering"
 msgid "Plan"
 msgstr "Plan"
 
+msgid "Plan flags"
+msgstr "Planflag"
+
 msgid "PlatformPlatform logo"
 msgstr "PlatformPlatform logo"
 
@@ -279,6 +295,12 @@ msgstr "Fjern tilsidesættelse"
 #. placeholder {0}: user.email
 msgid "Remove override for {0}"
 msgstr "Fjern tilsidesættelse for {0}"
+
+msgid "Required plan"
+msgstr "Påkrævet plan"
+
+msgid "Required plan:"
+msgstr "Påkrævet plan:"
 
 msgid "Resize sidebar"
 msgstr "Ændr bredde på sidepanel"
@@ -360,6 +382,9 @@ msgstr "Systemflag"
 
 msgid "The page you are looking for does not exist or was moved."
 msgstr "Siden du leder efter findes ikke eller er blevet flyttet."
+
+msgid "This flag is managed by the subscription plan. It is automatically enabled for accounts on the required plan or higher."
+msgstr "Dette flag styres af abonnementsplanen. Det aktiveres automatisk for konti på den påkrævede plan eller højere."
 
 msgid "Today"
 msgstr "I dag"

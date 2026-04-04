@@ -16,6 +16,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
+    string? RequiredPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,

@@ -1,5 +1,6 @@
 using System.Data;
 using Account.Database;
+using Account.Features.FeatureFlags;
 using Account.Features.Subscriptions.Domain;
 using Account.Features.Tenants.Domain;
 using Account.Integrations.Stripe;
@@ -22,6 +23,7 @@ public sealed class ProcessPendingStripeEvents(
     StripeClientFactory stripeClientFactory,
     TimeProvider timeProvider,
     ITelemetryEventsCollector events,
+    PlanBasedFeatureFlagService planBasedFeatureFlagService,
     TelemetryClient telemetryClient,
     ILogger<ProcessPendingStripeEvents> logger
 )
@@ -45,11 +47,18 @@ public sealed class ProcessPendingStripeEvents(
         var tenant = (await tenantRepository.GetByIdUnfilteredAsync(subscription.TenantId, cancellationToken))!;
         var pendingEvents = await stripeEventRepository.GetPendingByStripeCustomerIdAsync(stripeCustomerId, cancellationToken);
 
+        var previousPlan = subscription.Plan;
+
         if (pendingEvents.Length > 0)
         {
             await SyncStateFromStripe(tenant, subscription, cancellationToken);
 
             MarkAllEventsAsProcessed(pendingEvents, subscription);
+        }
+
+        if (subscription.Plan != previousPlan)
+        {
+            await planBasedFeatureFlagService.EvaluatePlanFlagsForTenantAsync(subscription.TenantId, subscription.Plan, cancellationToken);
         }
 
         await dbContext.SaveChangesAsync(cancellationToken);
