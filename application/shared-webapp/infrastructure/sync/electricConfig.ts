@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 const ACCOUNT_ELECTRIC_SHAPE_URL = "/api/account/electric/v1/shape";
 
-export type ElectricTable = "users" | "tenants" | "subscriptions";
+export type ElectricTable = "users" | "tenants" | "subscriptions" | "feature_flags";
 
 const MAX_CONSECUTIVE_FAILURES = 3;
 
@@ -16,10 +16,6 @@ let hasShownSyncError = false;
 
 function isStaleCacheError(error: Error): boolean {
   return error instanceof FetchError && error.status === 502 && error.message.includes("stale cached responses");
-}
-
-function isExpiredHandleError(error: Error): boolean {
-  return error instanceof FetchError && error.status === 500;
 }
 
 function triggerReload(table: string, reason: string): void {
@@ -70,11 +66,6 @@ export function createShapeOptions(table: ElectricTable): ShapeStreamOptions {
         triggerReload(table, "has a permanently stale handle");
         return;
       }
-      if (isExpiredHandleError(error)) {
-        triggerReload(table, "has an expired or invalid handle");
-        return;
-      }
-
       const count = (failureCounts.get(table) ?? 0) + 1;
       failureCounts.set(table, count);
 

@@ -57,28 +57,21 @@ public class AuthenticationCookieMiddleware(
 
         context.Response.OnStarting(async () =>
             {
-                try
+                // Explicit tokens (from switch-tenant, login, etc.) always take priority over background refresh.
+                // Other middleware may set RefreshAuthenticationTokensHeaderKey on the same response,
+                // but explicit tokens represent an intentional tenant/session change and must not be overwritten.
+                if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var newRefreshToken) &&
+                    context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var newAccessToken))
                 {
-                    if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
-                    {
-                        logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
-                        var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken!);
-                        await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
-                        context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
-                    }
-                    else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var newRefreshToken) &&
-                             context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var newAccessToken))
-                    {
-                        await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken.Single()!, newAccessToken.Single()!);
-                    }
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken.Single()!, newAccessToken.Single()!);
+                    context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
                 }
-                catch (SessionRevokedException ex)
+                else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
                 {
-                    logger.LogWarning(ex, "Session revoked during OnStarting token refresh. Reason: {Reason}", ex.RevokedReason);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Failed to refresh authentication tokens in OnStarting callback. Path: {Path}", context.Request.Path);
+                    logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
+                    var (refreshedRefreshToken, refreshedAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken!);
+                    await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshedRefreshToken, refreshedAccessToken);
+                    context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
                 }
             }
         );
