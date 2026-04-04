@@ -92,8 +92,9 @@ export function TenantOverrideRow({
 
   return (
     <TableRow>
-      <TableCell className="text-muted-foreground">{tenant.tenantId}</TableCell>
+      <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.tenantId}</TableCell>
       <TableCell className="font-medium">{tenant.tenantName}</TableCell>
+      <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
       <TableCell>
         <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
       </TableCell>

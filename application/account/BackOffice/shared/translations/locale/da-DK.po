@@ -366,6 +366,9 @@ msgstr ""
 msgid "Exit kiosk mode"
 msgstr ""
 
+msgid "Experimental UI"
+msgstr ""
+
 msgid "Expired"
 msgstr ""
 
@@ -609,8 +612,14 @@ msgstr "Ingen login-forsøg de seneste 30 dage."
 msgid "No transactions"
 msgstr ""
 
+msgid "No user overrides"
+msgstr ""
+
 msgid "No users"
 msgstr "Ingen brugere"
+
+msgid "No users found"
+msgstr ""
 
 msgid "No users match your filters."
 msgstr "Ingen brugere matcher dine filtre."
@@ -1031,6 +1040,9 @@ msgstr "Omsætning i alt"
 msgid "Try a different search term or clear the role and activity filters."
 msgstr "Prøv et andet søgeord, eller ryd rolle- og aktivitetsfiltrene."
 
+msgid "Try adjusting your search"
+msgstr ""
+
 msgid "Try again"
 msgstr "Prøv igen"
 
@@ -1057,6 +1069,9 @@ msgstr "Ukendt"
 
 msgid "Upgraded"
 msgstr "Opgraderet"
+
+msgid "Use the search above to find users and manage their overrides"
+msgstr ""
 
 msgid "User"
 msgstr "Bruger"

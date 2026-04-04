@@ -1135,6 +1135,9 @@ msgstr "Expand Components"
 msgid "Expand Examples"
 msgstr "Expand Examples"
 
+msgid "Experimental UI"
+msgstr "Experimental UI"
+
 msgid "expires"
 msgstr "expires"
 
@@ -2758,6 +2761,9 @@ msgstr "Try adjusting your search or filters"
 
 msgid "Try again"
 msgstr "Try again"
+
+msgid "Try experimental UI components"
+msgstr "Try experimental UI components"
 
 msgid "Two-factor authentication"
 msgstr "Two-factor authentication"

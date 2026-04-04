@@ -30,6 +30,10 @@ function getKnownFlagLabels(): Record<string, FlagLabel> {
     "compact-view": {
       name: t`Compact view`,
       description: t`Reduce spacing between UI elements for a denser layout`
+    },
+    "experimental-ui": {
+      name: t`Experimental UI`,
+      description: t`Try out experimental user interface components`
     }
   };
 }
