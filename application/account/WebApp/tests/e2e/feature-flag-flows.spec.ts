@@ -100,6 +100,22 @@ test.describe("@smoke", () => {
       await expect(page.getByRole("heading", { name: "Feature flags" })).toBeVisible();
     })();
 
+    await step("Activate custom branding flag globally via back-office API for downstream checks")(async () => {
+      const response = await page.request.put(
+        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/custom-branding/activate`
+      );
+
+      expect(response.ok()).toBe(true);
+    })();
+
+    await step("Activate compact view flag globally via back-office API for downstream checks")(async () => {
+      const response = await page.request.put(
+        `${BACK_OFFICE_BASE_URL}/api/back-office/feature-flags/compact-view/activate`
+      );
+
+      expect(response.ok()).toBe(true);
+    })();
+
     await backOfficeContext.close();
 
     // === ACCOUNT SETTINGS: TENANT FEATURE FLAGS ===
