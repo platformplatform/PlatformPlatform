@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -18,6 +19,12 @@ public class AuthenticationCookieMiddleware(
     private const string UnauthorizedReasonItemKey = "UnauthorizedReason";
 
     private static readonly JsonWebTokenHandler TokenHandler = new();
+
+    // Serializes concurrent token refresh requests per refresh token. When the access token expires,
+    // multiple requests may arrive simultaneously (e.g., Electric SSE reconnects). Without serialization,
+    // each request independently calls RefreshAuthenticationTokensAsync, causing replay attack detection
+    // after the second refresh increments the token version beyond the grace period window.
+    private static readonly ConcurrentDictionary<string, Lazy<Task<(string newRefreshToken, string newAccessToken)>>> PendingRefreshes = new();
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -50,17 +57,28 @@ public class AuthenticationCookieMiddleware(
 
         context.Response.OnStarting(async () =>
             {
-                if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+                try
                 {
-                    logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
-                    var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken!);
-                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
-                    context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+                    if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey, out _))
+                    {
+                        logger.LogDebug("Refreshing authentication tokens as requested by endpoint");
+                        var (newRefreshToken, newAccessToken) = await RefreshAuthenticationTokensAsync(currentRefreshToken!);
+                        await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken, newAccessToken);
+                        context.Response.Headers.Remove(AuthenticationTokenHttpKeys.RefreshAuthenticationTokensHeaderKey);
+                    }
+                    else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var newRefreshToken) &&
+                             context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var newAccessToken))
+                    {
+                        await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken.Single()!, newAccessToken.Single()!);
+                    }
                 }
-                else if (context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.RefreshTokenHttpHeaderKey, out var newRefreshToken) &&
-                         context.Response.Headers.TryGetValue(AuthenticationTokenHttpKeys.AccessTokenHttpHeaderKey, out var newAccessToken))
+                catch (SessionRevokedException ex)
                 {
-                    await ReplaceAuthenticationHeaderWithCookieAsync(context, newRefreshToken.Single()!, newAccessToken.Single()!);
+                    logger.LogWarning(ex, "Session revoked during OnStarting token refresh. Reason: {Reason}", ex.RevokedReason);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to refresh authentication tokens in OnStarting callback. Path: {Path}", context.Request.Path);
                 }
             }
         );
@@ -95,7 +113,7 @@ public class AuthenticationCookieMiddleware(
 
                 logger.LogDebug("The access-token has expired, attempting to refresh");
 
-                (refreshToken, accessToken) = await RefreshAuthenticationTokensAsync(refreshToken);
+                (refreshToken, accessToken) = await RefreshAuthenticationTokensSerializedAsync(refreshToken);
 
                 // Update the authentication token cookies with the new tokens
                 await ReplaceAuthenticationHeaderWithCookieAsync(context, refreshToken, accessToken);
@@ -135,6 +153,28 @@ public class AuthenticationCookieMiddleware(
         }
 
         return refreshToken;
+    }
+
+    /// <summary>
+    ///     Serializes concurrent refresh requests for the same refresh token. Only the first request actually
+    ///     calls the backend; all concurrent requests with the same token await the same result.
+    ///     This prevents N concurrent refresh calls from causing replay attack detection.
+    /// </summary>
+    private async Task<(string newRefreshToken, string newAccessToken)> RefreshAuthenticationTokensSerializedAsync(string refreshToken)
+    {
+        var lazyRefresh = PendingRefreshes.GetOrAdd(
+            refreshToken,
+            _ => new Lazy<Task<(string, string)>>(() => RefreshAuthenticationTokensAsync(refreshToken))
+        );
+
+        try
+        {
+            return await lazyRefresh.Value;
+        }
+        finally
+        {
+            PendingRefreshes.TryRemove(refreshToken, out _);
+        }
     }
 
     private async Task<(string newRefreshToken, string newAccessToken)> RefreshAuthenticationTokensAsync(string refreshToken)
