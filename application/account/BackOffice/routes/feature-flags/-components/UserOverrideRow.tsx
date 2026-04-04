@@ -17,6 +17,8 @@ function getSourceLabel(source: string): string {
   switch (source) {
     case "manual_override":
       return t`Manual override`;
+    case "ab_rollout":
+      return t`A/B rollout`;
     case "default":
       return t`Default`;
     default:
@@ -104,10 +106,10 @@ export function UserOverrideRow({
     <TableRow>
       <TableCell className="font-medium">{user.email}</TableCell>
       <TableCell className="text-muted-foreground">{user.tenantName}</TableCell>
-      <TableCell>
+      <TableCell className="hidden sm:table-cell">
         <span className="text-sm text-muted-foreground">{getSourceLabel(user.source)}</span>
       </TableCell>
-      {showBucket && <TableCell className="text-muted-foreground">{user.rolloutBucket}</TableCell>}
+      {showBucket && <TableCell className="hidden text-muted-foreground sm:table-cell">{user.rolloutBucket}</TableCell>}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {user.source === "manual_override" && (

@@ -95,10 +95,12 @@ export function TenantOverrideRow({
       <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.tenantId}</TableCell>
       <TableCell className="font-medium">{tenant.tenantName}</TableCell>
       <TableCell className="text-muted-foreground">{tenant.plan}</TableCell>
-      <TableCell>
+      <TableCell className="hidden sm:table-cell">
         <span className="text-sm text-muted-foreground">{getSourceLabel(tenant.source)}</span>
       </TableCell>
-      {showBucket && <TableCell className="text-muted-foreground">{tenant.rolloutBucket}</TableCell>}
+      {showBucket && (
+        <TableCell className="hidden text-muted-foreground sm:table-cell">{tenant.rolloutBucket}</TableCell>
+      )}
       <TableCell className="text-right">
         <div className="flex items-center justify-end gap-2">
           {tenant.source === "manual_override" && (

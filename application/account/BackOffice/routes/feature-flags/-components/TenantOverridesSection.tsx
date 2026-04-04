@@ -138,11 +138,11 @@ function TenantTable({
           <TableHead className="w-[6rem]">
             <Trans>Plan</Trans>
           </TableHead>
-          <TableHead className="w-[8rem]">
+          <TableHead className="hidden w-[8rem] sm:table-cell">
             <Trans>Source</Trans>
           </TableHead>
           {showBucket && (
-            <TableHead className="w-[5rem]">
+            <TableHead className="hidden w-[5rem] sm:table-cell">
               <Trans>Bucket</Trans>
             </TableHead>
           )}

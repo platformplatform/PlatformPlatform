@@ -85,7 +85,7 @@ test.describe("@smoke", () => {
     })();
 
     await step("Set A/B rollout percentage & verify success toast on blur")(async () => {
-      const percentageInput = page.getByRole("spinbutton", { name: "Rollout percentage" });
+      const percentageInput = page.getByRole("spinbutton", { name: "Rollout %" });
       const newValue = String(10 + (Date.now() % 80));
       await percentageInput.fill(newValue);
       await blurActiveElement(page);

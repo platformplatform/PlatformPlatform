@@ -40,7 +40,7 @@ export interface FlagUserInfo {
   email: string;
   tenantName: string;
   isEnabled: boolean;
-  source: "manual_override" | "default";
+  source: "manual_override" | "ab_rollout" | "default";
   rolloutBucket: number;
 }
 

@@ -346,7 +346,21 @@ msgid "Email pending"
 msgstr "E-mail afventer"
 
 msgid "Enabled"
-msgstr ""
+msgstr "Aktiveret"
+
+#. placeholder {0}: enabledTenants.length
+#. placeholder {0}: enabledUsers.length
+msgid "Enabled ({0})"
+msgstr "Aktiveret ({0})"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+#. placeholder {1}: formatTimestamp(flag.disabledAt)
+msgid "Enabled period: {0} - {1}"
+msgstr "Aktiveret periode: {0} - {1}"
+
+#. placeholder {0}: formatTimestamp(flag.enabledAt)
+msgid "Enabled: {0}"
+msgstr "Aktiveret: {0}"
 
 msgid "Enter kiosk mode"
 msgstr ""
@@ -515,6 +529,9 @@ msgstr "MRR-tendens"
 
 msgid "Name"
 msgstr "Navn"
+
+msgid "Name:"
+msgstr ""
 
 msgid "Navigation"
 msgstr "Navigation"
@@ -849,6 +866,15 @@ msgstr "Udrulningsspande: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPerce
 
 msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
 msgstr "Udrulningsspande: {rolloutBucketStart}-99 og 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout %"
+msgstr "Udrulnings-%"
+
+msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout buckets: {bucketStart}-100 and 1-{bucketEnd} ({rolloutPercentage}%)"
+msgstr "Udrulningsbuckets: {bucketStart}-100 og 1-{bucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage"
 msgstr "Udrulningsprocent"
