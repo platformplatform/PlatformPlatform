@@ -11,7 +11,7 @@ test.describe("@smoke", () => {
    * FEATURE FLAG SYSTEM E2E TEST
    *
    * Tests the full feature flag management flow:
-   * - Back-office flag list: view flags grouped by scope (Account, User, System)
+   * - Back-office flag list: view flags grouped by scope (Account, Plan, User, System)
    * - Back-office flag detail: navigate into account-scoped flag, toggle account override twice, set A/B rollout percentage
    * - Account settings: verify Features section, toggle account-scoped custom branding flag
    * - User preferences: verify Beta features section, toggle user-scoped compact view flag
@@ -42,8 +42,10 @@ test.describe("@smoke", () => {
 
       const accountTable = page.getByRole("table", { name: "Account flags" });
       await expect(accountTable.getByText("Beta features")).toBeVisible();
-      await expect(accountTable.getByText("Single sign-on")).toBeVisible();
       await expect(accountTable.getByText("Custom branding")).toBeVisible();
+
+      const planTable = page.getByRole("table", { name: "Plan flags" });
+      await expect(planTable.getByText("Single sign-on")).toBeVisible();
 
       const userTable = page.getByRole("table", { name: "User flags" });
       await expect(userTable.getByText("Compact view")).toBeVisible();

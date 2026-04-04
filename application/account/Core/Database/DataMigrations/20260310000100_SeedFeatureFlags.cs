@@ -25,20 +25,24 @@ public sealed class SeedFeatureFlags(AccountDbContext dbContext) : IDataMigratio
             seededCount++;
             var id = FeatureFlagId.NewId().Value;
 
+            var source = flag.RequiredPlan is not null ? "Plan" : "Manual";
+
             await dbContext.Database.ExecuteSqlRawAsync(
                 """
-                INSERT INTO feature_flags (id, flag_key, tenant_id, user_id, created_at, modified_at, enabled_at, disabled_at, bucket_start, bucket_end, configurable_by_tenant, configurable_by_user)
-                VALUES (@id, @flagKey, NULL, NULL, @now, NULL, NULL, NULL, NULL, NULL, @configurableByTenant, @configurableByUser)
+                INSERT INTO feature_flags (id, flag_key, tenant_id, user_id, created_at, modified_at, enabled_at, disabled_at, bucket_start, bucket_end, configurable_by_tenant, configurable_by_user, source)
+                VALUES (@id, @flagKey, NULL, NULL, @now, NULL, NULL, NULL, NULL, NULL, @configurableByTenant, @configurableByUser, @source)
                 ON CONFLICT (flag_key, tenant_id, user_id) DO UPDATE SET
                     configurable_by_tenant = @configurableByTenant,
-                    configurable_by_user = @configurableByUser
+                    configurable_by_user = @configurableByUser,
+                    source = @source
                 """,
                 [
                     new NpgsqlParameter("@id", id),
                     new NpgsqlParameter("@flagKey", flag.Key),
                     new NpgsqlParameter("@now", now),
                     new NpgsqlParameter("@configurableByTenant", flag.ConfigurableByTenant),
-                    new NpgsqlParameter("@configurableByUser", flag.ConfigurableByUser)
+                    new NpgsqlParameter("@configurableByUser", flag.ConfigurableByUser),
+                    new NpgsqlParameter("@source", source)
                 ],
                 cancellationToken
             );

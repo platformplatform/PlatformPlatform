@@ -240,7 +240,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_start", null),
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
 
@@ -431,7 +432,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_start", null),
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
 
@@ -520,7 +522,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_start", null),
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
 
@@ -769,7 +772,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_start", null),
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
 
@@ -843,7 +847,8 @@ public sealed class FeatureFlagTests : EndpointBaseTest<AccountDbContext>
                 ("bucket_start", null),
                 ("bucket_end", null),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
 

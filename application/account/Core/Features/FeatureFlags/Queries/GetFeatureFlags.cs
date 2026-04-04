@@ -21,6 +21,7 @@ public sealed record FeatureFlagInfo(
     bool IsAbTestEligible,
     bool ConfigurableByTenant,
     bool ConfigurableByUser,
+    string? RequiredPlan,
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
@@ -46,7 +47,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
                     var isSystemFlagActive = IsSystemFlagEnabled(definition.Key);
                     return new FeatureFlagInfo(
                         definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
-                        definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser,
+                        definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
                         null, null, null, null, null, null, isSystemFlagActive
                     );
                 }
@@ -63,7 +64,7 @@ public sealed class GetFeatureFlagsHandler(IFeatureFlagRepository featureFlagRep
 
                 return new FeatureFlagInfo(
                     definition.Key, definition.Scope, definition.AdminLevel, definition.Description,
-                    definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser,
+                    definition.IsAbTestEligible, definition.ConfigurableByTenant, definition.ConfigurableByUser, definition.RequiredPlan?.ToString(),
                     createdAt, enabledAt, disabledAt, bucketStart, bucketEnd, rolloutPercentage, isActive
                 );
             }

@@ -12,12 +12,13 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
         FlagKey = string.Empty;
     }
 
-    private FeatureFlag(string flagKey, long? tenantId, string? userId)
+    private FeatureFlag(string flagKey, long? tenantId, string? userId, FeatureFlagSource source)
         : base(FeatureFlagId.NewId())
     {
         FlagKey = flagKey;
         TenantId = tenantId;
         UserId = userId;
+        Source = source;
     }
 
     public string FlagKey { get; private set; }
@@ -40,19 +41,21 @@ public sealed class FeatureFlag : AggregateRoot<FeatureFlagId>
     [UsedImplicitly]
     public bool ConfigurableByUser { get; private set; }
 
-    public static FeatureFlag Create(string flagKey)
+    public FeatureFlagSource Source { get; private set; }
+
+    public static FeatureFlag Create(string flagKey, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
-        return new FeatureFlag(flagKey, null, null);
+        return new FeatureFlag(flagKey, null, null, source);
     }
 
-    public static FeatureFlag CreateTenantOverride(string flagKey, long tenantId)
+    public static FeatureFlag CreateTenantOverride(string flagKey, long tenantId, FeatureFlagSource source = FeatureFlagSource.Manual)
     {
-        return new FeatureFlag(flagKey, tenantId, null);
+        return new FeatureFlag(flagKey, tenantId, null, source);
     }
 
     public static FeatureFlag CreateUserOverride(string flagKey, long tenantId, string userId)
     {
-        return new FeatureFlag(flagKey, tenantId, userId);
+        return new FeatureFlag(flagKey, tenantId, userId, FeatureFlagSource.Manual);
     }
 
     public void Activate(DateTimeOffset now)

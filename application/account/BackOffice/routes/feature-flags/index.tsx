@@ -21,8 +21,10 @@ export const Route = createFileRoute("/feature-flags/")({
   component: FeatureFlagsPage
 });
 
+type FlagGroupKey = "Tenant" | "Plan" | "User" | "System";
+
 interface FlagGroup {
-  scope: FeatureFlagScope;
+  groupKey: FlagGroupKey;
   label: string;
   flags: FeatureFlagInfo[];
 }
@@ -35,17 +37,22 @@ export default function FeatureFlagsPage() {
 
   const groups = useMemo(() => {
     if (!data?.flags) return [];
-    const scopeOrder: FeatureFlagScope[] = ["Tenant", "User", "System"];
-    const scopeLabels: Record<FeatureFlagScope, string> = {
+    const groupOrder: FlagGroupKey[] = ["Tenant", "Plan", "User", "System"];
+    const groupLabels: Record<FlagGroupKey, string> = {
       Tenant: t`Account flags`,
+      Plan: t`Plan flags`,
       User: t`User flags`,
       System: t`System flags`
     };
-    return scopeOrder
-      .map((scope) => ({
-        scope,
-        label: scopeLabels[scope],
-        flags: data.flags.filter((flag) => flag.scope === scope)
+    return groupOrder
+      .map((groupKey) => ({
+        groupKey,
+        label: groupLabels[groupKey],
+        flags: data.flags.filter((flag) => {
+          if (groupKey === "Plan") return flag.scope === "Tenant" && flag.requiredPlan != null;
+          if (groupKey === "Tenant") return flag.scope === "Tenant" && flag.requiredPlan == null;
+          return flag.scope === groupKey;
+        })
       }))
       .filter((group) => group.flags.length > 0);
   }, [data?.flags]);
@@ -64,14 +71,17 @@ export default function FeatureFlagsPage() {
 
 function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
   const navigate = useNavigate();
-  const hasDetail = (scope: FeatureFlagScope) => scope === "Tenant" || scope === "User";
+  const hasDetail = (groupKey: FlagGroupKey, scope: FeatureFlagScope) =>
+    groupKey === "Plan" || scope === "Tenant" || scope === "User";
 
   return (
     <div className="flex flex-col gap-8">
       {groups.map((group) => {
-        const showRollout = group.scope !== "System";
+        const isPlanGroup = group.groupKey === "Plan";
+        const isSystemGroup = group.groupKey === "System";
+        const showRollout = !isSystemGroup && !isPlanGroup;
         return (
-          <div key={group.scope} className="flex flex-col gap-2">
+          <div key={group.groupKey} className="flex flex-col gap-2">
             <h3>{group.label}</h3>
             <Table rowSize="compact" aria-label={group.label}>
               <TableHeader>
@@ -79,6 +89,11 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                   <TableHead>
                     <Trans>Name</Trans>
                   </TableHead>
+                  {isPlanGroup && (
+                    <TableHead className="hidden w-[8rem] sm:table-cell">
+                      <Trans>Required plan</Trans>
+                    </TableHead>
+                  )}
                   {showRollout && (
                     <TableHead className="hidden w-[5rem] sm:table-cell">
                       <Trans>Rollout</Trans>
@@ -93,9 +108,9 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                 {group.flags.map((flag) => (
                   <TableRow
                     key={flag.key}
-                    className={hasDetail(flag.scope) ? "cursor-pointer" : undefined}
+                    className={hasDetail(group.groupKey, flag.scope) ? "cursor-pointer" : undefined}
                     onClick={
-                      hasDetail(flag.scope)
+                      hasDetail(group.groupKey, flag.scope)
                         ? () => navigate({ to: "/feature-flags/$flagKey", params: { flagKey: flag.key } })
                         : undefined
                     }
@@ -111,6 +126,11 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                         </span>
                       </div>
                     </TableCell>
+                    {isPlanGroup && (
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="outline">{flag.requiredPlan}</Badge>
+                      </TableCell>
+                    )}
                     {showRollout && (
                       <TableCell className="hidden sm:table-cell">
                         {flag.rolloutPercentage !== null ? (

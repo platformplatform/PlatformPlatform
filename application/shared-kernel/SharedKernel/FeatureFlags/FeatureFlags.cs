@@ -30,7 +30,8 @@ public static class FeatureFlags
         "sso",
         FeatureFlagScope.Tenant,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Enables single sign-on for tenants"
+        "Enables single sign-on for tenants",
+        RequiredPlan: PlanTier.Premium
     );
 
     public static readonly FeatureFlagDefinition CustomBranding = new(
@@ -114,6 +115,29 @@ public static class FeatureFlags
             if (flag is { ConfigurableByTenant: true, IsAbTestEligible: true })
             {
                 throw new InvalidOperationException($"Feature flag '{flag.Key}' cannot be both ConfigurableByTenant and IsAbTestEligible.");
+            }
+
+            if (flag.RequiredPlan is not null)
+            {
+                if (flag.Scope != FeatureFlagScope.Tenant)
+                {
+                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan must have Tenant scope.");
+                }
+
+                if (flag.ConfigurableByTenant)
+                {
+                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be ConfigurableByTenant.");
+                }
+
+                if (flag.ConfigurableByUser)
+                {
+                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be ConfigurableByUser.");
+                }
+
+                if (flag.IsAbTestEligible)
+                {
+                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be IsAbTestEligible.");
+                }
             }
 
             if (flag.ParentDependency is not null)

@@ -244,7 +244,8 @@ public sealed class FeatureFlagEvaluationServiceTests : EndpointBaseTest<Account
                 ("bucket_start", bucketStart),
                 ("bucket_end", bucketEnd),
                 ("configurable_by_tenant", false),
-                ("configurable_by_user", false)
+                ("configurable_by_user", false),
+                ("source", "Manual")
             ]
         );
     }

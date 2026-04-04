@@ -18,6 +18,8 @@ function getSourceLabel(source: string): string {
       return t`Manual override`;
     case "ab_rollout":
       return t`A/B rollout`;
+    case "plan":
+      return t`Plan`;
     case "default":
       return t`Default`;
     default:

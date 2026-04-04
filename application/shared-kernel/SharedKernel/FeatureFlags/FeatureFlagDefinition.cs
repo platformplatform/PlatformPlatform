@@ -11,5 +11,6 @@ public sealed record FeatureFlagDefinition(
     bool ConfigurableByTenant = false,
     bool ConfigurableByUser = false,
     bool TrackInTelemetry = false,
-    string? TelemetryName = null
+    string? TelemetryName = null,
+    PlanTier? RequiredPlan = null
 );

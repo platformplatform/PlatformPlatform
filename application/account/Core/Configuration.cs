@@ -72,6 +72,7 @@ public static class Configuration
                 .AddScoped<CompleteEmailConfirmation>()
                 .AddScoped<AvatarUpdater>()
                 .AddScoped<FeatureFlagEvaluationService>()
+                .AddScoped<PlanBasedFeatureFlagService>()
                 .AddScoped<UserInfoFactory>()
                 .AddScoped<ProcessPendingStripeEvents>()
                 .AddScoped<ExternalAuthenticationService>()
