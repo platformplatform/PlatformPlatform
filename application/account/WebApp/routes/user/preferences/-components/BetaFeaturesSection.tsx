@@ -26,7 +26,7 @@ export function BetaFeaturesSection() {
 
   const userFlags = useMemo(() => {
     const baseFlags = featureFlags.filter(
-      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByUser
+      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByUser && isEnabled(flag)
     );
 
     return baseFlags.map((baseFlag): UserFlag => {
