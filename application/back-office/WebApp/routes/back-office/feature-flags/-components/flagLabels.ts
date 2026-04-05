@@ -1,11 +1,11 @@
 import { t } from "@lingui/core/macro";
 
-interface FlagLabel {
+interface FeatureFlagLabel {
   name: string;
   description: string;
 }
 
-function getKnownFlagLabels(): Record<string, FlagLabel> {
+function getKnownFeatureFlagLabels(): Record<string, FeatureFlagLabel> {
   return {
     "google-oauth": {
       name: t`Google OAuth`,
@@ -38,15 +38,15 @@ function getKnownFlagLabels(): Record<string, FlagLabel> {
   };
 }
 
-function formatFlagKey(flagKey: string): string {
+function formatFeatureFlagKey(flagKey: string): string {
   const formatted = flagKey.replace(/-/g, " ");
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
-export function getFlagName(flagKey: string): string {
-  return getKnownFlagLabels()[flagKey]?.name ?? formatFlagKey(flagKey);
+export function getFeatureFlagName(flagKey: string): string {
+  return getKnownFeatureFlagLabels()[flagKey]?.name ?? formatFeatureFlagKey(flagKey);
 }
 
-export function getFlagDescription(flagKey: string): string {
-  return getKnownFlagLabels()[flagKey]?.description ?? "";
+export function getFeatureFlagDescription(flagKey: string): string {
+  return getKnownFeatureFlagLabels()[flagKey]?.description ?? "";
 }

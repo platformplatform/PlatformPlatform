@@ -46,7 +46,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenInternalUser_ShouldProxyToAccountApi()
+    public async Task GetFeatureFlagTenants_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
         const string flagKey = "test-flag";
@@ -61,7 +61,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
-    public async Task GetFlagTenants_WhenExternalUser_ShouldReturnForbidden()
+    public async Task GetFeatureFlagTenants_WhenExternalUser_ShouldReturnForbidden()
     {
         // Act
         var response = await AuthenticatedExternalHttpClient.GetAsync("/api/back-office/feature-flags/test-flag/tenants");
@@ -199,7 +199,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenInternalUser_ShouldProxyToAccountApi()
+    public async Task GetFeatureFlagUsers_WhenInternalUser_ShouldProxyToAccountApi()
     {
         // Arrange
         const string flagKey = "test-flag";
@@ -214,7 +214,7 @@ public sealed class FeatureFlagEndpointTests : EndpointBaseTest<BackOfficeDbCont
     }
 
     [Fact]
-    public async Task GetFlagUsers_WhenExternalUser_ShouldReturnForbidden()
+    public async Task GetFeatureFlagUsers_WhenExternalUser_ShouldReturnForbidden()
     {
         // Act
         var response = await AuthenticatedExternalHttpClient.GetAsync("/api/back-office/feature-flags/test-flag/users");

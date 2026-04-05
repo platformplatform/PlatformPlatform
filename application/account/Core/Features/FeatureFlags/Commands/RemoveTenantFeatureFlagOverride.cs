@@ -23,9 +23,9 @@ public sealed class RemoveTenantFeatureFlagOverrideValidator : AbstractValidator
     public RemoveTenantFeatureFlagOverrideValidator()
     {
         RuleFor(x => x.FlagKey)
-            .NotEmpty().WithMessage("Flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Flag must have tenant scope.");
+            .NotEmpty().WithMessage("Feature flag key must not be empty.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.Tenant).WithMessage("Feature flag must have tenant scope.");
     }
 }
 

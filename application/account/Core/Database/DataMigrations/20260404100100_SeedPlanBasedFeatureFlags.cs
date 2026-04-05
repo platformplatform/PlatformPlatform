@@ -16,10 +16,10 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
     public async Task<string> ExecuteAsync(CancellationToken cancellationToken)
     {
-        var planFlags = FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
-        if (planFlags.Length == 0) return "No plan-based feature flags defined";
+        var planFeatureFlags = FeatureFlags.GetAll().Where(f => f.RequiredPlan is not null).ToArray();
+        if (planFeatureFlags.Length == 0) return "No plan-based feature flags defined";
 
-        var planTierMapping = new Dictionary<string, PlanTier>
+        var planMapping = new Dictionary<string, PlanTier>
         {
             [nameof(SubscriptionPlan.Basis)] = PlanTier.Free,
             [nameof(SubscriptionPlan.Standard)] = PlanTier.Standard,
@@ -28,7 +28,7 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
         var tenants = await dbContext.Database.SqlQueryRaw<TenantSubscriptionInfo>(
             """
-            SELECT t.id AS "TenantId", s.plan AS "Plan"
+            SELECT t.id AS tenant_id, s.plan AS plan
             FROM tenants t
             JOIN subscriptions s ON s.tenant_id = t.id
             WHERE t.deleted_at IS NULL
@@ -40,11 +40,11 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
         foreach (var tenant in tenants)
         {
-            if (!planTierMapping.TryGetValue(tenant.Plan, out var tenantPlanTier)) continue;
+            if (!planMapping.TryGetValue(tenant.Plan, out var tenantSubscriptionPlan)) continue;
 
-            foreach (var flag in planFlags)
+            foreach (var featureFlag in planFeatureFlags)
             {
-                var shouldBeEnabled = tenantPlanTier >= flag.RequiredPlan!.Value;
+                var shouldBeEnabled = tenantSubscriptionPlan >= featureFlag.RequiredPlan!.Value;
                 var id = FeatureFlagId.NewId().Value;
 
                 await dbContext.Database.ExecuteSqlRawAsync(
@@ -58,7 +58,7 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
                     """,
                     [
                         new NpgsqlParameter("@id", id),
-                        new NpgsqlParameter("@flagKey", flag.Key),
+                        new NpgsqlParameter("@flagKey", featureFlag.Key),
                         new NpgsqlParameter("@tenantId", tenant.TenantId),
                         new NpgsqlParameter("@now", now),
                         new NpgsqlParameter("@enabledAt", shouldBeEnabled ? now : DBNull.Value),
@@ -73,7 +73,7 @@ public sealed class SeedPlanBasedFeatureFlags(AccountDbContext dbContext) : IDat
 
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        return $"Seeded {seededCount} plan-based feature flag overrides across {tenants.Length} tenants";
+        return $"Seeded {seededCount} plan-based feature featureFlag overrides across {tenants.Length} tenants";
     }
 
     [UsedImplicitly]

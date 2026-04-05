@@ -23,9 +23,9 @@ public sealed class FeatureFlagEndpoints : IEndpoints
         group.MapGet("/{flagKey}/tenants", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
-                return await ProxyResponse(accountApiClient.GetFlagTenantsAsync(flagKey, cancellationToken));
+                return await ProxyResponse(accountApiClient.GetFeatureFlagTenantsAsync(flagKey, cancellationToken));
             }
-        ).Produces<GetFlagTenantsResponse>();
+        ).Produces<GetFeatureFlagTenantsResponse>();
 
         group.MapPut("/{flagKey}/activate", async (string flagKey, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
@@ -65,9 +65,9 @@ public sealed class FeatureFlagEndpoints : IEndpoints
         group.MapGet("/{flagKey}/users", async (string flagKey, string? search, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {
                 if (!executionContext.UserInfo.IsInternalUser) return Results.Forbid();
-                return await ProxyResponse(accountApiClient.GetFlagUsersAsync(flagKey, search, cancellationToken));
+                return await ProxyResponse(accountApiClient.GetFeatureFlagUsersAsync(flagKey, search, cancellationToken));
             }
-        ).Produces<GetFlagUsersResponse>();
+        ).Produces<GetFeatureFlagUsersResponse>();
 
         group.MapPut("/{flagKey}/user-override", async (string flagKey, SetUserOverrideRequest request, AccountApiClient accountApiClient, IExecutionContext executionContext, CancellationToken cancellationToken) =>
             {

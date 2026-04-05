@@ -8,25 +8,25 @@ import { useEffect, useMemo, useState } from "react";
 
 import { apiClient } from "@/shared/lib/api/client";
 
-import type { BucketRange } from "./rolloutBucket";
-import type { FlagUserInfo, GetFlagUsersResponse } from "./types";
+import type { RolloutBucketRange } from "./rolloutBucket";
+import type { FeatureFlagUserInfo, GetFeatureFlagUsersResponse } from "./types";
 
-import { sortBySourceThenBucket } from "./rolloutBucket";
+import { sortBySourceThenRolloutBucket } from "./rolloutBucket";
 import { UserEmptyState } from "./UserEmptyState";
 import { UserOverrideRow } from "./UserOverrideRow";
 
 export function UserOverridesSection({
   flagKey,
-  flagDescription,
-  showBucket,
-  bucketRange,
-  isFlagActive
+  featureFlagDescription,
+  showRolloutBucket,
+  rolloutBucketRange,
+  isFeatureFlagActive
 }: Readonly<{
   flagKey: string;
-  flagDescription: string;
-  showBucket: boolean;
-  bucketRange: BucketRange | null;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  showRolloutBucket: boolean;
+  rolloutBucketRange: RolloutBucketRange | null;
+  isFeatureFlagActive: boolean;
 }>) {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -43,7 +43,7 @@ export function UserOverridesSection({
       const { data } = await apiClient.GET("/api/back-office/feature-flags/{flagKey}/users" as any, {
         params: { path: { flagKey }, query: { search: debouncedSearch } }
       });
-      return data as GetFlagUsersResponse | undefined;
+      return data as GetFeatureFlagUsersResponse | undefined;
     },
     enabled: debouncedSearch.length > 0
   });
@@ -53,22 +53,22 @@ export function UserOverridesSection({
     const enabled = all.filter((u) => u.isEnabled);
     const disabled = all.filter((u) => !u.isEnabled);
     return {
-      enabledUsers: sortBySourceThenBucket(
+      enabledUsers: sortBySourceThenRolloutBucket(
         enabled,
         (u) => u.source,
         (u) => u.rolloutBucket,
         "enabled",
-        bucketRange
+        rolloutBucketRange
       ),
-      disabledUsers: sortBySourceThenBucket(
+      disabledUsers: sortBySourceThenRolloutBucket(
         disabled,
         (u) => u.source,
         (u) => u.rolloutBucket,
         "disabled",
-        bucketRange
+        rolloutBucketRange
       )
     };
-  }, [usersData?.users, bucketRange]);
+  }, [usersData?.users, rolloutBucketRange]);
 
   const hasSearched = debouncedSearch.length > 0;
 
@@ -79,7 +79,7 @@ export function UserOverridesSection({
           <Trans>User status</Trans>
         </h3>
         <p className="text-sm text-muted-foreground">
-          {showBucket ? (
+          {showRolloutBucket ? (
             <Trans>
               Users are automatically included based on their rollout bucket. Use overrides to manually include or
               exclude specific users.
@@ -106,17 +106,17 @@ export function UserOverridesSection({
             label={t`Enabled (${enabledUsers.length})`}
             users={enabledUsers}
             flagKey={flagKey}
-            flagDescription={flagDescription}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            featureFlagDescription={featureFlagDescription}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
           <CollapsibleUserGroup
             label={t`Disabled (${disabledUsers.length})`}
             users={disabledUsers}
             flagKey={flagKey}
-            flagDescription={flagDescription}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            featureFlagDescription={featureFlagDescription}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
         </>
       ) : (
@@ -128,14 +128,21 @@ export function UserOverridesSection({
 
 interface UserTableProps {
   ariaLabel: string;
-  users: FlagUserInfo[];
+  users: FeatureFlagUserInfo[];
   flagKey: string;
-  flagDescription: string;
-  showBucket: boolean;
-  isFlagActive: boolean;
+  featureFlagDescription: string;
+  showRolloutBucket: boolean;
+  isFeatureFlagActive: boolean;
 }
 
-function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket, isFlagActive }: Readonly<UserTableProps>) {
+function UserTable({
+  ariaLabel,
+  users,
+  flagKey,
+  featureFlagDescription,
+  showRolloutBucket,
+  isFeatureFlagActive
+}: Readonly<UserTableProps>) {
   return (
     <Table rowSize="compact" aria-label={ariaLabel} className="table-fixed">
       <TableHeader>
@@ -149,7 +156,7 @@ function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket, isF
           <TableHead className="hidden w-[8rem] sm:table-cell">
             <Trans>Source</Trans>
           </TableHead>
-          {showBucket && (
+          {showRolloutBucket && (
             <TableHead className="hidden w-[5rem] sm:table-cell">
               <Trans>Bucket</Trans>
             </TableHead>
@@ -164,10 +171,10 @@ function UserTable({ ariaLabel, users, flagKey, flagDescription, showBucket, isF
           <UserOverrideRow
             key={user.userId}
             flagKey={flagKey}
-            flagDescription={flagDescription}
+            featureFlagDescription={featureFlagDescription}
             user={user}
-            showBucket={showBucket}
-            isFlagActive={isFlagActive}
+            showRolloutBucket={showRolloutBucket}
+            isFeatureFlagActive={isFeatureFlagActive}
           />
         ))}
       </TableBody>

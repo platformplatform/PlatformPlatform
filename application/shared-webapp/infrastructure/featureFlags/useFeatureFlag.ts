@@ -17,12 +17,12 @@ function isRowActive(row: FeatureFlagRow): boolean {
   return new Date(row.enabledAt) > new Date(row.disabledAt);
 }
 
-function isInBucketRange(bucket: number, bucketStart: number, bucketEnd: number): boolean {
-  if (bucketStart <= bucketEnd) {
-    return bucket >= bucketStart && bucket <= bucketEnd;
+function isInRolloutBucketRange(rolloutBucket: number, rolloutBucketStart: number, rolloutBucketEnd: number): boolean {
+  if (rolloutBucketStart <= rolloutBucketEnd) {
+    return rolloutBucket >= rolloutBucketStart && rolloutBucket <= rolloutBucketEnd;
   }
   // Wrap-around range (e.g., 90-10 means 90-99 and 0-10)
-  return bucket >= bucketStart || bucket <= bucketEnd;
+  return rolloutBucket >= rolloutBucketStart || rolloutBucket <= rolloutBucketEnd;
 }
 
 export function useFeatureFlag(flagKey: string): FeatureFlagResult {
@@ -87,11 +87,11 @@ export function useFeatureFlag(flagKey: string): FeatureFlagResult {
 
   // No overrides -- check A/B rollout on base row
   if (baseRow.bucketStart != null && baseRow.bucketEnd != null) {
-    const start = parseInt(baseRow.bucketStart);
-    const end = parseInt(baseRow.bucketEnd);
-    const bucket = definition.scope === "user" ? userInfo.userRolloutBucket : userInfo.tenantRolloutBucket;
-    if (bucket == null) return DISABLED;
-    return isInBucketRange(bucket, start, end) ? ENABLED : DISABLED;
+    const rolloutBucketStart = parseInt(baseRow.bucketStart);
+    const rolloutBucketEnd = parseInt(baseRow.bucketEnd);
+    const rolloutBucket = definition.scope === "user" ? userInfo.userRolloutBucket : userInfo.tenantRolloutBucket;
+    if (rolloutBucket == null) return DISABLED;
+    return isInRolloutBucketRange(rolloutBucket, rolloutBucketStart, rolloutBucketEnd) ? ENABLED : DISABLED;
   }
 
   return ENABLED;

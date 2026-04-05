@@ -27,13 +27,13 @@ msgstr "{diffDays, plural, one {In # day} other {In # days}}"
 
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
-msgid "{flagDescription} disabled for {0}"
-msgstr "{flagDescription} disabled for {0}"
+msgid "{featureFlagDescription} disabled for {0}"
+msgstr "{featureFlagDescription} disabled for {0}"
 
 #. placeholder {0}: tenant.tenantName
 #. placeholder {0}: user.email
-msgid "{flagDescription} enabled for {0}"
-msgstr "{flagDescription} enabled for {0}"
+msgid "{featureFlagDescription} enabled for {0}"
+msgstr "{featureFlagDescription} enabled for {0}"
 
 msgid "A/B rollout"
 msgstr "A/B rollout"
@@ -79,9 +79,6 @@ msgstr "Breadcrumb"
 
 msgid "Bucket"
 msgstr "Bucket"
-
-msgid "Bucket information"
-msgstr "Bucket information"
 
 msgid "Clear date"
 msgstr "Clear date"
@@ -150,12 +147,12 @@ msgstr "Enabled"
 msgid "Enabled ({0})"
 msgstr "Enabled ({0})"
 
-#. placeholder {0}: formatTimestamp(flag.enabledAt)
-#. placeholder {1}: formatTimestamp(flag.disabledAt)
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
+#. placeholder {1}: formatTimestamp(featureFlag.disabledAt)
 msgid "Enabled period: {0} - {1}"
 msgstr "Enabled period: {0} - {1}"
 
-#. placeholder {0}: formatTimestamp(flag.enabledAt)
+#. placeholder {0}: formatTimestamp(featureFlag.enabledAt)
 msgid "Enabled: {0}"
 msgstr "Enabled: {0}"
 
@@ -312,11 +309,14 @@ msgstr "Rollout"
 msgid "Rollout %"
 msgstr "Rollout %"
 
-msgid "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Rollout buckets: {bucketStart}-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout bucket information"
+msgstr "Rollout bucket information"
 
-msgid "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
-msgstr "Rollout buckets: {bucketStart}-99 and 0-{bucketEnd} ({rolloutPercentage}%)"
+msgid "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {rolloutBucketStart}-{rolloutBucketEnd} ({rolloutPercentage}%)"
+
+msgid "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
+msgstr "Rollout buckets: {rolloutBucketStart}-99 and 0-{rolloutBucketEnd} ({rolloutPercentage}%)"
 
 msgid "Rollout percentage updated"
 msgstr "Rollout percentage updated"
@@ -390,7 +390,7 @@ msgstr "This flag is managed by the subscription plan. It is automatically enabl
 msgid "Today"
 msgstr "Today"
 
-#. placeholder {0}: getFlagName(flag.key)
+#. placeholder {0}: getFeatureFlagName(featureFlag.key)
 msgid "Toggle {0}"
 msgstr "Toggle {0}"
 

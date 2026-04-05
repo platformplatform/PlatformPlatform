@@ -16,8 +16,11 @@ interface UserFlag {
   enabled: boolean;
 }
 
-function isEnabled(flag: { enabledAt: string | null; disabledAt: string | null }): boolean {
-  return flag.enabledAt !== null && (flag.disabledAt === null || flag.enabledAt > flag.disabledAt);
+function isEnabled(featureFlag: { enabledAt: string | null; disabledAt: string | null }): boolean {
+  return (
+    featureFlag.enabledAt !== null &&
+    (featureFlag.disabledAt === null || featureFlag.enabledAt > featureFlag.disabledAt)
+  );
 }
 
 export function BetaFeaturesSection() {
@@ -25,14 +28,14 @@ export function BetaFeaturesSection() {
   const { data: featureFlags, isLoading } = useFeatureFlags();
 
   const userFlags = useMemo(() => {
-    const baseFlags = featureFlags.filter(
-      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByUser && isEnabled(flag)
+    const baseFeatureFlags = featureFlags.filter(
+      (f) => f.tenantId === null && f.userId === null && f.configurableByUser && isEnabled(f)
     );
 
-    return baseFlags.map((baseFlag): UserFlag => {
-      const override = featureFlags.find((flag) => flag.flagKey === baseFlag.flagKey && flag.userId === userId);
+    return baseFeatureFlags.map((baseFeatureFlag): UserFlag => {
+      const override = featureFlags.find((f) => f.flagKey === baseFeatureFlag.flagKey && f.userId === userId);
       return {
-        flagKey: baseFlag.flagKey,
+        flagKey: baseFeatureFlag.flagKey,
         enabled: override ? isEnabled(override) : false
       };
     });
@@ -55,8 +58,8 @@ export function BetaFeaturesSection() {
         <Trans>Opt in to try new features before they are available to everyone.</Trans>
       </p>
       <div className="flex flex-col gap-2">
-        {userFlags.map((flag) => (
-          <UserFlagToggle key={flag.flagKey} flagKey={flag.flagKey} enabled={flag.enabled} />
+        {userFlags.map((f) => (
+          <UserFlagToggle key={f.flagKey} flagKey={f.flagKey} enabled={f.enabled} />
         ))}
       </div>
     </section>

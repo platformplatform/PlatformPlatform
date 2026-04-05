@@ -1,5 +1,5 @@
 using Account.Database;
-using Account.Features.FeatureFlags;
+using Account.Features.FeatureFlags.Shared;
 using Account.Features.Subscriptions.Domain;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,15 +8,15 @@ using Xunit;
 
 namespace Account.Tests.FeatureFlags;
 
-public sealed class PlanBasedFeatureFlagServiceTests : EndpointBaseTest<AccountDbContext>
+public sealed class PlanBasedFeatureFlagEvaluatorTests : EndpointBaseTest<AccountDbContext>
 {
     private readonly AccountDbContext _dbContext;
-    private readonly PlanBasedFeatureFlagService _service;
+    private readonly PlanBasedFeatureFlagEvaluator _service;
 
-    public PlanBasedFeatureFlagServiceTests()
+    public PlanBasedFeatureFlagEvaluatorTests()
     {
         var scope = Provider.CreateScope();
-        _service = scope.ServiceProvider.GetRequiredService<PlanBasedFeatureFlagService>();
+        _service = scope.ServiceProvider.GetRequiredService<PlanBasedFeatureFlagEvaluator>();
         _dbContext = scope.ServiceProvider.GetRequiredService<AccountDbContext>();
     }
 

@@ -1,36 +1,52 @@
 import { t } from "@lingui/core/macro";
 
-const BUCKET_MAX = 100;
+const ROLLOUT_BUCKET_MAX = 100;
 
-export function formatBucketRange(bucketStart: number, bucketEnd: number, rolloutPercentage: number): string {
-  if (bucketStart <= bucketEnd) {
-    return t`Rollout buckets: ${bucketStart}-${bucketEnd} (${rolloutPercentage}%)`;
+export function formatRolloutBucketRange(
+  rolloutBucketStart: number,
+  rolloutBucketEnd: number,
+  rolloutPercentage: number
+): string {
+  if (rolloutBucketStart <= rolloutBucketEnd) {
+    return t`Rollout buckets: ${rolloutBucketStart}-${rolloutBucketEnd} (${rolloutPercentage}%)`;
   }
-  return t`Rollout buckets: ${bucketStart}-99 and 0-${bucketEnd} (${rolloutPercentage}%)`;
+  return t`Rollout buckets: ${rolloutBucketStart}-99 and 0-${rolloutBucketEnd} (${rolloutPercentage}%)`;
 }
 
-export interface BucketRange {
+export interface RolloutBucketRange {
   bucketStart: number;
   bucketEnd: number;
 }
 
-function bucketSortOrder(bucket: number, group: "enabled" | "disabled", range: BucketRange): number {
+function rolloutBucketSortOrder(
+  rolloutBucket: number,
+  group: "enabled" | "disabled",
+  range: RolloutBucketRange
+): number {
   const ref = group === "disabled" ? range.bucketEnd : range.bucketStart;
-  return (bucket - ref + BUCKET_MAX) % BUCKET_MAX;
+  return (rolloutBucket - ref + ROLLOUT_BUCKET_MAX) % ROLLOUT_BUCKET_MAX;
 }
 
-export function sortBySourceThenBucket<T>(
+export function sortBySourceThenRolloutBucket<T>(
   items: T[],
   getSource: (item: T) => string,
-  getBucket: (item: T) => number,
+  getRolloutBucket: (item: T) => number,
   group: "enabled" | "disabled",
-  bucketRange: BucketRange | null
+  rolloutBucketRange: RolloutBucketRange | null
 ): T[] {
   return [...items].sort((a, b) => {
     const aOrder =
-      getSource(a) === "manual_override" ? -1 : bucketRange ? bucketSortOrder(getBucket(a), group, bucketRange) : 0;
+      getSource(a) === "manual_override"
+        ? -1
+        : rolloutBucketRange
+          ? rolloutBucketSortOrder(getRolloutBucket(a), group, rolloutBucketRange)
+          : 0;
     const bOrder =
-      getSource(b) === "manual_override" ? -1 : bucketRange ? bucketSortOrder(getBucket(b), group, bucketRange) : 0;
+      getSource(b) === "manual_override"
+        ? -1
+        : rolloutBucketRange
+          ? rolloutBucketSortOrder(getRolloutBucket(b), group, rolloutBucketRange)
+          : 0;
     return aOrder - bOrder;
   });
 }

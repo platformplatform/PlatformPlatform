@@ -1,21 +1,21 @@
 using Account.Features.FeatureFlags.Domain;
 using SharedKernel.FeatureFlags;
 
-namespace Account.Features.FeatureFlags;
+namespace Account.Features.FeatureFlags.Shared;
 
-public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureFlagRepository)
+public sealed class FeatureFlagEvaluator(IFeatureFlagRepository featureFlagRepository)
 {
     public async Task<IReadOnlyList<string>> EvaluateAsync(long tenantId, string userId, int tenantRolloutBucket, int? userRolloutBucket, CancellationToken cancellationToken)
     {
         var allRows = await featureFlagRepository.GetAllRelevantRowsAsync(tenantId, userId, cancellationToken);
-        var enabledFlags = new List<string>();
+        var enabledFeatureFlags = new List<string>();
 
         var definitions = SharedKernel.FeatureFlags.FeatureFlags.GetAll();
 
-        // Sort flags so parents are evaluated before children
+        // Sort feature flags so parents are evaluated before children
         var sorted = TopologicalSort(definitions);
 
-        var enabledSet = new HashSet<string>();
+        var enabledFeatureFlagSet = new HashSet<string>();
 
         foreach (var definition in sorted)
         {
@@ -26,7 +26,7 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
             if (!IsActive(baseRow)) continue;
 
-            if (definition.ParentDependency is not null && !enabledSet.Contains(definition.ParentDependency)) continue;
+            if (definition.ParentDependency is not null && !enabledFeatureFlagSet.Contains(definition.ParentDependency)) continue;
 
             var isEnabled = definition.Scope switch
             {
@@ -37,11 +37,11 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
             if (!isEnabled) continue;
 
-            enabledSet.Add(definition.Key);
-            enabledFlags.Add(definition.Key);
+            enabledFeatureFlagSet.Add(definition.Key);
+            enabledFeatureFlags.Add(definition.Key);
         }
 
-        return enabledFlags;
+        return enabledFeatureFlags;
     }
 
     private static bool EvaluateTenantScope(FeatureFlagDefinition definition, FeatureFlag baseRow, FeatureFlag[] allRows, long tenantId, int tenantRolloutBucket)
@@ -54,7 +54,7 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
         if (definition.IsAbTestEligible && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            return RolloutBucketHasher.IsInBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInRolloutBucketRange(tenantRolloutBucket, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
         }
 
         return false;
@@ -72,22 +72,22 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
 
         if (definition.IsAbTestEligible && userRolloutBucket is not null && baseRow.BucketStart is not null && baseRow.BucketEnd is not null)
         {
-            return RolloutBucketHasher.IsInBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
+            return RolloutBucketHasher.IsInRolloutBucketRange(userRolloutBucket.Value, baseRow.BucketStart.Value, baseRow.BucketEnd.Value);
         }
 
         return false;
     }
 
-    private static bool IsActive(FeatureFlag flag)
+    private static bool IsActive(FeatureFlag featureFlag)
     {
-        return flag.EnabledAt is not null && (flag.DisabledAt is null || flag.EnabledAt > flag.DisabledAt);
+        return featureFlag.EnabledAt is not null && (featureFlag.DisabledAt is null || featureFlag.EnabledAt > featureFlag.DisabledAt);
     }
 
     private static FeatureFlagDefinition[] TopologicalSort(FeatureFlagDefinition[] definitions)
     {
         var result = new List<FeatureFlagDefinition>(definitions.Length);
 
-        // Add flags without parent dependencies first
+        // Add feature flags without parent dependencies first
         foreach (var definition in definitions)
         {
             if (definition.ParentDependency is null)
@@ -96,7 +96,7 @@ public sealed class FeatureFlagEvaluationService(IFeatureFlagRepository featureF
             }
         }
 
-        // Then add flags with parent dependencies
+        // Then add feature flags with parent dependencies
         foreach (var definition in definitions)
         {
             if (definition.ParentDependency is not null)

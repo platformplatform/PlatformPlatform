@@ -14,9 +14,9 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new GetFeatureFlagsQuery())
         ).Produces<GetFeatureFlagsResponse>();
 
-        routes.MapGet("/internal-api/account/feature-flags/{flagKey}/tenants", async Task<ApiResult<GetFlagTenantsResponse>> (string flagKey, IMediator mediator)
-            => await mediator.Send(new GetFlagTenantsQuery { FlagKey = flagKey })
-        ).Produces<GetFlagTenantsResponse>();
+        routes.MapGet("/internal-api/account/feature-flags/{flagKey}/tenants", async Task<ApiResult<GetFeatureFlagTenantsResponse>> (string flagKey, IMediator mediator)
+            => await mediator.Send(new GetFeatureFlagTenantsQuery { FlagKey = flagKey })
+        ).Produces<GetFeatureFlagTenantsResponse>();
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/activate", async Task<ApiResult> (string flagKey, IMediator mediator)
             => await mediator.Send(new ActivateFeatureFlagCommand(flagKey))
@@ -38,9 +38,9 @@ public sealed class FeatureFlagEndpoints : IEndpoints
             => await mediator.Send(new RemoveTenantFeatureFlagOverrideCommand { FlagKey = flagKey, TenantId = tenantId })
         ).DisableAntiforgery();
 
-        routes.MapGet("/internal-api/account/feature-flags/{flagKey}/users", async Task<ApiResult<GetFlagUsersResponse>> (string flagKey, string? search, IMediator mediator)
-            => await mediator.Send(new GetFlagUsersQuery { FlagKey = flagKey, Search = search })
-        ).Produces<GetFlagUsersResponse>();
+        routes.MapGet("/internal-api/account/feature-flags/{flagKey}/users", async Task<ApiResult<GetFeatureFlagUsersResponse>> (string flagKey, string? search, IMediator mediator)
+            => await mediator.Send(new GetFeatureFlagUsersQuery { FlagKey = flagKey, Search = search })
+        ).Produces<GetFeatureFlagUsersResponse>();
 
         routes.MapPut("/internal-api/account/feature-flags/{flagKey}/user-override", async Task<ApiResult> (string flagKey, SetUserFeatureFlagInternalCommand command, IMediator mediator)
             => await mediator.Send(command with { FlagKey = flagKey })

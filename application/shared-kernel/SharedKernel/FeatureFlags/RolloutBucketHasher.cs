@@ -2,21 +2,21 @@ namespace SharedKernel.FeatureFlags;
 
 public static class RolloutBucketHasher
 {
-    public static int ComputeBucket(int sequenceNumber)
+    public static int ComputeRolloutBucket(int sequenceNumber)
     {
         var value = VanDerCorput(sequenceNumber);
         return (int)(value * 100);
     }
 
-    public static bool IsInBucketRange(int bucket, int bucketStart, int bucketEnd)
+    public static bool IsInRolloutBucketRange(int bucket, int rolloutBucketStart, int rolloutBucketEnd)
     {
-        if (bucketStart <= bucketEnd)
+        if (rolloutBucketStart <= rolloutBucketEnd)
         {
-            return bucket >= bucketStart && bucket <= bucketEnd;
+            return bucket >= rolloutBucketStart && bucket <= rolloutBucketEnd;
         }
 
         // Wrap-around case (e.g., start=90, end=10 means 90-99 and 0-10)
-        return bucket >= bucketStart || bucket <= bucketEnd;
+        return bucket >= rolloutBucketStart || bucket <= rolloutBucketEnd;
     }
 
     private static double VanDerCorput(int n)

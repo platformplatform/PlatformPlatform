@@ -22,7 +22,7 @@ export interface GetFeatureFlagsResponse {
   flags: FeatureFlagInfo[];
 }
 
-export interface FlagTenantInfo {
+export interface FeatureFlagTenantInfo {
   tenantId: string;
   tenantName: string;
   plan: string;
@@ -31,11 +31,11 @@ export interface FlagTenantInfo {
   rolloutBucket: number;
 }
 
-export interface GetFlagTenantsResponse {
-  tenants: FlagTenantInfo[];
+export interface GetFeatureFlagTenantsResponse {
+  tenants: FeatureFlagTenantInfo[];
 }
 
-export interface FlagUserInfo {
+export interface FeatureFlagUserInfo {
   userId: string;
   tenantId: string;
   email: string;
@@ -45,6 +45,6 @@ export interface FlagUserInfo {
   rolloutBucket: number;
 }
 
-export interface GetFlagUsersResponse {
-  users: FlagUserInfo[];
+export interface GetFeatureFlagUsersResponse {
+  users: FeatureFlagUserInfo[];
 }

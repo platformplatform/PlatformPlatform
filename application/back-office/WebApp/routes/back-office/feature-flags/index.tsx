@@ -11,7 +11,7 @@ import { api } from "@/shared/lib/api/client";
 
 import type { FeatureFlagInfo, FeatureFlagScope, GetFeatureFlagsResponse } from "./-components/types";
 
-import { getFlagDescription, getFlagName } from "./-components/flagLabels";
+import { getFeatureFlagDescription, getFeatureFlagName } from "./-components/flagLabels";
 import { ScopeIcon } from "./-components/ScopeIcon";
 
 export const Route = createFileRoute("/back-office/feature-flags/")({
@@ -19,12 +19,12 @@ export const Route = createFileRoute("/back-office/feature-flags/")({
   component: FeatureFlagsPage
 });
 
-type FlagGroupKey = "Tenant" | "Plan" | "User" | "System";
+type FeatureFlagGroupKey = "Tenant" | "Plan" | "User" | "System";
 
-interface FlagGroup {
-  groupKey: FlagGroupKey;
+interface FeatureFlagGroup {
+  groupKey: FeatureFlagGroupKey;
   label: string;
-  flags: FeatureFlagInfo[];
+  featureFlags: FeatureFlagInfo[];
 }
 
 export default function FeatureFlagsPage() {
@@ -35,8 +35,8 @@ export default function FeatureFlagsPage() {
 
   const groups = useMemo(() => {
     if (!data?.flags) return [];
-    const groupOrder: FlagGroupKey[] = ["Tenant", "Plan", "User", "System"];
-    const groupLabels: Record<FlagGroupKey, string> = {
+    const groupOrder: FeatureFlagGroupKey[] = ["Tenant", "Plan", "User", "System"];
+    const groupLabels: Record<FeatureFlagGroupKey, string> = {
       Tenant: t`Account flags`,
       Plan: t`Plan flags`,
       User: t`User flags`,
@@ -46,25 +46,25 @@ export default function FeatureFlagsPage() {
       .map((groupKey) => ({
         groupKey,
         label: groupLabels[groupKey],
-        flags: data.flags.filter((flag) => {
-          if (groupKey === "Plan") return flag.scope === "Tenant" && flag.requiredPlan != null;
-          if (groupKey === "Tenant") return flag.scope === "Tenant" && flag.requiredPlan == null;
-          return flag.scope === groupKey;
+        featureFlags: data.flags.filter((featureFlag) => {
+          if (groupKey === "Plan") return featureFlag.scope === "Tenant" && featureFlag.requiredPlan != null;
+          if (groupKey === "Tenant") return featureFlag.scope === "Tenant" && featureFlag.requiredPlan == null;
+          return featureFlag.scope === groupKey;
         })
       }))
-      .filter((group) => group.flags.length > 0);
+      .filter((group) => group.featureFlags.length > 0);
   }, [data?.flags]);
 
   return (
     <AppLayout title={t`Feature flags`} subtitle={t`Manage feature flags across the platform.`} maxWidth="64rem">
-      {isLoading ? <FeatureFlagsSkeleton /> : <FlagGroupList groups={groups} />}
+      {isLoading ? <FeatureFlagsSkeleton /> : <FeatureFlagGroupList groups={groups} />}
     </AppLayout>
   );
 }
 
-function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
+function FeatureFlagGroupList({ groups }: Readonly<{ groups: FeatureFlagGroup[] }>) {
   const navigate = useNavigate();
-  const hasDetail = (groupKey: FlagGroupKey, scope: FeatureFlagScope) =>
+  const hasDetail = (groupKey: FeatureFlagGroupKey, scope: FeatureFlagScope) =>
     groupKey === "Plan" || scope === "Tenant" || scope === "User";
 
   return (
@@ -98,44 +98,48 @@ function FlagGroupList({ groups }: Readonly<{ groups: FlagGroup[] }>) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {group.flags.map((flag) => (
+                {group.featureFlags.map((featureFlag) => (
                   <TableRow
-                    key={flag.key}
-                    className={hasDetail(group.groupKey, flag.scope) ? "cursor-pointer" : undefined}
+                    key={featureFlag.key}
+                    className={hasDetail(group.groupKey, featureFlag.scope) ? "cursor-pointer" : undefined}
                     onClick={
-                      hasDetail(group.groupKey, flag.scope)
-                        ? () => navigate({ to: "/back-office/feature-flags/$flagKey", params: { flagKey: flag.key } })
+                      hasDetail(group.groupKey, featureFlag.scope)
+                        ? () =>
+                            navigate({
+                              to: "/back-office/feature-flags/$flagKey",
+                              params: { flagKey: featureFlag.key }
+                            })
                         : undefined
                     }
                   >
                     <TableCell>
                       <div className="flex min-w-0 flex-col">
                         <span className="flex items-center gap-2 font-medium">
-                          <ScopeIcon scope={flag.scope} />
-                          {getFlagName(flag.key)}
+                          <ScopeIcon scope={featureFlag.scope} />
+                          {getFeatureFlagName(featureFlag.key)}
                         </span>
                         <span className="hidden truncate text-sm text-muted-foreground sm:block">
-                          {getFlagDescription(flag.key) || flag.description}
+                          {getFeatureFlagDescription(featureFlag.key) || featureFlag.description}
                         </span>
                       </div>
                     </TableCell>
                     {isPlanGroup && (
                       <TableCell className="hidden sm:table-cell">
-                        <Badge variant="outline">{flag.requiredPlan}</Badge>
+                        <Badge variant="outline">{featureFlag.requiredPlan}</Badge>
                       </TableCell>
                     )}
                     {showRollout && (
                       <TableCell className="hidden sm:table-cell">
-                        {flag.rolloutPercentage !== null ? (
-                          `${flag.rolloutPercentage}%`
+                        {featureFlag.rolloutPercentage !== null ? (
+                          `${featureFlag.rolloutPercentage}%`
                         ) : (
                           <span className="text-muted-foreground">--</span>
                         )}
                       </TableCell>
                     )}
                     <TableCell className="hidden text-right sm:table-cell">
-                      <Badge variant={flag.isActive ? "default" : "outline"}>
-                        {flag.isActive ? t`Active` : t`Inactive`}
+                      <Badge variant={featureFlag.isActive ? "default" : "outline"}>
+                        {featureFlag.isActive ? t`Active` : t`Inactive`}
                       </Badge>
                     </TableCell>
                   </TableRow>

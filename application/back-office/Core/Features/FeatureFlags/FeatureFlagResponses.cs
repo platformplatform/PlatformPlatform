@@ -20,17 +20,17 @@ public sealed record FeatureFlagInfo(
     DateTimeOffset? CreatedAt,
     DateTimeOffset? EnabledAt,
     DateTimeOffset? DisabledAt,
-    int? BucketStart,
-    int? BucketEnd,
+    int? RolloutBucketStart,
+    int? RolloutBucketEnd,
     int? RolloutPercentage,
     bool IsActive
 );
 
 [PublicAPI]
-public sealed record GetFlagTenantsResponse(FlagTenantInfo[] Tenants);
+public sealed record GetFeatureFlagTenantsResponse(FeatureFlagTenantInfo[] Tenants);
 
 [PublicAPI]
-public sealed record FlagTenantInfo(
+public sealed record FeatureFlagTenantInfo(
     TenantId TenantId,
     string TenantName,
     string Plan,
@@ -40,10 +40,10 @@ public sealed record FlagTenantInfo(
 );
 
 [PublicAPI]
-public sealed record GetFlagUsersResponse(FlagUserInfo[] Users);
+public sealed record GetFeatureFlagUsersResponse(FeatureFlagUserInfo[] Users);
 
 [PublicAPI]
-public sealed record FlagUserInfo(
+public sealed record FeatureFlagUserInfo(
     UserId UserId,
     TenantId TenantId,
     string Email,

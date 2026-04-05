@@ -9,7 +9,7 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
         return await accountApiHttpClient.GetAsync("/internal-api/account/feature-flags", cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetFlagTenantsAsync(string flagKey, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetFeatureFlagTenantsAsync(string flagKey, CancellationToken cancellationToken)
     {
         return await accountApiHttpClient.GetAsync($"/internal-api/account/feature-flags/{flagKey}/tenants", cancellationToken);
     }
@@ -43,7 +43,7 @@ public sealed class AccountApiClient(HttpClient accountApiHttpClient)
         return await accountApiHttpClient.DeleteAsync($"/internal-api/account/feature-flags/{flagKey}/tenant-override?tenantId={tenantId}", cancellationToken);
     }
 
-    public async Task<HttpResponseMessage> GetFlagUsersAsync(string flagKey, string? search, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> GetFeatureFlagUsersAsync(string flagKey, string? search, CancellationToken cancellationToken)
     {
         var url = $"/internal-api/account/feature-flags/{flagKey}/users";
         if (!string.IsNullOrWhiteSpace(search)) url += $"?search={Uri.EscapeDataString(search)}";

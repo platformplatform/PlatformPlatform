@@ -17,8 +17,11 @@ interface TenantFlag {
   enabled: boolean;
 }
 
-function isEnabled(flag: { enabledAt: string | null; disabledAt: string | null }): boolean {
-  return flag.enabledAt !== null && (flag.disabledAt === null || flag.enabledAt > flag.disabledAt);
+function isEnabled(featureFlag: { enabledAt: string | null; disabledAt: string | null }): boolean {
+  return (
+    featureFlag.enabledAt !== null &&
+    (featureFlag.disabledAt === null || featureFlag.enabledAt > featureFlag.disabledAt)
+  );
 }
 
 export function FeaturesSection() {
@@ -26,16 +29,16 @@ export function FeaturesSection() {
   const { data: featureFlags, isLoading } = useFeatureFlags();
 
   const tenantFlags = useMemo(() => {
-    const baseFlags = featureFlags.filter(
-      (flag) => flag.tenantId === null && flag.userId === null && flag.configurableByTenant && isEnabled(flag)
+    const baseFeatureFlags = featureFlags.filter(
+      (f) => f.tenantId === null && f.userId === null && f.configurableByTenant && isEnabled(f)
     );
 
-    return baseFlags.map((baseFlag): TenantFlag => {
+    return baseFeatureFlags.map((baseFeatureFlag): TenantFlag => {
       const override = featureFlags.find(
-        (flag) => flag.flagKey === baseFlag.flagKey && flag.tenantId === tenantId && flag.userId === null
+        (f) => f.flagKey === baseFeatureFlag.flagKey && f.tenantId === tenantId && f.userId === null
       );
       return {
-        flagKey: baseFlag.flagKey,
+        flagKey: baseFeatureFlag.flagKey,
         enabled: override ? isEnabled(override) : false
       };
     });
@@ -59,8 +62,8 @@ export function FeaturesSection() {
         <Trans>Toggle features available to your account.</Trans>
       </p>
       <div className="flex flex-col gap-2">
-        {tenantFlags.map((flag) => (
-          <TenantFlagToggle key={flag.flagKey} flagKey={flag.flagKey} enabled={flag.enabled} />
+        {tenantFlags.map((f) => (
+          <TenantFlagToggle key={f.flagKey} flagKey={f.flagKey} enabled={f.enabled} />
         ))}
       </div>
     </div>

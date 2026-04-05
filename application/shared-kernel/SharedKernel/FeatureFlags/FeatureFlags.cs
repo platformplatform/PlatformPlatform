@@ -7,14 +7,17 @@ public static class FeatureFlags
         "google-oauth",
         FeatureFlagScope.System,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Google OAuth authentication"
+        "Google OAuth authentication",
+        SystemConfigKey: "OAuth:Google:ClientId"
     );
 
     public static readonly FeatureFlagDefinition Subscriptions = new(
         "subscriptions",
         FeatureFlagScope.System,
         FeatureFlagAdminLevel.SystemAdmin,
-        "Subscription billing via Stripe"
+        "Subscription billing via Stripe",
+        SystemConfigKey: "Stripe:SubscriptionEnabled",
+        SystemConfigExpectedValue: "true"
     );
 
     public static readonly FeatureFlagDefinition BetaFeatures = new(
@@ -59,7 +62,7 @@ public static class FeatureFlags
         TrackInTelemetry: true
     );
 
-    private static readonly FeatureFlagDefinition[] AllFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
+    private static readonly FeatureFlagDefinition[] AllFeatureFlags = [GoogleOauth, Subscriptions, BetaFeatures, Sso, CustomBranding, CompactView, ExperimentalUi];
 
     static FeatureFlags()
     {
@@ -68,88 +71,98 @@ public static class FeatureFlags
 
     public static FeatureFlagDefinition[] GetAll()
     {
-        return AllFlags;
+        return AllFeatureFlags;
     }
 
     public static FeatureFlagDefinition? Get(string key)
     {
-        return AllFlags.FirstOrDefault(f => f.Key == key);
+        return AllFeatureFlags.FirstOrDefault(f => f.Key == key);
     }
 
     private static void ValidateFlags()
     {
-        var flagsByKey = AllFlags.ToDictionary(f => f.Key);
+        var featureFlagsByKey = AllFeatureFlags.ToDictionary(f => f.Key);
 
-        foreach (var flag in AllFlags)
+        foreach (var featureFlag in AllFeatureFlags)
         {
-            if (flag.Key.Length > 50)
+            if (featureFlag.Key.Length > 50)
             {
-                throw new InvalidOperationException($"Feature flag key '{flag.Key}' exceeds 50 characters.");
+                throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' exceeds 50 characters.");
             }
 
-            if (flag.Key.Contains(','))
+            if (featureFlag.Key.Contains(','))
             {
-                throw new InvalidOperationException($"Feature flag key '{flag.Key}' must not contain commas.");
+                throw new InvalidOperationException($"Feature flag key '{featureFlag.Key}' must not contain commas.");
             }
 
-            switch (flag.Scope)
+            if (featureFlag is { Scope: FeatureFlagScope.System, SystemConfigKey: null })
             {
-                case FeatureFlagScope.System when flag.AdminLevel != FeatureFlagAdminLevel.SystemAdmin:
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with System scope must use SystemAdmin admin level.");
-                case FeatureFlagScope.Tenant when flag.AdminLevel is not (FeatureFlagAdminLevel.SystemAdmin or FeatureFlagAdminLevel.TenantOwner):
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with Tenant scope must use SystemAdmin or TenantOwner admin level.");
-                case FeatureFlagScope.User when flag.AdminLevel != FeatureFlagAdminLevel.User:
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with User scope must use User admin level.");
+                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with System scope must define a SystemConfigKey.");
             }
 
-            if (flag.ConfigurableByTenant && (flag.Scope != FeatureFlagScope.Tenant || flag.AdminLevel != FeatureFlagAdminLevel.TenantOwner))
+            if (featureFlag.Scope != FeatureFlagScope.System && featureFlag.SystemConfigKey is not null)
             {
-                throw new InvalidOperationException($"Feature flag '{flag.Key}' can only be ConfigurableByTenant when Scope=Tenant and AdminLevel=TenantOwner.");
+                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' must not define SystemConfigKey unless Scope is System.");
             }
 
-            if (flag.ConfigurableByUser && (flag.Scope != FeatureFlagScope.User || flag.AdminLevel != FeatureFlagAdminLevel.User))
+            switch (featureFlag.Scope)
             {
-                throw new InvalidOperationException($"Feature flag '{flag.Key}' can only be ConfigurableByUser when Scope=User and AdminLevel=User.");
+                case FeatureFlagScope.System when featureFlag.AdminLevel != FeatureFlagAdminLevel.SystemAdmin:
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with System scope must use SystemAdmin admin level.");
+                case FeatureFlagScope.Tenant when featureFlag.AdminLevel is not (FeatureFlagAdminLevel.SystemAdmin or FeatureFlagAdminLevel.TenantOwner):
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with Tenant scope must use SystemAdmin or TenantOwner admin level.");
+                case FeatureFlagScope.User when featureFlag.AdminLevel != FeatureFlagAdminLevel.User:
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with User scope must use User admin level.");
             }
 
-            if (flag is { ConfigurableByTenant: true, IsAbTestEligible: true })
+            if (featureFlag.ConfigurableByTenant && (featureFlag.Scope != FeatureFlagScope.Tenant || featureFlag.AdminLevel != FeatureFlagAdminLevel.TenantOwner))
             {
-                throw new InvalidOperationException($"Feature flag '{flag.Key}' cannot be both ConfigurableByTenant and IsAbTestEligible.");
+                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' can only be ConfigurableByTenant when Scope=Tenant and AdminLevel=TenantOwner.");
             }
 
-            if (flag.RequiredPlan is not null)
+            if (featureFlag.ConfigurableByUser && (featureFlag.Scope != FeatureFlagScope.User || featureFlag.AdminLevel != FeatureFlagAdminLevel.User))
             {
-                if (flag.Scope != FeatureFlagScope.Tenant)
+                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' can only be ConfigurableByUser when Scope=User and AdminLevel=User.");
+            }
+
+            if (featureFlag is { ConfigurableByTenant: true, IsAbTestEligible: true })
+            {
+                throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' cannot be both ConfigurableByTenant and IsAbTestEligible.");
+            }
+
+            if (featureFlag.RequiredPlan is not null)
+            {
+                if (featureFlag.Scope != FeatureFlagScope.Tenant)
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan must have Tenant scope.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan must have Tenant scope.");
                 }
 
-                if (flag.ConfigurableByTenant)
+                if (featureFlag.ConfigurableByTenant)
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be ConfigurableByTenant.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be ConfigurableByTenant.");
                 }
 
-                if (flag.ConfigurableByUser)
+                if (featureFlag.ConfigurableByUser)
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be ConfigurableByUser.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be ConfigurableByUser.");
                 }
 
-                if (flag.IsAbTestEligible)
+                if (featureFlag.IsAbTestEligible)
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' with RequiredPlan cannot be IsAbTestEligible.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' with RequiredPlan cannot be IsAbTestEligible.");
                 }
             }
 
-            if (flag.ParentDependency is not null)
+            if (featureFlag.ParentDependency is not null)
             {
-                if (!flagsByKey.TryGetValue(flag.ParentDependency, out var parent))
+                if (!featureFlagsByKey.TryGetValue(featureFlag.ParentDependency, out var parent))
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' references non-existent parent dependency '{flag.ParentDependency}'.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' references non-existent parent dependency '{featureFlag.ParentDependency}'.");
                 }
 
                 if (parent.ParentDependency is not null)
                 {
-                    throw new InvalidOperationException($"Feature flag '{flag.Key}' has parent '{flag.ParentDependency}' which itself has a parent dependency. Only one level of dependency is allowed.");
+                    throw new InvalidOperationException($"Feature flag '{featureFlag.Key}' has parent '{featureFlag.ParentDependency}' which itself has a parent dependency. Only one level of dependency is allowed.");
                 }
             }
         }

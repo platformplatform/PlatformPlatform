@@ -25,9 +25,9 @@ public sealed class RemoveUserFeatureFlagOverrideValidator : AbstractValidator<R
     public RemoveUserFeatureFlagOverrideValidator()
     {
         RuleFor(x => x.FlagKey)
-            .NotEmpty().WithMessage("Flag key must not be empty.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Flag key must exist in the registry.")
-            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Flag must have user scope.");
+            .NotEmpty().WithMessage("Feature flag key must not be empty.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key) is not null).WithMessage("Feature flag key must exist in the registry.")
+            .Must(key => SharedKernel.FeatureFlags.FeatureFlags.Get(key)?.Scope == FeatureFlagScope.User).WithMessage("Feature flag must have user scope.");
     }
 }
 
